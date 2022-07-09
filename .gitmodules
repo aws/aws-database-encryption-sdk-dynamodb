@@ -1,0 +1,6 @@
+[submodule "libraries"]
+	path = libraries
+	url = git@github.com:dafny-lang/libraries.git
+[submodule "polymorph"]
+	path = polymorph
+	url = git@github.com:awslabs/polymorph.git

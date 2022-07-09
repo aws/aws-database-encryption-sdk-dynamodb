@@ -1,11 +1,30 @@
-## My Project
+## DynamoDB Encryption Client for Dafny
 
-TODO: Fill this README out!
+TODO: Edit your repository description on GitHub
 
-Be sure to:
+### Rebuild the model
 
-* Change the title in this README
-* Edit your repository description on GitHub
+Currently only smithy -> dafny is working. Need to get smithy -> .NET with union support.
+
+Run the following:
+```
+cd polymorph/smithy-dotnet
+export MODEL_ROOT=<path_to_repo>/aws-dynamodb-encryption-dafny/src/StructuredEncryption/model
+
+./gradlew run --args="\    
+    -m $MODEL_ROOT \
+    -namespace aws.cryptography.structuredEncryption \
+    -d $MODEL_ROOT"
+```
+
+### Run the tests
+
+Assuming you are on a Mac:
+
+```
+cd src/StructuredEncryption/runtimes/net
+dotnet test -f netcoreapp3.1 Test
+```
 
 ## Security
 
