@@ -9,30 +9,40 @@ module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} Str
   import opened AwsCryptographyStructuredEncryptionTypes
 
   class StructuredEncryptionClient extends IStructuredEncryptionClient {
-    
-    constructor() {}
+    predicate ValidState()
+    ensures ValidState() ==> History in Modifies
+    {
+      History in Modifies
+    }
+  
+    constructor()
+      ensures ValidState() && fresh(Modifies) && fresh(History)
+    {
+      History := new IStructuredEncryptionClientCallHistory();
+      Modifies := {History};
+    }
 
     predicate EncryptStructureEnsuresPublicly(
       input: EncryptStructureInput, 
       output: Result<EncryptStructureOutput, Error>)
     {
-      true // TODO
+      true
     }
 
     predicate DecryptStructureEnsuresPublicly(
       input: DecryptStructureInput, 
       output: Result<DecryptStructureOutput, Error>)
     {
-      true // TODO
+      true
     }
 
     method EncryptStructure(input: EncryptStructureInput)
         returns (output: Result<EncryptStructureOutput, Error>)
-      modifies this`EncryptStructureHistoricalCallEvents
+      requires ValidState()
+      modifies Modifies - {History},
+        History`EncryptStructure
       ensures EncryptStructureEnsuresPublicly(input, output)
-      ensures
-      && 0 < |EncryptStructureHistoricalCallEvents|
-      && Last(EncryptStructureHistoricalCallEvents) == DafnyCallEvent(input, output)
+      ensures History.EncryptStructure == old(History.EncryptStructure) + [DafnyCallEvent(input, output)]
     {
       // TODO: Currently stubbed out to return a hardcoded StructuredData
       var stubbedBytes := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
@@ -59,16 +69,16 @@ module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} Str
       var encryptOutput := EncryptStructureOutput(ciphertextStructure := stubbedStructure);
 
       output := Success(encryptOutput);
-      EncryptStructureHistoricalCallEvents := EncryptStructureHistoricalCallEvents + [DafnyCallEvent(input, output)];
+      History.EncryptStructure := History.EncryptStructure + [DafnyCallEvent(input, output)];
     }
     
     method DecryptStructure(input: DecryptStructureInput)
         returns (output: Result<DecryptStructureOutput, Error>)
-      modifies this`DecryptStructureHistoricalCallEvents
+      requires ValidState()
+      modifies Modifies - {History},
+        History`DecryptStructure
       ensures DecryptStructureEnsuresPublicly(input, output)
-      ensures
-      && 0 < |DecryptStructureHistoricalCallEvents|
-      && Last(DecryptStructureHistoricalCallEvents) == DafnyCallEvent(input, output)
+      ensures History.DecryptStructure == old(History.DecryptStructure) + [DafnyCallEvent(input, output)]
     {
       // TODO: Currently stubbed out to return a hardcoded StructuredData
       var stubbedBytes := [0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64];
@@ -94,7 +104,7 @@ module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} Str
 
       var decryptOutput := DecryptStructureOutput(plaintextStructure := stubbedStructure);
       output := Success(decryptOutput);
-      DecryptStructureHistoricalCallEvents := DecryptStructureHistoricalCallEvents + [DafnyCallEvent(input, output)];
+      History.DecryptStructure := History.DecryptStructure + [DafnyCallEvent(input, output)];
     }
   }
 }

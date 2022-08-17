@@ -54,29 +54,69 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  | dataMap(StructuredDataMap: StructuredDataMap)
  type StructuredDataList = seq<StructuredData>
  type StructuredDataMap = map<string, StructuredData>
+ class IStructuredEncryptionClientCallHistory {
+ ghost constructor() {
+ EncryptStructure := [];
+ DecryptStructure := [];
+}
+ ghost var EncryptStructure: seq<DafnyCallEvent<EncryptStructureInput, Result<EncryptStructureOutput, Error>>>
+ ghost var DecryptStructure: seq<DafnyCallEvent<DecryptStructureInput, Result<DecryptStructureOutput, Error>>>
+}
  trait {:termination false} IStructuredEncryptionClient
  {
- ghost var EncryptStructureHistoricalCallEvents: seq<DafnyCallEvent<EncryptStructureInput, Result<EncryptStructureOutput, Error>>>
+ // Helper to define any additional modifies/reads clauses
+ // If your operations need to mutate state add it
+ // in your constructor function:
+ // Modifies := {your, fields, here, History};
+ // If you do not need to mutate anything:
+ // Modifies := {History};
+ ghost const Modifies: set<object>
+ // For an unassigned const field defined in a trait,
+ // Dafny can only assign a value in the constructor.
+ // This means that for Dafny to reason about this value,
+ // it needs some way to know (an invariant),
+ // about the state of the object.
+ // This builds on the Valid/Repr paradigm
+ // To make this kind requires is safe to add
+ // to methods called from unverified code
+ // the predicate MUST NOT take any arguments.
+ // This means that the correctness of this requires
+ // MUST only be evaluated by the class itself.
+ // If you require any additional mutation,
+ // Then you MUST ensure everything you need in ValidState.
+ // You MUST also ensure ValidState in your constructor.
+ predicate ValidState()
+ ensures ValidState() ==> History in Modifies
+  ghost const History: IStructuredEncryptionClientCallHistory
  predicate EncryptStructureEnsuresPublicly(input: EncryptStructureInput, output: Result<EncryptStructureOutput, Error>)
  // The public method to be called by library consumers
  method EncryptStructure ( input: EncryptStructureInput )
  returns (output: Result<EncryptStructureOutput, Error>)
- modifies this`EncryptStructureHistoricalCallEvents
- ensures EncryptStructureEnsuresPublicly(input, output)
+ requires
+ && ValidState() 
+ modifies Modifies - {History} ,
+ History`EncryptStructure
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies
  ensures
- && 0 < |EncryptStructureHistoricalCallEvents|
- && Last(EncryptStructureHistoricalCallEvents) == DafnyCallEvent(input, output)
+ && ValidState()
+ ensures EncryptStructureEnsuresPublicly(input, output)
+ ensures History.EncryptStructure == old(History.EncryptStructure) + [DafnyCallEvent(input, output)]
  
- ghost var DecryptStructureHistoricalCallEvents: seq<DafnyCallEvent<DecryptStructureInput, Result<DecryptStructureOutput, Error>>>
  predicate DecryptStructureEnsuresPublicly(input: DecryptStructureInput, output: Result<DecryptStructureOutput, Error>)
  // The public method to be called by library consumers
  method DecryptStructure ( input: DecryptStructureInput )
  returns (output: Result<DecryptStructureOutput, Error>)
- modifies this`DecryptStructureHistoricalCallEvents
- ensures DecryptStructureEnsuresPublicly(input, output)
+ requires
+ && ValidState() 
+ modifies Modifies - {History} ,
+ History`DecryptStructure
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies
  ensures
- && 0 < |DecryptStructureHistoricalCallEvents|
- && Last(DecryptStructureHistoricalCallEvents) == DafnyCallEvent(input, output)
+ && ValidState()
+ ensures DecryptStructureEnsuresPublicly(input, output)
+ ensures History.DecryptStructure == old(History.DecryptStructure) + [DafnyCallEvent(input, output)]
  
 }
  datatype StructuredEncryptionConfig = | StructuredEncryptionConfig (
@@ -125,5 +165,9 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
  method StructuredEncryption(config: StructuredEncryptionConfig := DefaultStructuredEncryptionConfig())
  returns (res: Result<IStructuredEncryptionClient, Error>)
- ensures res.Success? ==> fresh(res.value)
+ ensures res.Success? ==> 
+ && fresh(res.value)
+ && fresh(res.value.Modifies)
+ && fresh(res.value.History)
+ && res.value.ValidState()
 }

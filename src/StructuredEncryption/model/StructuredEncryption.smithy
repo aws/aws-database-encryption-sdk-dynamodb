@@ -4,7 +4,7 @@ namespace aws.cryptography.structuredEncryption
 
 use aws.polymorph#localService
 
-// TODO: Bikeshed on name
+// TODO: Bikeshed on name "StructuredEncryption"
 @aws.polymorph#localService(
   sdkId: "StructuredEncryption",
   config: StructuredEncryptionConfig,
@@ -44,6 +44,7 @@ structure EncryptStructureOutput {
 structure DecryptStructureInput {
     @required
     ciphertextStructure: StructuredData,
+    // TODO the below should be a map
     @required
     cryptoSchema: CryptoSchema
     // CMM/Keyring
@@ -71,7 +72,7 @@ union StructuredDataContent {
     dataMap: StructuredDataMap
 }
 
-// This SDK only handles bytes.
+// Only handles bytes.
 // It is the reponsibility of the caller to
 // serialize and deserialize the data they
 // encrypt/decrypt with this SDK.

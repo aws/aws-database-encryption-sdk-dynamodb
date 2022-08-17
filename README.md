@@ -2,29 +2,41 @@
 
 TODO: Edit your repository description on GitHub
 
+### Development Requirements
+
+Right now this repo has a bare-bones Makefile to help with some building/testing.
+The Makefile doesn't currently build dev requirements, so you will need to grab these yourself.
+
+You will need at least:
+- dotnet (I'm using v5.0.402)
+- dafny (I'm using v3.4.0)
+
+Additionally, I am working off a Mac and cannot guarantee that these commands will work on other platforms.
+
 ### Rebuild the model
 
-Currently only smithy -> dafny is working. Need to get smithy -> .NET with union support.
-
-Run the following:
 ```
-cd polymorph/smithy-dotnet
-export MODEL_ROOT=<path_to_repo>/aws-dynamodb-encryption-dafny/src/StructuredEncryption/model
-
-./gradlew run --args="\    
-    -m $MODEL_ROOT \
-    -namespace aws.cryptography.structuredEncryption \
-    -d $MODEL_ROOT"
+make generate-models
 ```
+
+Generates new models using the polymorph submodule.
+Will overwrite models, but will not clean up old models that are not overwritten.
+
+### Build and Verify Dafny Code
+
+```
+make build
+```
+
+Builds and verifies the dafny code.
 
 ### Run the tests
 
-Assuming you are on a Mac:
+```
+make test
+```
 
-```
-cd src/StructuredEncryption/runtimes/net
-dotnet test -f netcoreapp3.1 Test
-```
+Re-builds/re-verifies the dafny code and runs the dafny generated tests.
 
 ## Security
 
