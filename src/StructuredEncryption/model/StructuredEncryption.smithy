@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 namespace aws.cryptography.structuredEncryption
 
+use aws.cryptography.materialProviders#KeyringReference
+use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
+use aws.cryptography.materialProviders#EncryptionContext
+
 use aws.polymorph#localService
 
 // TODO: Bikeshed on name "StructuredEncryption"
@@ -11,7 +15,8 @@ use aws.polymorph#localService
 )
 service StructuredEncryption {
     version: "2022-07-08",
-    operations: [EncryptStructure, DecryptStructure]
+    operations: [EncryptStructure, DecryptStructure],
+    errors: [StructuredEncryptionException]
 }
 
 structure StructuredEncryptionConfig {
@@ -31,9 +36,14 @@ structure EncryptStructureInput {
     @required
     plaintextStructure: StructuredData,
     @required
-    cryptoSchema: CryptoSchema
-    // CMM/Keyring
-    // EncryptionContext (stored and not stored)
+    cryptoSchema: CryptoSchema,
+
+    // A Keyring XOR a CMM MUST be specified
+    keyring: KeyringReference,
+    cmm: CryptographicMaterialsManagerReference,
+
+    implicitEncryptionContext: EncryptionContext,
+    explicitEncryptionContext: EncryptionContext
 }
 
 structure EncryptStructureOutput {
@@ -44,11 +54,15 @@ structure EncryptStructureOutput {
 structure DecryptStructureInput {
     @required
     ciphertextStructure: StructuredData,
-    // TODO the below should be a map
     @required
-    cryptoSchema: CryptoSchema
-    // CMM/Keyring
-    // EncryptionContext (stored and not stored)
+    cryptoSchemas: CryptoSchemas,
+
+    // A Keyring XOR a CMM MUST be specified
+    keyring: KeyringReference,
+    cmm: CryptographicMaterialsManagerReference,
+
+    implicitEncryptionContext: EncryptionContext,
+    explicitEncryptionContext: EncryptionContext
 }
 
 structure DecryptStructureOutput {
@@ -57,7 +71,7 @@ structure DecryptStructureOutput {
 }
 
 structure StructuredData {
-    // Each "node" in our structured data hold either
+    // Each "node" in our structured data holds either
     // a map of more data, a list of more data, or a terminal value
     @required
     content: StructuredDataContent,
@@ -134,4 +148,20 @@ list CryptoSchemaList {
 map CryptoSchemaAttributes {
     key: String,
     value: CryptoAction
+}
+
+map CryptoSchemas {
+    key: CryptoSchemaVersion,
+    value: CryptoSchema
+}
+
+string CryptoSchemaVersion
+
+/////////////
+// Errors
+
+@error("client")
+structure StructuredEncryptionException {
+  @required
+  message: String,
 }

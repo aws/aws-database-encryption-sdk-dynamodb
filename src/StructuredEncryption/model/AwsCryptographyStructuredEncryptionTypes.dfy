@@ -1,13 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-include "../../StandardLibrary/StandardLibrary.dfy"
- include "../../Util/UTF8.dfy"
+// TODO had to manually update the below file. Polymorph needs to be fixed to not assuer location of this file
+include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
+// TODO had to manually update the below file. Polymorph needs to be fixed to not assuer location of this file
+ include "../../../private-aws-encryption-sdk-dafny-staging/src/Util/UTF8.dfy"
+ include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.StructuredEncryption.Types" } AwsCryptographyStructuredEncryptionTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
+ import AwsCryptographyMaterialProvidersTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
  function Last<T>(s: seq<T>): T requires |s| > 0 { s[|s|-1] }
@@ -29,16 +33,26 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  | listSchema(CryptoSchemaList: CryptoSchemaList)
  type CryptoSchemaList = seq<CryptoSchema>
  type CryptoSchemaMap = map<string, CryptoSchema>
+ type CryptoSchemas = map<CryptoSchemaVersion, CryptoSchema>
+ type CryptoSchemaVersion = string
  datatype DecryptStructureInput = | DecryptStructureInput (
  nameonly ciphertextStructure: StructuredData ,
- nameonly cryptoSchema: CryptoSchema
+ nameonly cryptoSchemas: CryptoSchemas ,
+ nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
+ nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
+ nameonly implicitEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> ,
+ nameonly explicitEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
  )
  datatype DecryptStructureOutput = | DecryptStructureOutput (
  nameonly plaintextStructure: StructuredData
  )
  datatype EncryptStructureInput = | EncryptStructureInput (
  nameonly plaintextStructure: StructuredData ,
- nameonly cryptoSchema: CryptoSchema
+ nameonly cryptoSchema: CryptoSchema ,
+ nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
+ nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
+ nameonly implicitEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> ,
+ nameonly explicitEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
  )
  datatype EncryptStructureOutput = | EncryptStructureOutput (
  nameonly ciphertextStructure: StructuredData
@@ -93,11 +107,21 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  method EncryptStructure ( input: EncryptStructureInput )
  returns (output: Result<EncryptStructureOutput, Error>)
  requires
- && ValidState() 
+ && ValidState() && ( input.keyring.Some? ==>
+ && input.keyring.value.ValidState()
+ && input.keyring.value.Modifies !! Modifies
+ ) && ( input.cmm.Some? ==>
+ && input.cmm.value.ValidState()
+ && input.cmm.value.Modifies !! Modifies
+ )
  modifies Modifies - {History} ,
- History`EncryptStructure
+ History`EncryptStructure ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
+ (if input.cmm.Some? then input.cmm.value.Modifies else {})
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
+ (if input.cmm.Some? then input.cmm.value.Modifies else {})
  ensures
  && ValidState()
  ensures EncryptStructureEnsuresPublicly(input, output)
@@ -108,11 +132,21 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  method DecryptStructure ( input: DecryptStructureInput )
  returns (output: Result<DecryptStructureOutput, Error>)
  requires
- && ValidState() 
+ && ValidState() && ( input.keyring.Some? ==>
+ && input.keyring.value.ValidState()
+ && input.keyring.value.Modifies !! Modifies
+ ) && ( input.cmm.Some? ==>
+ && input.cmm.value.ValidState()
+ && input.cmm.value.Modifies !! Modifies
+ )
  modifies Modifies - {History} ,
- History`DecryptStructure
+ History`DecryptStructure ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
+ (if input.cmm.Some? then input.cmm.value.Modifies else {})
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
+ (if input.cmm.Some? then input.cmm.value.Modifies else {})
  ensures
  && ValidState()
  ensures DecryptStructureEnsuresPublicly(input, output)
@@ -125,9 +159,11 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  type Terminal = seq<uint8>
  datatype Error =
  // Local Error structures are listed here
- 
+ | StructuredEncryptionException (
+ nameonly message: string
+ )
  // Any dependent models are listed here
- 
+ | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.
  // Consider the following method:

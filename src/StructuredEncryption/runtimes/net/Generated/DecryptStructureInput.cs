@@ -5,7 +5,11 @@ using System;
  using AWS.Cryptography.StructuredEncryption; namespace AWS.Cryptography.StructuredEncryption {
  public class DecryptStructureInput {
  private AWS.Cryptography.StructuredEncryption.StructuredData _ciphertextStructure ;
- private AWS.Cryptography.StructuredEncryption.CryptoSchema _cryptoSchema ;
+ private System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> _cryptoSchemas ;
+ private AWS.Cryptography.MaterialProviders.IKeyring _keyring ;
+ private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm ;
+ private System.Collections.Generic.Dictionary<string, string> _implicitEncryptionContext ;
+ private System.Collections.Generic.Dictionary<string, string> _explicitEncryptionContext ;
  public AWS.Cryptography.StructuredEncryption.StructuredData CiphertextStructure {
  get { return this._ciphertextStructure; }
  set { this._ciphertextStructure = value; }
@@ -13,16 +17,44 @@ using System;
  internal bool IsSetCiphertextStructure () {
  return this._ciphertextStructure != null;
 }
- public AWS.Cryptography.StructuredEncryption.CryptoSchema CryptoSchema {
- get { return this._cryptoSchema; }
- set { this._cryptoSchema = value; }
+ public System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> CryptoSchemas {
+ get { return this._cryptoSchemas; }
+ set { this._cryptoSchemas = value; }
 }
- internal bool IsSetCryptoSchema () {
- return this._cryptoSchema != null;
+ internal bool IsSetCryptoSchemas () {
+ return this._cryptoSchemas != null;
+}
+ public AWS.Cryptography.MaterialProviders.IKeyring Keyring {
+ get { return this._keyring; }
+ set { this._keyring = value; }
+}
+ internal bool IsSetKeyring () {
+ return this._keyring != null;
+}
+ public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager Cmm {
+ get { return this._cmm; }
+ set { this._cmm = value; }
+}
+ internal bool IsSetCmm () {
+ return this._cmm != null;
+}
+ public System.Collections.Generic.Dictionary<string, string> ImplicitEncryptionContext {
+ get { return this._implicitEncryptionContext; }
+ set { this._implicitEncryptionContext = value; }
+}
+ internal bool IsSetImplicitEncryptionContext () {
+ return this._implicitEncryptionContext != null;
+}
+ public System.Collections.Generic.Dictionary<string, string> ExplicitEncryptionContext {
+ get { return this._explicitEncryptionContext; }
+ set { this._explicitEncryptionContext = value; }
+}
+ internal bool IsSetExplicitEncryptionContext () {
+ return this._explicitEncryptionContext != null;
 }
  public void Validate() {
  if (!IsSetCiphertextStructure()) throw new System.ArgumentException("Missing value for required property 'CiphertextStructure'");
- if (!IsSetCryptoSchema()) throw new System.ArgumentException("Missing value for required property 'CryptoSchema'");
+ if (!IsSetCryptoSchemas()) throw new System.ArgumentException("Missing value for required property 'CryptoSchemas'");
 
 }
 }
