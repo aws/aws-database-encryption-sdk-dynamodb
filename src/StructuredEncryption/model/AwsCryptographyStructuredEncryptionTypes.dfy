@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-// TODO had to manually update the below file. Polymorph needs to be fixed to not assuer location of this file
+// TODO had to manually update the below file. Polymorph needs to be fixed to not assume location of this file
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 // TODO had to manually update the below file. Polymorph needs to be fixed to not assuer location of this file
  include "../../../private-aws-encryption-sdk-dafny-staging/src/Util/UTF8.dfy"
