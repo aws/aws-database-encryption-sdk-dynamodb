@@ -8,8 +8,8 @@ using System;
  private AWS.Cryptography.StructuredEncryption.CryptoSchema _cryptoSchema ;
  private AWS.Cryptography.MaterialProviders.IKeyring _keyring ;
  private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm ;
- private System.Collections.Generic.Dictionary<string, string> _implicitEncryptionContext ;
- private System.Collections.Generic.Dictionary<string, string> _explicitEncryptionContext ;
+ private System.Collections.Generic.Dictionary<string, string> _encryptionContext ;
+ private System.Collections.Generic.List<string> _requiredContextFieldsOnDecrypt ;
  public AWS.Cryptography.StructuredEncryption.StructuredData PlaintextStructure {
  get { return this._plaintextStructure; }
  set { this._plaintextStructure = value; }
@@ -38,19 +38,19 @@ using System;
  internal bool IsSetCmm () {
  return this._cmm != null;
 }
- public System.Collections.Generic.Dictionary<string, string> ImplicitEncryptionContext {
- get { return this._implicitEncryptionContext; }
- set { this._implicitEncryptionContext = value; }
+ public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
+ get { return this._encryptionContext; }
+ set { this._encryptionContext = value; }
 }
- internal bool IsSetImplicitEncryptionContext () {
- return this._implicitEncryptionContext != null;
+ internal bool IsSetEncryptionContext () {
+ return this._encryptionContext != null;
 }
- public System.Collections.Generic.Dictionary<string, string> ExplicitEncryptionContext {
- get { return this._explicitEncryptionContext; }
- set { this._explicitEncryptionContext = value; }
+ public System.Collections.Generic.List<string> RequiredContextFieldsOnDecrypt {
+ get { return this._requiredContextFieldsOnDecrypt; }
+ set { this._requiredContextFieldsOnDecrypt = value; }
 }
- internal bool IsSetExplicitEncryptionContext () {
- return this._explicitEncryptionContext != null;
+ internal bool IsSetRequiredContextFieldsOnDecrypt () {
+ return this._requiredContextFieldsOnDecrypt != null;
 }
  public void Validate() {
  if (!IsSetPlaintextStructure()) throw new System.ArgumentException("Missing value for required property 'PlaintextStructure'");

@@ -8,8 +8,7 @@ using System;
  private System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> _cryptoSchemas ;
  private AWS.Cryptography.MaterialProviders.IKeyring _keyring ;
  private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm ;
- private System.Collections.Generic.Dictionary<string, string> _implicitEncryptionContext ;
- private System.Collections.Generic.Dictionary<string, string> _explicitEncryptionContext ;
+ private System.Collections.Generic.Dictionary<string, string> _encryptionContext ;
  public AWS.Cryptography.StructuredEncryption.StructuredData CiphertextStructure {
  get { return this._ciphertextStructure; }
  set { this._ciphertextStructure = value; }
@@ -38,19 +37,12 @@ using System;
  internal bool IsSetCmm () {
  return this._cmm != null;
 }
- public System.Collections.Generic.Dictionary<string, string> ImplicitEncryptionContext {
- get { return this._implicitEncryptionContext; }
- set { this._implicitEncryptionContext = value; }
+ public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
+ get { return this._encryptionContext; }
+ set { this._encryptionContext = value; }
 }
- internal bool IsSetImplicitEncryptionContext () {
- return this._implicitEncryptionContext != null;
-}
- public System.Collections.Generic.Dictionary<string, string> ExplicitEncryptionContext {
- get { return this._explicitEncryptionContext; }
- set { this._explicitEncryptionContext = value; }
-}
- internal bool IsSetExplicitEncryptionContext () {
- return this._explicitEncryptionContext != null;
+ internal bool IsSetEncryptionContext () {
+ return this._encryptionContext != null;
 }
  public void Validate() {
  if (!IsSetCiphertextStructure()) throw new System.ArgumentException("Missing value for required property 'CiphertextStructure'");

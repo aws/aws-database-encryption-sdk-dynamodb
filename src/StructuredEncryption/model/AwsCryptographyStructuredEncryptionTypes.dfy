@@ -40,19 +40,19 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  nameonly cryptoSchemas: CryptoSchemas ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly implicitEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> ,
- nameonly explicitEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
+ nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
  )
  datatype DecryptStructureOutput = | DecryptStructureOutput (
  nameonly plaintextStructure: StructuredData
  )
+ type EncryptionContextFieldList = seq<Utf8Bytes>
  datatype EncryptStructureInput = | EncryptStructureInput (
  nameonly plaintextStructure: StructuredData ,
  nameonly cryptoSchema: CryptoSchema ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly implicitEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> ,
- nameonly explicitEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
+ nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> ,
+ nameonly requiredContextFieldsOnDecrypt: Option<EncryptionContextFieldList>
  )
  datatype EncryptStructureOutput = | EncryptStructureOutput (
  nameonly ciphertextStructure: StructuredData
@@ -157,6 +157,7 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  
  )
  type Terminal = seq<uint8>
+ type Utf8Bytes = ValidUTF8Bytes
  datatype Error =
  // Local Error structures are listed here
  | StructuredEncryptionException (

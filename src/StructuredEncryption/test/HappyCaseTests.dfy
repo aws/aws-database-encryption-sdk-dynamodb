@@ -1,5 +1,5 @@
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
-include "../src/StructuredEncryptionClient.dfy"
+include "../src/Index.dfy"
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
 
@@ -45,8 +45,8 @@ module HappyCaseTests {
         cryptoSchema:=schema,
         keyring:=Some(keyring),
         cmm:=None(),
-        implicitEncryptionContext:=None(),
-        explicitEncryptionContext:=None()
+        encryptionContext:=None(),
+        requiredContextFieldsOnDecrypt:=None()
       )
     );
     
@@ -111,8 +111,7 @@ module HappyCaseTests {
         cryptoSchemas:=schemaMap,
         keyring:=Some(keyring),
         cmm:=None(),
-        implicitEncryptionContext:=None(),
-        explicitEncryptionContext:=None()
+        encryptionContext:=None()
       )
     );
     

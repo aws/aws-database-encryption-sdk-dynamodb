@@ -38,13 +38,21 @@ make generate-models
 Generates new models using the polymorph submodule.
 Will overwrite models, but will not clean up old models that are not overwritten.
 
-### Build and Verify Dafny Code
+### Verify Dafny Code
+
+```
+make verify
+```
+
+Verifies the entire project.
+
+### Build Dafny Code
 
 ```
 make build
 ```
 
-Builds and verifies the dafny code.
+Compiles the dafny code into target languages (currently just .NET) and builds.
 
 ### Run the tests
 
@@ -52,7 +60,7 @@ Builds and verifies the dafny code.
 make test
 ```
 
-Re-builds/re-verifies the dafny code and runs the dafny generated tests.
+Runs the dafny generated tests.
 
 ## Security
 

@@ -1,11 +1,19 @@
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH)
 
-build:
+verify:
+	cd src/StructuredEncryption/src;\
+	dotnet build -t:VerifyDafny
+
+build: build-dotnet
+
+test: test-dotnet
+
+build-dotnet:
 	cd src/StructuredEncryption/src;\
 	dotnet build
 
-test: build
+test-dotnet: build
 	cd src/StructuredEncryption/runtimes/net;\
 	dotnet test -f netcoreapp3.1 Test
 

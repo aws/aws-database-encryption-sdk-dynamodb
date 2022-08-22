@@ -7,6 +7,10 @@ use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#EncryptionContext
 
 use aws.polymorph#localService
+use aws.polymorph#dafnyUtf8Bytes
+
+@dafnyUtf8Bytes
+string Utf8Bytes
 
 // TODO: Bikeshed on name "StructuredEncryption"
 @aws.polymorph#localService(
@@ -42,8 +46,8 @@ structure EncryptStructureInput {
     keyring: KeyringReference,
     cmm: CryptographicMaterialsManagerReference,
 
-    implicitEncryptionContext: EncryptionContext,
-    explicitEncryptionContext: EncryptionContext
+    encryptionContext: EncryptionContext,
+    contextFieldsRequiredOnDecrypt: EncryptionContextFieldList
 }
 
 structure EncryptStructureOutput {
@@ -61,13 +65,18 @@ structure DecryptStructureInput {
     keyring: KeyringReference,
     cmm: CryptographicMaterialsManagerReference,
 
-    implicitEncryptionContext: EncryptionContext,
-    explicitEncryptionContext: EncryptionContext
+    encryptionContext: EncryptionContext,
 }
 
 structure DecryptStructureOutput {
     @required
     plaintextStructure: StructuredData
+}
+
+// TODO move to MPL
+// TODO this is better represented as a set
+list EncryptionContextFieldList {
+    member: Utf8Bytes
 }
 
 structure StructuredData {
