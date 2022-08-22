@@ -12,7 +12,6 @@ use aws.polymorph#dafnyUtf8Bytes
 @dafnyUtf8Bytes
 string Utf8Bytes
 
-// TODO: Bikeshed on name "StructuredEncryption"
 @aws.polymorph#localService(
   sdkId: "StructuredEncryption",
   config: StructuredEncryptionConfig,

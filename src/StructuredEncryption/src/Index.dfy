@@ -1,8 +1,9 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
+include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Operations/EncryptStructureOperation.dfy"
 include "Operations/DecryptStructureOperation.dfy"
-// TODO including UInt in this file causes build issues. It complains of duplicate UInt modules...
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
 module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} StructuredEncryptionClient {
   import opened Wrappers
