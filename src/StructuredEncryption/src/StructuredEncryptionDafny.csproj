@@ -43,19 +43,15 @@
   <ItemGroup>
     <DafnySource Include="**/*.dfy" />
     <DafnySource Include="../test/**/*.dfy" />
-    <DafnySource Include="../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/**/*.dfy" />
-    <DafnySource Include="../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/*.dfy" />
-    <DafnySource Include="../../../private-aws-encryption-sdk-dafny-staging/src/Util/*.dfy" />
-    <DafnySource Include="../../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/src/**/*.dfy" />
-    <DafnySource Include="../../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/Model/ComAmazonawsKmsTypes.dfy" />
-    <DafnySource Include="../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/**/*.dfy" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/runtimes/net/**/*.cs" Exclude="private-aws-encryption-sdk-dafny-staging/src/Crypto/runtimes/net/obj/**/*.cs" />
     <Compile Include="../../../private-aws-encryption-sdk-dafny-staging/src/Util/runtimes/net/**/*.cs" Exclude="private-aws-encryption-sdk-dafny-staging/src/Util/runtimes/net/obj/**/*.cs" />
     <Compile Include="../../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/runtimes/net/**/*.cs" Exclude="private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/runtimes/net/obj/**/*.cs" />
     <Compile Include="../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/runtimes/net/**/*.cs" Exclude="private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/runtimes/net/obj/**/*.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/runtimes/net/**/TestsFromDafny.cs" />
     <Compile Remove="../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/runtimes/net/**/ImplementationFromDafny.cs" />

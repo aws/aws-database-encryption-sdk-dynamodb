@@ -50,19 +50,15 @@
     <ItemGroup>
     <DafnySource Include="../../**/*.dfy" />
     <DafnySource Include="../../../test/**/*.dfy" />
-    <DafnySource Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/Model/**/*.dfy" />
-    <DafnySource Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/src/**/*.dfy" />
-    <DafnySource Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/Util/*.dfy" />
-    <DafnySource Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/src/**/*.dfy" />
-    <DafnySource Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/Model/ComAmazonawsKmsTypes.dfy" />
-    <DafnySource Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/**/*.dfy" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/runtimes/net/**/*.cs" Exclude="private-aws-encryption-sdk-dafny-staging/src/Crypto/runtimes/net/obj/**/*.cs" />
     <Compile Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/Util/runtimes/net/**/*.cs" Exclude="private-aws-encryption-sdk-dafny-staging/src/Util/runtimes/net/obj/**/*.cs" />
     <Compile Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/runtimes/net/**/*.cs" Exclude="private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/runtimes/net/obj/**/*.cs" />
     <Compile Include="../../../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/runtimes/net/**/*.cs" Exclude="private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/runtimes/net/obj/**/*.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="../../../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/runtimes/net/**/TestsFromDafny.cs" />
     <Compile Remove="../../../../../private-aws-encryption-sdk-dafny-staging/src/Crypto/runtimes/net/**/ImplementationFromDafny.cs" />
@@ -71,17 +67,5 @@
     <Compile Remove="../../../../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/runtimes/net/**/TestsFromDafny.cs" />
     <Compile Remove="../../../../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/runtimes/net/**/ImplementationFromDafny.cs" />
   </ItemGroup>
-
-  <!--
-    Previous versions of this code base used lit for testing, which would drop
-    C# files into "Output" subdirectories. Clean up the contents of those so that
-    we don't try to compile those files as well.
-  -->
-  <ItemGroup>
-    <LitOutputFiles Include="**/Output/*" />
-  </ItemGroup>
-  <Target Name="CleanLitOutput" BeforeTargets="CoreCompile">
-    <Delete Files="@(LitOutputFiles)" />
-  </Target>
 
 </Project>

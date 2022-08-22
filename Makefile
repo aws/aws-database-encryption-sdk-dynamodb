@@ -9,13 +9,15 @@ build: build-dotnet
 
 test: test-dotnet
 
+# TODO cleanup CS0618 warning in MPL
 build-dotnet:
 	cd src/StructuredEncryption/src;\
-	dotnet build
+	dotnet build /nowarn:CS0618
 
-test-dotnet: build
+# TODO cleanup CS0618 warning in MPL
+test-dotnet:
 	cd src/StructuredEncryption/runtimes/net;\
-	dotnet test -f netcoreapp3.1 Test
+	dotnet test -f netcoreapp3.1 Test /nowarn:CS0618
 
 generate-models:
 	cd polymorph/smithy-dotnet;\
