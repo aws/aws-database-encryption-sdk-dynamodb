@@ -33,7 +33,10 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  | listSchema(CryptoSchemaList: CryptoSchemaList)
  type CryptoSchemaList = seq<CryptoSchema>
  type CryptoSchemaMap = map<string, CryptoSchema>
- type CryptoSchemas = map<CryptoSchemaVersion, CryptoSchema>
+ type CryptoSchemas = x: map<CryptoSchemaVersion, CryptoSchema> | IsValid_CryptoSchemas(x) witness *
+ predicate method IsValid_CryptoSchemas(x: map<CryptoSchemaVersion, CryptoSchema>) {
+ ( 1 <= |x|  )
+}
  type CryptoSchemaVersion = string
  datatype DecryptStructureInput = | DecryptStructureInput (
  nameonly ciphertextStructure: StructuredData ,

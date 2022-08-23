@@ -46,7 +46,7 @@ structure EncryptStructureInput {
     cmm: CryptographicMaterialsManagerReference,
 
     encryptionContext: EncryptionContext,
-    contextFieldsRequiredOnDecrypt: EncryptionContextFieldList
+    requiredContextFieldsOnDecrypt: EncryptionContextFieldList
 }
 
 structure EncryptStructureOutput {
@@ -73,7 +73,8 @@ structure DecryptStructureOutput {
 }
 
 // TODO move to MPL
-// TODO this is better represented as a set
+// TODO Until Polymorph supports this trait, verify uniqueness in Dafny
+// @uniqueItems
 list EncryptionContextFieldList {
     member: Utf8Bytes
 }
@@ -158,6 +159,7 @@ map CryptoSchemaAttributes {
     value: CryptoAction
 }
 
+@length(min: 1)
 map CryptoSchemas {
     key: CryptoSchemaVersion,
     value: CryptoSchema
