@@ -8,6 +8,7 @@ include "Operations/DecryptStructureOperation.dfy"
 module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} StructuredEncryptionClient {
   import opened Wrappers
   import opened StandardLibrary
+  import Seq
   import Types = AwsCryptographyStructuredEncryptionTypes
   import EncryptStructureOperation
   import DecryptStructureOperation
@@ -32,22 +33,23 @@ module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} Str
     {
       var encryptionContextFields := if input.encryptionContext.Some? then input.encryptionContext.value.Keys else {};
       var requiredFields := if input.requiredContextFieldsOnDecrypt.Some? then input.requiredContextFieldsOnDecrypt.value else [];
-      && !(forall k :: k in requiredFields ==> k in encryptionContextFields) ==> output.Failure?
-      && (
-        || (input.cmm.Some? && input.keyring.Some?)
-        || (input.cmm.None? && input.keyring.None?)
-        ) ==> output.Failure?
+      && (!(forall k :: k in requiredFields ==> k in encryptionContextFields) ==> output.Failure?)
+      && (!Seq.HasNoDuplicates(requiredFields) ==> output.Failure?)
+      && ((
+          || (input.cmm.Some? && input.keyring.Some?)
+          || (input.cmm.None? && input.keyring.None?)
+        ) ==> output.Failure?)
     }
 
     predicate DecryptStructureEnsuresPublicly(
       input: Types.DecryptStructureInput, 
       output: Result<Types.DecryptStructureOutput, Types.Error>)
     {
-      && (
-        || (input.cmm.Some? && input.keyring.Some?)
-        || (input.cmm.None? && input.keyring.None?)
-        ) ==> output.Failure?
-      && |input.cryptoSchemas| <= 0 ==> output.Failure?
+      && ((
+          || (input.cmm.Some? && input.keyring.Some?)
+          || (input.cmm.None? && input.keyring.None?)
+        ) ==> output.Failure?)
+      && (|input.cryptoSchemas| <= 0 ==> output.Failure?)
     }
 
     method EncryptStructure(input: Types.EncryptStructureInput)

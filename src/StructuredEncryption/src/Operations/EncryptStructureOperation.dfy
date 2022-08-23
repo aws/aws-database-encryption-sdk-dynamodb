@@ -6,6 +6,7 @@ include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 module EncryptStructureOperation {
   import opened Wrappers
   import opened StandardLibrary
+  import Seq
   import Types = AwsCryptographyStructuredEncryptionTypes
 
   method EncryptStructure(input: Types.EncryptStructureInput)
@@ -18,6 +19,9 @@ module EncryptStructureOperation {
       var encryptionContextFields := if input.encryptionContext.Some? then input.encryptionContext.value.Keys else {};
       var requiredFields := if input.requiredContextFieldsOnDecrypt.Some? then input.requiredContextFieldsOnDecrypt.value else [];
       !(forall k :: k in requiredFields ==> k in encryptionContextFields) ==> output.Failure?
+    ensures
+      var requiredFields := if input.requiredContextFieldsOnDecrypt.Some? then input.requiredContextFieldsOnDecrypt.value else [];
+      !Seq.HasNoDuplicates(requiredFields) ==> output.Failure?
   {
     // Ensure a Keyring XOR a CMM was included on input, otherwise error
     :- Need(input.cmm.Some? || input.keyring.Some?,
@@ -27,13 +31,20 @@ module EncryptStructureOperation {
       Types.Error.StructuredEncryptionException(
         message := "Invalid input: Cannot recieve both a Keyring and a CMM on input."));
 
+    var requiredContextFields := if input.requiredContextFieldsOnDecrypt.Some? then input.requiredContextFieldsOnDecrypt.value else [];
     // TODO Once verified, this information should probably move to some new EC datatype that combines this info
     // This datatype should live in the MPL.
-    :- Need(input.requiredContextFieldsOnDecrypt.Some? ==> (
+    :- Need(|requiredContextFields| > 0 ==> (
         && input.encryptionContext.Some?
-        && forall k :: k in input.requiredContextFieldsOnDecrypt.value ==> k in input.encryptionContext.value.Keys),
+        && forall k :: k in requiredContextFields ==> k in input.encryptionContext.value.Keys),
       Types.Error.StructuredEncryptionException(
         message := "Invalid input: Required Encryption Context fields are not in the input Encryption Context."));
+
+    // TODO this check may move into the generated code if we build in @uniqueItems support
+    :- Need(|Seq.ToSet(requiredContextFields)| == |requiredContextFields|,
+      Types.Error.StructuredEncryptionException(
+        message := "Invalid input: Required Encryption Context fields contain duplicates."));
+    Seq.LemmaNoDuplicatesCardinalityOfSet(requiredContextFields);
 
     // TODO: Currently stubbed out to return a hardcoded StructuredData
     var stubbedBytes := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
