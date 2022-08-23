@@ -33,7 +33,7 @@ module EncryptStructureOperation {
         && input.encryptionContext.Some?
         && forall k :: k in input.requiredContextFieldsOnDecrypt.value ==> k in input.encryptionContext.value.Keys),
       Types.Error.StructuredEncryptionException(
-        message := "Invalid input: A Keyring or CMM MUST be supplied on input."));
+        message := "Invalid input: Required Encryption Context fields are not in the input Encryption Context."));
 
     // TODO: Currently stubbed out to return a hardcoded StructuredData
     var stubbedBytes := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];

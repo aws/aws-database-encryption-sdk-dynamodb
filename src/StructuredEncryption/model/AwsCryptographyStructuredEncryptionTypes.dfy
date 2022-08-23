@@ -3,7 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 // TODO had to manually update the below file. Polymorph needs to be fixed to not assume location of this file
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
-// TODO had to manually update the below file. Polymorph needs to be fixed to not assuer location of this file
+// TODO had to manually update the below file. Polymorph needs to be fixed to not assume location of this file
  include "../../../private-aws-encryption-sdk-dafny-staging/src/Util/UTF8.dfy"
  include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.StructuredEncryption.Types" } AwsCryptographyStructuredEncryptionTypes
