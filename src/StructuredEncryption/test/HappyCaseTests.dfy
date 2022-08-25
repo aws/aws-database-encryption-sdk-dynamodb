@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../src/Index.dfy"
-include "../src/TypeRegister.dfy"
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
 
@@ -13,9 +12,8 @@ module HappyCaseTests {
   import StructuredEncryptionClient
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
-  // TODO the BYTES_TYPE_ID should probably move into the model more explicitly
-  import TypeRegister
 
+  const bytesTypeId : seq<uint8> := [0x00, 0x00];
   const stubbedBytes : seq<uint8> := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
   const stubbedStructure := StructuredData(
     content := StructuredDataContent.dataMap(
@@ -23,8 +21,8 @@ module HappyCaseTests {
         "foo" := StructuredData(
           content := StructuredDataContent.terminal(
               Terminal := Terminal(
-                  value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                  typeId := TypeRegister.BYTES_TYPE_ID
+                  value := stubbedBytes,
+                  typeId := bytesTypeId
               )
           ),
           attributes := None()
@@ -32,8 +30,8 @@ module HappyCaseTests {
         "bar" := StructuredData(
           content := StructuredDataContent.terminal(
               Terminal := Terminal(
-                  value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                  typeId := TypeRegister.BYTES_TYPE_ID
+                  value := stubbedBytes,
+                  typeId := bytesTypeId
               )
           ),
           attributes := None()
@@ -41,8 +39,8 @@ module HappyCaseTests {
         "fizzbuzz" := StructuredData(
           content := StructuredDataContent.terminal(
               Terminal := Terminal(
-                  value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                  typeId := TypeRegister.BYTES_TYPE_ID
+                  value := stubbedBytes,
+                  typeId := bytesTypeId
               )
           ),
           attributes := None()
@@ -53,7 +51,7 @@ module HappyCaseTests {
   );
 
   method {:test} TestEncryptStructure() {
-    var clientConfig := StructuredEncryptionConfig(typesToRegister := None());
+    var clientConfig := StructuredEncryptionConfig(bytesTypeId := bytesTypeId);
     var client := new StructuredEncryptionClient.StructuredEncryptionClient(clientConfig);
 
     // Create keyring. Currently doesn't matter what keyring we create.
@@ -75,8 +73,8 @@ module HappyCaseTests {
     var inputStructure := StructuredData(
       content := StructuredDataContent.terminal(
         Terminal := Terminal(
-          value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
-          typeId := TypeRegister.BYTES_TYPE_ID
+          value := stubbedBytes,
+          typeId := bytesTypeId
         )
       ),
       attributes := None()
@@ -102,7 +100,7 @@ module HappyCaseTests {
   }
 
   method {:test} TestDecryptStructure() {
-    var clientConfig := StructuredEncryptionConfig(typesToRegister := None());
+    var clientConfig := StructuredEncryptionConfig(bytesTypeId := bytesTypeId);
     var client := new StructuredEncryptionClient.StructuredEncryptionClient(clientConfig);
 
     // Create keyring. Currently doesn't matter what keyring we create.
@@ -124,8 +122,8 @@ module HappyCaseTests {
     var inputStructure := StructuredData(
       content := StructuredDataContent.terminal(
         Terminal := Terminal(
-          value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
-          typeId := TypeRegister.BYTES_TYPE_ID
+          value := stubbedBytes,
+          typeId := bytesTypeId
         )
       ),
       attributes := None()

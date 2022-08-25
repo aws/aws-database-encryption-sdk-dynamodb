@@ -2,16 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
-include "../TypeRegister.dfy"
 
 module EncryptStructureOperation {
   import opened Wrappers
   import opened StandardLibrary
   import Seq
   import Types = AwsCryptographyStructuredEncryptionTypes
-  import TypeRegister
 
-  method EncryptStructure(input: Types.EncryptStructureInput)
+  method EncryptStructure(config: Types.StructuredEncryptionConfig, input: Types.EncryptStructureInput)
       returns (output: Result<Types.EncryptStructureOutput, Types.Error>)
     ensures (
         || (input.cmm.Some? && input.keyring.Some?)
@@ -56,8 +54,8 @@ module EncryptStructureOperation {
           "foo" := Types.StructuredData(
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
-                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                    typeId := TypeRegister.BYTES_TYPE_ID
+                    value := stubbedBytes,
+                    typeId := config.bytesTypeId
                 )
             ),
             attributes := None()
@@ -65,8 +63,8 @@ module EncryptStructureOperation {
           "bar" := Types.StructuredData(
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
-                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                    typeId := TypeRegister.BYTES_TYPE_ID
+                    value := stubbedBytes,
+                    typeId := config.bytesTypeId
                 )
             ),
             attributes := None()
@@ -74,8 +72,8 @@ module EncryptStructureOperation {
           "fizzbuzz" := Types.StructuredData(
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
-                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                    typeId := TypeRegister.BYTES_TYPE_ID
+                    value := stubbedBytes,
+                    typeId := config.bytesTypeId
                 )
             ),
             attributes := None()

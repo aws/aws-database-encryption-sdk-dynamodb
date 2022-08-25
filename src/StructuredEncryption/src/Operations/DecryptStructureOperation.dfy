@@ -2,15 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
-include "../TypeRegister.dfy"
 
 module DecryptStructureOperation {
   import opened Wrappers
   import opened StandardLibrary
   import Types = AwsCryptographyStructuredEncryptionTypes
-  import TypeRegister
 
-  method DecryptStructure(input: Types.DecryptStructureInput)
+  method DecryptStructure(config: Types.StructuredEncryptionConfig, input: Types.DecryptStructureInput)
       returns (output: Result<Types.DecryptStructureOutput, Types.Error>)
     ensures 
       (
@@ -40,8 +38,8 @@ module DecryptStructureOperation {
           "foo" := Types.StructuredData(
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
-                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                    typeId := TypeRegister.BYTES_TYPE_ID
+                    value := stubbedBytes,
+                    typeId := config.bytesTypeId
                 )
             ),
             attributes := None()
@@ -49,8 +47,8 @@ module DecryptStructureOperation {
           "bar" := Types.StructuredData(
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
-                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                    typeId := TypeRegister.BYTES_TYPE_ID
+                    value := stubbedBytes,
+                    typeId := config.bytesTypeId
                 )
             ),
             attributes := None()
@@ -58,8 +56,8 @@ module DecryptStructureOperation {
           "fizzbuzz" := Types.StructuredData(
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
-                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
-                    typeId := TypeRegister.BYTES_TYPE_ID
+                    value := stubbedBytes,
+                    typeId := config.bytesTypeId
                 )
             ),
             attributes := None()
