@@ -23,6 +23,7 @@ service StructuredEncryption {
 }
 
 structure StructuredEncryptionConfig {
+    typesToRegister: TypesToRegister
 }
 
 operation EncryptStructure {
@@ -99,7 +100,29 @@ union StructuredDataContent {
 // It is the reponsibility of the caller to
 // serialize and deserialize the data they
 // encrypt/decrypt with this SDK.
-blob Terminal
+structure Terminal {
+    @required
+    value: TerminalValue,
+    @required
+    typeId: TerminalTypeId
+}
+
+@length(min: 2, max: 2)
+blob TerminalTypeId
+
+// TODO these are the types currently
+// useful for supporting DDBEC.
+// We can consider adding more such as int or double
+// to better support relational dbs in the future.
+union TerminalValue {
+    bytes: TerminalBlob,
+    str: TerminalString,
+    boolean: TerminalBool,
+}
+
+blob TerminalBlob
+string TerminalString
+boolean TerminalBool
 
 map StructuredDataMap {
     key: String,

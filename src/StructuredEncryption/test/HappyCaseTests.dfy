@@ -2,19 +2,59 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../src/Index.dfy"
+include "../src/TypeRegister.dfy"
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
 
 module HappyCaseTests {
   import opened Wrappers
-  import opened StandardLibrary
+  import opened StandardLibrary.UInt
   import opened AwsCryptographyStructuredEncryptionTypes
   import StructuredEncryptionClient
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
+  // TODO the BYTES_TYPE_ID should probably move into the model more explicitly
+  import TypeRegister
+
+  const stubbedBytes : seq<uint8> := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
+  const stubbedStructure := StructuredData(
+    content := StructuredDataContent.dataMap(
+      StructuredDataMap := map[
+        "foo" := StructuredData(
+          content := StructuredDataContent.terminal(
+              Terminal := Terminal(
+                  value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                  typeId := TypeRegister.BYTES_TYPE_ID
+              )
+          ),
+          attributes := None()
+        ),
+        "bar" := StructuredData(
+          content := StructuredDataContent.terminal(
+              Terminal := Terminal(
+                  value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                  typeId := TypeRegister.BYTES_TYPE_ID
+              )
+          ),
+          attributes := None()
+        ),
+        "fizzbuzz" := StructuredData(
+          content := StructuredDataContent.terminal(
+              Terminal := Terminal(
+                  value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                  typeId := TypeRegister.BYTES_TYPE_ID
+              )
+          ),
+          attributes := None()
+        )
+      ]
+    ),
+    attributes := None()
+  );
 
   method {:test} TestEncryptStructure() {
-    var client := new StructuredEncryptionClient.StructuredEncryptionClient();
+    var clientConfig := StructuredEncryptionConfig(typesToRegister := None());
+    var client := new StructuredEncryptionClient.StructuredEncryptionClient(clientConfig);
 
     // Create keyring. Currently doesn't matter what keyring we create.
     var matProvRes := MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
@@ -33,7 +73,12 @@ module HappyCaseTests {
     
     // This method is currently stubbed, so it doesn't matter what our input is
     var inputStructure := StructuredData(
-      content := StructuredDataContent.terminal(Terminal := []),
+      content := StructuredDataContent.terminal(
+        Terminal := Terminal(
+          value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
+          typeId := TypeRegister.BYTES_TYPE_ID
+        )
+      ),
       attributes := None()
     );
     var schema := CryptoSchema(
@@ -51,34 +96,14 @@ module HappyCaseTests {
         requiredContextFieldsOnDecrypt:=None()
       )
     );
-    
-    var stubbedBytes := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
-    var expectedValue := StructuredData(
-      content := StructuredDataContent.dataMap(
-        StructuredDataMap := map[
-          "foo" := StructuredData(
-            content := StructuredDataContent.terminal(Terminal:=stubbedBytes),
-            attributes := None()
-          ),
-          "bar" := StructuredData(
-            content := StructuredDataContent.terminal(Terminal:=stubbedBytes),
-            attributes := None()
-          ),
-          "fizzbuzz" := StructuredData(
-            content := StructuredDataContent.terminal(Terminal:=stubbedBytes),
-            attributes := None()
-          )
-        ]
-      ),
-      attributes := None()
-    );
 
     expect encryptRes.Success?;
-    expect encryptRes.value.ciphertextStructure == expectedValue;
+    expect encryptRes.value.ciphertextStructure == stubbedStructure;
   }
 
   method {:test} TestDecryptStructure() {
-    var client := new StructuredEncryptionClient.StructuredEncryptionClient();
+    var clientConfig := StructuredEncryptionConfig(typesToRegister := None());
+    var client := new StructuredEncryptionClient.StructuredEncryptionClient(clientConfig);
 
     // Create keyring. Currently doesn't matter what keyring we create.
     var matProvRes := MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
@@ -97,7 +122,12 @@ module HappyCaseTests {
     
     // This method is currently stubbed, so it doesn't matter what our input is
     var inputStructure := StructuredData(
-      content := StructuredDataContent.terminal(Terminal := []),
+      content := StructuredDataContent.terminal(
+        Terminal := Terminal(
+          value := TerminalValue.bytes(TerminalBlob := stubbedBytes),
+          typeId := TypeRegister.BYTES_TYPE_ID
+        )
+      ),
       attributes := None()
     );
     var schema := CryptoSchema(
@@ -107,7 +137,7 @@ module HappyCaseTests {
     var schemaMap := map[];
     schemaMap := schemaMap["0":=schema];
 
-    var encryptRes := client.DecryptStructure(
+    var decryptRes := client.DecryptStructure(
       DecryptStructureInput(
         ciphertextStructure:=inputStructure,
         cryptoSchemas:=schemaMap,
@@ -116,29 +146,8 @@ module HappyCaseTests {
         encryptionContext:=None()
       )
     );
-    
-    var stubbedBytes := [0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64];
-    var expectedValue := StructuredData(
-      content := StructuredDataContent.dataMap(
-        StructuredDataMap := map[
-          "foo" := StructuredData(
-            content := StructuredDataContent.terminal(Terminal:=stubbedBytes),
-            attributes := None()
-          ),
-          "bar" := StructuredData(
-            content := StructuredDataContent.terminal(Terminal:=stubbedBytes),
-            attributes := None()
-          ),
-          "fizzbuzz" := StructuredData(
-            content := StructuredDataContent.terminal(Terminal:=stubbedBytes),
-            attributes := None()
-          )
-        ]
-      ),
-      attributes := None()
-    );
 
-    expect encryptRes.Success?;
-    expect encryptRes.value.plaintextStructure == expectedValue;
+    expect decryptRes.Success?;
+    expect decryptRes.value.plaintextStructure == stubbedStructure;
   }
 }

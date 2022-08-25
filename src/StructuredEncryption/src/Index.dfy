@@ -4,6 +4,7 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Operations/EncryptStructureOperation.dfy"
 include "Operations/DecryptStructureOperation.dfy"
+include "TypeRegister.dfy"
 
 module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} StructuredEncryptionClient {
   import opened Wrappers
@@ -12,19 +13,43 @@ module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} Str
   import Types = AwsCryptographyStructuredEncryptionTypes
   import EncryptStructureOperation
   import DecryptStructureOperation
+  import TypeRegister
 
   class StructuredEncryptionClient extends Types.IStructuredEncryptionClient {
+    const typeRegister: TypeRegister.TypeRegister
+
     predicate ValidState()
-    ensures ValidState() ==> History in Modifies
+      ensures ValidState() ==> History in Modifies
     {
-      History in Modifies
+      && History in Modifies
     }
   
-    constructor()
+    // TODO we need a factory again. How does this jive with new MPL world?
+    constructor(config: Types.StructuredEncryptionConfig)
       ensures ValidState() && fresh(Modifies) && fresh(History)
+      // TODO If list contains dupes, error
+      // TODO If list contains resrved typeId, error
     {
       History := new Types.IStructuredEncryptionClientCallHistory();
       Modifies := {History};
+      var typesToRegister := if config.typesToRegister.Some? then config.typesToRegister.value else [];
+      var typesMap: map<Types.TerminalTypeId, Types.TypeEntry> := map[];
+      for i := 0 to |typesToRegister|
+        invariant forall k :: k in typesMap.Keys ==> typesMap[k].typeId == k;
+        invariant TypeRegister.BYTES_TYPE_ID !in typesMap.Keys
+      {
+        var terminalType := typesToRegister[i];
+        // TODO I want this to fail instead of ignoring 0x62,
+        // but we cannot do that in a constructor.
+        // Nor can we constraint the type via Smithy model
+        if (terminalType.typeId != TypeRegister.BYTES_TYPE_ID) {
+          // TODO I want this to fail instead of writing over,
+          // but we cannot do that in a constructor.
+          // Nor can we constraint the type via Smithy model
+          typesMap := typesMap[terminalType.typeId := terminalType];
+        }
+      }
+      typeRegister := typesMap;
     }
 
     predicate EncryptStructureEnsuresPublicly(

@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../TypeRegister.dfy"
 
 module EncryptStructureOperation {
   import opened Wrappers
   import opened StandardLibrary
   import Seq
   import Types = AwsCryptographyStructuredEncryptionTypes
+  import TypeRegister
 
   method EncryptStructure(input: Types.EncryptStructureInput)
       returns (output: Result<Types.EncryptStructureOutput, Types.Error>)
@@ -52,15 +54,30 @@ module EncryptStructureOperation {
       content := Types.StructuredDataContent.dataMap(
         StructuredDataMap := map[
           "foo" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                    typeId := TypeRegister.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           ),
           "bar" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                    typeId := TypeRegister.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           ),
           "fizzbuzz" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                    typeId := TypeRegister.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           )
         ]

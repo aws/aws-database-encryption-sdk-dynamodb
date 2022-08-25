@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../TypeRegister.dfy"
 
 module DecryptStructureOperation {
   import opened Wrappers
   import opened StandardLibrary
   import Types = AwsCryptographyStructuredEncryptionTypes
+  import TypeRegister
 
   method DecryptStructure(input: Types.DecryptStructureInput)
       returns (output: Result<Types.DecryptStructureOutput, Types.Error>)
@@ -31,20 +33,35 @@ module DecryptStructureOperation {
         message := "Invalid input: a non-empty Crypto Schema map must be supplied on input."));
 
     // TODO: Currently stubbed out to return a hardcoded StructuredData
-    var stubbedBytes := [0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64];
+    var stubbedBytes := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
     var stubbedStructure := Types.StructuredData(
       content := Types.StructuredDataContent.dataMap(
         StructuredDataMap := map[
           "foo" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                    typeId := TypeRegister.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           ),
           "bar" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                    typeId := TypeRegister.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           ),
           "fizzbuzz" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := Types.TerminalValue.bytes(TerminalBlob := stubbedBytes),
+                    typeId := TypeRegister.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           )
         ]
