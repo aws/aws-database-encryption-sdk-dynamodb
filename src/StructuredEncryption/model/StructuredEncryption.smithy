@@ -45,6 +45,8 @@ structure EncryptStructureInput {
     keyring: KeyringReference,
     cmm: CryptographicMaterialsManagerReference,
 
+    // TODO Truss-compatible Algorithm Suite.
+
     encryptionContext: EncryptionContext,
     requiredContextFieldsOnDecrypt: EncryptionContextFieldList
 }
