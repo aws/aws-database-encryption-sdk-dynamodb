@@ -19,7 +19,7 @@ test_dotnet:
 	cd runtimes/net;\
 	dotnet test -f netcoreapp3.1 Test /nowarn:CS0618
 
-generate-models:
+generate_models:
 	cd ../../polymorph/smithy-dotnet;\
 	./gradlew run --args="\
 	-m $(ROOT_DIR)/../../src/StructuredEncryption/Model \
