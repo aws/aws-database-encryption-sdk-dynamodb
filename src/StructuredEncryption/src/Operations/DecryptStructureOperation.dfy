@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../StructuredEncryptionConstants.dfy"
 
 module DecryptStructureOperation {
   import opened Wrappers
   import opened StandardLibrary
+  import StructuredEncryptionConstants
   import Types = AwsCryptographyStructuredEncryptionTypes
 
   method DecryptStructure(config: Types.StructuredEncryptionConfig, input: Types.DecryptStructureInput)
@@ -39,7 +41,7 @@ module DecryptStructureOperation {
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
                     value := stubbedBytes,
-                    typeId := config.bytesTypeId
+                    typeId := StructuredEncryptionConstants.BYTES_TYPE_ID
                 )
             ),
             attributes := None()
@@ -48,7 +50,7 @@ module DecryptStructureOperation {
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
                     value := stubbedBytes,
-                    typeId := config.bytesTypeId
+                    typeId := StructuredEncryptionConstants.BYTES_TYPE_ID
                 )
             ),
             attributes := None()
@@ -57,7 +59,7 @@ module DecryptStructureOperation {
             content := Types.StructuredDataContent.terminal(
                 Terminal := Types.Terminal(
                     value := stubbedBytes,
-                    typeId := config.bytesTypeId
+                    typeId := StructuredEncryptionConstants.BYTES_TYPE_ID
                 )
             ),
             attributes := None()

@@ -157,7 +157,7 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  
 }
  datatype StructuredEncryptionConfig = | StructuredEncryptionConfig (
- nameonly bytesTypeId: TerminalTypeId
+ 
  )
  datatype Terminal = | Terminal (
  nameonly value: TerminalValue ,

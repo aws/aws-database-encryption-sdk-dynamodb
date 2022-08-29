@@ -22,9 +22,9 @@ test_dotnet:
 generate_models:
 	cd ../../polymorph/smithy-dotnet;\
 	./gradlew run --args="\
-	-m $(ROOT_DIR)/../../src/StructuredEncryption/Model \
+	-m $(ROOT_DIR)/Model \
 	-namespace aws.cryptography.structuredEncryption \
-	--output-dotnet $(ROOT_DIR)/src/StructuredEncryption/runtimes/net/Generated \
+	--output-dotnet $(ROOT_DIR)/runtimes/net/Generated \
 	-d $(ROOT_DIR)/../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/Model \
 	-d $(ROOT_DIR)/../../private-aws-encryption-sdk-dafny-staging/src/Crypto/Model \
 	-d $(ROOT_DIR)/../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/Model \

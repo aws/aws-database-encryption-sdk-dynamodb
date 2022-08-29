@@ -13,7 +13,7 @@ module HappyCaseTests {
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
 
-  const bytesTypeId : seq<uint8> := [0x00, 0x00];
+  const bytesTypeId : seq<uint8> := [0x62, 0x73];
   const stubbedBytes : seq<uint8> := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
   const stubbedStructure := StructuredData(
     content := StructuredDataContent.dataMap(
@@ -51,7 +51,7 @@ module HappyCaseTests {
   );
 
   method {:test} TestEncryptStructure() {
-    var clientConfig := StructuredEncryptionConfig(bytesTypeId := bytesTypeId);
+    var clientConfig := StructuredEncryptionConfig();
     var client := new StructuredEncryptionClient.StructuredEncryptionClient(clientConfig);
 
     // Create keyring. Currently doesn't matter what keyring we create.
@@ -100,7 +100,7 @@ module HappyCaseTests {
   }
 
   method {:test} TestDecryptStructure() {
-    var clientConfig := StructuredEncryptionConfig(bytesTypeId := bytesTypeId);
+    var clientConfig := StructuredEncryptionConfig();
     var client := new StructuredEncryptionClient.StructuredEncryptionClient(clientConfig);
 
     // Create keyring. Currently doesn't matter what keyring we create.

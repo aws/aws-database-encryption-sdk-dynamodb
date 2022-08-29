@@ -23,8 +23,6 @@ service StructuredEncryption {
 }
 
 structure StructuredEncryptionConfig {
-    @required
-    bytesTypeId: TerminalTypeId
 }
 
 operation EncryptStructure {
