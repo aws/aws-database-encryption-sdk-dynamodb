@@ -31,10 +31,10 @@ A Scan Beacon is defined by
  
 ## Hashing
 
-A Scan Beacon Hash is an unsigned integer, defined as the first 'length' bits of HmacSha256(PlainText, Key),
-where the most significant bit of each byte is first.
+A Scan Beacon Hash is an unsigned integer, defined as the most significant 'length' bits of HmacSha256(PlainText, Key).
 
 ## Indexing
+
 When a request is made to create a Index for a source field,
 instead the index must be created on the scan beacon field.
 
@@ -88,3 +88,11 @@ Search scan beacon fields instead of source fields. Filter results as necessary.
  * TransactGetItemsRequest / TransactGetItemsResponse
  * QueryRequest / QueryResponse
  * ScanRequest / ScanResponse
+
+## PartiQL
+
+PartiQL based methods need not be supported.
+
+* executeStatement
+* batchExecuteStatement
+* executeTransaction
