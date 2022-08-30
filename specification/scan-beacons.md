@@ -34,10 +34,16 @@ A Scan Beacon is defined by
 A Scan Beacon Hash is an unsigned integer, defined as the first 'length' bits of HmacSha256(PlainText, Key),
 where the most significant bit of each byte is first.
 
+## Indexing
+When a request is made to create a Index for a source field,
+instead the index must be created on the scan beacon field.
+
 ## Writing
 
 Whenever a record is written, if the source field is written then the scan beacon field must also be written,
 holding the Scan Beacon Hash of the unencrypted source field.
+
+It is a error to write a field with the same name as a scan becon field.
 
 ## Reading
 
@@ -45,29 +51,40 @@ To retrieve a record based on the value of an encrypted source field,
 search instead for the scan beacon hash in the scan beacon field.
 
 Note that only exact matches can be supported. No ranged queries or inequalities.
+It is an error to attepmt such a query.
 
 This may return false positive results.
 After retrieving records in this way, you must decrypt the record and compare
 the source field value to the query value, and discard any records where they don't match.
 
-### DynamoDB Support
-To make life easier, formulate requests that search the original attribute, and transform them into requests that search the new hash. 
+# DynamoDB Support
+
+To support the DynamoDB SDK, we need to be able to take Request objects
+which refer to unencrypted values in source fields and transform them
+to refer to the associated hashes in scan beacon fields.
+
+## Indexing
+
+When creating a Global Secondary Index on a source field, use the scan beacon field instead.
 
  * CreateTableRequest 
  * UpdateTableRequest
+
+## Writing
+
+Write scan beacon fields for associated source fields
+
  * PutItemRequest
+ * UpdateItemRequest
  * BatchWriteItemRequest
  * TransactWriteItemsRequest
- * GetItemRequest
- * BatchGetItemRequest
- * TransactGetItemsRequest
- * QueryRequest
- * ScanRequest
 
+## Reading
 
-Filter Results From
- * GetItemResponse
- * BatchGetItemResponse
- * TransactGetItemsResponse
- * QueryResponse
- * ScanResponse
+Search scan beacon fields instead of source fields. Filter results as necessary.
+
+ * GetItemRequest / GetItemResponse
+ * BatchGetItemRequest / BatchGetItemResponse
+ * TransactGetItemsRequest / TransactGetItemsResponse
+ * QueryRequest / QueryResponse
+ * ScanRequest / ScanResponse
