@@ -28,6 +28,7 @@ A Scan Beacon is defined by
  * The name of the scan beacon field to be created
  * The XXX of the secret key to be used for hashing
  * The length (number of bits) of the scan beacon
+ * OPTIONAL : those last three again, describing the previous state of the beacon.
  
 ## Hashing
 
