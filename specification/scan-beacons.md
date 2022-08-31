@@ -23,16 +23,24 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 ## Configuration
 
-A Scan Beacon is defined by
- * The name of the source field
- * The name of the scan beacon field to be created
+A Scan Beacon definition MUST provide the following:
+ * The plaintext field name
+ * The scan beacon field name
  * The XXX of the secret key to be used for hashing
- * The length (number of bits) of the scan beacon
- * OPTIONAL : those last three again, describing the previous state of the beacon.
+ * The hash length (number of bits) of the scan beacon
  
-## Hashing
+A Scan Beacon definition MAY provide the following:
+ * The previous scan beacon field name
+ * The presious XXX of the secret key to be used for hashing
+ * The previous hash length (number of bits) of the scan beacon
+ 
+## Interface
 
-A Scan Beacon Hash is an unsigned integer, defined as the most significant 'length' bits of HmacSha256(PlainText, Key).
+### Hash
+
+This interface MUST take the plain text as input
+
+This interface MUST must take the HmacSha256(PlainText, Key) and return the most significant length bits of that as an unsigned integer.
 
 ## Indexing
 
