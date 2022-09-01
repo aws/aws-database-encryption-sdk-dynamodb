@@ -141,9 +141,18 @@ the returned UpdateTableRequest object MUST replace the source field names with 
  * This operation MUST take as input a QueryRequest object.
  * This operation MUST return a QueryRequest object.
 
+ * Replace source/value with beacon/hash
+ * fail if not using equality
+ * maybe make two requests
+ * if multiple beacons are used that have 'previous' entries, do we deal with the exponential explosion or can we call it an error?
+
 ### transformQueryResponse
  * This operation MUST take as input a QueryResponse object and a QueryRequest object.
  * This operation MUST return an QueryResponse object.
+
+* filter out records that didn't really match. This could involve arbitrarily complex FilterExpressions
+* maybe take two QueryResponses, or an array thereof, to deal with multiple queries
+* how much of the complexity of adding two responses together do we need to deal with?
 
 ### transformScanRequest
  * This operation MUST take as input a ScanRequest object.
