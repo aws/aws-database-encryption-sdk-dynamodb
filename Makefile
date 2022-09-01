@@ -1,9 +1,9 @@
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH)
 
-verify: verify_structured-encryption
+verify: verify_structured_encryption
 
-verify_structured-encryption:
+verify_structured_encryption:
 	$(MAKE) -C src/StructuredEncryption verify
 
 build: build_dotnet
