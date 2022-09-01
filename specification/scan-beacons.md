@@ -91,25 +91,25 @@ This might return false positive results.
 After retrieving records in this way, you must decrypt the record and compare
 the source field value to the query value, and discard any records where they don't match.
 
-## Scan Beacon Set Operations
+## Scan Beacon Group Operations
 
 ### transformCreateTableRequest
 
  * This operation MUST take as input a CreateTableRequest object.
  * This operation MUST return a CreateTableRequest object.
  * If no Global Secondary Index is being created, the CreateTableRequest object MUST be returned unaltered.
- * If no Global Secondary Index is being created for a source field, the CreateTableRequest object MUST be returned unaltered.
- * If a Global Secondary Index is being created for a source field,
-the returned CreateTableRequest object MUST instead create the Global Secondary Index for the scan beacon field.
+ * If the Global Secondary Index being created includes no source fields, the CreateTableRequest object MUST be returned unaltered.
+ * If the Global Secondary Index being created includes a source field,
+the returned CreateTableRequest object MUST replace the source field names with the corresponding scan beacon field names.
 
 ### transformUpdateTableRequest
 
  * This operation MUST take as input an UpdateTableRequest object.
  * This operation MUST return an UpdateTableRequest object.
  * If no Global Secondary Index is being created, the UpdateTableRequest object MUST be returned unaltered.
- * If no Global Secondary Index is being created for a source field, the UpdateTableRequest object MUST be returned unaltered.
- * If a Global Secondary Index is being created for a source field,
-the returned UpdateTableRequest object MUST instead create the Global Secondary Index for the scan beacon field.
+ * If the Global Secondary Index being created includes no source fields, the UpdateTableRequest object MUST be returned unaltered.
+ * If the Global Secondary Index being created includes a source field,
+the returned UpdateTableRequest object MUST replace the source field names with the corresponding scan beacon field names.
 
 ### transformPutItemRequest
  * This operation MUST take as input an PutItemRequest object.
@@ -124,28 +124,34 @@ the returned UpdateTableRequest object MUST instead create the Global Secondary 
  * An error MUST be returned if a scan beacon field is used in the input UpdateItemRequest.
 
 ### transformBatchWriteItemRequest
- * This operation MUST take as input an BatchWriteItemRequest object.
- * This operation MUST return an BatchWriteItemRequest object.
+ * This operation MUST take as input a BatchWriteItemRequest object.
+ * This operation MUST return a BatchWriteItemRequest object.
  * For each source field being written, the returned BatchWriteItemRequest must also write the scan beacon field.
  * An error MUST be returned if a scan beacon field is used in the input BatchWriteItemRequest.
 
 ### transformTransactWriteItemsRequest
- * This operation MUST take as input an TransactWriteItemRequest object.
- * This operation MUST return an TransactWriteItemRequest object.
+ * This operation MUST take as input a TransactWriteItemRequest object.
+ * This operation MUST return a TransactWriteItemRequest object.
  * For each source field being written, the returned TransactWriteItemRequest must also write the scan beacon field.
  * An error MUST be returned if a scan beacon field is used in the input TransactWriteItemRequest.
 
+#### Note : GetItem, BatchGetItem and TransactGetItems work only on Primary Keys, and therefore are not affected by scan beacons
 
-### transformGetItemRequest
-### transformGetItemResponse
-### transformBatchGetItemRequest
-### transformBatchGetItemResponse
-### transformTransactGetItemsRequest
-### transformTransactGetItemsResponse
 ### transformQueryRequest
+ * This operation MUST take as input a QueryRequest object.
+ * This operation MUST return a QueryRequest object.
+
 ### transformQueryResponse
+ * This operation MUST take as input a QueryResponse object and a QueryRequest object.
+ * This operation MUST return an QueryResponse object.
+
 ### transformScanRequest
+ * This operation MUST take as input a ScanRequest object.
+ * This operation MUST return a ScanRequest object.
+
 ### transformScanResponse
+ * This operation MUST take as input a ScanResponse object and a ScanRequest object.
+ * This operation MUST return an ScanResponse object.
 
 ## PartiQL
 
