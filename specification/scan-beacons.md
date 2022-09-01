@@ -21,17 +21,25 @@ This allows a database server to perform some types of searches on client-side e
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
 in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
+## Key Indicator
+
+This is the configuration text supplied by the user to allow the library to obtain the appropriate key for creating the HMAC hash.
+[More details here](https://quip-amazon.com/3qsyAcXbTxm3/Quick-Note-About-Scan-Beacons)
+
+A Key Indicator MUST consist of exactly one of the following
+ * An Encrypted Data Key and a KeyID
+ * A KMS Key ARN
+
 ## Scan Beacon Configuration
 
 A Scan Beacon definition MUST provide the following:
  * The source field name
  * The scan beacon field name
- * The XXX of the secret key to be used for hashing
+ * The Key Indicator
  * The hash length (number of bits) of the scan beacon
  
 A Scan Beacon definition MAY provide the following:
- * The previous scan beacon field name
- * The previous XXX of the secret key to be used for hashing
+ * The previous Key Indicator, or the literal "NULL" indicating no previous beacon
  * The previous hash length (number of bits) of the scan beacon
  
 ## Scan Beacon Operation
@@ -44,11 +52,17 @@ This operation MUST must take the HmacSha256 or the plain text and the wrapping 
 
 ## Scan Beacon Set Configuration
 
-A Scan Beacon Set MUST contain a collection of Scan Beacons.
+A Scan Beacon Set MUST contain
+ * A collection of Scan Beacons.
+ * The name of the table for which these scan beacons are applicable.
+
+## Scan Beacon Group Configuration
+
+A Scan Beacon Group is a collection of Scan Beacon Sets.
 
 ### Overview
 
-All Scan Beacon Set operations are a convenience for using the AWS DynamoDB SDK. The user calls the
+All Scan Beacon Group operations are a convenience for using the AWS DynamoDB SDK. The user calls the
 SDK referring to the encrypted data fields, and these operations transform the Request and Response objects
 to use the scan beacons instead.
 
@@ -98,9 +112,29 @@ the returned CreateTableRequest object MUST instead create the Global Secondary 
 the returned UpdateTableRequest object MUST instead create the Global Secondary Index for the scan beacon field.
 
 ### transformPutItemRequest
+ * This operation MUST take as input an PutItemRequest object.
+ * This operation MUST return an PutItemRequest object.
+ * For each source field being written, the returned PutItemRequest must also write the scan beacon field.
+ * An error MUST be returned if a scan beacon field is used in the input PutItemRequest.
+
 ### transformUpdateItemRequest
+ * This operation MUST take as input an UpdateItemRequest object.
+ * This operation MUST return an UpdateItemRequest object.
+ * For each source field being written, the returned UpdateItemRequest must also write the scan beacon field.
+ * An error MUST be returned if a scan beacon field is used in the input UpdateItemRequest.
+
 ### transformBatchWriteItemRequest
+ * This operation MUST take as input an BatchWriteItemRequest object.
+ * This operation MUST return an BatchWriteItemRequest object.
+ * For each source field being written, the returned BatchWriteItemRequest must also write the scan beacon field.
+ * An error MUST be returned if a scan beacon field is used in the input BatchWriteItemRequest.
+
 ### transformTransactWriteItemsRequest
+ * This operation MUST take as input an TransactWriteItemRequest object.
+ * This operation MUST return an TransactWriteItemRequest object.
+ * For each source field being written, the returned TransactWriteItemRequest must also write the scan beacon field.
+ * An error MUST be returned if a scan beacon field is used in the input TransactWriteItemRequest.
+
 
 ### transformGetItemRequest
 ### transformGetItemResponse
