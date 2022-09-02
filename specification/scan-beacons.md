@@ -38,9 +38,9 @@ A Scan Beacon definition MUST provide the following:
  * The Key Indicator
  * The hash length (number of bits) of the scan beacon
  
-A Scan Beacon definition MAY provide the following:
- * The previous Key Indicator, or the literal "NULL" indicating no previous beacon
- * The previous hash length (number of bits) of the scan beacon
+A Scan Beacon definition MAY provide a "previous" entry consisting on one of :
+ * an empty value, indicatin that the field was not previously a beacon
+ * The previous Key Indicator and the previous hash length (number of bits) of the scan beacon
  
 ## Scan Beacon Operation
 
@@ -139,14 +139,21 @@ the returned UpdateTableRequest object MUST replace the source field names with 
 
 ### transformQueryRequest
  * This operation MUST take as input a QueryRequest object.
- * This operation MUST return a QueryRequest object.
+ * This operation MUST return a QueryRequest object and an optional second QueryRequest object.
+ * This operation MUST fail if a source field is compared with anything but equality
+ * If no source fields are mentioned, the QueryRequest object MUST be returned unchanged.
 
-here it gets fuzzy
+ * For beacons in the FilterExpression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
+ * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace (field EQ value) with ((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))
 
-* Replace source/value with beacon/hash
- * fail if not using equality
- * maybe make two requests
- * if multiple beacons are used that have 'previous' entries, do we deal with the exponential explosion or can we call it an error?
+If there is no "previous" entry in the "key" section
+ * This operstion must return one QueryRequest object
+
+If there is a "previous" entry in the "key" section
+ * This opertion MUST return two QueryRequest objects
+ * This operation MUST return one QueryRequest with the key's field and value replaced with the current scan beacon settings
+ * This operation MUST return one QueryRequest with the key's field and value replaced with the previous scan beacon settings
+
 
 ### transformQueryResponse
  * This operation MUST take as input a QueryResponse object and a QueryRequest object.
@@ -161,6 +168,11 @@ here it gets fuzzy
 ### transformScanRequest
  * This operation MUST take as input a ScanRequest object.
  * This operation MUST return a ScanRequest object.
+ * This operation MUST fail if a source field is compared with anything but equality
+ * If no source fields are mentioned, the ScanRequest object MUST be returned unchanged.
+
+ * For beacons in the FilterExpression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
+ * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace (field EQ value) with ((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))
 
 ### transformScanResponse
  * This operation MUST take as input a ScanResponse object and a ScanRequest object.
