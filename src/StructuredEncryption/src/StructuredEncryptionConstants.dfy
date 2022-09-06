@@ -6,5 +6,5 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
 // or we run into a "duplicate module" error
 module StructuredEncryptionConstants {
     import opened StandardLibrary.UInt
-    const BYTES_TYPE_ID : seq<uint8> := [0x62, 0x73];
+    const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF];
 }
