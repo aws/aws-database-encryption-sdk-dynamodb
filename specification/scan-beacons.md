@@ -27,7 +27,7 @@ This is the configuration text supplied by the user to allow the library to obta
 [More details here](https://quip-amazon.com/3qsyAcXbTxm3/Quick-Note-About-Scan-Beacons)
 
 A Key Indicator MUST consist of exactly one of the following
- * An Encrypted Data Key and the ARN of the associated KMS symetric encryption key
+ * An Encrypted Data Key and the Key ID of the associated KMS symetric encryption key
  * The ARN of a KMS HMAC key
 
 ## Scan Beacon Configuration
