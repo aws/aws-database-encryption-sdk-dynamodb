@@ -5,13 +5,31 @@ include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Operations/EncryptStructureOperation.dfy"
 include "Operations/DecryptStructureOperation.dfy"
 
-module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} StructuredEncryptionClient {
-  import opened Wrappers
-  import opened StandardLibrary
+module
+  {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryption"}
+  StructuredEncryption refines AwsCryptographyStructuredEncryptionAbstract
+{
   import Seq
-  import Types = AwsCryptographyStructuredEncryptionTypes
   import EncryptStructureOperation
   import DecryptStructureOperation
+
+  function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
+  {
+    StructuredEncryptionConfig
+  }
+
+  method StructuredEncryption(config: StructuredEncryptionConfig)
+    returns (res: Result<IStructuredEncryptionClient, Error>)
+    ensures res.Success? ==> 
+      && fresh(res.value)
+      && fresh(res.value.Modifies)
+      && fresh(res.value.History)
+      && res.value.ValidState()
+    ensures res.Success? ==> res.value is StructuredEncryptionClient
+  {
+    var client := new StructuredEncryptionClient(config);
+    return Success(client);
+  }
 
   class StructuredEncryptionClient extends Types.IStructuredEncryptionClient {
     const config: Types.StructuredEncryptionConfig;

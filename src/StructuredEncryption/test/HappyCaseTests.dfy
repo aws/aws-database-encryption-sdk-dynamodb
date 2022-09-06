@@ -9,11 +9,11 @@ module HappyCaseTests {
   import opened Wrappers
   import opened StandardLibrary.UInt
   import opened AwsCryptographyStructuredEncryptionTypes
-  import StructuredEncryptionClient
+  import StructuredEncryption
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
 
-  const bytesTypeId : seq<uint8> := [0x62, 0x73];
+  const bytesTypeId : seq<uint8> := [0xFF, 0xFF];
   const stubbedBytes : seq<uint8> := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
   const stubbedStructure := StructuredData(
     content := StructuredDataContent.dataMap(
@@ -51,23 +51,18 @@ module HappyCaseTests {
   );
 
   method {:test} TestEncryptStructure() {
-    var clientConfig := StructuredEncryptionConfig();
-    var client := new StructuredEncryptionClient.StructuredEncryptionClient(clientConfig);
+    var structuredEncryption :-
+      expect StructuredEncryption.StructuredEncryption(StructuredEncryption.DefaultStructuredEncryptionConfig());
 
     // Create keyring. Currently doesn't matter what keyring we create.
-    var matProvRes := MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
-    expect matProvRes.Success?;
-    var matProv := matProvRes.value;
-
+    var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
     var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMrkMultiKeyringInput(
         generator := Some("arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"),
         kmsKeyIds := None(),
         clientSupplier := None(),
         grantTokens := None()
     );
-    var keyringRes := matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
-    expect keyringRes.Success?;
-    var keyring := keyringRes.value;
+    var keyring :- expect matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
     
     // This method is currently stubbed, so it doesn't matter what our input is
     var inputStructure := StructuredData(
@@ -84,7 +79,7 @@ module HappyCaseTests {
       attributes := None()
     );
 
-    var encryptRes := client.EncryptStructure(
+    var encryptRes := structuredEncryption.EncryptStructure(
       EncryptStructureInput(
         plaintextStructure:=inputStructure,
         cryptoSchema:=schema,
@@ -100,23 +95,18 @@ module HappyCaseTests {
   }
 
   method {:test} TestDecryptStructure() {
-    var clientConfig := StructuredEncryptionConfig();
-    var client := new StructuredEncryptionClient.StructuredEncryptionClient(clientConfig);
+    var structuredEncryption :-
+      expect StructuredEncryption.StructuredEncryption(StructuredEncryption.DefaultStructuredEncryptionConfig());
 
     // Create keyring. Currently doesn't matter what keyring we create.
-    var matProvRes := MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
-    expect matProvRes.Success?;
-    var matProv := matProvRes.value;
-
+    var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
     var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMrkMultiKeyringInput(
         generator := Some("arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"),
         kmsKeyIds := None(),
         clientSupplier := None(),
         grantTokens := None()
     );
-    var keyringRes := matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
-    expect keyringRes.Success?;
-    var keyring := keyringRes.value;
+    var keyring :- expect matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
     
     // This method is currently stubbed, so it doesn't matter what our input is
     var inputStructure := StructuredData(
@@ -135,7 +125,7 @@ module HappyCaseTests {
     var schemaMap := map[];
     schemaMap := schemaMap["0":=schema];
 
-    var decryptRes := client.DecryptStructure(
+    var decryptRes := structuredEncryption.DecryptStructure(
       DecryptStructureInput(
         ciphertextStructure:=inputStructure,
         cryptoSchemas:=schemaMap,
