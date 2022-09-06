@@ -39,7 +39,7 @@ A Scan Beacon definition MUST provide the following:
  * The hash length (number of bits) of the scan beacon
  
 A Scan Beacon definition MAY provide a "previous" entry consisting on one of :
- * an empty value, indicatin that the field was not previously a beacon
+ * an empty value, indicating that the field was not previously a beacon
  * The previous Key Indicator and the previous hash length (number of bits) of the scan beacon
  
 ## Scan Beacon Operation
@@ -58,7 +58,7 @@ A Scan Beacon Set MUST contain
 
 ## Scan Beacon Group Configuration
 
-A Scan Beacon Group is a collection of Scan Beacon Sets.
+A Scan Beacon Group is a collection of Scan Beacon Sets. This will likely be in the form of a ItemEncryptorConfig object.
 
 ### Overview
 
@@ -76,7 +76,7 @@ instead the index must be created on the scan beacon field.
 Whenever a record is written, if the source field is written then the scan beacon field must also be written,
 containing the Scan Beacon Hash of the plain text of the source field.
 
-It is a error to attempt to write a source field with the same name as a scan becon field.
+It is a error to attempt to write a source field with the same name as a scan beacon field.
 
 #### Reading
 
@@ -84,7 +84,7 @@ To retrieve a record based on the value of an encrypted source field,
 search instead for the Hash of the value in the scan beacon field.
 
 Note that only exact matches can be supported. No ranged queries or inequalities.
-It is an error to attepmt such a query.
+It is an error to attempt such a query.
 
 This might return false positive results.
 
@@ -145,25 +145,25 @@ the returned UpdateTableRequest object MUST replace the source field names with 
 
  * For beacons in the FilterExpression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
  * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace (field EQ value) with ((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))
+ * Doing this will likely require a complete parsing of the FilterExpression, which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
 
 If there is no "previous" entry in the "key" section
- * This operstion must return one QueryRequest object
+ * This operation must return one QueryRequest object
 
 If there is a "previous" entry in the "key" section
- * This opertion MUST return two QueryRequest objects
+ * This operation MUST return two QueryRequest objects
  * This operation MUST return one QueryRequest with the key's field and value replaced with the current scan beacon settings
  * This operation MUST return one QueryRequest with the key's field and value replaced with the previous scan beacon settings
 
 
 ### transformQueryResponse
- * This operation MUST take as input a QueryResponse object and a QueryRequest object.
+ * This operation MUST take as input a QueryResponse object and a QueryRequest object and and optional second QueryResponse object.
+ * The QueryResponse objects MUST already be decrypted
  * This operation MUST return an QueryResponse object.
-
-here it gets fuzzy
-
-* filter out records that didn't really match. This could involve arbitrarily complex FilterExpressions
-* maybe take two QueryResponses, or an array thereof, to deal with multiple queries
-* how much of the complexity of adding two responses together do we need to deal with?
+ * If the optional second QueryResponse object is provided, the two QueryResponse objects must be merged into the returned object.
+ * This operation MUST remove any records for which the scan beacon matched, but the actual query string does not match.
+ * Doing this will likely require a complete parsing of the FilterExpression, which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
+ * Doing this will likely require the creation of an executable parse tree
 
 ### transformScanRequest
  * This operation MUST take as input a ScanRequest object.
@@ -173,10 +173,16 @@ here it gets fuzzy
 
  * For beacons in the FilterExpression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
  * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace (field EQ value) with ((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))
+ * Doing this will likely require a complete parsing of the FilterExpression, which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
+
 
 ### transformScanResponse
  * This operation MUST take as input a ScanResponse object and a ScanRequest object.
  * This operation MUST return an ScanResponse object.
+ * This operation MUST remove any records for which the scan beacon matched, but the actual query string does not match.
+ * Doing this will likely require a complete parsing of the FilterExpression, which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
+ * Doing this will likely require the creation of an executable parse tree
+
 
 ## PartiQL
 
