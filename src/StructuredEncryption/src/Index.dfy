@@ -5,26 +5,47 @@ include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Operations/EncryptStructureOperation.dfy"
 include "Operations/DecryptStructureOperation.dfy"
 
-module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} StructuredEncryptionClient {
-  import opened Wrappers
-  import opened StandardLibrary
+module
+  {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryption"}
+  StructuredEncryption refines AwsCryptographyStructuredEncryptionAbstract
+{
   import Seq
-  import Types = AwsCryptographyStructuredEncryptionTypes
   import EncryptStructureOperation
   import DecryptStructureOperation
 
+  function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
+  {
+    StructuredEncryptionConfig
+  }
+
+  method StructuredEncryption(config: StructuredEncryptionConfig)
+    returns (res: Result<IStructuredEncryptionClient, Error>)
+    ensures res.Success? ==> 
+      && fresh(res.value)
+      && fresh(res.value.Modifies)
+      && fresh(res.value.History)
+      && res.value.ValidState()
+    ensures res.Success? ==> res.value is StructuredEncryptionClient
+  {
+    var client := new StructuredEncryptionClient(config);
+    return Success(client);
+  }
+
   class StructuredEncryptionClient extends Types.IStructuredEncryptionClient {
+    const config: Types.StructuredEncryptionConfig;
+
     predicate ValidState()
-    ensures ValidState() ==> History in Modifies
+      ensures ValidState() ==> History in Modifies
     {
-      History in Modifies
+      && History in Modifies
     }
   
-    constructor()
+    constructor(config: Types.StructuredEncryptionConfig)
       ensures ValidState() && fresh(Modifies) && fresh(History)
     {
       History := new Types.IStructuredEncryptionClientCallHistory();
       Modifies := {History};
+      this.config := config;
     }
 
     predicate EncryptStructureEnsuresPublicly(
@@ -63,7 +84,7 @@ module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} Str
       ensures EncryptStructureEnsuresPublicly(input, output)
       ensures History.EncryptStructure == old(History.EncryptStructure) + [Types.DafnyCallEvent(input, output)]
     {
-      output := EncryptStructureOperation.EncryptStructure(input);
+      output := EncryptStructureOperation.EncryptStructure(config, input);
       History.EncryptStructure := History.EncryptStructure + [Types.DafnyCallEvent(input, output)];
     }
 
@@ -78,7 +99,7 @@ module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} Str
       ensures DecryptStructureEnsuresPublicly(input, output)
       ensures History.DecryptStructure == old(History.DecryptStructure) + [Types.DafnyCallEvent(input, output)]
     {
-      output := DecryptStructureOperation.DecryptStructure(input);
+      output := DecryptStructureOperation.DecryptStructure(config, input);
       History.DecryptStructure := History.DecryptStructure + [Types.DafnyCallEvent(input, output)];
     }
   }

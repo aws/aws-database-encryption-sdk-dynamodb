@@ -1,31 +1,26 @@
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH)
 
-verify:
-	cd src/StructuredEncryption/src;\
-	dotnet build -t:VerifyDafny
+verify: verify_structured_encryption
 
-build: build-dotnet
+verify_structured_encryption:
+	$(MAKE) -C src/StructuredEncryption verify
 
-test: test-dotnet
+build: build_dotnet
 
-# TODO cleanup CS0618 warning in MPL
-build-dotnet:
-	cd src/StructuredEncryption/src;\
-	dotnet build /nowarn:CS0618
+test: test_dotnet
 
-# TODO cleanup CS0618 warning in MPL
-test-dotnet:
-	cd src/StructuredEncryption/runtimes/net;\
-	dotnet test -f netcoreapp3.1 Test /nowarn:CS0618
+build_dotnet: build_dotnet_structured_encryption
 
-generate-models:
-	cd polymorph/smithy-dotnet;\
-	./gradlew run --args="\
-	-m $(ROOT_DIR)/src/StructuredEncryption/Model \
-	-namespace aws.cryptography.structuredEncryption \
-	--output-dotnet $(ROOT_DIR)/src/StructuredEncryption/runtimes/net/Generated \
-	-d $(ROOT_DIR)/private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/Model \
-	-d $(ROOT_DIR)/private-aws-encryption-sdk-dafny-staging/src/Crypto/Model \
-	-d $(ROOT_DIR)/private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/Model \
-	-d $(ROOT_DIR)/private-aws-encryption-sdk-dafny-staging/model"
+build_dotnet_structured_encryption:
+	$(MAKE) -C src/StructuredEncryption build_dotnet
+
+test_dotnet: test_dotnet_structured_encryption
+
+test_dotnet_structured_encryption:
+	$(MAKE) -C src/StructuredEncryption test_dotnet
+
+generate_models: generate_models_structured_encryption
+
+generate_models_structured_encryption:
+	$(MAKE) -C src/StructuredEncryption generate_models

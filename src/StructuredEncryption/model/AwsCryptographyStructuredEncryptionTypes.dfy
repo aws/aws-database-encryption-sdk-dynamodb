@@ -159,7 +159,15 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  datatype StructuredEncryptionConfig = | StructuredEncryptionConfig (
  
  )
- type Terminal = seq<uint8>
+ datatype Terminal = | Terminal (
+ nameonly value: TerminalValue ,
+ nameonly typeId: TerminalTypeId
+ )
+ type TerminalTypeId = x: seq<uint8> | IsValid_TerminalTypeId(x) witness *
+ predicate method IsValid_TerminalTypeId(x: seq<uint8>) {
+ ( 2 <= |x| <= 2 )
+}
+ type TerminalValue = seq<uint8>
  type Utf8Bytes = ValidUTF8Bytes
  datatype Error =
  // Local Error structures are listed here
