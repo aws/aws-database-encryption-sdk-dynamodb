@@ -35,10 +35,8 @@ you may encounter an error that says:
 make generate-models
 ```
 
-Generates new models for the Structured Encryption Library and DDBEC using the polymorph submodule.
+Generates new models for the Structured Encryption Library, DDBEC, and DDB using the polymorph submodule.
 Will overwrite models, but will not clean up old models that are not overwritten.
-
-Currently ignores models for AWS-DDB.
 
 ### Verify Dafny Code
 
