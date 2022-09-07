@@ -13,6 +13,7 @@
 
 A Scan Beacon is a stable hash of the unencrypted value of an encrypted field.
 This allows a database server to perform some types of searches on client-side encrypted records.
+It can be optionally truncated to better avoid creating distinguishers of the plaintext.
 
 ## Definitions
 
@@ -24,31 +25,39 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 ## Key Indicator
 
 This is the configuration text supplied by the user to allow the library to obtain the appropriate key for creating the HMAC hash.
-[More details here](https://quip-amazon.com/3qsyAcXbTxm3/Quick-Note-About-Scan-Beacons)
 
 A Key Indicator MUST consist of exactly one of the following
- * An Encrypted Data Key and the Key ID of the associated KMS symetric encryption key
- * The ARN of a KMS HMAC key
+ * The encrypted form of a data key, as returned from the KMS `GenerateDataKey` operation,
+the associated [Key ID](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-identifier)
+The library will decrypt the key via KMS, cache it, and calculate the HMAC locally.
+More complex configuration, faster execution time.
+ * The [ARN](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn) of a KMS HMAC key. The KMS `GenerateMac` method will be called for every HMAC
+calculation. Easier configuration, slower execution time.
 
 ## Scan Beacon Configuration
 
 A Scan Beacon definition MUST provide the following:
- * The source field name
- * The scan beacon field name
+ * The source field name; i.e. the name of the DynamoDB attribute for which you want to generate a scan beacon
+ * The scan beacon field name; i.e. the name of the DynamoDB attribute to hold the resulting scan beacon value
  * The Key Indicator
  * The hash length (number of bits) of the scan beacon
  
-A Scan Beacon definition MAY provide a "previous" entry consisting on one of :
+A Scan Beacon definition MUST accept and optional parameter to provide a "previous" entry consisting on one of :
  * an empty value, indicating that the field was not previously a beacon
  * The previous Key Indicator and the previous hash length (number of bits) of the scan beacon
+
+This optional previous values allows the library to support changes in the configuration over time.
+If the configuration for a scan beacon changes, the library can search for both the scan beacon as
+calculated with the current configuration and also the scan beacon as calculated with the previous configuration,
+and return the union of the two.
  
 ## Scan Beacon Operation
 
 ### hash
 
-This operation MUST take the plain text as input.
+This operation MUST take the plain text of the source field as input.
 
-This operation MUST must take the HmacSha256 or the plain text and the wrapping key and return the most significant length bits of that as an unsigned integer.
+This operation MUST must take the HmacSha384 (citation needed) of the plain text and the specified key and return the most significant `hash length` bits as an unsigned integer.
 
 ## Scan Beacon Set Configuration
 
@@ -62,7 +71,7 @@ A Scan Beacon Group is a collection of Scan Beacon Sets. This will likely be in 
 
 ### Overview
 
-All Scan Beacon Group operations are a convenience for using the AWS DynamoDB SDK. The user calls the
+All Scan Beacon Group operations are a convenience for using the DynamoDB Encryption Client. The user calls the
 SDK referring to the encrypted data fields, and these operations transform the Request and Response objects
 to use the scan beacons instead.
 
