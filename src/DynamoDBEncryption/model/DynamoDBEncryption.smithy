@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 namespace aws.cryptography.dynamodbEncryption
 
-use aws.polymorph#reference
-use aws.polymorph#positional
+use aws.polymorph#localService
 
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#AttributeMap
@@ -16,7 +15,7 @@ use aws.cryptography.materialProviders#EncryptionContext
 use aws.cryptography.structuredEncryption#CryptoAction
 use aws.cryptography.structuredEncryption#EncryptionContextFieldList
 
-@aws.polymorph#localService(
+@localService(
   sdkId: "DynamoDBEncryption",
   config: DynamoDBEncryptionConfig,
 )

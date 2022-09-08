@@ -12,7 +12,7 @@ use aws.polymorph#dafnyUtf8Bytes
 @dafnyUtf8Bytes
 string Utf8Bytes
 
-@aws.polymorph#localService(
+@localService(
   sdkId: "StructuredEncryption",
   config: StructuredEncryptionConfig,
 )
