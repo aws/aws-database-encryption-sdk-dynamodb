@@ -58,7 +58,7 @@ and return the union of the two.
 
 This operation MUST take the plain text of the source field as input.
 
-This operation MUST must take the HmacSha384 (citation needed) of the plain text and the specified key
+This operation MUST must take the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt) of the plain text and the specified key
 and return the most significant `hash length` bits as an unsigned integer.
 
 ## Item Encryptor Behavior
