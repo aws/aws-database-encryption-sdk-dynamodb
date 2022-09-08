@@ -59,15 +59,12 @@ This operation MUST take the plain text of the source field as input.
 
 This operation MUST must take the HmacSha384 (citation needed) of the plain text and the specified key and return the most significant `hash length` bits as an unsigned integer.
 
-## Scan Beacon Set Configuration
+## Item Encryptor Behavior
 
-A Scan Beacon Set MUST contain
- * A collection of Scan Beacons.
- * The name of the table for which these scan beacons are applicable.
+Here is the specification for how the item encryptor specifically behaves with configured scan beacons.
 
-## Scan Beacon Group Configuration
-
-A Scan Beacon Group is a collection of Scan Beacon Sets. This will likely be in the form of a ItemEncryptorConfig object.
+A `DynamoDBTableEncryptionConfig` object provides the list of Scan Beacons associated with the table which is associated with an operation.
+Various Request and Respose objects are transformed, based on these Scan Beacons.
 
 ### Overview
 
@@ -95,30 +92,28 @@ search instead for the Hash of the value in the scan beacon field.
 Note that only exact matches can be supported. No ranged queries or inequalities.
 It is an error to attempt such a query.
 
-This might return false positive results.
-
-After retrieving records in this way, you must decrypt the record and compare
+This might return false positive results, sfter retrieving records in this way, you must decrypt the record and compare
 the source field value to the query value, and discard any records where they don't match.
 
-## Scan Beacon Group Operations
+## Operations
 
 ### transformCreateTableRequest
 
  * This operation MUST take as input a CreateTableRequest object.
  * This operation MUST return a CreateTableRequest object.
  * If no Global Secondary Index is being created, the CreateTableRequest object MUST be returned unaltered.
- * If the Global Secondary Index being created includes no source fields, the CreateTableRequest object MUST be returned unaltered.
+ * If the Global Secondary Index being created includes no source fields, that is, if the KeySchema does not mention a source field, the CreateTableRequest object MUST be returned unaltered.
  * If the Global Secondary Index being created includes a source field,
-the returned CreateTableRequest object MUST replace the source field names with the corresponding scan beacon field names.
+the returned CreateTableRequest object MUST replace the source field names with the corresponding scan beacon field names in the KeySchema.
 
 ### transformUpdateTableRequest
 
  * This operation MUST take as input an UpdateTableRequest object.
  * This operation MUST return an UpdateTableRequest object.
  * If no Global Secondary Index is being created, the UpdateTableRequest object MUST be returned unaltered.
- * If the Global Secondary Index being created includes no source fields, the UpdateTableRequest object MUST be returned unaltered.
+ * If the Global Secondary Index being created includes no source fields, that is, if the KeySchema does not mention a source field, the UpdateTableRequest object MUST be returned unaltered.
  * If the Global Secondary Index being created includes a source field,
-the returned UpdateTableRequest object MUST replace the source field names with the corresponding scan beacon field names.
+the returned UpdateTableRequest object MUST replace the source field names with the corresponding scan beacon field names in the KeySchema.
 
 ### transformPutItemRequest
  * This operation MUST take as input an PutItemRequest object.
@@ -143,11 +138,13 @@ the returned UpdateTableRequest object MUST replace the source field names with 
 ### transformQueryRequest
  * This operation MUST take as input a QueryRequest object.
  * This operation MUST return a QueryRequest object and an optional second QueryRequest object.
- * This operation MUST fail if a source field is compared with anything but equality
+ * This operation MUST fail if a source field is compared with anything but equality, that is,
+if the FilterExpressions uses a source field withn anything but `EQ`.
+ * This operation MUST fail if the input FilterExpression or KeyExpression directly mentions a scan beacon field.
  * If no source fields are mentioned, the QueryRequest object MUST be returned unchanged.
 
- * For beacons in the FilterExpression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace (field EQ value) with ((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))
+ * For source fields in the Filter Expression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
+ * For source fields in the FilterExpression that do have a "previous" entry, this operation MUST replace `(field EQ value)` with `((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))`
 
 If there is no "previous" entry in the `keyConditionExpression`
  * This operation MUST return one QueryRequest object
@@ -163,7 +160,8 @@ If there is a "previous" entry in the `keyConditionExpression`
  * This operation MUST return an QueryResponse object.
  * If the optional second QueryResponse object is provided, the two QueryResponse objects must be merged into the returned object,
 removing any duplicate results.
- * This operation MUST remove any records for which the scan beacon matched, but the actual query string does not match.
+ * This operation MUST remove any records for which the original QueryRequest does not match, that is,
+if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field) then we might get results where the `Src` field contains something other than "foo" (because false positives are expected). Those results must be removed. 
 
 ### transformScanRequest
  * This operation MUST take as input a ScanRequest object.
@@ -177,7 +175,8 @@ removing any duplicate results.
 ### transformScanResponse
  * This operation MUST take as input a ScanResponse object and a ScanRequest object.
  * This operation MUST return an ScanResponse object.
- * This operation MUST remove any records for which the scan beacon matched, but the actual query string does not match.
+ * This operation MUST remove any records for which the original QueryRequest does not match, that is,
+if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field) then we might get results where the `Src` field contains something other than "foo" (because false positives are expected). Those results must be removed. 
 
 ## PartiQL
 
