@@ -123,25 +123,19 @@ the returned UpdateTableRequest object MUST replace the source field names with 
 ### transformPutItemRequest
  * This operation MUST take as input an PutItemRequest object.
  * This operation MUST return an PutItemRequest object.
- * For each source field being written, the returned PutItemRequest must also write the scan beacon field.
+ * For each source field being written, the returned PutItemRequest MUST also write the scan beacon field.
  * An error MUST be returned if a scan beacon field is used in the input PutItemRequest.
-
-### transformUpdateItemRequest
- * This operation MUST take as input an UpdateItemRequest object.
- * This operation MUST return an UpdateItemRequest object.
- * For each source field being written, the returned UpdateItemRequest must also write the scan beacon field.
- * An error MUST be returned if a scan beacon field is used in the input UpdateItemRequest.
 
 ### transformBatchWriteItemRequest
  * This operation MUST take as input a BatchWriteItemRequest object.
  * This operation MUST return a BatchWriteItemRequest object.
- * For each source field being written, the returned BatchWriteItemRequest must also write the scan beacon field.
+ * For each source field being written, the returned BatchWriteItemRequest MUST also write the scan beacon field.
  * An error MUST be returned if a scan beacon field is used in the input BatchWriteItemRequest.
 
 ### transformTransactWriteItemsRequest
  * This operation MUST take as input a TransactWriteItemRequest object.
  * This operation MUST return a TransactWriteItemRequest object.
- * For each source field being written, the returned TransactWriteItemRequest must also write the scan beacon field.
+ * For each source field being written, the returned TransactWriteItemRequest MUST also write the scan beacon field.
  * An error MUST be returned if a scan beacon field is used in the input TransactWriteItemRequest.
 
 #### Note : GetItem, BatchGetItem and TransactGetItems work only on Primary Keys, and therefore are not affected by scan beacons
@@ -154,44 +148,36 @@ the returned UpdateTableRequest object MUST replace the source field names with 
 
  * For beacons in the FilterExpression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
  * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace (field EQ value) with ((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))
- * Doing this will likely require a complete parsing of the FilterExpression, which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
 
-If there is no "previous" entry in the "key" section
- * This operation must return one QueryRequest object
+If there is no "previous" entry in the `keyConditionExpression`
+ * This operation MUST return one QueryRequest object
 
-If there is a "previous" entry in the "key" section
+If there is a "previous" entry in the `keyConditionExpression`
  * This operation MUST return two QueryRequest objects
- * This operation MUST return one QueryRequest with the key's field and value replaced with the current scan beacon settings
- * This operation MUST return one QueryRequest with the key's field and value replaced with the previous scan beacon settings
+ * This operation MUST return one QueryRequest with the keyConditionExpression's field and value replaced with the current scan beacon settings
+ * This operation MUST return one QueryRequest with the keyConditionExpression's field and value replaced with the previous scan beacon settings
 
 
 ### transformQueryResponse
  * This operation MUST take as input a QueryResponse object and a QueryRequest object and and optional second QueryResponse object.
- * The QueryResponse objects MUST already be decrypted
  * This operation MUST return an QueryResponse object.
- * If the optional second QueryResponse object is provided, the two QueryResponse objects must be merged into the returned object.
+ * If the optional second QueryResponse object is provided, the two QueryResponse objects must be merged into the returned object,
+removing any duplicate results.
  * This operation MUST remove any records for which the scan beacon matched, but the actual query string does not match.
- * Doing this will likely require a complete parsing of the FilterExpression, which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
- * Doing this will likely require the creation of an executable parse tree
 
 ### transformScanRequest
  * This operation MUST take as input a ScanRequest object.
  * This operation MUST return a ScanRequest object.
  * This operation MUST fail if a source field is compared with anything but equality
- * If no source fields are mentioned, the ScanRequest object MUST be returned unchanged.
+ * If no source fields are mentioned in the FilterExpression, the ScanRequest object MUST be returned unchanged.
 
  * For beacons in the FilterExpression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace (field EQ value) with ((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))
- * Doing this will likely require a complete parsing of the FilterExpression, which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
-
+ * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace `field EQ value` with `(prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value)`
 
 ### transformScanResponse
  * This operation MUST take as input a ScanResponse object and a ScanRequest object.
  * This operation MUST return an ScanResponse object.
  * This operation MUST remove any records for which the scan beacon matched, but the actual query string does not match.
- * Doing this will likely require a complete parsing of the FilterExpression, which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
- * Doing this will likely require the creation of an executable parse tree
-
 
 ## PartiQL
 
@@ -200,3 +186,7 @@ PartiQL based methods need not be supported, e.g
 * executeStatement
 * batchExecuteStatement
 * executeTransaction
+
+## Operational Considerations
+Fully supporting FilterExpressions, will require a complete parsing of the FilterExpression,
+which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
