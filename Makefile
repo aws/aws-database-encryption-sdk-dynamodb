@@ -33,7 +33,7 @@ verify_ddb_encryption:
 
 test: test_dotnet
 
-test_dotnet: test_dotnet_structured_encryption
+test_dotnet: test_dotnet_structured_encryption test_dotnet_ddb_encryption
 
 test_dotnet_structured_encryption:
 	$(MAKE) -C src/StructuredEncryption test_dotnet

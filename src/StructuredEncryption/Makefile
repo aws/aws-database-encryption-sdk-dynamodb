@@ -2,8 +2,8 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH)
 
 verify:
-	cd src;\
-	dotnet build -t:VerifyDafny
+	cd runtimes/net;\
+	dotnet build -t:VerifyDafny Test
 
 build: build_dotnet
 
@@ -17,7 +17,7 @@ build_dotnet:
 # TODO cleanup CS0618 warning in MPL
 test_dotnet:
 	cd runtimes/net;\
-	dotnet test -f netcoreapp3.1 Test /nowarn:CS0618
+	dotnet test Test /nowarn:CS0618
 
 generate_models:
 	cd ../../polymorph/smithy-dotnet;\

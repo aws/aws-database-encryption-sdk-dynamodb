@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
-include "../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../../StructuredEncryption/model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../StructuredEncryption/src/Index.dfy"
-include "../Model/AwsCryptographyDynamodbEncryptionTypes.dfy"
+include "../model/AwsCryptographyDynamodbEncryptionTypes.dfy"
 include "Operations/EncryptItemOperation.dfy"
 include "Operations/DecryptItemOperation.dfy"
 
@@ -17,7 +17,7 @@ module
   import StructuredEncryption
   import AwsCryptographyStructuredEncryptionTypes
 
-  // TODO there is no sensitive default, so what should this do?
+  // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
   // build a default config?
   function method DefaultDynamoDBEncryptionConfig(): DynamoDBEncryptionConfig

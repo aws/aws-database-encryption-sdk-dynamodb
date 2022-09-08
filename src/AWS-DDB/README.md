@@ -6,7 +6,7 @@ This AWS-DDB module is a work in progress, and currently requires some updates i
 
 The following changes were done to the DDB model at https://github.com/aws/aws-models/blob/master/dynamodb/smithy/model.json in order to accomodate Polymorph's current limitations:
 
-- All `double` types were changes to `integer`. This can be changed back once Polymorph supports the smithy `double` type.
+- All `double` types were changed to `integer`. This can be changed back once Polymorph supports the smithy `double` type.
 
 ## DDB Polymorph-generated Dafny Changes
 

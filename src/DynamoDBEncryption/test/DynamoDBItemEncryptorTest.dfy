@@ -3,8 +3,8 @@
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/src/Util/UTF8.dfy"
 include "../src/Index.dfy"
-include "../Model/AwsCryptographyDynamodbEncryptionTypes.dfy"
-include "../../AWS-DDB/Model/ComAmazonawsDynamodbTypes.dfy"
+include "../model/AwsCryptographyDynamodbEncryptionTypes.dfy"
+include "../../AWS-DDB/model/ComAmazonawsDynamodbTypes.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
 
 module HappyCaseTests {

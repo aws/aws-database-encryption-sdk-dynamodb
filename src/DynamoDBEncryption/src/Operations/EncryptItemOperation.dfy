@@ -1,9 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
-include "../../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
-include "../../../AWS-DDB/Model/ComAmazonawsDynamodbTypes.dfy"
-include "../../Model/AwsCryptographyDynamodbEncryptionTypes.dfy"
+include "../../../StructuredEncryption/model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../../../AWS-DDB/model/ComAmazonawsDynamodbTypes.dfy"
+include "../../model/AwsCryptographyDynamodbEncryptionTypes.dfy"
 include "../../../StructuredEncryption/src/Index.dfy"
 
 module EncryptItemOperation {
