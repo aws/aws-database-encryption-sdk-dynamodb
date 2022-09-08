@@ -23,9 +23,11 @@ generate_models:
 	cd ../../polymorph/smithy-dotnet;\
 	./gradlew run --args="\
 	-m $(ROOT_DIR)/Model \
-	-namespace aws.cryptography.structuredEncryption \
+	-namespace aws.cryptography.dynamodbEncryption \
 	--output-dotnet $(ROOT_DIR)/runtimes/net/Generated \
 	-d $(ROOT_DIR)/../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/Model \
 	-d $(ROOT_DIR)/../../private-aws-encryption-sdk-dafny-staging/src/Crypto/Model \
 	-d $(ROOT_DIR)/../../private-aws-encryption-sdk-dafny-staging/src/AWS-KMS/Model \
-	-d $(ROOT_DIR)/../../private-aws-encryption-sdk-dafny-staging/model"
+	-d $(ROOT_DIR)/../../private-aws-encryption-sdk-dafny-staging/model \
+	-d $(ROOT_DIR)/../AWS-DDB/Model \
+	-d $(ROOT_DIR)/../StructuredEncryption/Model"

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
 include "../src/Index.dfy"
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
 
 module HappyCaseTests {
