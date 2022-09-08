@@ -47,8 +47,9 @@ A Scan Beacon definition MUST accept and optional parameter to provide a "previo
  * The previous Key Indicator and the previous hash length (number of bits) of the scan beacon
 
 This optional previous values allows the library to support changes in the configuration over time.
-If the configuration for a scan beacon changes, the library can search for both the scan beacon as
-calculated with the current configuration and also the scan beacon as calculated with the previous configuration,
+If the configuration for a scan beacon changes,
+the library can search for both the scan beacon as calculated with the current configuration
+and also the scan beacon as calculated with the previous configuration,
 and return the union of the two.
  
 ## Scan Beacon Operation
@@ -57,20 +58,21 @@ and return the union of the two.
 
 This operation MUST take the plain text of the source field as input.
 
-This operation MUST must take the HmacSha384 (citation needed) of the plain text and the specified key and return the most significant `hash length` bits as an unsigned integer.
+This operation MUST must take the HmacSha384 (citation needed) of the plain text and the specified key
+and return the most significant `hash length` bits as an unsigned integer.
 
 ## Item Encryptor Behavior
 
 Here is the specification for how the item encryptor specifically behaves with configured scan beacons.
 
-A `DynamoDBTableEncryptionConfig` object provides the list of Scan Beacons associated with the table which is associated with an operation.
+A `DynamoDBTableEncryptionConfig` object provides the list of Scan Beacons for the table associated with an operation.
 Various Request and Response objects are transformed, based on these Scan Beacons.
 
 ### Overview
 
-All Scan Beacon Group operations are a convenience for using the DynamoDB Encryption Client. The user calls the
-SDK referring to the encrypted data fields, and these operations transform the Request and Response objects
-to use the scan beacons instead.
+All Scan Beacon Group operations are a convenience for using the DynamoDB Encryption Client.
+The user calls the SDK referring to the encrypted data fields,
+and these operations transform the Request and Response objects to use the scan beacons instead.
 
 #### Indexing
 
@@ -92,8 +94,9 @@ search instead for the Hash of the value in the scan beacon field.
 Note that only exact matches can be supported. No ranged queries or inequalities.
 It is an error to attempt such a query.
 
-This might return false positive results, after retrieving records in this way, you must decrypt the record and compare
-the source field value to the query value, and discard any records where they don't match.
+This might return false positive results, after retrieving records in this way,
+you must decrypt the record and compare the source field value to the query value,
+and discard any records where they don't match.
 
 ## Operations
 
@@ -102,16 +105,19 @@ the source field value to the query value, and discard any records where they do
  * This operation MUST take as input a CreateTableRequest object.
  * This operation MUST return a CreateTableRequest object.
  * If no Global Secondary Index is being created, the CreateTableRequest object MUST be returned unaltered.
- * If the Global Secondary Index being created includes no source fields, that is, if the KeySchema does not mention a source field, the CreateTableRequest object MUST be returned unaltered.
+ * If the Global Secondary Index being created includes no source fields, that is,
+if the KeySchema does not mention a source field, the CreateTableRequest object MUST be returned unaltered.
  * If the Global Secondary Index being created includes a source field,
-the returned CreateTableRequest object MUST replace the source field names with the corresponding scan beacon field names in the KeySchema.
+the returned CreateTableRequest object MUST replace the source field names
+with the corresponding scan beacon field names in the KeySchema.
 
 ### transformUpdateTableRequest
 
  * This operation MUST take as input an UpdateTableRequest object.
  * This operation MUST return an UpdateTableRequest object.
  * If no Global Secondary Index is being created, the UpdateTableRequest object MUST be returned unaltered.
- * If the Global Secondary Index being created includes no source fields, that is, if the KeySchema does not mention a source field, the UpdateTableRequest object MUST be returned unaltered.
+ * If the Global Secondary Index being created includes no source fields, that is,
+if the KeySchema does not mention a source field, the UpdateTableRequest object MUST be returned unaltered.
  * If the Global Secondary Index being created includes a source field,
 the returned UpdateTableRequest object MUST replace the source field names with the corresponding scan beacon field names in the KeySchema.
 
@@ -134,6 +140,8 @@ the returned UpdateTableRequest object MUST replace the source field names with 
  * An error MUST be returned if a scan beacon field is used in the input TransactWriteItemRequest.
 
 #### Note : GetItem, BatchGetItem and TransactGetItems work only on Primary Keys, and therefore are not affected by scan beacons
+
+#### Note : UpdateItem is not allowed in the encryption client, and so can be ignored for scan beacons
 
 ### transformQueryRequest
  * This operation MUST take as input a QueryRequest object.
@@ -161,7 +169,9 @@ If there is a "previous" entry in the `keyConditionExpression`
  * If the optional second QueryResponse object is provided, the two QueryResponse objects must be merged into the returned object,
 removing any duplicate results.
  * This operation MUST remove any records for which the original QueryRequest does not match, that is,
-if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field) then we might get results where the `Src` field contains something other than "foo" (because false positives are expected). Those results must be removed. 
+if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field)
+then we might get results where the `Src` field contains something other than "foo" (because false positives are expected).
+Those results must be removed. 
 
 ### transformScanRequest
  * This operation MUST take as input a ScanRequest object.
@@ -169,14 +179,18 @@ if the original FilterExpression included `Src EQ "foo"` (where `Src` is a sourc
  * This operation MUST fail if a source field is compared with anything but equality
  * If no source fields are mentioned in the FilterExpression, the ScanRequest object MUST be returned unchanged.
 
- * For beacons in the FilterExpression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For beacons in the FilterExpression that do have a "previous" entry, this operation MUST replace `field EQ value` with `(prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value)`
+ * For beacons in the FilterExpression that have no "previous" entry,
+this operation MUST replace source fields and values with scan beacon fields and HMACs
+ * For beacons in the FilterExpression that do have a "previous" entry,
+this operation MUST replace `field EQ value` with `(prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value)`
 
 ### transformScanResponse
  * This operation MUST take as input a ScanResponse object and a ScanRequest object.
  * This operation MUST return an ScanResponse object.
  * This operation MUST remove any records for which the original QueryRequest does not match, that is,
-if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field) then we might get results where the `Src` field contains something other than "foo" (because false positives are expected). Those results must be removed. 
+if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field)
+then we might get results where the `Src` field contains something other than "foo" (because false positives are expected).
+Those results must be removed. 
 
 ## PartiQL
 
@@ -188,4 +202,4 @@ PartiQL based methods need not be supported, e.g
 
 ## Operational Considerations
 Fully supporting FilterExpressions, will require a complete parsing of the FilterExpression,
-which is sensitive to any upgrades that the DynamoDB tems makes to the expression language.
+which is sensitive to any updates that the DynamoDB team makes to the expression language.
