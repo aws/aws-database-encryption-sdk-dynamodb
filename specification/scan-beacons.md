@@ -64,7 +64,7 @@ This operation MUST must take the HmacSha384 (citation needed) of the plain text
 Here is the specification for how the item encryptor specifically behaves with configured scan beacons.
 
 A `DynamoDBTableEncryptionConfig` object provides the list of Scan Beacons associated with the table which is associated with an operation.
-Various Request and Respose objects are transformed, based on these Scan Beacons.
+Various Request and Response objects are transformed, based on these Scan Beacons.
 
 ### Overview
 
@@ -92,7 +92,7 @@ search instead for the Hash of the value in the scan beacon field.
 Note that only exact matches can be supported. No ranged queries or inequalities.
 It is an error to attempt such a query.
 
-This might return false positive results, sfter retrieving records in this way, you must decrypt the record and compare
+This might return false positive results, after retrieving records in this way, you must decrypt the record and compare
 the source field value to the query value, and discard any records where they don't match.
 
 ## Operations
@@ -139,7 +139,7 @@ the returned UpdateTableRequest object MUST replace the source field names with 
  * This operation MUST take as input a QueryRequest object.
  * This operation MUST return a QueryRequest object and an optional second QueryRequest object.
  * This operation MUST fail if a source field is compared with anything but equality, that is,
-if the FilterExpressions uses a source field withn anything but `EQ`.
+if the FilterExpressions uses a source field with anything but `EQ`.
  * This operation MUST fail if the input FilterExpression or KeyExpression directly mentions a scan beacon field.
  * If no source fields are mentioned, the QueryRequest object MUST be returned unchanged.
 
