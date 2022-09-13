@@ -9,7 +9,7 @@ The Makefile doesn't currently build dev requirements, so you will need to grab 
 
 You will need at least:
 - dotnet (I'm using v6.0.400)
-- dafny (I'm using v3.7.3)
+- dafny v3.7.3 (v3.8 and onwards does not work)
 
 Additionally, I am working off a Mac and cannot guarantee that these commands will work on other platforms.
 
@@ -29,15 +29,6 @@ you may encounter an error that says:
 
 > No usable version of libssl was found
 
-### Rebuild the model
-
-```
-make generate-models
-```
-
-Generates new models for the Structured Encryption Library, DDBEC, and DDB using the polymorph submodule.
-Will overwrite models, but will not clean up old models that are not overwritten.
-
 ### Verify Dafny Code
 
 ```
@@ -53,6 +44,21 @@ make build
 ```
 
 Compiles the dafny code into target languages (currently just .NET) and builds.
+
+
+### Rebuild the model
+
+Note: Currently this command isn't stable.
+Code generated from the models needs manual modifications to work.
+
+If you are updating the smithy model, you will also need to re-generate the corresponding models.
+
+```
+make generate-models
+```
+
+Generates new models for the Structured Encryption Library, DDBEC, and DDB using the polymorph submodule.
+Will overwrite models, but will not clean up old models that are not overwritten.
 
 ### Run the tests
 
