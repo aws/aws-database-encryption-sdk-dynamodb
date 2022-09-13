@@ -16,6 +16,18 @@ build_dotnet_ddb_encryption:
 	$(MAKE) -C src/DynamoDBEncryption build_dotnet
 
 ####
+# Clean Targets
+####
+
+clean: clean_dotnet_structured_encryption clean_dotnet_ddb_encryption
+
+clean_dotnet_structured_encryption:
+	$(MAKE) -C src/StructuredEncryption clean
+
+clean_dotnet_ddb_encryption:
+	$(MAKE) -C src/DynamoDBEncryption clean
+
+####
 # Verify Targets
 ####
 
