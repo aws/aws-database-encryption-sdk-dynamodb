@@ -51,6 +51,8 @@ If the configuration for a scan beacon changes,
 the library can search for both the scan beacon as calculated with the current configuration
 and also the scan beacon as calculated with the previous configuration,
 and return the union of the two.
+
+#### Note : All the handling of "previous" entries must be considered tentative, as SDK support for intercepting query calls varies among languages, and the support we need might not be available everywhere, e.g. in Java.
  
 ## Scan Beacon Operation
 
