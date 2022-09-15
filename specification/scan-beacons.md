@@ -51,6 +51,8 @@ A scan beacon definition MUST accept an optional parameter to provide a "previou
  * an empty value, indicating that the field was not previously a beacon
  * The previous key indicator and the previous hash length (number of bits) of the scan beacon
 
+#### Note : Any individual scan becaon can have no more than one "previous" entry.
+
 This optional previous values allows the library to support changes in the configuration over time.
 If the configuration for a scan beacon changes,
 the library can search for both the scan beacon as calculated with the current configuration
