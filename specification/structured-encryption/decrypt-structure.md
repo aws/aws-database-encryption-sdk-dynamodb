@@ -85,3 +85,29 @@ This structure MUST include:
 - The [Encrypted Data Keys](#TODO-truss-header)
 
 ## Behavior
+
+All inputs MUST adhere to their requirements;
+otherwise this operation MUST immediately yield an error.
+
+The Decrypt Structure operation is divided into several distinct steps:
+
+- [Retrieve Decryption Materials](#retrieve-decryption-materials)
+- [Verify Signatures](#verify-signatures)
+- [Construct Decrypted Structured Data](#construct-decrypted-structured-data)
+
+This operation MUST perform all the above steps unless otherwise specified,
+and it MUST perform them in the above order.
+
+If any of these steps fails, this operation MUST halt and indicate a failure to the caller.
+
+### Retrieve Decryption Materials
+
+TODO
+
+### Verify Signatures
+
+TODO
+
+### Construct Decrypted Structured Data
+
+TODO

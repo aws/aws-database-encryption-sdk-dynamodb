@@ -95,17 +95,35 @@ Users MUST NOT use the encryption context to store secret data.
 
 ### Structured Data
 
-Structured Data is the basic unit that the Structured Encryption Library supports encrypting and decrypting.
-Structured Data is intended to support the expression of most [JSON](https://datatracker.ietf.org/doc/html/rfc7159) and [XML](https://www.w3.org/TR/xml/) data.
+Structured Data is a recursively defined structure that is intended to support
+the expression of most [JSON](https://datatracker.ietf.org/doc/html/rfc7159) and [XML](https://www.w3.org/TR/xml/) data.
 
+Structured Data is a union of one of three separate structures;
 Structured Data MUST be one of:
-- [Terminal Data](#terminal-data)
-- A map of UTF8-encoded strings to Structured Data
-  - This map MUST NOT allow duplicate key values 
-- A numerical-indexed array of Structured Data.
-  - The max length of this list MUST be 2^64-1
+- [Structured Data Terminal](#structured-data-terminal)
+- [Structured Data Map](#structured-data-map)
+- [Structured Data List](#structured-data-list)
 
-Structured Data MUST optionally contain a map of [Attributes](#structured-data-attributes).
+#### Structured Data Terminal
+
+A Structured Data Terminal MUST consist of:
+- a [Terminal Data](#terminal-data)
+- an OPTIONAL map of [Attributes](#structured-data-attributes)
+
+#### Structured Data Map
+
+A Structured Data Map MUST consist of:
+- A map of UTF8-encoded strings to [Structured Data](#structured-data)
+  - This map MUST NOT allow duplicate key values 
+- an OPTIONAL map of [Attributes](#structured-data-attributes)
+
+#### Structured Data List
+
+A Structured Data List MUST consist of:
+
+- A numerical-indexed array of [Structured Data](#structured-data).
+  - The max length of this list MUST be 2^64 - 1
+- an OPTIONAL map of [Attributes](#structured-data-attributes)
 
 ### Structured Data Attributes
 
@@ -127,7 +145,7 @@ If [Terminal Value](#terminal-value) is to be interpreted as raw bytes,
 the Terminal Type ID MUST be 0xFFFF.
 Any other value prefixed by 0xFF is reserved and MUST NOT be used.
 
-It is the responsiblity of the caller to define and maintain a mapping of Terminal Type IDs to specific types
+It is the responsiblity of the caller to define and maintain a mapping of Terminal Type IDs (including 0xFFFF) to specific types
 and how those types should be serialized and deserialized.
 
 #### Terminal Value
