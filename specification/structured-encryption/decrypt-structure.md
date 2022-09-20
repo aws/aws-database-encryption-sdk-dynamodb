@@ -63,7 +63,7 @@ MUST be included in this input in order for Decryption to succeed.
 This input MAY include field-value pairs which were included in the input Encryption Context during encryption,
 but not included in [Required Context Fields On Decrypt](./encrypt-structure.md#required-context-fields-on-decrypt).
 
-This input MUST NOT include field-value pairs which were not originally supplied in the [Encryption Context](./encrypt-structure.md#encryption-context),
+This input MUST NOT include field-value pairs which were not originally supplied in the [Encryption Context] during encryption(./encrypt-structure.md#encryption-context),
 otherwise decryption MUST fail.
 
 ## Output
