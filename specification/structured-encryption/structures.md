@@ -51,13 +51,13 @@ during the Encrypt Structure and Decrypt Structure operations.
 
 ##### ENCRYPT_AND_SIGN
 
-During Encrypt Structure,
-signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
+During [Encrypt Structure](encrypt-structure.md#encrypt-structure),
+ENCRYPT_AND_SIGN signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
 MUST be encrypted in the resulting encrypted [Structured Data](#structured-data),
-and the Terminal Data included as part of the signature calculation.
+and the [Terminal Data](#terminal-data) included as part of the signature calculation.
 
-During Decrypt Structure,
-signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
+During [Decrypt Structure](decrypt-structure.md#decrypt-structure),
+ENCRYPT_AND_SIGN  signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
 MUST be attempted to be decrypted, and the Terminal Data included as part of the signature verification calculation.
 
 ##### SIGN_ONLY
