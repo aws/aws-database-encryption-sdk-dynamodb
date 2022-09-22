@@ -24,8 +24,8 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 This document describes the behavior by which a [Structured Data](./structures.md#structured-data) is encrypted.
 We define encryption over this [Structured Data](./structures.md#structured-data) to mean that
-confidentiality is ensured over a set of [Terminal Values](./structures.md#terminal-data) within that structure,
-and integrity and authenticity is ensured over a larger set of of [Terminal Data](./structures.md#terminal-data).
+authenticity is ensured over a non-empty set of [Terminal Data](./structures.md#terminal-data),
+and confidentiality is ensured over a (possibly empty) subset of that Terminal Data.
 
 ## Input
 
@@ -33,13 +33,12 @@ The following inputs to this behavior are REQUIRED:
 
 - [Structured Data](#structured-data)
 - [Crypto Schema](#crypto-schema)
-- Either a [Cryptographic Materials Manager (CMM)](#cmm) or a [Keyring](#keyring)
+- [Cryptographic Materials Manager (CMM)](#cmm)
 
 The following inputs to this behavior MUST be OPTIONAL:
 
 - [Algorithm Suite](#algorithm-suite)
 - [Encryption Context](#encryption-context)
-- [Required Context Fields On Decrypt](#required-context-fields-on-decrypt)
 
 ### Structured Data
 
@@ -54,19 +53,19 @@ as keys in it's map.
 The [Crypto Schema](./structures.md#crypto-schema) that describes how [Terminal Data](./structures.md#terminal-data)
 within the [input Structured Data](#structured-data) should be treated during encryption.
 
-The Crypto Schema MUST explicitly configure a [Crypto Action](./structures.md#crypto-action) to every
+The Crypto Schema MUST explicitly configure a [Crypto Action](./structures.md#crypto-action) for every
 [Terminal Data](./structures.md#terminal-data) that exists on the [input Structured Data](#structured-data),
 and MUST NOT describe Crypto Actions for locations within the input Structured Data that either
 do not exist, or contain non-Terminal Data structures;
 otherwise, this operation operation MUST yield an error.
 
+The Crypto Schema MUST include at least one [ENCRYPT_AND_SIGN Crypto Action](./structures.md#encryptandsign) or
+[SIGN_ONLY Crypto Action](./structures.md#signonly);
+otherwise, this operation MUST yield an error.
+
 ### CMM
 
 A CMM that implements the [CMM interface](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md).
-
-### Keyring
-
-A Keyring that implements the [keyring interface](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/keyring-interface.md).
 
 ### Algorithm Suite
 
@@ -84,16 +83,6 @@ see the [the Default CMM spec](default-cmm.md) for one such use.
 
 If the input encryption context contains any entries with a key beginning with this prefix,
 the encryption operation MUST yield an error.
-
-### Required Context Fields On Decrypt
-
-A list of strings that indicates which fields within the [input encryption context](#encryption-context)
-MUST NOT be included as metadata within the [output Encrypted Structured Data](#encrypted-structured-data),
-and thus MUST be supplied during [Decrypt Structure](./decrypt-structure.md) in order for decryption of the
-output Encrypted Structured Data to succeed.
-
-Every item in this list MUST exist as a key in the [input encryption context](#encryption-context);
-otherwise, this operation MUST yield an error.
 
 ## Outputs
 
@@ -114,7 +103,7 @@ the Encrypt Structure operation is divided into several distinct steps:
 - [Calculate Intermediate Encrypted Structured Data](#construct-encrypted-structured-data)
 - [Construct Encrypted Structured Data](#construct-encrypted-structured-data)
 
-This operation MUST perform all the above steps unless otherwise specified,
+This operation MUST perform all the above steps,
 and it MUST perform them in the above order.
 
 If any of these steps fails, this operation MUST halt and indicate a failure to the caller.
@@ -123,21 +112,22 @@ If any of these steps fails, this operation MUST halt and indicate a failure to 
 
 This operation MUST obtain a set of encryption materials by calling
 [Get Encryption Materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md#get-encryption-materials)
-on a CMM.
-The CMM used MUST be the [input CMM](#cmm), if supplied.
-If instead the caller supplied a keyring,
-this behavior MUST use a
-[default CMM](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/default-cmm.md)
-constructed using the [caller-supplied keyring](#keyring) as input.
+on the input [CMM](#cmm).
 
-The call to Get Encryption Materials on the CMM MUST be constructed as follows:
+The call to Get Encryption Materials MUST be constructed as follows:
 - Encryption Context: If provided, this MUST be the [input encryption context](#encryption-context);
   otherwise, this is an empty encryption context.
 - Commitment Policy: This MUST be
-  [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](https://github.com/awslabs/aws-encryption-sdk-specification/blob/83438a542064043b2e0d41cb9452d6863b20d83a/client-apis/client.md#require_encrypt_require_decrypt).
+  [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](#TODO-mpl-alg-suites).
 - Algorithm Suite: If provided, this is the [input algorithm suite](#algorithm-suite);
   otherwise, this field MUST be [TODO](#TODO-mpl-alg-suites).
-- Max Plaintext Length: This field MUST NOT be included.
+- Max Plaintext Length: This field MUST be the result of the calculation `encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize`
+  - `encryptedTerminalDataNum` is the number of [Terminal Data](./structures.md#terminal-data)
+    in the [input Structured Data](#structured-data) being encrypted,
+    as defined by the [input Crypto Schema](#crypto-schema).
+  - `totalEncryptedTerminalValuesSize` is the sum of the length of all [Terminal Values](./structures.md#terminal-value)
+    in the [input Structured Data](#structured-data) being encrypted,
+    as defined by the [input Crypto Schema](#crypto-schema).
 
 The algorithm suite used in all aspects of this operation MUST be
 the algorithm suite in the
@@ -195,10 +185,8 @@ The Intermediate Encryption Structured Data MUST be calculated with the followin
   - Message Format Flavor MUST be `0x01` if the algorithm suite is [TODO](#TODO-mpl-alg-suite),
     and `0x00` if the algorithm suite is [TODO](#TODO-mpl-alg-suite).
   - Message ID: MUST be the Message ID generated for this Encrypted Structured Data.
-  - Legend: MUST be the [serialization of the input Crypto Schema](#TODO-truss-header)
-  - Encryption Context: MUST be the [serialized set of key-value pairs](#TODO-truss-header)
-    in the input [Encryption Context](#encryption-context) such that the key does not exist in the
-    [input Required Encryption Context Fields On Decrypt](#required-context-fields-on-decrypt).
+  - TODO: Legend or other Crypto Schema related field.
+  - Encryption Context: MUST be the [encryption context](./structures.md#encryption-context) in the encryption materials.
   - Encrypted Data Keys: MUST be the [serialization of the encrypted data keys](#TODO-truss-header)
     in the encryption materials.
   - Header Commitment: MUST be the [calculated](#TODO-truss-header) using the commitment key calculated above.
@@ -236,3 +224,10 @@ The Encrypted Structured Data outputted by this operation MUST be a Structured D
   - the HMAC values MUST be calculated using the symmetric keys in the encryption materials.
   - the footer MUST contain an asymmetric signature if the algorithm suite includes asymmetric signing
   - the asymmetric signature, if it exists, MUST be calculated using the signing key in the encryption materials.
+  - the HMAC and asymmetric signature MUST be calculated over the [signature canonicalization value](#TODO-truss-signature-canonicalization).
+    The [Terminal Data](./structures.md#terminal-data) used in this calculation MUST include exactly:
+      - The [header](#TODO-truss-header)
+      - Any [Terminal Data](./structures.md#terminal-data) on the
+        [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data)
+        that [Crypto Schema](#crypto-schema) maps with [ENCRYPT_AND_SIGN](./structures.md#encryptandsign)
+        or [SIGN_ONLY](./structures.md#signonly).

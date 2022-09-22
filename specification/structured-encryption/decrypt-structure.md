@@ -26,14 +26,14 @@ This document describes the behavior by which a [Structured Data](./structures.m
 which has been [encrypted](./encrypt-structure.md) is decrypted.
 We define decryption over this [Structured Data](./structures.md#structured-data) to mean that
 we obtain back the original Structured Data,
-and ensure integrity and authenticity is ensured over a set of of [Terminal Data](./structures.md#terminal-data).
+and ensure integrity and authenticity is ensured over a set of [Terminal Data](./structures.md#terminal-data).
 
 ## Input
 
 The following inputs to this behavior are REQUIRED:
 
 - [Encrypted Structured Data](#encrypted-structured-data)
-- Either a [Cryptographic Materials Manager (CMM)](#cmm) or a [Keyring](#keyring)
+- [Cryptographic Materials Manager (CMM)](#cmm)
 
 The following inputs to this behavior MUST be OPTIONAL:
 
@@ -47,10 +47,6 @@ The [Structured Data](./structures.md#structured-data) to be decrypted.
 ### CMM
 
 A CMM that implements the [CMM interface](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md).
-
-### Keyring
-
-A Keyring that implements the [keyring interface](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/keyring-interface.md).
 
 ### Encryption Context
 
@@ -72,17 +68,6 @@ otherwise decryption MUST fail.
 
 The decrypted form of the [input Encrypted Structured Data](#encrypted-structured-data),
 decrypted according to the [behavior specified below](#behavior).
-
-### Parsed Header
-
-A structure containing information derived from the header of the [output Encrypted Structured Data](#encrypted-structured-data).
-This structure MUST include:
-- The [Message Format Version](#TODO-truss-header)
-- The [Message ID](#TODO-truss-header)
-- The [Algorithm Suite](#TODO-truss-header)
-- The [Crypto Schema](#TODO-truss-header)
-- The stored [Encryption Context](#TODO-truss-header)
-- The [Encrypted Data Keys](#TODO-truss-header)
 
 ## Behavior
 

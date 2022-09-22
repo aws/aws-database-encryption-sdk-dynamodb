@@ -53,27 +53,30 @@ during the Encrypt Structure and Decrypt Structure operations.
 
 During [Encrypt Structure](encrypt-structure.md#encrypt-structure),
 ENCRYPT_AND_SIGN signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
-MUST be encrypted in the resulting encrypted [Structured Data](#structured-data),
-and the [Terminal Data](#terminal-data) included as part of the signature calculation.
+MUST be encrypted in the resulting encrypted [Structured Data](#structured-data).
+ENCRYPT_AND_SIGN also signifies that the [Terminal Data](#terminal-data)
+MUST be included as part of the signature calculation.
 
 During [Decrypt Structure](decrypt-structure.md#decrypt-structure),
 ENCRYPT_AND_SIGN  signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
-MUST be attempted to be decrypted, and the Terminal Data included as part of the signature verification calculation.
+MUST be attempted to be decrypted.
+ENCRYPT_AND_SIGN also signifies that the [Terminal Data](#terminal-data)
+MUST be included as part of the signature verification calculation.
 
 ##### SIGN_ONLY
 
 During Encrypt Structure,
-signifies that the [Terminal Data](#terminal-data) MUST be included as part of the signature calculation.
+SIGN_ONLY signifies that the [Terminal Data](#terminal-data) MUST be included as part of the signature calculation.
 
 During Decrypt Structure,
-signifies that the [Terminal Data](#terminal-data) MUST be included as part of the signature verification calculation.
+SIGN_ONLY signifies that the [Terminal Data](#terminal-data) MUST be included as part of the signature verification calculation.
 
 ##### IGNORE
 
-Signifies that the [Terminal Data](#terminal-data) MUST NOT be included in any signature calculation as part of
+IGNORE signifies that the [Terminal Data](#terminal-data) MUST NOT be included in any signature calculation as part of
 Encrypt Structure or Decrypt Structure.
 
-Additionally signifies that the [Terminal Data](#terminal-data) on output MUST equal that Terminal Data on input for
+IGNORE additionally signifies that the [Terminal Data](#terminal-data) on output MUST equal that Terminal Data on input for
 Encrypt Structure and Decrypt Structure.
 
 ### Crypto Schema
@@ -83,15 +86,7 @@ during encryption and decryption, based on that Terminal Data's location within 
 
 ### Encryption Context
 
-The Encryption Context is a key-value mapping of arbitrary, non-secret, UTF-8 encoded strings.
-It is used during encryption and decryption to provide additional authenticated data (AAD).
-
-Users SHOULD use the encryption context to store:
-
-- Non-secret data that MUST remain associated with the encrypted [Structured Data](#structured-data).
-- Data that is useful in logging and tracking, such as data about the file type, purpose, or ownership.
-
-Users MUST NOT use the encryption context to store secret data.
+TODO: Link directly to the MPL definition once it is more generalized.
 
 ### Structured Data
 
