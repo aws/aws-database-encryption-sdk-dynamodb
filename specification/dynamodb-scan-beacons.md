@@ -157,13 +157,7 @@ if the original FilterExpression included `Src EQ "foo"` (where `Src` is a sourc
 then we might get results where the `Src` field contains something other than "foo" (because false positives are expected).
 Those results must be removed. 
 
-## PartiQL
-
-PartiQL based methods need not be supported, e.g
-
-* executeStatement
-* batchExecuteStatement
-* executeTransaction
+#### Note PartiQL based methods (executeStatement, batchExecuteStatement, executeTransaction) are beyond the scope of this document.
 
 ## Operational Considerations
 Fully supporting FilterExpressions, will require a complete parsing of the FilterExpression,
