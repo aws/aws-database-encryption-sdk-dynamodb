@@ -11,6 +11,9 @@
 
 ## Definitions
 
+ * source field : an encrypted DynamoDB attribute
+ * scan beacon field : an attribute holding the truncated HMAC of a source field
+
 ### Conventions used in this document
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
@@ -22,6 +25,10 @@ Scan beacons are described [here](scan-beacons.md)
 
 A `DynamoDBTableEncryptionConfig` object provides the list of Scan Beacons for the table associated with an operation.
 Various Request and Response objects are transformed, based on these Scan Beacons.
+
+It should be noted that primary keys cannot be scan beacons,
+both because primary keys are not encrypted
+and because scan becaons are designed to create false duplicates.
 
 The basic user experience is this 
 1. User constructs a client object, registering Gazelle intercepts
@@ -37,15 +44,15 @@ The basic user experience is this
 When a request is made to create a Index for a source field,
 instead the index must be created on the scan beacon field.
 
-#### Note : this is woefully insufficient, as indexes turn out to be a big mess
+When the config changes, a special API call must be made to create any necessary additional indexes.
 
 #### Writing
 
 Whenever a record is written, if the source field is written then the scan beacon field must also be written,
 containing the Scan Beacon Hash of the plain text of the source field.
-That is, for every encrypted field with a scan beacon, an additonal field is written.
+That is, for every encrypted attribute with a scan beacon, an additonal attribute is written.
 
-It is a error to attempt to write a source field with the same name as a scan beacon field.
+It is a error to attempt to write a source attribute with the same name as a scan beacon field.
 
 #### Reading
 
@@ -56,7 +63,7 @@ Note that only exact matches can be supported. No ranged queries or inequalities
 It is an error to attempt such a query.
 
 This might return false positive results. After retrieving records in this way,
-you must decrypt the record and compare the source field value to the query value,
+you examine the decrypted record and compare the source field value to the query value,
 and discard any records where they don't match.
 
 ## Operations
@@ -104,26 +111,36 @@ the returned UpdateTableInput object MUST replace the source field names with th
 
 #### Note : GetItem, BatchGetItem and TransactGetItems work only on Primary Keys, and therefore are not affected by scan beacons
 
+#### Note PartiQL based methods (executeStatement, batchExecuteStatement, executeTransaction) are beyond the scope of this document.
+
 #### Note : UpdateItem is not allowed in the encryption client, and so can be ignored for scan beacons
 
 ### transformQueryInput
  * This operation MUST take as input a QueryInput object.
- * This operation MUST return a QueryInput object and an optional second QueryInput object.
- * This operation MUST fail if a source field is compared with anything but equality, that is,
-if the FilterExpressions uses a source field with anything but `EQ`.
- * This operation MUST fail if the input FilterExpression or KeyExpression directly mentions a scan beacon field.
- * If no source fields are mentioned, the QueryInput object MUST be returned unchanged.
-
+ * This operation MUST return a list of QueryInput objects
+ * If no source fields are mentioned, this operstion MUST return a single QueryInput object,
+which is the unaltered input object.
+ * This operation MUST fail if the keyConditionExpression compares a source field with anything but equality.
+ * This operation MUST fail if the FilterExpressions uses a source field with anything but `=`, `IN`,
+ `attribute_exists`, `attribute_not_exists` or `size`.
+ * This operation MUST fail if the input FilterExpression or keyConditionExpression directly mentions a scan beacon field.
+ * If the FilterExpression refers to no source fields, the FilterExpression MUST remain unchanged.
+ * If the FilterExpression refers to source fields only with `attribute_exists`, `attribute_not_exists` or `size`,
+the FilterExpression MUST be returned unchanged.
  * For source fields in the Filter Expression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For source fields in the FilterExpression that do have a "previous" entry, this operation MUST replace `(field EQ value)` with `((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))`
+ * For source fields in the FilterExpression that do have a "previous" entry, this operation MUST replace `(field EQ value)` with `((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR prev_beacon_field in (prev_beacon_A, prev_beacon_B).
 
-If there is no "previous" entry in the `keyConditionExpression`
- * This operation MUST return one QueryInput object
-
-If there is a "previous" entry in the `keyConditionExpression`
- * This operation MUST return two QueryInput objects
- * This operation MUST return one QueryInput with the keyConditionExpression's field and value replaced with the current scan beacon settings
- * This operation MUST return one QueryInput with the keyConditionExpression's field and value replaced with the previous scan beacon settings
+ * If the keyConditionExpression refers to no source fields with "previous" entries,
+this opertion must return exactly one QueryInput object.
+ * If the keyConditionExpression refers to one source fields with a "previous" entry,
+this opertion MUST return two QueryInput objects;
+one with the keyConditionExpression's field and value replaced with the current scan beacon settings
+and one with the keyConditionExpression's field and value replaced with the previous scan beacon settings
+ * If the keyConditionExpression refers to two source fields with "previous" entries,
+this opertion MUST return four QueryInput objects, replacing the keyConditionExpression's field and value
+with all four permutations of current an previous settings.
+ * If the implementation knows that any of the created keyConditionExpressions will return no results,
+this operation MAY not return the associated QueryInput objects.
 
 #### Note : transformQueryOutput needs a QueryInput object, becase we need to check the result records against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
 
@@ -157,7 +174,6 @@ if the original FilterExpression included `Src EQ "foo"` (where `Src` is a sourc
 then we might get results where the `Src` field contains something other than "foo" (because false positives are expected).
 Those results must be removed. 
 
-#### Note PartiQL based methods (executeStatement, batchExecuteStatement, executeTransaction) are beyond the scope of this document.
 
 ## Operational Considerations
 Fully supporting FilterExpressions, will require a complete parsing of the FilterExpression,
