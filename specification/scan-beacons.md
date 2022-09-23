@@ -13,11 +13,8 @@
 
 A scan beacon is a stable HMAC of the unencrypted value of an encrypted field.
 This allows a database server to perform some types of searches on client-side encrypted records.
-It can be optionally truncated to better avoid creating distinguishers of the plaintext.
-
-It should be noted that primary keys cannot be scan beacons,
-both because primary keys are not encrypted
-and because scan becaons are designed to create false duplicates.
+It can be optionally truncated to better avoid creating distinguishers of the plaintext;
+that is, to increase hash collisions. 
 
 ## Definitions
 
