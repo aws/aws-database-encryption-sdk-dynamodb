@@ -194,7 +194,7 @@ The Intermediate Encryption Structured Data MUST be calculated with the followin
 #### Terminal Data Encryption
 
 Encryption of [Terminal Data](./structures.md#terminal-data) takes a
-Terminal Data as input, and return a sequence of bytes.
+Terminal Data as input, and returns a sequence of bytes.
 
 The encryption algorithm used MUST be the encryption algorithm indicated in the algorithm suite.
 This encryption MUST be performed with the followings specifics:
@@ -209,6 +209,18 @@ Given an Intermediate Encrypted Structured Data,
 the signatures over this Structured Data may be calculated,
 and the final Encrypted Structured Data outputted.
 
+The calculations below REQUIRE determining a [canonical hash](#TODO-truss-signature-canonicalization)
+of the [Structured Data](#structured-data), with the following specifics:
+- The header bytes are the [Terminal Value](./structures.md#terminal-value) of the
+  [Terminal Data](./structures.md#terminal-data) at string index "aws:truss-header" in the
+  [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data).
+- The fields are the set of [Terminal Data](./structures.md#terminal-data)
+  on the [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data)
+  that the [Crypto Schema](#crypto-schema) indicates is
+  [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) or [SIGN_ONLY](./structures.md#signonly).
+- The AAD is the [serialization of the Encryption Context](#TODO-mpl-structures)
+  in the encryption materials.
+
 The Encrypted Structured Data outputted by this operation MUST be a Structured Data such that:
 - for every [Terminal Data](./structures.md#terminal-data) in the
   [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
@@ -221,13 +233,13 @@ The Encrypted Structured Data outputted by this operation MUST be a Structured D
   with [Terminal Value](./structures.md#terminal-value) equal to the [serialized footer](#TODO-truss-header)
   MUST exist on the Encrypted Structured Data, indexed at the top level by `aws:truss-footer`.
   The values of this footer have the following requirements:
-  - the HMAC values MUST be calculated using the symmetric keys in the encryption materials.
+  - the HMAC values MUST be calculated over the canonical hash,
+    using the symmetric keys in the encryption materials.
+  - the HMAC values MUST be ordered such that the [Encrypted Data Key](#TODO-truss-header)
+    that shares it's index [corresponds to the symmetric key](#TODO-mpl-structures) that was used to calculate it.
   - the footer MUST contain an asymmetric signature if the algorithm suite includes asymmetric signing
-  - the asymmetric signature, if it exists, MUST be calculated using the signing key in the encryption materials.
-  - the HMAC and asymmetric signature MUST be calculated over the [signature canonicalization value](#TODO-truss-signature-canonicalization).
-    The [Terminal Data](./structures.md#terminal-data) used in this calculation MUST include exactly:
-      - The [header](#TODO-truss-header)
-      - Any [Terminal Data](./structures.md#terminal-data) on the
-        [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data)
-        that [Crypto Schema](#crypto-schema) maps with [ENCRYPT_AND_SIGN](./structures.md#encryptandsign)
-        or [SIGN_ONLY](./structures.md#signonly).
+  - the asymmetric signature, if it exists, MUST be calculated over the canonical hash,
+    using the asymmetric signing key in the encryption materials.
+  - the asymmetric signature, if it exists, MUST be calculated using the asymmetric signing key algorithm
+    indicated by the algorithm suite.
+  - TODO: the HMAC used here is SHA-384, so can't easily tie to Alg Suite

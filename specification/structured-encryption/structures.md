@@ -35,54 +35,105 @@ these fields in a less strictly defined way as long as all field properties are 
 
 Structures defined in this document:
 
+- [Authenticate Action](#authenticate-action)
+- [Authenticate Schema](#authenticate-schema)
 - [Crypto Action](#crypto-action)
 - [Crypto Schema](#crypto-schema)
+- [Encrypt Action](#encrypt-action)
 - [Encryption Context](#encryption-context)
 - [Structured Data](#structured-data)
 - [Structured Data Attributes](#structured-data-attributes)
 - [Terminal Data](#terminal-data)
 
+### Authenticate Action
+
+An Authenticate Action describes whether a particular [Terminal Data](#terminal-data)
+is or is not authenticated during the Encrypt Structure and Decrypt Structure operations.
+
+#### Supported Authenticate Actions
+
+##### SIGN
+
+During [Encrypt Structure](./encrypt-structure.md),
+SIGN signifies that the [Terminal Data](#terminal-data) MUST be included in the signature calcuations
+on the footer.
+
+During [Decrypt Structure](./decrypt-structure.md),
+SIGN signifies that the [Terminal Data](#terminal-data) MUST be authenticated,
+and thus be included in the verification of the signatures on the footer.
+
+##### DO_NOT_SIGN
+
+During [Encrypt Structure](./encrypt-structure.md),
+DO_NOT_SIGN signifies that the [Terminal Data](#terminal-data) MUST NOT be included in the signature calcuations
+on the footer.
+
+During [Decrypt Structure](./decrypt-structure.md),
+DO_NOT_SIGN signifies that the [Terminal Data](#terminal-data) MUST NOT be authenticated,
+and thus not be included in the verification of the signatures on the footer.
+
+### Authenticate Schema
+
+The Authentication Schema maps a [Authenticate Action](#authenticate-action) to each [Terminal Data](#terminal-data)
+within a [Structured Data](#structured-data),
+based on that Terminal Data's location within the Structured Data.
+
 ### Crypto Action
 
-A Crypto Action describes how a particular [Terminal Data](#terminal-data) should be treated
-during the Encrypt Structure and Decrypt Structure operations.
+A Crypto Action is a supported [Authenticate Action](#authenticate-action) and [Encrypt Action](#encrypt-action) pair.
 
 #### Supported Crypto Actions
 
 ##### ENCRYPT_AND_SIGN
 
-During [Encrypt Structure](encrypt-structure.md#encrypt-structure),
-ENCRYPT_AND_SIGN signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
-MUST be encrypted in the resulting encrypted [Structured Data](#structured-data).
-ENCRYPT_AND_SIGN also signifies that the [Terminal Data](#terminal-data)
-MUST be included as part of the signature calculation.
-
-During [Decrypt Structure](decrypt-structure.md#decrypt-structure),
-ENCRYPT_AND_SIGN  signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
-MUST be attempted to be decrypted.
-ENCRYPT_AND_SIGN also signifies that the [Terminal Data](#terminal-data)
-MUST be included as part of the signature verification calculation.
+ENCRYPT_AND_SIGN indicates that the following actions apply to a [Terminal Data](#terminal-data):
+- [ENCRYPT](#encrypt)
+- [SIGN](#sign)
 
 ##### SIGN_ONLY
 
-During Encrypt Structure,
-SIGN_ONLY signifies that the [Terminal Data](#terminal-data) MUST be included as part of the signature calculation.
-
-During Decrypt Structure,
-SIGN_ONLY signifies that the [Terminal Data](#terminal-data) MUST be included as part of the signature verification calculation.
+SIGN_ONLY indicates that the following actions apply to a [Terminal Data](#terminal-data):
+- [DO_NOT_ENCRYPT](#donotencrypt)
+- [SIGN](#sign)
 
 ##### IGNORE
 
-IGNORE signifies that the [Terminal Data](#terminal-data) MUST NOT be included in any signature calculation as part of
-Encrypt Structure or Decrypt Structure.
-
-IGNORE additionally signifies that the [Terminal Data](#terminal-data) on output MUST equal that Terminal Data on input for
-Encrypt Structure and Decrypt Structure.
+SIGN_ONLY indicates that the following actions apply to a [Terminal Data](#terminal-data):
+- [DO_NOT_ENCRYPT](#donotencrypt)
+- [DO_NOT_SIGN](#donotsign)
 
 ### Crypto Schema
 
-The Crypto Schema maps what [Crypto Action](#crypto-action) MUST be performed on what [Terminal Data](#terminal-data)
-during encryption and decryption, based on that Terminal Data's location within the [Structured Data](#structured-data).
+The Crypto Schema maps a [Crypto Action](#authenticate-action) to each [Terminal Data](#terminal-data)
+within a [Structured Data](#structured-data),
+based on that Terminal Data's location within the Structured Data.
+
+### Encrypt Action
+
+An Encrypt Action describes whether a particular [Terminal Data](#terminal-data)
+is or is not encrypted and decrypted during the Encrypt Structure and Decrypt Structure operations.
+
+#### Supported Encrypt Actions
+
+##### ENCRYPT
+
+During [Encrypt Structure](encrypt-structure.md#encrypt-structure),
+ENCRYPT signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
+MUST be encrypted in the resulting encrypted [Structured Data](#structured-data).
+
+During [Decrypt Structure](decrypt-structure.md#decrypt-structure),
+ENCRYPT signifies that the [Terminal Value](#terminal-value) in the [Terminal Data](#terminal-data)
+MUST be attempted to be decrypted.
+
+##### DO_NOT_ENCRYPT
+
+During [Encrypt Structure](encrypt-structure.md#encrypt-structure)
+and [Decrypt Structure](decrypt-structure.md#decrypt-structure),
+DO_NOT_ENCRYPT signifies that the [Terminal Data](#terminal-data)
+MUST have an equal [Terminal Value](#terminal-value) and
+[Terminal Type Id](#terminal-type-id) as the the Terminal Data
+in the same location in the resulting encrypted [Structured Data](#structured-data).
+No encryption or decryption is performed on there Terminal Data.
 
 ### Encryption Context
 
