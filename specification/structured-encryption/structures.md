@@ -98,7 +98,7 @@ SIGN_ONLY indicates that the following actions apply to a [Terminal Data](#termi
 
 ##### IGNORE
 
-SIGN_ONLY indicates that the following actions apply to a [Terminal Data](#terminal-data):
+IGNORE indicates that the following actions apply to a [Terminal Data](#terminal-data):
 - [DO_NOT_ENCRYPT](#donotencrypt)
 - [DO_NOT_SIGN](#donotsign)
 
