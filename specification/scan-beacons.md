@@ -40,13 +40,13 @@ calculation. Easier configuration, slower execution time.
 
 A scan beacon definition MUST provide the following:
  * The source field name; i.e. the name of the DynamoDB attribute for which you want to generate a scan beacon
- * The scan beacon field name; i.e. the name of the DynamoDB attribute to hold the resulting scan beacon value
  * The key indicator
  * The hash length (number of bits) of the scan beacon
  
-A scan beacon definition MUST accept an optional parameter to provide a "previous" entry consisting on one of :
- * an empty value, indicating that the field was not previously a beacon
- * The previous key indicator and the previous hash length (number of bits) of the scan beacon
+A scan beacon definition MUST accept an optional parameter to provide a "previous" entry,
+consisting of the previous key indicator and the previous hash length (number of bits) of the scan beacon.
+
+#### Note : the name of the scan beacon attribute is the concatenation of "aws-ddbec-sb-" and the source field name.
 
 #### Note : Any individual scan becaon can have no more than one "previous" entry.
 
