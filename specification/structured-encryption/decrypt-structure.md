@@ -121,11 +121,11 @@ such that for each [Terminal Data](./structures.md#terminal-data)
 in the [input Structed Data](#structured-data):
 - The Crypto Action is [IGNORE](./structures.md#ignore) if
   the Authentication Schema indicates [DO_NOT_SIGN](./structures.md#donotsign) for this Terminal Data.
-- The Crypto Action is [SIGN_ONLY](./structures.md#ignore) if
-  the Authentication Schema indicates [SIGN](./structures.md#donotsign) for this Terminal Data
+- The Crypto Action is [SIGN_ONLY](./structures.md#signonly) if
+  the Authentication Schema indicates [SIGN](./structures.md#sign) for this Terminal Data
   and the Encrypt Legend byte corresponding to this Terminal Data is `0x73`.
-- The Crypto Action is [SIGN_ONLY](./structures.md#ignore) if
-  the Authentication Schema indicates [SIGN](./structures.md#donotsign) for this Terminal Data
+- The Crypto Action is [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) if
+  the Authentication Schema indicates [SIGN](./structures.md#sign) for this Terminal Data
   and the Encrypt Legend byte corresponding to this Terminal Data is `0x65`.
 
 If the parsed [Encryption Context](#TODO-truss-header) contains fields that exist in the

@@ -133,7 +133,7 @@ DO_NOT_ENCRYPT signifies that the [Terminal Data](#terminal-data)
 MUST have an equal [Terminal Value](#terminal-value) and
 [Terminal Type Id](#terminal-type-id) as the the Terminal Data
 in the same location in the resulting encrypted [Structured Data](#structured-data).
-No encryption or decryption is performed on there Terminal Data.
+No encryption or decryption is performed on the Terminal Data.
 
 ### Encryption Context
 
