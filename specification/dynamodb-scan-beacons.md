@@ -12,19 +12,23 @@
 ## Definitions
 
  * source field : an encrypted DynamoDB attribute
- * scan beacon field : an attribute holding the truncated HMAC of a source field
+ * scan beacon field : an attribute holding the truncated HMAC of a source field,
+as defined [here](scan-beacons.md)
+ * gazelle prefix : `aws-ddbec-`
+ * scan beacon prefix : `aws-ddbec-sb-`
+ * modified scan beacon : a scan beacon with a "previously" section.
 
 ### Conventions used in this document
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
 in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
-Scan beacons are described [here](scan-beacons.md)
-
 ### Overview
 
-A `DynamoDBTableEncryptionConfig` object provides the list of Scan Beacons for the table associated with an operation.
-Various Request and Response objects are transformed, based on these Scan Beacons.
+A `DynamoDBTableEncryptionConfig` object provides the list of Scan Beacons for the table associated with an operation,
+and other necessary configuration information.
+
+Various Request and Response objects are transformed, based on this configuration.
 
 It should be noted that primary keys cannot be scan beacons,
 both because primary keys are not encrypted
@@ -33,26 +37,29 @@ and because scan becaons are designed to create false duplicates.
 The basic user experience is this 
 1. User constructs a client object, registering Gazelle intercepts
 2. User calls client methods as normal*
-3. Gazelle interceptors call one of the below functions to transform a request, then encrypts the request as necessary.
-4. Gazelle interceptors decrypts the response as necessary, then call one of the functions below to transform the response.
+3. Gazelle interceptors might call one of the below functions to transform a request, then encrypts the request as necessary.
+4. Gazelle interceptors decrypt the response as necessary, then might call one of the functions below to transform the response.
 5. User recieves the reposnse.
 
-* Except for query; where instead of client.query(request) the user must call GazelleQuery(client, request)
+* Except for query; where instead of client.query(request) the user must call DynamoDBEncryptionInterceptor.query(client, request)
 
 #### Indexing
 
 When a request is made to create a Index for a source field,
 instead the index must be created on the scan beacon field.
 
-When the config changes, a special API call must be made to create any necessary additional indexes.
+When the projection contains a source field, the scan beacon field is also included in the projection.
+
+It can be dangerous to specify a projection other than ALL,
+because decryption requires the presense of all signed fields
+that were present when the record was written.
 
 #### Writing
 
-Whenever a record is written, if the source field is written then the scan beacon field must also be written,
-containing the Scan Beacon Hash of the plain text of the source field.
+Whenever a record is written, if the source field is written then the scan beacon field must also be written.
 That is, for every encrypted attribute with a scan beacon, an additonal attribute is written.
 
-It is a error to attempt to write a source attribute with the same name as a scan beacon field.
+It is a error to attempt to write a source attribute starting with the gazelle prefix.
 
 #### Reading
 
@@ -65,6 +72,8 @@ It is an error to attempt such a query.
 This might return false positive results. After retrieving records in this way,
 you examine the decrypted record and compare the source field value to the query value,
 and discard any records where they don't match.
+
+It is an error to attempt to search on an encrypted attribute that has no scan beacon.
 
 ## Operations
 
@@ -94,20 +103,29 @@ the returned UpdateTableInput object MUST replace the source field names with th
 ### transformPutItemInput
  * This operation MUST take as input an PutItemInput object.
  * This operation MUST return an PutItemInput object.
- * For each source field being written, the returned PutItemInput MUST also write the scan beacon field.
- * An error MUST be returned if a scan beacon field is used in the input PutItemInput.
+ * For each element in the `Item` map that specifes a source field,
+ the returned `Item` map MUST also include the scan beacon field.
+The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
+The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
+ * An error MUST be returned if the name of an Item in the input `Item` map begins with the `Gazelle prefix`
 
 ### transformBatchWriteItemInput
  * This operation MUST take as input a BatchWriteItemInput object.
  * This operation MUST return a BatchWriteItemInput object.
- * For each source field being written, the returned BatchWriteItemInput MUST also write the scan beacon field.
- * An error MUST be returned if a scan beacon field is used in the input BatchWriteItemInput.
+ * For each element in the `Item` maps that specify a source field,
+the returned `Item` maps MUST also include the scan beacon field.
+The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
+The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
+ * An error MUST be returned if the name of an Item in an input `Item` map begins with the `Gazelle prefix`
 
 ### transformTransactWriteItemsInput
  * This operation MUST take as input a TransactWriteItemsInput object.
  * This operation MUST return a TransactWriteItemsInput object.
- * For each source field being written, the returned TransactWriteItemsInput MUST also write the scan beacon field.
- * An error MUST be returned if a scan beacon field is used in the input TransactWriteItemsInput.
+ * For each element in the `Item` maps that specify a source field,
+the returned `Item` maps MUST also include the scan beacon field.
+The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
+The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
+ * An error MUST be returned if the name of an Item in an input `Item` map begins with the `Gazelle prefix`
 
 #### Note : GetItem, BatchGetItem and TransactGetItems work only on Primary Keys, and therefore are not affected by scan beacons
 
@@ -123,12 +141,15 @@ which is the unaltered input object.
  * This operation MUST fail if the keyConditionExpression compares a source field with anything but equality.
  * This operation MUST fail if the FilterExpressions uses a source field with anything but `=`, `IN`,
  `attribute_exists`, `attribute_not_exists` or `size`.
- * This operation MUST fail if the input FilterExpression or keyConditionExpression directly mentions a scan beacon field.
+ * This operation MUST fail if the input FilterExpression or keyConditionExpression directly mention
+ an attribute name beginning with the `Gazelle Prefix`
  * If the FilterExpression refers to no source fields, the FilterExpression MUST remain unchanged.
  * If the FilterExpression refers to source fields only with `attribute_exists`, `attribute_not_exists` or `size`,
 the FilterExpression MUST be returned unchanged.
- * For source fields in the Filter Expression that have no "previous" entry, this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For source fields in the FilterExpression that do have a "previous" entry, this operation MUST replace `(field EQ value)` with `((prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR prev_beacon_field in (prev_beacon_A, prev_beacon_B).
+ * For each source field in the Filter Expression that is not a modified scan beacon,
+and is used with the `=` or `IN` operators,
+this operation MUST replace source fields and values with scan beacon fields and HMACs
+ * For each source field in the FilterExpression are modified scan beacons, this operation MUST replace `(field EQ value)` with `((beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR beacon_field in (prev_beacon_A, prev_beacon_B)`.
 
  * If the keyConditionExpression refers to no source fields with "previous" entries,
 this opertion must return exactly one QueryInput object.
