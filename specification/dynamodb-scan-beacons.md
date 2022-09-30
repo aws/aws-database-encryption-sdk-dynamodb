@@ -151,17 +151,30 @@ and is used with the `=` or `IN` operators,
 this operation MUST replace source fields and values with scan beacon fields and HMACs
  * For each source field in the FilterExpression are modified scan beacons, this operation MUST replace `(field EQ value)` with `((beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR beacon_field in (prev_beacon_A, prev_beacon_B)`.
 
- * If the keyConditionExpression refers to no source fields with "previous" entries,
+The particulatrs of the keyConditionExpression determine the number of QueryInput objects returned.
+
+ * If the keyConditionExpression refers to no modifed scan beacons,
 this opertion must return exactly one QueryInput object.
- * If the keyConditionExpression refers to one source fields with a "previous" entry,
+ * If the keyConditionExpression refers to one modifed scan beacon,
 this opertion MUST return two QueryInput objects;
 one with the keyConditionExpression's field and value replaced with the current scan beacon settings
 and one with the keyConditionExpression's field and value replaced with the previous scan beacon settings
- * If the keyConditionExpression refers to two source fields with "previous" entries,
-this opertion MUST return four QueryInput objects, replacing the keyConditionExpression's field and value
-with all four permutations of current an previous settings.
- * If the implementation knows that any of the created keyConditionExpressions will return no results,
-this operation MAY not return the associated QueryInput objects.
+ * If the keyConditionExpression refers to two modifed scan beacons,
+this opertion MUST return between two and four QueryInput objects, replacing the keyConditionExpression's field and value with
+ *
+    1. previous partition pey, previous sort key
+    2. previous partition pey, current sort key
+    3. current partition pey, previous sort key
+    4. current partition pey, current sort key
+ * If either scan beacon lacks a version number,
+this operation MUST return all four QueryInput objects
+ * If the two version numbers are equal,
+this operation MUST return only the first and last QueryInput objects
+ * If the partition key version is less than the sort key version,
+this operation MUST return only QueryInput objects 1, 2 and 4
+ * If the partition key version is greater than the sort key version,
+this operation MUST return only QueryInput objects 1, 3 and 4
+
 
 #### Note : transformQueryOutput needs a QueryInput object, becase we need to check the result records against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
 
