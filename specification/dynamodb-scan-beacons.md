@@ -179,13 +179,20 @@ this operation MUST return only QueryInput objects 1, 3 and 4
 #### Note : transformQueryOutput needs a QueryInput object, becase we need to check the result records against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
 
 ### transformQueryOutput
- * This operation MUST take as input a QueryOutput object and a QueryInput object and and optional second QueryOutput object.
+ * This operation MUST take as input a QueryOutput object and a QueryInput object
+ * The QueryInput object MUST be assumed to be the origial query, not one of the results of transformQueryInput
  * This operation MUST return an QueryOutput object.
- * If the optional second QueryOutput object is provided, the two QueryOutput objects must be merged into the returned object,
-removing any duplicate results.
  * This operation MUST remove any records for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field)
-then we might get results where the `Src` field contains something other than "foo" (because false positives are expected).
+then this operation must remove any record in which the  `Src` field contains something other than "foo".
+ * This operation MUST return all records that match the original QueryInput.
+
+### mergeQueryOutput
+ * This operation MUST take as input two QueryOutput objects
+ * This operation MUST return a single QueryOutput object
+ * The ConsumedCapacity of the result must contain the sum of the corresponding numbers in the two sources.
+ * The Count and ScannedCount fields of the result must contain the sum of the corresponding numbers in the two sources.
+ * The Items of the result must be the concatenation of the lists in the two sources
 
 ### transformScanInput
  * This operation MUST take as input a ScanInput object.
