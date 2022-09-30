@@ -56,3 +56,12 @@ the library can search for both the scan beacon as calculated with the current c
 and also the scan beacon as calculated with the previous configuration,
 and return the union of the two.
 
+## Scan Beacon Operation
+
+### hash
+
+This operation MUST take the plain text of the source field as input.
+
+This operation MUST must take the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt) of the plain text and the specified key
+and return the most significant `hash length` bits as an unsigned integer.
+
