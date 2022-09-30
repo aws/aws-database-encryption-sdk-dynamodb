@@ -149,7 +149,7 @@ the FilterExpression MUST be returned unchanged.
  * For each source field in the Filter Expression that is not a modified scan beacon,
 and is used with the `=` or `IN` operators,
 this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For each source field in the FilterExpression are modified scan beacons, this operation MUST replace `(field EQ value)` with `((beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR beacon_field in (prev_beacon_A, prev_beacon_B)`.
+ * For each source field in the FilterExpression that is a modified scan beacon, this operation MUST replace `(field EQ value)` with `((beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR beacon_field in (prev_beacon_A, prev_beacon_B)`.
 
 The particulatrs of the keyConditionExpression determine the number of QueryInput objects returned.
 
@@ -193,27 +193,35 @@ then this operation must remove any record in which the  `Src` field contains so
  * The ConsumedCapacity of the result must contain the sum of the corresponding numbers in the two sources.
  * The Count and ScannedCount fields of the result must contain the sum of the corresponding numbers in the two sources.
  * The Items of the result must be the concatenation of the lists in the two sources
+ * If either input contains a LastEvaluatedKey field, that field must appear in the output
+ * If both inputs contain a LastEvaluatedKey field, this opertion MUST return an error.
 
 ### transformScanInput
  * This operation MUST take as input a ScanInput object.
  * This operation MUST return a ScanInput object.
- * This operation MUST fail if a source field is compared with anything but equality
- * If no source fields are mentioned in the FilterExpression, the ScanInput object MUST be returned unchanged.
-
- * For beacons in the FilterExpression that have no "previous" entry,
+ * If no source fields are mentioned, this operation MUST return the unaltered input object,
+ * This operation MUST fail if the FilterExpressions uses a source field with anything but `=`, `IN`,
+ `attribute_exists`, `attribute_not_exists` or `size`.
+ * This operation MUST fail if the input FilterExpression directly mentions
+ an attribute name beginning with the `Gazelle Prefix`
+ * If the FilterExpression refers to source fields only with `attribute_exists`, `attribute_not_exists` or `size`,
+this operation MUST return the unaltered input object.
+ * For each source field in the Filter Expression that is not a modified scan beacon,
+and is used with the `=` or `IN` operators,
 this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For beacons in the FilterExpression that do have a "previous" entry,
-this operation MUST replace `field EQ value` with `(prev_beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value)`
-
-#### Note : transformScanOutput needs a ScanInput object, becase we need to check the result records against the values searched in the ScanInput object, which are not directly available in the QueryOutput object.
+ * For each source field in the FilterExpression that is a modified scan beacon, this operation MUST replace `(field EQ value)` with `((beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR beacon_field in (prev_beacon_A, prev_beacon_B)`
+ * For each source field in the Filter Expression that is used with the `=` or `IN` operators,
+the original search value must be saved in the ExecutionAttributes of the returned ScanInput object.
 
 ### transformScanOutput
  * This operation MUST take as input a ScanOutput object and a ScanInput object.
  * This operation MUST return an ScanOutput object.
+ * The ScanInput object MUST be assumed to be the result of transformScanInput call, not the original ScanInput,
+and so the original search values will be saved in the ExecutionAttributes of the ScanInput object.
  * This operation MUST remove any records for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field)
-then we might get results where the `Src` field contains something other than "foo" (because false positives are expected).
-Those results must be removed. 
+then this operation must remove any record in which the  `Src` field contains something other than "foo".
+ * This operation MUST return all records that match the original ScanInput.
 
 
 ## Operational Considerations
