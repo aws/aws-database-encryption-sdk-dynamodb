@@ -91,10 +91,10 @@ otherwise this operation MUST immediately yield an error.
 
 The Decrypt Structure operation is divided into several distinct steps:
 
-- [Parse the Header](#parse-the-header)
-- [Retrieve Decryption Materials](#retrieve-decryption-materials)
-- [Verify Signatures](#verify-signatures)
-- [Construct Decrypted Structured Data](#construct-decrypted-structured-data)
+1. [Parse the Header](#parse-the-header)
+1. [Retrieve Decryption Materials](#retrieve-decryption-materials)
+1. [Verify Signatures](#verify-signatures)
+1. [Construct Decrypted Structured Data](#construct-decrypted-structured-data)
 
 This operation MUST perform all the above steps,
 and it MUST perform them in the above order.
@@ -176,6 +176,7 @@ with the following specifics:
 The parsed [Header Commitment](#TODO-truss-header) MUST be [checked](#TODO-truss-header)
 using this Commitment Key and the header.
 TODO: the HMAC used here is SHA-384, so can't easily tie to Alg Suite
+TODO: ensure we specify constant-time equality check
 
 ### Verify Signatures
 
@@ -200,12 +201,16 @@ according to the [footer format](#TODO-truss-footer).
 The number of [HMACs in the footer](#TODO-truss-footer) 
 MUST be the number of [Encrypted Data Keys in the header](#TODO-truss-header).
 
-For every [HMAC](#TODO-truss-footer) in the footer,
-this operation MUST [verify](#TODO-truss-signature-canonicalization)
+This operation MUST [verify](#TODO-truss-signature-canonicalization) one
+of the [HMACs](#TODO-truss-footer) in the footer,
 with the following specifics:
-- The key is the symmetric key in the decryption materials that
-  [corresponds to the Encrypted Data Key](#TODO-mpl-structures) that shares this
-  HMAC's index in the deserialized footer. 
+- The key is the symmetric verification key in the decryption materials.
+- The [HMAC](#TODO-truss-footer) to verify is the HMAC that shares
+  an index with the [encrypted data key](#TODO-truss-header) that
+  was successfully unwrapped.
+  TODO: in the MPL update the symmetric key will need a way to tie
+  the symmetric key to the related encrypted data key.
+  Otherwise we'll need to store more info in the footer.
 - The canonical hash is as calculated above.
 - TODO: the HMAC used here is SHA-384, so can't easily tie to Alg Suite
 
@@ -236,6 +241,8 @@ This operation MUST output a [Structured Data](#structured-data) with the follow
 - for every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
   (aside from the header and footer),
   a Terminal Data MUST exist with the same [canonical path](#TODO-truss) in the output Structured Data.
+  Put plainly, the output Structured Data does not drop any Terminal Data during decryption, other than
+  the header or footer.
   Each of these Terminal Data in the output Structured Data MUST:
   - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
     of [SIGN_ONLY](./structures.md#signonly) or [IGNORE](./structures.md#ignore) for this Terminal Data,
@@ -244,28 +251,32 @@ This operation MUST output a [Structured Data](#structured-data) with the follow
   - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
     of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) for this Terminal Data,
     this Terminal Data is the [decryption](#terminal-data-decryption) of
-    the input Terminal Data's [Terminal Value](./structures.md#terminal-value).
+    the input Terminal Data.
 - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
-  a Terminal Data MUST exist with the same [canonical path](#TODO-truss) in the [input Structured Data](#structured-data),
+  a Terminal Data MUST exist with the same [canonical path](#TODO-truss) in the [input Structured Data](#structured-data).
+  Put plainly, the output Structured Data does not add any extra Structured Data during decryption.
 
 #### Terminal Data Decryption
 
 Decryption of [Terminal Data](./structures.md#terminal-data) takes a
-[Terminal Value](./structures.md#terminal-value) as input, and returns a Terminal Data.
+encrypted Terminal Data as input, and returns a Terminal Data.
 
-The decryption algorithm used MUST be the encryption algorithm indicated in the algorithm suite.
-This decryption MUST be performed with the followings specifics:
+The input [Terminal Value](./structures.md#terminal-value) MUST be deserialized as follows:
+
+| Field                      | Length   |
+| -------------------------- | -------- |
+| Terminal Type Id           | 2        |
+| Encrypted Terminal Value   | Variable |
+
+The output Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
+equal to the deserialized Terminal Type Id.
+
+The output Terminal Data MUST have a [Terminal Value](./structures.md#terminal-type-id)
+equal to the following decryption:
+- The decryption algorithm used is the encryption algorithm indicated in the algorithm suite.
 - The AAD is the [canonical path](#TODO-truss-canonical-path) for this Terminal Data
 - The Nonce is [derived according to the field encryption key derivation scheme](#TODO-truss-key-derivation),
   using the FieldRootKey as input.
 - The Cipherkey is [derived according to the field encryption key derivation scheme](#TODO-truss-key-derivation),
   using the FieldRootKey as input.
-- The plaintext is the input Terminal Value.
-
-The plaintext result MUST be deserialized into a Terminal Data as:
-
-| Field            | Length   |
-| ---------------- | -------- |
-| Terminal Type Id | 2        |
-| Terminal Value   | Variable |
-
+- The ciphertext is the deserialized Encrypted Terminal Value.
