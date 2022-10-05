@@ -103,6 +103,9 @@ the returned UpdateTableInput object MUST replace the source field names with th
 ### transformPutItemInput
  * This operation MUST take as input an PutItemInput object.
  * This operation MUST return an PutItemInput object.
+ * If the input object referes to an encrypted attribute in its Condition Expression,
+in any context other than `attribute_exists`, `attribute_not_exists` or `size`,
+this operation MUST return false
  * For each element in the `Item` map that specifes a source field,
  the returned `Item` map MUST also include the scan beacon field.
 The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
@@ -121,6 +124,9 @@ The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
 ### transformTransactWriteItemsInput
  * This operation MUST take as input a TransactWriteItemsInput object.
  * This operation MUST return a TransactWriteItemsInput object.
+ * If the input object referes to an encrypted attribute in its Condition Expression,
+in any context other than `attribute_exists`, `attribute_not_exists` or `size`,
+this operation MUST return false
  * For each element in the `Item` maps that specify a source field,
 the returned `Item` maps MUST also include the scan beacon field.
 The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
@@ -131,7 +137,16 @@ The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
 
 #### Note PartiQL based methods (executeStatement, batchExecuteStatement, executeTransaction) are beyond the scope of this document.
 
-#### Note : UpdateItem is not allowed in the encryption client, and so can be ignored for scan beacons
+#### Note : UpdateItem is only allowed to modify unsigned attributes, so we only need to test for the presence of signed attributes, we don't need to modify the request.
+
+### okUpdateItemInput
+ * This operation MUST take as input an UpdateItemInput
+ * This operation MUST return a boolean
+ * If the input object is attempting to modify a signed attribute, this operation MUST return false
+ * If the input object referes to an encrypted attribute in its Condition Expression,
+in any context other than `attribute_exists`, `attribute_not_exists` or `size`,
+this operation MUST return false
+ * Otherwise, this operation MUST return true.
 
 ### transformQueryInput
  * This operation MUST take as input a QueryInput object.
