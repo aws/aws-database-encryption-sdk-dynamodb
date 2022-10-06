@@ -119,7 +119,7 @@ which is determined based on the input [Authentication Schema](#authenticate-sch
 parsed [Encrypt Legend](#TODO-truss-header) in the header,
 such that for each [Terminal Data](./structures.md#terminal-data)
 in the [input Structed Data](#structured-data):
-- The Crypto Action is [IGNORE](./structures.md#ignore) if
+- The Crypto Action is [DO_NOTHING](./structures.md#DO_NOTHING) if
   the Authentication Schema indicates [DO_NOT_SIGN](./structures.md#donotsign) for this Terminal Data.
 - The Crypto Action is [SIGN_ONLY](./structures.md#signonly) if
   the Authentication Schema indicates [SIGN](./structures.md#sign) for this Terminal Data
@@ -245,7 +245,7 @@ This operation MUST output a [Structured Data](#structured-data) with the follow
   the header or footer.
   Each of these Terminal Data in the output Structured Data MUST:
   - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
-    of [SIGN_ONLY](./structures.md#signonly) or [IGNORE](./structures.md#ignore) for this Terminal Data,
+    of [SIGN_ONLY](./structures.md#signonly) or [DO_NOTHING](./structures.md#DO_NOTHING) for this Terminal Data,
     this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
     [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
   - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
