@@ -99,9 +99,9 @@ otherwise this operation MUST immediately yield an error.
 Given valid inputs,
 the Encrypt Structure operation is divided into several distinct steps:
 
-- [Retrieve Encryption Materials](#retrieve-encryption-materials)
-- [Calculate Intermediate Encrypted Structured Data](#construct-encrypted-structured-data)
-- [Construct Encrypted Structured Data](#construct-encrypted-structured-data)
+1. [Retrieve Encryption Materials](#retrieve-encryption-materials)
+1. [Calculate Intermediate Encrypted Structured Data](#construct-encrypted-structured-data)
+1. [Construct Encrypted Structured Data](#construct-encrypted-structured-data)
 
 This operation MUST perform all the above steps,
 and it MUST perform them in the above order.
@@ -171,8 +171,7 @@ The Intermediate Encryption Structured Data MUST be calculated with the followin
     [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
   - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
     of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) for this Terminal Data,
-    this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) equal to `0xFFFF`
-    and [Terminal Value](./structures.md#terminal-value) calculated as the [encryption](#terminal-data-encryption)
+    this Terminal Data MUST be the [encryption](#terminal-data-encryption) of the input's Terminal Data.
     of the input Terminal Data.
 - for every [Terminal Data](./structures.md#terminal-data) in the Intermediate Encrypted Structured Data
   (except for the [header](#TODO-truss-header)),
@@ -185,7 +184,7 @@ The Intermediate Encryption Structured Data MUST be calculated with the followin
   - Message Format Flavor MUST be `0x01` if the algorithm suite is [TODO](#TODO-mpl-alg-suite),
     and `0x00` if the algorithm suite is [TODO](#TODO-mpl-alg-suite).
   - Message ID: MUST be the Message ID generated for this Encrypted Structured Data.
-  - TODO: Legend or other Crypto Schema related field.
+  - Encrypt Legend: MUST be the [encrypt legend](#TODO-truss-header) that corresponds to the [input Crypto Schema](#crypto-schema).
   - Encryption Context: MUST be the [encryption context](./structures.md#encryption-context) in the encryption materials.
   - Encrypted Data Keys: MUST be the [serialization of the encrypted data keys](#TODO-truss-header)
     in the encryption materials.
@@ -194,20 +193,49 @@ The Intermediate Encryption Structured Data MUST be calculated with the followin
 #### Terminal Data Encryption
 
 Encryption of [Terminal Data](./structures.md#terminal-data) takes a
-Terminal Data as input, and return a sequence of bytes.
+Terminal Data as input, and returns an encrypted Terminal Data.
 
-The encryption algorithm used MUST be the encryption algorithm indicated in the algorithm suite.
-This encryption MUST be performed with the followings specifics:
+The output encrypted Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
+equal `0xFFFF`.
+
+The output encrypted Terminal Data MUST have a [Terminal Value](./structures.md#terminal-value)
+with the following serialization:
+
+| Field                      | Length   |
+| -------------------------- | -------- |
+| Terminal Type Id           | 2        |
+| Encrypted Terminal Value   | Variable |
+
+##### Terminal Type Id
+
+Terminal Type Id MUST equal the input Terminal Data's Terminal Type Id.
+
+##### Encrypted Terminal Value
+
+The Encrypted Terminal Value MUST derived according to the following encryption:
+- The encryption algorithm used is the encryption algorithm indicated in the algorithm suite.
 - The AAD is the [canonical path](#TODO-truss-canonical-path) for this Terminal Data
 - The Nonce is [derived according to the field encryption key derivation scheme](#TODO), using the FieldRootKey as input.
 - The Cipherkey is [derived according to the field encryption key derivation scheme](#TODO), using the FieldRootKey as input.
-- The plaintext is the concatenation of `Terminal Type ID || Terminal Value` for this Terminal Data.
+- The plaintext is the [Terminal Value](./structures.md#terminal-value) for this Terminal Data.
 
 ### Construct Encrypted Structured Data
 
 Given an Intermediate Encrypted Structured Data,
 the signatures over this Structured Data may be calculated,
 and the final Encrypted Structured Data outputted.
+
+The calculations below REQUIRE determining a [canonical hash](#TODO-truss-signature-canonicalization)
+of the [Structured Data](#structured-data), with the following specifics:
+- The header bytes are the [Terminal Value](./structures.md#terminal-value) of the
+  [Terminal Data](./structures.md#terminal-data) at string index "aws:truss-header" in the
+  [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data).
+- The fields are the set of [Terminal Data](./structures.md#terminal-data)
+  on the [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data)
+  that the [Crypto Schema](#crypto-schema) indicates is
+  [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) or [SIGN_ONLY](./structures.md#signonly).
+- The AAD is the [serialization of the Encryption Context](#TODO-mpl-structures)
+  in the encryption materials.
 
 The Encrypted Structured Data outputted by this operation MUST be a Structured Data such that:
 - for every [Terminal Data](./structures.md#terminal-data) in the
@@ -221,13 +249,13 @@ The Encrypted Structured Data outputted by this operation MUST be a Structured D
   with [Terminal Value](./structures.md#terminal-value) equal to the [serialized footer](#TODO-truss-header)
   MUST exist on the Encrypted Structured Data, indexed at the top level by `aws:truss-footer`.
   The values of this footer have the following requirements:
-  - the HMAC values MUST be calculated using the symmetric keys in the encryption materials.
+  - the HMAC values MUST be calculated over the canonical hash,
+    using the symmetric keys in the encryption materials.
+  - the HMAC values MUST be ordered such that the [Encrypted Data Key](#TODO-truss-header)
+    that shares it's index [corresponds to the symmetric key](#TODO-mpl-structures) that was used to calculate it.
   - the footer MUST contain an asymmetric signature if the algorithm suite includes asymmetric signing
-  - the asymmetric signature, if it exists, MUST be calculated using the signing key in the encryption materials.
-  - the HMAC and asymmetric signature MUST be calculated over the [signature canonicalization value](#TODO-truss-signature-canonicalization).
-    The [Terminal Data](./structures.md#terminal-data) used in this calculation MUST include exactly:
-      - The [header](#TODO-truss-header)
-      - Any [Terminal Data](./structures.md#terminal-data) on the
-        [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data)
-        that [Crypto Schema](#crypto-schema) maps with [ENCRYPT_AND_SIGN](./structures.md#encryptandsign)
-        or [SIGN_ONLY](./structures.md#signonly).
+  - the asymmetric signature, if it exists, MUST be calculated over the canonical hash,
+    using the asymmetric signing key in the encryption materials.
+  - the asymmetric signature, if it exists, MUST be calculated using the asymmetric signing key algorithm
+    indicated by the algorithm suite.
+  - TODO: the HMAC used here is SHA-384, so can't easily tie to Alg Suite
