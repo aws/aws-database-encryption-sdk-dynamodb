@@ -6,80 +6,41 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
 // TODO had to manually update the below file. Polymorph needs to be fixed to not assume location of this file
  include "../../../private-aws-encryption-sdk-dafny-staging/src/Util/UTF8.dfy"
  include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
- module {:extern "Dafny.Aws.Cryptography.StructuredEncryption.Types" } AwsCryptographyStructuredEncryptionTypes
+ include "../../AWS-DDB/src/Index.dfy"
+ include "../../StructuredEncryption/src/Index.dfy"
+ module {:extern "Dafny.Aws.Cryptography.DynamodbEncryption.Types" } AwsCryptographyDynamodbEncryptionTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
  import AwsCryptographyMaterialProvidersTypes
+ import ComAmazonawsDynamodbTypes
+ import AwsCryptographyStructuredEncryptionTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
  function Last<T>(s: seq<T>): T requires |s| > 0 { s[|s|-1] }
  
  // Begin Generated Types
  
- datatype CryptoAction =
-	| ENCRYPT_AND_SIGN
-	| SIGN_ONLY
-	| IGNORE
- datatype CryptoSchema = | CryptoSchema (
- nameonly content: CryptoSchemaContent ,
- nameonly attributes: Option<CryptoSchemaAttributes>
- )
- type CryptoSchemaAttributes = map<string, CryptoAction>
- datatype CryptoSchemaContent =
- | action(CryptoAction: CryptoAction)
- | mapSchema(CryptoSchemaMap: CryptoSchemaMap)
- | listSchema(CryptoSchemaList: CryptoSchemaList)
- type CryptoSchemaList = seq<CryptoSchema>
- type CryptoSchemaMap = map<string, CryptoSchema>
- type CryptoSchemas = x: map<CryptoSchemaVersion, CryptoSchema> | IsValid_CryptoSchemas(x) witness *
- predicate method IsValid_CryptoSchemas(x: map<CryptoSchemaVersion, CryptoSchema>) {
- ( 1 <= |x|  )
-}
- type CryptoSchemaVersion = string
- datatype DecryptStructureInput = | DecryptStructureInput (
- nameonly ciphertextStructure: StructuredData ,
- nameonly cryptoSchemas: CryptoSchemas ,
- nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
- nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
- )
- datatype DecryptStructureOutput = | DecryptStructureOutput (
- nameonly plaintextStructure: StructuredData
- )
- type EncryptionContextFieldList = seq<Utf8Bytes>
- datatype EncryptStructureInput = | EncryptStructureInput (
- nameonly plaintextStructure: StructuredData ,
- nameonly cryptoSchema: CryptoSchema ,
- nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
- nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
+ type DDBCryptoSchema = map<ComAmazonawsDynamodbTypes.AttributeName, AwsCryptographyStructuredEncryptionTypes.CryptoAction>
+ datatype DecryptItemInput = | DecryptItemInput (
+ nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap ,
  nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> ,
- nameonly requiredContextFieldsOnDecrypt: Option<EncryptionContextFieldList>
+ nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
+ nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager>
  )
- datatype EncryptStructureOutput = | EncryptStructureOutput (
- nameonly ciphertextStructure: StructuredData
+ datatype DecryptItemOutput = | DecryptItemOutput (
+ nameonly item: ComAmazonawsDynamodbTypes.AttributeMap
  )
- datatype StructuredData = | StructuredData (
- nameonly content: StructuredDataContent ,
- nameonly attributes: Option<StructuredDataAttributes>
- )
- type StructuredDataAttributes = map<string, Terminal>
- datatype StructuredDataContent =
- | terminal(Terminal: Terminal)
- | dataList(StructuredDataList: StructuredDataList)
- | dataMap(StructuredDataMap: StructuredDataMap)
- type StructuredDataList = seq<StructuredData>
- type StructuredDataMap = map<string, StructuredData>
- class IStructuredEncryptionClientCallHistory {
+ class IDynamoDBEncryptionClientCallHistory {
  ghost constructor() {
- EncryptStructure := [];
- DecryptStructure := [];
+ EncryptItem := [];
+ DecryptItem := [];
 }
- ghost var EncryptStructure: seq<DafnyCallEvent<EncryptStructureInput, Result<EncryptStructureOutput, Error>>>
- ghost var DecryptStructure: seq<DafnyCallEvent<DecryptStructureInput, Result<DecryptStructureOutput, Error>>>
+ ghost var EncryptItem: seq<DafnyCallEvent<EncryptItemInput, Result<EncryptItemOutput, Error>>>
+ ghost var DecryptItem: seq<DafnyCallEvent<DecryptItemInput, Result<DecryptItemOutput, Error>>>
 }
- trait {:termination false} IStructuredEncryptionClient
+ trait {:termination false} IDynamoDBEncryptionClient
  {
  // Helper to define any additional modifies/reads clauses
  // If your operations need to mutate state add it
@@ -104,11 +65,11 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
-  ghost const History: IStructuredEncryptionClientCallHistory
- predicate EncryptStructureEnsuresPublicly(input: EncryptStructureInput, output: Result<EncryptStructureOutput, Error>)
+  ghost const History: IDynamoDBEncryptionClientCallHistory
+ predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
  // The public method to be called by library consumers
- method EncryptStructure ( input: EncryptStructureInput )
- returns (output: Result<EncryptStructureOutput, Error>)
+ method EncryptItem ( input: EncryptItemInput )
+ returns (output: Result<EncryptItemOutput, Error>)
  requires
  && ValidState() && ( input.keyring.Some? ==>
  && input.keyring.value.ValidState()
@@ -118,7 +79,7 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  && input.cmm.value.Modifies !! Modifies
  )
  modifies Modifies - {History} ,
- History`EncryptStructure ,
+ History`EncryptItem ,
  (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
  (if input.cmm.Some? then input.cmm.value.Modifies else {})
  // Dafny will skip type parameters when generating a default decreases clause.
@@ -127,13 +88,13 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  (if input.cmm.Some? then input.cmm.value.Modifies else {})
  ensures
  && ValidState()
- ensures EncryptStructureEnsuresPublicly(input, output)
- ensures History.EncryptStructure == old(History.EncryptStructure) + [DafnyCallEvent(input, output)]
+ ensures EncryptItemEnsuresPublicly(input, output)
+ ensures History.EncryptItem == old(History.EncryptItem) + [DafnyCallEvent(input, output)]
  
- predicate DecryptStructureEnsuresPublicly(input: DecryptStructureInput, output: Result<DecryptStructureOutput, Error>)
+ predicate DecryptItemEnsuresPublicly(input: DecryptItemInput, output: Result<DecryptItemOutput, Error>)
  // The public method to be called by library consumers
- method DecryptStructure ( input: DecryptStructureInput )
- returns (output: Result<DecryptStructureOutput, Error>)
+ method DecryptItem ( input: DecryptItemInput )
+ returns (output: Result<DecryptItemOutput, Error>)
  requires
  && ValidState() && ( input.keyring.Some? ==>
  && input.keyring.value.ValidState()
@@ -143,7 +104,7 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  && input.cmm.value.Modifies !! Modifies
  )
  modifies Modifies - {History} ,
- History`DecryptStructure ,
+ History`DecryptItem ,
  (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
  (if input.cmm.Some? then input.cmm.value.Modifies else {})
  // Dafny will skip type parameters when generating a default decreases clause.
@@ -152,30 +113,38 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  (if input.cmm.Some? then input.cmm.value.Modifies else {})
  ensures
  && ValidState()
- ensures DecryptStructureEnsuresPublicly(input, output)
- ensures History.DecryptStructure == old(History.DecryptStructure) + [DafnyCallEvent(input, output)]
+ ensures DecryptItemEnsuresPublicly(input, output)
+ ensures History.DecryptItem == old(History.DecryptItem) + [DafnyCallEvent(input, output)]
  
 }
- datatype StructuredEncryptionConfig = | StructuredEncryptionConfig (
- 
+ datatype DynamoDBEncryptionConfig = | DynamoDBEncryptionConfig (
+ nameonly tableConfigs: DynamoDBTableEncryptionConfigs
  )
- datatype Terminal = | Terminal (
- nameonly value: TerminalValue ,
- nameonly typeId: TerminalTypeId
+ datatype DynamoDBTableEncryptionConfig = | DynamoDBTableEncryptionConfig (
+ nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
+ nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>
  )
- type TerminalTypeId = x: seq<uint8> | IsValid_TerminalTypeId(x) witness *
- predicate method IsValid_TerminalTypeId(x: seq<uint8>) {
- ( 2 <= |x| <= 2 )
-}
- type TerminalValue = seq<uint8>
- type Utf8Bytes = ValidUTF8Bytes
+ type DynamoDBTableEncryptionConfigs = map<ComAmazonawsDynamodbTypes.TableName, DynamoDBTableEncryptionConfig>
+ datatype EncryptItemInput = | EncryptItemInput (
+ nameonly item: ComAmazonawsDynamodbTypes.AttributeMap ,
+ nameonly cryptoSchema: DDBCryptoSchema ,
+ nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> ,
+ nameonly requiredContextFieldsOnDecrypt: Option<AwsCryptographyStructuredEncryptionTypes.EncryptionContextFieldList> ,
+ nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
+ nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager>
+ )
+ datatype EncryptItemOutput = | EncryptItemOutput (
+ nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap
+ )
  datatype Error =
  // Local Error structures are listed here
- | StructuredEncryptionException (
+ | DynamoDBEncryptionException (
  nameonly message: string
  )
  // Any dependent models are listed here
  | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
+ | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
+ | AwsCryptographyStructuredEncryption(AwsCryptographyStructuredEncryption: AwsCryptographyStructuredEncryptionTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.
  // Consider the following method:
@@ -204,15 +173,15 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
 }
- abstract module AwsCryptographyStructuredEncryptionAbstract
+ abstract module AwsCryptographyDynamodbEncryptionAbstract
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
- import opened Types = AwsCryptographyStructuredEncryptionTypes
- function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
- method StructuredEncryption(config: StructuredEncryptionConfig := DefaultStructuredEncryptionConfig())
- returns (res: Result<IStructuredEncryptionClient, Error>)
+ import opened Types = AwsCryptographyDynamodbEncryptionTypes
+ function method DefaultDynamoDBEncryptionConfig(): DynamoDBEncryptionConfig
+ method DynamoDBEncryption(config: DynamoDBEncryptionConfig := DefaultDynamoDBEncryptionConfig())
+ returns (res: Result<IDynamoDBEncryptionClient, Error>)
  ensures res.Success? ==> 
  && fresh(res.value)
  && fresh(res.value.Modifies)

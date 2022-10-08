@@ -12,7 +12,7 @@ use aws.polymorph#dafnyUtf8Bytes
 @dafnyUtf8Bytes
 string Utf8Bytes
 
-@aws.polymorph#localService(
+@localService(
   sdkId: "StructuredEncryption",
   config: StructuredEncryptionConfig,
 )
@@ -44,6 +44,8 @@ structure EncryptStructureInput {
     // A Keyring XOR a CMM MUST be specified
     keyring: KeyringReference,
     cmm: CryptographicMaterialsManagerReference,
+
+    // TODO Truss-compatible Algorithm Suite.
 
     encryptionContext: EncryptionContext,
     requiredContextFieldsOnDecrypt: EncryptionContextFieldList
@@ -98,8 +100,23 @@ union StructuredDataContent {
 // Only handles bytes.
 // It is the reponsibility of the caller to
 // serialize and deserialize the data they
-// encrypt/decrypt with this SDK.
-blob Terminal
+// encrypt/decrypt with this Library.
+structure Terminal {
+    @required
+    value: TerminalValue,
+    // Type information is treated specially
+    // during authentication, so this MUST
+    // be encoded as part of `typeId`,
+    // and SHOULD NOT be serialized as part
+    // of `value`
+    @required
+    typeId: TerminalTypeId
+}
+
+blob TerminalValue
+
+@length(min: 2, max: 2)
+blob TerminalTypeId
 
 map StructuredDataMap {
     key: String,
@@ -133,15 +150,15 @@ union CryptoSchemaContent {
     {
         "name": "ENCRYPT_AND_SIGN",
         "value": "ENCRYPT_AND_SIGN",
-     },
-     {
-         "name": "SIGN_ONLY",
-         "value": "SIGN_ONLY",
-      },
-      {
-          "name": "IGNORE",
-          "value": "IGNORE",
-      },
+    },
+    {
+        "name": "SIGN_ONLY",
+        "value": "SIGN_ONLY",
+    },
+    {
+        "name": "IGNORE",
+        "value": "IGNORE",
+    },
 ])
 string CryptoAction
 

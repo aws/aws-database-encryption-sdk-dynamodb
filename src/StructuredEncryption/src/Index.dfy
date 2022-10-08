@@ -1,30 +1,51 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Operations/EncryptStructureOperation.dfy"
 include "Operations/DecryptStructureOperation.dfy"
 
-module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} StructuredEncryptionClient {
-  import opened Wrappers
-  import opened StandardLibrary
+module
+  {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryption"}
+  StructuredEncryption refines AwsCryptographyStructuredEncryptionAbstract
+{
   import Seq
-  import Types = AwsCryptographyStructuredEncryptionTypes
   import EncryptStructureOperation
   import DecryptStructureOperation
 
+  function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
+  {
+    StructuredEncryptionConfig
+  }
+
+  method StructuredEncryption(config: StructuredEncryptionConfig)
+    returns (res: Result<IStructuredEncryptionClient, Error>)
+    ensures res.Success? ==> 
+      && fresh(res.value)
+      && fresh(res.value.Modifies)
+      && fresh(res.value.History)
+      && res.value.ValidState()
+    ensures res.Success? ==> res.value is StructuredEncryptionClient
+  {
+    var client := new StructuredEncryptionClient(config);
+    return Success(client);
+  }
+
   class StructuredEncryptionClient extends Types.IStructuredEncryptionClient {
+    const config: Types.StructuredEncryptionConfig;
+
     predicate ValidState()
-    ensures ValidState() ==> History in Modifies
+      ensures ValidState() ==> History in Modifies
     {
-      History in Modifies
+      && History in Modifies
     }
   
-    constructor()
+    constructor(config: Types.StructuredEncryptionConfig)
       ensures ValidState() && fresh(Modifies) && fresh(History)
     {
       History := new Types.IStructuredEncryptionClientCallHistory();
       Modifies := {History};
+      this.config := config;
     }
 
     predicate EncryptStructureEnsuresPublicly(
@@ -54,31 +75,63 @@ module {:extern "Dafny.Aws.StructuredEncryption.StructuredEncryptionClient"} Str
 
     method EncryptStructure(input: Types.EncryptStructureInput)
         returns (output: Result<Types.EncryptStructureOutput, Types.Error>)
-      requires ValidState()
-      modifies Modifies - {History},
-        History`EncryptStructure
-      decreases Modifies ,
+      requires
+        && ValidState()
+        && (
+          input.keyring.Some? ==>
+            && input.keyring.value.ValidState()
+            && input.keyring.value.Modifies !! Modifies
+        ) && (
+          input.cmm.Some? ==>
+            && input.cmm.value.ValidState()
+            && input.cmm.value.Modifies !! Modifies
+        )
+      modifies
+        Modifies - {History},
+        History`EncryptStructure,
+        (if input.keyring.Some? then input.keyring.value.Modifies else {}),
+        (if input.cmm.Some? then input.cmm.value.Modifies else {})
+      decreases
+        Modifies,
         (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
         (if input.cmm.Some? then input.cmm.value.Modifies else {})
+      ensures
+        && ValidState()
       ensures EncryptStructureEnsuresPublicly(input, output)
-      ensures History.EncryptStructure == old(History.EncryptStructure) + [Types.DafnyCallEvent(input, output)]
+      ensures History.EncryptStructure == old(History.EncryptStructure) + [DafnyCallEvent(input, output)]
     {
-      output := EncryptStructureOperation.EncryptStructure(input);
+      output := EncryptStructureOperation.EncryptStructure(config, input);
       History.EncryptStructure := History.EncryptStructure + [Types.DafnyCallEvent(input, output)];
     }
 
     method DecryptStructure(input: Types.DecryptStructureInput)
         returns (output: Result<Types.DecryptStructureOutput, Types.Error>)
-      requires ValidState()
-      modifies Modifies - {History},
-        History`DecryptStructure
-      decreases Modifies ,
-        (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
+      requires
+        && ValidState()
+        && (
+          input.keyring.Some? ==>
+            && input.keyring.value.ValidState()
+            && input.keyring.value.Modifies !! Modifies
+        ) && (
+          input.cmm.Some? ==>
+            && input.cmm.value.ValidState()
+            && input.cmm.value.Modifies !! Modifies
+        )
+      modifies
+        Modifies - {History},
+        History`DecryptStructure,
+        (if input.keyring.Some? then input.keyring.value.Modifies else {}),
         (if input.cmm.Some? then input.cmm.value.Modifies else {})
+      decreases
+        Modifies,
+        (if input.keyring.Some? then input.keyring.value.Modifies else {}),
+        (if input.cmm.Some? then input.cmm.value.Modifies else {})
+      ensures
+        && ValidState()
       ensures DecryptStructureEnsuresPublicly(input, output)
-      ensures History.DecryptStructure == old(History.DecryptStructure) + [Types.DafnyCallEvent(input, output)]
+      ensures History.DecryptStructure == old(History.DecryptStructure) + [DafnyCallEvent(input, output)]
     {
-      output := DecryptStructureOperation.DecryptStructure(input);
+      output := DecryptStructureOperation.DecryptStructure(config, input);
       History.DecryptStructure := History.DecryptStructure + [Types.DafnyCallEvent(input, output)];
     }
   }

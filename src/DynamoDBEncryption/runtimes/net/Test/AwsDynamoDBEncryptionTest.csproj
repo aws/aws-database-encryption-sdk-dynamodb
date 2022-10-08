@@ -37,10 +37,6 @@
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <VerifyDafnyPassthrough Include="timeLimit:300" />
-    <VerifyDafnyPassthrough Include="definiteAssignment:3" />
-  </ItemGroup>
-  <ItemGroup>
     <DafnySource Include="../../../src/**/*.dfy" />
     <DafnySource Include="../../../model/**/*.dfy" />
     <DafnySource Include="../../../test/**/*.dfy" />

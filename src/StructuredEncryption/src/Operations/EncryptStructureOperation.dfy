@@ -1,15 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
-include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../../model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../StructuredEncryptionConstants.dfy"
 
 module EncryptStructureOperation {
   import opened Wrappers
   import opened StandardLibrary
+  import StructuredEncryptionConstants
   import Seq
   import Types = AwsCryptographyStructuredEncryptionTypes
 
-  method EncryptStructure(input: Types.EncryptStructureInput)
+  method EncryptStructure(config: Types.StructuredEncryptionConfig, input: Types.EncryptStructureInput)
       returns (output: Result<Types.EncryptStructureOutput, Types.Error>)
     ensures (
         || (input.cmm.Some? && input.keyring.Some?)
@@ -52,15 +54,30 @@ module EncryptStructureOperation {
       content := Types.StructuredDataContent.dataMap(
         StructuredDataMap := map[
           "foo" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := stubbedBytes,
+                    typeId := StructuredEncryptionConstants.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           ),
           "bar" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := stubbedBytes,
+                    typeId := StructuredEncryptionConstants.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           ),
           "fizzbuzz" := Types.StructuredData(
-            content := Types.StructuredDataContent.terminal(Terminal:=stubbedBytes),
+            content := Types.StructuredDataContent.terminal(
+                Terminal := Types.Terminal(
+                    value := stubbedBytes,
+                    typeId := StructuredEncryptionConstants.BYTES_TYPE_ID
+                )
+            ),
             attributes := None()
           )
         ]
