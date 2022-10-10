@@ -1,22 +1,29 @@
 [//]: # "Copyright Amazon.com Inc. or its affiliates. All Rights Reserved."
 [//]: # "SPDX-License-Identifier: CC-BY-SA-4.0"
 
-# Scan Beacons
+# Beacons
 
 ## Version
 
-0.1.0
+1.0.0
 
 ### Changelog
 
 ## Overview
 
-A scan beacon is a stable HMAC of the unencrypted value of an encrypted field.
-This allows a database server to perform some types of searches on client-side encrypted records.
-It can be optionally truncated to better avoid creating distinguishers of the plaintext;
-that is, to increase hash collisions. 
+Beacons use stable hashes of the plaintext values of encrypted fields to allow searches on client-side encrypted records.
 
 ## Definitions
+
+**plain beacon** : the HMAC of the unencrypted value of an encrypted field, 
+optionally truncated to better avoid creating distinguishers of the plaintext;
+that is, to increase hash collisions.
+
+**compound beacon** : A string composed of parts of an input string, interspersed with the plain beacons made from other parts of the input string.
+
+**beacon** : A string value. Either a plain beacon constructed from and kind of input data, or a compound beacon constructed from an input string.
+
+**modified beacon** : A beacon with a "previous" entry in its [configuration](#scan-beacon-configuration).
 
 ### Conventions used in this document
 
@@ -38,30 +45,106 @@ calculation. Easier configuration, slower execution time.
 
 ## Scan Beacon Configuration
 
-A scan beacon definition MUST provide the following:
- * The source field name; i.e. the name of the DynamoDB attribute for which you want to generate a scan beacon
+A beacon definition MUST provide the following:
+ * The source field name; e.g. the name of the DynamoDB attribute for which you want to generate a scan beacon
  * The key indicator
- * The hash length (number of bits) of the scan beacon
+ * The hash length (number of bits) of the scan beacon.
+A number between 1 and 64.
  * An OPTIONAL version number
- * An OPTIONAL "previous" entry, consisting of the previous key indicator
- and the previous hash length (number of bits) of the scan beacon.
+ * An OPTIONAL prefix character
+ * An OPTIONAL split character
+ * An OPTIONAL inner character
+ * An OPTIONAL "previous" entry, consisting of all of the above,
+except for source field name, indicating the previous state of this beacon.
 
-#### Note : the name of the scan beacon attribute is the concatenation of "aws-ddbec-sb-" and the source field name.
+It is an error to specify an inner character, but not a split character.
+An implementation MUST return an error when constructing a beacon in this case.
 
-#### Note : An individual scan becaon can have no more than one "previous" entry.
+The name of a beacon attribute is typically the concatenation of a fixed prefix (e.g `aws-ddbec-sb-`) and the source field name.
+
+#### Note : An individual scan beacon can have no more than one "previous" entry.
 
 This optional previous values allows the library to support changes in the configuration over time.
 If the configuration for a scan beacon changes,
-the library can search for both the scan beacon as calculated with the current configuration
-and also the scan beacon as calculated with the previous configuration,
+the library can search for both the beacon as calculated with the current configuration
+and also the beacon as calculated with the previous configuration,
 and return the union of the two.
 
-## Scan Beacon Operation
+### Version Number
+ * The version number in a beacon configuration is an unsigned integer.
+ * It is compared with the version numbers of other beacons, and
+designate the ordering of beacon modifications.
+ * If two beacons have the same version number, then they were modified
+at the same time. That is, some records may have been written with the 
+current version of both beacons, and some records may have been written
+with the previous version of both beacons, but no records were ever
+written with the current version of one and the previous version of the other.
+ * If two beacons have different version numbers, then the one with the
+lower number was modified first, and the one with the higher number was modified
+second. Thus no records were ever written with the previous version of the 
+first beacon and the current version of the second beacon.
+ * If either or both of two beacons lack a version number, then records
+may have been written with any combination of the current and previous
+versions of the two beacons.
+ * If a query is made involving multiple modified beacons, some optimizations
+can be made if version numbers are provided; otherwise, these version
+numbers can be safely ignored.
 
-### hash
 
-This operation MUST take the plain text of the source field as input.
+## Beacon Operations
 
-This operation MUST must take the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt) of the plain text and the specified key
-and return the most significant `hash length` bits as an unsigned integer.
+### plainHash
 
+ * A beacon configuration with none of the optional characters MUST use this operation.
+ * This operation MUST take a sequence of bytes as input.
+ * This operation MUST produce a valid UTF8 string as output.
+ * This operation MUST must take the 
+[HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+of the input and the configured key
+and return the most significant `hash length` bits,
+interpreted as an unsigned integer,
+and formatted as a decimal integer.
+
+### innerHash
+
+ * this operation MUST take a valid UTF8 string as input.
+ * this operation MUST produce a valid UTF8 string as output.
+ * If the configuration does not specify an inner character,
+this operation MUST return the `plainHash` of the input string; otherwise,
+ * This operation MUST return an error if the input string does not
+contain the inner character.
+ * This operation MUST split the input string into two pieces, on the
+first occurrence on the inner character.
+ * This operation MUST return the concatenation of
+ * * the first part of the input string
+ * * the inner character
+ * * the `plainHash` of the second part of the string.
+
+### splitHash
+
+ * this operation MUST take a valid UTF8 string as input.
+ * this operation MUST produce a valid UTF8 string as output.
+ * If the configuration specifies an inner character, but not a split character,
+this operation MUST return an error.
+ * If the configuration does not specify a split character,
+this operation MUST return the `plainHash` of the input string; otherwise,
+ * This operation MUST split the input string into pieces based on the split character.
+ * This operation must return the concatenation of the
+ * * the split character
+ * * the `innerHash` of each part, in order, separated by the split character,
+ * * the split character
+ * If the input string does not contain the split character,
+splitting the string results in a single piece, and no error is produced.
+
+### compoundHash
+
+ * A beacon configuration that includes one or more of the optional characters MUST use this operation.
+ * this operation MUST take a valid UTF8 string as input.
+ * this operation MUST produce a valid UTF8 string as output.
+ * If the configuration does not contain a prefix character,
+this operation MUST return the `tailHash` of the input string; otherwise
+ * If the configuration does contain the prefix character,
+this operation MUST return an error; otherwise
+ * This operation MUST split the input string into two pieces,
+based on the first occurrence of the prefix character in the input string.
+ * This operation MUST return the concatenation of the first part of the split, the prefix character, and the `splitHash` of the rest of the string.

@@ -1,22 +1,23 @@
 [//]: # "Copyright Amazon.com Inc. or its affiliates. All Rights Reserved."
 [//]: # "SPDX-License-Identifier: CC-BY-SA-4.0"
 
-# Scan Beacons as used with DynamoDB
+# DynamoDB Beacons
 
 ## Version
 
-0.1.0
+1.0.0
 
 ### Changelog
 
 ## Definitions
 
- * source field : an encrypted DynamoDB attribute
- * scan beacon field : an attribute holding the truncated HMAC of a source field,
-as defined [here](scan-beacons.md)
  * gazelle prefix : `aws-ddbec-`
- * scan beacon prefix : `aws-ddbec-sb-`
- * modified scan beacon : a scan beacon with a "previously" section.
+ * beacon prefix : `aws-ddbec-sb-`
+ * source field : an encrypted DynamoDB attribute
+ * beacon field : an attribute holding the truncated HMAC of a source field,
+as defined [here](beacons.md).
+The name of the beacon field is the concatenation of
+the beacon prefix and the source field name.
 
 ### Conventions used in this document
 
@@ -25,7 +26,8 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 ### Overview
 
-A `DynamoDBTableEncryptionConfig` object provides the list of Scan Beacons for the table associated with an operation,
+A `DynamoDBTableEncryptionConfig` object provides the list of Beacons
+for the table associated with an operation,
 and other necessary configuration information.
 
 Various Request and Response objects are transformed, based on this configuration.
@@ -36,12 +38,10 @@ and because scan becaons are designed to create false duplicates.
 
 The basic user experience is this 
 1. User constructs a client object, registering Gazelle intercepts
-2. User calls client methods as normal*
+2. User calls client methods as normal
 3. Gazelle interceptors might call one of the below functions to transform a request, then encrypts the request as necessary.
 4. Gazelle interceptors decrypt the response as necessary, then might call one of the functions below to transform the response.
-5. User recieves the reposnse.
-
-* Except for query; where instead of client.query(request) the user must call DynamoDBEncryptionInterceptor.query(client, request)
+5. User receives the response.
 
 #### Indexing
 
@@ -54,26 +54,44 @@ It can be dangerous to specify a projection other than ALL,
 because decryption requires the presense of all signed fields
 that were present when the record was written.
 
+Users might create tables and/or indexes in the console. In this case,
+they must be well educated to perform these same transformations by hand.
+
 #### Writing
 
 Whenever a record is written, if the source field is written then the scan beacon field must also be written.
-That is, for every encrypted attribute with a scan beacon, an additonal attribute is written.
+That is, for every encrypted attribute with a scan beacon, an additional attribute is written.
 
-It is a error to attempt to write a source attribute starting with the gazelle prefix.
+It is an error to attempt to write a source attribute starting with the gazelle prefix.
 
 #### Reading
 
 To retrieve a record based on the value of an encrypted source field,
 search instead for the hash of the value in the scan beacon field.
 
-Note that only exact matches can be supported. No ranged queries or inequalities.
-It is an error to attempt such a query.
+ * With no beacon, and encrypted attribute cannot be searched.
+ * With plain beacons, only exact matches can be supported.
+ * compound beacons with a prefix can support ranged queries such as `between` and `begins_with`.
+ * compound beacons with a split can support `contains`
 
-This might return false positive results. After retrieving records in this way,
-you examine the decrypted record and compare the source field value to the query value,
+It is an error to attempt a query with an unsupported operation.
+
+Because beacons might be truncated, these queries might return false positive results.
+After retrieving records in this way,
+you examine the decrypted record and compare the source field values to the query values,
 and discard any records where they don't match.
 
-It is an error to attempt to search on an encrypted attribute that has no scan beacon.
+### Configuration
+
+In addition to the configuration supplied for each [beacon](beacons.md),
+the following OPTIONAL configuration MUST be supported
+
+ * The **Primary Key Parts** : The name of the primary key for the table,
+the partition and optional sort key to be used to create this key,
+and the [Key Indicator](./beacons.md#key-indicator) used to generate the HMAC.
+See [transformPutItemInput](#transformPutItemInput)
+ * The **LSI Style** : For each Local Secondary Index, if it should be handled in WIDE or NARROW mode.
+(see [transformCreateTableInput](#transformCreateTableInput)
 
 ## Operations
 
@@ -83,55 +101,95 @@ It is an error to attempt to search on an encrypted attribute that has no scan b
 
  * This operation MUST take a CreateTableInput object as input.
  * This operation MUST return a CreateTableInput object.
- * If no Global Secondary Index is being created, the CreateTableInput object MUST be returned unaltered.
- * If the Global Secondary Index being created includes no source fields, that is,
-if the KeySchema does not mention a source field, the CreateTableInput object MUST be returned unaltered.
- * If the Global Secondary Index being created includes a source field,
-the returned CreateTableInput object MUST replace the source field names
-with the corresponding scan beacon field names in the KeySchema.
+ * This operation MUST return an error if any part of the input
+object mentions an attribute name starting with the `gazelle prefix`.
+ * If no indexes are being created, and the Primary Key Parts are not configured,
+the CreateTableInput object MUST be returned unaltered.
+ * If the Primary Key Parts are configured
+ * * If no primary key is specified in the input, then a primary key
+of the given name and type `Binary` must be added to the input.
+ * * If a primary key is specified, and it is not exactly what would have
+been added in the previous point, this operation MUST return an error
+ * If any Global or Local Secondary Index is being created that references
+an encrypted field in its Key Configuration,
+ * * if that field does not have a beacon configured, this operation MUST return an error.
+ * * otherwise, that field must be changed to be the beacon field, and its type changed to string.
+ * If a Global Secondary Index is being created that has an explicit list
+of attributes in its projection
+ * * if an encrypted field is in its projection, and that field has a beacon configured,
+then that beacon must be added to the projection.
+ * * if an encrypted field was mentioned in the Key Configuration, then that
+encrypted field must be added to the projection.
+
+ * If a Local Secondary Index, explicitly configured as NARROW,
+is being created that has an explicit list of attributes in its projection,
+and an encrypted field is in its projection, and that field has a beacon configured,
+then that field MUST be replaces by its beacon in the projection.
+ * If a Local Secondary Index, not explicitly configured as NARROW,
+is being created that has an explicit list of attributes in its projection,
+ * * if an encrypted field is in its projection, and that field has a beacon configured,
+then that beacon MUST also be included in the projection.
+ * * if an encrypted field was mentioned in the Key Configuration, then that
+encrypted field must be added to the projection.
+
 
 ### transformUpdateTableInput
 
  * This operation MUST take as input an UpdateTableInput object.
  * This operation MUST return an UpdateTableInput object.
+ * This operation MUST return an error if any part of the input
+object mentions an attribute name starting with the `gazelle prefix`.
+
  * If no Global Secondary Index is being created, the UpdateTableInput object MUST be returned unaltered.
- * If the Global Secondary Index being created includes no source fields, that is,
-if the KeySchema does not mention a source field, the UpdateTableInput object MUST be returned unaltered.
- * If the Global Secondary Index being created includes a source field,
-the returned UpdateTableInput object MUST replace the source field names with the corresponding scan beacon field names in the KeySchema.
+ * If a Global Secondary Index being created but it refers to no encrypted fields,
+the UpdateTableInput object MUST be returned unaltered.
+
+ * If the Global Secondary Index being created references
+an encrypted field in its Key Configuration,
+ * * if that field does not have a beacon configured, this operation MUST return an error.
+ * * otherwise, that field must be changed to be the beacon field, and its type changed to string.
+ * If the Global Secondary Index being created has an explicit list
+of attributes in its projection
+ * * if an encrypted field is in its projection, and that field has a beacon configured,
+then that beacon must be added to the projection.
+ * * if an encrypted field was mentioned in the Key Configuration, then that
+encrypted field must be added to the projection.
+
 
 ### transformPutItemInput
  * This operation MUST take as input an PutItemInput object.
  * This operation MUST return an PutItemInput object.
- * If the input object referes to an encrypted attribute in its Condition Expression,
+ * This operation MUST return an error if any part of the input
+object mentions an attribute name starting with the `gazelle prefix`.
+
+ * If the Primary Key Parts are configured
+ * * If the primary key is present in the item's attributes, this operation
+MUST return an error.
+ * * If either the partition or sort key are missing from the input attributes,
+this operation MUST return an error; otherwise,
+ * * if only a primary key is specified, then an HMAC384 must be generated from it; otherwise,
+ * * an HMAC384 must be generated from the concatenation of the partition key,
+a literal `_` character, and the sort key.
+ * * This HMAC value must be added to the item's attributes.
+ * If the input object refers to an encrypted attribute in its Condition Expression,
 in any context other than `attribute_exists`, `attribute_not_exists` or `size`,
-this operation MUST return false
- * For each element in the `Item` map that specifes a source field,
+this operation MUST return an error
+ * For each element in the `Item` map that specifies a source field,
  the returned `Item` map MUST also include the scan beacon field.
-The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
-The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
- * An error MUST be returned if the name of an Item in the input `Item` map begins with the `Gazelle prefix`
+ * The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
+ * The value of this field MUST be the defined [beacon](./beacons.md)
+
 
 ### transformBatchWriteItemInput
  * This operation MUST take as input a BatchWriteItemInput object.
  * This operation MUST return a BatchWriteItemInput object.
- * For each element in the `Item` maps that specify a source field,
-the returned `Item` maps MUST also include the scan beacon field.
-The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
-The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
- * An error MUST be returned if the name of an Item in an input `Item` map begins with the `Gazelle prefix`
+ * Each item MUST be handled as outlined above in transformPutItemInput
+
 
 ### transformTransactWriteItemsInput
  * This operation MUST take as input a TransactWriteItemsInput object.
  * This operation MUST return a TransactWriteItemsInput object.
- * If the input object referes to an encrypted attribute in its Condition Expression,
-in any context other than `attribute_exists`, `attribute_not_exists` or `size`,
-this operation MUST return false
- * For each element in the `Item` maps that specify a source field,
-the returned `Item` maps MUST also include the scan beacon field.
-The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
-The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
- * An error MUST be returned if the name of an Item in an input `Item` map begins with the `Gazelle prefix`
+ * Each item MUST be handled as outlined above in transformPutItemInput
 
 #### Note : GetItem, BatchGetItem and TransactGetItems work only on Primary Keys, and therefore are not affected by scan beacons
 
@@ -139,14 +197,15 @@ The value of ths field MUST be the truncated HMAC as defined by the scan beacon.
 
 #### Note : UpdateItem is only allowed to modify unsigned attributes, so we only need to test for the presence of signed attributes, we don't need to modify the request.
 
-### okUpdateItemInput
+### transformUpdateItemInput
  * This operation MUST take as input an UpdateItemInput
- * This operation MUST return a boolean
- * If the input object is attempting to modify a signed attribute, this operation MUST return false
- * If the input object referes to an encrypted attribute in its Condition Expression,
+ * This operation MUST return the unmodified input object
+ * This operation MUST return an error if any part of the input
+object mentions an attribute name starting with the `gazelle prefix`.
+ * This operation MUST return an error if the input object is attempting to modify a signed attribute.
+ * If the input object refers to an encrypted attribute in its Condition Expression,
 in any context other than `attribute_exists`, `attribute_not_exists` or `size`,
-this operation MUST return false
- * Otherwise, this operation MUST return true.
+this operation MUST return an error.
 
 ### transformQueryInput
  * This operation MUST take as input a QueryInput object.
