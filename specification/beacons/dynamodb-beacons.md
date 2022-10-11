@@ -11,9 +11,10 @@
 
 ## Definitions
 
+ * See the definitions for [beacons](./beacons.md).
  * gazelle prefix : `aws-ddbec-`
  * beacon prefix : `aws-ddbec-sb-`
- * source field : an encrypted DynamoDB attribute
+ * source field : an encrypted DynamoDB attribute with an associated beacon
  * beacon field : an attribute holding the truncated HMAC of a source field,
 as defined [here](beacons.md).
 The name of the beacon field is the concatenation of
@@ -200,92 +201,180 @@ this operation MUST return an error
 ### transformUpdateItemInput
  * This operation MUST take as input an UpdateItemInput
  * This operation MUST return the unmodified input object
- * This operation MUST return an error if any part of the input
+ * This operation MUST fail if any part of the input
 object mentions an attribute name starting with the `gazelle prefix`.
- * This operation MUST return an error if the input object is attempting to modify a signed attribute.
- * If the input object refers to an encrypted attribute in its Condition Expression,
-in any context other than `attribute_exists`, `attribute_not_exists` or `size`,
-this operation MUST return an error.
+ * This operation MUST fail if the input object attempts to modify a signed attribute.
+
+### Filter Expression Transformation
+ * this is a virtual entry point, describing the modification of a
+Filter Expression, and possibly the associated Expression Attribute Names
+and Expression Attribute Values.
+ * This operation MUST fail if an attribute name that starts with the `gazelle prefix` is mentioned.
+ * This operation MUST fail if any non-beaconed field is mentioned.
+ * If no encrypted field is mentioned, the Filter Expression MUST be returned unmodified.
+ * The operations `=`, `IN`, `attribute_exists`, `attribute_not_exists` and `size`;
+as well as the boolean `AND`, `OR` and `NOT` are permitted for any type of beacon.
+ * The operation `contains` is permitted for split beacons
+ * All comparators, and the `BETWEEN` and `begins_with` operations are permitted on prefix beacons.
+ * This operation MUST fail if a beacon is used with an operation that is not permitted.
+ * Each reference to a field with an unmodified beacon must be replaced by the associated beacon.
+For example, `field < value` MUST be replaced by `aws-ddbec-sb-field < beacon_value`
+ * Each reference to a field with a modified beacon must be replaced by the union
+of the results from the two associated beacons.
+For example, `field = value` MUST be replaced by `(aws-ddbec-sb-field = current_beacon_value) OR (aws-ddbec-sb-field = previous_beacon_value)`
+
+### GetTotalQueries
+ * GetTotalQueries MUST take as input a QueryInput object
+ * GetTotalQueries MUST return an unsigned integer between 1 and 4 inclusive
+ * If the `KCE` (Key Condition Expression) mentions no encrypted attribute,
+this operation MUST return 1
+ * If the `KCE` mentions no attributes with modified beacons,
+this operation MUST return 1
+ * If the `KCE` mentions only one attributes with a modified beacon, 
+this operation MUST return 2
+ * otherwise, both the partition key and sort key must have modified beacons.
+ * If either modified beacon lacks a version, this operation MUST return 4
+ * If both modified beacons have the same version, this operation MUST return 2
+ * otherwise, this operation must return 3
+
+### GetQueryNumber
+ * GetQueryNumber MUST take as input a QueryInput object
+ * GetQueryNumber MUST return an unsigned integer between 1 and 4 inclusive
+ * GetQueryNumber MUST return a number no greater than the result of GetTotalQueries
+called on the same QueryInput object
+ * If the input has no exclusiveStartKey, this operation MUST return 1
+ * If the name of the first attribute looks like `#:N:#` where N is a single
+decimal digit, then this operation must return N+1
+ * If the name of the first attribute starts with `#:N:#` where N is a single
+decimal digit, then this operation must return N
+ * If exclusiveStartKey exists, but does not begin with `#:N:#`,
+ * * if the Key Condition Expression mentions any encrypted fields, this operation MUST fail.
+ * * otherwise, this operation MUST return 1
+
+### Transformation  Single Key Comparison
+ * this is a virtual entry point, describing the modification of a
+Key Comparison Expression, and possibly the associated Expression Attribute Names.
+ * This operation also takes as input a flag : CURRENT or PREVIOUS
+ * This operation must replace the source field and its value with the
+associated beacon field and its beacon value.
+For example, `field = value` MUST be replaced by `aws-ddbec-sb-field = beacon_value`
 
 ### transformQueryInput
  * This operation MUST take as input a QueryInput object.
- * This operation MUST return a list of QueryInput objects
- * If no source fields are mentioned, this operstion MUST return a single QueryInput object,
-which is the unaltered input object.
- * This operation MUST fail if the keyConditionExpression compares a source field with anything but equality.
- * This operation MUST fail if the FilterExpressions uses a source field with anything but `=`, `IN`,
- `attribute_exists`, `attribute_not_exists` or `size`.
- * This operation MUST fail if the input FilterExpression or keyConditionExpression directly mention
- an attribute name beginning with the `Gazelle Prefix`
- * If the FilterExpression refers to no source fields, the FilterExpression MUST remain unchanged.
- * If the FilterExpression refers to source fields only with `attribute_exists`, `attribute_not_exists` or `size`,
-the FilterExpression MUST be returned unchanged.
- * For each source field in the Filter Expression that is not a modified scan beacon,
-and is used with the `=` or `IN` operators,
-this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For each source field in the FilterExpression that is a modified scan beacon, this operation MUST replace `(field EQ value)` with `((beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR beacon_field in (prev_beacon_A, prev_beacon_B)`.
+ * This operation MUST return a QueryInput object.
+ * This operation MUST fail if an attribute name that starts with the `gazelle prefix` is mentioned.
+ * This operation MUST fail if any non-beaconed field is mentioned.
+ * If no encrypted field is mentioned, this operation MUST return the unmodified input object.
+ * If the input object contains a `FilterExpression`, then it must be modified according
+to `Filter Expression Transformation` above.
+ * If the keyConditionExpression refers to no encrypted attributes, then the result
+MUST be returned after only the above operations.
 
-The particulatrs of the keyConditionExpression determine the number of QueryInput objects returned.
+This operation must extract the `Number` from the input 
+by calling GetQueryNumber.
 
- * If the keyConditionExpression refers to no modifed scan beacons,
-this opertion must return exactly one QueryInput object.
- * If the keyConditionExpression refers to one modifed scan beacon,
-this opertion MUST return two QueryInput objects;
-one with the keyConditionExpression's field and value replaced with the current scan beacon settings
-and one with the keyConditionExpression's field and value replaced with the previous scan beacon settings
- * If the keyConditionExpression refers to two modifed scan beacons,
-this opertion MUST return between two and four QueryInput objects, replacing the keyConditionExpression's field and value with
- *
-    1. previous partition pey, previous sort key
-    2. previous partition pey, current sort key
-    3. current partition pey, previous sort key
-    4. current partition pey, current sort key
- * If either scan beacon lacks a version number,
-this operation MUST return all four QueryInput objects
- * If the two version numbers are equal,
-this operation MUST return only the first and last QueryInput objects
- * If the partition key version is less than the sort key version,
-this operation MUST return only QueryInput objects 1, 2 and 4
- * If the partition key version is greater than the sort key version,
-this operation MUST return only QueryInput objects 1, 3 and 4
+ * If the name of the first attribute of the exclusiveStartKey looks like
+`#:N:#` where N is a single decimal digit, then the output object
+must have no exclusiveStartKey
+ * If the name of the first attribute of the exclusiveStartKey starts with
+`#:N:#` where N is a single decimal digit, then this prefix must be removed
+from the exclusiveStartKey in the output
 
 
-#### Note : transformQueryOutput needs a QueryInput object, becase we need to check the result records against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
+The Key Condition Expression must be examined
+
+ * The operation `=` is permitted for any type of beacon.
+ * All comparators, and the `BETWEEN` and `begins_with` operations are permitted on prefix beacons.
+ * This operation MUST fail if the keyConditionExpression compares a source field with an operation that is not permitted.
+
+The Key Condition Expression must be modified
+
+ * For any unmodified beacons mentioned, source field and value MUST
+be replaced by the associated beacon and value.
+
+ * If no modified beacons are mentioned,
+ * * This operation MUST fail if the `Number` is anything but one
+ * * The result MUST be returned after only the above operations.
+
+ * If a single modified beacon is mentioned,
+ * * If the `Number` is one, the source field and value MUST
+be replaced by the previous version of the associated beacon field and beacon value.
+ * * If the `Number` is two, the source field and value MUST
+be replaced by the current version of the associated beacon field and beacon value.
+ * * If the `Number` is anything but one or two, this operation MUST fail.
+
+ * If two modified beacons are mentioned, and either lacks a version number
+ * * If the `Number` is one, the partition and sort fields and their values MUST
+be replaced by the previous versions of the associated beacons and beacon values.
+ * * If the `Number` is two, the partition field and value MUST
+be replaced by the previous version of the associated beacon and beacon value,
+and the sort field and value MUST
+be replaced by the current version of the associated beacon and beacon value
+ * * If the `Number` is three, the partition field and value MUST
+be replaced by the current version of the associated beacon and beacon value,
+and the sort field and value MUST
+be replaced by the previous version of the associated beacon and beacon value
+ * * If the `Number` is four, the partition and sort fields and their values MUST
+be replaced by the current versions of the associated beacons and beacon values.
+ * * If the `Number` is anything but one, two, three or four, this operation MUST fail.
+
+
+ * If two modified beacons are mentioned, and they have equal version numbers
+ * * If the `Number` is one, the partition and sort fields and their values MUST
+be replaced by the previous versions of the associated beacons and beacon values.
+ * * If the `Number` is two, the partition and sort fields and their values MUST
+be replaced by the current versions of the associated beacons and beacon values.
+ * * If the `Number` is anything but one or two, this operation MUST fail.
+
+
+ * If two modified beacons are mentioned, and the partition key version number
+is less than the sort key version number
+ * * If the `Number` is one, the partition and sort fields and their values MUST
+be replaced by the previous versions of the associated beacons and beacon values.
+ * * If the `Number` is two, the partition field and value MUST
+be replaced by the current version of the associated beacon and beacon value,
+and the sort field and value MUST
+be replaced by the previous version of the associated beacon and beacon value
+ * * If the `Number` is three, the partition and sort fields and their values MUST
+be replaced by the current versions of the associated beacons and beacon values.
+ * * If the `Number` is anything but one, two or three, this operation MUST fail.
+
+
+ * If two modified beacons are mentioned, and the partition key version number
+is greater than the sort key version number
+ * * If the `Number` is one, the partition and sort fields and their values MUST
+be replaced by the previous versions of the associated beacons and beacon values.
+ * * If the `Number` is two, the partition field and value MUST
+be replaced by the previous version of the associated beacon and beacon value,
+and the sort field and value MUST
+be replaced by the current version of the associated beacon and beacon value
+ * * If the `Number` is three, the partition and sort fields and their values MUST
+be replaced by the current versions of the associated beacons and beacon values.
+ * * If the `Number` is anything but one, two or three, this operation MUST fail.
+
+
+
+*Note* : transformQueryOutput needs the original QueryInput object,
+because we need to check the result records against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
 
 ### transformQueryOutput
  * This operation MUST take as input a QueryOutput object and a QueryInput object
- * The QueryInput object MUST be assumed to be the origial query, not one of the results of transformQueryInput
+ * The QueryInput object MUST be assumed to be the original query, not one of the results of transformQueryInput
  * This operation MUST return an QueryOutput object.
  * This operation MUST remove any records for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field)
 then this operation must remove any record in which the  `Src` field contains something other than "foo".
  * This operation MUST return all records that match the original QueryInput.
 
-### mergeQueryOutput
- * This operation MUST take as input two QueryOutput objects
- * This operation MUST return a single QueryOutput object
- * The ConsumedCapacity of the result must contain the sum of the corresponding numbers in the two sources.
- * The Count and ScannedCount fields of the result must contain the sum of the corresponding numbers in the two sources.
- * The Items of the result must be the concatenation of the lists in the two sources
- * If either input contains a LastEvaluatedKey field, that field must appear in the output
- * If both inputs contain a LastEvaluatedKey field, this opertion MUST return an error.
-
 ### transformScanInput
  * This operation MUST take as input a ScanInput object.
  * This operation MUST return a ScanInput object.
- * If no source fields are mentioned, this operation MUST return the unaltered input object,
- * This operation MUST fail if the FilterExpressions uses a source field with anything but `=`, `IN`,
- `attribute_exists`, `attribute_not_exists` or `size`.
- * This operation MUST fail if the input FilterExpression directly mentions
- an attribute name beginning with the `Gazelle Prefix`
- * If the FilterExpression refers to source fields only with `attribute_exists`, `attribute_not_exists` or `size`,
-this operation MUST return the unaltered input object.
- * For each source field in the Filter Expression that is not a modified scan beacon,
-and is used with the `=` or `IN` operators,
-this operation MUST replace source fields and values with scan beacon fields and HMACs
- * For each source field in the FilterExpression that is a modified scan beacon, this operation MUST replace `(field EQ value)` with `((beacon_field EQ prev_beacon_value) OR (beacon_field EQ beacon_value))` and replace `field IN(A, B)` with `beacon_field IN (beacon_A, beacon_B) OR beacon_field in (prev_beacon_A, prev_beacon_B)`
- * For each source field in the Filter Expression that is used with the `=` or `IN` operators,
-the original search value must be saved in the ExecutionAttributes of the returned ScanInput object.
+ * This operation MUST fail if an attribute name that starts with the `gazelle prefix` is mentioned.
+ * This operation MUST fail if any non-beaconed field is mentioned.
+ * If no encrypted field is mentioned, this operation MUST return the unmodified input object.
+ * If the input object contains a `FilterExpression`, then it must be modified according
+to `Filter Expression Transformation` above.
+
 
 ### transformScanOutput
  * This operation MUST take as input a ScanOutput object and a ScanInput object.

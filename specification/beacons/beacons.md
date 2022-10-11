@@ -15,15 +15,16 @@ Beacons use stable hashes of the plaintext values of encrypted fields to allow s
 
 ## Definitions
 
-**plain beacon** : the HMAC of the unencrypted value of an encrypted field, 
-optionally truncated to better avoid creating distinguishers of the plaintext;
-that is, to increase hash collisions.
+ * **beacon** : A string value. Either a plain beacon constructed from a byte sequence, or a compound beacon constructed from a string.
+ * **beaconed field** : an encrypted field with an associated beacon
+ * **non-beaconed field** : an encrypted field without an associated beacon
+ * **modified beacon** : a beacon configured with a "previously" section.
+ * **unmodified beacon** : a beacon configured without a "previously" section.
+ * **plain beacon** : a beacon configured with none of the optional characters
+ * **compound beacon** : a beacon configured with any of the optional characters
+ * **prefix beacon** : a beacon configured with the optional prefix character
+ * **split beacon** : a beacon configured with the optional split character
 
-**compound beacon** : A string composed of parts of an input string, interspersed with the plain beacons made from other parts of the input string.
-
-**beacon** : A string value. Either a plain beacon constructed from and kind of input data, or a compound beacon constructed from an input string.
-
-**modified beacon** : A beacon with a "previous" entry in its [configuration](#scan-beacon-configuration).
 
 ### Conventions used in this document
 
@@ -34,14 +35,16 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 This is the configuration text supplied by the user to designate the appropriate key for creating the HMAC hash.
 
-A key indicator MUST consist of exactly one of the following
- * The encrypted form of a data key, as returned by the KMS `GenerateDataKey` operation,
+A key indicator MUST consist of the [ARN](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn) of a KMS HMAC key. The KMS `GenerateMac` method will be called for every HMAC calculation.
+
+In the future, it is anticipated that other types of key indicators will
+be supported; for example, the encrypted form of a data key,
+as returned by the KMS `GenerateDataKey` operation, along with
 the associated [Key ID](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-identifier).
 The library will call AWS KMS to decrypt the key.
-Then the library caches the plaintext key and calculates the HMAC locally.
-More complex configuration, faster execution time.
- * The [ARN](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn) of a KMS HMAC key. The KMS `GenerateMac` method will be called for every HMAC
-calculation. Easier configuration, slower execution time.
+Then the library will cache the plaintext key and calculate the HMAC locally.
+More complex configuration than the HMAC Key, but faster execution if cached
+over multiple records.
 
 ## Scan Beacon Configuration
 
