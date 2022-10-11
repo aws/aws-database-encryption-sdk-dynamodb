@@ -54,18 +54,24 @@ A beacon definition MUST provide the following:
  * The hash length (number of bits) of the scan beacon.
 A number between 1 and 64.
  * An OPTIONAL version number
- * An OPTIONAL prefix character
- * An OPTIONAL split character
- * An OPTIONAL inner character
+ * An OPTIONAL prefix, a single utf8 character
+ * An OPTIONAL split, a single utf8 character, or decimal numbers separated by a single utf8 character
+ * An OPTIONAL inner, a single utf8 character
  * An OPTIONAL "previous" entry, consisting of all of the above,
 except for source field name, indicating the previous state of this beacon.
 
-It is an error to specify an inner character, but not a split character.
-An implementation MUST return an error when constructing a beacon in this case.
+It is an error to specify an `inner`, but not a `split`.
+An implementation MUST fail when constructing a beacon in this case.
+
+If the `split` is specified as 2:4:6, that is the same as
+a `split` of `:`, except that the first part has a hash length of 2,
+the second part a hash length of 4, any additional parts have a hash length
+of 6. An implementation MUST fail if the first number in the list is not
+equal to the hash length specified for the beacon.
 
 The name of a beacon attribute is typically the concatenation of a fixed prefix (e.g `aws-ddbec-sb-`) and the source field name.
 
-#### Note : An individual scan beacon can have no more than one "previous" entry.
+An individual beacon can have no more than one "previous" entry.
 
 This optional previous values allows the library to support changes in the configuration over time.
 If the configuration for a scan beacon changes,
@@ -96,11 +102,24 @@ numbers can be safely ignored.
 
 ## Beacon Operations
 
+### hashLength
+ * this operation MUST take an unsigned integer as input
+ * this operation MUST return an unsigned integer in the range 1 to 64 inclusive.
+ * If the input is zero, this operation MUST return the beacons's hash length.
+ * If no `split` is specified, or the `split` is a single character, this operation MUST return the beacons's hash length.
+ * The `split` provides N numbers.
+ * If the input number is less than N, this operation MUST return
+the zero-based Nth number in the list; otherwise,
+ * this operation MUST return the last number in the list
+
 ### plainHash
 
- * A beacon configuration with none of the optional characters MUST use this operation.
+ * A beacon configuration with none of the optional characters MUST use this operation, with a position of zero.
  * This operation MUST take a sequence of bytes as input.
+ * This operation MUST take an unsigned integer `position` as input.
  * This operation MUST produce a valid UTF8 string as output.
+ * This operation MUST calculate a hash length by calling `hashLength`
+with the supplied `position`.
  * This operation MUST must take the 
 [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
 of the input and the configured key
@@ -110,10 +129,12 @@ and formatted as a decimal integer.
 
 ### innerHash
 
- * this operation MUST take a valid UTF8 string as input.
+ * this operation MUST take a valid UTF8 string
+and an unsigned integer, `position`, as input.
  * this operation MUST produce a valid UTF8 string as output.
  * If the configuration does not specify an inner character,
-this operation MUST return the `plainHash` of the input string; otherwise,
+this operation MUST return the `plainHash` of the input string
+and the supplied position; otherwise,
  * This operation MUST return an error if the input string does not
 contain the inner character.
  * This operation MUST split the input string into two pieces, on the
@@ -121,7 +142,7 @@ first occurrence on the inner character.
  * This operation MUST return the concatenation of
  * * the first part of the input string
  * * the inner character
- * * the `plainHash` of the second part of the string.
+ * * the `plainHash` of the second part of the string and the supplied position.
 
 ### splitHash
 
@@ -130,14 +151,13 @@ first occurrence on the inner character.
  * If the configuration specifies an inner character, but not a split character,
 this operation MUST return an error.
  * If the configuration does not specify a split character,
-this operation MUST return the `plainHash` of the input string; otherwise,
+this operation MUST return the `plainHash` of the input string and zero; otherwise,
  * This operation MUST split the input string into pieces based on the split character.
- * This operation must return the concatenation of the
+ * This operation must return the concatenation of,
  * * the split character
- * * the `innerHash` of each part, in order, separated by the split character,
- * * the split character
+ * * for each part that is not a single underscore character, the `innerHash` of the part and its position, followed by the split character,
  * If the input string does not contain the split character,
-splitting the string results in a single piece, and no error is produced.
+splitting the string results in a single piece. This is not an error.
 
 ### compoundHash
 
@@ -145,9 +165,16 @@ splitting the string results in a single piece, and no error is produced.
  * this operation MUST take a valid UTF8 string as input.
  * this operation MUST produce a valid UTF8 string as output.
  * If the configuration does not contain a prefix character,
-this operation MUST return the `tailHash` of the input string; otherwise
- * If the configuration does contain the prefix character,
+this operation MUST return the `splitHash` of the input string; otherwise
+ * If the input string does not contain the prefix character,
 this operation MUST return an error; otherwise
  * This operation MUST split the input string into two pieces,
 based on the first occurrence of the prefix character in the input string.
+ * If the first part of the string a single underscore character,
+this operation MUST return the `splitHash` of the rest of the string; otherwise,
  * This operation MUST return the concatenation of the first part of the split, the prefix character, and the `splitHash` of the rest of the string.
+
+
+
+
+
