@@ -25,7 +25,7 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 This document describes the behavior for the
 DynamoDB Item Encryptor.
 It is responsible for
-the encryption and decryption [DynamoDB Items](#TODO-link-to-docs)
+the encryption and decryption of [DynamoDB Items](#TODO-link-to-docs)
 for a particular DynamoDB Table.
 The DynamoDB Item Encryptor is publicly exposed and
 is used to directly encrypt or decrypt

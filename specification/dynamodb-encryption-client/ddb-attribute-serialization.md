@@ -183,12 +183,12 @@ Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value
 
 ###### Value Length
 
-Key Length MUST be a big-endian unsigned integer
+Value Length MUST be a big-endian unsigned integer
 equal to the length of [Map Value](#map-value).
 
 ###### Map Value
 
-Map Value is equivalent to the top level [Value].
+Map Value is equivalent to the top level [Value](#value).
 A Map MAY hold any DynamoDB Attribute Value data type,
 and MAY hold values of different types.
 
