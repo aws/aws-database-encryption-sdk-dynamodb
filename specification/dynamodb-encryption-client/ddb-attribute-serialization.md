@@ -190,7 +190,7 @@ equal to the length of [Map Value](#map-value).
 
 ###### Map Value
 
-Map Value is equivalent to the top level [Value](#value).
+Map Value MUST be a [Value](#value).
 A Map MAY hold any DynamoDB Attribute Value data type,
 and MAY hold values of different types.
 
