@@ -26,7 +26,10 @@ This document describes how a DynamoDB Item is converted
 to the Structured Encryption Library's [Structured Data](../structured-encryption/structures.md#structured-data),
 and vice versa.
 
-This conversion MUST be lossless.
+The conversion from DDB Item to Structured Data must be lossless,
+meaning that converting a DDB Item to
+a Structured Data and back to a DDB Item again
+MUST result in the exact same DDB Item.
 
 ## Convert DDB Item to Structured Data
 
@@ -55,6 +58,12 @@ adheres to the following:
 - This [Structured Data Map](../structured-encryption/structures.md#structured-data-map),
   if not empty,
   MUST only contain [Structured Data Terminals](../structured-encryption/structures.md#structured-data-terminal).
+- This [Structured Data Map](../structured-encryption/structures.md#structured-data-map)
+  MUST NOT contain any [Structured Data](../structured-encryption/structures.md#structured-data)
+  at index "TODO:header".
+- This [Structured Data Map](../structured-encryption/structures.md#structured-data-map)
+  MUST NOT contain any [Structured Data](../structured-encryption/structures.md#structured-data)
+  at index "TODO:footer".
 - MUST NOT have [Structured Data Attributes](../structured-encryption/structures.md#structured-data-attributes).
 
 A DynamoDB Item converted from a
