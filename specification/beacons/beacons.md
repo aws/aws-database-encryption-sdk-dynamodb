@@ -18,12 +18,12 @@ Beacons use stable hashes of the plaintext values of encrypted fields to allow s
  * **beacon** : A string value. Either a plain beacon constructed from a byte sequence, or a compound beacon constructed from a string.
  * **beaconed field** : an encrypted field with an associated beacon
  * **non-beaconed field** : an encrypted field without an associated beacon
- * **modified beacon** : a beacon configured with a "previously" section.
- * **unmodified beacon** : a beacon configured without a "previously" section.
- * **plain beacon** : a beacon configured with none of the optional characters
- * **compound beacon** : a beacon configured with any of the optional characters
- * **prefix beacon** : a beacon configured with the optional prefix character
- * **split beacon** : a beacon configured with the optional split character
+ * **modified beacon** : a beacon configured with a `previous` section.
+ * **unmodified beacon** : a beacon configured without a `previous` section.
+ * **plain beacon** : a beacon configured without any optional `split` or `prefix`
+ * **compound beacon** : a beacon configured with the optional `split` or `prefix`
+ * **prefix beacon** : a beacon configured with the optional `prefix`
+ * **split beacon** : a beacon configured with the optional `split`
 
 
 ### Conventions used in this document
@@ -50,54 +50,27 @@ over multiple records.
 
 A beacon definition MUST provide the following:
  * The source field name; e.g. the name of the DynamoDB attribute for which you want to generate a scan beacon
- * The key indicator
+ * A plain text data key
  * The hash length (number of bits) of the scan beacon.
 A number between 1 and 64.
- * An OPTIONAL version number
- * An OPTIONAL prefix, a single utf8 character
- * An OPTIONAL split, a single utf8 character, or decimal numbers separated by a single utf8 character
- * An OPTIONAL inner, a single utf8 character
- * An OPTIONAL "previous" entry, consisting of all of the above,
-except for source field name, indicating the previous state of this beacon.
+ * An OPTIONAL `version`, an unsigned integer
+ * An OPTIONAL `prefix`, a single utf8 character
+ * An OPTIONAL `split`, a single utf8 character, or decimal numbers separated by a single utf8 character
+ * An OPTIONAL `inner`, a single utf8 character
 
 It is an error to specify an `inner`, but not a `split`.
 An implementation MUST fail when constructing a beacon in this case.
 
-If the `split` is specified as 2:4:6, that is the same as
+It is assumed that there is some sort of configuration file somewhere.
+The plain text data key will not be in this file, but be calculated and/or retrieved from somewhere else.
+
+If the `split` is specified as `2:4:6`, that is the same as
 a `split` of `:`, except that the first part has a hash length of 2,
 the second part a hash length of 4, any additional parts have a hash length
 of 6. An implementation MUST fail if the first number in the list is not
 equal to the hash length specified for the beacon.
 
 The name of a beacon attribute is typically the concatenation of a fixed prefix (e.g `aws-ddbec-sb-`) and the source field name.
-
-An individual beacon can have no more than one "previous" entry.
-
-This optional previous values allows the library to support changes in the configuration over time.
-If the configuration for a scan beacon changes,
-the library can search for both the beacon as calculated with the current configuration
-and also the beacon as calculated with the previous configuration,
-and return the union of the two.
-
-### Version Number
- * The version number in a beacon configuration is an unsigned integer.
- * It is compared with the version numbers of other beacons, and
-designate the ordering of beacon modifications.
- * If two beacons have the same version number, then they were modified
-at the same time. That is, some records may have been written with the 
-current version of both beacons, and some records may have been written
-with the previous version of both beacons, but no records were ever
-written with the current version of one and the previous version of the other.
- * If two beacons have different version numbers, then the one with the
-lower number was modified first, and the one with the higher number was modified
-second. Thus no records were ever written with the previous version of the 
-first beacon and the current version of the second beacon.
- * If either or both of two beacons lack a version number, then records
-may have been written with any combination of the current and previous
-versions of the two beacons.
- * If a query is made involving multiple modified beacons, some optimizations
-can be made if version numbers are provided; otherwise, these version
-numbers can be safely ignored.
 
 
 ## Beacon Operations
@@ -107,14 +80,12 @@ numbers can be safely ignored.
  * this operation MUST return an unsigned integer in the range 1 to 64 inclusive.
  * If the input is zero, this operation MUST return the beacons's hash length.
  * If no `split` is specified, or the `split` is a single character, this operation MUST return the beacons's hash length.
- * The `split` provides N numbers.
- * If the input number is less than N, this operation MUST return
-the zero-based Nth number in the list; otherwise,
- * this operation MUST return the last number in the list
+ * If the input number is less than the number of parts in the split, this
+operation MUST return the (zero-based) Nth number in the list;
+otherwise, this operation MUST return the last number in the `split`
 
 ### plainHash
 
- * A beacon configuration with none of the optional characters MUST use this operation, with a position of zero.
  * This operation MUST take a sequence of bytes as input.
  * This operation MUST take an unsigned integer `position` as input.
  * This operation MUST produce a valid UTF8 string as output.
@@ -122,8 +93,9 @@ the zero-based Nth number in the list; otherwise,
 with the supplied `position`.
  * This operation MUST must take the 
 [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-of the input and the configured key
-and return the most significant `hash length` bits,
+of the input and the configured key, interpret the first 8 bytes
+as a little endian unsigned 64-bit integer, and 
+and return the least significant `hash length` bits,
 interpreted as an unsigned integer,
 and formatted as a decimal integer.
 
@@ -132,11 +104,11 @@ and formatted as a decimal integer.
  * this operation MUST take a valid UTF8 string
 and an unsigned integer, `position`, as input.
  * this operation MUST produce a valid UTF8 string as output.
- * If the configuration does not specify an inner character,
+ * If the configuration does not specify an `inner`,
 this operation MUST return the `plainHash` of the input string
 and the supplied position; otherwise,
  * This operation MUST return an error if the input string does not
-contain the inner character.
+contain the `inner` character.
  * This operation MUST split the input string into two pieces, on the
 first occurrence on the inner character.
  * This operation MUST return the concatenation of
@@ -148,9 +120,9 @@ first occurrence on the inner character.
 
  * this operation MUST take a valid UTF8 string as input.
  * this operation MUST produce a valid UTF8 string as output.
- * If the configuration specifies an inner character, but not a split character,
-this operation MUST return an error.
- * If the configuration does not specify a split character,
+ * If the configuration specifies an `inner`, but not a `split`,
+this operation MUST fail.
+ * If the configuration does not specify a `split`,
 this operation MUST return the `plainHash` of the input string and zero; otherwise,
  * This operation MUST split the input string into pieces based on the split character.
  * This operation must return the concatenation of,
@@ -161,7 +133,6 @@ splitting the string results in a single piece. This is not an error.
 
 ### compoundHash
 
- * A beacon configuration that includes one or more of the optional characters MUST use this operation.
  * this operation MUST take a valid UTF8 string as input.
  * this operation MUST produce a valid UTF8 string as output.
  * If the configuration does not contain a prefix character,
