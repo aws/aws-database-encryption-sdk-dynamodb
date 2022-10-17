@@ -23,7 +23,7 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 ## Overview
 
 This document describes the behavior by which the [DynamoDB Item Encryptor](./ddb-item-encryptor.md)
-produces an encrypted form of a DynamoDB Item.
+produces an encrypted form of a DynamoDB Item for a particular DynamoDB Table.
 
 ## Input
 
@@ -118,25 +118,45 @@ with the following inputs:
 - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
   analogous to the [input Attribute Actions](#attribute-actions).
   More specifically:
-  - For every attribute name and Crypto Action pair in the input Attribute Actions,
-    there MUST exist a Crypto Action in the Crypto Schema,
-    string indexed at the top level by that attribute name.
-  - The inverse of tha above: for every Crypto Action in the Crypto Schema,
-    there MUST exist the corresponding attribute name and Crypto Action pair.
+  - For every attribute on the input Item,
+    there MUST exist a Crypto Action in the Crypto Schema
+    such that the Crypto Action indexed by that attribute name in the Crypto Schema
+    equals the Crypto Action indexed by that attribute name in the input Attribute Actions.
+  - The Crypto Schema MUST NOT contain more Crypto Actions than those specified by the previous point.
 - If specified on input, the Algorithm Suite MUST be the [input ALgorithm Suite](#algorithm-suite).
   If not specified on input, Algorithm Suite MUST NOT be specified.
 - Encryption Context MUST have the following requirements:
   - includes all key-value pairs in the [input Encryption Context](#encryption-context).
-  - includes the key `TODO:aws-crypto-table-name` with a value equal to the
-    [DynamoDB Table Key Name](./ddb-item-encryptor.md#dynamodb-table-name). 
-  - includes the key `TODO:aws-crypto-partition-name` with a value equal to the
-    [DynamoDB Partition Key Name](./ddb-item-encryptor.md#dynamodb-partition-key-name). 
-  - includes the key `TODO:aws-crypto-sort-name` with a value equal to the
-    [DynamoDB Sort Key Name](./ddb-item-encryptor.md#dynamodb-sort-key-name). 
+  - includes all key-values pairs in this input Item's [DynamoDB Item Base Context](#dynamodb-item-base-context).
   - does not include any key-value pair not specified above.
+  - TODO: Instead of DDB Table Name, do we want an option to use the Table ARN?
 - TODO: CMM depends on MPL changes that should be spec'd out first
   (specifically configuring EC keys that are required on Decrypt)
 
 The output to this behavior is the [conversion](./ddb-item-conversion.md)
 of the Encrypted Structured Data determined above
 into the [Encrypted DynamoDB Item](#encrypted-dynamodb-item).
+
+### DynamoDB Item Base Context
+
+A DynamoDB Item Base Context is a map of string key-values pairs
+that contains information related to a particular DynamoDB Item.
+The DynamoDB Item Base Context MUST contain:
+  - the key `TODO:aws-crypto-table-name` with a value equal to the DynamoDB Table Name of the DynamoDB Table
+    this item is stored in (or will be stored in).
+  - the key `TODO:aws-crypto-partition-name` with a value equal to the name of the Partition Key on this item.
+  - the key `TODO:aws-crypto-partition-value` with a value equal to this item's partition attribute,
+    serialized according to [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
+    and [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
+  - If this item has a sort key attribute,
+    the key `TODO:aws-crypto-sort-name` with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+  - If this item has a sort key attribute,
+    the key `TODO:aws-crypto-sort-value` with a value equal to this item's sort attribute,
+    serialized according to [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
+    and [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
+  - TODO: Instead of DDB Table Name, do we want an option to use the Table ARN in the EC?
+
+If this item does not have a sort key attribute,
+the DynamoDB Item Context MUST NOT contain the keys
+`TODO:aws-crypto-sort-name` or
+`TODO:aws-crypto-sort-value`.

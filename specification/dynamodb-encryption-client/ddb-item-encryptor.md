@@ -35,13 +35,14 @@ DynamoDB Items outside of DynamoDB API calls.
 
 On initialization of the DynamoDB Item Encryptor, the caller MUST provide:
 
-- DynamoDB Table Name
-- DynamoDB Partition Key Name
+- [DynamoDB Table Name](#dynamodb-table-name)
+- [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
 
 On initialization, the caller MAY provide:
 
-- Unauthenticated Attribute Names
-- Unauthenticated Attribute Name Prefix
+- [DynamoDB Sort Key Name](#dynamodb-sort-key-name)
+- [Unauthenticated Attributes](#unauthenticated-attributes)
+- [Unauthenticated Attribute Name Prefix](#unauthenticated-attribute-prefix)
 - TODO legacy behavior
 - TODO allow plaintext behavior
 

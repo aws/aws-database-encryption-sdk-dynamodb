@@ -1,7 +1,7 @@
 [//]: # "Copyright Amazon.com Inc. or its affiliates. All Rights Reserved."
 [//]: # "SPDX-License-Identifier: CC-BY-SA-4.0"
 
-# Type Mapping
+# DynamoDB Attribute Serialization
 
 ## Version
 
@@ -69,6 +69,8 @@ String MUST be serialized as UTF-8 encoded bytes.
 
 Number MUST be serialized as UTF-8 encoded bytes.
 Note that DynamoDB Number Attribute Values are strings.
+
+TODO: consider fixed-length serialization for numeric types
 
 #### Binary
 
@@ -221,7 +223,8 @@ Each list entry in the sequence MUST be serialized as:
 | List Entry Length    | 4                          |
 | List Entry Value     | Variable. Equal to Length. |
 
-TODO: should this be sorted?
+The order of these serialized list entries MUST match
+the order of the entries in the original list.
 
 ###### List Entry Type
 

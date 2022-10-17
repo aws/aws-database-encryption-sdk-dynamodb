@@ -71,6 +71,11 @@ see the [the Default CMM spec](default-cmm.md) for one such use.
 If the input encryption context contains any entries with a key beginning with this prefix,
 the encryption operation MUST yield an error.
 
+TODO: Potentially remove this as an input until we have a use case which requires it.
+As is, it may be weird that if you specify custom EC if encrypting at this level,
+it is impossible to use our higher-level clients to decrypt those items
+(since there isn't a hook to specify additional context at decrypt time).
+
 ## Output
 
 ### DynamoDB Item
@@ -106,9 +111,7 @@ with the following inputs:
     MUST EQUAL the number of Attributes on the [input DynamoDB Item](#dynamodb-item).
 - Encryption Context MUST have the following requirements:
   - includes all key-value pairs in the [input Encryption Context](#encryption-context).
-  - includes the key `TODO:aws-crypto-table-name` with a value equal to the [DynamoDB Table Key Name](#dynamodb-sort-key-name). 
-  - includes the key `TODO:aws-crypto-partition-name` with a value equal to the [DynamoDB Partition Key Name](#dynamodb-partition-key-name). 
-  - includes the key `TODO:aws-crypto-sort-name` with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name). 
+  - includes all key-values pairs in this input Item's [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
   - does not include any key-value pair not specified above.
 - CMM MUST be the [input CMM](#cmm), if supplied.
   Otherwise, this MUST be a
