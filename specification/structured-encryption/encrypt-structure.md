@@ -166,7 +166,7 @@ The Intermediate Encryption Structured Data MUST be calculated with the followin
   a Terminal Data MUST exist with the same [canonical path](#TODO-truss) in Intermediate Encrypted Structured Data.
   Each of these Terminal Data in the Intermediate Encrypted Structured Data MUST:
   - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
-    of [SIGN_ONLY](./structures.md#signonly) or [IGNORE](./structures.md#ignore) for this Terminal Data,
+    of [SIGN_ONLY](./structures.md#signonly) or [DO_NOTHING](./structures.md#DO_NOTHING) for this Terminal Data,
     this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
     [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
   - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
