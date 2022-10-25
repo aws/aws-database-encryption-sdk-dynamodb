@@ -97,6 +97,7 @@ A table config MUST contain
 A beacon version configuration MUST contain
  
  * A version number
+ * A `magic thingy` to indicate how to get keys from the hierarcy keyring
  * An optional `write` flag.
  * A list of [beacon configuration](./beacons.md#beacon-configuration)
  * An OPTIONAL Primary Key Definition : The name of the primary key for the table,
