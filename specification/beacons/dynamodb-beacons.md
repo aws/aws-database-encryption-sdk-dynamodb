@@ -48,9 +48,9 @@ The basic user experience is this
 #### Indexing
 
 When a request is made to create a Index for a source field,
-instead the index must be created on the scan beacon field.
+instead the index must be created on the beacon field.
 
-When the projection contains a source field, the scan beacon field is also included in the projection.
+When the projection contains a source field, the beacon field is also included in the projection.
 
 It can be dangerous to specify a projection other than ALL,
 because decryption requires the presence of all signed fields
@@ -61,15 +61,15 @@ they must be well educated to perform these same transformations by hand.
 
 #### Writing
 
-Whenever a record is written, if the source field is written then the scan beacon field must also be written.
-That is, for every encrypted attribute with a scan beacon, an additional attribute is written.
+Whenever a record is written, if the source field is written then the beacon field must also be written.
+That is, for every encrypted attribute with a beacon, an additional attribute is written.
 
 It is an error to attempt to write a source attribute starting with the gazelle prefix.
 
 #### Reading
 
 To retrieve a record based on the value of an encrypted source field,
-search instead for the hash of the value in the scan beacon field.
+search instead for the hash of the value in the beacon field.
 
  * With no beacon, and encrypted attribute cannot be searched.
  * With plain beacons, only exact matches can be supported.
@@ -177,20 +177,20 @@ encrypted field must be added to the projection.
 object mentions an attribute name starting with the `gazelle prefix`.
  * The conditionExpression MUST be modified as per `Expression Transformation`
  * For each element in the `Item` map that specifies a source field,
- the returned `Item` map MUST also include the scan beacon field.
- * The name of this field MUST be the concatenation of the `scan beacon prefix` and the source field name.
+ the returned `Item` map MUST also include the beacon field.
+ * The name of this field MUST be the concatenation of the `beacon prefix` and the source field name.
  * The value of this field MUST be the defined [beacon](./beacons.md)
 
  * If the Primary Key Parts are not configured, the result MUST be returned
 after applying only the above transformations.
 
  * If the primary key is present in the item's attributes, transformPutItemInput MUST fail.
- * If either the partition or sort key are missing from the input attributes,
-transformPutItemInput MUST fail; otherwise,
- * if only a primary key is specified, then an HMAC384 must be generated from it; otherwise,
+ * transformPutItemInput MUST fail if the partition key is missing from the input attributes.
+ * transformPutItemInput MUST fail if the sort key is specified, yet missing from the input attributes.
+ * If only a primary key is specified, then an HMAC384 must be generated from it; otherwise,
  * an HMAC384 must be generated from the concatenation of the partition key,
 a literal `_` character, and the sort key.
- * This HMAC value must be added to the item's attributes.
+ * This HMAC value must be added to the item's attributes, associated with the primary key
 
 
 ### transformBatchWriteItemInput
