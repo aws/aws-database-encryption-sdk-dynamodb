@@ -16,7 +16,7 @@
  * **gazelle prefix** : `gZ_`
  * **beacon prefix** : `gZ_b_`
  * **source field** : an encrypted DynamoDB attribute with an associated beacon
- * **beacon field** : an attribute holding the truncated HMAC of a source field,
+ * **beacon field** : the attribute holding the truncated HMAC of a source field
 
 The name of the beacon field is the concatenation of
 the beacon prefix and the source field name.
@@ -85,27 +85,33 @@ and discard any records where they don't match.
 
 ### Configuration
 
-The DynamoBeacons object MUST conatin
+The DynamoBeacons object MUST contain
 
  * A list of table configs
 
+*DynamoBeacons is actually a Gazelle thing, and this should be a pointer into the Gazelle spec*
+
 A table config MUST contain
 
+ * A name
  * A list of attributes, defining each as `ENCRYPT_AND_SIGN`, `SIGN_ONLY`, or `DO_NOTHING`.
  * A list of beacon version configurations
+
+*A table config is actually a Gazelle thing, and this should be a pointer into the Gazelle spec*
+
 
 A beacon version configuration MUST contain
  
  * A version number
- * A `magic thingy` to indicate how to get keys from the hierarcy keyring
- * An optional `write` flag.
+ * A `magic thingy` to indicate how to get keys from the hierarchy keyring
+ * A boolean `write` flag.
  * A list of [beacon configuration](./beacons.md#beacon-configuration)
  * An OPTIONAL Primary Key Definition : The name of the primary key for the table,
 the partition and optional sort key to be used to create this key.
- * An OPTIONAL list of LSI Styles : A Local Secondary Index name, along with WIDE or NARROW.
+ * A list of LSI Styles : A Local Secondary Index name, along with WIDE or NARROW.
 
-Construction of a DynamoBeacons MUST fail if
- * The number of beacon version configurations with a `write` flag is not exactly one.
+Construction of a `table config` MUST fail if
+ * There is at least one `beacon version` and the number of `beacon version`s with the `write` flag set is not exactly one.
 
 ## Operations
 
@@ -154,7 +160,6 @@ encrypted field must be added to the projection.
  * transformUpdateTableInput MUST return an UpdateTableInput object.
  * transformUpdateTableInput MUST fail if any part of the input
 object mentions an attribute name starting with the `gazelle prefix`.
-
  * If no Global Secondary Index is being created, the UpdateTableInput object MUST be returned unaltered.
  * If a Global Secondary Index being created but it refers to no encrypted fields,
 the UpdateTableInput object MUST be returned unaltered.
@@ -176,6 +181,7 @@ encrypted field must be added to the projection.
  * transformPutItemInput MUST return an PutItemInput object.
  * transformPutItemInput MUST fail if any part of the input
 object mentions an attribute name starting with the `gazelle prefix`.
+ * transformPutItemInput MUST use the `beacon version` with the write flag set.
  * The conditionExpression MUST be modified as per `Expression Transformation`
  * For each element in the `Item` map that specifies a source field,
  the returned `Item` map MUST also include the beacon field.
