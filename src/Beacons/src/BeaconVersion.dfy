@@ -9,39 +9,40 @@ import opened Wrappers
 import opened StandardLibrary
 import opened StandardLibrary.UInt
 
-class LsiStyle {
-  const name : string; // name of the Local Secondary Index
-  const narrow : bool; // should we treat it as NARROW
-}
-class PrimaryKey {
-  const primary : string;   // the attribute we're constructing
-  const partition : string; // the encrypted partition key we wish we could use
-  const sort : Option<string>; // the encrypted sort key we wish we could use
-}
-class BeaconVersion {
-  const version : uint32;
-  const key : string; // magic designator for hierarchy keyring
-  const write : bool; // exactly one vesion must be write
-  const beacons : seq<Beacon>;
-  const primary : Option<PrimaryKey>;
-  const LSIs : seq<LsiStyle>;
-}
+  datatype LsiStyle = LsiStyle(
+    nameonly name : string, // name of the Local Secondary Index
+    nameonly narrow : bool // should we treat it as NARROW
+  )
 
-// The remaining types are placeholders, really provided by Gazelle
-datatype EncryptMode = ENCRYPT | SIGN | NOTHING
-class Attribute {
-  const name : string;
-  const mode : EncryptMode;
-}
+  datatype PrimaryKey = PrimaryKey(
+    nameonly primary : string,   // the attribute we're constructing
+    nameonly partition : string, // the encrypted partition key we wish we could use
+    nameonly sort : Option<string> // the encrypted sort key we wish we could use
+  )
 
-class TableConfig {
-  const name : string;
-  const attrs : seq<Attribute>;
-  const beacons : seq<BeaconVersion>;
-}
+  datatype BeaconVersion = BeaconVersion(
+    nameonly version : uint32,
+    nameonly key : string, // magic designator for hierarchy keyring
+    nameonly write : bool, // exactly one vesion must be write
+    nameonly beacons : seq<Beacon>,
+    nameonly primary : Option<PrimaryKey>,
+    nameonly LSIs : seq<LsiStyle>
+  )
 
-class DynamoConfig {
-  const tables : seq<TableConfig>;
-}
+  // The remaining types are placeholders, really provided by Gazelle
+  datatype EncryptMode = ENCRYPT | SIGN | NOTHING
+  datatype Attribute = Attribute(
+    nameonly name : string,
+    nameonly mode : EncryptMode
+  )
 
+  datatype TableConfig = TableConfig (
+    nameonly name : string,
+    nameonly attrs : seq<Attribute>,
+    nameonly beacons : seq<BeaconVersion>
+  )
+
+  datatype DynamoConfig = DynamoConfig (
+    nameonly tables : seq<TableConfig>
+  )
 }

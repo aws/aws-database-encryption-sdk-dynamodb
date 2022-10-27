@@ -11,14 +11,14 @@ module Beacon.Beacon {
   predicate IsAsciiByte(x : uint8) {x < 128}
   type asciiByte = x : uint8 | IsAsciiByte(x)
 
-  class Beacon {
-    const name: string;
-    const key: seq<uint8>;
-    const length: bitlength;
-    const prefix: Option<asciiByte>;
-    const split: Option<asciiByte>;
-    const splitLens : seq<bitlength>;
-    const inner: Option<asciiByte>;
-    const ignore: Option<asciiByte>;
-  }
+  datatype Beacon = Beacon(
+    nameonly name:string,
+    nameonly key: seq<uint8>,
+    nameonly length: bitlength,
+    nameonly prefix: Option<asciiByte>,
+    nameonly split: Option<asciiByte>,
+    nameonly splitLens : seq<bitlength>,
+    nameonly inner: Option<asciiByte>,
+    nameonly ignore: Option<asciiByte>
+  )
 }
