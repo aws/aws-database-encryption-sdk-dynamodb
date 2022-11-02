@@ -312,15 +312,15 @@ and returns the beacon version held therein.
  * findVersion MUST take as input a QueryInput object
  * findVersion MUST return both an optional version number and a boolean `hadContent` flag.
  * If the input object has no exclusiveStartKey, then findVersion MUST return (None, false)
- * If the exclusiveStartKey has a `aws-ddbec-version` field which holds a number,
+ * If the exclusiveStartKey has a `gZ_version` field which holds a number,
 the first value returned by findVersion MUST be that number, and None otherwise
- * If the exclusiveStartKey has fields other than `aws-ddbec-version`,
-the first value returned by findVersion MUST be true, and false otherwise
+ * If the exclusiveStartKey has fields other than `gZ_version`,
+the second value returned by findVersion MUST be true, and false otherwise
 
 ### createKeyCondition
  * createKeyCondition MUST take as input a keyConditionExpression and a single `beacon version`
  * createKeyCondition MUST return a keyConditionExpression
- * createKeyCondition MUST replace each reference to a source field with the associated beacon and value. For example, `field < value` would be replaced by `aws-ddbec-sb-field < beacon_value`
+ * createKeyCondition MUST replace each reference to a source field with the associated beacon and value. For example, `field < value` would be replaced by `gZ_b_field < beacon_value`
  * createKeyCondition MUST fail if and operator other than `=` is used with a beacon
 configured with neither `prefix` nor `split`
  * createKeyCondition MUST fail if and operator other than `=` or `begins_with` is used with a beacon not configured with `prefix`
