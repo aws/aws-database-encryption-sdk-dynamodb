@@ -17,6 +17,8 @@
  * **beacon prefix** : `gZ_b_`
  * **source field** : an encrypted DynamoDB attribute with an associated beacon
  * **beacon field** : the attribute holding the truncated HMAC of a source field
+ * **forbidden field** : an attribute beginning with the `gazelle prefix` other than
+the version marker `gZ_v_N` when N is a positive integer.
 
 The name of the beacon field is the concatenation of
 the beacon prefix and the source field name.
@@ -138,16 +140,16 @@ with the name given in the Primary Key Parts and type `HASH`
 
 ### serializeAttributeValue
  * serializeAttributeValue MUST take an AttributeValue as input
- * serializeAttributeValue return a seq<uint8>
+ * serializeAttributeValue return a `seq<uint8>`
  * the implementation MUST be taken from Gazelle, in a manner TBD.
 
 ### calculatePrimaryKeyValue
  * calculatePrimaryKeyValue MUST take a PutItemInputAttributeMap as input
- * calculatePrimaryKeyValue MUST return seq<uint8> of length 48.
+ * calculatePrimaryKeyValue MUST return `seq<uint8>` of length 48.
  * calculatePrimaryKeyValue MUST fail if the partition key is missing from the input attributes.
  * calculatePrimaryKeyValue MUST fail if the sort key is specified, yet missing from the input attributes.
  * The data key used for the HMACs below MUST be the HKDF (pointer to hierarchy keychain needed) of the table's key and the primary key name.
- * If only a primary key is specified, then an HMAC384 must be generated from
+ * If only a partition key is specified, then an HMAC384 must be generated from
 the `serializeAttributeValue` of that value. 
  * Otherwise, an HMAC384 must be generated from the concatenation of the `serializeAttributeValue` of the partition key value,
 a literal `_` character, and the `serializeAttributeValue`  of the sort key value.
@@ -190,7 +192,7 @@ all input NonKeyAttributes, plus the associated `beacon field` for any
 
  * transformCreateTableInput MUST take a CreateTableInput object as input.
  * transformCreateTableInput MUST return a CreateTableInput object.
- * if Primary Key Parts are not configured, ehe returned value
+ * if Primary Key Parts are not configured, the returned value
 MUST have a KeySchema equal to the result of calling
 transformPrimaryKeySchema on the input KeySchema
  * if Primary Key Parts are configured, transformCreateTableInput MUST fail
@@ -206,19 +208,10 @@ mapping each element of the input LocalSecondaryIndexes through transformLSI
 plus, for each `beacon field` used in an index, an AttributeDefinition with the
 AttributeName equal to the `beacon field` and the AttributeType equal to "S" String.
 
-
-### transformUpdateTableInput
-
- * transformUpdateTableInput MUST take as input an UpdateTableInput object.
- * transformUpdateTableInput MUST return an UpdateTableInput object.
- * CreateGlobalSecondaryIndexAction
- * If a Global Secondary Index being created, the CreateGlobalSecondaryIndexAction
-must be modified as per `transformGSI`
-
 ### testConditionExpression
  * testConditionExpression MUST take as input
-an Option<ConditionExpression>,
-and an Option<ExpressionAttributeNameMap>
+an `Option<ConditionExpression>`,
+and an `Option<ExpressionAttributeNameMap>`
  * testConditionExpression MUST return a boolean
  * testConditionExpression MUST fail if the ConditionExpression refers to an encrypted field.
  * testConditionExpression MUST fail if the ConditionExpression refers to a `forbiddenField`.
@@ -275,13 +268,13 @@ on SQL statements, which are not supported by beacons at this time
 ### transformationFilterExpression
  * transformationFilterExpression MUST take as input
 a BeaconVersion
-an Option<ConditionExpression>,
-an Option<ExpressionAttributeNameMap>,
-and an Option<ExpressionAttributeValueMap>
+an `Option<ConditionExpression>`,
+an `Option<ExpressionAttributeNameMap>`,
+and an `Option<ExpressionAttributeValueMap>`
  * transformationFilterExpression MUST return
-an Option<ConditionExpression>,
-an Option<ExpressionAttributeNameMap>,
-and an Option<ExpressionAttributeValueMap>
+an `Option<ConditionExpression>`,
+an `Option<ExpressionAttributeNameMap>`,
+and an `Option<ExpressionAttributeValueMap>`
  * This operation MUST fail if an attribute name that starts with the `gazelle prefix` is mentioned.
  * This operation MUST fail if any source field is used with a document path.
  * If no encrypted field is mentioned, the Expression MUST be returned unmodified.
@@ -315,12 +308,10 @@ MUST return the results of transformationFilterExpression with that beacon versi
  * transformationFilterExpressionMulti MUST combine the remaining ones, individually parenthesized, with `OR`.
 For example, if E1 and E2 are created and unique, return `(E1) OR (E2)`
 
-
-
+### findVersion
 findVersion looks at the exclusiveStartKey in a QueryInput
 and returns the beacon version held therein.
 
-### findVersion
  * findVersion MUST take as input a QueryInput object
  * findVersion MUST return both an optional version number and a boolean `hadContent` flag.
  * If the input object has no exclusiveStartKey, then findVersion MUST return (None, false)
@@ -367,14 +358,13 @@ and no exclusiveStartKey
  * * the beacon with the lowest version greater than currentVersion, with no exclusiveStartKey if such a beacon version exists
  * * failure if all available beacon versions are less than the returned version.
 
-
+### transformQueryOutput
 transformQueryOutput needs the original QueryInput object,
 because we need to check the result records against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
 
-### transformQueryOutput
  * transformQueryOutput MUST take as input a QueryOutput object and a QueryInput object
  * The QueryInput object MUST be assumed to be the original query, not the result of transformQueryInput
- * transformQueryOutput MUST return an QueryOutput object.
+ * transformQueryOutput MUST return a QueryOutput object.
  * transformQueryOutput MUST remove any records for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a source field)
 then this operation must remove any record in which the `Src` field contains something other than "foo".
@@ -393,7 +383,7 @@ The final step is to tag the LastEvaluatedKey
 ### transformScanInput
  * transformScanInput MUST take as input a ScanInput object.
  * transformScanInput MUST return a ScanInput object.
- * The object's filterExpression it must be modified according to `Expression Transformation` above.
+ * The object's filterExpression it must be modified according to `Expression TransformationMulti` above.
 
 
 ### transformScanOutput
