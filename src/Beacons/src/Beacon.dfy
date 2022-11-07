@@ -8,17 +8,15 @@ module Beacon.Beacon {
   import opened StandardLibrary.UInt
 
   newtype bitlength = x | 0 < x < 64 witness 1
-  predicate IsAsciiByte(x : uint8) {x < 128}
-  type asciiByte = x : uint8 | IsAsciiByte(x)
 
   datatype Beacon = Beacon(
     nameonly name:string,
     nameonly key: seq<uint8>,
     nameonly length: bitlength,
-    nameonly prefix: Option<asciiByte>,
-    nameonly split: Option<asciiByte>,
+    nameonly prefix: Option<char>,
+    nameonly split: Option<char>,
     nameonly splitLens : seq<bitlength>,
-    nameonly inner: Option<asciiByte>,
-    nameonly ignore: Option<asciiByte>
+    nameonly inner: Option<char>,
+    nameonly ignore: Option<char>
   )
 }
