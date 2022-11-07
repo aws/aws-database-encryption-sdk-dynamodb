@@ -30,7 +30,7 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 ### Overview
 
-A `DynamoDBTableEncryptionConfig` object provides the list of Beacons
+A `DynamoConfig` object provides the list of Beacons
 for the table associated with an operation,
 and other necessary configuration information.
 
@@ -87,19 +87,19 @@ and discard any records where they don't match.
 
 ### Configuration
 
-The DynamoBeacons object MUST contain
+The DynamoConfig object MUST contain
 
  * A list of table configs
 
-*DynamoBeacons is actually a Gazelle thing, and this should be a pointer into the Gazelle spec*
+* DynamoConfig is actually a Gazelle thing, and this should be a pointer into the Gazelle spec*
 
-A table config MUST contain
+A TableConfig MUST contain
 
  * A name
  * A list of attributes, defining each as `ENCRYPT_AND_SIGN`, `SIGN_ONLY`, or `DO_NOTHING`.
  * A list of beacon version configurations
 
-*A table config is actually a Gazelle thing, and this should be a pointer into the Gazelle spec*
+*A TableConfig is actually a Gazelle thing, and this should be a pointer into the Gazelle spec*
 
 
 A beacon version configuration MUST contain
@@ -112,7 +112,7 @@ A beacon version configuration MUST contain
 the partition and optional sort key to be used to create this key.
  * A list of LSI Styles : A Local Secondary Index name, along with WIDE or NARROW.
 
-Construction of a `table config` MUST fail if
+Construction of a `TableConfig ` MUST fail if
  * There is at least one `beacon version` and the number of `beacon version`s with the `write` flag set is not exactly one.
 
 ## Operations
@@ -292,13 +292,13 @@ For example, `field < value` would be replaced by `gZ_b_field < beacon_value`
 ### transformationFilterExpressionMulti
  * transformationFilterExpression MUST take as input
 a list of BeaconVersions
-an Option<ConditionExpression>,
-an Option<ExpressionAttributeNameMap>,
-and an Option<ExpressionAttributeValueMap>
+an `Option<ConditionExpression>`,
+an `Option<ExpressionAttributeNameMap>`,
+and an `Option<ExpressionAttributeValueMap>`
  * transformationFilterExpression MUST return
-an Option<ConditionExpression>,
-an Option<ExpressionAttributeNameMap>,
-and an Option<ExpressionAttributeValueMap>
+an `Option<ConditionExpression>`,
+an `Option<ExpressionAttributeNameMap>`,
+and an `Option<ExpressionAttributeValueMap>`
  * If no  beacons versions are provided, transformationFilterExpressionMulti
 MUST return the input arguments unchanged.
  * If one beacons version is provided, transformationFilterExpressionMulti
