@@ -30,12 +30,6 @@ decrypts a DynamoDB Item originally encrypted via the [Encrypt Item](./encrypt-i
 The following inputs to this behavior are REQUIRED:
 
 - DynamoDB Item
-- Either a [Keyring](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/keyring-interface.md)
-  or a [CMM](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md)
- 
-The following input to this behavior MUST be OPTIONAL:
-
-- Encryption Context
 
 ### DynamoDB Item
 
@@ -51,31 +45,6 @@ has a [DynamoDB Sort Key Name](./ddb-item-encryptor.md#dynamodb-sort-key-name) c
 this item MUST include an Attribute with that name.
 Otherwise this operation MUST yield an error.
 
-### CMM
-
-A CMM that implements the [CMM interface](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md).
-
-### Keyring
-
-A Keyring that implements the [keyring interface](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/keyring-interface.md).
-
-### Encryption Context
-
-See [encryption context](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/structures.md#encryption-context).
-TODO: Make above MPL definition more generic.
-
-TODO: This should move into the MPL definition of Encryption Context
-The prefix `aws-crypto-` is reserved for internal use by the AWS Encryption SDK;
-see the [the Default CMM spec](default-cmm.md) for one such use.
-
-If the input encryption context contains any entries with a key beginning with this prefix,
-the encryption operation MUST yield an error.
-
-TODO: Potentially remove this as an input until we have a use case which requires it.
-As is, it may be weird that if you specify custom EC if encrypting at this level,
-it is impossible to use our higher-level clients to decrypt those items
-(since there isn't a hook to specify additional context at decrypt time).
-
 ## Output
 
 ### DynamoDB Item
@@ -83,9 +52,6 @@ it is impossible to use our higher-level clients to decrypt those items
 The DynamoDB Item is the decryption of the [input DynamoBD Item](#dynamodb-item).
 
 ## Behavior
-
-All inputs MUST adhere to their requirements;
-otherwise this operation MUST immediately yield an error.
 
 This behavior REQUIRES a [Structured Data](../structured-encryption/structures.md#structured-data)
 which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#dynamodb-item).
@@ -109,14 +75,8 @@ with the following inputs:
     string indexed at the top level by that attribute name.
   - The number of Authenticate Actions in the Authenticate Schema
     MUST EQUAL the number of Attributes on the [input DynamoDB Item](#dynamodb-item).
-- Encryption Context MUST have the following requirements:
-  - includes all key-value pairs in the [input Encryption Context](#encryption-context).
-  - includes all key-values pairs in this input Item's [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
-  - does not include any key-value pair not specified above.
-- CMM MUST be the [input CMM](#cmm), if supplied.
-  Otherwise, this MUST be a
-  [default CMM](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/default-cmm.md)
-  constructed using the [caller-supplied keyring](#keyring) as input.
+- Encryption Context MUST be the input Item's [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
+- CMM MUST be the [CMM configured on this Item Encryptor](./ddb-item-encryptor.md#cmm).
 
 The output to this behavior is the [conversion](./ddb-item-conversion.md)
 of the decrypted Structured Data determined above
