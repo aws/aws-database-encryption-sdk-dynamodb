@@ -188,6 +188,7 @@ the `length` in the beacon record.
 
 The two Operations defined on a Beacon Record are defined in terms of functionality
 defined in the following section, [Beacon Helpers](#beacon-helpers).
+Beacon operations MUST have access to [beacon configuration](beacon-configuration).
 
 ### plainHash
  * plainHash MUST take a sequence of bytes as input.
