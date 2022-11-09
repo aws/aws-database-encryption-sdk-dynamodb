@@ -78,7 +78,7 @@ on the nonsensitive prefix.
 
 #### Split Beacon
 
-Another way to define a Compound Beacon is with split character.
+Another way to define a Compound Beacon is with a split character.
 
 A string is split on this character, into a list of items,
 and a separate standard beacon is generated for each item.
