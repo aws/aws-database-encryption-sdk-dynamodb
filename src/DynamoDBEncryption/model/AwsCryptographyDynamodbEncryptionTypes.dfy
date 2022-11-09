@@ -24,10 +24,12 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  nameonly name: string ,
  nameonly length: BitLength ,
  nameonly prefix: Option<Char> ,
- nameonly split: Option<Char> ,
- nameonly splitLens: Option<BitLengthList> ,
- nameonly inner: Option<Char> ,
- nameonly ignore: Option<Char>
+ nameonly ignore: Option<Char> ,
+ nameonly split: Option<SplitConfig>
+ )
+ datatype BeaconConfig = | BeaconConfig (
+ nameonly beacons: BeaconVersionList ,
+ nameonly writeBeaconVersion: VersionNumber
  )
  type BeaconList = seq<Beacon>
  datatype BeaconVersion = | BeaconVersion (
@@ -149,7 +151,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  datatype DynamoDBTableEncryptionConfig = | DynamoDBTableEncryptionConfig (
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
- nameonly beacons: Option<BeaconVersionList>
+ nameonly beacons: Option<BeaconConfig>
  )
  type DynamoDBTableEncryptionConfigs = map<ComAmazonawsDynamodbTypes.TableName, DynamoDBTableEncryptionConfig>
  datatype EncryptItemInput = | EncryptItemInput (
@@ -169,9 +171,14 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  nameonly partition: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sort: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>
  )
+ datatype SplitConfig = | SplitConfig (
+ nameonly split: Char ,
+ nameonly splitLens: Option<BitLengthList> ,
+ nameonly inner: Option<Char>
+ )
  type VersionNumber = x: int32 | IsValid_VersionNumber(x) witness *
  predicate method IsValid_VersionNumber(x: int32) {
- ( 1 <= x <= 1000000 )
+ ( 1 <= x  )
 }
  datatype Error =
  // Local Error structures are listed here

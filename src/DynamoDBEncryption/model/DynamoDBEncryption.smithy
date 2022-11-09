@@ -38,11 +38,18 @@ map DynamoDBTableEncryptionConfigs {
 @range(min: 1, max: 63)
 integer BitLength
 
-@range(min: 1, max: 1000000)
+@range(min: 1)
 integer VersionNumber
 
 @length(min: 1, max: 1)
 string Char
+
+structure SplitConfig {
+    @required
+    split: Char,
+    splitLens: BitLengthList,
+    inner: Char,
+}
 
 structure Beacon {
     @required
@@ -50,18 +57,16 @@ structure Beacon {
     @required
     length: BitLength,
     prefix: Char,
-    split: Char,
-    splitLens : BitLengthList,
-    inner: Char,
-    ignore: Char
+    ignore: Char,
+    split: SplitConfig,
 }
 
 structure PrimaryKey  {
     @required
-    primary : KeySchemaAttributeName,   // the attribute we're constructing
+    primary: KeySchemaAttributeName,   // the attribute we're constructing
     @required
-    partition : KeySchemaAttributeName, // the encrypted partition key we wish we could use
-    sort : KeySchemaAttributeName // the encrypted sort key we wish we could use
+    partition: KeySchemaAttributeName, // the encrypted partition key we wish we could use
+    sort: KeySchemaAttributeName // the encrypted sort key we wish we could use
 }
 
 list BitLengthList {
@@ -79,15 +84,22 @@ list BeaconVersionList {
 
 structure BeaconVersion {
     @required
-    version : VersionNumber,
+    version: VersionNumber,
     @required
-    beacons : BeaconList,
+    beacons: BeaconList,
     @required
-    key : String, // magic designator for hierarchy keyring key
+    key: String, // magic designator for hierarchy keyring key
     @required
-    write : Boolean, // exactly one version must be write
-    primary : PrimaryKey,
-    narrowLSIs : NarrowList,
+    write: Boolean, // exactly one version must be write
+    primary: PrimaryKey,
+    narrowLSIs: NarrowList,
+}
+
+structure BeaconConfig {
+    @required
+    beacons: BeaconVersionList,
+    @required
+    writeBeaconVersion: VersionNumber,
 }
 
 structure DynamoDBTableEncryptionConfig {
@@ -97,7 +109,7 @@ structure DynamoDBTableEncryptionConfig {
     @required
     partitionKeyName: KeySchemaAttributeName,
     sortKeyName: KeySchemaAttributeName,
-    beacons : BeaconVersionList,
+    beacons: BeaconConfig,
 }
 
 operation EncryptItem {
