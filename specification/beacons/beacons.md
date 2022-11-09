@@ -73,7 +73,8 @@ is computed for the rest.
 
 For example, with a prefix character of `:`, the beacon for `2022-11-07:banana` might be `2022-11-07:4f`
 
-Prefix Beacons allow comparisons such as `less than`, `begins with` and `between` and `contains`.
+Prefix Beacons allow comparisons such as `less than`, `begins with` and `between` and `contains`
+on the nonsensitive prefix.
 
 #### Split Beacon
 
