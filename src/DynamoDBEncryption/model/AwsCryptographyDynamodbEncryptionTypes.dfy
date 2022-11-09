@@ -173,8 +173,10 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  )
  datatype SplitConfig = | SplitConfig (
  nameonly split: Char ,
- nameonly splitLens: Option<BitLengthList> ,
- nameonly inner: Option<Char>
+ nameonly splitLens: BitLengthList ,
+ nameonly inner: Option<Char> ,
+ nameonly fail_if_short: bool ,
+ nameonly fail_if_long: bool
  )
  type VersionNumber = x: int32 | IsValid_VersionNumber(x) witness *
  predicate method IsValid_VersionNumber(x: int32) {

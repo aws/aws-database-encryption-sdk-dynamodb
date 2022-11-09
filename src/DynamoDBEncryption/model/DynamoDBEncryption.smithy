@@ -47,8 +47,13 @@ string Char
 structure SplitConfig {
     @required
     split: Char,
+    @required
     splitLens: BitLengthList,
     inner: Char,
+    @required
+    fail_if_short: Boolean,
+    @required
+    fail_if_long: Boolean,
 }
 
 structure Beacon {
