@@ -87,7 +87,9 @@ For example, with a split character of `:`, the beacon for `apple:banana:pear` m
 
 The delimiter is included at the start and end so that you can search for `:4f:` as a substring, no matter its position in the list.
 
-Split Beacons allow comparisons such as `begins with` and `contains`, but not `less than` or `between`.
+Split Beacons allow comparisons such as `begins with` and `contains`
+on the sensitive information,
+but not `less than` or `between`.
 
 If the different items in the list have different numbers of unique values,
 it might be necessary to have a different [beacon length](#beacon-length)
