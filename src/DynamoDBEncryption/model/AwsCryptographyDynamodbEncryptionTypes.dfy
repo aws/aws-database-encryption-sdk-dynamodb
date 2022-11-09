@@ -1,27 +1,53 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-// TODO had to manually update the below file. Polymorph needs to be fixed to not assume location of this file
-include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/StandardLibrary.dfy"
-// TODO had to manually update the below file. Polymorph needs to be fixed to not assume location of this file
- include "../../../private-aws-encryption-sdk-dafny-staging/src/Util/UTF8.dfy"
+include "../../StandardLibrary/StandardLibrary.dfy"
+ include "../../Util/UTF8.dfy"
+ include "../../StructuredEncryption/src/Index.dfy"
  include "../../../private-aws-encryption-sdk-dafny-staging/src/AwsCryptographicMaterialProviders/src/Index.dfy"
  include "../../AWS-DDB/src/Index.dfy"
- include "../../StructuredEncryption/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.DynamodbEncryption.Types" } AwsCryptographyDynamodbEncryptionTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
+ import AwsCryptographyStructuredEncryptionTypes
  import AwsCryptographyMaterialProvidersTypes
  import ComAmazonawsDynamodbTypes
- import AwsCryptographyStructuredEncryptionTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
  function Last<T>(s: seq<T>): T requires |s| > 0 { s[|s|-1] }
  
  // Begin Generated Types
  
+ datatype Beacon = | Beacon (
+ nameonly name: string ,
+ nameonly length: BitLength ,
+ nameonly prefix: Option<Char> ,
+ nameonly split: Option<Char> ,
+ nameonly splitLens: Option<BitLengthList> ,
+ nameonly inner: Option<Char> ,
+ nameonly ignore: Option<Char>
+ )
+ type BeaconList = seq<Beacon>
+ datatype BeaconVersion = | BeaconVersion (
+ nameonly version: VersionNumber ,
+ nameonly beacons: BeaconList ,
+ nameonly key: string ,
+ nameonly write: bool ,
+ nameonly primary: Option<PrimaryKey> ,
+ nameonly narrowLSIs: Option<NarrowList>
+ )
+ type BeaconVersionList = seq<BeaconVersion>
+ type BitLength = x: int32 | IsValid_BitLength(x) witness *
+ predicate method IsValid_BitLength(x: int32) {
+ ( 1 <= x <= 63 )
+}
+ type BitLengthList = seq<BitLength>
+ type Char = x: string | IsValid_Char(x) witness *
+ predicate method IsValid_Char(x: string) {
+ ( 1 <= |x| <= 1 )
+}
  type DDBCryptoSchema = map<ComAmazonawsDynamodbTypes.AttributeName, AwsCryptographyStructuredEncryptionTypes.CryptoAction>
  datatype DecryptItemInput = | DecryptItemInput (
  nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap ,
@@ -122,7 +148,8 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  )
  datatype DynamoDBTableEncryptionConfig = | DynamoDBTableEncryptionConfig (
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
- nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>
+ nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
+ nameonly beacons: Option<BeaconVersionList>
  )
  type DynamoDBTableEncryptionConfigs = map<ComAmazonawsDynamodbTypes.TableName, DynamoDBTableEncryptionConfig>
  datatype EncryptItemInput = | EncryptItemInput (
@@ -136,15 +163,25 @@ include "../../../private-aws-encryption-sdk-dafny-staging/src/StandardLibrary/S
  datatype EncryptItemOutput = | EncryptItemOutput (
  nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap
  )
+ type NarrowList = seq<string>
+ datatype PrimaryKey = | PrimaryKey (
+ nameonly primary: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
+ nameonly partition: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
+ nameonly sort: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>
+ )
+ type VersionNumber = x: int32 | IsValid_VersionNumber(x) witness *
+ predicate method IsValid_VersionNumber(x: int32) {
+ ( 1 <= x <= 1000000 )
+}
  datatype Error =
  // Local Error structures are listed here
  | DynamoDBEncryptionException (
  nameonly message: string
  )
  // Any dependent models are listed here
+ | AwsCryptographyStructuredEncryption(AwsCryptographyStructuredEncryption: AwsCryptographyStructuredEncryptionTypes.Error)
  | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
- | AwsCryptographyStructuredEncryption(AwsCryptographyStructuredEncryption: AwsCryptographyStructuredEncryptionTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.
  // Consider the following method:

@@ -35,6 +35,61 @@ map DynamoDBTableEncryptionConfigs {
     value: DynamoDBTableEncryptionConfig,
 }
 
+@range(min: 1, max: 63)
+integer BitLength
+
+@range(min: 1, max: 1000000)
+integer VersionNumber
+
+@length(min: 1, max: 1)
+string Char
+
+structure Beacon {
+    @required
+    name: String,
+    @required
+    length: BitLength,
+    prefix: Char,
+    split: Char,
+    splitLens : BitLengthList,
+    inner: Char,
+    ignore: Char
+}
+
+structure PrimaryKey  {
+    @required
+    primary : KeySchemaAttributeName,   // the attribute we're constructing
+    @required
+    partition : KeySchemaAttributeName, // the encrypted partition key we wish we could use
+    sort : KeySchemaAttributeName // the encrypted sort key we wish we could use
+}
+
+list BitLengthList {
+    member: BitLength
+}
+list NarrowList {
+    member: String
+}
+list BeaconList {
+    member: Beacon
+}
+list BeaconVersionList {
+    member: BeaconVersion
+}
+
+structure BeaconVersion {
+    @required
+    version : VersionNumber,
+    @required
+    beacons : BeaconList,
+    @required
+    key : String, // magic designator for hierarchy keyring key
+    @required
+    write : Boolean, // exactly one version must be write
+    primary : PrimaryKey,
+    narrowLSIs : NarrowList,
+}
+
 structure DynamoDBTableEncryptionConfig {
     // TODO legacy encryptor
     // TODO legacy schema
@@ -42,6 +97,7 @@ structure DynamoDBTableEncryptionConfig {
     @required
     partitionKeyName: KeySchemaAttributeName,
     sortKeyName: KeySchemaAttributeName,
+    beacons : BeaconVersionList,
 }
 
 operation EncryptItem {
