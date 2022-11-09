@@ -37,7 +37,7 @@ ensure that `2^N` is greater than the square root of X.
 For example, a well distributed 5-digit zip code has 100,000 distinct values.
 To properly anonymize this, one would use a beacon length between 9 and 15 bits.
 
-A beacon length is an integer between 1 and 63 inclusive.
+A beacon length MUST be an integer between 1 and 63 inclusive.
 
 
 ### Standard Beacon
