@@ -62,6 +62,8 @@ and customers need to be able to switch from standard to compound beacons easily
 Compound Beacons are computed from strings,
 and consist of [standard beacons](#standard-beacon)
 interleaved with plain text.
+The following are different kinds of compound beacons,
+with examples of why customers need this functionality.
 
 #### Prefix Beacon
 
