@@ -51,7 +51,7 @@ On initialization, the caller MAY provide:
 
 ### DynamoDB Table Name
 
-The name of the DyamoDB Table where the
+The name of the DynamoDB Table where the
 DynamoDB Items to be decrypted or encrypted
 are stored or intended to be stored.
 

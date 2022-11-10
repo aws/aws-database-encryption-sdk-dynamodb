@@ -94,21 +94,47 @@ MUST have the following modified behavior:
 - [Decrypt after Scan](#decrypt-after-scan)
 - [Decrypt after Query](#decrypt-after-query)
 - [Decrypt after TransactGetItem](#decrypt-after-transactgetitem)
+- [Validate before UpdateItem](#validate-before-updateitem)
 
-The following API calls either MUST NOT be callable or MUST yield an error,
-and that error SHOULD indicate that the operation is not supported with DynamoDB client-side encryption:
+The [Allowed Passthrough DynmanoDB APIs](#allowed-passthrough-dynamodb-apis)
+MUST NOT be modified.
 
-- UpdateItem
+The following API calls either MUST NOT be callable
+or MUST yield an error,
+and that error SHOULD indicate that the operation
+is not supported with DynamoDB client-side encryption:
+
 - ExecuteStatement
 - BatchExecuteStatement
 - ExecuteTransaction
+
+Any DynamoDB API not specified is this document either
+MUST NOT be callable or MUST yield an error,
+and that error SHOULD indicate that the operation
+is not supported with DynamoDB client-side encryption.
 
 ### Encrypt before PutItem
 
 Before the [PutItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html)
 call is made to DynamoDB,
-the request MUST be modified if there exists
-an Item Encryptor specified within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+the request MUST be validated,
+such that:
+- if there exists an Item Encryptor specified within the
+  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+  with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  equal to `TableName` in the request,
+  this PutItem request MUST NOT contain a `ConditionExpression`.
+
+TODO: Is there any additional validation we can bring into P0 scope which would allow some condition checks?
+
+If the above validation fails,
+the client MUST NOT make a network call to DynamoDB,
+and TransactWriteItems MUST yield an error.
+
+If the request is validated,
+it MUST be modified before a network call is made to DynamoDB
+if there exists an Item Encryptor specified within the
+[DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
 with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
 equal to `TableName` in the request.
 
@@ -141,23 +167,41 @@ with a value that is equivalent to
 the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item).
 
 If any [Encrypt Item](./encrypt-item.md) fails,
-BatchWriteItem MUST yield an error before any network call is made.
+the client MUST NOT make a network call to DynamoDB,
+and BatchWriteItem MUST yield an error.
 
 ### Encrypt before TransactWriteItems
 
 Before the [TransactWriteItems](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_TransactWriteItems.html)
 call is made to DynamoDB,
-the request MUST be modified if there exists
-an Item Encryptor specified within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+the request MUST be validated,
+such that for every entry under `TransactItems`:
+- The entry MUST be one of `Put`, `Update`, `ConditionCheck`, or `Delete`.
+- If the entry is an `Update`, the corresponding `TableName` MUST NOT match
+  with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  of any Item Encryptor specified within the
+  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+- If the entry is a `ConditionCheck`, the corresponding `TableName` MUST NOT match
+  with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  of any Item Encryptor specified within the
+  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+- If the entry is a `Put`, and has a `TableName` that matches
+  the [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  of one of the Item Encryptors specified within the
+  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration),
+  this `Put` MUST NOT have a `ConditionExpression`.
+
+TODO: Is there any additional validation we can bring into P0 scope which would allow some condition checks?
+
+If any of the above validation fails,
+the client MUST NOT make a network call to DynamoDB,
+and TransactWriteItems MUST yield an error.
+
+If the request is validated, it MUST be modified before a network call is made to DynamoDB
+if there exists an Item Encryptor specified within the
+[DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration),
 with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
 equal to `TableName` in any `Put` within `TransactItems`.
-
-If the request contains any `Update` under `TransactItems`
-such that its `TableName` matches the
-[DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-of a Item Encryptor specified within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration),
-TransactWriteItems MUST immediately yield an error
-and SHOULD indicate that Updates are not supported for DynamoDB Client Encryption.
 
 For each `Put` in `TransactItems` in the request,
 if a corresponding Item Encryptor exists,
@@ -170,7 +214,8 @@ with a value that is equivalent to
 the resulting [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item).
 
 If any [Encrypt Item](./encrypt-item.md) fails,
-TransactWriteItems MUST yield an error before any network call is made.
+the client MUST NOT make a network call to DynamoDB and
+TransactWriteItems MUST yield an error.
 
 ### Decrypt after GetItem
 
@@ -214,7 +259,8 @@ with a value that is equivalent to
 the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) operation fails,
-BatchGetItem MUST yield an error.
+the client MUST NOT make a network call to DynamoDB
+and BatchGetItem MUST yield an error.
 
 TODO: Is there a way to make use of `UnprocessedKeys` to return a partial result?
 
@@ -240,7 +286,8 @@ with the resulting decrypted
 [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) operation fails,
-Scan MUST yield an error.
+the client MUST NOT make a network call to DynamoDB
+and Scan MUST yield an error.
 
 TODO: Is there a way we can return a partial result?
 
@@ -265,7 +312,8 @@ Each of these entries on the original repsonse MUST be replaced
 with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) fails,
-Query MUST yield an error.
+the client MUST NOT make a network call to DynamoDB
+and Query MUST yield an error.
 
 TODO: Is there a way we can return a partial result?
 
@@ -289,6 +337,70 @@ with a value that is equivalent to
 the result [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) fails,
-TransactGetItems MUST yield an error.
+the client MUST NOT make a network call to DynamoDB
+and TransactGetItems MUST yield an error.
 
 TODO: Is there a way to return a partial result?
+
+### Validate Before UpdateItem
+
+Before a [UpdateItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html)
+call is made to DynamoDB,
+the request MUST check if there exists
+an Item Encryptor specified within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+equal to `TableName` in the request.
+
+If such an Item Encryptor exists,
+the client MUST NOT make a network call to DynamoDB
+and MUST yield an error.
+
+If no such Item Encryptor exists,
+there MUST NOT be any modification
+to the UpdateItem request.
+
+TODO: Can we do further validation to allow safe updates on configured tables? We may be able to get this for free with the work being done for scan beacons.
+
+## Allowed Passthrough DynamoDB APIs
+
+- CreateBackup
+- CreateGlobalTable
+- CreateTable
+- DeleteBackup
+- DeleteItem
+- DeleteTable
+- DescribeBackup
+- DescribeContinuousBackups
+- DescribeContributorInsights
+- DescribeEndpoints
+- DescribeExport
+- DescribeGlobalTable
+- DescribeGlobalTableSettings
+- DescribeImport
+- DescribeKinesisStreamingDestination
+- DescribeLimits
+- DescribeTable
+- DescribeTableReplicaAutoScaling
+- DescribeTimeToLive
+- DisableKinesisStreamingDestination
+- EnableKinesisStreamingDestination
+- ExportTableToPointInTime
+- ImportTable
+- ListBackups
+- ListContributorInsights
+- ListExports
+- ListGlobalTables
+- ListImports
+- ListTables
+- ListTagsOfResource
+- RestoreTableFromBackup
+- RestoreTableToPointInTime
+- TagResource
+- UntagResource
+- UpdateContinuousBackups
+- UpdateContributorInsights
+- UpdateGlobalTable
+- UpdateGlobalTableSettings
+- UpdateTable
+- UpdateTableReplicaAutoScaling
+- UpdateTimeToLive
