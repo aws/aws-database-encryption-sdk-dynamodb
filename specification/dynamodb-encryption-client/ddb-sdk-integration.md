@@ -131,7 +131,7 @@ TODO: Is there any additional validation we can bring into P0 scope which would 
 
 If the above validation fails,
 the client MUST NOT make a network call to DynamoDB,
-and TransactWriteItems MUST yield an error.
+and PutItem MUST yield an error.
 
 If the request is validated,
 it MUST be modified before a network call is made to DynamoDB
