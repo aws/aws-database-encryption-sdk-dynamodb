@@ -36,7 +36,6 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  nameonly version: VersionNumber ,
  nameonly beacons: BeaconList ,
  nameonly key: string ,
- nameonly write: bool ,
  nameonly primary: Option<PrimaryKey> ,
  nameonly narrowLSIs: Option<NarrowList>
  )

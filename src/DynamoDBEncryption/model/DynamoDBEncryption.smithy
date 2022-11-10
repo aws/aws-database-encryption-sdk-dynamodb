@@ -94,8 +94,6 @@ structure BeaconVersion {
     beacons: BeaconList,
     @required
     key: String, // magic designator for hierarchy keyring key
-    @required
-    write: Boolean, // exactly one version must be write
     primary: PrimaryKey,
     narrowLSIs: NarrowList,
 }
