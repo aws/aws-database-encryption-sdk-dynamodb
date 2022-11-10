@@ -95,6 +95,7 @@ MUST have the following modified behavior:
 - [Decrypt after Query](#decrypt-after-query)
 - [Decrypt after TransactGetItem](#decrypt-after-transactgetitem)
 - [Validate before UpdateItem](#validate-before-updateitem)
+- [Validate before DeleteItem](#validate-before-deleteitem)
 
 The [Allowed Passthrough DynmanoDB APIs](#allowed-passthrough-dynamodb-apis)
 MUST NOT be modified.
@@ -192,6 +193,11 @@ such that for every entry under `TransactItems`:
   of one of the Item Encryptors specified within the
   [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration),
   this `Put` MUST NOT have a `ConditionExpression`.
+- If the entry is a `Delete`, and has a `TableName` that matches
+  the [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  of one of the Item Encryptors specified within the
+  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration),
+  this `Delete` MUST NOT have a `ConditionExpression`.
 
 TODO: Is there any additional validation we can bring into P0 scope which would allow some condition checks?
 
@@ -363,13 +369,33 @@ to the UpdateItem request.
 
 TODO: Can we do further validation to allow safe updates on configured tables? We may be able to get this for free with the work being done for scan beacons.
 
+### Validate Before DeleteItem
+
+Before a [DeleteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html)
+call is made to DynamoDB,
+the client MUST validate the request such that:
+- if the request specifies a `ConditionExpression`,
+  there MUST NOT exist an Item Encryptor specified
+  within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+  with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  equal to `TableName` in the request.
+
+If the request is validated,
+there MUST NOT be any modification
+to the UpdateItem request.
+
+If the request is not validated,
+the client MUST NOT make a network call to DynamoDB
+and MUST yield an error.
+
+TODO: Is there validation we can do on the ConditionCheck to allow for some checks on non-encrypted items?
+
 ## Allowed Passthrough DynamoDB APIs
 
 - CreateBackup
 - CreateGlobalTable
 - CreateTable
 - DeleteBackup
-- DeleteItem
 - DeleteTable
 - DescribeBackup
 - DescribeContinuousBackups
