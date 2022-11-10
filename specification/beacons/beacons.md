@@ -200,6 +200,12 @@ Beacon operations MUST have access to [beacon configuration](beacon-configuratio
  * plainHash MUST return this value formatted as lowercase hexadecimal,
 with leading zeros removed, except that 0 is returned as "0".
 
+### IsCompound
+ * IsCompound MUST take no input parameters
+ * IsCompound MUST return a boolean
+ * IsCompound MUST return `true` if a [prefix character](#prefix-beacon) or
+[Split Record](#split-record) is configured; and false otherwise.
+
 ### compoundHash
 
  * compoundHash MUST take a string as input.
