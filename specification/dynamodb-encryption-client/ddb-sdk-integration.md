@@ -108,6 +108,8 @@ is not supported with DynamoDB client-side encryption:
 - BatchExecuteStatement
 - ExecuteTransaction
 
+TODO: Is there any validation we can do to the above APIs to allow them if they do not act on non-configured tables?
+
 Any DynamoDB API not specified is this document either
 MUST NOT be callable or MUST yield an error,
 and that error SHOULD indicate that the operation
@@ -236,7 +238,7 @@ The GetItem request's `Item` field MUST be replaced
 with a value that is equivalent to
 the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
-TODO: Should we strip the header and footer?
+TODO: Should we strip the header and footer? (and other genreated fields, such as beacons)
 
 ### Decrypt after BatchGetItem
 
