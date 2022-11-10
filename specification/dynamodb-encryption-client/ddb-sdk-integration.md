@@ -29,7 +29,7 @@ happen transparently.
 
 The AWS SDK is available in a variety of languages,
 and the ways to configure and construct the client in each differs.
-Thus, the way provide this behavior in each AWS SDK language
+Thus, providing this behavior in each AWS SDK language
 will not be standardized.
 
 There MUST be some process by which
@@ -88,7 +88,7 @@ MUST have the following modified behavior:
 
 - [Encrypt before PutItem](#encrypt-before-putitem)
 - [Encrypt before BatchWriteItem](#encrypt-before-batchwriteitem)
-- [Encrypt before TransactWriteItems](#encrypt-after-TransactWriteItems)
+- [Encrypt before TransactWriteItems](#encrypt-before-TransactWriteItems)
 - [Decrypt after GetItem](#decrypt-after-getitem)
 - [Decrypt after BatchGetItem](#decrypt-after-batchgetitem)
 - [Decrypt after Scan](#decrypt-after-scan)
