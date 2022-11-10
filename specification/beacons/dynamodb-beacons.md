@@ -24,8 +24,7 @@ both because primary keys cannot be encrypted
 and because beacons are designed to create false duplicates.
 
 The basic user experience is this 
- *  Customer constructs a client object, registering Gazelle intercepts or
-otherwise allowing Gazelle overrides.
+ *  Customer constructs a client object with [Gazelle magic](../dynamodb-encryption-client/ddb-sdk-integration.md).
  * Customer calls client methods as normal
 
 For each client operation, the workflow looks something like this
@@ -43,6 +42,34 @@ For each client operation, the workflow looks something like this
  * **non-beaconed field** : an encrypted attribute without an associated beacon
  * **beacon field** : the attribute holding the beacon value associated with a source field
 
+### Reserved Prefixes
+
+#### Gazelle Prefix
+Gazelle reserves all attribute names starting with `gZ_` (actual prefix up for debate)
+
+#### Beacon Prefix
+All beacon values are written as attributes beginning with the [Gazelle Prefix](#gazelle-prefix) followed by `b_`, i.e. `gZ_b_`. 
+
+For the [source field](#source-field) `foo` the associated 
+[beacon field](#beacon-field) would be `gZ_b_foo`
+
+#### Version Prefix
+
+[Version markers](#version-markers) are written as attributes beginning with the [Gazelle Prefix](#gazelle-prefix) followed by `v_`, i.e. `gZ_v_`. 
+
+For version 12 the [Version marker](#version-markers) would be `gZ_v_12`
+
+### Forbidden Fields
+
+No customer request should ever refer directly to any attribute
+with a name starting with the [Gazelle Prefix](#gazelle-prefix)
+
+The only exception is that customer may read attributes beginning
+with the [version prefix](#version-prefix), but still may not write
+such an attribute.
+
+All operations below will fail if a forbidden field is used.
+
 ### Beacon Calculation
 
 To calculate the beacon value for an attribute
@@ -51,30 +78,33 @@ To calculate the beacon value for an attribute
 1. If the attribute is not a string,
 and the beacon is [compound](./beacons.md#IsCompound),
 then the beacon calculation must fail.
-1. [Serialize](../dynamodb-encryption-client/ddb-attribute-serialization.md)
+1. otherwise, [serialize](../dynamodb-encryption-client/ddb-attribute-serialization.md)
 the attribute, and call [plainHash](./beacons.md#plainHash) on the result.
 
-### Beacon Version
+### Beacon Keys
 
-A beacon version contains all the information necessary to read 
-and write items and support searchable encryption.
+A single non-rotating branch key will be stored in the hierarchy keyring.
+For each individual beacon, we will call the hierarchy keyring's
+HKDF function, using a SHA256 of the beacon name as the nonce, 
+to generate a consistent data key for each beacon.
 
-A beacon version holds a list of beacons and a version number.
+[TODO: add link to hierarchy keyring spec in private-aws-encryption-sdk-specification-staging]
 
-If a configuration has multiple beacon versions
- * each must have a different version number
- * exactly one version must be designated as the one used to write new records.
+### Version Number
+
+There exists a version number (integer greater than zero) associated
+with the current configuration being used to write items. 
 
 ### Version Marker
 
 When a record is written, a special attribute called a version marker is also written.
 
-The name of this attribute is the concatenation of the `gazelle prefix`, `v_`, and the version number of the [beacon version](#beacon-version) currently
-being used to write new records. The value has type "S" string, and the
+The name of this attribute is the concatenation of the `gazelle prefix`, `v_`, and the [version number](#version-number) of the [beacon version](#beacon-version)
+currently being used to write new records.
+The value has type "S" string, and the
 string value is a single space. 
 
 For example, version 12 would write the attribute `gZ_v_12`
-
 
 When a customer wants to retire version 12, they can
 
@@ -97,10 +127,15 @@ The customer needs to do two things
 the partition and sort keys used in the original design.
 
 When the customer writes an item, Gazelle will generate a new primary key
-by generating a 48-byte HMAC of the concatenation of the original partition and sort keys.
+by concatenating the original partition and sort keys, and using the [beacon key](#beacon-keys) for the primary key to generate a 48-byte HMAC.
+The primary key is this 48-byte binary value.
 
 A customer can call GetItem using the original partition and sort keys,
 and Gazelle will translate that into a call with the new computed primary key.
+
+A customer can also call getItem using this generated key,
+if they got it as the result of a previous query.
+
 
 ### Projections
 
@@ -126,14 +161,13 @@ This allows for a smaller index, and so the server side
 filtering can be faster and cheaper; however, retrieval of the records
 that make it through the filtering will be slower.
 
-
 ### Writing
 
 Whenever a record is written, if a [source field](#definitions) is written
 then the [beacon field](#definitions) must also be written, which is
 of type "S" string and holds the [calculated](#beacon-calculation) value.
 
-It is an error to attempt to write an attribute starting with the gazelle prefix.
+It is an error to attempt to write an attribute starting with the [gazelle prefix](#gazelle-prefix).
 
 For a record with 10 attributes, 6 of which have beacons,
 a total of 19 or 20 attributes will be written
@@ -149,7 +183,7 @@ a total of 19 or 20 attributes will be written
 To retrieve a record based on the value of an encrypted [source field](#definitions),
 search instead for the [beacon value](#beacon-calculation) in the [beacon field](#definitions).
 
- * With no beacon, and encrypted attribute cannot be searched.
+ * With no beacon, an encrypted attribute cannot be searched.
  * With plain beacons, only exact matches can be supported.
  * compound beacons with a prefix can support ranged queries such as `<`, `between` and `begins_with`.
  * compound beacons with a split can support these ranged queries as well as `contains`
@@ -168,29 +202,11 @@ and non-matching items discarded.
 When a request is made to create a Index for a [source field](#definitions),
 instead the index must be created on the [beacon field](#definitions).
 
-When the projection contains a [source field](#definitions), the [beacon field](#definitions) is also included in the projection.
-
-It can be dangerous to specify a projection other than ALL,
-because decryption requires the presence of all signed fields
-that were present when the record was written.
+When the [projection](#projections) contains a [source field](#definitions), the [beacon field](#definitions) is also included in the projection.
 
 Users might create tables and/or indexes in the console. In this case,
 they must be well educated to perform these same transformations by hand.
 
-
-## Definitions
-
- * **gazelle prefix** : `gZ_`
- * **beacon prefix** : `gZ_b_`
- * **version marker** : A tag field written with every record,
-which denotes the `beacon version` used to write the record.
-The name is `gZ_v_N` where N is the version number.
- * **forbidden field** : Atttributes that customers must never read directly.
-These are all attributes beginning with the `gazelle prefix`
-other than the `version marker` `gZ_v_N` when N is a positive integer.
-
-The name of the [beacon field](#definitions) is the concatenation of
-the beacon prefix and the [source field](#definitions) name.
 
 ### Conventions used in this document
 
@@ -204,16 +220,16 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 The DynamoDBEncryption object MUST contain
 
- * A map of TableName to DynamoDBTableEncryption
+ * A map of TableName to [DynamoDBTableEncryption](#dynamodbtableencryption)
 
 ### DynamoDBTableEncryption
 
 The DynamoDBTableEncryption object MUST contain
 
- * A map of Attribute Name to EncryptionType
+ * A map of Attribute Name to [EncryptionType](#encryptiontype)
  * The Attribute Name of the primary Partition Key
  * The Attribute Name of the primary Sort Key, if a sort key exists
- * A BeaconContext
+ * A [BeaconContext](#beaconcontext)
 
 ### EncryptionType
 
@@ -223,22 +239,29 @@ An EncryptionType is one of
  * SIGN_ONLY
  * DO_NOTHING
 
-### BeaconConfig
+### BeaconContext
 
 The BeaconContext object MUST contain
 
- * A list of BecaonVersion
- * The version number of the BecaonVersion to be used for writing
+ * A list of [BeaconVersion](#beaconversion)
+ * The [version number](#version-number) of the [BeaconVersion](#beaconversion) to be used for writing
 
-### BecaonVersion
+#### Current Version
 
-The BecaonVersion object MUST contain
+The [BeaconVersion](#beaconversion) with the [version number](#version-number)
+specified in the [BeaconContext](#beaconcontext) is known as the 
+`current version`
 
- * version -- an integer greater than 0
+### BeaconVersion
+
+The BeaconVersion object MUST contain
+
+ * version -- a [version number](#version-number)
  * beacons -- a list of [Beacon Record](./beacons.md#beacon-record)
- * key -- a magic thing to indicate a hierarchy keyring key
+ * key -- a [Beacon Key](#beacon-key)
  * primary -- an optional [primary key](#primary-key-generation),
- * narrowLSIs -- A list of LSI's that should be treated as NARROW
+ * narrowLSIs -- A list of LSI's that should be treated as NARROW,
+as discussed in [Projections](#projections)
 
 ### PrimaryKey
 
@@ -255,6 +278,9 @@ The [PrimaryKey](#primary-key-generation) object MUST contain
 *Note* : When the text below says "alter the input" this should be read as
 "the output should be equal to the input, but altered in this way".
 
+These operations MUST have access to a [DynamoDBEncryption](#dynamodbencryption).
+
+
 ### transformCreateTableInput
 
  * transformCreateTableInput MUST take a CreateTableInput object as input.
@@ -268,9 +294,9 @@ configured name and type `HASH`.
  * if a [generated primary key](#primary-key-generation) is configured, the returned AttributeDefinitions
 must include an attribute with the name of the primary, and type "B" binary.
  * The returned GlobalSecondaryIndexes MUST be a sequence generated by
-mapping each element of the input GlobalSecondaryIndexes through transformGSI
+mapping each element of the input GlobalSecondaryIndexes through [transformGSI](#transformgsi)
  * The returned LocalSecondaryIndexes MUST be a sequence generated by
-mapping each element of the input LocalSecondaryIndexes through transformLSI
+mapping each element of the input LocalSecondaryIndexes through [transformLSI](#transformlsi)
  * The returned AttributeDefinitions MUST be equal to the input AttributeDefinitions,
 plus, for each [beacon field](#definitions) used in an index, an AttributeDefinition with the
 AttributeName equal to the [beacon field](#definitions) and the AttributeType equal to "S" String.
@@ -279,42 +305,40 @@ AttributeName equal to the [beacon field](#definitions) and the AttributeType eq
 ### transformPutItemInput
  * transformPutItemInput MUST take as input an PutItemInput object.
  * transformPutItemInput MUST return an PutItemInput object.
- * The input conditionExpression MUST be tested with `testConditionExpression`
+ * The input conditionExpression MUST be tested with [testConditionExpression](#testconditionexpression)
  * transformPutItemInput MUST fail if the name of any input `Item` begins
-with the `gazelle prefix`. 
- * transformPutItemInput MUST use the `beacon version` with the write flag set.
- * The returned `Item` must include an attribute with name gZ_v_N, where `N`
-is the version number of the `beacon version` with the write flag set, and a
-value of type String with value or a single space.
+with the [gazelle prefix](#gazelle-prefix). 
+ * transformPutItemInput MUST use the [current version](#current-version)
+ * The returned `Item` must include the current [version marker](#version-marker)
  * For each element in the `Item` map that specifies a [source field](#definitions),
  the returned `Item` map MUST also include the [beacon field](#definitions).
- * The name of this field MUST be the concatenation of the `beacon prefix` and the [source field](#definitions) name.
+ * The name of this field MUST be the concatenation of the [beacon prefix](#beacon-prefix) and the [source field](#definitions) name.
  * The value of this field MUST be the defined [beacon](./beacons.md)
  * If a [generated primary key](#primary-key-generation) is configured, and the primary key name
 already exists in `Item`, transformPutItemInput MUST fail.
  * If a [generated primary key](#primary-key-generation) is configured, an additional `Item` MUST be returned
-with the configured name, type "B" Binary, and a value as calculated with `calculatePrimaryKeyValue`. 
+with the configured name, type "B" Binary, and a value as calculated with [calculatePrimaryKeyValue](#calculateprimarykeyvalue). 
 
 ### transformUpdateItemInput
  * transformUpdateItemInput MUST take as input an UpdateItemInput
  * transformUpdateItemInput MUST return the unmodified input object
  * transformUpdateItemInput MUST fail if any part of the input
-object mentions an attribute name starting with the `gazelle prefix`.
+object mentions an attribute name starting with the [gazelle prefix](#gazelle-prefix).
  * transformUpdateItemInput MUST fail if the input object attempts to modify a signed attribute.
- * transformUpdateItemInput MUST fail if `testConditionExpression` fails
+ * transformUpdateItemInput MUST fail if [testConditionExpression](#testconditionexpression) fails
 
 ### transformBatchWriteItemInput
  * transformBatchWriteItemInput MUST take as input a BatchWriteItemInput object.
  * transformBatchWriteItemInput MUST return a BatchWriteItemInput object.
- * Each PutRequest MUST be handled as outlined above in transformPutItemInput
+ * Each PutRequest MUST be handled as outlined above in [transformPutItemInput](#transformputiteminput)
 
 ### transformTransactWriteItemsInput
  * transformTransactWriteItemsInput MUST take as input a TransactWriteItemsInput object.
  * transformTransactWriteItemsInput MUST return a TransactWriteItemsInput object.
- * Each `Put` MUST be handled as outlined above in transformPutItemInput
- * Each Condition Expression must be tested with `testConditionExpression`
- * Each Update must be handled as outlined above in `transformUpdateItemInput`
- * The ConditionExpression of each Delete must be tested with `testConditionExpression`
+ * Each `Put` MUST be handled as outlined above in [transformPutItemInput](#transformputiteminput)
+ * Each Condition Expression must be tested with [testConditionExpression](#testconditionexpression)
+ * Each Update must be handled as outlined above in [transformUpdateItemInput](#transformupdateiteminput)
+ * The ConditionExpression of each Delete must be tested with [testConditionExpression](#testconditionexpression)
  
 
 ### transformGetItemInput
@@ -328,7 +352,7 @@ transformPutItemInput MUST return the input unmodified,
  * If the partition and sort keys do not exists in `Key`,
 then transformGetItemInput MUST fail.
  * The returned `Key` must be the configured name, type "B" Binary,
-and a value as calculated with `calculatePrimaryKeyValue`. 
+and a value as calculated with [calculatePrimaryKeyValue](#calculateprimarykeyvalue). 
 
 ### transformBatchGetItemInput
 
@@ -364,38 +388,37 @@ a table which has any encrypted attributes configured.
  * transformExecuteTransactionInput MUST return the unmodified input object
 
 
-*note*, BatchExecuteStatement and ExecuteTransaction operate
-on SQL statements, which are not supported by beacons at this time
-
-
-
 ### transformQueryInput
  * transformQueryInput MUST take as input a QueryInput object.
  * transformQueryInput MUST return a QueryInput object.
- * transformQueryInput MUST fail if an attribute name that starts with the `gazelle prefix` is mentioned.
+ * transformQueryInput MUST fail if an attribute name that starts with the [gazelle prefix](#gazelle-prefix) is mentioned.
  * If no encrypted field is mentioned, transformQueryInput MUST return the unmodified input object.
- * The output object's `Filter Expression` must be derived from the input `Filter Expression` according to `Expression Transformation` above.
- * If the keyConditionExpression refers to no encrypted attributes, then the result
-MUST be returned after only the above operations.
- * transformQueryInput MUST call `createKeyConditionList` to create a KeyConditionList
- * transformQueryInput MUST call `findVersion` to create `currentVersion` and `hadContent`
- * transformQueryInput MUST fail if `findVersion` returns (None, true)
- * if `findVersion` returns (None, false) then transformQueryInput MUST return
-the keyConditionExpression with the lowest version and no exclusiveStartKey
- * if `findVersion` returns (Some(currentVersion), false), then transformQueryInput MUST return
-the keyConditionExpression with lowest beacon version greater than currentVersion,
+ * The output object's `Filter Expression` must be derived from the input `Filter Expression` according to [transformationFilterExpression](#transformationfilterexpression).
+ * If the `keyConditionExpression` refers to no encrypted attributes,
+then the result MUST be returned after only the above operations.
+
+The final step is to find the proper [BeaconVersion](#beaconversion) for
+this query, and the associated keyConditionExpression and exclusiveStartKey.
+
+ * transformQueryInput MUST call [createKeyConditionList](#createkeyconditionlist) to create `KeyConditionList`
+ * transformQueryInput MUST call [findVersion](#findversion) to create `currentVersion` and `hadContent`
+ * transformQueryInput MUST fail if [findVersion](#findversion) returned (None, true)
+ * if [findVersion](#findversion) returned (None, false) then transformQueryInput MUST return
+the `keyConditionExpression` with the lowest version and no exclusiveStartKey
+ * if [findVersion](#findversion) returned (Some(currentVersion), false), then transformQueryInput MUST return
+the keyConditionExpression with lowest version greater than currentVersion,
 and no exclusiveStartKey
- * if `findVersion` returns (Some(currentVersion), true), then transformQueryInput MUST return
- * * the beacon version that matches currentVersion, and the exclusiveStartKey with the  gZ_version` field removed, if such a beacon version exists.
- * * the beacon with the lowest version greater than currentVersion, with no exclusiveStartKey if such a beacon version exists
- * * failure if all available beacon versions are less than the returned version.
+ * if [findVersion](#findversion) returned (Some(currentVersion), true), then transformQueryInput MUST return
+ * * the keyConditionExpression that matches currentVersion, and the exclusiveStartKey with the  gZ_version` field removed, if such a keyConditionExpression exists.
+ * * the keyConditionExpression with the lowest version greater than currentVersion, with no exclusiveStartKey if such a keyConditionExpression exists
+ * * failure if all available versions are less than the returned version.
 
 ### transformQueryOutput
 transformQueryOutput needs the original QueryInput object,
 because we need to check the result records against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
 
  * transformQueryOutput MUST take as input a QueryOutput object and a QueryInput object
- * The QueryInput object MUST be assumed to be the original query, not the result of transformQueryInput
+ * The QueryInput object MUST be assumed to be the original query, not the result of a [transformQueryInput](#transformqueryinput) call.
  * transformQueryOutput MUST return a QueryOutput object.
  * transformQueryOutput MUST remove any records for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a [source field](#definitions))
@@ -404,10 +427,10 @@ then this operation must remove any record in which the `Src` field contains som
 
 The final step is to tag the LastEvaluatedKey
 
- * transformQueryOutput MUST call `createKeyConditionList` to create a keyConditionList
- * transformQueryOutput MUST use `findVersion` to retrieve the `currentVersion`
+ * transformQueryOutput MUST call [createKeyConditionList](#createkeyconditionlist) to create a `keyConditionList`
+ * transformQueryOutput MUST use [findVersion](#findversion) to retrieve the `currentVersion`
  * if `currentVersion` is None, replace it with the lowest version in keyConditionList
- * If the input object has a LastEvaluatedKey, transformQueryOutput must return a LastEvaluatedKey equal to the input LastEvaluatedKey with the addition of a number field `gZ_version= currentVersion`
+ * If the input object has a LastEvaluatedKey, transformQueryOutput must return a LastEvaluatedKey equal to the input LastEvaluatedKey with the addition of a number field `gZ_version=currentVersion`
  * If the input object has no LastEvaluatedKey, and `currentVersion` is greater than or equal to the highest version in the keyConditionList, then transformQueryOutput must return an object with no LastEvaluatedKey
  * Otherwise, transformQueryOutput must return a LastEvaluatedKey containing only a number field `gZ_version` set to the lowest version in keyConditionList greater than `currentVersion`
 
@@ -415,14 +438,15 @@ The final step is to tag the LastEvaluatedKey
 ### transformScanInput
  * transformScanInput MUST take as input a ScanInput object.
  * transformScanInput MUST return a ScanInput object.
- * The object's filterExpression it must be modified according to `Expression TransformationMulti` above.
+ * The object's filterExpression it must be modified according to
+[transformationFilterExpressionMulti](#transformationfilterexpressionmulti).
 
 
 ### transformScanOutput
  * transformScanOutput MUST take as input a ScanOutput object and a ScanInput object.
  * transformScanOutput MUST return an ScanOutput object.
  * The ScanInput object MUST be assumed to be the original ScanInput object,
-and not the result of transformScanInput call.
+and not the result of a [transformScanInput](#transformscaninput) call.
  * transformScanOutput MUST remove any records for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a [source field](#definitions))
 then this operation must remove any record in which the  `Src` field contains something other than "foo".
@@ -432,8 +456,11 @@ then this operation must remove any record in which the  `Src` field contains so
 ## Helpers
 
 
-No customer input should ever refer to forbidden field
 ### forbiddenField
+
+forbiddenField  return true if the input  one of the
+[Forbidden Fields](#forbidden-fields)
+
  * forbiddenField MUST take a string as input
  * forbiddenField MUST return a boolean
  * if the input string begins with gZ_v_ forbiddenField MUST return false
@@ -441,17 +468,12 @@ No customer input should ever refer to forbidden field
  * forbiddenField MUST return false
 
 ### transformPrimaryKeySchema
- * transformKeySchema MUST take a KeySchema as input
- * transformKeySchema MUST return a KeySchema
+ * transformPrimaryKeySchema MUST take a KeySchema as input
+ * transformPrimaryKeySchema MUST return a KeySchema
  * if no [generated primary key](#primary-key-generation) is configured, transformKeySchema MUST return the unaltered input
- * transformKeySchema  MUST fail if the input KeySchema is not empty.
- * transformKeySchema MUST return a KeySchema
+ * transformPrimaryKeySchema  MUST fail if the input KeySchema is not empty.
+ * transformPrimaryKeySchema MUST return a KeySchema
 with the name given in the [generated primary key](#primary-key-generation)  and type `HASH`
-
-### serializeAttributeValue
- * serializeAttributeValue MUST take an AttributeValue as input
- * serializeAttributeValue return a `seq<uint8>`
- * the implementation MUST be taken from Gazelle, in a manner TBD.
 
 ### calculatePrimaryKeyValue
  * calculatePrimaryKeyValue MUST take a PutItemInputAttributeMap as input
@@ -459,18 +481,20 @@ with the name given in the [generated primary key](#primary-key-generation)  and
  * calculatePrimaryKeyValue MUST fail if no [generated primary key](#primary-key-generation) is configured
  * calculatePrimaryKeyValue MUST fail if the partition key is missing from the input attributes.
  * calculatePrimaryKeyValue MUST fail if the sort key is specified, yet missing from the input attributes.
- * The data key used for the HMACs below MUST be the HKDF (pointer to hierarchy keychain needed) of the table's key and the primary key name.
+ * The data key used for the HMACs below MUST be the [beacon key](#beacon-keys) for the primary key name.
  * If only a partition key is specified, then an HMAC384 must be generated from
-the `serializeAttributeValue` of that value. 
- * Otherwise, an HMAC384 must be generated from the concatenation of the `serializeAttributeValue` of the partition key value,
-a literal `_` character, and the `serializeAttributeValue`  of the sort key value.
+the [serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md)
+of that attribute.
+ * Otherwise, an HMAC384 must be generated from the concatenation of the [serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md) of the partition key attribute,
+a literal `_` character, and the [serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md) of the sort key attribute.
 
 
 ### transformKeySchemaElement
  * transformKeySchemaElement MUST take a KeySchemaElement as input
  * transformKeySchemaElement MUST return a KeySchemaElement
- * transformKeySchemaElement MUST fail if the input AttributeName is a `forbidden field`
- * transformKeySchemaElement MUST fail if the input AttributeName refers to a non-beaconed field.
+ * transformKeySchemaElement MUST fail if the input AttributeName
+is a [forbiddenField](#forbiddenfield)
+ * transformKeySchemaElement MUST fail if the input AttributeName refers to a [non-beaconed field](#definitions).
  * If the input AttributeName refers to a [source field](#definitions), the AttributeName 
 of the returned KeySchemaElement must be the name of the associated [beacon field](#definitions).
  * Otherwise, the returned KeySchemaElement MUST be returned unchanged.
@@ -479,26 +503,27 @@ of the returned KeySchemaElement must be the name of the associated [beacon fiel
  * transformGSI MUST take a GlobalSecondaryIndex as input
  * transformGSI MUST return a GlobalSecondaryIndex
  * The returned GlobalSecondaryIndex MUST have a KeySchema generated by
-mapping each element of the input KeySchema through transformKeySchemaElement
- * transformGSI MUST fail if the projection includes a `forbiddenField`.
+mapping each element of the input KeySchema through [transformKeySchemaElement](#transformkeyschemaelement)
+ * transformGSI MUST fail if the projection includes a name which
+is a [forbiddenField](#forbiddenfield).
  * transformGSI MUST return a Projection with NonKeyAttributes equal to
-all input NonKeyAttributes, plus the associated [beacon field](#definitions) for any
-[source field](#definitions) in the NonKeyAttributes.
+all input NonKeyAttributes, plus the associated [beacon field](#definitions)
+for any [source field](#definitions) in the NonKeyAttributes.
 
 ### transformLSI
  * transformGSI MUST take a LocalSecondaryIndex as input
  * transformGSI MUST return a LocalSecondaryIndex
  * The returned LocalSecondaryIndex MUST have a KeySchema generated by
-mapping each element of the input KeySchema through transformKeySchemaElement
- * transformGSI MUST fail if the Projection includes a `forbiddenField`.
+mapping each element of the input KeySchema through [transformKeySchemaElement](#transformkeyschemaelement)
+ * transformGSI MUST fail if the Projection includes a name which is a 
+[forbiddenField](#forbiddenfield).
  * If this index is configured as NARROW, transformLSI MUST return
 a Projection with NonKeyAttributes equal to the input NonKeyAttributes,
 with any [source field](#definitions) replaced with its associated [beacon field](#definitions).
  * If this index is not configured as NARROW,
 transformLSI MUST return a Projection with NonKeyAttributes equal to
-all input NonKeyAttributes, plus the associated [beacon field](#definitions) for any
-[source field](#definitions) in the NonKeyAttributes.
-
+all input NonKeyAttributes, plus the associated [beacon field](#definitions)
+for any [source field](#definitions) in the NonKeyAttributes.
 
 ### testConditionExpression
  * testConditionExpression MUST take as input
@@ -506,14 +531,13 @@ an `Option<ConditionExpression>`,
 and an `Option<ExpressionAttributeNameMap>`
  * testConditionExpression MUST return a boolean
  * testConditionExpression MUST fail if the ConditionExpression refers to an encrypted field.
- * testConditionExpression MUST fail if the ConditionExpression refers to a `forbiddenField`.
+ * testConditionExpression MUST fail if the ConditionExpression refers to a
+[forbiddenField](#forbiddenfield).
  * testConditionExpression MUST return true
-
-
 
 ### transformationFilterExpression
  * transformationFilterExpression MUST take as input
-a BeaconVersion
+a [BeaconVersion](#beaconversion),
 an `Option<ConditionExpression>`,
 an `Option<ExpressionAttributeNameMap>`,
 and an `Option<ExpressionAttributeValueMap>`
@@ -521,7 +545,7 @@ and an `Option<ExpressionAttributeValueMap>`
 an `Option<ConditionExpression>`,
 an `Option<ExpressionAttributeNameMap>`,
 and an `Option<ExpressionAttributeValueMap>`
- * This operation MUST fail if an attribute name that starts with the `gazelle prefix` is mentioned.
+ * This operation MUST fail if an attribute name is a [forbiddenField](#forbiddenfield)
  * This operation MUST fail if any [source field](#definitions) is used with a document path.
  * If no encrypted field is mentioned, the Expression MUST be returned unmodified.
  * The operations `attribute_exists`, `attribute_not_exists` and `size` are permitted on any field, and their arguments MUST not be modified.
@@ -537,7 +561,7 @@ For example, `field < value` would be replaced by `gZ_b_field < beacon_value`
 
 ### transformationFilterExpressionMulti
  * transformationFilterExpression MUST take as input
-a list of BeaconVersions
+a list of [BeaconVersions](#beaconversion),
 an `Option<ConditionExpression>`,
 an `Option<ExpressionAttributeNameMap>`,
 and an `Option<ExpressionAttributeValueMap>`
@@ -545,18 +569,21 @@ and an `Option<ExpressionAttributeValueMap>`
 an `Option<ConditionExpression>`,
 an `Option<ExpressionAttributeNameMap>`,
 and an `Option<ExpressionAttributeValueMap>`
- * If no  beacons versions are provided, transformationFilterExpressionMulti
+ * If no [BeaconVersion](#beaconversion) is provided, transformationFilterExpressionMulti
 MUST return the input arguments unchanged.
- * If one beacons version is provided, transformationFilterExpressionMulti
-MUST return the results of transformationFilterExpression with that beacon version.
- * transformationFilterExpressionMulti MUST create a list of results by calling transformationFilterExpression with each provided Beacon Version.
+ * If one [BeaconVersion](#beaconversion) is provided, transformationFilterExpressionMulti
+MUST return the results of [transformationFilterExpression]
+(#transformationfilterexpression) with that beacon version.
+ * transformationFilterExpressionMulti MUST create a list of results by calling
+[transformationFilterExpression](#transformationfilterexpression)
+with each provided Beacon Version.
  * transformationFilterExpressionMulti MUST remove duplicates from this list.
- * transformationFilterExpressionMulti MUST combine the remaining ones, individually parenthesized, with `OR`.
+ * transformationFilterExpressionMulti MUST join the remaining ones, individually parenthesized, with `OR`.
 For example, if E1 and E2 are created and unique, return `(E1) OR (E2)`
 
 ### findVersion
 findVersion looks at the exclusiveStartKey in a QueryInput
-and returns the beacon version held therein.
+and returns the [version number](#version-number) held therein.
 
  * findVersion MUST take as input a QueryInput object
  * findVersion MUST return both an optional version number and a boolean `hadContent` flag.
@@ -567,21 +594,22 @@ the first value returned by findVersion MUST be that number, and None otherwise
 the second value returned by findVersion MUST be true, and false otherwise
 
 ### createKeyCondition
- * createKeyCondition MUST take as input a keyConditionExpression and a single `beacon version`
+ * createKeyCondition MUST take as input a keyConditionExpression and a single [beacon version](#beaconversion).
  * createKeyCondition MUST return a keyConditionExpression
  * createKeyCondition MUST replace each reference to a [source field](#definitions) with the associated beacon and value. For example, `field < value` would be replaced by `gZ_b_field < beacon_value`
- * createKeyCondition MUST fail if and operator other than `=` is used with a beacon
-configured with neither `prefix` nor `split`
+ * createKeyCondition MUST fail if and operator other than `=` is used with
+a beacon configured with neither `prefix` nor `split`
  * createKeyCondition MUST fail if and operator other than `=` or `begins_with` is used with a beacon not configured with `prefix`
 
 
 ### createKeyConditionList
  * createKeyConditionList MUST take as input a QueryInput object
- * createKeyConditionList MUST return a list of keyConditionExpression with an associated beacon version.
- * For each beacon version, create keyConditionExpression with createKeyCondition
- * remove any duplicate keyConditionExpressions, keeping the one with the highest version number.
-
-
+ * createKeyConditionList MUST return a list of keyConditionExpression,
+each with an associated [beacon version](#beaconversion).
+ * For each [beacon version](#beacon-version) in the
+[BeaconContext](#beaconcontext),
+create keyConditionExpression with [createKeyCondition](#createkeycondition)
+ * remove any duplicate keyConditionExpressions, keeping the ones with the highest version number.
 
 ## Operational Considerations
 Fully supporting FilterExpressions, will require a complete parsing of the FilterExpression,
