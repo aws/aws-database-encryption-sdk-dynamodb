@@ -677,5 +677,3 @@ create keyConditionExpression with [createKeyCondition](#createkeycondition)
 Fully supporting FilterExpressions, will require a complete parsing of the FilterExpression,
 which is sensitive to any updates that the DynamoDB team makes to the expression language, and is dependent upon the rather sketchy documentation of the semantics
 of filter expressions.
-
-
