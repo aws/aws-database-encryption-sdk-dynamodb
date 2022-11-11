@@ -11,8 +11,11 @@
 
 ## Overview
 
+This document assumes familiarity with [beacons](./beacons.md),
+and specifies their use with DynamoDB.
+
 A [DynamoDBEncryption](#dynamodbencryption) object provides information about
-how records are encrypted and stored, including any
+how items are encrypted and stored, including any
 associated [beacons](./beacons.md).
 
 Various Request and Response objects are transformed, based on this configuration.
@@ -96,8 +99,8 @@ Sometimes, a customer might need to change their
 [beacon](./beacons.md) configuration;
 possibly tweaking the [beacon length](./beacons.md#beacon-length),
 modifying the details of a [compound beacon](./beacons.md#compound-beacon),
-adding or removing a beacon from an existing encrypted field,
-or adding a beacon for a new encrypted field.
+adding or removing a beacon from an existing encrypted attribute,
+or adding a beacon for a new encrypted attribute.
 
 **Note : ** *Changing the encryption configuration, which attributes
 are encrypted or signed, is a completely different process.
@@ -125,7 +128,7 @@ and so we encourage customers to rewrite old items with
 the new version, so that they might retire the old
 [beacon versions](#beaconversion).
 
-Each record is written with a [version marker](#version-marker)
+Each item is written with a [version marker](#version-marker)
 to make this easier.
 
 For small systems, a customer can add a new [BeaconVersion](#beaconversion),
@@ -138,7 +141,7 @@ For large, distributed systems a two-phase process might be needed
 1. Update the [current version](#current version)
 1. Distribute this new configuration throughout the system
 
-Failure to do so means that some clients will not find some records
+Failure to do so means that some clients will not find some items
 during the time the new configuration is being distributed.
 
 ### Version Number
@@ -161,10 +164,10 @@ associated with the most recently added [BeaconVersion](#beaconversion).
 
 ### Version Marker
 
-When a record is written, a special attribute called a version marker is also written.
+When an item is written, a special attribute called a version marker is also written.
 
 The name of this attribute is the concatenation of the [gazelle prefix](#gazelle-prefix), `v_`, and the [version number](#version-number) of the [beacon version](#beaconversion)
-currently being used to write new records.
+currently being used to write new items.
 The value has type "S" string, and the
 string value is a single space. 
 
@@ -172,16 +175,16 @@ For example, version 12 would write the attribute `gZ_v_12`
 
 When a customer wants to retire version 12, they can
 
- * scan the database for any records where attr_exists("gZ_v_12") and re-write them
+ * scan the database for any items where attr_exists("gZ_v_12") and re-write them
  * create a temporary GSI, with a partition key of `gZ_v_12`,
   scan that table and re-write the items.
   When the index is empty,
-  the customer can be certain that no records remain
+  the customer can be certain that no items remain
   that were written with version 12.
 
 It is important for customers to update previous versions,
 because until they do, multiple reads need to be performed
-to find all matching records across all beacon versions.
+to find all matching items across all beacon versions.
 
 ### Primary Key Generation
 
@@ -232,18 +235,18 @@ This opens the door to a NARROW projection.
 In a NARROW projection, any [source field](#definitions) in the projection
 must be **replaced** by its associated [beacon field](#definitions).
 This allows for a smaller index, and so the server side
-filtering can be faster and cheaper; however, retrieval of the records
+filtering can be faster and cheaper; however, retrieval of the items
 that make it through the filtering will be slower.
 
 ### Writing
 
-Whenever a record is written, if a [source field](#definitions) is written
+Whenever an item is written, if a [source field](#definitions) is written
 then the [beacon field](#definitions) must also be written, which is
 of type "S" string and holds the [calculated](#beacon-calculation) value.
 
 It is an error to attempt to write an attribute starting with the [gazelle prefix](#gazelle-prefix).
 
-For a record with 10 attributes, 6 of which have beacons,
+For an item with 10 attributes, 6 of which have beacons,
 a total of 19 or 20 attributes will be written
  * the original 10 (at least 6 of which are encrypted)
  * 6 beacons
@@ -254,7 +257,7 @@ a total of 19 or 20 attributes will be written
 
 ### Reading
 
-To retrieve a record based on the value of an encrypted [source field](#definitions),
+To retrieve an item based on the value of an encrypted [source field](#definitions),
 search instead for the [beacon value](#beacon-calculation) in the [beacon field](#definitions).
 
  * With no beacon, an encrypted attribute cannot be searched.
@@ -265,8 +268,8 @@ search instead for the [beacon value](#beacon-calculation) in the [beacon field]
 It is an error to attempt a query with an unsupported operation.
 
 Because beacons might be truncated, these queries are expected to return false positive results.
-After retrieving records in this way,
-the decrypted records are be examined,
+After retrieving items in this way,
+the decrypted items are be examined,
 comparing the [source field](#definitions) values to the query values,
 and non-matching items discarded.
 
@@ -380,8 +383,8 @@ with the [gazelle prefix](#gazelle-prefix).
  * The returned `Item` must include the current [version marker](#version-marker)
  * For each element in the `Item` map that specifies a [source field](#definitions),
  the returned `Item` map MUST also include the [beacon field](#definitions).
- * The name of this field MUST be the concatenation of the [beacon prefix](#beacon-prefix) and the [source field](#definitions) name.
- * The value of this field MUST be the defined [beacon](./beacons.md)
+ * The name of this attribute MUST be the concatenation of the [beacon prefix](#beacon-prefix) and the [source field](#definitions) name.
+ * The value of this attribute MUST be the defined [beacon](./beacons.md)
  * If a [generated primary key](#primary-key-generation) is configured, and the primary key name
 already exists in `Item`, transformPutItemInput MUST fail.
  * If a [generated primary key](#primary-key-generation) is configured, an additional `Item` MUST be returned
@@ -460,7 +463,7 @@ a table which has any encrypted attributes configured.
  * transformQueryInput MUST take as input a QueryInput object.
  * transformQueryInput MUST return a QueryInput object.
  * transformQueryInput MUST fail if an attribute name that starts with the [gazelle prefix](#gazelle-prefix) is mentioned.
- * If no encrypted field is mentioned, transformQueryInput MUST return the unmodified input object.
+ * If no encrypted attribute is mentioned, transformQueryInput MUST return the unmodified input object.
  * The output object's `Filter Expression` must be derived from the input `Filter Expression` according to [transformationFilterExpression](#transformationfilterexpression).
  * If the `keyConditionExpression` refers to no encrypted attributes,
 then the result MUST be returned after only the above operations.
@@ -483,22 +486,22 @@ and no exclusiveStartKey
 
 ### transformQueryOutput
 transformQueryOutput needs the original QueryInput object,
-because we need to check the result records against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
+because we need to check the result items against the values searched in the QueryInput object, which are not directly available in the QueryOutput object.
 
  * transformQueryOutput MUST take as input a QueryOutput object and a QueryInput object
  * The QueryInput object MUST be assumed to be the original query, not the result of a [transformQueryInput](#transformqueryinput) call.
  * transformQueryOutput MUST return a QueryOutput object.
- * transformQueryOutput MUST remove any records for which the original QueryInput does not match, that is,
+ * transformQueryOutput MUST remove any items for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a [source field](#definitions))
-then this operation must remove any record in which the `Src` field contains something other than "foo".
- * This operation MUST return all records that match the original QueryInput.
+then this operation must remove any item in which the `Src` attribute contains something other than "foo".
+ * This operation MUST return all items that match the original QueryInput.
 
 The final step is to tag the LastEvaluatedKey
 
  * transformQueryOutput MUST call [createKeyConditionList](#createkeyconditionlist) to create a `keyConditionList`
  * transformQueryOutput MUST use [findVersion](#findversion) to retrieve the `currentVersion`
  * if `currentVersion` is None, replace it with the lowest version in keyConditionList
- * If the input object has a LastEvaluatedKey, transformQueryOutput must return a LastEvaluatedKey equal to the input LastEvaluatedKey with the addition of a number field `gZ_version=currentVersion`
+ * If the input object has a LastEvaluatedKey, transformQueryOutput must return a LastEvaluatedKey equal to the input LastEvaluatedKey with the addition of a numeric field `gZ_version=currentVersion`
  * If the input object has no LastEvaluatedKey, and `currentVersion` is greater than or equal to the highest version in the keyConditionList, then transformQueryOutput must return an object with no LastEvaluatedKey
  * Otherwise, transformQueryOutput must return a LastEvaluatedKey containing only a number field `gZ_version` set to the lowest version in keyConditionList greater than `currentVersion`
 
@@ -515,10 +518,10 @@ The final step is to tag the LastEvaluatedKey
  * transformScanOutput MUST return an ScanOutput object.
  * The ScanInput object MUST be assumed to be the original ScanInput object,
 and not the result of a [transformScanInput](#transformscaninput) call.
- * transformScanOutput MUST remove any records for which the original QueryInput does not match, that is,
+ * transformScanOutput MUST remove any items for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a [source field](#definitions))
-then this operation must remove any record in which the  `Src` field contains something other than "foo".
- * transformScanOutput MUST return all records that match the original ScanInput.
+then this operation must remove any item in which the `Src` attribute contains something other than "foo".
+ * transformScanOutput MUST return all items that match the original ScanInput.
 
 
 ## Helpers
@@ -526,7 +529,7 @@ then this operation must remove any record in which the  `Src` field contains so
 
 ### forbiddenField
 
-forbiddenField  return true if the input  one of the
+forbiddenField  return true if the input string is one of the
 [Forbidden Fields](#forbidden-fields)
 
  * forbiddenField MUST take a string as input
@@ -598,7 +601,7 @@ for any [source field](#definitions) in the NonKeyAttributes.
 an `Option<ConditionExpression>`,
 and an `Option<ExpressionAttributeNameMap>`
  * testConditionExpression MUST return a boolean
- * testConditionExpression MUST fail if the ConditionExpression refers to an encrypted field.
+ * testConditionExpression MUST fail if the ConditionExpression refers to an encrypted attribute.
  * testConditionExpression MUST fail if the ConditionExpression refers to a
 [forbiddenField](#forbiddenfield).
  * testConditionExpression MUST return true
@@ -615,16 +618,16 @@ an `Option<ExpressionAttributeNameMap>`,
 and an `Option<ExpressionAttributeValueMap>`
  * This operation MUST fail if an attribute name is a [forbiddenField](#forbiddenfield)
  * This operation MUST fail if any [source field](#definitions) is used with a document path.
- * If no encrypted field is mentioned, the Expression MUST be returned unmodified.
- * The operations `attribute_exists`, `attribute_not_exists` and `size` are permitted on any field, and their arguments MUST not be modified.
- * All operations are permitted on unencrypted fields.
+ * If no encrypted attribute is mentioned, the Expression MUST be returned unmodified.
+ * The operations `attribute_exists`, `attribute_not_exists` and `size` are permitted on any attribute, and their arguments MUST not be modified.
+ * All operations are permitted on unencrypted attributes.
  * The operations `=`, `IN`, `attribute_exists`, `attribute_not_exists` and `size`;
 as well as the boolean `AND`, `OR` and `NOT` are permitted for any type of beacon.
  * All comparators, and the `BETWEEN` and `begins_with` operations are permitted on
 beacons configured with `prefix` or `split`.
  * The operation `contains` is permitted on beacons configured with `split`.
- * This operation MUST fail if a field is used with an operation that is not permitted.
- * Each reference to a field with a beacon must be replaced by the associated beacon.
+ * This operation MUST fail if a attribute is used with an operation that is not permitted.
+ * Each reference to a attribute with a beacon must be replaced by the associated beacon.
 For example, `field < value` would be replaced by `gZ_b_field < beacon_value`
 
 ### transformationFilterExpressionMulti
