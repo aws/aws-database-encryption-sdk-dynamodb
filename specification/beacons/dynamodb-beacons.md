@@ -11,7 +11,7 @@
 
 ## Overview
 
-A `DynamoDBEncryption` object provides information about
+A [DynamoDBEncryption](#dynamodbencryption) object provides information about
 how records are encrypted and stored, including any
 associated [beacons](./beacons.md).
 
@@ -92,10 +92,72 @@ Details to be firmed up once there is a hierarchy keyring spec.
 
 ### Versioning
 
+Sometimes, a customer might need to change their
+[beacon](./beacons.md) configuration;
+possibly tweaking the [beacon length](./beacons.md#beacon-length),
+modifying the details of a [compound beacon](./beacons.md#compound-beacon),
+adding or removing a beacon from an existing encrypted field,
+or adding a beacon for a new encrypted field.
+
+**Note : ** *Changing the encryption configuration, which attributes
+are encrypted or signed, is a completely different process.
+It doesn't need versioning and is not discussed here.*
+
+To handle this, we introduce [beacon versions](#beaconversion).
+A beacon version is a complete specification of how beacons
+should work with a particular table,
+and includes a [version number](#version-number).
+
+The full [beacon context](#beaconcontext) specifies which
+version is the [Current Version](#current-version).
+
+A customer must keep a [beacon versions](#beaconversion) in the
+[beacon context](#beaconcontext) until no items written
+with that version exist in the table.
+
+`Query` operations, are inefficient when there are
+multiple active [beacon versions](#beaconversion).
+When a customer makes a single Query request,
+one backend `Query` must be made for each active version.
+
+This costs the customer both time and money,
+and so we encourage customers to rewrite old items with
+the new version, so that they might retire the old
+[beacon versions](#beaconversion).
+
+Each record is written with a [version marker](#version-marker)
+to make this easier.
+
+For small systems, a customer can add a new [BeaconVersion](#beaconversion),
+bump the [current version](#current version) to match, and be on their way.
+
+For large, distributed systems a two-phase process might be needed
+
+1. Add a new [BeaconVersion](#beaconversion)
+1. Distribute this new configuration throughout the system
+1. Update the [current version](#current version)
+1. Distribute this new configuration throughout the system
+
+Failure to do so means that some clients will not find some records
+during the time the new configuration is being distributed.
+
 ### Version Number
 
-There exists a version number (integer greater than zero) associated
-with the current configuration being used to write items. 
+The version number of a [beacon versions](#beaconversion) is
+an integer, greater than zero.
+
+It is expected that, as usual with version numbers,
+the original version will be "1", 
+the first revision "2" and so on.
+
+
+#### Current Version
+
+The [BeaconVersion](#beaconversion) with the [version number](#version-number)
+specified in the [BeaconContext](#beaconcontext) is known as the 
+`current version`. It is expected that this is highest version number,
+associated with the most recently added [BeaconVersion](#beaconversion).
+
 
 ### Version Marker
 
@@ -134,7 +196,7 @@ primary key from one or two encrypted attributes.
 
 The customer needs to do two things
 1. Create a GSI with the same partition and sort keys used in the original design.
-1. Configure `Primary Key Generation` with a new primary key name, and
+1. Configure Primary Key Generation with a new primary key name, and
 the partition and sort keys used in the original design.
 
 When the customer writes an item, Gazelle will generate a new primary key
@@ -257,12 +319,6 @@ The BeaconContext object MUST contain
 
  * A list of [BeaconVersion](#beaconversion)
  * The [version number](#version-number) of the [BeaconVersion](#beaconversion) to be used for writing
-
-#### Current Version
-
-The [BeaconVersion](#beaconversion) with the [version number](#version-number)
-specified in the [BeaconContext](#beaconcontext) is known as the 
-`current version`
 
 ### BeaconVersion
 
