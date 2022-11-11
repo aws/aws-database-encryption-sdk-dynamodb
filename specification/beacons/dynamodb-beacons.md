@@ -58,7 +58,7 @@ For the [source field](#source-field) `foo` the associated
 
 [Version markers](#version-marker) are written as attributes beginning with the [Gazelle Prefix](#gazelle-prefix) followed by `v_`, i.e. `gZ_v_`. 
 
-For version 12 the [Version marker](#version-markers) would be `gZ_v_12`
+For version 12 the [version marker](#version-markers) would be `gZ_v_12`
 
 ### Forbidden Fields
 
@@ -102,7 +102,7 @@ modifying the details of a [compound beacon](./beacons.md#compound-beacon),
 adding or removing a beacon from an existing encrypted attribute,
 or adding a beacon for a new encrypted attribute.
 
-**Note : ** *Changing the encryption configuration, which attributes
+**Note:** *Changing the encryption configuration, which attributes
 are encrypted or signed, is a completely different process.
 It doesn't need versioning and is not discussed here.*
 
@@ -114,11 +114,11 @@ and includes a [version number](#version-number).
 The full [beacon context](#beaconcontext) specifies which
 version is the [Current Version](#current-version).
 
-A customer must keep a [beacon versions](#beaconversion) in the
+A customer must keep a [beacon version](#beaconversion) in the
 [beacon context](#beaconcontext) until no items written
 with that version exist in the table.
 
-`Query` operations, are inefficient when there are
+`Query` operations are inefficient when there are
 multiple active [beacon versions](#beaconversion).
 When a customer makes a single Query request,
 one backend `Query` must be made for each active version.
@@ -131,14 +131,14 @@ the new version, so that they might retire the old
 Each item is written with a [version marker](#version-marker)
 to make this easier.
 
-For small systems, a customer can add a new [BeaconVersion](#beaconversion),
-bump the [current version](#current version) to match, and be on their way.
+For small systems, a customer can add a new [beacon version](#beaconversion),
+bump the [current version](#current-version) to match, and be on their way.
 
 For large, distributed systems a two-phase process might be needed
 
-1. Add a new [BeaconVersion](#beaconversion)
+1. Add a new [beacon version](#beaconversion)
 1. Distribute this new configuration throughout the system
-1. Update the [current version](#current version)
+1. Update the [current version](#current-version)
 1. Distribute this new configuration throughout the system
 
 Failure to do so means that some clients will not find some items
@@ -146,19 +146,18 @@ during the time the new configuration is being distributed.
 
 ### Version Number
 
-The version number of a [beacon versions](#beaconversion) is
+The version number of a [beacon version](#beaconversion) is
 an integer, greater than zero.
 
-It is expected that, as usual with version numbers,
+It is expected that, as typical with version numbers,
 the original version will be "1", 
 the first revision "2" and so on.
 
-
-#### Current Version
+### Current Version
 
 The [BeaconVersion](#beaconversion) with the [version number](#version-number)
 specified in the [BeaconContext](#beaconcontext) is known as the 
-`current version`. It is expected that this is highest version number,
+`current version`. Typically, this is highest version number,
 associated with the most recently added [BeaconVersion](#beaconversion).
 
 
@@ -166,8 +165,7 @@ associated with the most recently added [BeaconVersion](#beaconversion).
 
 When an item is written, a special attribute called a version marker is also written.
 
-The name of this attribute is the concatenation of the [gazelle prefix](#gazelle-prefix), `v_`, and the [version number](#version-number) of the [beacon version](#beaconversion)
-currently being used to write new items.
+The name of this attribute is the concatenation of the [gazelle prefix](#gazelle-prefix), `v_`, and the [version number](#version-number) of the [current version](#current-version).
 The value has type "S" string, and the
 string value is a single space. 
 
@@ -180,10 +178,13 @@ When a customer wants to retire version 12, they can
   scan that table and re-write the items.
   When the index is empty,
   the customer can be certain that no items remain
-  that were written with version 12.
+  that were written with version 12,
+  at which point they can remove version 12 from the [BeaconContext](#beaconcontext)
+  and delete the temporary GSI
 
 It is important for customers to update previous versions,
-because until they do, multiple reads need to be performed
+because until they do, a single customer Query request will have to be
+translated into multiple backend Query requests
 to find all matching items across all beacon versions.
 
 ### Primary Key Generation
@@ -192,7 +193,7 @@ A customer might have a table design, where the primary index contains
 encrypted attributes.
 
 This is impossible, as the primary keys cannot be encrypted,
-but we can make it easy for them.
+but we can make it easy for them to work around this.
 
 Gazelle can offer the option to automatically generate a plaintext
 primary key from one or two encrypted attributes.
@@ -209,8 +210,8 @@ The primary key is this 48-byte binary value.
 A customer can call GetItem using the original partition and sort keys,
 and Gazelle will translate that into a call with the new computed primary key.
 
-A customer can also call getItem using this generated key,
-if they got it as the result of a previous query.
+A customer can also call GetItem using this generated key,
+which they might have as the result of a previous query.
 
 
 ### Projections
@@ -339,8 +340,7 @@ as discussed in [Projections](#projections)
 The [PrimaryKey](#primary-key-generation) object MUST contain
 
  * primary -- the name of the constructed primary key
- * partition -- the name of the partition key used to construct primary
- * sort -- the name of the sort key used to construct primary, if any
+ * fields -- the names of the attributes to be used to construct `primary`
 
 ## Operations
 
@@ -550,15 +550,11 @@ with the name given in the [generated primary key](#primary-key-generation)  and
  * calculatePrimaryKeyValue MUST take a PutItemInputAttributeMap as input
  * calculatePrimaryKeyValue MUST return `seq<uint8>` of length 48.
  * calculatePrimaryKeyValue MUST fail if no [generated primary key](#primary-key-generation) is configured
- * calculatePrimaryKeyValue MUST fail if the partition key is missing from the input attributes.
- * calculatePrimaryKeyValue MUST fail if the sort key is specified, yet missing from the input attributes.
+ * calculatePrimaryKeyValue MUST fail if any of the configured `fields` are missing from the input attributes.
  * The data key used for the HMACs below MUST be the [beacon key](#beacon-keys) for the primary key name.
- * If only a partition key is specified, then an HMAC384 must be generated from
-the [serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md)
-of that attribute.
- * Otherwise, an HMAC384 must be generated from the concatenation of the [serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md) of the partition key attribute,
-a literal `_` character, and the [serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md) of the sort key attribute.
-
+ * calculatePrimaryKeyValue MUST return an HMAC384 of the
+the [serializations](../dynamodb-encryption-client/ddb-attribute-serialization.md)
+of the configured `fields`, joined on the `_` character.
 
 ### transformKeySchemaElement
  * transformKeySchemaElement MUST take a KeySchemaElement as input
