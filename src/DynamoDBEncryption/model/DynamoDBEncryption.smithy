@@ -9,6 +9,7 @@ use com.amazonaws.dynamodb#AttributeMap
 use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#KeySchemaAttributeName
+use com.amazonaws.dynamodb#AttributeNameList
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#EncryptionContext
@@ -70,8 +71,7 @@ structure PrimaryKey  {
     @required
     primary: KeySchemaAttributeName,   // the attribute we're constructing
     @required
-    partition: KeySchemaAttributeName, // the encrypted partition key we wish we could use
-    sort: KeySchemaAttributeName // the encrypted sort key we wish we could use
+    fields:AttributeNameList,
 }
 
 list BitLengthList {

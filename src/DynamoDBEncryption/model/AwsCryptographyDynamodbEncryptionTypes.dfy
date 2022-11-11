@@ -167,8 +167,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  type NarrowList = seq<string>
  datatype PrimaryKey = | PrimaryKey (
  nameonly primary: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
- nameonly partition: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
- nameonly sort: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>
+ nameonly fields: ComAmazonawsDynamodbTypes.AttributeNameList
  )
  datatype SplitConfig = | SplitConfig (
  nameonly split: Char ,
