@@ -9,8 +9,6 @@
 
 ### Changelog
 
-../dynamodb-encryption-client/ddb-attribute-serialization.md
-
 ## Overview
 
 A `DynamoDBEncryption` object provides information about
@@ -31,9 +29,9 @@ For each client operation, the workflow looks something like this
 
 1. Customer makes a request
 1. Gazelle calls one of the below functions to transform the request
-1. Gazelle encrypts the request
+1. Gazelle encrypts the request, if necessary
 1. Gazelle calls the underlying DynamoDB client method
-1. Gazelle decrypts the response
+1. Gazelle decrypts the response, if necessary
 1. Gazelle calls one of the below functions to transform the response
 1. Customer receives the response.
 
@@ -55,7 +53,7 @@ For the [source field](#source-field) `foo` the associated
 
 #### Version Prefix
 
-[Version markers](#version-markers) are written as attributes beginning with the [Gazelle Prefix](#gazelle-prefix) followed by `v_`, i.e. `gZ_v_`. 
+[Version markers](#version-marker) are written as attributes beginning with the [Gazelle Prefix](#gazelle-prefix) followed by `v_`, i.e. `gZ_v_`. 
 
 For version 12 the [Version marker](#version-markers) would be `gZ_v_12`
 
@@ -77,18 +75,22 @@ To calculate the beacon value for an attribute
 1. If the attribute is type "S" string, then call [compoundHash](./beacons.md#compoundHash) on the string value.
 1. If the attribute is not a string,
 and the beacon is [compound](./beacons.md#IsCompound),
-then the beacon calculation must fail.
+then the beacon calculation fails.
 1. otherwise, [serialize](../dynamodb-encryption-client/ddb-attribute-serialization.md)
 the attribute, and call [plainHash](./beacons.md#plainHash) on the result.
 
 ### Beacon Keys
 
-A single non-rotating branch key will be stored in the hierarchy keyring.
+A single non-rotating branch key will be stored in the hierarchy keyring
+for each table.
 For each individual beacon, we will call the hierarchy keyring's
-HKDF function, using a SHA256 of the beacon name as the nonce, 
-to generate a consistent data key for each beacon.
+HKDF function, using a SHA256 of the beacon name as the salt
+to generate a consistent HMAC key for each beacon.
+Details to be firmed up once there is a hierarchy keyring spec.
 
 [TODO: add link to hierarchy keyring spec in private-aws-encryption-sdk-specification-staging]
+
+### Versioning
 
 ### Version Number
 
@@ -99,7 +101,7 @@ with the current configuration being used to write items.
 
 When a record is written, a special attribute called a version marker is also written.
 
-The name of this attribute is the concatenation of the `gazelle prefix`, `v_`, and the [version number](#version-number) of the [beacon version](#beacon-version)
+The name of this attribute is the concatenation of the [gazelle prefix](#gazelle-prefix), `v_`, and the [version number](#version-number) of the [beacon version](#beaconversion)
 currently being used to write new records.
 The value has type "S" string, and the
 string value is a single space. 
@@ -109,9 +111,15 @@ For example, version 12 would write the attribute `gZ_v_12`
 When a customer wants to retire version 12, they can
 
  * scan the database for any records where attr_exists("gZ_v_12") and re-write them
- * create a temporary GSI, with a partition key of `gZ_v_12`, scan that table and
-re-write the items. When the index is empty, the customer can be certain that
-no records remain that were written with version 12.
+ * create a temporary GSI, with a partition key of `gZ_v_12`,
+  scan that table and re-write the items.
+  When the index is empty,
+  the customer can be certain that no records remain
+  that were written with version 12.
+
+It is important for customers to update previous versions,
+because until they do, multiple reads need to be performed
+to find all matching records across all beacon versions.
 
 ### Primary Key Generation
 
@@ -120,6 +128,9 @@ encrypted attributes.
 
 This is impossible, as the primary keys cannot be encrypted,
 but we can make it easy for them.
+
+Gazelle can offer the option to automatically generate a plaintext
+primary key from one or two encrypted attributes.
 
 The customer needs to do two things
 1. Create a GSI with the same partition and sort keys used in the original design.
@@ -149,7 +160,8 @@ then for any [source field](#definitions) in the list
 we must also include the associated [beacon field](#definitions)
 so that querying can work.
 
-For Global Secondary Indexes, this is the only option, because
+For Global Secondary Indexes, including both the original attributes
+and the beacons is the only option, because
 attributes not included in the projection are simply not available.
 
 For Local Secondary Indexes, all attributes are available, but
@@ -192,7 +204,7 @@ It is an error to attempt a query with an unsupported operation.
 
 Because beacons might be truncated, these queries are expected to return false positive results.
 After retrieving records in this way,
-the decrypted records must be examined,
+the decrypted records are be examined,
 comparing the [source field](#definitions) values to the query values,
 and non-matching items discarded.
 
