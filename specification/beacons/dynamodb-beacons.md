@@ -18,16 +18,6 @@ Everything above [Conventions used in this document](#conventions-used-in-this-d
 is background information, and is not technically part of the specification,
 and therefore any use of the word `must` is strictly colloquial. 
 
-A [DynamoDBEncryption](#dynamodbencryption) object provides information about
-how items are encrypted and stored, including any
-associated [beacons](./beacons.md).
-
-Various Request and Response objects are transformed, based on this configuration.
-
-Primary keys cannot be beacons,
-both because primary keys cannot be encrypted
-and because beacons are designed to create false duplicates.
-
 The basic user experience is this 
  *  Customer constructs a client object with [Gazelle magic](../dynamodb-encryption-client/ddb-sdk-integration.md).
  * Customer calls client methods as normal
@@ -196,7 +186,7 @@ to find all matching items across all beacon versions.
 A customer might have a table design, where the primary index contains
 encrypted attributes.
 
-This is impossible, as the primary keys cannot be encrypted,
+This is impossible, as primary keys cannot be encrypted,
 but we can make it easy for them to work around this.
 
 Gazelle can offer the option to automatically generate a plaintext
