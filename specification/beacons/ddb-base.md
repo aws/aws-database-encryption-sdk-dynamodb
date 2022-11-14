@@ -241,16 +241,20 @@ if no beacons, return input.
 else with table attributes `attrs` and beacon version `b`
 
 ```
-schema : KeySchema :- TransformKeySchema(attrs, b, input.KeySchema);
-locals :- transformLSIs(attrs, b, input.LocalSecondaryIndexes);
-globals :- transformGSIs(attrs, b, input.GlobalSecondaryIndexes);
-check :- CheckAttributeDefinitions(input.AttributeDefinitions);
+schema           :- TransformKeySchema(attrs, b, input.KeySchema);
+locals           :- transformLSIs(attrs, b, input.LocalSecondaryIndexes);
+globals          :- transformGSIs(attrs, b, input.GlobalSecondaryIndexes);
+check            :- CheckAttributeDefinitions(input.AttributeDefinitions);
 extraSchemaAttrs :- GetKeySchemaAttrs(b, input.KeySchema);
-extraLSIAttrs :- GetLSIAttrs(b, input.LocalSecondaryIndexes);
-extraGSIAttrs :- GetGSIAttrs(b, input.GlobalSecondaryIndexes);
-newAttrs := input.AttributeDefinitions + extraSchemaAttrs + extraLSIAttrs + extraGSIAttrs;
+extraLSIAttrs    :- GetLSIAttrs(b, input.LocalSecondaryIndexes);
+extraGSIAttrs    :- GetGSIAttrs(b, input.GlobalSecondaryIndexes);
+newAttrs         := input.AttributeDefinitions + extraSchemaAttrs
+                    + extraLSIAttrs + extraGSIAttrs;
 
-return input.(KeySchema := schema, LocalSecondaryIndexes := locals, GlobalSecondaryIndexes := globals, AttributeDefinitions := newAttrs)
+return input.(KeySchema := schema,
+              LocalSecondaryIndexes := locals,
+              GlobalSecondaryIndexes := globals,
+              AttributeDefinitions := newAttrs)
 ```
 
 

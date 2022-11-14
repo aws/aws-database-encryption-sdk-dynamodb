@@ -3,6 +3,8 @@
 
 # DynamoDB Beacons
 
+# For historical interest only.  Reality now [here](./ddb-base.md).
+
 ## Version
 
 1.0.0
@@ -31,6 +33,70 @@ For each client operation, the workflow looks something like this
 1. Gazelle decrypts the response, if necessary
 1. Gazelle calls one of the below functions to transform the response
 1. Customer receives the response.
+
+### Beacon Searches
+
+Beacons exist because you can't search on encrypted fields.
+
+In the general case, a customer writes a query as if the
+table were not encrypted, and we re-write the query
+to search against the beacon instead. 
+
+For example, if a customer search for `field = abc` it might
+be rewritten as `gZ_b_field = 4a7`. Because beacon values
+are truncated, `gZ_b_field = 4a7` will likely retrieve items
+for which `field` is not `abc`, and so a post-processing step
+is required, after the item is decrypted, to filter out
+the false matches.
+
+### Supported Operations
+
+DynamoDB has many ways of searching, and different kinds of beacon
+can support them in various ways.
+
+Beacons are just strings, and so DynamoDB is happy to let you
+query them like any other string; however, semantically, some
+of these searches make no sense, and so Query and Scan should 
+fail if these are used in inappropriate ways.
+
+`attribute_exists`, `attribute_not_exists` and `size` can be used
+directly on encrypted attributes, since they don't reference the
+underlying value.
+
+`attribute_type` can't be used with encrypted attributes, with or without
+beacons, because type information is not available.
+
+A [standard beacon](./beacons.md#standard-beacon) is an opaque token.
+It can be tested for equality, but not compared to other beacons or
+to literal values. Thus a [standard beacon](./beacons.md#standard-beacon)
+allows an encrypted attribute to be used with the `=` operator or the `IN` function.
+
+[split beacons](./beacons.md#split-beacon) produce an
+ordered list of opaque tokens. Thus is make no sense to compare
+for anything but equality, and so comparisons like `less than` and 
+`between` are still forbidden.
+However, `begins_with` is ok, as it simply matches a prefix for equality.
+Similarly, `contains` is ok, as it matches a run of opaque tokens for equality.
+
+A [prefix beacon](./beacons.md#prefix-beacon) starts with some plain text,
+making it suitable for all the comparison operations.
+
+Operations supported on encrypted attributes. Each row inherits
+all of the options from the rows above.
+
+ * no beacon : `attribute_exists`, `attribute_not_exists` and `size`
+ * [standard beacon](./beacons.md#standard-beacon) : `=` and `IN`
+ * [split beacon](./beacons.md#split-beacon) : `contains` and `begins_with `
+ * [prefix beacon](./beacons.md#prefix-beacon) : `between` and comparisons such as `<`
+
+a [combined beacon](./beacons.md#combined-beacon) has a prefix, and thus
+can handle all operations, like a [prefix beacon](./beacons.md#prefix-beacon).
+
+There are still plenty of inappropriate ways for a customer to search on beacons,
+but these are all we will preemptively forbid.
+
+All operations MUST fail if used with an unsupported operation.
+
 
 ### Definitions
  * **source field** : an encrypted attribute with an associated beacon
@@ -85,16 +151,15 @@ HKDF function, using a SHA256 of the beacon name as the salt
 to generate a consistent HMAC key for each beacon.
 Details to be firmed up once there is a hierarchy keyring spec.
 
+Beacon keys don't rotate, because if they did all of the beacon values
+would change and you wouldn't be able to find any of your data.
+
 [TODO: add link to hierarchy keyring spec in private-aws-encryption-sdk-specification-staging]
 
 ### Versioning
 
 Sometimes, a customer might need to change their
-[beacon](./beacons.md) configuration;
-possibly tweaking the [beacon length](./beacons.md#beacon-length),
-modifying the details of a [compound beacon](./beacons.md#compound-beacon),
-adding or removing a beacon from an existing encrypted attribute,
-or adding a beacon for a new encrypted attribute.
+[beacon](./beacons.md) configuration.
 
 **Note:** *Changing the encryption configuration, which attributes
 are encrypted or signed, is a completely different process.
@@ -138,6 +203,28 @@ For large, distributed systems a two-phase process might be needed
 Failure to do so means that some clients might not find some items
 during the time the new configuration is being distributed.
 
+#### Changes That Require a New Version
+
+Anything for which the old [beacon version](#beaconversion) and the
+new [beacon version](#beaconversion) would both return valid results
+that the other would not return.
+
+ * Changing the [beacon length](./beacons.md#beacon-length)
+ * modifying the details of a [compound beacon](./beacons.md#compound-beacon)
+ * removing a beacon, if you still want to be able to find old items with this beacon
+
+
+#### Changes That Do Not Require a New Version
+
+Anything for which the new [beacon version](#beaconversion)
+would return all valid results that the old [beacon version](#beaconversion)
+would return.
+
+ * adding a beacon
+ * removing a beacon, if you do not want to be able to find old items with this beacon
+
+
+
 ### Version Number
 
 The version number of a [beacon version](#beaconversion) is
@@ -146,6 +233,9 @@ an integer, greater than zero.
 It is expected that, as typical with version numbers,
 the original version will be "1", 
 the first revision "2" and so on.
+
+It is also expected that most customers will never get to
+version 2, and almost none will have more than a few.
 
 ### Current Version
 
@@ -180,6 +270,53 @@ It is important for customers to update previous versions,
 because until they do, a single customer Query request will have to be
 translated into multiple backend Query requests
 to find all matching items across all beacon versions.
+
+### Version Pagination
+
+The `Query` operation is tricky in the face of multiple [beacon versions](#beaconversion). Since they involve an index lookup,
+a separate backend Query is needed for each [beacon versions](#beaconversion),
+to support a single customer Query.
+
+The only thing that persists between queries is the `LastEvaluatedKey` field
+of the `QueryResponse`, which maps to the `exclusiveStartKey` of the
+next `QueryRequest`; so we hide some information there; specifically,
+we add a numeric field named `gZ_version` holding the [version number](#version-number) of the [beacon version](#beaconversion) currently in use.
+
+We start with the lowest version, and whenever a `Query` is finished,
+we bump to the next one.
+
+When transforming a QueryResponse, we get the version from the
+associated QueryRequest, and add it to the LastEvaluatedKey.
+If there was no LastEvaluatedKey, then if we're on the last version,
+we leave it with no LastEvaluatedKey; otherwise we create a
+LastEvaluatedKey with only the `gZ_version` field.
+
+A QueryRequest transforms the query based on the [beacon versions](#beaconversion)
+named in the `gZ_version` field of the exclusiveStartKey.
+If there is no `gZ_version` field, we use the lowest version.
+If the `gZ_version` field is the only field in the exclusiveStartKey,
+we use the next highest [beacon versions](#beaconversion).
+The transformQueryRequest operation always removes the `gZ_version` field,
+so that the backend Query doesn't get confused.
+
+
+For a setup with versions 1 and 2, a single Query might go something like this like this, from the point of view of the transformQueryRequest and transformQueryResponse operations.
+
+1. A QueryRequest comes in with no exclusiveStartKey. We modify the query with beacon version 1.
+1. The QueryResponse comes back with a LastEvaluatedKey. We see that the original QueryRequest had no exclusiveStartKey, so we tag the LastEvaluatedKey with the lowest version, 'version 1'.
+1. A QueryRequest comes in with an exclusiveStartKey with a 'version 1' tag; we remove the tag and modify the query with beacon version 1.
+1. The QueryResponse comes back with no LastEvaluatedKey. We see that the original QueryRequest had an exclusiveStartKey tagged with version 1, so we create a new 
+LastEvaluatedKey tagged with version 1.
+1. A QueryRequest comes in with an exclusiveStartKey with a 'version 1', but no body. We modify the query with beacon version 2 and remove the exclusiveStartKey.
+1. The QueryResponse comes back with a LastEvaluatedKey. We see that the original
+QueryRequest had a version 1 tag but no body, so we tag the LastEvaluatedKey
+with version 2.
+1. A QueryRequest comes in with an exclusiveStartKey with a 'version 2'.
+We remove the tag and modify the query with beacon version 2.
+1. The QueryResponse comes back with no LastEvaluatedKey. We see that the original
+QueryRequest had a version 2 tag, which is the last version, so
+we leave the QueryResponse with no LastEvaluatedKey.
+1. No QueryRequest comes in, because there was no LastEvaluatedKey. 
 
 ### Primary Key Generation
 
@@ -354,7 +491,7 @@ These operations MUST have access to a [DynamoDBEncryption](#dynamodbencryption)
  * transformCreateTableInput MUST return a CreateTableInput object.
  * if a [generated primary key](#primary-key-generation) is not configured,
 the returned value MUST have a KeySchema equal to the result of calling
-transformPrimaryKeySchema on the input KeySchema
+transformPrimaryKeySchema on the input KeySchema.
  * if a [generated primary key](#primary-key-generation) is configured, transformCreateTableInput MUST fail
 if the input KeySchema is not a single entry, with the
 configured name and type `HASH`.
@@ -476,7 +613,7 @@ the `keyConditionExpression` with the lowest version and no exclusiveStartKey
 the keyConditionExpression with lowest version greater than currentVersion,
 and no exclusiveStartKey
  * if [findVersion](#findversion) returned (Some(currentVersion), true), then transformQueryInput MUST return
- * * the keyConditionExpression that matches currentVersion, and the exclusiveStartKey with the  gZ_version` field removed, if such a keyConditionExpression exists.
+ * * the keyConditionExpression that matches currentVersion, and the exclusiveStartKey with the  `gZ_version` field removed, if such a keyConditionExpression exists.
  * * the keyConditionExpression with the lowest version greater than currentVersion, with no exclusiveStartKey if such a keyConditionExpression exists
  * * failure if all available versions are less than the returned version.
 
