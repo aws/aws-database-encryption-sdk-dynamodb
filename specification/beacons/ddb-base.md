@@ -98,9 +98,6 @@ can handle all operations, like a [prefix beacon](./beacons.md#prefix-beacon).
 There are still plenty of inappropriate ways for a customer to search on beacons,
 but these are all we will preemptively forbid.
 
-All operations MUST fail if used with an unsupported operation.
-
-
 ### Definitions
  * **source field** : an encrypted attribute with an associated beacon
  * **non-beaconed field** : an encrypted attribute without an associated beacon
@@ -154,13 +151,12 @@ of type "S" string and holds the [calculated](#beacon-calculation) value.
 It is an error for a customer to attempt to write an attribute starting with the [ddbec prefix](#ddbec-prefix).
 
 For an item with 10 attributes, 6 of which have beacons,
-a total of 19 or 20 attributes will be written
- * the original 10 (at least 6 of which are encrypted)
+a total of 18 attributes will be written
+ * the original 10 (at least 6 of which are encrypted,
+and at least 1 of which is a non-encrypted key)
  * 6 beacons
- * 1 [version marker](#version-marker)
  * 1 encryption header
  * 1 encryption footer
- * 1 auto-generated [primary key](#primary-key-generation), if configured
 
 ## Conventions used in this document
 
@@ -169,6 +165,8 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 
 ## Configuration
+
+*Note : some of these will be pointers to the DDBEC spec, when it becomes available.*
 
 ### DynamoDBEncryption
 
@@ -390,6 +388,9 @@ then this operation must remove any item in which the `Src` attribute contains s
 
 
 ## Helpers
+
+These helper functions are not required for any implementation.
+They simply describe functionality.
 
 ### readableAttribute
 
