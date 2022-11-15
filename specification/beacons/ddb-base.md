@@ -231,7 +231,7 @@ In Dafny:
  * GlobalSecondaryIndexes MUST be transformed by [transformGSI](#transformgsi)
  * LocalSecondaryIndexes MUST be transformed by [transformLSI](#transformlsi)
  * TransformCreateTableInput MUST fail if any AttributeDefinition is not
-a ReadableAttribute.
+a [Readable Attribute](#readableattribute).
  * AttributeDefinitions MUST be the input AttributeDefinitions plus any beacon
 fields used in the KeySchema, GlobalSecondaryIndexes or LocalSecondaryIndexes.
 
@@ -249,7 +249,7 @@ In Dafny:
  * If no beacons are configured for TableName, the input MUST be returned unaltered.
  * GlobalSecondaryIndexes MUST be transformed by [transformGSI](#transformgsi).
  * TransformUpdateTableInput MUST fail if any AttributeDefinition is not
-a ReadableAttribute.
+a [Readable Attribute](#readableattribute).
  * All beacon fields used in the GlobalSecondaryIndexes MUST
 be added to the AttributeDefinitions.
 
@@ -273,6 +273,9 @@ is not a [Writable Attribute](#writableattribute)
  * The name of this attribute MUST be the concatenation of the [beacon prefix](#beacon-prefix) and the [source field](#definitions) name.
  * The value of this attribute MUST be the defined [beacon calculation](#beacon-calculation)
 
+The result MUST contain these changes and no others.
+
+
 ### TransformUpdateItemInput
 
 The signature of TransformUpdateItemInput MUST be
@@ -287,6 +290,9 @@ In Dafny:
 mentions an attribute name that is not a [Writable Attribute](#writableattribute)
  * TransformUpdateItemInput MUST fail if the UpdateExpression attempts to modify a signed attribute.
  * TransformUpdateItemInput MUST fail if [testConditionExpression](#testconditionexpression) fails
+
+The result MUST contain these changes and no others.
+
 
 ### TransformBatchWriteItemInput
 
@@ -311,6 +317,8 @@ In Dafny:
  * Each `Put` MUST be handled as outlined above in [TransformPutItemInput](#transformputiteminput)
  * Each ConditionExpression must be tested with [testConditionExpression](#testconditionexpression)
  * Each Update must be handled as outlined above in [TransformUpdateItemInput](#transformupdateiteminput)
+
+The result MUST contain these changes and no others.
  
 
 ### TransformQueryInput
@@ -327,6 +335,9 @@ that is not a [Readable Attribute](#readableattribute).
  * If no encrypted attribute is mentioned, TransformQueryInput MUST return the unmodified input object.
  * The KeyConditionExpression must be transformed with [transformKeyConditionExpression](#transformkeyconditionexpression).
  * The FilterExpression must be transformed with [tranformationFilterExpression](#transformationfilterexpression).
+
+The result MUST contain these changes and no others.
+
 
 ### transformQueryOutput
 
@@ -349,6 +360,8 @@ then this operation must remove any item in which the `Src` attribute contains s
  * This operation MUST return all items that match the original QueryInput.
  * Count must be updated to reflect the number of ites returned.
 
+The result MUST contain these changes and no others.
+
 
 ### TransformScanInput
 
@@ -363,6 +376,8 @@ In Dafny:
 that is not a [Readable Attribute](#readableattribute).
  * If no encrypted attribute is mentioned, TransformScanInput MUST return the unmodified input object.
  * The FilterExpression must be transformed with [tranformationFilterExpression](#transformationfilterexpression).
+
+The result MUST contain these changes and no others.
 
 
 ### TransformScanOutput
@@ -385,6 +400,8 @@ if the original FilterExpression included `Src EQ "foo"` (where `Src` is a [sour
 then this operation must remove any item in which the `Src` attribute contains something other than "foo".
  * This operation MUST return all items that match the original ScanInput.
  * Count must be updated to reflect the number of ites returned.
+
+The result MUST contain these changes and no others.
 
 
 ## Helpers
