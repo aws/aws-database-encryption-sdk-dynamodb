@@ -1,9 +1,7 @@
 .idea/*
 .vscode/*
-*.sln*
+*.sln?*
 **/.DS_Store
-**/obj
-**/bin
 build/*
 test/**/Output/*
 /package-lock.json
