@@ -219,17 +219,15 @@ These operations MUST have access to a [DynamoDBEncryption](#dynamodbencryption)
 
 ### TransformCreateTableInput
 
-The signature of TransformCreateTableInput MUST be
+TransformCreateTableInput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A CreateTableInput object as input.
  * A CreateTableInput object as output.
-
-In Dafny: 
-`TransformCreateTableInput(config : DynamoDBEncryption, input : CreateTableInput) : Result<CreateTableInput, string>`
-
+---
  * If no beacons are configured for TableName, the input MUST be returned unaltered.
- * KeySchema MUST be transformed by [TransformKeySchema](#transformkeyschema)
- * GlobalSecondaryIndexes MUST be transformed by [transformGSI](#transformgsi)
- * LocalSecondaryIndexes MUST be transformed by [transformLSI](#transformlsi)
+ * KeySchema MUST be transformed by [TransformKeySchema](#transformkeyschema).
+ * GlobalSecondaryIndexes MUST be transformed by [transformGSI](#transformgsi).
+ * LocalSecondaryIndexes MUST be transformed by [transformLSI](#transformlsi).
  * TransformCreateTableInput MUST fail if any AttributeDefinition is not
 a [Readable Attribute](#readableattribute).
  * AttributeDefinitions MUST be the input AttributeDefinitions plus any beacon
@@ -239,12 +237,12 @@ The result MUST contain these changes and no others.
 
 ### TransformUpdateTableInput
 
-The signature of TransformCreateTableInput MUST be
+TransformUpdateTableInput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A UpdateTableInput object as input.
  * A UpdateTableInput object as output.
 
-In Dafny: 
-`TransformUpdateTableInput(config : DynamoDBEncryption, input : UpdateTableInput) : Result<UpdateTableInput, string>`
+---
 
  * If no beacons are configured for TableName, the input MUST be returned unaltered.
  * GlobalSecondaryIndexes MUST be transformed by [transformGSI](#transformgsi).
@@ -258,146 +256,153 @@ The result MUST contain these changes and no others.
 
 ### TransformPutItemInput
 
-The signature of TransformPutItemInput MUST be
+TransformPutItemInput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A PutItemInput object as input.
  * A PutItemInput object as output.
 
-In Dafny: 
-`TransformPutItemInput(config : DynamoDBEncryption, input : PutItemInput) : Result<PutItemInput, string>`
+--
 
- * The input ConditionExpression MUST be tested with [testConditionExpression](#testconditionexpression)
+ * The input ConditionExpression MUST be tested with [testConditionExpression](#testconditionexpression).
  * TransformPutItemInput MUST fail if the name of any input `Item`
-is not a [Writable Attribute](#writableattribute)
- * For each element in the `Item` map that specifies a [source field](#definitions),
- the returned `Item` map MUST also include the [beacon field](#definitions).
+is not a [Writable Attribute](#writableattribute).
+ * For each element in the `Item` map that specifies
+a [source field](#definitions),
+the returned `Item` map MUST also include
+the [beacon field](#definitions).
  * The name of this attribute MUST be the concatenation of the [beacon prefix](#beacon-prefix) and the [source field](#definitions) name.
- * The value of this attribute MUST be the defined [beacon calculation](#beacon-calculation)
+ * The value of this attribute MUST be the defined [beacon calculation](#beacon-calculation).
 
 The result MUST contain these changes and no others.
 
 
 ### TransformUpdateItemInput
 
-The signature of TransformUpdateItemInput MUST be
+TransformUpdateItemInput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A UpdateItemInput object as input.
  * A UpdateItemInput object as output.
 
-In Dafny: 
-`TransformUpdateItemInput(config : DynamoDBEncryption, input : UpdateItemInput) : Result<UpdateItemInput, string>`
+---
 
-
- * TransformUpdateItemInput MUST fail if the ConditionExpression
-mentions an attribute name that is not a [Writable Attribute](#writableattribute)
- * TransformUpdateItemInput MUST fail if the UpdateExpression attempts to modify a signed attribute.
- * TransformUpdateItemInput MUST fail if [testConditionExpression](#testconditionexpression) fails
-
-The result MUST contain these changes and no others.
+ * The ConditionExpression MUST be tested with
+[testConditionExpression](#testconditionexpression)
+ * TransformUpdateItemInput MUST fail if the UpdateExpression
+attempts to modify a signed attribute.
+ * The input object MUST be returned unaltered.
 
 
 ### TransformBatchWriteItemInput
 
-The signature of TransformBatchWriteItemInput MUST be
+TransformBatchWriteItemInput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A BatchWriteItemInput object as input.
  * A BatchWriteItemInput object as output.
 
-In Dafny: 
-`TransformUpdateItemInput(config : DynamoDBEncryption, input : BatchWriteItemInput) : Result<BatchWriteItemInput, string>`
+---
 
-Each PutRequest MUST be handled as outlined above in [TransformPutItemInput](#transformputiteminput)
+Each PutRequest MUST be handled as outlined above in
+[TransformPutItemInput](#transformputiteminput)
 
 ### TransformTransactWriteItemsInput
 
-The signature of TransformTransactWriteItemsInput MUST be
+TransformTransactWriteItemsInput MUST hve
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A TransactWriteItemsInput object as input.
  * A TransactWriteItemsInput object as output.
 
-In Dafny: 
-`TransformTransactWriteItemsInput(config : DynamoDBEncryption, input : TransactWriteItemsInput) : Result<TransactWriteItemsInput, string>`
+---
 
- * Each `Put` MUST be handled as outlined above in [TransformPutItemInput](#transformputiteminput)
- * Each ConditionExpression must be tested with [testConditionExpression](#testconditionexpression)
- * Each Update must be handled as outlined above in [TransformUpdateItemInput](#transformupdateiteminput)
+ * Each `Put` MUST be handled as outlined above in [TransformPutItemInput](#transformputiteminput).
+ * Each ConditionExpression must be tested with [testConditionExpression](#testconditionexpression).
+ * Each Update must be handled as outlined above in [TransformUpdateItemInput](#transformupdateiteminput).
 
 The result MUST contain these changes and no others.
  
 
 ### TransformQueryInput
 
-The signature of TransformQueryInput MUST be
+TransformQueryInput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input.
  * A QueryInput object as input.
  * A QueryInput object as output.
 
-In Dafny: 
-`TransformQueryInput(config : DynamoDBEncryption, input : QueryInput) : Result<QueryInput, string>`
+---
 
  * TransformQueryInput MUST fail if an attribute name is mentioned
 that is not a [Readable Attribute](#readableattribute).
  * If no encrypted attribute is mentioned, TransformQueryInput MUST return the unmodified input object.
- * The KeyConditionExpression must be transformed with [transformKeyConditionExpression](#transformkeyconditionexpression).
- * The FilterExpression must be transformed with [tranformationFilterExpression](#transformationfilterexpression).
+ * The KeyConditionExpression must be transformed with
+[transformKeyConditionExpression](#transformkeyconditionexpression).
+ * The FilterExpression must be transformed with
+[tranformationFilterExpression](#transformationfilterexpression).
 
 The result MUST contain these changes and no others.
 
 
-### transformQueryOutput
+### TransformQueryOutput
 
-The signature of TransformQueryInput MUST be
+TransformQueryOutput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A QueryOutput object as input.
  * A QueryInput object as input.
  * A QueryOutput object as output.
 
-In Dafny: 
-`TransformQueryOutput(config : DynamoDBEncryption, input : QueryOutput, query : QueryInput) : Result<QueryOutput, string>`
+---
 
-
-transformQueryOutput needs the original QueryInput object,
+TransformQueryOutput needs the original QueryInput object,
 because we need to check the result items against the values searched in the QueryInput object, which are not available in the QueryOutput object.
 
- * The QueryInput object MUST be assumed to be the original query, not the result of a [TransformQueryInput](#transformqueryinput) call.
- * transformQueryOutput MUST remove any items for which the original QueryInput does not match, that is,
+ * The QueryInput object MUST be assumed to be the original query,
+not the result of a [TransformQueryInput](#transformqueryinput) call.
+ * TransformQueryOutput MUST remove any items for which the original QueryInput does not match, that is,
 if the original FilterExpression included `Src EQ "foo"` (where `Src` is a [source field](#definitions))
 then this operation must remove any item in which the `Src` attribute contains something other than "foo".
  * This operation MUST return all items that match the original QueryInput.
- * Count must be updated to reflect the number of ites returned.
+ * Count MUST be updated to reflect the number of ites returned.
 
 The result MUST contain these changes and no others.
 
 
 ### TransformScanInput
 
-The signature of TransformScanInput MUST be
+TransformScanInput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A ScanInput object as input.
  * A ScanInput object as output.
 
-In Dafny: 
-`TransformScanInput(config : DynamoDBEncryption, input : ScanInput) : Result<ScanInput, string>`
+---
 
  * TransformScanInput MUST fail if an attribute name is mentioned
 that is not a [Readable Attribute](#readableattribute).
  * If no encrypted attribute is mentioned, TransformScanInput MUST return the unmodified input object.
- * The FilterExpression must be transformed with [tranformationFilterExpression](#transformationfilterexpression).
+ * The FilterExpression must be transformed with
+[tranformationFilterExpression](#transformationfilterexpression).
 
 The result MUST contain these changes and no others.
 
 
 ### TransformScanOutput
 
-The signature of TransformScanOutput MUST be
+TransformScanOutput MUST have
+ * A [DynamoDBEncryption](#dynamodbencryption) object as input
  * A ScanOutput object as input.
  * A ScanInput object as input.
  * A ScanOutput object as output.
 
-In Dafny: 
-`TransformScanOutput(config : DynamoDBEncryption, input : ScanOutput, query : ScanInput) : Result<ScanOutput, string>`
-
+---
 
 TransformScanOutput needs the original ScanInput object,
 because we need to check the result items against the values searched in the ScanInput object, which are not available in the ScanOutput object.
 
- * The ScanInput object MUST be assumed to be the original query, not the result of a [TransformScanInput](#transformscaninput) call.
- * TransformScanOutput MUST remove any items for which the original ScanInput does not match, that is,
-if the original FilterExpression included `Src EQ "foo"` (where `Src` is a [source field](#definitions))
-then this operation must remove any item in which the `Src` attribute contains something other than "foo".
+ * The ScanInput object MUST be assumed to be the original query,
+not the result of a [TransformScanInput](#transformscaninput) call.
+ * TransformScanOutput MUST remove any items for which
+the original ScanInput does not match, that is,
+if the original FilterExpression included `Src EQ "foo"`
+(where `Src` is a [source field](#definitions))
+then this operation must remove any item in which
+the `Src` attribute contains something other than "foo".
  * This operation MUST return all items that match the original ScanInput.
  * Count must be updated to reflect the number of ites returned.
 
@@ -424,8 +429,6 @@ if a customer is allowed to write that attribute.
 
  * writableAttribute MUST return false if the AttributeName starts
 with the [ddbec Prefix](#ddbec-prefix), and true otherwise.
-
-
 
 ### transformKeySchemaElement
 
