@@ -2,15 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 namespace aws.cryptography.structuredEncryption
 
-use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#EncryptionContext
 
 use aws.polymorph#localService
-use aws.polymorph#dafnyUtf8Bytes
-
-@dafnyUtf8Bytes
-string Utf8Bytes
 
 @localService(
   sdkId: "StructuredEncryption",
@@ -40,15 +35,12 @@ structure EncryptStructureInput {
     plaintextStructure: StructuredData,
     @required
     cryptoSchema: CryptoSchema,
-
-    // A Keyring XOR a CMM MUST be specified
-    keyring: KeyringReference,
+    @required
     cmm: CryptographicMaterialsManagerReference,
 
     // TODO Truss-compatible Algorithm Suite.
 
     encryptionContext: EncryptionContext,
-    requiredContextFieldsOnDecrypt: EncryptionContextFieldList
 }
 
 structure EncryptStructureOutput {
@@ -60,10 +52,8 @@ structure DecryptStructureInput {
     @required
     ciphertextStructure: StructuredData,
     @required
-    cryptoSchemas: CryptoSchemas,
-
-    // A Keyring XOR a CMM MUST be specified
-    keyring: KeyringReference,
+    authenticateSchema: AuthenticateSchema,
+    @required
     cmm: CryptographicMaterialsManagerReference,
 
     encryptionContext: EncryptionContext,
@@ -72,13 +62,6 @@ structure DecryptStructureInput {
 structure DecryptStructureOutput {
     @required
     plaintextStructure: StructuredData
-}
-
-// TODO move to MPL
-// TODO Until Polymorph supports this trait, verify uniqueness in Dafny
-// @uniqueItems
-list EncryptionContextFieldList {
-    member: Utf8Bytes
 }
 
 structure StructuredData {
@@ -92,16 +75,16 @@ structure StructuredData {
 }
 
 union StructuredDataContent {
-    terminal: Terminal,
-    dataList: StructuredDataList,
-    dataMap: StructuredDataMap
+    Terminal: StructuredDataTerminal,
+    DataList: StructuredDataList,
+    DataMap: StructuredDataMap
 }
 
 // Only handles bytes.
 // It is the reponsibility of the caller to
 // serialize and deserialize the data they
 // encrypt/decrypt with this Library.
-structure Terminal {
+structure StructuredDataTerminal {
     @required
     value: TerminalValue,
     // Type information is treated specially
@@ -129,11 +112,11 @@ list StructuredDataList {
 
 map StructuredDataAttributes {
     key: String,
-    value: Terminal
+    value: StructuredDataTerminal
 }
 
 // This mimics the same structure as StructuredData above,
-// only it's "leaves" are CryptoAction instead of Terminal.
+// only it's "leaves" are AuthenticateAction instead of Terminal.
 structure CryptoSchema {
     @required
     content: CryptoSchemaContent,
@@ -141,9 +124,9 @@ structure CryptoSchema {
 }
 
 union CryptoSchemaContent {
-    action: CryptoAction,
-    mapSchema: CryptoSchemaMap,
-    listSchema: CryptoSchemaList
+    Action: CryptoAction,
+    SchemaMap: CryptoSchemaMap,
+    SchemaList: CryptoSchemaList
 }
 
 @enum([
@@ -156,8 +139,8 @@ union CryptoSchemaContent {
         "value": "SIGN_ONLY",
     },
     {
-        "name": "IGNORE",
-        "value": "IGNORE",
+        "name": "DO_NOTHING",
+        "value": "DO_NOTHING",
     },
 ])
 string CryptoAction
@@ -173,16 +156,52 @@ list CryptoSchemaList {
 
 map CryptoSchemaAttributes {
     key: String,
-    value: CryptoAction
+    value: AuthenticateAction
 }
 
-@length(min: 1)
-map CryptoSchemas {
-    key: CryptoSchemaVersion,
-    value: CryptoSchema
+// This mimics the same structure as StructuredData above,
+// only it's "leaves" are AuthenticateAction instead of Terminal.
+structure AuthenticateSchema {
+    @required
+    content: AuthenticateSchemaContent,
+    attributes: AuthenticateSchemaAttributes
 }
 
-string CryptoSchemaVersion
+union AuthenticateSchemaContent {
+    Action: AuthenticateAction,
+    SchemaMap: AuthenticateSchemaMap,
+    SchemaList: AuthenticateSchemaList
+}
+
+@enum([
+    {
+        "name": "SIGN",
+        "value": "SIGN",
+    },
+    {
+        "name": "DO_NOT_SIGN",
+        "value": "DO_NOT_SIGN",
+    },
+])
+string AuthenticateAction
+
+map AuthenticateSchemaMap {
+    key: String,
+    value: AuthenticateSchema
+}
+
+list AuthenticateSchemaList {
+    member: AuthenticateSchema
+}
+
+map AuthenticateSchemaAttributes {
+    key: String,
+    value: AuthenticateAction
+}
+
+// TODO: Is there a way in smithy we can ensure that the
+// StructuredData/CryptoSchema/AuthenticateSchema all
+// express the same complex shape?
 
 /////////////
 // Errors
