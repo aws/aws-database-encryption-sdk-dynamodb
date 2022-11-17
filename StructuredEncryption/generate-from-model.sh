@@ -21,6 +21,7 @@ cd "$POLYMORPH_ROOT"
 ./gradlew run --args="\
     --output-dafny \
     --include-dafny $StandardLibrary_ROOT/src/Index.dfy \
+    --output-dotnet $StructuredEncryption_ROOT/runtimes/net/Generated/ \
     --model $StructuredEncryption_ROOT/Model \
     --dependent-model $ComAmazonawsKms_ROOT/Model \
     --dependent-model $MaterialProviders_ROOT/Model \
