@@ -45,12 +45,12 @@ structure EncryptStructureInput {
 
 structure EncryptStructureOutput {
     @required
-    ciphertextStructure: StructuredData
+    encryptedStructure: StructuredData
 }
 
 structure DecryptStructureInput {
     @required
-    ciphertextStructure: StructuredData,
+    encryptedStructure: StructuredData,
     @required
     authenticateSchema: AuthenticateSchema,
     @required

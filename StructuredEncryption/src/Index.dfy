@@ -9,7 +9,6 @@ module
 {
 
   import Operations = AwsCryptographyStructuredEncryptionOperations
-  import Aws.Cryptography.Primitives
 
   function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
   {
