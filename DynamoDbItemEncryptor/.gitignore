@@ -1,0 +1,5 @@
+TestResults
+ImplementationFromDafny.cs
+TestsFromDafny.cs
+**/bin
+**/obj

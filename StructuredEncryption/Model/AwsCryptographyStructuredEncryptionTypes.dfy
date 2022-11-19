@@ -44,7 +44,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  type CryptoSchemaList = seq<CryptoSchema>
  type CryptoSchemaMap = map<string, CryptoSchema>
  datatype DecryptStructureInput = | DecryptStructureInput (
- nameonly ciphertextStructure: StructuredData ,
+ nameonly encryptedStructure: StructuredData ,
  nameonly authenticateSchema: AuthenticateSchema ,
  nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
  nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
@@ -59,7 +59,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
  )
  datatype EncryptStructureOutput = | EncryptStructureOutput (
- nameonly ciphertextStructure: StructuredData
+ nameonly encryptedStructure: StructuredData
  )
  datatype StructuredData = | StructuredData (
  nameonly content: StructuredDataContent ,

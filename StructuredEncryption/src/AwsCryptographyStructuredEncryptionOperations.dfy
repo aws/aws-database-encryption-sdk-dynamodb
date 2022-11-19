@@ -23,7 +23,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       returns (output: Result<EncryptStructureOutput, Error>)
   {
     // TODO: Currently is a no-op, and just returns the inputted data
-    var encryptOutput := EncryptStructureOutput(ciphertextStructure := input.plaintextStructure);
+    var encryptOutput := EncryptStructureOutput(encryptedStructure := input.plaintextStructure);
     output := Success(encryptOutput);
   }
 
@@ -36,7 +36,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       returns (output: Result<DecryptStructureOutput, Error>)
   {
     // TODO: Currently is a no-op, and just returns the inputted data
-    var decryptOutput := DecryptStructureOutput(plaintextStructure := input.ciphertextStructure);
+    var decryptOutput := DecryptStructureOutput(plaintextStructure := input.encryptedStructure);
     output := Success(decryptOutput);
   }
 }
