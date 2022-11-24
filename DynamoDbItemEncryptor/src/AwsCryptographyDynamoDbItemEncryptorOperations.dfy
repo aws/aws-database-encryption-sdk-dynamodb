@@ -15,7 +15,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>,
     nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager,
     nameonly attributeActions: AttributeActions,
-    nameonly allowedUnauthenticatedAttributes: Option<seq<string>>,
+    nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
     nameonly allowedUnauthenticatedAttributePrefix: Option<string>,
     nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient
     // TODO algorithmSuite
