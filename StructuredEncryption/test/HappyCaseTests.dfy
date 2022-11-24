@@ -36,7 +36,7 @@ module HappyCaseTests {
 
     expect encryptRes.Success?;
     // TODO Encrypt Structure is currently a no-op
-    expect encryptRes.value.ciphertextStructure == TestFixtures.TEST_STRUCTURED_DATA;
+    expect encryptRes.value.encryptedStructure == TestFixtures.TEST_STRUCTURED_DATA;
   }
 
   method {:test} TestDecryptStructure() {
@@ -46,7 +46,7 @@ module HappyCaseTests {
 
     var decryptRes := structuredEncryption.DecryptStructure(
       DecryptStructureInput(
-        ciphertextStructure := TestFixtures.TEST_STRUCTURED_DATA,
+        encryptedStructure := TestFixtures.TEST_STRUCTURED_DATA,
         authenticateSchema := TestFixtures.TEST_AUTHENTICATE_SCHEMA,
         cmm := cmm,
         encryptionContext := None()

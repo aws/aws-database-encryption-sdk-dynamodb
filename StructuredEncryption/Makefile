@@ -35,6 +35,7 @@ compile_implementation_net:
 		-library:$(DEPS_DIR)/AwsCryptographicMaterialProviders/src/Index.dfy \
 		-library:$(DEPS_DIR)/AwsCryptographyPrimitives/src/Index.dfy \
 		-library:$(DEPS_DIR)/ComAmazonawsKms/src/Index.dfy \
+		-library:$(DEPS_DIR)/ComAmazonawsDynamodb/src/Index.dfy \
 		-library:$(DEPS_DIR)/StandardLibrary/src/Index.dfy
 
 compile_test_net:
@@ -53,6 +54,7 @@ compile_net_dependencies:
 	$(MAKE) -C $(DEPS_DIR)/StandardLibrary compile_implementation_net
 	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives compile_implementation_net
 	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms compile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb compile_implementation_net
 	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders compile_implementation_net
 
 test_net:
