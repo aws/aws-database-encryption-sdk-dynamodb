@@ -6,7 +6,6 @@ include "../../StructuredEncryption/src/Index.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryption" }
   DynamoDbItemEncryptor refines AbstractAwsCryptographyDynamoDbItemEncryptorService
 {
   import StructuredEncryption
@@ -32,6 +31,14 @@ module
 
   method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<DynamoDbItemEncryptorClient, Error>)
+    ensures res.Success? ==>
+      && res.value.config.tableName == config.tableName
+      && res.value.config.partitionKeyName == config.partitionKeyName
+      && res.value.config.sortKeyName == config.sortKeyName
+      && res.value.config.attributeActions == config.attributeActions
+      && res.value.config.allowedUnauthenticatedAttributes == config.allowedUnauthenticatedAttributes
+      && res.value.config.allowedUnauthenticatedAttributePrefix == config.allowedUnauthenticatedAttributePrefix
+    // TODO expected CMM/Keyring behavior
   {
     // TODO validation of config input
 
@@ -40,22 +47,24 @@ module
     var structuredEncryption :- structuredEncryptionRes
       .MapFailure(e => AwsCryptographyStructuredEncryption(e));
 
-    // TODO Create CMM from input
-    // For now just create some DefaultCMM
-    var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
-    var dummyKeyring :- expect matProv.CreateRawAesKeyring(AwsCryptographyMaterialProvidersTypes.CreateRawAesKeyringInput(
-      keyNamespace := "foo",
-      keyName := "bar",
-      wrappingKey := seq(32, i => 0),
-      wrappingAlg := AwsCryptographyMaterialProvidersTypes.ALG_AES256_GCM_IV12_TAG16
-    ));
-    var cmm :- expect matProv.CreateDefaultCryptographicMaterialsManager(
-      AwsCryptographyMaterialProvidersTypes.CreateDefaultCryptographicMaterialsManagerInput(
-        keyring := dummyKeyring
-      )
-    );
+    // TODO For now just passthrough cmm or wrap keyring with DefaultCMM
+    var maybeCmm := config.cmm;
+    var cmm;
+    if (maybeCmm.Some?) {
+      cmm := maybeCmm.value;
+    } else {
+      // TODO for now assume valid input
+      expect config.keyring.Some?;
+      var keyring := config.keyring.value;
+      var matProv :- expect MaterialProviders.MaterialProviders();
+      cmm :- expect matProv.CreateDefaultCryptographicMaterialsManager(
+        AwsCryptographyMaterialProvidersTypes.CreateDefaultCryptographicMaterialsManagerInput(
+          keyring := keyring
+        )
+      );
+    }
 
-    var client := new DynamoDbItemEncryptorClient(Operations.Config(
+    var internalConfig := Operations.Config(
       tableName := config.tableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,
@@ -64,7 +73,10 @@ module
       allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
       cmm := cmm,
       structuredEncryption := structuredEncryption
-    ));
+    );
+    assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
+
+    var client := new DynamoDbItemEncryptorClient(internalConfig);
     return Success(client);
   }
 

@@ -3,7 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Index.dfy"
  include "../../StructuredEncryption/src/Index.dfy"
- include "../../ComAmazonawsDynamoDb/src/Index.dfy"
+ include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types" } AwsCryptographyDynamoDbItemEncryptorTypes
  {
@@ -153,10 +153,30 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
  returns (res: Result<DynamoDbItemEncryptorClient, Error>)
+ // TODO smithy->Dafny needs to generate the following
+ ///// MANUAL UPDATE STARTS HERE
+ requires
+ ( config.keyring.Some? ==>
+ && config.keyring.value.ValidState()
+ )
+ requires
+ ( config.cmm.Some? ==>
+ && config.cmm.value.ValidState()
+ )
+ modifies (if config.keyring.Some? then config.keyring.value.Modifies else {}),
+ (if config.cmm.Some? then config.cmm.value.Modifies else {})
+ ///// MANUAL UPDATE ENDS HERE
  ensures res.Success? ==> 
  && fresh(res.value)
- && fresh(res.value.Modifies)
  && fresh(res.value.History)
+ // TODO smithy->Dafny needs to generate the following
+ ///// MANUAL UPDATE STARTS HERE
+ && fresh(
+    res.value.Modifies
+    - (if config.keyring.Some? then config.keyring.value.Modifies else {})
+    - (if config.cmm.Some? then config.cmm.value.Modifies else {})
+ )
+ ///// MANUAL UPDATE ENDS HERE
  && res.value.ValidState()
  class DynamoDbItemEncryptorClient extends IDynamoDbItemEncryptorClient
  {
