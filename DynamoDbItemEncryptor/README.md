@@ -3,7 +3,7 @@
 Structured Encryption is a Dafny module that contains the core logic
 for encrypting and decrypting DynamoDb Items.
 
-See [here](../Makefile.md) for instructions on how to verify, build, and test this project.
+See [here](../README.md) for instructions on how to verify, build, and test this project.
 
 ## Security
 
