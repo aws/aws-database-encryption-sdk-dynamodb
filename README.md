@@ -1,78 +1,96 @@
 ## DynamoDB Encryption Client for Dafny
 
-TODO: Edit your repository description on GitHub
+This repo contains the following Dafny projects:
+
+- DynamoDb Item Encryptor
+- DynamoDb Encryption Middleware Internal
+- Structured Encryption
+
+All projects can be verified, built, and tested according to the instructions below.
 
 ### Development Requirements
 
-Right now this repo has a bare-bones Makefile to help with some building/testing.
-The Makefile doesn't currently build dev requirements, so you will need to grab these yourself.
+This library builds and verifies with the following:
+- dotnet 6.0.400
+- dafny 3.9.1
 
-You will need at least:
-- dotnet (I'm using v6.0.400)
-- dafny v3.7.3 (v3.8 and onwards does not work)
+TODO: Better define and maintain (via CI) dev dependencies for this module
 
-Additionally, I am working off a Mac and cannot guarantee that these commands will work on other platforms.
+Optionally, if you want to run the [Dafny Report Generator](#generate-dafny-report)
+you will need to install the `dafny-reportgenerator` dotnet tool
+(and make sure `.dotnet/tools` is within your `PATH`,
+see instructions in the output from running the following command):
+
+```
+dotnet tool install --global dafny-reportgenerator --version 1.2.0
+```
 
 #### System Dependencies - macOS only
 
 If you are using macOS then you must install OpenSSL 1.1,
 and the OpenSSL 1.1 `lib` directory must be on the dynamic linker path at runtime.
-We recommend that you install OpenSSL via Homebrew using `brew install openssl@1.1`,
-and then set the `DYLD_LIBRARY_PATH` environment variable as follows:
-
-```bash
-$ export DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib"
-```
 
 If the .NET runtime cannot locate your OpenSSL 1.1 libraries,
 you may encounter an error that says:
 
 > No usable version of libssl was found
 
-### Verify Dafny Code
+To resolve this,
+we recommend that you install OpenSSL via Homebrew using `brew install openssl@1.1`.
+
+### Verify
 
 ```
 make verify
 ```
 
-Verifies the entire project.
+Runs the Dafny verifier over the Dafny code.
 
-### Build Dafny Code
+#### Generate Report
 
-```
-make build
-```
-
-Compiles the dafny code into target languages (currently just .NET) and builds.
-
-
-### Rebuild the model
-
-Note: Currently this command isn't stable.
-Code generated from the models needs manual modifications to work.
-
-If you are updating the smithy model, you will also need to re-generate the corresponding models.
+After running verifications you may also generate a report via:
 
 ```
-make generate-models
+make dafny-reportgenerator
 ```
 
-Generates new models for the Structured Encryption Library, DDBEC, and DDB using the polymorph submodule.
-Will overwrite models, but will not clean up old models that are not overwritten.
+### Build
 
-### Run the tests
+#### (Optional) Rebuild the model
+
+If you have updated the smithy model, you will also need to re-generate the corresponding models.
 
 ```
-make test
+./generate-from-model.sh
 ```
 
-Runs the dafny generated tests.
+This will generate the Dafny Types file from the smithy model.
+TODO: Also have this generate the .NET and Java.
 
-## Security
+#### Compile Dafny into .NET
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+```
+make compile_net
+```
 
-## License
+Compiles the dafny code into .NET.
 
-This project is licensed under the Apache-2.0 License.
+### Test
 
+#### Test .NET
+
+If you are on macOS:
+(TODO: These instructions may not work on an M1 mac)
+
+```
+make test_net_mac_intel
+```
+
+Otherwise:
+
+```
+make test_net
+```
+
+This runs the tests that were originally written in Dafny,
+then compiled to .NET in the `make compile_net` step above.

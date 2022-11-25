@@ -75,6 +75,7 @@ module
         );
 
         internalConfigs := internalConfigs[tableName := internalConfig];
+        // Pop 'tableName' off the map, so that we may continue iterating
         m' := map k' | k' in m' && k' != tableName :: m'[k'];
     }
 
