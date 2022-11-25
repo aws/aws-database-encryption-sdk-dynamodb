@@ -1,0 +1,58 @@
+# This workflow performs verification checks
+name: verification
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  verification:
+    strategy:
+      matrix:
+        library: [
+          DynamoDbEncryptionMiddlewareInternal,
+          DynamoDbItemEncryptor,
+          StructuredEncryption, 
+        ]
+        os: [
+          # TODO windows-latest,
+          ubuntu-latest,
+          macos-latest,
+        ]
+    runs-on: ${{ matrix.os }}
+    environment: "ESDK CI"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Init Submodules
+        env:
+          # This secret is in the configured environment
+          # Token created on # 11/28/2022
+          # expires in ~30 days 12/28/2022
+          PRIVATE_ESDK_PAT: ${{ secrets.PRIVATE_ESDK_PAT }}
+        run: |
+          AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
+          git config --global --add url.https://github.com/.insteadOf git@github.com:
+          git submodule update --init --recursive private-aws-encryption-sdk-dafny-staging
+      
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1
+        with:
+          dafny-version: "3.9.1"
+
+      - name: Verify ${{ matrix.library }} Dafny code
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make verify CORES=$CORES
+
+      - name: Check solver resource use
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make dafny-reportgenerator

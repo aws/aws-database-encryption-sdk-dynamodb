@@ -1,0 +1,77 @@
+# This workflow performs tests in .NET.
+name: test dotnet
+
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  testDotNet:
+    strategy:
+      matrix:
+        library: [
+          DynamoDbEncryptionMiddlewareInternal,
+          DynamoDbItemEncryptor,
+          StructuredEncryption, 
+        ]
+        dotnet-version: [ '6.0.x' ]
+        os: [
+          # TODO windows-latest,
+          ubuntu-latest,
+          macos-latest,
+        ]
+    runs-on: ${{ matrix.os }}
+    environment: "ESDK CI"
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Init Submodules
+        env:
+          # This secret is in the configured environment
+          # Token created on # 11/28/2022
+          # expires in ~30 days 12/28/2022
+          PRIVATE_ESDK_PAT: ${{ secrets.PRIVATE_ESDK_PAT }}
+        run: |
+          AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
+          git config --global --add url.https://github.com/.insteadOf git@github.com:
+          git submodule update --init --recursive private-aws-encryption-sdk-dafny-staging
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.4.0
+        with:
+          dafny-version: "3.9.1"
+
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Download Dependencies 
+        working-directory: ./${{ matrix.library }}
+        run: make setup_net
+
+      - name: Compile ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make compile_net CORES=$CORES
+      - name: Test ${{ matrix.library }}
+        working-directory: ./${{ matrix.library }}
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            make test_net_mac_intel
+          else
+            make test_net
+          fi
