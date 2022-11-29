@@ -14,8 +14,9 @@ export AwsCryptographyPrimitives_ROOT=$DEPS_ROOT/AwsCryptographyPrimitives
 export ComAmazonawsKms_ROOT=$DEPS_ROOT/ComAmazonawsKms
 export ComAmazonawsDynamodb_ROOT=$DEPS_ROOT/ComAmazonawsDynamodb
 export StructuredEncryption_ROOT=$CURRENT_DIR/../StructuredEncryption
+export DynamoDbItemEncryptor_ROOT=$CURRENT_DIR/../DynamoDbItemEncryptor
 export StandardLibrary_ROOT=$DEPS_ROOT/StandardLibrary
-export DynamoDbItemEncryptor_ROOT=$CURRENT_DIR
+export DynamoDbEncryptionMiddleware_ROOT=$CURRENT_DIR
 
 cd "$POLYMORPH_ROOT"
 
@@ -23,13 +24,14 @@ cd "$POLYMORPH_ROOT"
 ./gradlew run --args="\
     --output-dafny \
     --include-dafny $StandardLibrary_ROOT/src/Index.dfy \
-    --model $DynamoDbItemEncryptor_ROOT/Model \
+    --model $DynamoDbEncryptionMiddleware_ROOT/Model \
     --dependent-model $ComAmazonawsKms_ROOT/Model \
     --dependent-model $ComAmazonawsDynamodb_ROOT/Model \
     --dependent-model $MaterialProviders_ROOT/Model \
     --dependent-model $DEPS_ROOT/model \
     --dependent-model $AwsCryptographyPrimitives_ROOT/Model \
     --dependent-model $StructuredEncryption_ROOT/Model \
-    --namespace aws.cryptography.dynamoDbItemEncryptor"
+    --dependent-model $DynamoDbItemEncryptor_ROOT/Model \
+    --namespace aws.cryptography.dynamoDbEncryptionMiddleware.internal"
 
 popd

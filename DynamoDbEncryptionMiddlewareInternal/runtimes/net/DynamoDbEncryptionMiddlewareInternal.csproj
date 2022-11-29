@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>AWS Cryptography DynamoDb Item Encryptor</RootNamespace>
+        <RootNamespace>AWS Cryptography DynamoDb Encryption Middleware Internal</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>10</LangVersion>
@@ -32,6 +32,7 @@
         <ProjectReference Include="../../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj" />
         <ProjectReference Include="../../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj" />
         <ProjectReference Include="../../../StructuredEncryption/runtimes/net/StructuredEncryption.csproj" />
+        <ProjectReference Include="../../../DynamoDbItemEncryptor/runtimes/net/DynamoDbItemEncryptor.csproj" />
     </ItemGroup>
 
     <!--

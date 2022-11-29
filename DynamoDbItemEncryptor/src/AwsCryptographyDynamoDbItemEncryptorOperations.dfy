@@ -1,10 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
-include "../../ComAmazonawsDynamoDb/model/ComAmazonawsDynamodbTypes.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/Model/AwsCryptographyMaterialProvidersTypes.dfy"
-include "../../StructuredEncryption/src/Index.dfy"
-include "../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "StubbedData.dfy"
 
 module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptographyDynamoDbItemEncryptorOperations {
@@ -17,11 +13,14 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     nameonly tableName: ComAmazonawsDynamodbTypes.TableName,
     nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName,
     nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>,
+    nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager,
     nameonly attributeActions: AttributeActions,
     nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
     nameonly allowedUnauthenticatedAttributePrefix: Option<string>,
-    nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager,
     nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient
+    // TODO algorithmSuite
+    // TODO legacy encryptor
+    // TODO legacy schema
   )
 
   type InternalConfig = Config
