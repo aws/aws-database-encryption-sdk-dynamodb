@@ -18,17 +18,7 @@ module
   function method DefaultDynamoDbEncryptionMiddlewareInternalConfig(): DynamoDbEncryptionMiddlewareInternalConfig
   {
     DynamoDbEncryptionMiddlewareInternalConfig(
-      tableEncryptionConfigs := map[
-        "foo" := DynamoDbTableEncryptionConfig(
-          partitionKeyName := "bar",
-          sortKeyName := None(),
-          attributeActions := map[],
-          allowedUnauthenticatedAttributes := None(),
-          allowedUnauthenticatedAttributePrefix := None(),
-          keyring := None(),
-          cmm := None()
-        )
-      ]
+      tableEncryptionConfigs := map[]
     )
   }
 
@@ -38,12 +28,12 @@ module
     // TODO validate input
     var internalConfigs: map<string, Operations.TableConfig> := map[];
 
-    // TODO is there an easier way to iterate through a map?
     var m' := config.tableEncryptionConfigs;
     while m'.Keys != {}
         invariant m'.Keys <= config.tableEncryptionConfigs.Keys
-        invariant forall k | k in m' :: m'[k] == config.tableEncryptionConfigs[k]
-        invariant forall tableName, tableConfig :: tableName in internalConfigs && tableConfig == internalConfigs[tableName] ==>
+        invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
+        invariant forall tableName <- internalConfigs, tableConfig :: tableConfig == internalConfigs[tableName]
+          ==>
             && tableConfig.itemEncryptor.config.tableName == tableName
             && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
             && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName

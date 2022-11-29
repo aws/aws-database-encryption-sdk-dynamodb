@@ -37,7 +37,6 @@ compile_implementation_net:
 		-library:$(ROOT_DIR)/../StructuredEncryption/src/Index.dfy \
 		-library:$(DEPS_DIR)/ComAmazonawsKms/src/Index.dfy \
 		-library:$(DEPS_DIR)/ComAmazonawsDynamodb/src/Index.dfy \
-		-library:$(DEPS_DIR)/StandardLibrary/src/Index.dfy \
 		-library:$(ROOT_DIR)/../DynamoDbItemEncryptor/src/Index.dfy
 
 compile_test_net:

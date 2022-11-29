@@ -31,6 +31,7 @@ use com.amazonaws.dynamodb#ExecuteTransactionOutput
 
 // TODO: OutputTransformInputs need a 'executedSDKInput' or similar for Scan Beacons)
 // TODO: Model passthrough APIs
+// TODO: Do we model an "unknown operation" somewhere, that just spits out an error?
 
 operation PutItemInputTransform {
     input: PutItemInputTransformInput,

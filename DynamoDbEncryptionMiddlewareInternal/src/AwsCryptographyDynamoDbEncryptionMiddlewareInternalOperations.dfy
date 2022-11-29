@@ -9,11 +9,6 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
   import AwsCryptographyDynamoDbItemEncryptorTypes
   import DynamoDbItemEncryptor
 
-  datatype Config = Config(
-    tableEncryptionConfigs: map<string, TableConfig>
-    // TODO allowed passthrough tables
-  )
-
   datatype TableConfig = TableConfig(
     partitionKeyName: string,
     sortKeyName: Option<string>,
@@ -21,16 +16,26 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
     // TODO scan beacon config
   )
 
-  type InternalConfig = Config
+  predicate ValidTableConfig?(config: TableConfig) {
+    var encryptoConfig := config.itemEncryptor.config;
+    && config.partitionKeyName == encryptoConfig.partitionKeyName
+    && config.sortKeyName == encryptoConfig.sortKeyName
+  }
 
+  type ValidTableConfig = c: TableConfig | ValidTableConfig?(c) witness *
+
+  datatype Config = Config(
+    tableEncryptionConfigs: map<string, ValidTableConfig>
+    // TODO allowed passthrough tables
+  )
   predicate ValidInternalConfig?(config: InternalConfig)
   {
-    // TODO make less verbose
-    forall tableName, tableConfig :: tableName in config.tableEncryptionConfigs && tableConfig == config.tableEncryptionConfigs[tableName] ==>
-      && tableConfig.itemEncryptor.config.tableName == tableName
-      && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
-      && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
+    forall tableName <- config.tableEncryptionConfigs
+    ::
+      config.tableEncryptionConfigs[tableName].itemEncryptor.config.tableName == tableName
   }
+
+  type InternalConfig = Config
 
   // TODO Not sure why the verifier is not complaining that I am not modeling the itemEncryptor.Modifies...
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
