@@ -74,6 +74,12 @@ make duvet
 
 Generates a duvet report.
 
+To view the report, look at the generated `specification_compliance_report.html`:
+
+```
+open specification_compliance_report.html
+```
+
 ### Per Dafny Project Make commands
 
 The following Make commands are available within each Dafny project subdirectory.
