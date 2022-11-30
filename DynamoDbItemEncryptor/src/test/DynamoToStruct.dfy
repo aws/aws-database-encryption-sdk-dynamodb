@@ -1,13 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../DynamoToStruct.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
+include "../../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/libraries/src/Wrappers.dfy"
+include "../../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
 
 import opened DynamoToStruct
 import opened Wrappers
 import opened ComAmazonawsDynamodbTypes
+import opened AwsCryptographyStructuredEncryptionTypes
+
 
   method {:opaque} check(o : AttributeMap, n : Result<AttributeMap, string>)
   {
