@@ -22,8 +22,6 @@ duvet_report:
 		--spec-pattern "compliance/**/*.toml" \
 		--source-pattern "DynamoDbItemEncryptor/src/**/*.dfy" \
 		--source-pattern "DynamoDbItemEncryptor/Model/**/*.smithy" \
-		--source-pattern "DynamoDbItemEncryptor/compliance_exceptions/**/*.txt" \
 		--source-pattern "DynamoDbEncryptionMiddlewareInternal/src/**/*.dfy" \
 		--source-pattern "DynamoDbEncryptionMiddlewareInternal/Model/**/*.smithy" \
-		--source-pattern "DynamoDbEncryptionMiddlewareInternal/compliance_exceptions/**/*.txt" \
 		--html specification_compliance_report.html
