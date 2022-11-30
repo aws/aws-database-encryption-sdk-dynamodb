@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../DynamoToStruct.dfy"
-include "../../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
+include "../../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/model/ComAmazonawsDynamodbTypes.dfy"
 include "../../../private-aws-encryption-sdk-dafny-staging/libraries/src/Wrappers.dfy"
 include "../../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
