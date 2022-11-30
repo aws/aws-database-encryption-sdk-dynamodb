@@ -65,6 +65,7 @@ adheres to the following:
   MUST NOT contain any [Structured Data](../structured-encryption/structures.md#structured-data)
   at index "TODO:footer".
 - MUST NOT have [Structured Data Attributes](../structured-encryption/structures.md#structured-data-attributes).
+- MUST NOT have any `Key` strings that are invalid DynamoDB AttributeNames, that is, with more than 65535 characters.
 
 A DynamoDB Item converted from a
 [Structured Data](../structured-encryption/structures.md#structured-data)
