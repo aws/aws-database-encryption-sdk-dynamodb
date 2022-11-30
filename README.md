@@ -16,6 +16,8 @@ This library builds and verifies with the following:
 
 TODO: Better define and maintain (via CI) dev dependencies for this module
 
+#### (Optional) Dafny Report Generator Requirements
+
 Optionally, if you want to run the [Dafny Report Generator](#generate-dafny-report)
 you will need to install the `dafny-reportgenerator` dotnet tool
 (and make sure `.dotnet/tools` is within your `PATH`,
@@ -23,6 +25,20 @@ see instructions in the output from running the following command):
 
 ```
 dotnet tool install --global dafny-reportgenerator --version 1.2.0
+```
+
+#### (Optional) Duvet Requirements
+
+Optionally, if you want to run [Duvet](https://github.com/awslabs/duvet) reports,
+you will need to use Cargo to install duvet.
+
+If you don't have it already,
+[get and install Cargo and Rust](https://doc.rust-lang.org/cargo/getting-started/installation.html).
+
+Then install duvet:
+
+```
+cargo +stable install duvet
 ```
 
 #### System Dependencies - macOS only
@@ -38,15 +54,39 @@ you may encounter an error that says:
 To resolve this,
 we recommend that you install OpenSSL via Homebrew using `brew install openssl@1.1`.
 
-### Verify
+### Repo Make commands
+
+The following Make commands are available at the root of this repo.
+
+#### Verify
 
 ```
 make verify
 ```
 
-Runs the Dafny verifier over the Dafny code.
+Runs the Dafny verifier over the Dafny code within this repo.
 
-#### Generate Report
+#### Generate Duvet Report
+
+```
+make duvet
+```
+
+Generates a duvet report.
+
+### Per Dafny Project Make commands
+
+The following Make commands are available within each Dafny project subdirectory.
+
+#### Verify
+
+```
+make verify
+```
+
+Runs the Dafny verifier over the Dafny code within this Dafny project.
+
+##### Generate Report
 
 After running verifications you may also generate a report via:
 
@@ -54,9 +94,9 @@ After running verifications you may also generate a report via:
 make dafny-reportgenerator
 ```
 
-### Build
+#### Build
 
-#### (Optional) Rebuild the model
+##### (Optional) Rebuild the model
 
 If you have updated the smithy model, you will also need to re-generate the corresponding models.
 
@@ -67,7 +107,7 @@ If you have updated the smithy model, you will also need to re-generate the corr
 This will generate the Dafny Types file from the smithy model.
 TODO: Also have this generate the .NET and Java.
 
-#### Compile Dafny into .NET
+##### Compile Dafny into .NET
 
 ```
 make compile_net
@@ -75,9 +115,9 @@ make compile_net
 
 Compiles the dafny code into .NET.
 
-### Test
+#### Test
 
-#### Test .NET
+##### Test .NET
 
 If you are on macOS:
 (TODO: These instructions may not work on an M1 mac)

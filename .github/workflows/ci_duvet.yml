@@ -1,0 +1,30 @@
+# This workflow verifies
+# that the source is annotated
+# with respect to the specification
+name: Duvet report
+
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  duvet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install duvet
+        shell: bash
+        run: |
+          cargo +stable install duvet
+      - name: Run the duvet report
+        shell: bash
+        run: |
+          make duvet
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: specification_compliance_report
+          path: specification_compliance_report.html

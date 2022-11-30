@@ -7,8 +7,9 @@ test/**/Output/*
 /package-lock.json
 /node_modules
 
-# Duvet output
-specification_compliance_report.html
-
 # VS Code local history
 /.history
+
+# Duvet output
+specification_compliance_report.html
+/compliance
