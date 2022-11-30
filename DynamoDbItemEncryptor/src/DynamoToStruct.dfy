@@ -4,7 +4,7 @@
 include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Wrappers.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/StandardLibrary.dfy"
 include "../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
+include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/model/ComAmazonawsDynamodbTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/UTF8.dfy"
 include "./SetSort.dfy"
 
