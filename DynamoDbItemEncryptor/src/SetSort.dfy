@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// This is from a future version of /libraries/src/
+// This is from a future version of /libraries/src/ as per https://github.com/dafny-lang/libraries/issues/59
 // This should be removed when that file appears
 
 include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Collections/Sequences/MergeSort.dfy"

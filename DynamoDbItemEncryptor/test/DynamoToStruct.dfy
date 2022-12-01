@@ -5,11 +5,13 @@ include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Mod
 include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Wrappers.dfy"
 include "../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
+module DynamoToStructTest {
 
-import opened DynamoToStruct
-import opened Wrappers
-import opened ComAmazonawsDynamodbTypes
-import opened AwsCryptographyStructuredEncryptionTypes
+  import opened DynamoToStruct
+  import opened Wrappers
+  import opened ComAmazonawsDynamodbTypes
+  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened StandardLibrary.UInt
 
 
   method {:opaque} check(o : AttributeMap, n : Result<AttributeMap, string>)
@@ -41,7 +43,53 @@ import opened AwsCryptographyStructuredEncryptionTypes
     }
   }
 
-  method {:test} {:vcs_split_on_every_assert} someTest() {
+  method {:test} {:vcs_split_on_every_assert} TestEncode() {
+    var binaryValue := AttributeValue.B([1,2,3,4,5]);
+    var encodedBinaryData := StructuredDataTerminal(value := [1,2,3,4,5], typeId := [0,3]);
+    var encodedBinaryValue := StructuredData(content := Terminal(encodedBinaryData), attributes := None);
+    var binaryStruct := AttrToStructured(binaryValue);
+    expect binaryStruct.Success?;
+    expect binaryStruct.value == encodedBinaryValue;
+
+    var newBinaryValue := StructuredToAttr(binaryStruct.value);
+    expect newBinaryValue.Success?;
+    expect newBinaryValue.value == binaryValue;
+
+    var nullValue := AttributeValue.NULL(false);
+    var encodedNullData := StructuredDataTerminal(value := [], typeId := [0,0]);
+    var encodedNullValue := StructuredData(content := Terminal(encodedNullData), attributes := None);
+    var nullStruct := AttrToStructured(nullValue);
+    expect nullStruct.Success?;
+    expect nullStruct.value == encodedNullValue;
+
+    var newNullValue := StructuredToAttr(nullStruct.value);
+    expect newNullValue.Success?;
+    expect newNullValue.value == nullValue;
+
+    var boolValue := AttributeValue.BOOL(false);
+    var encodedBoolData := StructuredDataTerminal(value := [0], typeId := [0,4]);
+    var encodedBoolValue := StructuredData(content := Terminal(encodedBoolData), attributes := None);
+    var boolStruct := AttrToStructured(boolValue);
+    expect boolStruct.Success?;
+    expect boolStruct.value == encodedBoolValue;
+
+    var newBoolValue := StructuredToAttr(boolStruct.value);
+    expect newBoolValue.Success?;
+    expect newBoolValue.value == boolValue;
+
+    var listValue := AttributeValue.L([binaryValue, nullValue, boolValue]);
+    var encodedListData := StructuredDataTerminal(value := [0,0,0,3, 0,3, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0], typeId := [3,0]);
+    var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
+    var listStruct := AttrToStructured(listValue);
+    expect listStruct.Success?;
+    expect listStruct.value == encodedListValue;
+
+    var newListValue := StructuredToAttr(listStruct.value);
+    expect newListValue.Success?;
+    expect newListValue.value == listValue;
+  }
+
+  method {:test} {:vcs_split_on_every_assert} TestRoundTrip() {
 
     var val1 := AttributeValue.S("astring");
     var val2 := AttributeValue.N("12345");
@@ -65,4 +113,4 @@ import opened AwsCryptographyStructuredEncryptionTypes
     var nAttrMap := StructuredToItem(struct.value);
     check(attrMap, nAttrMap);
   }
-
+}

@@ -3,6 +3,7 @@
 
 include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Wrappers.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/StandardLibrary.dfy"
+include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Collections/Sequences/MergeSort.dfy"
 include "../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/UTF8.dfy"
@@ -17,33 +18,8 @@ module DynamoToStruct {
   import opened StandardLibrary.UInt
   import UTF8
   import Set
+  import opened Seq.MergeSort
   import opened Relations
-
-/*
-If you enable this code, you can remove the dependency on AwsCryptographyStructuredEncryptionTypes.dfy
-And therefore have no external dependencies except UTF8.cs
-
- datatype StructuredData = | StructuredData (
- nameonly content: StructuredDataContent ,
- nameonly attributes: Option<StructuredDataAttributes>
- )
- type StructuredDataAttributes = map<string, StructuredDataTerminal>
- datatype StructuredDataContent =
- | Terminal(StructuredDataTerminal: StructuredDataTerminal)
- | DataList(StructuredDataList: StructuredDataList)
- | DataMap(StructuredDataMap: StructuredDataMap)
- type StructuredDataList = seq<StructuredData>
- type StructuredDataMap = map<string, StructuredData>
- datatype StructuredDataTerminal = | StructuredDataTerminal (
- nameonly value: TerminalValue ,
- nameonly typeId: TerminalTypeId
- )
- type TerminalValue = seq<uint8>
- type TerminalTypeId = x: seq<uint8> | IsValid_TerminalTerminalTypeId(x) witness *
- predicate method IsValid_TerminalTerminalTypeId(x: seq<uint8>) {
- ( 2 <= |x| <= 2 )
-}
-*/
 
   // This file exists for these five functions
 
@@ -52,6 +28,8 @@ And therefore have no external dependencies except UTF8.cs
   ItemToStructured(StructuredToItem(structureMap)) == structureMap
   AttrToStructured(StructuredToAttr(structure)) == structure
   StructuredToAttr(AttrToStructured(item)) == item
+
+  Also prove : "there exists a single canonical serialization of items that contains a set or map (i.e. there is a canonical ordering or set entries)"
 */
 
   function method ItemToStructured(item : AttributeMap) : Result<StructuredDataMap, string>
@@ -90,11 +68,12 @@ And therefore have no external dependencies except UTF8.cs
         if |s.typeId| != 2 then
           Failure("Type ID must be two bytes")
         else
-          var ret :- BytesToAttr(s.value, s.typeId, false);
-          Success(ret.val)
+          var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
+          Success(attrValueAndLength.val)
       case _ => Failure("StructuredData to AttributeValue only works on Terminal data")
     }
   }
+
 
   // everything past here is to implement those two
 
@@ -134,11 +113,16 @@ And therefore have no external dependencies except UTF8.cs
     }
   }
 
-  type SingleAttr = (AttributeName, seq<uint8>)
+  type AttrNameAndSerializedValue = (AttributeName, seq<uint8>)
 
-  predicate method AttrLexicographicLessOrEqual(x : SingleAttr, y : SingleAttr)
+  predicate method AttrLexicographicLessOrEqual(x : AttrNameAndSerializedValue, y : AttrNameAndSerializedValue)
   {
     LexicographicLessOrEqual(x.0, y.0, CharLess)
+  }
+
+  predicate method StringLexicographicLessOrEqual(x : string, y : string)
+  {
+    LexicographicLessOrEqual(x, y, CharLess)
   }
 
 /*
@@ -167,6 +151,7 @@ And therefore have no external dependencies except UTF8.cs
   }
 
   // convert AttributeValue to byte sequence
+  // if `wrap` is true, prefix sequence with TypeID and Length
   function method AttrToBytes(a : AttributeValue, wrap : bool) : Result<seq<uint8>, string>
     decreases a
   {
@@ -175,6 +160,7 @@ And therefore have no external dependencies except UTF8.cs
       case N(n) => Wrap(a, wrap, UTF8.Encode(n))
       case B(b) => Wrap(a, wrap, Success(b))
       case SS(ss) =>
+        //var ss := MergeSortBy(ss, StringLexicographicLessOrEqual);
         var count :- U32ToBigEndian(|ss|);
         var body :- CollectString(ss);
         Wrap(a, wrap, Success(count + body))
@@ -203,6 +189,11 @@ And therefore have no external dependencies except UTF8.cs
     }
   }
 
+  lemma BigEndianLemma()
+    ensures U32ToBigEndian(3) == Success([0,0,0,3])
+    ensures BigEndianToU32([0,0,0,3]) == Success(3)
+  {}
+
   function method U32ToBigEndian(x : nat) : (ret : Result<seq<uint8>, string>)
     ensures ret.Success? ==> |ret.value| == 4
   {
@@ -222,6 +213,7 @@ And therefore have no external dependencies except UTF8.cs
   
   // String Set or Number Set to Bytes
   function method {:tailrecursion} CollectString(b : StringSetAttributeValue, acc : seq<uint8> := []) : Result<seq<uint8>, string>
+    // requires sorted, ensures sorted
   {
     if |b| == 0 then
       Success(acc)
@@ -233,6 +225,7 @@ And therefore have no external dependencies except UTF8.cs
 
   // Binary Set to Bytes
   function method {:tailrecursion} CollectBinary(b : BinarySetAttributeValue, acc : seq<uint8> := []) : Result<seq<uint8>, string>
+  // requires sorted, ensures sorted
   {
     if |b| == 0 then
       Success(acc)
@@ -243,7 +236,8 @@ And therefore have no external dependencies except UTF8.cs
   }
 
   // List to Bytes
-  function method /*{:tailrecursion}*/ CollectList(b : ListAttributeValue, acc : seq<uint8> := []) : Result<seq<uint8>, string>
+  // Can't be {:tailrecursion} because it calls AttrToBytes which might again call CollectList
+  function method CollectList(b : ListAttributeValue, acc : seq<uint8> := []) : Result<seq<uint8>, string>
   {
     if |b| == 0 then
       Success(acc)
@@ -253,7 +247,9 @@ And therefore have no external dependencies except UTF8.cs
   }
 
   // Map to Bytes
-  function method {:tailrecursion} CollectMap(b : seq<SingleAttr>, acc : seq<uint8> := []) : Result<seq<uint8>, string>
+  // input sequence is already serialized
+  function method {:tailrecursion} CollectMap(b : seq<AttrNameAndSerializedValue>, acc : seq<uint8> := []) : Result<seq<uint8>, string>
+      // requires sorted, ensures sorted
   {
     if |b| == 0 then
       Success(acc)
@@ -278,11 +274,11 @@ And therefore have no external dependencies except UTF8.cs
   )
 
   // Bytes to Binary Set
-  function method {:tailrecursion} {:vcs_split_on_every_assert}  GetBinarySet(value : seq<uint8>, items : nat, orig : nat, extra : nat, acc : AttrValueAndLength := AttrValueAndLength(AttributeValue.BS([]), extra)) : (ret : Result<AttrValueAndLength, string>)
+  function method {:tailrecursion} {:vcs_split_on_every_assert}  GetBinarySet(value : seq<uint8>, items : nat, orig : nat, acc : AttrValueAndLength) : (ret : Result<AttrValueAndLength, string>)
     requires acc.val.BS?
     ensures ret.Success? ==> ret.value.val.BS?
-    requires |value| + acc.len == orig + extra
-    ensures ret.Success? ==> ret.value.len <= orig + extra
+    requires |value| + acc.len == orig
+    ensures ret.Success? ==> ret.value.len <= orig
   {
     if items == 0 then
       Success(acc)
@@ -295,15 +291,15 @@ And therefore have no external dependencies except UTF8.cs
         Failure("Binary Set Structured Data has too few bytes")
       else
         var nattr := AttributeValue.BS(acc.val.BinarySetAttributeValue + [value[..len]]);
-        GetBinarySet(value[len..], items-1, orig, extra, AttrValueAndLength(nattr, acc.len + len + 4))
+        GetBinarySet(value[len..], items-1, orig, AttrValueAndLength(nattr, acc.len + len + 4))
   }
 
   // Bytes to String Set
-  function method {:tailrecursion} {:vcs_split_on_every_assert} GetStringSet(value : seq<uint8>, items : nat, orig : nat, extra : nat, acc : AttrValueAndLength := AttrValueAndLength(AttributeValue.SS([]), extra)) : (ret : Result<AttrValueAndLength, string>)
+  function method {:tailrecursion} {:vcs_split_on_every_assert} GetStringSet(value : seq<uint8>, items : nat, orig : nat, acc : AttrValueAndLength) : (ret : Result<AttrValueAndLength, string>)
     requires acc.val.SS?
     ensures ret.Success? ==> ret.value.val.SS?
-    requires |value| + acc.len == orig + extra
-    ensures ret.Success? ==> ret.value.len <= orig + extra
+    requires |value| + acc.len == orig
+    ensures ret.Success? ==> ret.value.len <= orig
   {
     if items == 0 then
       Success(acc)
@@ -316,17 +312,16 @@ And therefore have no external dependencies except UTF8.cs
         Failure("String Set Structured Data has too few bytes")
       else
         var nstring :- UTF8.Decode(value[..len]);
-        //var nstring := "";
         var nattr := AttributeValue.SS(acc.val.StringSetAttributeValue + [nstring]);
-        GetStringSet(value[len..], items-1, orig, extra, AttrValueAndLength(nattr, acc.len + len + 4))
+        GetStringSet(value[len..], items-1, orig, AttrValueAndLength(nattr, acc.len + len + 4))
   }
 
   // Bytes to Number Set
-  function method {:tailrecursion} {:vcs_split_on_every_assert} GetNumberSet(value : seq<uint8>, items : nat, orig : nat, extra : nat, acc : AttrValueAndLength := AttrValueAndLength(AttributeValue.NS([]), extra)) : (ret : Result<AttrValueAndLength, string>)
+  function method {:tailrecursion} {:vcs_split_on_every_assert} GetNumberSet(value : seq<uint8>, items : nat, orig : nat, acc : AttrValueAndLength) : (ret : Result<AttrValueAndLength, string>)
     requires acc.val.NS?
     ensures ret.Success? ==> ret.value.val.NS?
-    requires |value| + acc.len == orig + extra
-    ensures ret.Success? ==> ret.value.len <= orig + extra
+    requires |value| + acc.len == orig
+    ensures ret.Success? ==> ret.value.len <= orig
   {
     if items == 0 then
       Success(acc)
@@ -341,15 +336,16 @@ And therefore have no external dependencies except UTF8.cs
         var nstring :- UTF8.Decode(value[..len]);
         //var nstring := "";
         var nattr := AttributeValue.NS(acc.val.NumberSetAttributeValue + [nstring]);
-        GetNumberSet(value[len..], items-1, orig, extra, AttrValueAndLength(nattr, acc.len + len + 4))
+        GetNumberSet(value[len..], items-1, orig, AttrValueAndLength(nattr, acc.len + len + 4))
   }
   
   // Bytes to List
-  function method {:vcs_split_on_every_assert} GetList(value : seq<uint8>, items : nat, orig : nat, extra : nat, acc : AttrValueAndLength := AttrValueAndLength(AttributeValue.L([]), extra)) : (ret : Result<AttrValueAndLength, string>)
+  // Can't be {:tailrecursion} because it calls BytesToAttr which might again call GetList
+  function method {:vcs_split_on_every_assert} GetList(value : seq<uint8>, items : nat, orig : nat, acc : AttrValueAndLength) : (ret : Result<AttrValueAndLength, string>)
     requires acc.val.L?
     ensures ret.Success? ==> ret.value.val.L?
-    requires |value| + acc.len == orig + extra
-    ensures ret.Success? ==> ret.value.len <= orig + extra
+    requires |value| + acc.len == orig
+    ensures ret.Success? ==> ret.value.len <= orig
     decreases |value|
   {
     if items == 0 then
@@ -366,51 +362,49 @@ And therefore have no external dependencies except UTF8.cs
       else
         var nval :- BytesToAttr(value[..len], TerminalTypeId, false);
         var nattr := AttributeValue.L(acc.val.ListAttributeValue + [nval.val]);
-        GetList(value[len..], items-1, orig, extra, AttrValueAndLength(nattr, acc.len + len + 6))
+        GetList(value[len..], items-1, orig, AttrValueAndLength(nattr, acc.len + len + 6))
   }
 
   // Bytes to Map
-  function method /*{:tailrecursion}*/ {:vcs_split_on_every_assert} GetMap(value : seq<uint8>, items : nat, orig : nat, extra : nat, acc : AttrValueAndLength := AttrValueAndLength(AttributeValue.M(map[]), extra)) : (ret : Result<AttrValueAndLength, string>)
+  // Can't be {:tailrecursion} because it calls BytesToAttr which might again call GetMap
+  function method {:vcs_split_on_every_assert} GetMap(value : seq<uint8>, items : nat, orig : nat, acc : AttrValueAndLength) : (ret : Result<AttrValueAndLength, string>)
     requires acc.val.M?
     ensures ret.Success? ==> ret.value.val.M?
-    requires |value| + acc.len == orig + extra
-    ensures ret.Success? ==> ret.value.len <= orig + extra
+    requires |value| + acc.len == orig
+    ensures ret.Success? ==> ret.value.len <= orig
     decreases |value|
   {
     if items == 0 then
       Success(acc)
-    else if |value| < 2 then
-      Failure("Out of bytes reading Map Key")
     else
+      // get typeId of key
+      :- Need(6 <= |value|, "Out of bytes reading Map Key");
       var TerminalTypeId_key := value[0..2];
-      if TerminalTypeId_key != STRING then
-        Failure("Key of Map is not String")
-      else
-        var value := value[2..];
-        if |value| < 4 then
-          Failure("Key of Map of Structured Data has too few bytes")
-        else
-          var len :- BigEndianToU32(value);
-          var value := value[4..];
-          if |value| < len as int then
-            Failure("Key of Map of Structured Data has too few bytes")
-          else
-            var nkey :- UTF8.Decode(value[..len]);
-            var value := value[len..];
-            if |value| < 2 then
-              Failure("Out of bytes reading Map Value")
-            else if !IsValid_AttributeName(nkey) then
-              Failure("Key is not valid AttributeName")
-            else
-              var TerminalTypeId_value := value[0..2];
-              var value := value[2..];
-              var nval :- BytesToAttr(value, TerminalTypeId_value, true);
-              var nattr := AttributeValue.M(acc.val.MapAttributeValue[nkey := nval.val]);
-              GetMap(value[nval.len..], items-1, orig, extra, AttrValueAndLength(nattr, acc.len + nval.len + 8 + len))
+      :- Need(TerminalTypeId_key == STRING, "Key of Map is not String");
+      var value := value[2..];
+
+      // get key
+      var len :- BigEndianToU32(value);
+      var value := value[4..];
+      :- Need(len as int <= |value|, "Key of Map of Structured Data has too few bytes");
+      var key :- UTF8.Decode(value[..len]);
+      var value := value[len..];
+
+      // get typeId of value
+      :- Need(2 <= |value|, "Out of bytes reading Map Value");
+      :- Need(IsValid_AttributeName(key), "Key is not valid AttributeName");
+      var TerminalTypeId_value := value[0..2];
+      var value := value[2..];
+
+      // get value and construct result
+      var nval :- BytesToAttr(value, TerminalTypeId_value, true);
+      var nattr := AttributeValue.M(acc.val.MapAttributeValue[key := nval.val]);
+      GetMap(value[nval.len..], items-1, orig, AttrValueAndLength(nattr, acc.len + nval.len + 8 + len))
   }
   
   // Bytes to AttributeValue
-  function method {:vcs_split_on_every_assert} BytesToAttr(value : seq<uint8>, TerminalTypeId : TerminalTypeId, hasLen : bool) : (ret : Result<AttrValueAndLength, string>)
+  // Can't be {:tailrecursion} because it calls GetList ad GetMap which then call BytesToAttr
+  function method {:vcs_split_on_every_assert} BytesToAttr(value : seq<uint8>, typeId : TerminalTypeId, hasLen : bool) : (ret : Result<AttrValueAndLength, string>)
     ensures ret.Success? ==> ret.value.len <= |value|
     decreases |value|
   {
@@ -433,24 +427,24 @@ And therefore have no external dependencies except UTF8.cs
     if |value| < len then
       Failure("Structured Data has too few bytes")
 
-    else if TerminalTypeId == NULL then
+    else if typeId == NULL then
       if len != 0 then
         Failure("NULL type did not have length zero")
       else
         Success(AttrValueAndLength(AttributeValue.NULL(false), lengthBytes))
 
-    else if TerminalTypeId == STRING then
+    else if typeId == STRING then
       var str :- UTF8.Decode(value[..len]);
       Success(AttrValueAndLength(AttributeValue.S(str), len+lengthBytes))
 
-    else if TerminalTypeId == NUMBER then
+    else if typeId == NUMBER then
       var str :- UTF8.Decode(value[..len]);
       Success(AttrValueAndLength(AttributeValue.N(str), len+lengthBytes))
 
-    else if TerminalTypeId == BINARY then
+    else if typeId == BINARY then
       Success(AttrValueAndLength(AttributeValue.B(value[..len]), len+lengthBytes))
 
-    else if TerminalTypeId == BOOLEAN then
+    else if typeId == BOOLEAN then
       if len != 1 then
         Failure("Boolean Structured Data has more than one byte")
       else if value[0] == 0x00 then
@@ -460,48 +454,49 @@ And therefore have no external dependencies except UTF8.cs
       else
         Failure("Boolean Structured Data had inappropriate value")
 
-    else if TerminalTypeId == STRING_SET then
+    else if typeId == STRING_SET then
       if |value| < 4 then
         Failure("String Set Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
         var value := value[4..];
-        GetStringSet(value, len, |value|, 4+lengthBytes)
+        GetStringSet(value, len, |value| + 4 + lengthBytes, AttrValueAndLength(AttributeValue.SS([]), 4+lengthBytes))
 
-    else if TerminalTypeId == NUMBER_SET then
+    else if typeId == NUMBER_SET then
       if |value| < 4 then
         Failure("Number Set Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
         var value := value[4..];
-        GetNumberSet(value, len, |value|, 4+lengthBytes)
+        GetNumberSet(value, len, |value| + 4 + lengthBytes, AttrValueAndLength(AttributeValue.NS([]), 4 + lengthBytes))
 
-    else if TerminalTypeId == BINARY_SET then
+    else if typeId == BINARY_SET then
       if |value| < 4 then
         Failure("Binary Set Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
         var value := value[4..];
-        GetBinarySet(value, len, |value|, 4+lengthBytes)
+        GetBinarySet(value, len, |value| + 4 + lengthBytes, AttrValueAndLength(AttributeValue.BS([]), 4 + lengthBytes))
 
-    else if TerminalTypeId == MAP then
+    else if typeId == MAP then
       if |value| < 4 then
         Failure("List Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
         var value := value[4..];
-        GetMap(value, len, |value|, 4 + lengthBytes)
+        GetMap(value, len, |value| + 4 + lengthBytes,  AttrValueAndLength(AttributeValue.M(map[]), 4 + lengthBytes))
 
-    else if TerminalTypeId == LIST then
+    else if typeId == LIST then
       if |value| < 4 then
         Failure("List Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
         var value := value[4..];
-        GetList(value, len, |value|, 4 + lengthBytes)
+        GetList(value, len, |value| + 4 + lengthBytes, AttrValueAndLength(AttributeValue.L([]), 4 + lengthBytes))
 
     else
       Failure("Unsupported TerminalTypeId")
+  
   }
   
   predicate method CharLess(x : char, y : char)
@@ -515,7 +510,7 @@ And therefore have no external dependencies except UTF8.cs
   // useful when f and g in
   // var ret := map kv <- m.Items | true :: f(kv.0) := g(kv.1);
   // return Result
-  function method SimplifyMap<X,Y>(m : map<Result<X,string>, Result<Y,string>>) : Result<map<X,Y>, string>
+  function method SimplifyMap<X,Y>(m : map<Result<X,string>, Result<Y,string>>) : (ret : Result<map<X,Y>, string>)
   {
     var badKeys := set k <- m.Keys | k.Failure? :: k.error;
     var badKeySeq := SetToOrderedSequence(badKeys, CharLess);
@@ -533,7 +528,7 @@ And therefore have no external dependencies except UTF8.cs
   // useful when  g in
   // var ret := map kv <- m.Items | true :: kv.0 := g(kv.1);
   // returns Result
-  function method SimplifyMapValue<X,Y>(m : map<X, Result<Y,string>>) : Result<map<X,Y>, string>
+  function method SimplifyMapValue<X,Y>(m : map<X, Result<Y,string>>) : (ret : Result<map<X,Y>, string>)
   {
     var badValues := set k <- m.Values | k.Failure? :: k.error;
     var badValueSeq := SetToOrderedSequence(badValues, CharLess);
