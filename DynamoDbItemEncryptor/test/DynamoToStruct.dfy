@@ -1,9 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+
+include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "../src/DynamoToStruct.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Wrappers.dfy"
-include "../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
 module DynamoToStructTest {
 
@@ -19,18 +18,6 @@ module DynamoToStructTest {
     if n.Failure? {
       print n, "\n";
     }
-    /*
-    else {
-      print "***\n";
-      if "key10" in o {
-        print o["key10"], "\n";
-      }
-      if "key10" in n.value {
-        print n.value["key10"], "\n";
-      }
-      print "***\n";
-    }
-    */
     expect n.Success?;
     expect o == n.value;
 
@@ -41,6 +28,21 @@ module DynamoToStructTest {
     } else {
       //print x.value, "\n";
     }
+  }
+
+  method DoFail(data : seq<uint8>, typeId : TerminalTypeId)
+  {
+    var data := StructuredDataTerminal(value := data, typeId := typeId);
+    var sdata := StructuredData(content := Terminal(data), attributes := None);
+    expect StructuredToAttr(sdata).Failure?;
+  }
+  method {:test} {:vcs_split_on_every_assert} TestBadBytes() {
+    DoFail([], BOOLEAN);
+    DoFail([], STRING_SET);
+    DoFail([], NUMBER_SET);
+    DoFail([], BINARY_SET);
+    DoFail([], MAP);
+    DoFail([], LIST);
   }
 
   method {:test} {:vcs_split_on_every_assert} TestEncode() {
@@ -55,6 +57,9 @@ module DynamoToStructTest {
     expect newBinaryValue.Success?;
     expect newBinaryValue.value == binaryValue;
 
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#null
+    //= type=test
+    //# Null MUST be serialized as a zero-length byte string.
     var nullValue := AttributeValue.NULL(false);
     var encodedNullData := StructuredDataTerminal(value := [], typeId := [0,0]);
     var encodedNullValue := StructuredData(content := Terminal(encodedNullData), attributes := None);
@@ -87,7 +92,32 @@ module DynamoToStructTest {
     var newListValue := StructuredToAttr(listStruct.value);
     expect newListValue.Success?;
     expect newListValue.value == listValue;
-  }
+
+    var mapValue := AttributeValue.M(map["keyA" := binaryValue, "keyB" := nullValue, "keyC" := boolValue, "keyD" := listValue]);
+    var k := 'k' as uint8;
+    var e := 'e' as uint8;
+    var y := 'y' as uint8;
+    var A := 'A' as uint8;
+    var B := 'B' as uint8;
+    var C := 'C' as uint8;
+    var D := 'D' as uint8;
+
+    var encodedMapData := StructuredDataTerminal(value :=
+      [0,0,0,4,
+        0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5,
+        0,1, 0,0,0,4, k,e,y,B, 0,0, 0,0,0,0,
+        0,1, 0,0,0,4, k,e,y,C, 0,4, 0,0,0,1, 0,
+        0,1, 0,0,0,4, k,e,y,D, 3,0, 0,0,0,28, 0,0,0,3, 0,3, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0],
+    typeId := [2,0]);
+    var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
+    var mapStruct := AttrToStructured(mapValue);
+    expect mapStruct.Success?;
+    expect mapStruct.value == encodedMapValue;
+
+    var newMapValue := StructuredToAttr(mapStruct.value);
+    expect newMapValue.Success?;
+    expect newMapValue.value == mapValue;
+}
 
   method {:test} {:vcs_split_on_every_assert} TestRoundTrip() {
 
