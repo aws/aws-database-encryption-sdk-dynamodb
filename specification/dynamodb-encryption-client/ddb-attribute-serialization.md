@@ -130,7 +130,7 @@ Set Entry Value MUST be a [Value](#value) of the following types:
 - [Number](#number)
 - [Binary](#binary)
 
-#### Map
+#### Map (TODO: Duvet currently can't handle headers named "Map")
 
 Map MUST be serialized as:
 
