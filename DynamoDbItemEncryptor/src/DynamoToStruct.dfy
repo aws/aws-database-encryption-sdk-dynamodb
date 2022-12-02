@@ -550,10 +550,10 @@ module DynamoToStruct {
   function method SimplifyMapValue<X,Y>(m : map<X, Result<Y,string>>) : (ret : Result<map<X,Y>, string>)
   {
     var badValues := set k <- m.Values | k.Failure? :: k.error;
-    var badValueSeq := SetToOrderedSequence(badValues, CharLess);
-    if |badValueSeq| == 0 then
+    if |badValues| == 0 then
       Success(map kv <- m.Items | kv.1.Success? :: kv.0 := kv.1.value)
     else
+      var badValueSeq := SetToOrderedSequence(badValues, CharLess);
       Failure(Join(badValueSeq, "\n"))
   }
 }
