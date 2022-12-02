@@ -45,7 +45,12 @@ module DynamoToStruct {
       SimplifyMapValue(structuredData)
   }
 
-  function method AttributeToBytes(a : AttributeValue) : Result<seq<uint8>, string>
+  function method TopLevelAttributeToBytes(a : AttributeValue) : Result<seq<uint8>, string>
+    // We never need to prefix at the top level.
+    // The Type ID is serialized separately,
+    // and the Length is not needed since we are
+    // working with the exact set of bytes when we
+    // need to deserialize.
   {
     AttrToBytes(a, false)
   }
