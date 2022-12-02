@@ -64,7 +64,7 @@ module DynamoToStructTest {
     expect binaryStruct.Success?;
     expect binaryStruct.value == encodedBinaryValue;
 
-    var newBinaryValue := StructuredToAttr(binaryStruct.value);
+    var newBinaryValue := StructuredToAttr(encodedBinaryValue);
     expect newBinaryValue.Success?;
     expect newBinaryValue.value == binaryValue;
 
