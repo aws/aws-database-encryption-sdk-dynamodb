@@ -113,22 +113,11 @@ module DynamoToStruct {
   predicate method CharLess(x : char, y : char) {
     x < y
   }
-  predicate method ByteLess(x : uint8, y : uint8) {
-    x < y
-  }
 
   predicate method AttrLexicographicLessOrEqual(x : AttrNameAndSerializedValue, y : AttrNameAndSerializedValue) {
     LexicographicLessOrEqual(x.0, y.0, CharLess)
   }
-
-  predicate method StringLexicographicLessOrEqual(x : string, y : string) {
-    LexicographicLessOrEqual(x, y, CharLess)
-  }
-
-  predicate method ByteLexicographicLessOrEqual(x : seq<uint8>, y : seq<uint8>) {
-    LexicographicLessOrEqual(x, y, ByteLess)
-  }
-
+  
 /*
   We know this is a total order, because LexicographicLessOrEqual on strings is a total order
   TODO - actually prove it
@@ -137,10 +126,7 @@ module DynamoToStruct {
 */
   lemma {:axiom} AttrLexicographicLessOrEqualIsTotal()
     ensures TotalOrdering(AttrLexicographicLessOrEqual)
-  lemma {:axiom} StringLexicographicLessOrEqualIsTotal()
-    ensures TotalOrdering(StringLexicographicLessOrEqual)
-  lemma {:axiom} ByteLexicographicLessOrEqualIsTotal()
-    ensures TotalOrdering(ByteLexicographicLessOrEqual)
+
 /*
   {
     assert Reflexive(AttrLexicographicLessOrEqualIsTotal);
@@ -178,20 +164,14 @@ module DynamoToStruct {
       case N(n) => Wrap(a, wrap, UTF8.Encode(n))
       case B(b) => Wrap(a, wrap, Success(b))
       case SS(ss) =>
-        StringLexicographicLessOrEqualIsTotal();
-        var ss := MergeSortBy(ss, StringLexicographicLessOrEqual);
         var count :- U32ToBigEndian(|ss|);
         var body :- CollectString(ss);
         Wrap(a, wrap, Success(count + body))
       case NS(ns) =>
-        StringLexicographicLessOrEqualIsTotal();
-        var ns := MergeSortBy(ns, StringLexicographicLessOrEqual);
         var count :- U32ToBigEndian(|ns|);
         var body :- CollectString(ns);
         Wrap(a, wrap, Success(count + body))
       case BS(bs) =>
-        ByteLexicographicLessOrEqualIsTotal();
-        var bs := MergeSortBy(bs, ByteLexicographicLessOrEqual);
         var count :- U32ToBigEndian(|bs|);
         var body :- CollectBinary(bs);
         Wrap(a, wrap, Success(count + body))
@@ -244,7 +224,6 @@ module DynamoToStruct {
 
   // String Set or Number Set to Bytes
   function method {:tailrecursion} CollectString(b : StringSetAttributeValue, acc : seq<uint8> := []) : Result<seq<uint8>, string>
-    requires IsSorted(b, StringLexicographicLessOrEqual)
   {
     if |b| == 0 then
       Success(acc)
@@ -256,7 +235,6 @@ module DynamoToStruct {
 
   // Binary Set to Bytes
   function method {:tailrecursion} CollectBinary(b : BinarySetAttributeValue, acc : seq<uint8> := []) : Result<seq<uint8>, string>
-    requires IsSorted(b, ByteLexicographicLessOrEqual)
   {
     if |b| == 0 then
       Success(acc)

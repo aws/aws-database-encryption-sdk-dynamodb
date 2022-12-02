@@ -36,6 +36,14 @@ module DynamoToStructTest {
     var sdata := StructuredData(content := Terminal(data), attributes := None);
     expect StructuredToAttr(sdata).Failure?;
   }
+  method DoSucceed(data : seq<uint8>, typeId : TerminalTypeId)
+  {
+    var data := StructuredDataTerminal(value := data, typeId := typeId);
+    var sdata := StructuredData(content := Terminal(data), attributes := None);
+    expect StructuredToAttr(sdata).Success?;
+  }
+
+
   method {:test} {:vcs_split_on_every_assert} TestBadBytes() {
     DoFail([], BOOLEAN);
     DoFail([], STRING_SET);
@@ -43,6 +51,9 @@ module DynamoToStructTest {
     DoFail([], BINARY_SET);
     DoFail([], MAP);
     DoFail([], LIST);
+    DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST);
+    DoFail([0,0,0,1, 3,1, 0,0,0,0], LIST);
+    DoFail([0,0,0,1, 0,5, 0,0,0,0], LIST);
   }
 
   method {:test} {:vcs_split_on_every_assert} TestEncode() {
