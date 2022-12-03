@@ -91,6 +91,7 @@ module DynamoToStruct {
 
     const LENGTH_LEN : nat := 4; // number of bytes in an encoded count or length
     const BOOL_LEN : nat := 1;   // number of bytes in an encoded boolean
+    const PREFIX_LEN : nat := 6; // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
 
     const TERM_T : uint8 := 0x00;
     const SET_T  : uint8 := 0x01;
@@ -157,11 +158,11 @@ module DynamoToStruct {
     //# - `0x00` if the value is `false`
     //# - `0x01` if the value is `true`
     ensures a.BOOL? &&!prefix ==>
-      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == 1 && ret.value[0] == 1)
-      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == 1 && ret.value[0] == 0)
+      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 1)
+      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 0)
     ensures a.BOOL? &&prefix ==>
-      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == 7 && ret.value[6] == 1)
-      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == 7 && ret.value[6] == 0)
+      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 1)
+      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 0)
   {
     var baseBytes :- match a {
       case S(s) => UTF8.Encode(s)
