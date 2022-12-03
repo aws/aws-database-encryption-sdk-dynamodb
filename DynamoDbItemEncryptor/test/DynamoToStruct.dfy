@@ -49,18 +49,8 @@ module DynamoToStructTest {
     DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1,2,3], LIST);
   }
 
-  method {:test} {:vcs_split_on_every_assert} TestEncode() {
-    var binaryValue := AttributeValue.B([1,2,3,4,5]);
-    var encodedBinaryData := StructuredDataTerminal(value := [1,2,3,4,5], typeId := [0,3]);
-    var encodedBinaryValue := StructuredData(content := Terminal(encodedBinaryData), attributes := None);
-    var binaryStruct := AttrToStructured(binaryValue);
-    expect binaryStruct.Success?;
-    expect binaryStruct.value == encodedBinaryValue;
-
-    var newBinaryValue := StructuredToAttr(encodedBinaryValue);
-    expect newBinaryValue.Success?;
-    expect newBinaryValue.value == binaryValue;
-
+  // Split because verification timed out
+  method {:test} {:vcs_split_on_every_assert} TestEncode2() {
     var stringValue := AttributeValue.S("abc");
     var encodedStringData := StructuredDataTerminal(value := [97,98,99], typeId := [0,1]);
     var encodedStringValue := StructuredData(content := Terminal(encodedStringData), attributes := None);
@@ -115,6 +105,19 @@ module DynamoToStructTest {
     var newBinarySetValue := StructuredToAttr(encodedBinarySetValue);
     expect newBinarySetValue.Success?;
     expect newBinarySetValue.value == binarySetValue;
+  }
+
+  method {:test} {:vcs_split_on_every_assert} TestEncode() {
+    var binaryValue := AttributeValue.B([1,2,3,4,5]);
+    var encodedBinaryData := StructuredDataTerminal(value := [1,2,3,4,5], typeId := [0,3]);
+    var encodedBinaryValue := StructuredData(content := Terminal(encodedBinaryData), attributes := None);
+    var binaryStruct := AttrToStructured(binaryValue);
+    expect binaryStruct.Success?;
+    expect binaryStruct.value == encodedBinaryValue;
+
+    var newBinaryValue := StructuredToAttr(encodedBinaryValue);
+    expect newBinaryValue.Success?;
+    expect newBinaryValue.value == binaryValue;
 
     var nullValue := AttributeValue.NULL(false);
     var encodedNullData := StructuredDataTerminal(value := [], typeId := [0,0]);

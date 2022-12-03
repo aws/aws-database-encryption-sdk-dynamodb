@@ -30,13 +30,13 @@ module DynamoToStruct {
   Also prove : "there exists a single canonical serialization of items that contains a set or map (i.e. there is a canonical ordering or set entries)"
 */
 
-  function method ItemToStructured(item : AttributeMap) : Result<StructuredDataMap, Error>
+  function method {:opaque}  ItemToStructured(item : AttributeMap) : Result<StructuredDataMap, Error>
   {
     var structuredMap := map kv <- item.Items | true :: kv.0 := AttrToStructured(kv.1);
     MapError(SimplifyMapValue(structuredMap))
   }
 
-  function method StructuredToItem(s : StructuredDataMap) : Result<AttributeMap, Error>
+  function method {:opaque} StructuredToItem(s : StructuredDataMap) : Result<AttributeMap, Error>
   {
     var badNames := set k <- s.Keys | !IsValid_AttributeName(k) :: k;
     if |badNames| > 0 then
