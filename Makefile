@@ -21,6 +21,7 @@ duvet_report:
 		report \
 		--spec-pattern "compliance/**/*.toml" \
 		--source-pattern "DynamoDbItemEncryptor/src/**/*.dfy" \
+		--source-pattern "DynamoDbItemEncryptor/test/**/*.dfy" \
 		--source-pattern "DynamoDbItemEncryptor/Model/**/*.smithy" \
 		--source-pattern "DynamoDbEncryptionMiddlewareInternal/src/**/*.dfy" \
 		--source-pattern "DynamoDbEncryptionMiddlewareInternal/Model/**/*.smithy" \
