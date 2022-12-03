@@ -26,6 +26,7 @@ module DynamoToStructTest {
   }
 
   method {:test} {:vcs_split_on_every_assert} TestZeroBytes() {
+    DoSucceed([], DynamoToStruct.NULL);
     DoSucceed([], STRING);
     DoSucceed([], NUMBER);
     DoSucceed([], BINARY);
@@ -39,7 +40,13 @@ module DynamoToStructTest {
 
   method {:test} {:vcs_split_on_every_assert} TestBadType() {
     DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST);
-    DoFail([0,0,0,1, 3,1, 0,0,0,0], LIST);
+    DoFail   ([0,0,0,1, 3,1, 0,0,0,0], LIST);
+  }
+
+  method {:test} {:vcs_split_on_every_assert} TestBadLength() {
+    DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1], LIST);
+    DoSucceed([0,0,0,1, 0,3, 0,0,0,2, 1,2], LIST);
+    DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1,2,3], LIST);
   }
 
   method {:test} {:vcs_split_on_every_assert} TestEncode() {
@@ -54,9 +61,61 @@ module DynamoToStructTest {
     expect newBinaryValue.Success?;
     expect newBinaryValue.value == binaryValue;
 
-    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#null
-    //= type=test
-    //# Null MUST be serialized as a zero-length byte string.
+    var stringValue := AttributeValue.S("abc");
+    var encodedStringData := StructuredDataTerminal(value := [97,98,99], typeId := [0,1]);
+    var encodedStringValue := StructuredData(content := Terminal(encodedStringData), attributes := None);
+    var stringStruct := AttrToStructured(stringValue);
+    expect stringStruct.Success?;
+    expect stringStruct.value == encodedStringValue;
+
+    var newStringValue := StructuredToAttr(encodedStringValue);
+    expect newStringValue.Success?;
+    expect newStringValue.value == stringValue;
+
+    var numberValue := AttributeValue.N("123");
+    var encodedNumberData := StructuredDataTerminal(value := [49,50,51], typeId := [0,2]);
+    var encodedNumberValue := StructuredData(content := Terminal(encodedNumberData), attributes := None);
+    var numberStruct := AttrToStructured(numberValue);
+    expect numberStruct.Success?;
+    expect numberStruct.value == encodedNumberValue;
+
+    var newNumberValue := StructuredToAttr(encodedNumberValue);
+    expect newNumberValue.Success?;
+    expect newNumberValue.value == numberValue;
+
+    var numberSetValue := AttributeValue.NS(["123","45"]);
+    var encodedNumberSetData := StructuredDataTerminal(value := [0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,2, 52,53], typeId := [1,2]);
+    var encodedNumberSetValue := StructuredData(content := Terminal(encodedNumberSetData), attributes := None);
+    var numberSetStruct := AttrToStructured(numberSetValue);
+    expect numberSetStruct.Success?;
+    expect numberSetStruct.value == encodedNumberSetValue;
+
+    var newNumberSetValue := StructuredToAttr(encodedNumberSetValue);
+    expect newNumberSetValue.Success?;
+    expect newNumberSetValue.value == numberSetValue;
+
+    var stringSetValue := AttributeValue.SS(["abc","de"]);
+    var encodedStringSetData := StructuredDataTerminal(value := [0,0,0,2, 0,0,0,3, 97,98,99, 0,0,0,2, 100,101], typeId := [1,1]);
+    var encodedStringSetValue := StructuredData(content := Terminal(encodedStringSetData), attributes := None);
+    var stringSetStruct := AttrToStructured(stringSetValue);
+    expect stringSetStruct.Success?;
+    expect stringSetStruct.value == encodedStringSetValue;
+
+    var newStringSetValue := StructuredToAttr(encodedStringSetValue);
+    expect newStringSetValue.Success?;
+    expect newStringSetValue.value == stringSetValue;
+
+    var binarySetValue := AttributeValue.BS([[1,2,3],[4,5]]);
+    var encodedBinarySetData := StructuredDataTerminal(value := [0,0,0,2, 0,0,0,3, 1,2,3, 0,0,0,2, 4,5], typeId := [1,3]);
+    var encodedBinarySetValue := StructuredData(content := Terminal(encodedBinarySetData), attributes := None);
+    var binarySetStruct := AttrToStructured(binarySetValue);
+    expect binarySetStruct.Success?;
+    expect binarySetStruct.value == encodedBinarySetValue;
+
+    var newBinarySetValue := StructuredToAttr(encodedBinarySetValue);
+    expect newBinarySetValue.Success?;
+    expect newBinarySetValue.value == binarySetValue;
+
     var nullValue := AttributeValue.NULL(false);
     var encodedNullData := StructuredDataTerminal(value := [], typeId := [0,0]);
     var encodedNullValue := StructuredData(content := Terminal(encodedNullData), attributes := None);
@@ -134,10 +193,8 @@ module DynamoToStructTest {
     var val10 := AttributeValue.M(map["key1" := val1, "key2" := val2, "key3" := val3, "key4" := val4, "key5" := val5, "key6" := val6, "key7" := val7, "key8" := val8, "key9" := val9]);
 
     var attrMap := map["key1" := val1, "key2" := val2, "key3" := val3, "key4" := val4, "key5" := val5, "key6" := val6, "key7" := val7, "key8" := val8, "key9" := val9, "key10" := val10];
-    var struct := ItemToStructured(attrMap);
-    expect struct.Success?;
-    var nAttrMap := StructuredToItem(struct.value);
-    expect nAttrMap.Success?;
-    expect attrMap == nAttrMap.value;
+    var struct :- expect ItemToStructured(attrMap);
+    var nAttrMap :- expect StructuredToItem(struct);
+    expect attrMap == nAttrMap;
   }
 }
