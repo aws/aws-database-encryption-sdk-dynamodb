@@ -57,7 +57,7 @@ module DynamoToStruct {
 
   function method AttrToStructured(item : AttributeValue) : Result<StructuredData, string>
   {
-    var body :- AttributeToBytes(item);
+    var body :- TopLevelAttributeToBytes(item);
     Success(StructuredData(content := Terminal(StructuredDataTerminal(value := body, typeId := AttrToTypeId(item))), attributes := None))
   }
 
@@ -546,6 +546,42 @@ module DynamoToStruct {
       Failure(Join(badKeySeq + badValueSeq, "\n"))
   }
 
+  lemma FlattenMapKeepsKeys<X,Y>(m : map<X, Result<Y,string>>, mValues : map<X,Y>)
+    requires forall k <- m.Values :: k.Success?
+    requires mValues == FlattenMap(m)
+    ensures mValues.Keys == m.Keys
+  {
+    reveal FlattenMap();
+    assert m.Keys == mValues.Keys by {
+      assert forall k: X :: k in m.Keys ==> k in mValues.Keys by {
+        forall k: X ensures k in m.Keys ==> k in mValues.Keys {
+          if k in m.Keys {
+            assert (k,m[k]) in m.Items;
+          }
+        }
+      }
+    }
+  }
+
+  function method {:opaque} FlattenMap<X,Y>(m : map<X, Result<Y,string>>): map<X,Y> {
+    map kv <- m.Items | kv.1.Success? :: kv.0 := kv.1.value
+  }
+
+  function method {:opaque} FlattenErrors<X,Y>(m : map<X, Result<Y,string>>): set<string> {
+    set k <- m.Values | k.Failure? :: k.error
+  }
+
+  lemma NotAllSuccessMeansOneFailure<X,Y>(m : map<X, Result<Y,string>>)
+    requires ! forall v <- m.Values :: v.Success?
+    ensures exists v <- m.Values :: v.Failure?
+    ensures |FlattenErrors(m)| > 0
+  {
+    reveal FlattenErrors();
+    assert exists v <- m.Values :: v.Failure?;
+    var errors := FlattenErrors(m);
+    assert exists v :: v in m.Values && v.Failure? && (v.error in errors);
+  }
+
   // Turn a map<X, Result<Y,string>> into a Result<map<X,Y>, string>
   // If anything reported Failure, return a Failure with all of the error messages
   //
@@ -553,11 +589,18 @@ module DynamoToStruct {
   // var ret := map kv <- m.Items | true :: kv.0 := g(kv.1);
   // returns Result
   function method SimplifyMapValue<X,Y>(m : map<X, Result<Y,string>>) : (ret : Result<map<X,Y>, string>)
+    ensures ret.Success? ==> ret.value.Keys == m.Keys
+    ensures ret.Success? ==> |ret.value.Keys| == |m.Keys|
+    ensures ret.Success? ==> |ret.value| == |m|
   {
-    var badValues := set k <- m.Values | k.Failure? :: k.error;
-    if |badValues| == 0 then
-      Success(map kv <- m.Items | kv.1.Success? :: kv.0 := kv.1.value)
+    if forall v <- m.Values :: v.Success? then
+      var result := FlattenMap(m);
+      FlattenMapKeepsKeys(m, result);
+      Success(result)
     else
+      NotAllSuccessMeansOneFailure(m);
+      var badValues := FlattenErrors(m);
+      assert(|badValues| > 0);
       var badValueSeq := SetToOrderedSequence(badValues, CharLess);
       Failure(Join(badValueSeq, "\n"))
   }

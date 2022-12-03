@@ -12,24 +12,6 @@ module DynamoToStructTest {
   import opened AwsCryptographyStructuredEncryptionTypes
   import opened StandardLibrary.UInt
 
-
-  method {:opaque} check(o : AttributeMap, n : Result<AttributeMap, string>)
-  {
-    if n.Failure? {
-      print n, "\n";
-    }
-    expect n.Success?;
-    expect o == n.value;
-
-  }
-  method {:opaque} check1(x : Result<StructuredDataMap, string>) {
-    if x.Failure? {
-      print "SD ", x, "\n";
-    } else {
-      //print x.value, "\n";
-    }
-  }
-
   method DoFail(data : seq<uint8>, typeId : TerminalTypeId)
   {
     var data := StructuredDataTerminal(value := data, typeId := typeId);
@@ -43,17 +25,21 @@ module DynamoToStructTest {
     expect StructuredToAttr(sdata).Success?;
   }
 
-
-  method {:test} {:vcs_split_on_every_assert} TestBadBytes() {
+  method {:test} {:vcs_split_on_every_assert} TestZeroBytes() {
+    DoSucceed([], STRING);
+    DoSucceed([], NUMBER);
+    DoSucceed([], BINARY);
     DoFail([], BOOLEAN);
     DoFail([], STRING_SET);
     DoFail([], NUMBER_SET);
     DoFail([], BINARY_SET);
     DoFail([], MAP);
     DoFail([], LIST);
+  }
+
+  method {:test} {:vcs_split_on_every_assert} TestBadType() {
     DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST);
     DoFail([0,0,0,1, 3,1, 0,0,0,0], LIST);
-    DoFail([0,0,0,1, 0,5, 0,0,0,0], LIST);
   }
 
   method {:test} {:vcs_split_on_every_assert} TestEncode() {
@@ -149,9 +135,9 @@ module DynamoToStructTest {
 
     var attrMap := map["key1" := val1, "key2" := val2, "key3" := val3, "key4" := val4, "key5" := val5, "key6" := val6, "key7" := val7, "key8" := val8, "key9" := val9, "key10" := val10];
     var struct := ItemToStructured(attrMap);
-    check1(struct);
     expect struct.Success?;
     var nAttrMap := StructuredToItem(struct.value);
-    check(attrMap, nAttrMap);
+    expect nAttrMap.Success?;
+    expect attrMap == nAttrMap.value;
   }
 }
