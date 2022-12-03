@@ -159,15 +159,9 @@ module DynamoToStruct {
     ensures a.BOOL? &&!prefix ==>
       && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == 1 && ret.value[0] == 1)
       && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == 1 && ret.value[0] == 0)
-    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#null
-    //= type=implication
-    //# Null MUST be serialized as a zero-length byte string. 
-    ensures a.NULL? && !prefix ==> ret.Success? && |ret.value| == 0
-    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#binary
-    //= type=implication
-    //# Binary MUST be serialized with the identity function;
-    //# or more plainly, Binary Attribute Values are used as is.
-    ensures a.B? && !prefix ==> ret.Success? && ret.value == a.BinaryAttributeValue
+    ensures a.BOOL? &&prefix ==>
+      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == 7 && ret.value[6] == 1)
+      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == 7 && ret.value[6] == 0)
   {
     var baseBytes :- match a {
       case S(s) => UTF8.Encode(s)
