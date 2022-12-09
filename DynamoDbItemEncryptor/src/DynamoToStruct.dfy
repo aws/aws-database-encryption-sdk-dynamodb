@@ -30,22 +30,28 @@ module DynamoToStruct {
   Also prove : "there exists a single canonical serialization of items that contains a set or map (i.e. there is a canonical ordering or set entries)"
 */
 
-  function method {:opaque}  ItemToStructured(item : AttributeMap) : Result<StructuredDataMap, Error>
+
+  function method {:opaque} ItemToStructured(item : AttributeMap) : (ret : Result<StructuredDataMap, Error>)
+    ensures ret.Success? ==> ret.value.Keys == item.Keys;
   {
     var structuredMap := map kv <- item.Items | true :: kv.0 := AttrToStructured(kv.1);
+    MapKeysMatchItems(item);
     MapError(SimplifyMapValue(structuredMap))
   }
 
-  function method {:opaque} StructuredToItem(s : StructuredDataMap) : Result<AttributeMap, Error>
+  function method {:opaque} StructuredToItem(s : StructuredDataMap) : (ret : Result<AttributeMap, Error>)
+      ensures ret.Success? ==> ret.value.Keys == s.Keys;
   {
-    var badNames := set k <- s.Keys | !IsValid_AttributeName(k) :: k;
-    if |badNames| > 0 then
+    if forall k <- s.Keys :: IsValid_AttributeName(k) then
+      var structuredData := map kv <- s.Items | true :: kv.0 := StructuredToAttr(kv.1);
+      MapKeysMatchItems(s);
+      MapError(SimplifyMapValue(structuredData))
+    else
+      var badNames := set k <- s.Keys | !IsValid_AttributeName(k) :: k;
+      OneBadKey(s, badNames, IsValid_AttributeName);
       var orderedAttrNames := SetToOrderedSequence(badNames, CharLess);
       var attrNameList := Join(orderedAttrNames, ",");
       MakeError("Not valid attribute names : " + attrNameList)
-    else
-      var structuredData := map kv <- s.Items | IsValid_AttributeName(kv.0) :: kv.0 := StructuredToAttr(kv.1);
-      MapError(SimplifyMapValue(structuredData))
   }
 
   // everything past here is to implement those two
@@ -61,7 +67,7 @@ module DynamoToStruct {
       MakeError(r.error)
   }
 
-  function method TopLevelAttributeToBytes(a : AttributeValue) : Result<seq<uint8>, string>
+  function method  {:opaque} TopLevelAttributeToBytes(a : AttributeValue) : Result<seq<uint8>, string>
     // We never need to prefix at the top level.
     // The Type ID is serialized separately,
     // and the Length is not needed since we are
@@ -71,13 +77,13 @@ module DynamoToStruct {
     AttrToBytes(a, false)
   }
 
-  function method AttrToStructured(item : AttributeValue) : Result<StructuredData, string>
+  function method  {:opaque} AttrToStructured(item : AttributeValue) : Result<StructuredData, string>
   {
     var body :- TopLevelAttributeToBytes(item);
     Success(StructuredData(content := Terminal(StructuredDataTerminal(value := body, typeId := AttrToTypeId(item))), attributes := None))
   }
 
-  function method StructuredToAttr(s : StructuredData) : Result<AttributeValue, string>
+  function method  {:opaque} StructuredToAttr(s : StructuredData) : Result<AttributeValue, string>
   {
     match s.content {
       case Terminal(s) => 
@@ -89,8 +95,9 @@ module DynamoToStruct {
     }
   }
 
-    const LENGTH_LEN : nat := 4; // number of bytes in an encoded count or length
     const BOOL_LEN : nat := 1;   // number of bytes in an encoded boolean
+    const TYPEID_LEN : nat := 2;   // number of bytes in a TerminalTypeId
+    const LENGTH_LEN : nat := 4; // number of bytes in an encoded count or length
     const PREFIX_LEN : nat := 6; // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
 
     const TERM_T : uint8 := 0x00;
@@ -149,20 +156,111 @@ module DynamoToStruct {
     ensures TotalOrdering(AttrLexicographicLessOrEqual)
 
   // convert AttributeValue to byte sequence
-  // if `wrap` is true, prefix sequence with TypeID and Length
+  // if `prefix` is true, prefix sequence with TypeID and Length
   function method AttrToBytes(a : AttributeValue, prefix : bool) : (ret : Result<seq<uint8>, string>)
     decreases a
+    ensures ret.Success? && prefix ==> 6 <= |ret.value|
+
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#boolean
     //= type=implication
     //# Boolean MUST be serialized as:
     //# - `0x00` if the value is `false`
     //# - `0x01` if the value is `true`
-    ensures a.BOOL? &&!prefix ==>
+    ensures a.BOOL? && !prefix ==>
       && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 1)
       && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 0)
-    ensures a.BOOL? &&prefix ==>
-      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 1)
-      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 0)
+    ensures a.BOOL? && prefix ==>
+      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 1
+          && ret.value[0..TYPEID_LEN] == BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1])
+      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 0
+          && ret.value[0..TYPEID_LEN] == BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1])
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#binary
+    //= type=implication
+    //# Binary MUST be serialized with the identity function;
+    //# or more plainly, Binary Attribute Values are used as is.
+    ensures a.B? && !prefix ==> ret.Success? && ret.value == a.BinaryAttributeValue
+    ensures a.B? && prefix && ret.Success? ==>
+      && ret.value[PREFIX_LEN..] == a.BinaryAttributeValue
+      && ret.value[0..TYPEID_LEN] == BINARY
+      && U32ToBigEndian(|a.BinaryAttributeValue|).Success?
+      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|a.BinaryAttributeValue|).value
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#null
+    //= type=implication
+    //# Null MUST be serialized as a zero-length byte string.
+    ensures a.NULL? && !prefix ==> ret.Success? && |ret.value| == 0
+    ensures a.NULL? &&  prefix ==> ret.Success? && |ret.value| == PREFIX_LEN && ret.value[0..TYPEID_LEN] == NULL && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,0]
+  
+    ensures a.S? && ret.Success? && !prefix ==> 
+        UTF8.Decode(ret.value).Success? && UTF8.Decode(ret.value).value == a.StringAttributeValue
+    ensures a.S? && ret.Success? && prefix ==> 
+        && UTF8.Decode(ret.value[PREFIX_LEN..]).Success?
+        && UTF8.Decode(ret.value[PREFIX_LEN..]).value == a.StringAttributeValue
+        && ret.value[0..TYPEID_LEN] == STRING
+        && UTF8.Encode(a.StringAttributeValue).Success?
+        && U32ToBigEndian(|UTF8.Encode(a.StringAttributeValue).value|).Success?
+        && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(a.StringAttributeValue).value|).value
+
+    ensures a.N? && ret.Success? && !prefix ==> 
+        UTF8.Decode(ret.value).Success? && UTF8.Decode(ret.value).value == a.NumberAttributeValue
+    ensures a.N? && ret.Success? && prefix ==> 
+        && UTF8.Decode(ret.value[PREFIX_LEN..]).Success?
+        && UTF8.Decode(ret.value[PREFIX_LEN..]).value == a.NumberAttributeValue
+        && ret.value[0..TYPEID_LEN] == NUMBER
+        && UTF8.Encode(a.NumberAttributeValue).Success?
+        && U32ToBigEndian(|UTF8.Encode(a.NumberAttributeValue).value|).Success?
+        && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(a.NumberAttributeValue).value|).value
+
+    ensures a.BS? && ret.Success? && !prefix ==>
+        && U32ToBigEndian(|a.BinarySetAttributeValue|).Success?
+        && |ret.value| >= LENGTH_LEN
+        && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.BinarySetAttributeValue|).value
+    ensures a.BS? && ret.Success? && prefix ==>
+        && U32ToBigEndian(|a.BinarySetAttributeValue|).Success?
+        && |ret.value| >= PREFIX_LEN + LENGTH_LEN
+        && ret.value[0..TYPEID_LEN] == BINARY_SET
+        && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.BinarySetAttributeValue|).value
+
+    ensures a.SS? && ret.Success? && !prefix ==>
+        && U32ToBigEndian(|a.StringSetAttributeValue|).Success?
+        && |ret.value| >= LENGTH_LEN
+        && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.StringSetAttributeValue|).value
+    ensures a.SS? && ret.Success? && prefix ==>
+        && U32ToBigEndian(|a.StringSetAttributeValue|).Success?
+        && |ret.value| >= PREFIX_LEN + LENGTH_LEN
+        && ret.value[0..TYPEID_LEN] == STRING_SET
+        && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.StringSetAttributeValue|).value
+
+    ensures a.NS? && ret.Success? && !prefix ==>
+        && U32ToBigEndian(|a.NumberSetAttributeValue|).Success?
+        && |ret.value| >= LENGTH_LEN
+        && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.NumberSetAttributeValue|).value
+    ensures a.NS? && ret.Success? && prefix ==>
+        && U32ToBigEndian(|a.NumberSetAttributeValue|).Success?
+        && |ret.value| >= PREFIX_LEN + LENGTH_LEN
+        && ret.value[0..TYPEID_LEN] == NUMBER_SET
+        && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.NumberSetAttributeValue|).value
+
+    ensures a.L? && ret.Success? && !prefix ==>
+        && U32ToBigEndian(|a.ListAttributeValue|).Success?
+        && |ret.value| >= LENGTH_LEN
+        && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.ListAttributeValue|).value
+    ensures a.L? && ret.Success? && prefix ==>
+        && U32ToBigEndian(|a.ListAttributeValue|).Success?
+        && |ret.value| >= PREFIX_LEN + LENGTH_LEN
+        && ret.value[0..TYPEID_LEN] == LIST
+        && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.ListAttributeValue|).value
+
+    ensures a.M? && ret.Success? && !prefix ==>
+        && U32ToBigEndian(|a.MapAttributeValue|).Success?
+        && |ret.value| >= LENGTH_LEN
+        && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.MapAttributeValue|).value
+    ensures a.M? && ret.Success? && prefix ==>
+        && U32ToBigEndian(|a.MapAttributeValue|).Success?
+        && |ret.value| >= PREFIX_LEN + LENGTH_LEN
+        && ret.value[0..TYPEID_LEN] == MAP
+        && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.MapAttributeValue|).value
   {
     var baseBytes :- match a {
       case S(s) => UTF8.Encode(s)
@@ -287,7 +385,7 @@ module DynamoToStruct {
   )
 
   // Bytes to Binary Set
-  function method {:tailrecursion} {:vcs_split_on_every_assert}  DeserializeBinarySet(
+  function method {:tailrecursion} {:vcs_split_on_every_assert}  {:opaque} DeserializeBinarySet(
     serialized : seq<uint8>,
     remainingCount : nat,
     origSerializedSize : nat,
@@ -313,7 +411,7 @@ module DynamoToStruct {
   }
 
   // Bytes to String Set
-  function method {:tailrecursion} {:vcs_split_on_every_assert} DeserializeStringSet(
+  function method {:tailrecursion} {:vcs_split_on_every_assert} {:opaque} DeserializeStringSet(
     serialized : seq<uint8>,
     remainingCount : nat,
     origSerializedSize : nat,
@@ -340,7 +438,7 @@ module DynamoToStruct {
   }
 
   // Bytes to Number Set
-  function method {:tailrecursion} {:vcs_split_on_every_assert} DeserializeNumberSet(
+  function method {:tailrecursion} {:vcs_split_on_every_assert} {:opaque} DeserializeNumberSet(
     serialized : seq<uint8>, 
     remainingCount : nat, 
     origSerializedSize : nat, 
@@ -368,7 +466,7 @@ module DynamoToStruct {
   
   // Bytes to List
   // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeList
-  function method {:vcs_split_on_every_assert} DeserializeList(
+  function method {:vcs_split_on_every_assert} {:opaque} DeserializeList(
     serialized : seq<uint8>, 
     remainingCount : nat, 
     origSerializedSize : nat, 
@@ -399,7 +497,7 @@ module DynamoToStruct {
 
   // Bytes to Map
   // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeMap
-  function method {:vcs_split_on_every_assert} DeserializeMap(
+  function method {:vcs_split_on_every_assert} {:opaque} DeserializeMap(
     serialized : seq<uint8>,
     remainingCount : nat,
     origSerializedSize : nat,
@@ -441,7 +539,7 @@ module DynamoToStruct {
   
   // Bytes to AttributeValue
   // Can't be {:tailrecursion} because it calls DeserializeList and DeserializeMap which then call BytesToAttr
-  function method {:vcs_split_on_every_assert} BytesToAttr(value : seq<uint8>, typeId : TerminalTypeId, hasLen : bool) : (ret : Result<AttrValueAndLength, string>)
+  function method {:vcs_split_on_every_assert} {:opaque} BytesToAttr(value : seq<uint8>, typeId : TerminalTypeId, hasLen : bool) : (ret : Result<AttrValueAndLength, string>)
     ensures ret.Success? ==> ret.value.len <= |value|
     decreases |value|
   {
@@ -534,58 +632,35 @@ module DynamoToStruct {
   
   }
 
-  // Turn a map<Result<X,string>, Result<Y,string>> into a Result<map<X,Y>, string>
-  // If anything reported Failure, return a Failure with all of the error messages
-  //
-  // useful when f and g in
-  // var ret := map kv <- m.Items | true :: f(kv.0) := g(kv.1);
-  // return Result
-  function method SimplifyMap<X,Y>(m : map<Result<X,string>, Result<Y,string>>) : (ret : Result<map<X,Y>, string>)
-  {
-    var badKeys := set k <- m.Keys | k.Failure? :: k.error;
-    var badKeySeq := SetToOrderedSequence(badKeys, CharLess);
-    var badValues := set k <- m.Values | k.Failure? :: k.error;
-    var badValueSeq := SetToOrderedSequence(badValues, CharLess);
-    if |badKeySeq| == 0 && |badValueSeq| == 0 then
-      Success(map kv <- m.Items | kv.0.Success? && kv.1.Success? :: kv.0.value := kv.1.value)
-    else
-      Failure(Join(badKeySeq + badValueSeq, "\n"))
-  }
-
-  lemma FlattenMapKeepsKeys<X,Y>(m : map<X, Result<Y,string>>, mValues : map<X,Y>)
-    requires forall k <- m.Values :: k.Success?
-    requires mValues == FlattenMap(m)
-    ensures mValues.Keys == m.Keys
-  {
-    reveal FlattenMap();
-    assert m.Keys == mValues.Keys by {
-      assert forall k: X :: k in m.Keys ==> k in mValues.Keys by {
-        forall k: X ensures k in m.Keys ==> k in mValues.Keys {
-          if k in m.Keys {
-            assert (k,m[k]) in m.Items;
-          }
-        }
-      }
-    }
-  }
-
-  function method {:opaque} FlattenMap<X,Y>(m : map<X, Result<Y,string>>): map<X,Y> {
+  function method FlattenValueMap<X,Y>(m : map<X, Result<Y,string>>): map<X,Y> {
     map kv <- m.Items | kv.1.Success? :: kv.0 := kv.1.value
   }
 
-  function method {:opaque} FlattenErrors<X,Y>(m : map<X, Result<Y,string>>): set<string> {
+  function method FlattenErrors<X,Y>(m : map<X, Result<Y,string>>): set<string> {
     set k <- m.Values | k.Failure? :: k.error
   }
 
-  lemma NotAllSuccessMeansOneFailure<X,Y>(m : map<X, Result<Y,string>>)
+  lemma OneBadReult<X,Y>(m : map<X, Result<Y,string>>)
     requires ! forall v <- m.Values :: v.Success?
     ensures exists v <- m.Values :: v.Failure?
     ensures |FlattenErrors(m)| > 0
   {
-    reveal FlattenErrors();
     assert exists v <- m.Values :: v.Failure?;
     var errors := FlattenErrors(m);
     assert exists v :: v in m.Values && v.Failure? && (v.error in errors);
+  }
+
+  lemma MapKeysMatchItems<X,Y>(m : map<X,Y>)
+    ensures forall k :: k in m.Keys ==> (k, m[k]) in m.Items
+  {}
+
+  lemma OneBadKey<X,Y>(s : map<X,Y>, bad : set<X>, f : X -> bool)
+    requires !forall k <- s.Keys :: f(k)
+    requires bad == set k <- s.Keys | !f(k) :: k;
+    ensures exists k <- s.Keys :: !f(k)
+    ensures |bad| > 0
+  {
+    assert exists v :: v in bad && !f(v) && (v in bad);
   }
 
   // Turn a map<X, Result<Y,string>> into a Result<map<X,Y>, string>
@@ -600,11 +675,11 @@ module DynamoToStruct {
     ensures ret.Success? ==> |ret.value| == |m|
   {
     if forall v <- m.Values :: v.Success? then
-      var result := FlattenMap(m);
-      FlattenMapKeepsKeys(m, result);
+      var result := FlattenValueMap(m);
+      MapKeysMatchItems(m);
       Success(result)
     else
-      NotAllSuccessMeansOneFailure(m);
+      OneBadReult(m);
       var badValues := FlattenErrors(m);
       assert(|badValues| > 0);
       var badValueSeq := SetToOrderedSequence(badValues, CharLess);
