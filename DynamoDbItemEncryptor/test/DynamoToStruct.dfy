@@ -178,6 +178,12 @@ module DynamoToStructTest {
     expect newMapValue.value == mapValue;
 }
 
+  //= specification/dynamodb-encryption-client/ddb-item-conversion.md#overview
+  //= type=test
+  //# The conversion from DDB Item to Structured Data must be lossless,
+  //# meaning that converting a DDB Item to
+  //# a Structured Data and back to a DDB Item again
+  //# MUST result in the exact same DDB Item.
   method {:test} {:vcs_split_on_every_assert} TestRoundTrip() {
 
     var val1 := AttributeValue.S("astring");

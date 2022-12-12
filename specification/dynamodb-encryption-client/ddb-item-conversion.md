@@ -38,16 +38,14 @@ converted from a DynamoDB Item has the following requirements:
 - MUST be a [Structured Data Map](../structured-encryption/structures.md#structured-data-map).
 - MUST NOT have [Structured Data Attributes](../structured-encryption/structures.md#structured-data-attributes).
 - MUST contain a [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
-  for each attribute on the DynamoDB Item,
-  such that:
-  - the [Terminal Type ID](../structured-encryption/structures.md#terminal-type-id)
-    is the [Type ID](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
-  - the [Terminal Value](../structured-encryption/structures.md#termin-value)
-    is the [Value](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
-  - The Structured Data Terminal is located at the top level of the Structured Data,
-    string indexed by the Attribute Name.
-- MUST NOT contain any additional [Structured Data](../structured-encryption/structures.md#structured-data)
-  than those specified above.
+  for each attribute on the DynamoDB Item, and no others.
+
+- The [Terminal Type ID](../structured-encryption/structures.md#terminal-type-id) for each attribute MUST
+  be the [Type ID](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
+- The [Terminal Value](../structured-encryption/structures.md#termin-value) for each attribute MUST
+  be the [Value](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
+- The Structured Data Terminal MUST be located at the top level of the Structured Data,
+  string indexed by the Attribute Name.
 
 ## Convert Structured Data to DDB Item
 
@@ -58,12 +56,6 @@ adheres to the following:
 - This [Structured Data Map](../structured-encryption/structures.md#structured-data-map),
   if not empty,
   MUST only contain [Structured Data Terminals](../structured-encryption/structures.md#structured-data-terminal).
-- This [Structured Data Map](../structured-encryption/structures.md#structured-data-map)
-  MUST NOT contain any [Structured Data](../structured-encryption/structures.md#structured-data)
-  at index "TODO:header".
-- This [Structured Data Map](../structured-encryption/structures.md#structured-data-map)
-  MUST NOT contain any [Structured Data](../structured-encryption/structures.md#structured-data)
-  at index "TODO:footer".
 - MUST NOT have [Structured Data Attributes](../structured-encryption/structures.md#structured-data-attributes).
 - MUST NOT have any `Key` strings that are invalid DynamoDB AttributeNames, that is, with more than 65535 characters.
 
@@ -71,11 +63,9 @@ A DynamoDB Item converted from a
 [Structured Data](../structured-encryption/structures.md#structured-data)
 has the following requirements:
 - MUST contain an Attribute for every [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
-  on the Structured Data,
-  such that:
-  - The Attribute is the deserialization of the concatenation of
+  on the Structured Data, and not other Attributes.
+
+- Each Attribute MUST be the deserialization of the concatenation of
     `Terminal Type ID | Terminal Value`,
     according to [the serialization scheme](./ddb-attribute-serialization.md).
-- MUST contain a Binary Attribute with Attribute Name "TODO:header".
-- MUST contain a Binary Attribute with Attribute Name "TODO:footer".
-- MUST NOT contain any Attribute not specified above.
+

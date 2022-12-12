@@ -10,6 +10,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   import DynamoToStruct
   import Base64
   import opened StandardLibrary
+  import Seq
 
   datatype Config = Config(
     nameonly tableName: ComAmazonawsDynamodbTypes.TableName,
@@ -78,6 +79,24 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   const SORT_NAME : seq<uint8> := EncodeAscii("aws-crypto-sort-name");
   const SORT_VALUE : seq<uint8> := EncodeAscii("aws-crypto-sort-value");
 
+  // Convince Dafny that a map with these three values does not have other values.
+  lemma NoSortKeys(m : map<ValidUTF8Bytes,ValidUTF8Bytes>)
+    requires |m| == 3
+    requires m.Keys == {TABLE_NAME, PARTITION_NAME, PARTITION_VALUE}
+    ensures SORT_NAME !in m
+    ensures SORT_VALUE !in m
+  {
+      EncodeAsciiUnique();
+      assert SORT_NAME != TABLE_NAME;
+      assert SORT_NAME != PARTITION_NAME;
+      assert SORT_NAME != PARTITION_VALUE;
+      assert SORT_NAME !in m;
+      assert SORT_VALUE != TABLE_NAME;
+      assert SORT_VALUE != PARTITION_NAME;
+      assert SORT_VALUE != PARTITION_VALUE;
+      assert SORT_VALUE !in m;
+  }
+
   // trandform AttributeValue into encoded encryption context value
   function method {:opaque} EncodeValue(val : ComAmazonawsDynamodbTypes.AttributeValue) : Result<ValidUTF8Bytes, string>
   {
@@ -132,15 +151,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     var partitionValue :- EncodeValue(item[config.partitionKeyName]);
     var retval := map[TABLE_NAME := tableName, PARTITION_NAME := partitionName, PARTITION_VALUE := partitionValue];
     if config.sortKeyName.None? then
-      EncodeAsciiUnique();
-      assert SORT_NAME != TABLE_NAME;
-      assert SORT_NAME != PARTITION_NAME;
-      assert SORT_NAME != PARTITION_VALUE;
-      assert SORT_NAME !in retval;
-      assert SORT_VALUE != TABLE_NAME;
-      assert SORT_VALUE != PARTITION_NAME;
-      assert SORT_VALUE != PARTITION_VALUE;
-      assert SORT_VALUE !in retval;
+      NoSortKeys(retval);
       Success(retval)
     else
       :- Need(config.sortKeyName.value in item, "Sort key " + config.sortKeyName.value + " not found in Item to be encrypted or decrypted");
@@ -343,6 +354,18 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
     // Otherwise this operation MUST yield an error.
     ensures config.sortKeyName.Some? && config.sortKeyName.value !in input.plaintextItem ==> output.Failure?
+
+    //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
+    //= type=implication
+    //# - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
+    //# analogous to the [configured Attribute Actions](./ddb-item-encryptor.md#attribute-actions).
+    ensures output.Success? ==>
+      && ConfigToCryptoSchema(config, input.plaintextItem).Success?
+      && (|config.structuredEncryption.History.EncryptStructure| == |old(config.structuredEncryption.History.EncryptStructure)| + 1)
+      && (Seq.Last(config.structuredEncryption.History.EncryptStructure).output.Success?)
+      && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.cryptoSchema
+        == ConfigToCryptoSchema(config, input.plaintextItem).value
+
   {
     var context :- MakeEncryptionContext(config, input.plaintextItem);
     var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem);
@@ -359,9 +382,6 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //# - Structured Data MUST be the Structured Data converted above.
         plaintextStructure:=wrappedStruct,
-        //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
-        //# - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
-        //# analogous to the [configured Attribute Actions](./ddb-item-encryptor.md#attribute-actions).
         cryptoSchema:=cryptoSchema,
         cmm:=config.cmm,
         encryptionContext:=Some(context)
