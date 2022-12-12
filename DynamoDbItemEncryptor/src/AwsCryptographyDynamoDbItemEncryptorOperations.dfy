@@ -107,7 +107,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
   // create encryption content from DynamoDB item
   function method {:opaque} MakeEncryptionContextInner(
-    config : Config,
+    config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
     : (ret : Result<AwsCryptographyMaterialProvidersTypes.EncryptionContext, string>)
 
@@ -160,28 +160,15 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
       Success(retval + map[SORT_NAME := sortName, SORT_VALUE := sortValue])
   }
 
-  // proper Failure typ from string
-  function method MakeError<T>(s : string) : Result<T, Error> {
-    Failure(Error.DynamoDbItemEncryptorException(message := s))
-  }
-
-  // transform Result<string> to Result<Error>
-  function method MapError<T>(r : Result<T, string>) : Result<T, Error> {
-    if r.Success? then
-      Success(r.value)
-    else
-      MakeError(r.error)
-  }
-
   // translate to Error type
   function method MakeEncryptionContext(
-    config : Config,
+    config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
     : (ret : Result<AwsCryptographyMaterialProvidersTypes.EncryptionContext, Error>)
     ensures ret.Success? ==> config.sortKeyName.Some? && config.sortKeyName.value !in item ==> ret.Failure?
     ensures ret.Success? ==> config.sortKeyName.None? || config.sortKeyName.value in item
   {
-    MapError(MakeEncryptionContextInner(config, item))
+    DynamoToStruct.MapError(MakeEncryptionContextInner(config, item))
   }
 
   predicate ValidInternalConfig?(config: InternalConfig)
@@ -198,7 +185,10 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   }
 
   // return proper Crypto Action by name
-  function method GetCryptoSchemaActionInner(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) : Result<AwsCryptographyStructuredEncryptionTypes.CryptoAction, string>
+  function method GetCryptoSchemaActionInner(
+    config : InternalConfig,
+    attr : ComAmazonawsDynamodbTypes.AttributeName)
+    : Result<AwsCryptographyStructuredEncryptionTypes.CryptoAction, string>
   {
     if attr in config.attributeActions then
       Success(config.attributeActions[attr])
@@ -214,7 +204,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   function method GetCryptoSchemaAction(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-  : Result<AwsCryptographyStructuredEncryptionTypes.CryptoSchema, string>
+    : Result<AwsCryptographyStructuredEncryptionTypes.CryptoSchema, string>
   {
     var action :- GetCryptoSchemaActionInner(config, attr);
     var newElement := AwsCryptographyStructuredEncryptionTypes.CryptoSchemaContent.Action(action);
@@ -222,23 +212,34 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   }
 
   // return proper Authenticate Action by name
-  function method GetAuthenticateSchemaActionInner(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) : Result<AwsCryptographyStructuredEncryptionTypes.AuthenticateAction, string>
-  {
-    if attr in config.attributeActions then
-      Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.SIGN)
+  function method GetAuthenticateSchemaActionInner(
+    config : InternalConfig,
+    attr : ComAmazonawsDynamodbTypes.AttributeName)
+    : (ret : Result<AwsCryptographyStructuredEncryptionTypes.AuthenticateAction, string>)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
+    //= type=implication
     //# An Attribute on a DynamoDB Item MUST NOT be considered as within the signature scope
     //# if it's Attribute Name is included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
     //# or if it's Attribute Name begins with the prefix specified in
     //# [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix).
+
+    //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
+    //= type=implication
+    //# Otherwise, Attributes MUST be considered as within the signature scope.
+    ensures ret.Success? ==>
+      (ret.value == AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN <==>
+      && attr !in config.attributeActions
+      && (|| (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
+          || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr)))
+  {
+    if attr in config.attributeActions then
+      Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.SIGN)
     else if config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value then
       Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN)
     else if config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr then
       Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN)
     else
-      //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
-      //# Otherwise, Attributes MUST be considered as within the signature scope.
       Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.SIGN)
   }
 
@@ -246,7 +247,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   function method GetAuthenticateSchemaAction(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-  : Result<AwsCryptographyStructuredEncryptionTypes.AuthenticateSchema, string>
+    : Result<AwsCryptographyStructuredEncryptionTypes.AuthenticateSchema, string>
   {
     var newElement :- GetAuthenticateSchemaActionInner(config, attr);
     var newElement := AwsCryptographyStructuredEncryptionTypes.AuthenticateSchemaContent.Action(newElement);
@@ -254,7 +255,11 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   }
 
   // get CryptoSchema for this item
-  function method ConfigToCryptoSchema(config : Config, item : ComAmazonawsDynamodbTypes.AttributeMap) : (ret : Result<AwsCryptographyStructuredEncryptionTypes.CryptoSchema, Error>)
+  function method ConfigToCryptoSchema(
+    config : InternalConfig,
+    item : ComAmazonawsDynamodbTypes.AttributeMap)
+    : (ret : Result<AwsCryptographyStructuredEncryptionTypes.CryptoSchema, Error>)
+
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
     //# The [Attributes Actions](./ddb-item-encryptor.md#attribute-actions)
@@ -278,7 +283,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   {
     var schema := map kv <- item.Items | true :: kv.0 := GetCryptoSchemaAction(config, kv.0);
     DynamoToStruct.MapKeysMatchItems(item);
-    var theMap :- MapError(DynamoToStruct.SimplifyMapValue(schema));
+    var theMap :- DynamoToStruct.MapError(DynamoToStruct.SimplifyMapValue(schema));
     var theMap := AwsCryptographyStructuredEncryptionTypes.CryptoSchemaContent.SchemaMap(theMap);
     var theMap := AwsCryptographyStructuredEncryptionTypes.CryptoSchema(content := theMap, attributes := None);
     Success(theMap)
@@ -286,7 +291,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
   // get AuthenticateSchema for this item
   function method ConfigToAuthenticateSchema(
-    config : Config,
+    config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
     : (ret : Result<AwsCryptographyStructuredEncryptionTypes.AuthenticateSchema, Error>)
 
@@ -314,7 +319,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   {
     var schema := map kv <- item.Items | true :: kv.0 := GetAuthenticateSchemaAction(config, kv.0);
     DynamoToStruct.MapKeysMatchItems(item);
-    var theMap :- MapError(DynamoToStruct.SimplifyMapValue(schema));
+    var theMap :- DynamoToStruct.MapError(DynamoToStruct.SimplifyMapValue(schema));
     var theMap := AwsCryptographyStructuredEncryptionTypes.AuthenticateSchemaContent.SchemaMap(theMap);
     var theMap := AwsCryptographyStructuredEncryptionTypes.AuthenticateSchema(content := theMap, attributes := None);
     Success(theMap)
@@ -355,32 +360,47 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     // Otherwise this operation MUST yield an error.
     ensures config.sortKeyName.Some? && config.sortKeyName.value !in input.plaintextItem ==> output.Failure?
 
-    //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
-    //= type=implication
-    //# - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
-    //# analogous to the [configured Attribute Actions](./ddb-item-encryptor.md#attribute-actions).
     ensures output.Success? ==>
-      && ConfigToCryptoSchema(config, input.plaintextItem).Success?
+      //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
+      //= type=implication
+      //# Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
+      //# this operation MUST delegate encryption of this data to
+      //# Structured Encryption Client's [Encrypt Structure](../structured-encryption/encrypt-structure.md),
+      //# with the following inputs:
       && (|config.structuredEncryption.History.EncryptStructure| == |old(config.structuredEncryption.History.EncryptStructure)| + 1)
       && (Seq.Last(config.structuredEncryption.History.EncryptStructure).output.Success?)
+
+      //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
+      //= type=implication
+      //# - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
+      //# analogous to the [configured Attribute Actions](./ddb-item-encryptor.md#attribute-actions).
+      && ConfigToCryptoSchema(config, input.plaintextItem).Success?
       && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.cryptoSchema
         == ConfigToCryptoSchema(config, input.plaintextItem).value
+      && DynamoToStruct.ItemToStructured(input.plaintextItem).Success?
 
+      //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
+      //= type=implication
+      //# - Structured Data MUST be the Structured Data converted above.
+      && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.plaintextStructure
+        == AwsCryptographyStructuredEncryptionTypes.StructuredData(
+          content := AwsCryptographyStructuredEncryptionTypes.StructuredDataContent.DataMap(DynamoToStruct.ItemToStructured(input.plaintextItem).value),
+          attributes := None)
+
+      //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
+      //= type=implication
+      //# - Encryption Context MUST be this input Item's [DynamoDB Item Base Context](#dynamodb-item-base-context).
+      && MakeEncryptionContext(config, input.plaintextItem).Success?
+      && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.encryptionContext
+        == Some(MakeEncryptionContext(config, input.plaintextItem).value)
   {
     var context :- MakeEncryptionContext(config, input.plaintextItem);
     var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem);
     var cryptoSchema :- ConfigToCryptoSchema(config, input.plaintextItem);
     var wrappedStruct := AwsCryptographyStructuredEncryptionTypes.StructuredData(content := AwsCryptographyStructuredEncryptionTypes.StructuredDataContent.DataMap(plaintextStructure), attributes := None);
 
-    //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
-    //# Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
-    //# this operation MUST delegate encryption of this data to
-    //# Structured Encryption Client's [Encrypt Structure](../structured-encryption/encrypt-structure.md),
-    //# with the following inputs:
     var encryptRes := config.structuredEncryption.EncryptStructure(
       AwsCryptographyStructuredEncryptionTypes.EncryptStructureInput(
-        //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
-        //# - Structured Data MUST be the Structured Data converted above.
         plaintextStructure:=wrappedStruct,
         cryptoSchema:=cryptoSchema,
         cmm:=config.cmm,
@@ -399,6 +419,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   // public Decrypt method
   method DecryptItem(config: InternalConfig, input: DecryptItemInput)
     returns (output: Result<DecryptItemOutput, Error>)
+
     //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item
     //= type=implication
     //# This item MUST include an Attribute with a name that matches the
@@ -420,34 +441,56 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
     // Otherwise this operation MUST yield an error.
     ensures config.sortKeyName.Some? && config.sortKeyName.value !in input.encryptedItem ==> output.Failure?
+
+    ensures output.Success? ==>
+      //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+      //= type=implication
+      //# Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
+      //# this operation MUST delegate decryption of this data to
+      //# Structured Encryption Client's [Decrypt Structure](../structured-encryption/encrypt-structure.md),
+      //# with the following inputs:
+      && (|config.structuredEncryption.History.DecryptStructure| == |old(config.structuredEncryption.History.DecryptStructure)| + 1)
+      && (Seq.Last(config.structuredEncryption.History.DecryptStructure).output.Success?)
+
+      //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+      //= type=implication
+      //# - Authenticate Schema MUST be a [Authenticate Schema](../structured-encryption/structures.md#crypto-schema)
+      //# built with the following requirements:
+      && ConfigToAuthenticateSchema(config, input.encryptedItem).Success?
+      && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.authenticateSchema
+        == ConfigToAuthenticateSchema(config, input.encryptedItem).value
+
+      //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+      //= type=implication
+      //# - CMM MUST be the [CMM configured on this Item Encryptor](./ddb-item-encryptor.md#cmm).
+      && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.cmm == config.cmm
+
+      //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+      //= type=implication
+      //# - Encryption Context MUST be the input Item's [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
+      && MakeEncryptionContext(config, input.encryptedItem).Success?
+      && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptionContext
+        == Some(MakeEncryptionContext(config, input.encryptedItem).value)
+
+      //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+      //= type=implication
+      //# - Encrypted Structured Data MUST be the Structured Data converted above.
+      && DynamoToStruct.ItemToStructured(input.encryptedItem).Success?
+      && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptedStructure
+        == AwsCryptographyStructuredEncryptionTypes.StructuredData(
+          content := AwsCryptographyStructuredEncryptionTypes.StructuredDataContent.DataMap(DynamoToStruct.ItemToStructured(input.encryptedItem).value),
+          attributes := None)
   {
     var context :- MakeEncryptionContext(config, input.encryptedItem);
     var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem);
     var authenticateSchema :- ConfigToAuthenticateSchema(config, input.encryptedItem);
     var wrappedStruct := AwsCryptographyStructuredEncryptionTypes.StructuredData(content := AwsCryptographyStructuredEncryptionTypes.StructuredDataContent.DataMap(encryptedStructure), attributes := None);
 
-      //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-      //# Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
-      //# this operation MUST delegate decryption of this data to
-      //# Structured Encryption Client's [Decrypt Structure](../structured-encryption/encrypt-structure.md),
-      //# with the following inputs:
     var decryptRes := config.structuredEncryption.DecryptStructure(
       AwsCryptographyStructuredEncryptionTypes.DecryptStructureInput(
-        //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-        //# - Encrypted Structured Data MUST be the Structured Data converted above.
         encryptedStructure:=wrappedStruct,
-
-        //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-        //# - Authenticate Schema MUST be a [Authenticate Schema](../structured-encryption/structures.md#crypto-schema)
-        //# built with the following requirements:
         authenticateSchema:=authenticateSchema,
-
-        //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-        //# - CMM MUST be the [CMM configured on this Item Encryptor](./ddb-item-encryptor.md#cmm).
         cmm:=config.cmm,
-
-        //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-        //# - Encryption Context MUST be the input Item's [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
         encryptionContext:=Some(context)
       )
     );

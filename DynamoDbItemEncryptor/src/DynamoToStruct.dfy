@@ -119,6 +119,37 @@ module DynamoToStruct {
 
   // everything past here is to implement those two
 
+  // Prove round trip. A work in progress
+  lemma RoundTripFromItem(item : AttributeValue)
+    ensures  item.B? && AttrToStructured(item).Success? ==> StructuredToAttr(AttrToStructured(item).value).Success?
+    ensures  item.NULL? && AttrToStructured(item).Success? ==>
+      && StructuredToAttr(AttrToStructured(item).value).Success?
+    ensures  item.BOOL? && AttrToStructured(item).Success? ==> StructuredToAttr(AttrToStructured(item).value).Success?
+  {
+    reveal AttrToStructured();
+    reveal StructuredToAttr();
+    reveal TopLevelAttributeToBytes();
+    reveal AttrToBytes();
+    reveal BytesToAttr();
+
+  }
+
+  // Prove round trip. A work in progress
+  lemma RoundTripFromStructured(s : StructuredData)
+    ensures  StructuredToAttr(s).Success? && s.content.StructuredDataTerminal.typeId == BINARY ==>
+      && AttrToStructured(StructuredToAttr(s).value).Success?
+    ensures  StructuredToAttr(s).Success? && s.content.StructuredDataTerminal.typeId == BOOLEAN ==>
+      && AttrToStructured(StructuredToAttr(s).value).Success?
+    ensures  StructuredToAttr(s).Success? && s.content.StructuredDataTerminal.typeId == NULL ==>
+      && AttrToStructured(StructuredToAttr(s).value).Success?
+{
+    reveal AttrToStructured();
+    reveal StructuredToAttr();
+    reveal TopLevelAttributeToBytes();
+    reveal AttrToBytes();
+    reveal BytesToAttr();
+  }
+
   function method MakeError<T>(s : string) : Result<T, Error> {
     Failure(Error.DynamoDbItemEncryptorException(message := s))
   }
@@ -252,7 +283,7 @@ module DynamoToStruct {
 
   // convert AttributeValue to byte sequence
   // if `prefix` is true, prefix sequence with TypeID and Length
-  function method AttrToBytes(a : AttributeValue, prefix : bool) : (ret : Result<seq<uint8>, string>)
+  function method {:opaque} AttrToBytes(a : AttributeValue, prefix : bool) : (ret : Result<seq<uint8>, string>)
     decreases a
     ensures ret.Success? && prefix ==> 6 <= |ret.value|
 

@@ -141,6 +141,28 @@ module DynamoToStructTest {
     expect newBoolValue.Success?;
     expect newBoolValue.value == boolValue;
 
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entries
+    //= type=test
+    //# Each list entry in the sequence MUST be serialized as:
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entries
+    //= type=test
+    //# The order of these serialized list entries MUST match
+    //# the order of the entries in the original list.
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-length
+    //= type=test
+    //# List Entry Length MUST be a big-endian unsigned integer
+    //# equal to the length of [List Entry Value](#list-entry-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-type
+    //= type=test
+    //# List Entry Type MUST be the [Type ID](#type-id) of the type of [List Entry Value](#list-entry-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-value
+    //= type=test
+    //# A List MAY hold any DynamoDB Attribute Value data type,
+    //# and MAY hold values of different types.
     var listValue := AttributeValue.L([binaryValue, nullValue, boolValue]);
     var encodedListData := StructuredDataTerminal(value := [0,0,0,3, 0,3, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0], typeId := [3,0]);
     var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
@@ -161,6 +183,27 @@ module DynamoToStructTest {
     var C := 'C' as uint8;
     var D := 'D' as uint8;
 
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
+    //= type=test
+    //# Each key-value pair MUST be serialized as:
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
+    //= type=test
+    //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-length
+    //= type=test
+    //# Value Length MUST be a big-endian unsigned integer
+    //# equal to the length of [Map Value](#map-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
+    //= type=test
+    //# Map Value MUST be a [Value](#value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
+    //= type=test
+    //# A Map MAY hold any DynamoDB Attribute Value data type,
+    //# and MAY hold values of different types.
     var encodedMapData := StructuredDataTerminal(value :=
       [0,0,0,4,
         0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5,
