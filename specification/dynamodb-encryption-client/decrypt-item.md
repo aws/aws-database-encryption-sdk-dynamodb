@@ -89,3 +89,7 @@ if it's Attribute Name is included in [Unauthenticated Attributes](./ddb-item-en
 or if it's Attribute Name begins with the prefix specified in
 [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix).
 Otherwise, Attributes MUST be considered as within the signature scope.
+
+If an Authenticate Action is configured for an attribute name included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
+or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix),
+this operation MUST yield an error.

@@ -211,6 +211,12 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     Success(AwsCryptographyStructuredEncryptionTypes.CryptoSchema(content := newElement, attributes := None))
   }
 
+  predicate method DoNotSign(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
+  {
+    || (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
+    || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr)
+  }
+
   // return proper Authenticate Action by name
   function method GetAuthenticateSchemaActionInner(
     config : InternalConfig,
@@ -228,17 +234,20 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= type=implication
     //# Otherwise, Attributes MUST be considered as within the signature scope.
     ensures ret.Success? ==>
-      (ret.value == AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN <==>
-      && attr !in config.attributeActions
-      && (|| (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
-          || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr)))
+      ret.value == AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN <==> DoNotSign(config, attr)
+
+    //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
+    //= type=implication
+    //# If an Authenticate Action is configured for an attribute name included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
+    //# or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix),
+    //# this operation MUST yield an error.
+    ensures attr in config.attributeActions && DoNotSign(config, attr) ==> ret.Failure?
   {
-    if attr in config.attributeActions then
-      Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.SIGN)
-    else if config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value then
-      Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN)
-    else if config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr then
-      Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN)
+    if DoNotSign(config, attr) then
+      if attr in config.attributeActions then
+        Failure("Attribute " + attr + " configured as both SIGN and DO_NOT_SIGN")
+      else
+        Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN)
     else
       Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.SIGN)
   }
