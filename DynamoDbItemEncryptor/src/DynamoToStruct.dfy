@@ -617,8 +617,8 @@ module DynamoToStruct {
     if |setToSerialize| == 0 then
       Success(serialized)
     else
-      var serialized :- SerializeBinaryValue(setToSerialize[0]);
-      CollectBinary(setToSerialize[1..], serialized + serialized)
+      var item :- SerializeBinaryValue(setToSerialize[0]);
+      CollectBinary(setToSerialize[1..], serialized + item)
   }
 
   // List to Bytes
