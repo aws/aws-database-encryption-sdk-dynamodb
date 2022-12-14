@@ -41,13 +41,23 @@ module DynamoDbEncryptionMiddlewareInternalTest {
   method {:test} TestGetItemOutputTransform() {
     // Currently it does not matter what our input is
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
+    var input := DDB.GetItemInput(
+      TableName := "foo",
+      Key := map[],
+      AttributesToGet := None(),
+      ConsistentRead := None(),
+      ReturnConsumedCapacity := None(),
+      ProjectionExpression := None(),
+      ExpressionAttributeNames := None()
+    );
     var output := DDB.GetItemOutput(
       Item := None(),
       ConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.GetItemOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.GetItemOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -90,9 +100,22 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
     );
+    var input := DDB.PutItemInput(
+      TableName := "foo",
+      Item := map[],
+      Expected := None(),
+      ReturnValues := None(),
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      ConditionalOperator := None(),
+      ConditionExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None()
+    );
     var transformed := middlewareUnderTest.PutItemOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.PutItemOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -135,9 +158,22 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       ItemCollectionMetrics := None(),
       ConsumedCapacity := None()
     );
+    var input := DDB.BatchWriteItemInput(
+      RequestItems := map[
+        "foo" := [
+          DDB.WriteRequest (
+            PutRequest := None(),
+            DeleteRequest := None()
+          )
+        ]
+      ],
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None()
+    );
     var transformed := middlewareUnderTest.BatchWriteItemOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.BatchWriteItemOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -182,9 +218,24 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       UnprocessedKeys := None(),
       ConsumedCapacity := None()
     );
+    var input := DDB.BatchGetItemInput(
+      RequestItems := map[
+        "foo" := DDB.KeysAndAttributes(
+          KeyList := [
+            map[]
+          ],
+          AttributesToGet := None(),
+          ConsistentRead := None(),
+          ProjectionExpression := None(),
+          ExpressionAttributeNames := None()
+        )
+      ],
+      ReturnConsumedCapacity := None()
+    );
     var transformed := middlewareUnderTest.BatchGetItemOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.BatchGetItemOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -235,9 +286,28 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       LastEvaluatedKey := None(),
       ConsumedCapacity := None()
     );
+    var input := DDB.ScanInput(
+      TableName := "foo",
+      IndexName := None(),
+      AttributesToGet := None(),
+      Limit := None(),
+      Select := None(),
+      ScanFilter := None(),
+      ConditionalOperator := None(),
+      ExclusiveStartKey := None(),
+      ReturnConsumedCapacity := None(),
+      TotalSegments := None(),
+      Segment := None(),
+      ProjectionExpression := None(),
+      FilterExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None(),
+      ConsistentRead := None()
+    );
     var transformed := middlewareUnderTest.ScanOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.ScanOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -289,9 +359,29 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       LastEvaluatedKey := None(),
       ConsumedCapacity := None()
     );
+    var input := DDB.QueryInput(
+      TableName := "foo",
+      IndexName := None(),
+      Select := None(),
+      AttributesToGet := None(),
+      Limit := None(),
+      ConsistentRead := None(),
+      KeyConditions := None(),
+      QueryFilter := None(),
+      ConditionalOperator := None(),
+      ScanIndexForward := None(),
+      ExclusiveStartKey := None(),
+      ReturnConsumedCapacity := None(),
+      ProjectionExpression := None(),
+      FilterExpression := None(),
+      KeyConditionExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None()
+    );
     var transformed := middlewareUnderTest.QueryOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.QueryOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -334,9 +424,23 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
     );
+    var input := DDB.TransactWriteItemsInput(
+      TransactItems := [
+        DDB.TransactWriteItem(
+          ConditionCheck := None(),
+          Put := None(),
+          Delete := None(),
+          Update := None()
+        )
+      ],
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      ClientRequestToken := None()
+    );
     var transformed := middlewareUnderTest.TransactWriteItemsOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.TransactWriteItemsOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -381,9 +485,24 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
     );
+    var input := DDB.UpdateItemInput(
+      TableName := "foo",
+      Key := map[],
+      AttributeUpdates := None(),
+      Expected := None(),
+      ConditionalOperator := None(),
+      ReturnValues := None(),
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      UpdateExpression := None(),
+      ConditionExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None()
+    );
     var transformed := middlewareUnderTest.UpdateItemOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.UpdateItemOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -426,9 +545,22 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
     );
+    var input := DDB.DeleteItemInput(
+      TableName := "foo",
+      Key := map[],
+      Expected := None(),
+      ConditionalOperator := None(),
+      ReturnValues := None(),
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      ConditionExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None()
+    );
     var transformed := middlewareUnderTest.DeleteItemOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.DeleteItemOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -471,9 +603,23 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       ConsumedCapacity := None(),
       Responses := None()
     );
+    var input := DDB.TransactGetItemsInput(
+      TransactItems := [
+        DDB.TransactGetItem(
+          Get := DDB.Get(
+            Key := map[],
+            TableName := "foo",
+            ProjectionExpression := None(),
+            ExpressionAttributeNames := None()
+          )
+        )
+      ],
+      ReturnConsumedCapacity := None()
+    );
     var transformed := middlewareUnderTest.TransactGetItemsOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.TransactGetItemsOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -513,9 +659,18 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       ConsumedCapacity := None(),
       LastEvaluatedKey := None()
     );
+    var input := DDB.ExecuteStatementInput(
+      Statement := "foo",
+      Parameters := None(),
+      ConsistentRead := None(),
+      NextToken := None(),
+      ReturnConsumedCapacity := None(),
+      Limit := None()
+    );
     var transformed := middlewareUnderTest.ExecuteStatementOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.ExecuteStatementOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -555,9 +710,20 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       Responses := None(),
       ConsumedCapacity := None()
     );
+    var input := DDB.BatchExecuteStatementInput(
+      Statements := [
+        DDB.BatchStatementRequest(
+          Statement := "foo",
+          Parameters := None(),
+          ConsistentRead := None()
+        )
+      ],
+      ReturnConsumedCapacity := None()
+    );
     var transformed := middlewareUnderTest.BatchExecuteStatementOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.BatchExecuteStatementOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 
@@ -597,9 +763,20 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       Responses := None(),
       ConsumedCapacity := None()
     );
+    var input := DDB.ExecuteTransactionInput(
+      TransactStatements :=  [
+        DDB.ParameterizedStatement (
+          Statement := "foo",
+          Parameters := None()
+        )
+      ],
+      ClientRequestToken := None(),
+      ReturnConsumedCapacity := None()
+    );
     var transformed := middlewareUnderTest.ExecuteTransactionOutputTransform(
       AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.ExecuteTransactionOutputTransformInput(
-        sdkOutput := output
+        sdkOutput := output,
+        originalInput := input
       )
     );
 

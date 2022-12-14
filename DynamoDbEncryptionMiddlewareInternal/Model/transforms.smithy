@@ -29,7 +29,6 @@ use com.amazonaws.dynamodb#BatchExecuteStatementOutput
 use com.amazonaws.dynamodb#ExecuteTransactionInput
 use com.amazonaws.dynamodb#ExecuteTransactionOutput
 
-// TODO: OutputTransformInputs need a 'executedSDKInput' or similar for Scan Beacons)
 // TODO: Model passthrough APIs
 // TODO: Do we model an "unknown operation" somewhere, that just spits out an error?
 
@@ -56,6 +55,8 @@ operation PutItemOutputTransform {
 structure PutItemOutputTransformInput {
     @required
     sdkOutput: PutItemOutput,
+    @required
+    originalInput: PutItemInput,
 }
 
 structure PutItemOutputTransformOutput {
@@ -86,6 +87,8 @@ operation GetItemOutputTransform {
 structure GetItemOutputTransformInput {
     @required
     sdkOutput: GetItemOutput,
+    @required
+    originalInput: GetItemInput,
 }
 
 structure GetItemOutputTransformOutput {
@@ -116,6 +119,8 @@ operation BatchWriteItemOutputTransform {
 structure BatchWriteItemOutputTransformInput {
     @required
     sdkOutput: BatchWriteItemOutput,
+    @required
+    originalInput: BatchWriteItemInput,
 }
 
 structure BatchWriteItemOutputTransformOutput {
@@ -146,6 +151,8 @@ operation BatchGetItemOutputTransform {
 structure BatchGetItemOutputTransformInput {
     @required
     sdkOutput: BatchGetItemOutput,
+    @required
+    originalInput: BatchGetItemInput,
 }
 
 structure BatchGetItemOutputTransformOutput {
@@ -176,6 +183,8 @@ operation ScanOutputTransform {
 structure ScanOutputTransformInput {
     @required
     sdkOutput: ScanOutput,
+    @required
+    originalInput: ScanInput,
 }
 
 structure ScanOutputTransformOutput {
@@ -206,6 +215,8 @@ operation QueryOutputTransform {
 structure QueryOutputTransformInput {
     @required
     sdkOutput: QueryOutput,
+    @required
+    originalInput: QueryInput,
 }
 
 structure QueryOutputTransformOutput {
@@ -236,6 +247,8 @@ operation TransactWriteItemsOutputTransform {
 structure TransactWriteItemsOutputTransformInput {
     @required
     sdkOutput: TransactWriteItemsOutput,
+    @required
+    originalInput: TransactWriteItemsInput,
 }
 
 structure TransactWriteItemsOutputTransformOutput {
@@ -266,6 +279,8 @@ operation UpdateItemOutputTransform {
 structure UpdateItemOutputTransformInput {
     @required
     sdkOutput: UpdateItemOutput,
+    @required
+    originalInput: UpdateItemInput,
 }
 
 structure UpdateItemOutputTransformOutput {
@@ -296,6 +311,8 @@ operation DeleteItemOutputTransform {
 structure DeleteItemOutputTransformInput {
     @required
     sdkOutput: DeleteItemOutput,
+    @required
+    originalInput: DeleteItemInput,
 }
 
 structure DeleteItemOutputTransformOutput {
@@ -326,6 +343,8 @@ operation TransactGetItemsOutputTransform {
 structure TransactGetItemsOutputTransformInput {
     @required
     sdkOutput: TransactGetItemsOutput,
+    @required
+    originalInput: TransactGetItemsInput,
 }
 
 structure TransactGetItemsOutputTransformOutput {
@@ -356,6 +375,8 @@ operation ExecuteStatementOutputTransform {
 structure ExecuteStatementOutputTransformInput {
     @required
     sdkOutput: ExecuteStatementOutput,
+    @required
+    originalInput: ExecuteStatementInput,
 }
 
 structure ExecuteStatementOutputTransformOutput {
@@ -386,6 +407,8 @@ operation BatchExecuteStatementOutputTransform {
 structure BatchExecuteStatementOutputTransformInput {
     @required
     sdkOutput: BatchExecuteStatementOutput,
+    @required
+    originalInput: BatchExecuteStatementInput,
 }
 
 structure BatchExecuteStatementOutputTransformOutput {
@@ -416,6 +439,8 @@ operation ExecuteTransactionOutputTransform {
 structure ExecuteTransactionOutputTransformInput {
     @required
     sdkOutput: ExecuteTransactionOutput,
+    @required
+    originalInput: ExecuteTransactionInput,
 }
 
 structure ExecuteTransactionOutputTransformOutput {

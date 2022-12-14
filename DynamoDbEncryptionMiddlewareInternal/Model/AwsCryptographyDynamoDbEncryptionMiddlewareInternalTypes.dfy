@@ -25,7 +25,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.BatchExecuteStatementInput
  )
  datatype BatchExecuteStatementOutputTransformInput = | BatchExecuteStatementOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.BatchExecuteStatementOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.BatchExecuteStatementOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.BatchExecuteStatementInput
  )
  datatype BatchExecuteStatementOutputTransformOutput = | BatchExecuteStatementOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.BatchExecuteStatementOutput
@@ -37,7 +38,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.BatchGetItemInput
  )
  datatype BatchGetItemOutputTransformInput = | BatchGetItemOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.BatchGetItemOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.BatchGetItemOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.BatchGetItemInput
  )
  datatype BatchGetItemOutputTransformOutput = | BatchGetItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.BatchGetItemOutput
@@ -49,7 +51,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.BatchWriteItemInput
  )
  datatype BatchWriteItemOutputTransformInput = | BatchWriteItemOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.BatchWriteItemOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.BatchWriteItemOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.BatchWriteItemInput
  )
  datatype BatchWriteItemOutputTransformOutput = | BatchWriteItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.BatchWriteItemOutput
@@ -61,7 +64,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.DeleteItemInput
  )
  datatype DeleteItemOutputTransformInput = | DeleteItemOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.DeleteItemOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.DeleteItemOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.DeleteItemInput
  )
  datatype DeleteItemOutputTransformOutput = | DeleteItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.DeleteItemOutput
@@ -559,7 +563,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.ExecuteStatementInput
  )
  datatype ExecuteStatementOutputTransformInput = | ExecuteStatementOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.ExecuteStatementOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.ExecuteStatementOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.ExecuteStatementInput
  )
  datatype ExecuteStatementOutputTransformOutput = | ExecuteStatementOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.ExecuteStatementOutput
@@ -571,7 +576,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.ExecuteTransactionInput
  )
  datatype ExecuteTransactionOutputTransformInput = | ExecuteTransactionOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.ExecuteTransactionOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.ExecuteTransactionOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.ExecuteTransactionInput
  )
  datatype ExecuteTransactionOutputTransformOutput = | ExecuteTransactionOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.ExecuteTransactionOutput
@@ -583,7 +589,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.GetItemInput
  )
  datatype GetItemOutputTransformInput = | GetItemOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.GetItemOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.GetItemOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.GetItemInput
  )
  datatype GetItemOutputTransformOutput = | GetItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.GetItemOutput
@@ -595,7 +602,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.PutItemInput
  )
  datatype PutItemOutputTransformInput = | PutItemOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.PutItemOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.PutItemOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.PutItemInput
  )
  datatype PutItemOutputTransformOutput = | PutItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.PutItemOutput
@@ -607,7 +615,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.QueryInput
  )
  datatype QueryOutputTransformInput = | QueryOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.QueryOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.QueryOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.QueryInput
  )
  datatype QueryOutputTransformOutput = | QueryOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.QueryOutput
@@ -619,7 +628,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.ScanInput
  )
  datatype ScanOutputTransformInput = | ScanOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.ScanOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.ScanOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.ScanInput
  )
  datatype ScanOutputTransformOutput = | ScanOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.ScanOutput
@@ -631,7 +641,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.TransactGetItemsInput
  )
  datatype TransactGetItemsOutputTransformInput = | TransactGetItemsOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.TransactGetItemsOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.TransactGetItemsOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.TransactGetItemsInput
  )
  datatype TransactGetItemsOutputTransformOutput = | TransactGetItemsOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.TransactGetItemsOutput
@@ -643,7 +654,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.TransactWriteItemsInput
  )
  datatype TransactWriteItemsOutputTransformInput = | TransactWriteItemsOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.TransactWriteItemsOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.TransactWriteItemsOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.TransactWriteItemsInput
  )
  datatype TransactWriteItemsOutputTransformOutput = | TransactWriteItemsOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.TransactWriteItemsOutput
@@ -655,7 +667,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedInput: ComAmazonawsDynamodbTypes.UpdateItemInput
  )
  datatype UpdateItemOutputTransformInput = | UpdateItemOutputTransformInput (
- nameonly sdkOutput: ComAmazonawsDynamodbTypes.UpdateItemOutput
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.UpdateItemOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.UpdateItemInput
  )
  datatype UpdateItemOutputTransformOutput = | UpdateItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.UpdateItemOutput
@@ -707,7 +720,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  function method DefaultDynamoDbEncryptionMiddlewareInternalConfig(): DynamoDbEncryptionMiddlewareInternalConfig
  method DynamoDbEncryptionMiddlewareInternal(config: DynamoDbEncryptionMiddlewareInternalConfig := DefaultDynamoDbEncryptionMiddlewareInternalConfig())
  returns (res: Result<DynamoDbEncryptionMiddlewareInternalClient, Error>)
-  // TODO smithy->Dafny needs to generate the following
+ // TODO smithy->Dafny needs to generate the following
  ///// MANUAL UPDATE STARTS HERE
  requires
  var cmms := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.cmm.Some? :: cfg.cmm.value;
