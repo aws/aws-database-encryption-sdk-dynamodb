@@ -16,22 +16,21 @@ module DynamoToStructTest {
   {
     var data := StructuredDataTerminal(value := data, typeId := typeId);
     var sdata := StructuredData(content := Terminal(data), attributes := None);
-    if !StructuredToAttr(sdata).Failure? {
-      print "\nshould fail\n";
-      print data, "\n";
+    var result := StructuredToAttr(sdata);
+    if !result.Failure? {
+      print "\nStructuredToAttr should have failed with this data : ", data, "\n";
     }
-
-    expect StructuredToAttr(sdata).Failure?;
+    expect result.Failure?;
   }
   method DoSucceed(data : seq<uint8>, typeId : TerminalTypeId)
   {
     var data := StructuredDataTerminal(value := data, typeId := typeId);
     var sdata := StructuredData(content := Terminal(data), attributes := None);
-    if !StructuredToAttr(sdata).Success? {
-      print "\nshould succeed\n";
-      print StructuredToAttr(sdata);
+    var result := StructuredToAttr(sdata);
+    if !result.Success? {
+      print "\nUnexpected failure of StructuredToAttr : ", result, "\n";
     }
-    expect StructuredToAttr(sdata).Success?;
+    expect result.Success?;
   }
 
   method {:test} {:vcs_split_on_every_assert} TestZeroBytes() {
