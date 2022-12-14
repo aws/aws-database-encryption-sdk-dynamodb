@@ -110,3 +110,8 @@ If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the keys
 `TODO:aws-crypto-sort-name` or
 `TODO:aws-crypto-sort-value`.
+
+
+TODO - deal with encryption header and footer.
+- ensure that they don't exist in the EncryptItem input,
+- ensure that they exist in the EncryptItem output,

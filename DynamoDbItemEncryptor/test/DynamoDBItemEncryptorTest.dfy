@@ -28,24 +28,14 @@ module DynamoDbItemEncryptorTest {
 
   method {:test} TestUnexpectedField() {
     var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
-    var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
+    var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz"), "unknown" := DDBS("other")];
     var encryptRes := encryptor.EncryptItem(
       Types.EncryptItemInput(
         plaintextItem:=inputItem
       )
     );
-    if !encryptRes.Success? {
-      print encryptRes;
-    }
-    expect encryptRes.Success?;
-
-    inputItem := inputItem + map["unknown" := DDBS("other")];
-    var encryptRes2 := encryptor.EncryptItem(
-      Types.EncryptItemInput(
-        plaintextItem:=inputItem
-      )
-    );
-    expect encryptRes2.Failure?;
+    expect encryptRes.Failure?;
+    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "No Crypto Action configured for attribute unknown");
   }
 
     method {:test} TestRoundTrip() {
@@ -69,26 +59,16 @@ module DynamoDbItemEncryptorTest {
 
   method {:test} TestMissingSortKey() {
     var config := TestFixtures.GetEncryptorConfig();
-    var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config);
     var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
+    var config2 := config.(sortKeyName := Some("sort"));
+    var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config2);
     var encryptRes := encryptor.EncryptItem(
       Types.EncryptItemInput(
         plaintextItem:=inputItem
       )
     );
-    if !encryptRes.Success? {
-      print encryptRes;
-    }
-    expect encryptRes.Success?;
-
-    var config2 := config.(sortKeyName := Some("sort"));
-    var encryptor2 := TestFixtures.GetDynamoDbItemEncryptorFrom(config2);
-    var encryptRes2 := encryptor2.EncryptItem(
-      Types.EncryptItemInput(
-        plaintextItem:=inputItem
-      )
-    );
-    expect encryptRes2.Failure?;
+    expect encryptRes.Failure?;
+    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Sort key sort not found in Item to be encrypted or decrypted");
   }
 
 /*

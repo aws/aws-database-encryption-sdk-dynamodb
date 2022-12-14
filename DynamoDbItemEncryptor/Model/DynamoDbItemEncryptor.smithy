@@ -72,6 +72,7 @@ structure EncryptItemOutput {
 //= specification/dynamodb-encryption-client/decrypt-item.md#input
 //= type=implication
 //# The following inputs to this behavior are REQUIRED:
+//# - DynamoDB Item
 structure DecryptItemInput {
     @required
     encryptedItem: AttributeMap,

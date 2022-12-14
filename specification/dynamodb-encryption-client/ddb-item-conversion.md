@@ -63,9 +63,14 @@ A DynamoDB Item converted from a
 [Structured Data](../structured-encryption/structures.md#structured-data)
 has the following requirements:
 - MUST contain an Attribute for every [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
-  on the Structured Data, and not other Attributes.
+  on the Structured Data, and no other Attributes.
 
-- Each Attribute MUST be the deserialization of the concatenation of
-    `Terminal Type ID | Terminal Value`,
+- Each Attribute MUST be deserializable
     according to [the serialization scheme](./ddb-attribute-serialization.md).
 
+### Duplicates
+
+- Conversion from a Structured Data Map MUST fail if it has duplicate keys
+- Conversion from a Structured Data Number Set MUST fail if it has duplicate values
+- Conversion from a Structured Data String Set MUST fail if it has duplicate values
+- Conversion from a Structured Data Binary Set MUST fail if it has duplicate values
