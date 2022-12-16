@@ -108,7 +108,9 @@ Each of these entries MUST be serialized as:
 
 All [Set Entry Values](#set-entry-value) are the same type.
 
-This sequence MUST NOT contain duplicate entries.
+Binary Sets MUST NOT contain duplicate entries.
+Number Sets MUST NOT contain duplicate entries.
+String Sets MUST NOT contain duplicate entries.
 
 ###### Set Entry Length
 

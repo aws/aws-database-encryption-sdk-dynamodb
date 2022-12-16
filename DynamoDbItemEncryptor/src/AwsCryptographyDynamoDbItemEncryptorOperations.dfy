@@ -11,6 +11,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   import Base64
   import opened StandardLibrary
   import Seq
+  import CSE = AwsCryptographyStructuredEncryptionTypes
 
   datatype Config = Config(
     nameonly tableName: ComAmazonawsDynamodbTypes.TableName,
@@ -175,12 +176,13 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   function method GetCryptoSchemaActionInner(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-    : Result<AwsCryptographyStructuredEncryptionTypes.CryptoAction, string>
+    : (ret : Result<CSE.CryptoAction, string>)
+    ensures (attr !in config.attributeActions && !DoNotSign(config, attr)) ==> ret.Failure?
   {
     if attr in config.attributeActions then
       Success(config.attributeActions[attr])
     else if DoNotSign(config, attr) then
-      Success(AwsCryptographyStructuredEncryptionTypes.CryptoAction.DO_NOTHING)
+      Success(CSE.CryptoAction.DO_NOTHING)
     else
       Failure("No Crypto Action configured for attribute " + attr)
   }
@@ -189,11 +191,12 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   function method GetCryptoSchemaAction(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-    : Result<AwsCryptographyStructuredEncryptionTypes.CryptoSchema, string>
+    : (ret : Result<CSE.CryptoSchema, string>)
+    ensures (attr !in config.attributeActions && !DoNotSign(config, attr)) ==> ret.Failure?
   {
     var action :- GetCryptoSchemaActionInner(config, attr);
-    var newElement := AwsCryptographyStructuredEncryptionTypes.CryptoSchemaContent.Action(action);
-    Success(AwsCryptographyStructuredEncryptionTypes.CryptoSchema(content := newElement, attributes := None))
+    var newElement := CSE.CryptoSchemaContent.Action(action);
+    Success(CSE.CryptoSchema(content := newElement, attributes := None))
   }
 
   predicate method DoNotSign(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
@@ -206,7 +209,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   function method GetAuthenticateSchemaActionInner(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-    : (ret : Result<AwsCryptographyStructuredEncryptionTypes.AuthenticateAction, string>)
+    : (ret : Result<CSE.AuthenticateAction, string>)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
     //= type=implication
@@ -219,40 +222,44 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= type=implication
     //# Otherwise, Attributes MUST be considered as within the signature scope.
     ensures ret.Success? ==>
-      ret.value == AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN <==> DoNotSign(config, attr)
+      ret.value == CSE.AuthenticateAction.DO_NOT_SIGN <==> DoNotSign(config, attr)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
     //= type=implication
     //# If an Authenticate Action other than DO_NOTHING is configured for an attribute name included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
     //# or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix),
     //# this operation MUST yield an error.
-    ensures attr in config.attributeActions && config.attributeActions[attr] != AwsCryptographyStructuredEncryptionTypes.CryptoAction.DO_NOTHING && DoNotSign(config, attr) ==> ret.Failure?
+    ensures
+      && attr in config.attributeActions
+      && config.attributeActions[attr] != CSE.CryptoAction.DO_NOTHING
+      && DoNotSign(config, attr)
+      ==> ret.Failure?
   {
     if DoNotSign(config, attr) then
       if attr in config.attributeActions then
         Failure("Attribute " + attr + " configured as both SIGN and DO_NOT_SIGN")
       else
-        Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.DO_NOT_SIGN)
+        Success(CSE.AuthenticateAction.DO_NOT_SIGN)
     else
-      Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateAction.SIGN)
+      Success(CSE.AuthenticateAction.SIGN)
   }
 
   // get Authenticate Action and wrap in AuthenticateSchema
   function method GetAuthenticateSchemaAction(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-    : Result<AwsCryptographyStructuredEncryptionTypes.AuthenticateSchema, string>
+    : Result<CSE.AuthenticateSchema, string>
   {
     var newElement :- GetAuthenticateSchemaActionInner(config, attr);
-    var newElement := AwsCryptographyStructuredEncryptionTypes.AuthenticateSchemaContent.Action(newElement);
-    Success(AwsCryptographyStructuredEncryptionTypes.AuthenticateSchema(content := newElement, attributes := None))
+    var newElement := CSE.AuthenticateSchemaContent.Action(newElement);
+    Success(CSE.AuthenticateSchema(content := newElement, attributes := None))
   }
 
   // get CryptoSchema for this item
   function method ConfigToCryptoSchema(
     config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
-    : (ret : Result<AwsCryptographyStructuredEncryptionTypes.CryptoSchema, Error>)
+    : (ret : Result<CSE.CryptoSchema, Error>)
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -261,6 +268,8 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //# for every attribute in the [input DynamoDB Item](#dynamodb-item)
     //# (Attribute Actions MAY specify a Crypto Action for an attribute not
     //# in the input DynamoDB Item).
+    ensures forall k <- item.Keys ::
+      (k !in config.attributeActions && !DoNotSign(config, k)) ==> ret.Failure?
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -273,31 +282,32 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //# there MUST exist a Crypto Action in the Crypto Schema
     //# such that the Crypto Action indexed by that attribute name in the Crypto Schema
     //# equals the Crypto Action indexed by that attribute name in the configured Attribute Actions.
-    ensures ret.Success? ==> forall k <-item.Keys :: 
+    ensures ret.Success? ==> forall k <-item.Keys ::
       && GetCryptoSchemaAction(config, k).Success?
       && ret.value.content.CryptoSchemaMap[k] == GetCryptoSchemaAction(config, k).value
+      && (k in config.attributeActions ==>
+        ret.value.content.CryptoSchemaMap[k].content ==
+        CSE.CryptoSchemaContent.Action(config.attributeActions[k]))
   {
     var schema := map kv <- item.Items | true :: kv.0 := GetCryptoSchemaAction(config, kv.0);
     DynamoToStruct.MapKeysMatchItems(item);
-    var actionMap :- DynamoToStruct.MapError(DynamoToStruct.SimplifyMapValue(schema));
-    var schemaContent := AwsCryptographyStructuredEncryptionTypes.CryptoSchemaContent.SchemaMap(actionMap);
-    var schema := AwsCryptographyStructuredEncryptionTypes.CryptoSchema(content := schemaContent, attributes := None);
-    Success(schema)
+    DynamoToStruct.SimplifyMapValueSuccess(schema);
+    var actionMapRes := DynamoToStruct.SimplifyMapValue(schema);
+    assert actionMapRes.Failure? ==> exists kv <- item.Items :: GetCryptoSchemaAction(config, kv.0).Failure?;
+    assert actionMapRes.Failure? <==> exists k <- item.Keys :: schema[k].Failure?;
+    assert actionMapRes.Failure? <==> exists k <- item.Keys :: GetCryptoSchemaAction(config, k).Failure?;
+
+    var actionMap :- DynamoToStruct.MapError(actionMapRes);
+    var schemaContent := CSE.CryptoSchemaContent.SchemaMap(actionMap);
+    var finalSchema := CSE.CryptoSchema(content := schemaContent, attributes := None);
+    Success(finalSchema)
   }
 
   // get AuthenticateSchema for this item
   function method ConfigToAuthenticateSchema(
     config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
-    : (ret : Result<AwsCryptographyStructuredEncryptionTypes.AuthenticateSchema, Error>)
-
-    //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-    //= type=implication
-    //# - For every Attribute in the [input DynamoDB Item](#dynamodb-item)
-    //# that is in the [signature scope](#signature-scope),
-    //# there MUST exist a [SIGN Authenticate Action](../structured-encryption/structures.md#sign)
-    //# in the Authenticate Schema,
-    //# string indexed at the top level by that attribute name.
+    : (ret : Result<CSE.AuthenticateSchema, Error>)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
@@ -312,17 +322,31 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //# there MUST exist a [DO_NOT_SIGN Authenticate Action](../structured-encryption/structures.md#do_not_sign)
     //# in the Authenticate Schema,
     //# string indexed at the top level by that attribute name.
-    ensures ret.Success? ==> forall k <-item.Keys :: 
+    ensures ret.Success? ==> forall k <-item.Keys ::
+        (k !in config.attributeActions && DoNotSign(config, k) ==>
+        ret.value.content.AuthenticateSchemaMap[k].content ==
+        CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN))
+
+    //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+    //= type=implication
+    //# - For every Attribute in the [input DynamoDB Item](#dynamodb-item)
+    //# that is in the [signature scope](#signature-scope),
+    //# there MUST exist a [SIGN Authenticate Action](../structured-encryption/structures.md#sign)
+    //# in the Authenticate Schema,
+    //# string indexed at the top level by that attribute name.
+    ensures ret.Success? ==> forall k <-item.Keys ::
       && GetAuthenticateSchemaAction(config, k).Success?
       && ret.value.content.AuthenticateSchemaMap[k] == GetAuthenticateSchemaAction(config, k).value
-
+      && (k in config.attributeActions ==>
+        ret.value.content.AuthenticateSchemaMap[k].content ==
+        CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN))
   {
     var schema := map kv <- item.Items | true :: kv.0 := GetAuthenticateSchemaAction(config, kv.0);
     DynamoToStruct.MapKeysMatchItems(item);
-    var theMap :- DynamoToStruct.MapError(DynamoToStruct.SimplifyMapValue(schema));
-    var theMap := AwsCryptographyStructuredEncryptionTypes.AuthenticateSchemaContent.SchemaMap(theMap);
-    var theMap := AwsCryptographyStructuredEncryptionTypes.AuthenticateSchema(content := theMap, attributes := None);
-    Success(theMap)
+    var authMap :- DynamoToStruct.MapError(DynamoToStruct.SimplifyMapValue(schema));
+    var schemaContent := CSE.AuthenticateSchemaContent.SchemaMap(authMap);
+    var finalSchema := CSE.AuthenticateSchema(content := schemaContent, attributes := None);
+    Success(finalSchema)
   }
 
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
@@ -376,8 +400,8 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
       //# - Structured Data MUST be the Structured Data converted above.
       && DynamoToStruct.ItemToStructured(input.plaintextItem).Success?
       && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.plaintextStructure
-        == AwsCryptographyStructuredEncryptionTypes.StructuredData(
-          content := AwsCryptographyStructuredEncryptionTypes.StructuredDataContent.DataMap(DynamoToStruct.ItemToStructured(input.plaintextItem).value),
+        == CSE.StructuredData(
+          content := CSE.StructuredDataContent.DataMap(DynamoToStruct.ItemToStructured(input.plaintextItem).value),
           attributes := None)
 
       //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
@@ -390,12 +414,12 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     var context :- MakeEncryptionContext(config, input.plaintextItem);
     var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem);
     var cryptoSchema :- ConfigToCryptoSchema(config, input.plaintextItem);
-    var wrappedStruct := AwsCryptographyStructuredEncryptionTypes.StructuredData(
-      content := AwsCryptographyStructuredEncryptionTypes.StructuredDataContent.DataMap(plaintextStructure),
+    var wrappedStruct := CSE.StructuredData(
+      content := CSE.StructuredDataContent.DataMap(plaintextStructure),
       attributes := None);
 
     var encryptRes := config.structuredEncryption.EncryptStructure(
-      AwsCryptographyStructuredEncryptionTypes.EncryptStructureInput(
+      CSE.EncryptStructureInput(
         plaintextStructure:=wrappedStruct,
         cryptoSchema:=cryptoSchema,
         cmm:=config.cmm,
@@ -472,19 +496,19 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
       //# - Encrypted Structured Data MUST be the Structured Data converted above.
       && DynamoToStruct.ItemToStructured(input.encryptedItem).Success?
       && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptedStructure
-        == AwsCryptographyStructuredEncryptionTypes.StructuredData(
-          content := AwsCryptographyStructuredEncryptionTypes.StructuredDataContent.DataMap(DynamoToStruct.ItemToStructured(input.encryptedItem).value),
+        == CSE.StructuredData(
+          content := CSE.StructuredDataContent.DataMap(DynamoToStruct.ItemToStructured(input.encryptedItem).value),
           attributes := None)
   {
     var context :- MakeEncryptionContext(config, input.encryptedItem);
     var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem);
     var authenticateSchema :- ConfigToAuthenticateSchema(config, input.encryptedItem);
-    var wrappedStruct := AwsCryptographyStructuredEncryptionTypes.StructuredData(
-      content := AwsCryptographyStructuredEncryptionTypes.StructuredDataContent.DataMap(encryptedStructure),
+    var wrappedStruct := CSE.StructuredData(
+      content := CSE.StructuredDataContent.DataMap(encryptedStructure),
       attributes := None);
 
     var decryptRes := config.structuredEncryption.DecryptStructure(
-      AwsCryptographyStructuredEncryptionTypes.DecryptStructureInput(
+      CSE.DecryptStructureInput(
         encryptedStructure:=wrappedStruct,
         authenticateSchema:=authenticateSchema,
         cmm:=config.cmm,

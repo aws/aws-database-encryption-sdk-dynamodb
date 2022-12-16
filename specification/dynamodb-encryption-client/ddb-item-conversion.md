@@ -66,7 +66,7 @@ has the following requirements:
   on the Structured Data, and no other Attributes.
 
 - Each Attribute MUST be deserializable
-    according to [the serialization scheme](./ddb-attribute-serialization.md).
+    according to [the serialization scheme](./ddb-attribute-serialization.md#value).
 
 ### Duplicates
 

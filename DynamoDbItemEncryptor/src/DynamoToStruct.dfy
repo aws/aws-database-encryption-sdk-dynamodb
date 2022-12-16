@@ -100,7 +100,7 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
     //= type=implication
     //# - Each Attribute MUST be deserializable
-    //# according to [the serialization scheme](./ddb-attribute-serialization.md).
+    //# according to [the serialization scheme](./ddb-attribute-serialization.md#value).
     ensures ret.Success? ==> forall kv <- ret.value.Items ::
       && StructuredToAttr(s[kv.0]).Success?
       && kv.1 == StructuredToAttr(s[kv.0]).value
@@ -349,7 +349,7 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
-    //# This sequence MUST NOT contain duplicate entries.
+    //# Binary Sets MUST NOT contain duplicate entries.
     ensures a.BS? && ret.Success? ==> Seq.HasNoDuplicates(a.BinarySetAttributeValue)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set
@@ -384,8 +384,12 @@ module DynamoToStruct {
       && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.BinarySetAttributeValue|).value
       && (|a.BinarySetAttributeValue| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
-    // All Duvet annotations for BS BinarySet apply here too
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+    //= type=implication
+    //# String Sets MUST NOT contain duplicate entries.
+    // Other implications for Binary Sets apply here too
     ensures a.SS? && ret.Success? ==> Seq.HasNoDuplicates(a.StringSetAttributeValue)
+
     ensures a.SS? && ret.Success? && !prefix ==>
       && U32ToBigEndian(|a.StringSetAttributeValue|).Success?
       && |ret.value| >= LENGTH_LEN
@@ -397,8 +401,12 @@ module DynamoToStruct {
       && ret.value[0..TYPEID_LEN] == STRING_SET
       && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.StringSetAttributeValue|).value
 
-    // All Duvet annotations for BS BinarySet apply here too
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+    //= type=implication
+    //# Number Sets MUST NOT contain duplicate entries.
+    // Other implications for Binary Sets apply here too
     ensures a.NS? && ret.Success? ==> Seq.HasNoDuplicates(a.NumberSetAttributeValue)
+
     ensures a.NS? && ret.Success? && !prefix ==>
       && U32ToBigEndian(|a.NumberSetAttributeValue|).Success?
       && |ret.value| >= LENGTH_LEN
@@ -571,8 +579,8 @@ module DynamoToStruct {
   }
 
   function method EncodeString(s : string) : (ret : Result<seq<uint8>, string>)
-    // implication : specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entry-length
-    // implication : specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+    // The Duvet implications set-entries and set-entry-length mentioned in SerializeBinaryValue
+    // are also implied here for String Sets and Number Sets
     ensures ret.Success? ==>
       && UTF8.Encode(s).Success?
       && U32ToBigEndian(|UTF8.Encode(s).value|).Success?
@@ -1039,6 +1047,12 @@ module DynamoToStruct {
     assert exists v :: v in bad && !f(v) && (v in bad);
   }
 
+  lemma SimplifyMapValueSuccess<X,Y>(m : map<X, Result<Y,string>>)
+    ensures SimplifyMapValue(m).Success? <==> forall k <- m :: m[k].Success?
+    ensures SimplifyMapValue(m).Success? ==> forall kv <- m.Items :: kv.1.Success?
+    ensures SimplifyMapValue(m).Failure? <==> exists k : X | k in m.Keys :: m[k].Failure?
+  {}
+  
   // Turn a map<X, Result<Y,string>> into a Result<map<X,Y>, string>
   // If anything reported Failure, return a Failure with all of the error messages
   //
