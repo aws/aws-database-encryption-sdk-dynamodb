@@ -29,11 +29,12 @@ module DynamoToStruct {
   Also prove : "there exists a single canonical serialization of items that contains a set or map (i.e. there is a canonical ordering or set entries)"
 */
 
-  //= specification/dynamodb-encryption-client/ddb-item-conversion.md#overview
-  //# The conversion from DDB Item to Structured Data must be lossless,
-  //# meaning that converting a DDB Item to
-  //# a Structured Data and back to a DDB Item again
-  //# MUST result in the exact same DDB Item.
+//= specification/dynamodb-encryption-client/ddb-item-conversion.md#overview
+//= type=TODO
+//# The conversion from DDB Item to Structured Data must be lossless,
+//# meaning that converting a DDB Item to
+//# a Structured Data and back to a DDB Item again
+//# MUST result in the exact same DDB Item.
 
   // This file exists for these two functions : ItemToStructured and StructuredToItem
   // which provide lossless conversion between an AttributeMap and a StructuredDataMap
@@ -1052,7 +1053,7 @@ module DynamoToStruct {
     ensures SimplifyMapValue(m).Success? ==> forall kv <- m.Items :: kv.1.Success?
     ensures SimplifyMapValue(m).Failure? <==> exists k : X | k in m.Keys :: m[k].Failure?
   {}
-  
+
   // Turn a map<X, Result<Y,string>> into a Result<map<X,Y>, string>
   // If anything reported Failure, return a Failure with all of the error messages
   //
