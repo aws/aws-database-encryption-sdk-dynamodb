@@ -21,9 +21,9 @@ dafny-reportgenerator:
 		--max-resource-count 10000000 \
 		TestResults/*.csv
 
-compile_net: | compile_implementation_net compile_test_net compile_net_dependencies
+transpile_net: | transpile_implementation_net transpile_test_net transpile_net_dependencies
 
-compile_implementation_net:
+transpile_implementation_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -38,7 +38,7 @@ compile_implementation_net:
 		-library:$(DEPS_DIR)/ComAmazonawsDynamodb/src/Index.dfy \
 		-library:$(DEPS_DIR)/StandardLibrary/src/Index.dfy
 
-compile_test_net:
+transpile_test_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -50,12 +50,12 @@ compile_test_net:
 		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
 
-compile_net_dependencies:
-	$(MAKE) -C $(DEPS_DIR)/StandardLibrary compile_implementation_net
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives compile_implementation_net
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms compile_implementation_net
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb compile_implementation_net
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders compile_implementation_net
+transpile_net_dependencies:
+	$(MAKE) -C $(DEPS_DIR)/StandardLibrary transpile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives transpile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms transpile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb transpile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders transpile_implementation_net
 
 test_net:
 	@exit $(shell dotnet run \
