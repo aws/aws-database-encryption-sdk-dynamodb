@@ -79,7 +79,7 @@ with the following inputs:
 - If configured, the Algorithm Suite MUST be the
   [Algorithm Suite configured on this Item Encryptor](./ddb-item-encryptor.md#algorithm-suite).
   If not configured on the Item Encryptor, Algorithm Suite MUST NOT be specified.
-- Encryption Context is this input Item's [DynamoDB Item Base Context](#dynamodb-item-base-context).
+- Encryption Context MUST be this input Item's [DynamoDB Item Base Context](#dynamodb-item-base-context).
 - TODO: CMM depends on MPL changes that should be spec'd out first
   (specifically configuring EC keys that are required on Decrypt)
 
@@ -110,3 +110,8 @@ If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the keys
 `TODO:aws-crypto-sort-name` or
 `TODO:aws-crypto-sort-value`.
+
+
+TODO - deal with encryption header and footer.
+- ensure that they don't exist in the EncryptItem input,
+- ensure that they exist in the EncryptItem output,

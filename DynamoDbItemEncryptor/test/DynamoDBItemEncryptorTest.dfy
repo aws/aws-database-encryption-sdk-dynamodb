@@ -16,7 +16,62 @@ module DynamoDbItemEncryptorTest {
   import UTF8
   import DDB = ComAmazonawsDynamodbTypes
   import TestFixtures
+  import AwsCryptographyDynamoDbItemEncryptorOperations
 
+  // round trip
+  // encrypt => ecrypted fields changed, others did not
+  // various errors
+
+  function method DDBS(x : string) : DDB.AttributeValue {
+    DDB.AttributeValue.S(x)
+  }
+
+  method {:test} TestUnexpectedField() {
+    var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
+    var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz"), "unknown" := DDBS("other")];
+    var encryptRes := encryptor.EncryptItem(
+      Types.EncryptItemInput(
+        plaintextItem:=inputItem
+      )
+    );
+    expect encryptRes.Failure?;
+    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "No Crypto Action configured for attribute unknown");
+  }
+
+    method {:test} TestRoundTrip() {
+    var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
+    var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
+    var encryptRes := encryptor.EncryptItem(
+      Types.EncryptItemInput(
+        plaintextItem:=inputItem
+      )
+    );
+    var encrypted :- expect encryptRes;
+    var decryptRes := encryptor.DecryptItem(
+      Types.DecryptItemInput(
+        encryptedItem:=encrypted.encryptedItem
+      )
+    );
+    var decrypted :- expect decryptRes;
+    expect decrypted.plaintextItem == inputItem;
+  }
+
+
+  method {:test} TestMissingSortKey() {
+    var config := TestFixtures.GetEncryptorConfig();
+    var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
+    var config2 := config.(sortKeyName := Some("sort"));
+    var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config2);
+    var encryptRes := encryptor.EncryptItem(
+      Types.EncryptItemInput(
+        plaintextItem:=inputItem
+      )
+    );
+    expect encryptRes.Failure?;
+    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Sort key sort not found in Item to be encrypted or decrypted");
+  }
+
+/*
   method {:test} TestEncryptItem() {
     // Create the Item Encryptor
     var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
@@ -64,4 +119,5 @@ module DynamoDbItemEncryptorTest {
     expect decryptRes.Success?;
     expect decryptRes.value.plaintextItem == expectedItem;
   }
+  */
 }

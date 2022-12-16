@@ -27,13 +27,6 @@ as performed by the DynamoDB Encryption Client.
 
 ## Attribute Value Serialization
 
-DynamoDB Attribute Values MUST be serialized as:
-
-| Field   | Length   |
-| ------- | -------- |
-| Type ID | 2        |
-| Value   | Variable |
-
 ### Type ID
 
 Type ID indicates what type a DynamoDB Attribute Value MUST
@@ -113,10 +106,11 @@ Each of these entries MUST be serialized as:
 | Set Entry Length    | 4                                    |
 | Set Entry Value     | Variable. Equal to Set Entry Length. |
 
-All [Set Entry Values](#set-entry-value) MUST be the same type.
+All [Set Entry Values](#set-entry-value) are the same type.
 
-This sequence MUST NOT contain duplicate entries.
-TODO: should this be sorted?
+Binary Sets MUST NOT contain duplicate entries.
+Number Sets MUST NOT contain duplicate entries.
+String Sets MUST NOT contain duplicate entries.
 
 ###### Set Entry Length
 
@@ -125,7 +119,7 @@ equal to the length of [Set Entry Value](#set-entry-value).
 
 ###### Set Entry Value
 
-Set Entry Value MUST be a [Value](#value) of the following types:
+In DynamoDB, Set Entry Value can only be a [Value](#value) of the following types:
 - [String](#string)
 - [Number](#number)
 - [Binary](#binary)
@@ -164,7 +158,6 @@ Each key-value pair MUST be serialized as:
 | Map Value    | Variable |
 
 This sequence MUST NOT contain duplicate [Map Keys](#map-key).
-TODO: should this be sorted?
 
 ###### Key Type
 

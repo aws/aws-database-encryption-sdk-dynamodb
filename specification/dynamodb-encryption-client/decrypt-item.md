@@ -89,3 +89,12 @@ if it's Attribute Name is included in [Unauthenticated Attributes](./ddb-item-en
 or if it's Attribute Name begins with the prefix specified in
 [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix).
 Otherwise, Attributes MUST be considered as within the signature scope.
+
+If an Authenticate Action other than DO_NOTHING is configured for an attribute name included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
+or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix),
+this operation MUST yield an error.
+
+TODO - deal with encryption header and footer. Possibilities include
+- ensure that they don't exist in the Decrypt Structure output,
+- ensure that they exist in the Decrypt Structure output, but remove them
+- ensure that they exist in the Decrypt Structure output, and return then to the caller of DecryptItem

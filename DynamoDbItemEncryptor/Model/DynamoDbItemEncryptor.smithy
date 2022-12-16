@@ -55,6 +55,10 @@ operation DecryptItem {
     output: DecryptItemOutput,
 }
 
+//= specification/dynamodb-encryption-client/encrypt-item.md#input
+//= type=implication
+//# The following inputs to this behavior are REQUIRED:
+//# - DynamoDB Item
 structure EncryptItemInput {
     @required
     plaintextItem: AttributeMap,
@@ -65,6 +69,10 @@ structure EncryptItemOutput {
     encryptedItem: AttributeMap,
 }
 
+//= specification/dynamodb-encryption-client/decrypt-item.md#input
+//= type=implication
+//# The following inputs to this behavior are REQUIRED:
+//# - DynamoDB Item
 structure DecryptItemInput {
     @required
     encryptedItem: AttributeMap,

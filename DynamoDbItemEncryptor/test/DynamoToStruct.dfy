@@ -16,13 +16,21 @@ module DynamoToStructTest {
   {
     var data := StructuredDataTerminal(value := data, typeId := typeId);
     var sdata := StructuredData(content := Terminal(data), attributes := None);
-    expect StructuredToAttr(sdata).Failure?;
+    var result := StructuredToAttr(sdata);
+    if !result.Failure? {
+      print "\nStructuredToAttr should have failed with this data : ", data, "\n";
+    }
+    expect result.Failure?;
   }
   method DoSucceed(data : seq<uint8>, typeId : TerminalTypeId)
   {
     var data := StructuredDataTerminal(value := data, typeId := typeId);
     var sdata := StructuredData(content := Terminal(data), attributes := None);
-    expect StructuredToAttr(sdata).Success?;
+    var result := StructuredToAttr(sdata);
+    if !result.Success? {
+      print "\nUnexpected failure of StructuredToAttr : ", result, "\n";
+    }
+    expect result.Success?;
   }
 
   method {:test} {:vcs_split_on_every_assert} TestZeroBytes() {
@@ -38,15 +46,46 @@ module DynamoToStructTest {
     DoFail([], LIST);
   }
 
+    const k := 'k' as uint8;
+    const e := 'e' as uint8;
+    const y := 'y' as uint8;
+    const A := 'A' as uint8;
+    const B := 'B' as uint8;
+    const C := 'C' as uint8;
+    const D := 'D' as uint8;
+
   method {:test} {:vcs_split_on_every_assert} TestBadType() {
     DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST);
     DoFail   ([0,0,0,1, 3,1, 0,0,0,0], LIST);
   }
 
-  method {:test} {:vcs_split_on_every_assert} TestBadLength() {
+  method {:test} {:vcs_split_on_every_assert} TestBadLengthList() {
     DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1], LIST);
     DoSucceed([0,0,0,1, 0,3, 0,0,0,2, 1,2], LIST);
     DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1,2,3], LIST);
+  }
+
+  method {:test} {:vcs_split_on_every_assert} TestBadLengthMap() {
+    DoFail([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4], MAP);
+    DoSucceed([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5], MAP);
+    DoFail([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5,6], MAP);
+  }
+
+  method {:test} {:vcs_split_on_every_assert} TestBadDupKeys() {
+    //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
+    //= type=test
+    //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
+    DoSucceed([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,B, 0,3, 0,0,0,5, 1,2,3,4,5], MAP);
+    DoFail   ([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5], MAP);
+
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], BINARY_SET);
+    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], BINARY_SET);
+
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], NUMBER_SET);
+    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], NUMBER_SET);
+
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], STRING_SET);
+    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], STRING_SET);
   }
 
   // Split because verification timed out
@@ -141,6 +180,34 @@ module DynamoToStructTest {
     expect newBoolValue.Success?;
     expect newBoolValue.value == boolValue;
 
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entries
+    //= type=test
+    //# Each list entry in the sequence MUST be serialized as:
+    //# | Field                | Length                     |
+    //# | -------------------- | -------------------------- |
+    //# | List Entry Type      | 2                          |
+    //# | List Entry Length    | 4                          |
+    //# | List Entry Value     | Variable. Equal to Length. |
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entries
+    //= type=test
+    //# The order of these serialized list entries MUST match
+    //# the order of the entries in the original list.
+
+    // for list-entry-length see also TestBadLengthList() above
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-length
+    //= type=test
+    //# List Entry Length MUST be a big-endian unsigned integer
+    //# equal to the length of [List Entry Value](#list-entry-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-type
+    //= type=test
+    //# List Entry Type MUST be the [Type ID](#type-id) of the type of [List Entry Value](#list-entry-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-value
+    //= type=test
+    //# A List MAY hold any DynamoDB Attribute Value data type,
+    //# and MAY hold values of different types.
     var listValue := AttributeValue.L([binaryValue, nullValue, boolValue]);
     var encodedListData := StructuredDataTerminal(value := [0,0,0,3, 0,3, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0], typeId := [3,0]);
     var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
@@ -161,6 +228,36 @@ module DynamoToStructTest {
     var C := 'C' as uint8;
     var D := 'D' as uint8;
 
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
+    //= type=test
+    //# Each key-value pair MUST be serialized as:
+    //# | Field        | Length   |
+    //# | ------------ | -------- |
+    //# | Key Type     | 2        |
+    //# | Key Length   | 4        |
+    //# | Map Key      | Variable |
+    //# | Value Type   | 2        |
+    //# | Value Length | 4        |
+    //# | Map Value    | Variable |
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
+    //= type=test
+    //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
+
+    // for value-length see also TestBadLengthMap() above
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-length
+    //= type=test
+    //# Value Length MUST be a big-endian unsigned integer
+    //# equal to the length of [Map Value](#map-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
+    //= type=test
+    //# Map Value MUST be a [Value](#value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
+    //= type=test
+    //# A Map MAY hold any DynamoDB Attribute Value data type,
+    //# and MAY hold values of different types.
     var encodedMapData := StructuredDataTerminal(value :=
       [0,0,0,4,
         0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5,
@@ -178,6 +275,12 @@ module DynamoToStructTest {
     expect newMapValue.value == mapValue;
 }
 
+  //= specification/dynamodb-encryption-client/ddb-item-conversion.md#overview
+  //= type=test
+  //# The conversion from DDB Item to Structured Data must be lossless,
+  //# meaning that converting a DDB Item to
+  //# a Structured Data and back to a DDB Item again
+  //# MUST result in the exact same DDB Item.
   method {:test} {:vcs_split_on_every_assert} TestRoundTrip() {
 
     var val1 := AttributeValue.S("astring");
