@@ -100,9 +100,8 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make build_java CORES=$CORES
 
-      # TODO: No tests can run without extern implementations
-      # - name: Test ${{ matrix.library }}
-      #   working-directory: ./${{ matrix.library }}
-      #   shell: bash
-      #   run: |
-      #     make test_java
+      - name: Test ${{ matrix.library }}
+        working-directory: ./${{ matrix.library }}
+        shell: bash
+        run: |
+          make test_java
