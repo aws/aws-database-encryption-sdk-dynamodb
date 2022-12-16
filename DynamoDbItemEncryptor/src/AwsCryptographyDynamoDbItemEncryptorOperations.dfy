@@ -179,6 +179,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     : (ret : Result<CSE.CryptoAction, string>)
     ensures (attr !in config.attributeActions && !DoNotSign(config, attr)) ==> ret.Failure?
   {
+    :- CheckConsistantSpec(config, attr);
     if attr in config.attributeActions then
       Success(config.attributeActions[attr])
     else if DoNotSign(config, attr) then
@@ -199,10 +200,32 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     Success(CSE.CryptoSchema(content := newElement, attributes := None))
   }
 
+  // The same attr must not be in two places
+  predicate method InvalidSpec(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
+  {
+    attr in config.attributeActions && 
+      (|| (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
+      || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr))
+  }
+
+  function method CheckConsistantSpec(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) : Outcome<string> {
+    if InvalidSpec(config, attr) then
+      Fail("Attribute " + attr + " is configures both as an explicit attribute and as an implicit unauthenticated attribute.")
+    else
+      Pass
+  }
+
+  // Attr must not be part of signature
   predicate method DoNotSign(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
+    || (attr in config.attributeActions && config.attributeActions[attr] == CSE.CryptoAction.DO_NOTHING)
     || (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
     || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr)
+  }
+
+  // Attr must be part of signature
+  predicate method InSignatureScope(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) {
+    !DoNotSign(config, attr)
   }
 
   // return proper Authenticate Action by name
@@ -235,11 +258,9 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
       && DoNotSign(config, attr)
       ==> ret.Failure?
   {
+    :- CheckConsistantSpec(config, attr);
     if DoNotSign(config, attr) then
-      if attr in config.attributeActions then
-        Failure("Attribute " + attr + " configured as both SIGN and DO_NOT_SIGN")
-      else
-        Success(CSE.AuthenticateAction.DO_NOT_SIGN)
+      Success(CSE.AuthenticateAction.DO_NOT_SIGN)
     else
       Success(CSE.AuthenticateAction.SIGN)
   }
@@ -323,9 +344,9 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //# in the Authenticate Schema,
     //# string indexed at the top level by that attribute name.
     ensures ret.Success? ==> forall k <-item.Keys ::
-        (k !in config.attributeActions && DoNotSign(config, k) ==>
-        ret.value.content.AuthenticateSchemaMap[k].content ==
-        CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN))
+      !InSignatureScope(config, k) ==>
+      ret.value.content.AuthenticateSchemaMap[k].content ==
+      CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
@@ -336,10 +357,9 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //# string indexed at the top level by that attribute name.
     ensures ret.Success? ==> forall k <-item.Keys ::
       && GetAuthenticateSchemaAction(config, k).Success?
-      && ret.value.content.AuthenticateSchemaMap[k] == GetAuthenticateSchemaAction(config, k).value
-      && (k in config.attributeActions ==>
+      && InSignatureScope(config, k) ==>
         ret.value.content.AuthenticateSchemaMap[k].content ==
-        CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN))
+        CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN)
   {
     var schema := map kv <- item.Items | true :: kv.0 := GetAuthenticateSchemaAction(config, kv.0);
     DynamoToStruct.MapKeysMatchItems(item);

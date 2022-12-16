@@ -157,7 +157,7 @@ Each key-value pair MUST be serialized as:
 | Value Length | 4        |
 | Map Value    | Variable |
 
-Because the AttributeValue is a map, This sequence will not contain duplicate [Map Keys](#map-key).
+This sequence MUST NOT contain duplicate [Map Keys](#map-key).
 
 ###### Key Type
 
