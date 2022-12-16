@@ -60,7 +60,7 @@ module DynamoToStruct {
     //= type=implication
     //# - The [Terminal Type ID](../structured-encryption/structures.md#terminal-type-id) for each attribute MUST
     //# be the [Type ID](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
-    ensures ret.Success? ==> forall kv <- ret.value.Items :: kv.1.content.StructuredDataTerminal.typeId == AttrToTypeId(item[kv.0])
+    ensures ret.Success? ==> forall kv <- ret.value.Items :: kv.1.content.Terminal.typeId == AttrToTypeId(item[kv.0])
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
     //= type=implication
@@ -74,7 +74,7 @@ module DynamoToStruct {
     //# be the [Value](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
     ensures ret.Success? ==> forall kv <- ret.value.Items ::
       && TopLevelAttributeToBytes(item[kv.0]).Success?
-      && kv.1.content.StructuredDataTerminal.value == TopLevelAttributeToBytes(item[kv.0]).value
+      && kv.1.content.Terminal.value == TopLevelAttributeToBytes(item[kv.0]).value
 
   {
     var structuredMap := map kv <- item.Items | true :: kv.0 := AttrToStructured(kv.1);
@@ -137,11 +137,11 @@ module DynamoToStruct {
 
   // Prove round trip. A work in progress
   lemma RoundTripFromStructured(s : StructuredData)
-    ensures  StructuredToAttr(s).Success? && s.content.StructuredDataTerminal.typeId == BINARY ==>
+    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == BINARY ==>
       && AttrToStructured(StructuredToAttr(s).value).Success?
-    ensures  StructuredToAttr(s).Success? && s.content.StructuredDataTerminal.typeId == BOOLEAN ==>
+    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == BOOLEAN ==>
       && AttrToStructured(StructuredToAttr(s).value).Success?
-    ensures  StructuredToAttr(s).Success? && s.content.StructuredDataTerminal.typeId == NULL ==>
+    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == NULL ==>
       && AttrToStructured(StructuredToAttr(s).value).Success?
 {
     reveal AttrToStructured();
@@ -174,10 +174,10 @@ module DynamoToStruct {
 
   function method  {:opaque} AttrToStructured(item : AttributeValue) : (ret : Result<StructuredData, string>)
     ensures ret.Success? ==> ret.value.content.Terminal?
-    ensures ret.Success? ==> ret.value.content.StructuredDataTerminal.typeId == AttrToTypeId(item)
+    ensures ret.Success? ==> ret.value.content.Terminal.typeId == AttrToTypeId(item)
     ensures ret.Success? ==>
       && TopLevelAttributeToBytes(item).Success?
-      && ret.value.content.StructuredDataTerminal.value == TopLevelAttributeToBytes(item).value
+      && ret.value.content.Terminal.value == TopLevelAttributeToBytes(item).value
   {
     var body :- TopLevelAttributeToBytes(item);
     Success(StructuredData(content := Terminal(StructuredDataTerminal(value := body, typeId := AttrToTypeId(item))), attributes := None))

@@ -295,7 +295,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
     //# - The Crypto Schema MUST NOT contain more Crypto Actions than those specified by the previous point.
-    ensures ret.Success? ==> ret.value.content.SchemaMap? && item.Keys == ret.value.content.CryptoSchemaMap.Keys
+    ensures ret.Success? ==> ret.value.content.SchemaMap? && item.Keys == ret.value.content.SchemaMap.Keys
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -305,9 +305,9 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //# equals the Crypto Action indexed by that attribute name in the configured Attribute Actions.
     ensures ret.Success? ==> forall k <-item.Keys ::
       && GetCryptoSchemaAction(config, k).Success?
-      && ret.value.content.CryptoSchemaMap[k] == GetCryptoSchemaAction(config, k).value
+      && ret.value.content.SchemaMap[k] == GetCryptoSchemaAction(config, k).value
       && (k in config.attributeActions ==>
-        ret.value.content.CryptoSchemaMap[k].content ==
+        ret.value.content.SchemaMap[k].content ==
         CSE.CryptoSchemaContent.Action(config.attributeActions[k]))
   {
     var schema := map kv <- item.Items | true :: kv.0 := GetCryptoSchemaAction(config, kv.0);
@@ -334,7 +334,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= type=implication
     //# - The number of Authenticate Actions in the Authenticate Schema
     //# MUST EQUAL the number of Attributes on the [input DynamoDB Item](#dynamodb-item).
-    ensures ret.Success? ==> ret.value.content.SchemaMap? && item.Keys == ret.value.content.AuthenticateSchemaMap.Keys
+    ensures ret.Success? ==> ret.value.content.SchemaMap? && item.Keys == ret.value.content.SchemaMap.Keys
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
@@ -345,7 +345,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //# string indexed at the top level by that attribute name.
     ensures ret.Success? ==> forall k <-item.Keys ::
       !InSignatureScope(config, k) ==>
-      ret.value.content.AuthenticateSchemaMap[k].content ==
+      ret.value.content.SchemaMap[k].content ==
       CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
@@ -358,7 +358,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     ensures ret.Success? ==> forall k <-item.Keys ::
       && GetAuthenticateSchemaAction(config, k).Success?
       && InSignatureScope(config, k) ==>
-        ret.value.content.AuthenticateSchemaMap[k].content ==
+        ret.value.content.SchemaMap[k].content ==
         CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN)
   {
     var schema := map kv <- item.Items | true :: kv.0 := GetAuthenticateSchemaAction(config, kv.0);
@@ -448,7 +448,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     );
     var encryptVal :- encryptRes.MapFailure(e => Error.AwsCryptographyStructuredEncryption(e));
     var encryptedData := encryptVal.encryptedStructure;
-    var ddbItem :- DynamoToStruct.StructuredToItem(encryptedData.content.StructuredDataMap);
+    var ddbItem :- DynamoToStruct.StructuredToItem(encryptedData.content.DataMap);
     output := Success(EncryptItemOutput(encryptedItem := ddbItem));
   }
 
@@ -537,7 +537,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     );
     var decryptVal :- decryptRes.MapFailure(e => Error.AwsCryptographyStructuredEncryption(e));
     var decryptedData := decryptVal.plaintextStructure;
-    var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData.content.StructuredDataMap);
+    var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData.content.DataMap);
     output := Success(DecryptItemOutput(plaintextItem := ddbItem));
   }
 }
