@@ -23,9 +23,9 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  type AuthenticateSchemaAttributes = map<string, AuthenticateAction>
  datatype AuthenticateSchemaContent =
- | Action(AuthenticateAction: AuthenticateAction)
- | SchemaMap(AuthenticateSchemaMap: AuthenticateSchemaMap)
- | SchemaList(AuthenticateSchemaList: AuthenticateSchemaList)
+ | Action(Action: AuthenticateAction)
+ | SchemaMap(SchemaMap: AuthenticateSchemaMap)
+ | SchemaList(SchemaList: AuthenticateSchemaList)
  type AuthenticateSchemaList = seq<AuthenticateSchema>
  type AuthenticateSchemaMap = map<string, AuthenticateSchema>
  datatype CryptoAction =
@@ -38,9 +38,9 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  type CryptoSchemaAttributes = map<string, AuthenticateAction>
  datatype CryptoSchemaContent =
- | Action(CryptoAction: CryptoAction)
- | SchemaMap(CryptoSchemaMap: CryptoSchemaMap)
- | SchemaList(CryptoSchemaList: CryptoSchemaList)
+ | Action(Action: CryptoAction)
+ | SchemaMap(SchemaMap: CryptoSchemaMap)
+ | SchemaList(SchemaList: CryptoSchemaList)
  type CryptoSchemaList = seq<CryptoSchema>
  type CryptoSchemaMap = map<string, CryptoSchema>
  datatype DecryptStructureInput = | DecryptStructureInput (
@@ -67,9 +67,9 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  type StructuredDataAttributes = map<string, StructuredDataTerminal>
  datatype StructuredDataContent =
- | Terminal(StructuredDataTerminal: StructuredDataTerminal)
- | DataList(StructuredDataList: StructuredDataList)
- | DataMap(StructuredDataMap: StructuredDataMap)
+ | Terminal(Terminal: StructuredDataTerminal)
+ | DataList(DataList: StructuredDataList)
+ | DataMap(DataMap: StructuredDataMap)
  type StructuredDataList = seq<StructuredData>
  type StructuredDataMap = map<string, StructuredData>
  datatype StructuredDataTerminal = | StructuredDataTerminal (
