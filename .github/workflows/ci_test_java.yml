@@ -1,0 +1,108 @@
+# This workflow performs tests in .NET.
+name: Library Java tests
+
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  testJava:
+    strategy:
+      matrix:
+        library: [
+          StructuredEncryption,
+          DynamoDbItemEncryptor,
+          DynamoDbMiddlewareInternal,
+        ]
+        java-version: [ 8, 11, 16, 17 ]
+        os: [
+          # TODO just test on mac for now
+          #windows-latest,
+          #ubuntu-latest,
+          macos-latest
+        ]
+    runs-on: ${{ matrix.os }}
+    environment: "ESDK CI"
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          # TODO: This role was manually created.
+          role-to-assume: arn:aws:iam::370957321024:role/DDBEC-Dafny-Private-CA-Read
+          role-session-name: JavaDDBECDafnyTests
+
+      - uses: actions/checkout@v3
+
+      - name: Init Submodules
+        env:
+          # This secret is in the configured environment
+          # Token created on # 11/28/2022
+          # expires in ~30 days 12/28/2022
+          PRIVATE_ESDK_PAT: ${{ secrets.PRIVATE_ESDK_PAT }}
+        run: |
+          AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
+          git config --global --add url.https://github.com/.insteadOf git@github.com:
+          git submodule update --init --recursive private-aws-encryption-sdk-dafny-staging
+
+      # Set up env vars for CodeArtifact
+      - name: Set Up Env Vars for CodeArtifact
+        run: |
+          export URL=`aws codeartifact get-repository-endpoint \
+            --domain github-polymorph \
+            --domain-owner "370957321024" \
+            --repository DafnyJavaConversion \
+            --format maven | jq -r .repositoryEndpoint`
+          export TOKEN=`aws codeartifact get-authorization-token \
+            --domain github-polymorph \
+            --domain-owner "370957321024" \
+            --query authorizationToken \
+            --output text`
+          echo "CODEARTIFACT_URL_JAVA_CONVERSION=$URL" >> $GITHUB_ENV
+          echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.4.0
+        with:
+          dafny-version: "nightly-2022-12-02-edab6cc"
+
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: ${{ matrix.java-version }}
+
+      # Java DafnyRuntime is not published to maven,
+      # so manually download a nightly build for 3.10.0 and grab it from there.
+      - name: Locally Cache Java DafnyRuntime
+        run: |
+          wget https://github.com/dafny-lang/dafny/releases/download/nightly/dafny-nightly-2022-12-02-edab6cc-x64-osx-10.14.2.zip 
+          unzip dafny-nightly-2022-12-02-edab6cc-x64-osx-10.14.2.zip 
+          mvn install:install-file \
+          -Dfile=dafny/DafnyRuntime.jar \
+          -DgroupId=dafny.lang \
+          -DartifactId=DafnyRuntime \
+          -Dversion=3.10.0 \
+          -DgeneratePom=true \
+          -Dpackaging=jar
+
+      - name: Build ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make build_java CORES=$CORES
+
+      # TODO: No tests can run without extern implementations
+      # - name: Test ${{ matrix.library }}
+      #   working-directory: ./${{ matrix.library }}
+      #   shell: bash
+      #   run: |
+      #     make test_java

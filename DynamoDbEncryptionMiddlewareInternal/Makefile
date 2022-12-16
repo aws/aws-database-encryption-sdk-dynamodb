@@ -21,9 +21,9 @@ dafny-reportgenerator:
 		--max-resource-count 10000000 \
 		TestResults/*.csv
 
-compile_net: | compile_implementation_net compile_test_net compile_net_dependencies
+transpile_net: | transpile_implementation_net transpile_test_net transpile_net_dependencies
 
-compile_implementation_net:
+transpile_implementation_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -39,7 +39,7 @@ compile_implementation_net:
 		-library:$(DEPS_DIR)/ComAmazonawsDynamodb/src/Index.dfy \
 		-library:$(ROOT_DIR)/../DynamoDbItemEncryptor/src/Index.dfy
 
-compile_test_net:
+transpile_test_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -51,14 +51,14 @@ compile_test_net:
 		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
 
-compile_net_dependencies:
-	$(MAKE) -C $(DEPS_DIR)/StandardLibrary compile_implementation_net
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives compile_implementation_net
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms compile_implementation_net
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb compile_implementation_net
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders compile_implementation_net
-	$(MAKE) -C $(ROOT_DIR)/../StructuredEncryption compile_implementation_net
-	$(MAKE) -C $(ROOT_DIR)/../DynamoDbItemEncryptor compile_implementation_net
+transpile_net_dependencies:
+	$(MAKE) -C $(DEPS_DIR)/StandardLibrary transpile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives transpile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms transpile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb transpile_implementation_net
+	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders transpile_implementation_net
+	$(MAKE) -C $(ROOT_DIR)/../StructuredEncryption transpile_implementation_net
+	$(MAKE) -C $(ROOT_DIR)/../DynamoDbItemEncryptor transpile_implementation_net
 
 test_net:
 	@exit $(shell dotnet run \
@@ -72,3 +72,67 @@ test_net_mac_intel:
 
 setup_net:
 	dotnet restore runtimes/net/
+
+transpile_java: | transpile_implementation_java transpile_test_java
+
+transpile_implementation_java: | _clean_implementation_java _transpile_implementation_java _mv_implementation_java
+
+_clean_implementation_java:
+	rm -rf runtimes/java/temp/AwsCryptographyDynamoDbEncryptionMiddlewareInternal-java/* && rm -rf runtimes/java/src/main/dafny-generated/*
+
+_transpile_implementation_java:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:java \
+		-spillTargetCode:3 \
+		-compile:0 \
+		-useRuntimeLib \
+		-out runtimes/java/temp/AwsCryptographyDynamoDbEncryptionMiddlewareInternal \
+		./src/Index.dfy \
+		-library:$(DEPS_DIR)/AwsCryptographicMaterialProviders/src/Index.dfy \
+		-library:$(DEPS_DIR)/AwsCryptographyPrimitives/src/Index.dfy \
+		-library:$(ROOT_DIR)/../StructuredEncryption/src/Index.dfy \
+		-library:$(DEPS_DIR)/ComAmazonawsKms/src/Index.dfy \
+		-library:$(DEPS_DIR)/ComAmazonawsDynamodb/src/Index.dfy \
+		-library:$(ROOT_DIR)/../DynamoDbItemEncryptor/src/Index.dfy
+
+_mv_implementation_java:
+	./runtimes/java/makefile_helper.sh implementation
+
+transpile_test_java: | _clean_test_java _transpile_test_java _mv_test_java
+
+_clean_test_java:
+	rm -rf runtimes/java/temp-tests/AwsCryptographyDynamoDbEncryptionMiddlewareInternalTests-java/* && rm -rf runtimes/java/src/test/dafny-generated/*
+
+_transpile_test_java:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:java \
+		-spillTargetCode:3 \
+		-runAllTests:1 \
+		-compile:0 \
+		-useRuntimeLib \
+		-out runtimes/java/temp-tests/AwsCryptographyDynamoDbEncryptionMiddlewareInternalTests \
+		`find ./test -name '*.dfy'` \
+		-library:src/Index.dfy
+
+_mv_test_java:
+	./runtimes/java/makefile_helper.sh test
+
+build_java_dependencies:
+	$(MAKE) -C $(DEPS_DIR)/StandardLibrary mvn_local_deploy
+	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives mvn_local_deploy
+	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms mvn_local_deploy
+	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb mvn_local_deploy
+	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders mvn_local_deploy
+	$(MAKE) -C $(ROOT_DIR)/../StructuredEncryption mvn_local_deploy
+	$(MAKE) -C $(ROOT_DIR)/../DynamoDbItemEncryptor mvn_local_deploy
+
+build_java: transpile_java build_java_dependencies
+	gradle -p runtimes/java build
+
+mvn_local_deploy: transpile_java
+	gradle -p runtimes/java publishToMavenLocal
+
+test_java:
+	gradle -p runtimes/java runTests

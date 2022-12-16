@@ -116,7 +116,7 @@ TODO: Also have this generate the .NET and Java.
 ##### Compile Dafny into .NET
 
 ```
-make compile_net
+make transpile_net
 ```
 
 Compiles the dafny code into .NET.
@@ -139,4 +139,4 @@ make test_net
 ```
 
 This runs the tests that were originally written in Dafny,
-then compiled to .NET in the `make compile_net` step above.
+then compiled to .NET in the `make transpile_net` step above.
