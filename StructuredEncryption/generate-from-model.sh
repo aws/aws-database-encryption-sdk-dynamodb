@@ -21,6 +21,7 @@ cd "$POLYMORPH_ROOT"
 # Generate code for StructuredEncryption
 ./gradlew run --args="\
     --output-dafny \
+    --output-java $StructuredEncryption_ROOT/runtimes/java/src/main/smithy-generated \
     --include-dafny $StandardLibrary_ROOT/src/Index.dfy \
     --model $StructuredEncryption_ROOT/Model \
     --dependent-model $ComAmazonawsKms_ROOT/Model \
