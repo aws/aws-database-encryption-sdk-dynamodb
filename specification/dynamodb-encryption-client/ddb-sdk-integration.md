@@ -96,6 +96,9 @@ MUST have the following modified behavior:
 - [Decrypt after TransactGetItem](#decrypt-after-transactgetitem)
 - [Validate before UpdateItem](#validate-before-updateitem)
 - [Validate before DeleteItem](#validate-before-deleteitem)
+- [Validate before ExecuteStatement](#validate-before-executestatement)
+- [Validate before BatchExecuteStatement](#validate-before-batchexecutestatement)
+- [Validate before ExecuteTransaction](#validate-before-executetransaction)
 
 The [Allowed Passthrough DynmanoDB APIs](#allowed-passthrough-dynamodb-apis)
 MUST NOT be modified.
