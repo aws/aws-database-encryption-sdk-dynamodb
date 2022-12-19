@@ -6,7 +6,7 @@ include "../../StructuredEncryption/src/Index.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryption" }
+  {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryptor" }
   DynamoDbItemEncryptor refines AbstractAwsCryptographyDynamoDbItemEncryptorService
 {
   import StructuredEncryption
