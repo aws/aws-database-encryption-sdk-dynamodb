@@ -159,6 +159,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method GetItemInputTransform(config: InternalConfig, input: GetItemInputTransformInput)
     returns (output: Result<GetItemInputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedInput == input.sdkInput
   {
     return Success(GetItemInputTransformOutput(transformedInput := input.sdkInput));
   }
@@ -253,6 +254,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method UpdateItemOutputTransform(config: InternalConfig, input: UpdateItemOutputTransformInput)
     returns (output: Result<UpdateItemOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     return Success(UpdateItemOutputTransformOutput(transformedOutput := input.sdkOutput));
   }
@@ -318,9 +320,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         result := result[tableName := writeRequests];
       }
     }
-    var semiFinalResult := result;
-    var finalResult := input.sdkInput.(RequestItems := semiFinalResult);
-    return Success(BatchWriteItemInputTransformOutput(transformedInput := finalResult));
+    var finalResult := result; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
+    return Success(BatchWriteItemInputTransformOutput(transformedInput := input.sdkInput.(RequestItems := finalResult)));
   }
 
   predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput, output: Result<BatchWriteItemOutputTransformOutput, Error>)
@@ -328,6 +329,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method BatchWriteItemOutputTransform(config: InternalConfig, input: BatchWriteItemOutputTransformInput)
     returns (output: Result<BatchWriteItemOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     var finalResult := input.sdkOutput; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
     return Success(BatchWriteItemOutputTransformOutput(transformedOutput := finalResult));
@@ -454,9 +456,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         result := result + [item];
       }
     }
-    var semiFinalResult := result; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
-    var finalResult := input.sdkInput.(TransactItems := semiFinalResult); // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
-    return Success(TransactWriteItemsInputTransformOutput(transformedInput := finalResult));
+    var finalResult := result; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
+    return Success(TransactWriteItemsInputTransformOutput(transformedInput := input.sdkInput.(TransactItems := finalResult)));
   }
 
   predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput, output: Result<TransactWriteItemsOutputTransformOutput, Error>)
@@ -464,6 +465,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method TransactWriteItemsOutputTransform(config: InternalConfig, input: TransactWriteItemsOutputTransformInput)
     returns (output: Result<TransactWriteItemsOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     var finalResult := input.sdkOutput;
     return Success(TransactWriteItemsOutputTransformOutput(transformedOutput := finalResult));
@@ -474,6 +476,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method BatchGetItemInputTransform(config: InternalConfig, input: BatchGetItemInputTransformInput)
     returns (output: Result<BatchGetItemInputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedInput == input.sdkInput
   {
     return Success(BatchGetItemInputTransformOutput(transformedInput := input.sdkInput));
   }
@@ -538,6 +541,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method ScanInputTransform(config: InternalConfig, input: ScanInputTransformInput)
     returns (output: Result<ScanInputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedInput == input.sdkInput
   {
     return Success(ScanInputTransformOutput(transformedInput := input.sdkInput));
   }
@@ -615,9 +619,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
       var decrypted :- MapError(decryptRes);
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
     }
-    var semiFinalValue := decryptedItems;
-    var finalValue := input.sdkOutput.(ItemList := Some(semiFinalValue));
-    return Success(ScanOutputTransformOutput(transformedOutput := finalValue));
+    var finalResult := decryptedItems; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
+    return Success(ScanOutputTransformOutput(transformedOutput := input.sdkOutput.(ItemList := Some(finalResult))));
   }
 
   predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput, output: Result<QueryInputTransformOutput, Error>)
@@ -625,6 +628,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method QueryInputTransform(config: InternalConfig, input: QueryInputTransformInput)
     returns (output: Result<QueryInputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedInput == input.sdkInput
   {
     return Success(QueryInputTransformOutput(transformedInput := input.sdkInput));
   }
@@ -714,6 +718,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method TransactGetItemsInputTransform(config: InternalConfig, input: TransactGetItemsInputTransformInput)
     returns (output: Result<TransactGetItemsInputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedInput == input.sdkInput
   {
     return Success(TransactGetItemsInputTransformOutput(transformedInput := input.sdkInput));
   }
@@ -826,6 +831,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method DeleteItemOutputTransform(config: InternalConfig, input: DeleteItemOutputTransformInput)
     returns (output: Result<DeleteItemOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     return Success(DeleteItemOutputTransformOutput(transformedOutput := input.sdkOutput));
   }
@@ -868,6 +874,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method ExecuteStatementOutputTransform(config: InternalConfig, input: ExecuteStatementOutputTransformInput)
     returns (output: Result<ExecuteStatementOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     return Success(ExecuteStatementOutputTransformOutput(transformedOutput := input.sdkOutput));
   }
@@ -919,6 +926,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method BatchExecuteStatementOutputTransform(config: InternalConfig, input: BatchExecuteStatementOutputTransformInput)
     returns (output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     return Success(BatchExecuteStatementOutputTransformOutput(transformedOutput := input.sdkOutput));
   }
@@ -967,6 +975,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
 
   method ExecuteTransactionOutputTransform(config: InternalConfig, input: ExecuteTransactionOutputTransformInput)
     returns (output: Result<ExecuteTransactionOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     return Success(ExecuteTransactionOutputTransformOutput(transformedOutput := input.sdkOutput));
   }
