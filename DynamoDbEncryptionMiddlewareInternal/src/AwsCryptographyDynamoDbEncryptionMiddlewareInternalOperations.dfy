@@ -328,7 +328,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
   method BatchWriteItemOutputTransform(config: InternalConfig, input: BatchWriteItemOutputTransformInput)
     returns (output: Result<BatchWriteItemOutputTransformOutput, Error>)
   {
-    return Success(BatchWriteItemOutputTransformOutput(transformedOutput := input.sdkOutput));
+    var finalResult := input.sdkOutput; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
+    return Success(BatchWriteItemOutputTransformOutput(transformedOutput := finalResult));
   }
 
   predicate TransactWriteItemsInputTransformEnsuresPublicly(input: TransactWriteItemsInputTransformInput, output: Result<TransactWriteItemsInputTransformOutput, Error>)
@@ -452,7 +453,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         result := result + [item];
       }
     }
-    return Success(TransactWriteItemsInputTransformOutput(transformedInput := input.sdkInput.(TransactItems := result)));
+    var finalResult := input.sdkInput.(TransactItems := result); // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
+    return Success(TransactWriteItemsInputTransformOutput(transformedInput := finalResult));
   }
 
   predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput, output: Result<TransactWriteItemsOutputTransformOutput, Error>)
@@ -524,7 +526,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         result := result + map[tableName := responses];
       }
     }
-    return Success(BatchGetItemOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := Some(result))));
+    var someResponses := Some(result); // TODO this needs to be done on its own line until we upgrade to Dafny 3.10.0
+    return Success(BatchGetItemOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := someResponses)));
   }
 
   predicate ScanInputTransformEnsuresPublicly(input: ScanInputTransformInput, output: Result<ScanInputTransformOutput, Error>)
@@ -697,7 +700,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
       var decrypted :- MapError(decryptRes);
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
     }
-    return Success(QueryOutputTransformOutput(transformedOutput := input.sdkOutput.(ItemList := Some(decryptedItems))));
+    var someItems := Some(decryptedItems); // TODO this needs to be done on its own line until we upgrade to Dafny 3.10.0
+    return Success(QueryOutputTransformOutput(transformedOutput := input.sdkOutput.(ItemList := someItems)));
   }
 
   predicate TransactGetItemsInputTransformEnsuresPublicly(input: TransactGetItemsInputTransformInput, output: Result<TransactGetItemsInputTransformOutput, Error>)
@@ -766,7 +770,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         }
       }
     }
-    return Success(TransactGetItemsOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := Some(decryptedItems))));
+    var someItems := Some(decryptedItems); // TODO this needs to be done on its own line until we upgrade to Dafny 3.10.0
+    return Success(TransactGetItemsOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := someItems)));
   }
 
   predicate DeleteItemInputTransformEnsuresPublicly(input: DeleteItemInputTransformInput, output: Result<DeleteItemInputTransformOutput, Error>)
