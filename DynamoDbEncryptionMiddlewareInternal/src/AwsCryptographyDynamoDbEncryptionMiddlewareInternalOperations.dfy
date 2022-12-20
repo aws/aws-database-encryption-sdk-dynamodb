@@ -318,7 +318,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         result := result[tableName := writeRequests];
       }
     }
-    var finalResult := input.sdkInput.(RequestItems := result);
+    var semiFinalResult := result;
+    var finalResult := input.sdkInput.(RequestItems := semiFinalResult);
     return Success(BatchWriteItemInputTransformOutput(transformedInput := finalResult));
   }
 
@@ -453,7 +454,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         result := result + [item];
       }
     }
-    var finalResult := input.sdkInput.(TransactItems := result); // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
+    var semiFinalResult := result; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
+    var finalResult := input.sdkInput.(TransactItems := semiFinalResult); // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
     return Success(TransactWriteItemsInputTransformOutput(transformedInput := finalResult));
   }
 
@@ -613,7 +615,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
       var decrypted :- MapError(decryptRes);
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
     }
-    var finalValue := input.sdkOutput.(ItemList := Some(decryptedItems));
+    var semiFinalValue := decryptedItems;
+    var finalValue := input.sdkOutput.(ItemList := Some(semiFinalValue));
     return Success(ScanOutputTransformOutput(transformedOutput := finalValue));
   }
 
