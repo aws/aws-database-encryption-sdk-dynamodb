@@ -1,6 +1,10 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Extract table name from PartiQL statements, as per
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.statements.html
+// for ExecuteStatement, BatchExecuteStatement and ExecuteTransaction
+
 include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Wrappers.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/StandardLibrary.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
@@ -27,9 +31,19 @@ module DdbStatement {
   }
 
   function method {:opaque} TableFromStatement(s : string)
-    : (ret : Option<DDB.TableName>)
+    : Result<DDB.TableName, string>
   {
-    var s := StripLeading(s);
+    var ret := TableFromStatementInner(s);
+    if ret.Some? then
+      Success(ret.value)
+    else
+      Failure("Unable to extract table name from PartiQL statement.")
+  }
+
+  function method {:opaque} TableFromStatementInner(s : string)
+    : Option<DDB.TableName>
+  {
+    var s := StripLeadingWhitespace(s);
     var len := FindTokenLen(s);
     var cmd := AsciiLower(s[..len]);
     if cmd == "select" then
@@ -51,10 +65,10 @@ module DdbStatement {
     if |s| == 0 then
       None
     else
-      var t := StripLeading(s);
+      var t := StripLeadingWhitespace(s);
       var len := FindTokenLen(t);
       if AsciiLower(t[..len]) == "from" then
-        var t := StripLeading(t[len..]);
+        var t := StripLeadingWhitespace(t[len..]);
         var len := FindTokenLen(t);
         Some(t[..len])
       else if len == 0 then
@@ -63,6 +77,9 @@ module DdbStatement {
         TableFromSelectStatementInner(t[len..])
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.select.html
+  // states that the target of the select is either "Table" or "Table.Index"
+  // In either case, we want just the Table
   function method {:opaque} TableFromSelectStatement(s : string)
   : Option<DDB.TableName>
   {
@@ -77,7 +94,7 @@ module DdbStatement {
   function method {:opaque} TableFromUpdateStatement(s : string)
   : Option<DDB.TableName>
   {
-    var s := StripLeading(s);
+    var s := StripLeadingWhitespace(s);
     var len := FindTokenLen(s);
     if len == 0 then
       None
@@ -88,12 +105,12 @@ module DdbStatement {
   function method {:opaque} TableFromDeleteStatement(s : string)
   : Option<DDB.TableName>
   {
-    var s := StripLeading(s);
+    var s := StripLeadingWhitespace(s);
     var len := FindTokenLen(s);
     if AsciiLower(s[..len]) != "from" then
       None
     else
-      var s := StripLeading(s[len..]);
+      var s := StripLeadingWhitespace(s[len..]);
       var len := FindTokenLen(s);
       if len == 0 then
         None
@@ -104,12 +121,12 @@ module DdbStatement {
   function method {:opaque} TableFromInsertStatement(s : string)
   : Option<DDB.TableName>
   {
-    var s := StripLeading(s);
+    var s := StripLeadingWhitespace(s);
     var len := FindTokenLen(s);
     if AsciiLower(s[..len]) != "into" then
       None
     else
-      var s := StripLeading(s[len..]);
+      var s := StripLeadingWhitespace(s[len..]);
       var len := FindTokenLen(s);
       if len == 0 then
         None
@@ -119,17 +136,18 @@ module DdbStatement {
 
   predicate method {:opaque} IsWhitespace(ch : char)
   {
+    // everything from zero through space, including tabs, newlines, carriage returns, nulls etc.
     ch <= ' '
   }
 
-  function method {:tailrecursion} {:opaque} StripLeading(s : string)
+  function method {:tailrecursion} {:opaque} StripLeadingWhitespace(s : string)
     : (ret : string)
     ensures |ret| <= |s|
   {
     if |s| == 0 || !IsWhitespace(s[0]) then
       s
     else
-      StripLeading(s[1..])
+      StripLeadingWhitespace(s[1..])
   }
 
   function method {:opaque} AsciiLowerChar(ch : char)
@@ -150,6 +168,8 @@ module DdbStatement {
       [AsciiLowerChar(s[0])] + AsciiLower(s[1..])
   }
 
+  // if s starts with a quote ("), return number of characters until after the next quote
+  // else return number of characters until next whitespace
   function method {:opaque} FindTokenLen(s : string)
     : (ret : nat)
     ensures ret <= |s|

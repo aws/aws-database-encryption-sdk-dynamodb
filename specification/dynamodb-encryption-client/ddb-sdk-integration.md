@@ -264,8 +264,7 @@ with the resulting decrypted
 [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) operation fails,
-the client MUST NOT make a network call to DynamoDB
-and Scan MUST yield an error.
+Scan MUST yield an error.
 
 TODO: Is there a way we can return a partial result?
 
@@ -287,8 +286,7 @@ Each of these entries on the original repsonse MUST be replaced
 with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) fails,
-the client MUST NOT make a network call to DynamoDB
-and Query MUST yield an error.
+Query MUST yield an error.
 
 TODO: Is there a way we can return a partial result?
 
@@ -311,8 +309,7 @@ with a value that is equivalent to
 the result [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) fails,
-the client MUST NOT make a network call to DynamoDB
-and TransactGetItems MUST yield an error.
+TransactGetItems MUST yield an error.
 
 TODO: Is there a way to return a partial result?
 

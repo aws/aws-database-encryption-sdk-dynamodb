@@ -737,7 +737,23 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("BatchExecuteStatement", transformed.value.transformedOutput, output);
   }
 
-    method {:test} TestExecuteTransactionInputTransform() {
+  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.Error>, s : string)
+  {
+    if !ret.Failure? {
+      print "Got Success when expected failure ", s, "\n";
+    }
+    expect ret.Failure?;
+    if !ret.error.DynamoDbEncryptionMiddlewareInternalException? {
+      print "Error type not DynamoDbEncryptionMiddlewareInternalException : ", ret, "\n";
+    }
+    expect ret.error.DynamoDbEncryptionMiddlewareInternalException?;
+    if ret.error.message != s {
+      print "Expected error message '", s, "' got message '", ret.error.message, "'\n";
+    }
+    expect ret.error.message == s;
+  }
+
+  method {:test} TestExecuteTransactionInputTransform() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var good_input := DDB.ExecuteTransactionInput(
       TransactStatements :=  [
@@ -761,7 +777,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     var bad_input := DDB.ExecuteTransactionInput(
       TransactStatements :=  [
         DDB.ParameterizedStatement (
-          Statement := "foo",
+          Statement := "update foo",
           Parameters := None()
         )
       ],
@@ -774,9 +790,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
       )
     );
 
-    expect bad_transformed.Failure?;
-    expect bad_transformed.error.DynamoDbEncryptionMiddlewareInternalException?;
-    expect bad_transformed.error.message == "ExecuteTransaction not Supported on encrypted tables.";
+    ExpectFailure(bad_transformed, "ExecuteTransaction not Supported on encrypted tables.");
   }
 
   method {:test} TestExecuteTransactionOutputTransform() {
