@@ -710,6 +710,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
 }
+
  abstract module AbstractAwsCryptographyDynamoDbEncryptionMiddlewareInternalService
  {
  import opened Wrappers
@@ -717,6 +718,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  import opened UTF8
  import opened Types = AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes
  import Operations : AbstractAwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations
+
  function method DefaultDynamoDbEncryptionMiddlewareInternalConfig(): DynamoDbEncryptionMiddlewareInternalConfig
  method DynamoDbEncryptionMiddlewareInternal(config: DynamoDbEncryptionMiddlewareInternalConfig := DefaultDynamoDbEncryptionMiddlewareInternalConfig())
  returns (res: Result<DynamoDbEncryptionMiddlewareInternalClient, Error>)
@@ -738,12 +740,18 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
    var keyringModifiesSet: set<set<object>> := set keyring | keyring in keyrings :: keyring.Modifies;
    // Flatten the set<keyring.Modifies>
    (set keyringModifyEntry, keyringModifies | keyringModifies in keyringModifiesSet && keyringModifyEntry in keyringModifies :: keyringModifyEntry)
- ///// MANUAL UPDATE ENDS HERE
- ensures res.Success? ==> 
+
+ ensures res.Success? ==>
  && fresh(res.value)
- && fresh(res.value.Modifies)
+ && fresh(res.value.Modifies -
+      set t <- config.tableEncryptionConfigs.Keys, o <- (
+        (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
+      + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
+  ) :: o)
  && fresh(res.value.History)
  && res.value.ValidState()
+ ///// MANUAL UPDATE ENDS HERE
+
  class DynamoDbEncryptionMiddlewareInternalClient extends IDynamoDbEncryptionMiddlewareInternalClient
  {
  constructor(config: Operations.InternalConfig)
