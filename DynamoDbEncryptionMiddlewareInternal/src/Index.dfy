@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations.dfy"
+include "DdbStatement.dfy"
 include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 
 module
@@ -11,6 +12,7 @@ module
   import AwsCryptographyDynamoDbItemEncryptorTypes
   import Operations = AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations
   import DynamoDbItemEncryptor
+  import DdbStatement
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
@@ -37,6 +39,14 @@ module
             && tableConfig.itemEncryptor.config.tableName == tableName
             && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
             && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
+        invariant forall t :: t in internalConfigs.Keys ==> internalConfigs[t].itemEncryptor.ValidState()
+
+        invariant fresh((set t <- internalConfigs.Keys, o <- internalConfigs[t].itemEncryptor.Modifies :: o) -
+          set t <- config.tableEncryptionConfigs.Keys, o <- (
+            (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
+          + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
+      ) :: o)
+
         decreases m'.Keys
     {
         var tableName: string :| tableName in m';
@@ -55,6 +65,7 @@ module
         // TODO consider using the raw constructor in order to avoid
         // instantiating multiple StructuredEncryption
         var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e));
 
@@ -64,7 +75,9 @@ module
           itemEncryptor := itemEncryptor
         );
 
+        assert internalConfig.itemEncryptor.ValidState();
         internalConfigs := internalConfigs[tableName := internalConfig];
+
         // Pop 'tableName' off the map, so that we may continue iterating
         m' := map k' | k' in m' && k' != tableName :: m'[k'];
     }
@@ -74,6 +87,7 @@ module
         tableEncryptionConfigs := internalConfigs
       )
     );
+
     return Success(client);
   }
 
