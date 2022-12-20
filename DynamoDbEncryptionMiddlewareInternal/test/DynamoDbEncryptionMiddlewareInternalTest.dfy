@@ -31,7 +31,23 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect actual == expected;
   }
 
-  method {:test} TestGetItemInputTransform() {
+  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.Error>, s : string)
+  {
+    if !ret.Failure? {
+      print "Got Success when expected failure ", s, "\n";
+    }
+    expect ret.Failure?;
+    if !ret.error.DynamoDbEncryptionMiddlewareInternalException? {
+      print "Error type not DynamoDbEncryptionMiddlewareInternalException : ", ret, "\n";
+    }
+    expect ret.error.DynamoDbEncryptionMiddlewareInternalException?;
+    if ret.error.message != s {
+      print "Expected error message '", s, "' got message '", ret.error.message, "'\n";
+    }
+    expect ret.error.message == s;
+  }
+
+  method {:test} TestGetItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.GetItemInput(
       TableName := "no_such_table",
@@ -51,7 +67,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("GetItemInput", transformed.value.transformedInput, input);
   }
 
-  method {:test} TestGetItemOutputTransform() {
+  method {:test} TestGetItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.GetItemInput(
       TableName := "no_such_table",
@@ -77,7 +93,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("GetItemOutput", transformed.value.transformedOutput, output);
   }
 
-  method {:test} TestPutItemInputTransform() {
+  method {:test} TestPutItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.PutItemInput(
       TableName := "no_such_table",
@@ -101,7 +117,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("PutItemInput", transformed.value.transformedInput, input);
   }
 
-  method {:test} TestPutItemOutputTransform() {
+  method {:test} TestPutItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.PutItemOutput(
       Attributes := None(),
@@ -243,7 +259,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("BatchGetItemOutput", transformed.value.transformedOutput, output);
   }
 
-  method {:test} TestScanInputTransform() {
+  method {:test} TestScanInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.ScanInput(
       TableName := "no_such_table",
@@ -273,7 +289,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("ScanInput", transformed.value.transformedInput, input);
   }
 
-  method {:test} TestScanOutputTransform() {
+  method {:test} TestScanOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.ScanOutput(
       ItemList := None(),
@@ -311,7 +327,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("ScanOutput", transformed.value.transformedOutput, output);
   }
 
-  method {:test} TestQueryInputTransform() {
+  method {:test} TestQueryInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.QueryInput(
       TableName := "no_such_table",
@@ -342,7 +358,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("QueryInput", transformed.value.transformedInput, input);
   }
 
-  method {:test} TestQueryOutputTransform() {
+  method {:test} TestQueryOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.QueryOutput(
       ItemList := None(),
@@ -381,14 +397,20 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("QueryOutput", transformed.value.transformedOutput, output);
   }
 
-  method {:test} TestTransactWriteItemsInputTransform() {
+  method {:test} TestTransactWriteItemsInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.TransactWriteItemsInput(
       TransactItems := [
         DDB.TransactWriteItem(
           ConditionCheck := None(),
           Put := None(),
-          Delete := None(),
+          Delete := Some(DDB.Delete(
+            Key := map["this" := DDB.AttributeValue.S("that")],
+            TableName := "bar",
+            ConditionExpression := None,
+            ExpressionAttributeNames := None,
+            ExpressionAttributeValues := None,
+            ReturnValuesOnConditionCheckFailure := None)),
           Update := None()
         )
       ],
@@ -404,6 +426,29 @@ module DynamoDbEncryptionMiddlewareInternalTest {
 
     expect_ok("TransactWriteItemsInput", transformed);
     expect_equal("TransactWriteItemsInput", transformed.value.transformedInput, input);
+  }
+
+    method {:test} TestTransactWriteItemsInputEmpty() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
+    var input := DDB.TransactWriteItemsInput(
+      TransactItems := [
+        DDB.TransactWriteItem(
+          ConditionCheck := None,
+          Put := None,
+          Delete := None,
+          Update := None
+        )
+      ],
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      ClientRequestToken := None()
+    );
+    var transformed := middlewareUnderTest.TransactWriteItemsInputTransform(
+      AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.TransactWriteItemsInputTransformInput(
+        sdkInput := input
+      )
+    );
+    ExpectFailure(transformed, "Each item in TransactWriteItems must specify at least one operation");
   }
 
   method {:test} TestTransactWriteItemsOutputTransform() {
@@ -436,7 +481,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("TransactWriteItemsOutput", transformed.value.transformedOutput, output);
   }
 
-  method {:test} TestUpdateItemInputTransform() {
+  method {:test} TestUpdateItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.UpdateItemInput(
       TableName := "no_such_table",
@@ -462,7 +507,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("UpdateItemInput", transformed.value.transformedInput, input);
   }
 
-  method {:test} TestUpdateItemOutputTransform() {
+  method {:test} TestUpdateItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.UpdateItemOutput(
       Attributes := None(),
@@ -494,7 +539,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("UpdateItemOutput", transformed.value.transformedOutput, output);
   }
 
-  method {:test} TestDeleteItemInputTransform() {
+  method {:test} TestDeleteItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.DeleteItemInput(
       TableName := "no_such_table",
@@ -518,7 +563,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("DeleteItemInput", transformed.value.transformedInput, input);
   }
 
-  method {:test} TestDeleteItemOutputTransform() {
+  method {:test} TestDeleteItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.DeleteItemOutput(
       Attributes := None(),
@@ -548,7 +593,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("DeleteItemOutput", transformed.value.transformedOutput, output);
   }
 
-  method {:test} TestTransactGetItemsInputTransform() {
+  method {:test} TestTransactGetItemsInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var input := DDB.TransactGetItemsInput(
       TransactItems := [
@@ -573,7 +618,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("TransactGetItemsInput", transformed.value.transformedInput, input);
   }
 
-  method {:test} TestTransactGetItemsOutputTransform() {
+  method {:test} TestTransactGetItemsOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.TransactGetItemsOutput(
       ConsumedCapacity := None(),
@@ -603,7 +648,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("TransactGetItemsOutput", transformed.value.transformedOutput, output);
   }
 
-  method {:test} TestExecuteStatementInputTransform() {
+  method {:test} TestExecuteStatementInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var good_input := DDB.ExecuteStatementInput(
       Statement := "update \"no_such_table\"",
@@ -621,7 +666,10 @@ module DynamoDbEncryptionMiddlewareInternalTest {
 
     expect_ok("ExecuteStatement", good_transformed);
     expect_equal("ExecuteStatement", good_transformed.value.transformedInput, good_input);
+  }
 
+  method {:test} TestExecuteStatementInputEncrypted() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var bad_input := DDB.ExecuteStatementInput(
       Statement := "update \"foo\"",
       Parameters := None(),
@@ -641,7 +689,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect bad_transformed.error.message == "ExecuteStatement not Supported on encrypted tables.";
   }
 
-  method {:test} TestExecuteStatementOutputTransform() {
+  method {:test} TestExecuteStatementOutput() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.ExecuteStatementOutput(
       ItemList := None(),
@@ -668,7 +716,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("ExecuteStatement", transformed.value.transformedOutput, output);
   }
 
-    method {:test} TestBatchExecuteStatementInputTransform() {
+  method {:test} TestBatchExecuteStatementInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var good_input := DDB.BatchExecuteStatementInput(
       Statements := [
@@ -688,7 +736,10 @@ module DynamoDbEncryptionMiddlewareInternalTest {
 
     expect_ok("BatchExecuteStatement", good_transformed);
     expect_equal("BatchExecuteStatement", good_transformed.value.transformedInput, good_input);
+  }
 
+  method {:test} TestBatchExecuteStatementInputEncrypted() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var bad_input := DDB.BatchExecuteStatementInput(
       Statements := [
         DDB.BatchStatementRequest(
@@ -737,23 +788,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     expect_equal("BatchExecuteStatement", transformed.value.transformedOutput, output);
   }
 
-  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.Error>, s : string)
-  {
-    if !ret.Failure? {
-      print "Got Success when expected failure ", s, "\n";
-    }
-    expect ret.Failure?;
-    if !ret.error.DynamoDbEncryptionMiddlewareInternalException? {
-      print "Error type not DynamoDbEncryptionMiddlewareInternalException : ", ret, "\n";
-    }
-    expect ret.error.DynamoDbEncryptionMiddlewareInternalException?;
-    if ret.error.message != s {
-      print "Expected error message '", s, "' got message '", ret.error.message, "'\n";
-    }
-    expect ret.error.message == s;
-  }
-
-  method {:test} TestExecuteTransactionInputTransform() {
+  method {:test} TestExecuteTransactionInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var good_input := DDB.ExecuteTransactionInput(
       TransactStatements :=  [
@@ -773,7 +808,10 @@ module DynamoDbEncryptionMiddlewareInternalTest {
 
     expect_ok("ExecuteTransaction", good_transformed);
     expect_equal("ExecuteTransaction", good_transformed.value.transformedInput, good_input);
+  }
 
+  method {:test} TestExecuteTransactionInput() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var bad_input := DDB.ExecuteTransactionInput(
       TransactStatements :=  [
         DDB.ParameterizedStatement (

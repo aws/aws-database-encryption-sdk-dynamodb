@@ -165,6 +165,8 @@ and BatchWriteItem MUST yield an error.
 Before the [TransactWriteItems](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_TransactWriteItems.html)
 call is made to DynamoDB, for every entry under `TransactItems`:
 
+- To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
+the client MUST fail if the `Update`, `ConditionCheck`, `Delete` and `Put` fields are all `None`.
 
 - The client MUST fail if in the `Update` field has a `TableName` which matches
   the [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)

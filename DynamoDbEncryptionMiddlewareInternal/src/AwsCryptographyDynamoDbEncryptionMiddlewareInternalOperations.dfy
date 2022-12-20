@@ -396,6 +396,13 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         || item.Put.value.TableName !in config.tableEncryptionConfigs
         || item.Put.value.ConditionExpression.None?
 
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
+    //= type=implication
+    //# - To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
+    //# The client MUST fail if the `Update`, `ConditionCheck`, `Delete` and `Put` fields are all `None`.
+    ensures output.Success? ==>
+      forall item <- input.sdkInput.TransactItems ::
+        item.Put.Some? || item.Update.Some? || item.Delete.Some? || item.ConditionCheck.Some?
   {
     var result : seq<DDB.TransactWriteItem> := [];
     for x := 0 to |input.sdkInput.TransactItems|
@@ -412,9 +419,17 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         && (|| item.Put.None?
             || item.Put.value.TableName !in config.tableEncryptionConfigs
             || item.Put.value.ConditionExpression.None?)
+        && (item.Put.Some? || item.Update.Some? || item.Delete.Some? || item.ConditionCheck.Some?)
     {
       var item := input.sdkInput.TransactItems[x];
 
+      if && item.ConditionCheck.None?
+         && item.Delete.None?
+         && item.Update.None?
+         && item.Put.None?
+      {
+        return MakeError("Each item in TransactWriteItems must specify at least one operation");
+      }
       if item.ConditionCheck.Some? && item.ConditionCheck.value.TableName in config.tableEncryptionConfigs {
         return MakeError("Condition expressions not allowed on encrypted tables (TransactWriteItems ConditionCheck)");
       }
