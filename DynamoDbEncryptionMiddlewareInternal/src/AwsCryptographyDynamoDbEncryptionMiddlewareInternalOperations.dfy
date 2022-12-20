@@ -318,8 +318,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
         result := result[tableName := writeRequests];
       }
     }
-
-    return Success(BatchWriteItemInputTransformOutput(transformedInput := input.sdkInput.(RequestItems := result)));
+    var finalResult := input.sdkInput.(RequestItems := result);
+    return Success(BatchWriteItemInputTransformOutput(transformedInput := finalResult));
   }
 
   predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput, output: Result<BatchWriteItemOutputTransformOutput, Error>)
@@ -463,7 +463,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
   method TransactWriteItemsOutputTransform(config: InternalConfig, input: TransactWriteItemsOutputTransformInput)
     returns (output: Result<TransactWriteItemsOutputTransformOutput, Error>)
   {
-    return Success(TransactWriteItemsOutputTransformOutput(transformedOutput := input.sdkOutput));
+    var finalResult := input.sdkOutput;
+    return Success(TransactWriteItemsOutputTransformOutput(transformedOutput := finalResult));
   }
 
   predicate BatchGetItemInputTransformEnsuresPublicly(input: BatchGetItemInputTransformInput, output: Result<BatchGetItemInputTransformOutput, Error>)
@@ -612,7 +613,8 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
       var decrypted :- MapError(decryptRes);
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
     }
-    return Success(ScanOutputTransformOutput(transformedOutput := input.sdkOutput.(ItemList := Some(decryptedItems))));
+    var finalValue := input.sdkOutput.(ItemList := Some(decryptedItems));
+    return Success(ScanOutputTransformOutput(transformedOutput := finalValue));
   }
 
   predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput, output: Result<QueryInputTransformOutput, Error>)
