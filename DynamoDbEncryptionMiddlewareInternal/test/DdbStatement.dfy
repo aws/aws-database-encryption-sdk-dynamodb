@@ -126,3 +126,5 @@ WHERE OrderID IN [100, 300, 234]"), Success("Orders"));
 @"INSERT INTO ""Mu s ic"" value {'Artist' : 'Acme Band','SongTitle' : 'PartiQL Rocks'}
 "), Success("Mu s ic"));
   }
+
+}
