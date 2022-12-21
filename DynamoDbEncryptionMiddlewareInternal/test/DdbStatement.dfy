@@ -76,6 +76,13 @@ module DdbStatementTest {
     ExpectEqual(TableFromStatement("update \"f\to\no\""), Success("f\to\no"));
   }
 
+  method {:test} TestExistsStatement() {
+    ExpectEqual(TableFromStatement("exists(select * from foo"), Success("foo"));
+    ExpectEqual(TableFromStatement("\t  ExIsTs \r(\t\n SeLeCt * from foo"), Success("foo"));
+    ExpectEqual(TableFromStatement("exists(select * from \"foo\""), Success("foo"));
+    ExpectEqual(TableFromStatement("exists(select * from \"foo.bar\""), Success("foo"));
+
+  }
   method {:test} TestSelectStatement() {
     ExpectEqual(TableFromStatement("select blah blah from foo where"), Success("foo"));
     ExpectEqual(TableFromStatement("select\nblah\nblah\n\t  from\t\n  \t\n  foo where"), Success("foo"));
@@ -85,9 +92,8 @@ module DdbStatementTest {
     ExpectEqual(TableFromStatement("select * from foo.bar where"), Success("foo"));
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.update.html
   method {:test} TestUpdateFromDocs() {
-// The following examples copied from
-// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.statements.html
     ExpectEqual(TableFromStatement("UPDATE \"Music\" SET AwardsWon=1 SET AwardDetail={'Grammys':[2020, 2018]}  WHERE Artist='Acme Band' AND SongTitle='PartiQL Rocks"), Success("Music"));
 
     ExpectEqual(TableFromStatement(
@@ -98,6 +104,7 @@ WHERE Artist='Acme Band' AND SongTitle='PartiQL Rocks'
 RETURNING ALL OLD *"), Success("Music"));
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.select.html
   method {:test} TestSelectFromDocs() {
     ExpectEqual(TableFromStatement(
 @"SELECT OrderID, Total
@@ -113,12 +120,23 @@ FROM ""Orders""
 WHERE OrderID IN [100, 300, 234]"), Success("Orders"));
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.delete.html
   method {:test} TestDeleteFromDocs() {
     ExpectEqual(TableFromStatement(
 @"DELETE FROM ""Music"" WHERE ""Artist"" = 'Acme Band' AND ""SongTitle"" = 'PartiQL Rocks' RETURNING ALL OLD *
 "), Success("Music"));
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-functions.exists.html
+  method {:test} TestExistsFromDocs() {
+    ExpectEqual(TableFromStatement(
+@"EXISTS(
+    SELECT * FROM ""Music""
+    WHERE ""Artist"" = 'Acme Band' AND ""SongTitle"" = 'PartiQL Rocks')
+"), Success("Music"));
+  }
+
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.insert.html
   method {:test} TestInsertFromDocs() {
     ExpectEqual(TableFromStatement(
 @"INSERT INTO ""Music"" value {'Artist' : 'Acme Band','SongTitle' : 'PartiQL Rocks'}
