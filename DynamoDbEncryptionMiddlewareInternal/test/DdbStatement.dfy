@@ -81,8 +81,20 @@ module DdbStatementTest {
     ExpectEqual(TableFromStatement("\t  ExIsTs \r(\t\n SeLeCt * from foo"), Success("foo"));
     ExpectEqual(TableFromStatement("exists(select * from \"foo\""), Success("foo"));
     ExpectEqual(TableFromStatement("exists(select * from \"foo.bar\""), Success("foo"));
-
   }
+
+  method {:test} TestExistsStatementErrors() {
+    ExpectEqual(TableFromStatement("exists"), NoTable());
+    ExpectEqual(TableFromStatement("exists()"), NoTable());
+    ExpectEqual(TableFromStatement("exists select blah"), NoTable());
+    ExpectEqual(TableFromStatement("exists(select)"), NoTable());
+    ExpectEqual(TableFromStatement("exists(select * )"), NoTable());
+    ExpectEqual(TableFromStatement("exists(select * from)"), NoTable());
+    ExpectEqual(TableFromStatement("exists(update blah)"), NoTable());
+    ExpectEqual(TableFromStatement("exists(delete from blah)"), NoTable());
+    ExpectEqual(TableFromStatement("exists(insert into blah)"), NoTable());
+  }
+
   method {:test} TestSelectStatement() {
     ExpectEqual(TableFromStatement("select blah blah from foo where"), Success("foo"));
     ExpectEqual(TableFromStatement("select\nblah\nblah\n\t  from\t\n  \t\n  foo where"), Success("foo"));
