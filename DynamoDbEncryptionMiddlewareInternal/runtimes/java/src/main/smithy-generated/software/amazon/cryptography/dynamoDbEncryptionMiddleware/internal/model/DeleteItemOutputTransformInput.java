@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.DeleteItemResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
 import java.util.Objects;
 
 public class DeleteItemOutputTransformInput {
-  private final DeleteItemResult sdkOutput;
+  private final DeleteItemResponse sdkOutput;
 
   private final DeleteItemRequest originalInput;
 
@@ -19,7 +19,7 @@ public class DeleteItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public DeleteItemResult sdkOutput() {
+  public DeleteItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class DeleteItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(DeleteItemResult sdkOutput);
+    Builder sdkOutput(DeleteItemResponse sdkOutput);
 
-    DeleteItemResult sdkOutput();
+    DeleteItemResponse sdkOutput();
 
     Builder originalInput(DeleteItemRequest originalInput);
 
@@ -48,7 +48,7 @@ public class DeleteItemOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected DeleteItemResult sdkOutput;
+    protected DeleteItemResponse sdkOutput;
 
     protected DeleteItemRequest originalInput;
 
@@ -60,12 +60,12 @@ public class DeleteItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(DeleteItemResult sdkOutput) {
+    public Builder sdkOutput(DeleteItemResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public DeleteItemResult sdkOutput() {
+    public DeleteItemResponse sdkOutput() {
       return this.sdkOutput;
     }
 

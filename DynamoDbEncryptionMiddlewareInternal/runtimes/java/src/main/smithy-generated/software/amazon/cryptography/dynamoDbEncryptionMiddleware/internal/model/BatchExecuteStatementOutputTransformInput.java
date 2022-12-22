@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.BatchExecuteStatementRequest;
-import com.amazonaws.services.dynamodbv2.model.BatchExecuteStatementResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementRequest;
+import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementResponse;
 import java.util.Objects;
 
 public class BatchExecuteStatementOutputTransformInput {
-  private final BatchExecuteStatementResult sdkOutput;
+  private final BatchExecuteStatementResponse sdkOutput;
 
   private final BatchExecuteStatementRequest originalInput;
 
@@ -19,7 +19,7 @@ public class BatchExecuteStatementOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public BatchExecuteStatementResult sdkOutput() {
+  public BatchExecuteStatementResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class BatchExecuteStatementOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(BatchExecuteStatementResult sdkOutput);
+    Builder sdkOutput(BatchExecuteStatementResponse sdkOutput);
 
-    BatchExecuteStatementResult sdkOutput();
+    BatchExecuteStatementResponse sdkOutput();
 
     Builder originalInput(BatchExecuteStatementRequest originalInput);
 
@@ -48,7 +48,7 @@ public class BatchExecuteStatementOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchExecuteStatementResult sdkOutput;
+    protected BatchExecuteStatementResponse sdkOutput;
 
     protected BatchExecuteStatementRequest originalInput;
 
@@ -60,12 +60,12 @@ public class BatchExecuteStatementOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(BatchExecuteStatementResult sdkOutput) {
+    public Builder sdkOutput(BatchExecuteStatementResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public BatchExecuteStatementResult sdkOutput() {
+    public BatchExecuteStatementResponse sdkOutput() {
       return this.sdkOutput;
     }
 

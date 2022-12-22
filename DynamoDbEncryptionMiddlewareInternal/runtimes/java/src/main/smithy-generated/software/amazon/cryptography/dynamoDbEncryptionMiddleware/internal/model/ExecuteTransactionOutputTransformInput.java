@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.ExecuteTransactionRequest;
-import com.amazonaws.services.dynamodbv2.model.ExecuteTransactionResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
+import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionResponse;
 import java.util.Objects;
 
 public class ExecuteTransactionOutputTransformInput {
-  private final ExecuteTransactionResult sdkOutput;
+  private final ExecuteTransactionResponse sdkOutput;
 
   private final ExecuteTransactionRequest originalInput;
 
@@ -19,7 +19,7 @@ public class ExecuteTransactionOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public ExecuteTransactionResult sdkOutput() {
+  public ExecuteTransactionResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class ExecuteTransactionOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(ExecuteTransactionResult sdkOutput);
+    Builder sdkOutput(ExecuteTransactionResponse sdkOutput);
 
-    ExecuteTransactionResult sdkOutput();
+    ExecuteTransactionResponse sdkOutput();
 
     Builder originalInput(ExecuteTransactionRequest originalInput);
 
@@ -48,7 +48,7 @@ public class ExecuteTransactionOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteTransactionResult sdkOutput;
+    protected ExecuteTransactionResponse sdkOutput;
 
     protected ExecuteTransactionRequest originalInput;
 
@@ -60,12 +60,12 @@ public class ExecuteTransactionOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(ExecuteTransactionResult sdkOutput) {
+    public Builder sdkOutput(ExecuteTransactionResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public ExecuteTransactionResult sdkOutput() {
+    public ExecuteTransactionResponse sdkOutput() {
       return this.sdkOutput;
     }
 

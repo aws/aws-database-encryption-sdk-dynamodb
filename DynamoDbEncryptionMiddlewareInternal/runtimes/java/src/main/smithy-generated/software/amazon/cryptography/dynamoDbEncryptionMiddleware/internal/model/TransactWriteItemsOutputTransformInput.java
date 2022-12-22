@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.TransactWriteItemsRequest;
-import com.amazonaws.services.dynamodbv2.model.TransactWriteItemsResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest;
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsResponse;
 import java.util.Objects;
 
 public class TransactWriteItemsOutputTransformInput {
-  private final TransactWriteItemsResult sdkOutput;
+  private final TransactWriteItemsResponse sdkOutput;
 
   private final TransactWriteItemsRequest originalInput;
 
@@ -19,7 +19,7 @@ public class TransactWriteItemsOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public TransactWriteItemsResult sdkOutput() {
+  public TransactWriteItemsResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class TransactWriteItemsOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(TransactWriteItemsResult sdkOutput);
+    Builder sdkOutput(TransactWriteItemsResponse sdkOutput);
 
-    TransactWriteItemsResult sdkOutput();
+    TransactWriteItemsResponse sdkOutput();
 
     Builder originalInput(TransactWriteItemsRequest originalInput);
 
@@ -48,7 +48,7 @@ public class TransactWriteItemsOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected TransactWriteItemsResult sdkOutput;
+    protected TransactWriteItemsResponse sdkOutput;
 
     protected TransactWriteItemsRequest originalInput;
 
@@ -60,12 +60,12 @@ public class TransactWriteItemsOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(TransactWriteItemsResult sdkOutput) {
+    public Builder sdkOutput(TransactWriteItemsResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public TransactWriteItemsResult sdkOutput() {
+    public TransactWriteItemsResponse sdkOutput() {
       return this.sdkOutput;
     }
 

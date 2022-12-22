@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.BatchWriteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.BatchWriteItemResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
 import java.util.Objects;
 
 public class BatchWriteItemOutputTransformInput {
-  private final BatchWriteItemResult sdkOutput;
+  private final BatchWriteItemResponse sdkOutput;
 
   private final BatchWriteItemRequest originalInput;
 
@@ -19,7 +19,7 @@ public class BatchWriteItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public BatchWriteItemResult sdkOutput() {
+  public BatchWriteItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class BatchWriteItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(BatchWriteItemResult sdkOutput);
+    Builder sdkOutput(BatchWriteItemResponse sdkOutput);
 
-    BatchWriteItemResult sdkOutput();
+    BatchWriteItemResponse sdkOutput();
 
     Builder originalInput(BatchWriteItemRequest originalInput);
 
@@ -48,7 +48,7 @@ public class BatchWriteItemOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchWriteItemResult sdkOutput;
+    protected BatchWriteItemResponse sdkOutput;
 
     protected BatchWriteItemRequest originalInput;
 
@@ -60,12 +60,12 @@ public class BatchWriteItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(BatchWriteItemResult sdkOutput) {
+    public Builder sdkOutput(BatchWriteItemResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public BatchWriteItemResult sdkOutput() {
+    public BatchWriteItemResponse sdkOutput() {
       return this.sdkOutput;
     }
 

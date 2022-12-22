@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.BatchWriteItemResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
 import java.util.Objects;
 
 public class BatchWriteItemOutputTransformOutput {
-  private final BatchWriteItemResult transformedOutput;
+  private final BatchWriteItemResponse transformedOutput;
 
   protected BatchWriteItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public BatchWriteItemResult transformedOutput() {
+  public BatchWriteItemResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class BatchWriteItemOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(BatchWriteItemResult transformedOutput);
+    Builder transformedOutput(BatchWriteItemResponse transformedOutput);
 
-    BatchWriteItemResult transformedOutput();
+    BatchWriteItemResponse transformedOutput();
 
     BatchWriteItemOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchWriteItemResult transformedOutput;
+    protected BatchWriteItemResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class BatchWriteItemOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(BatchWriteItemResult transformedOutput) {
+    public Builder transformedOutput(BatchWriteItemResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public BatchWriteItemResult transformedOutput() {
+    public BatchWriteItemResponse transformedOutput() {
       return this.transformedOutput;
     }
 

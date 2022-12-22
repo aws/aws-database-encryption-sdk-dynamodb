@@ -5,7 +5,7 @@ package software.amazon.cryptography.dynamoDbItemEncryptor.model;
 
 // TODO manually updated the below DDB import to point to the right place
 // TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import java.util.Map;
 import java.util.Objects;
 

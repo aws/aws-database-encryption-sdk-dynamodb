@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import java.util.Objects;
 
 public class GetItemOutputTransformOutput {
-  private final GetItemResult transformedOutput;
+  private final GetItemResponse transformedOutput;
 
   protected GetItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public GetItemResult transformedOutput() {
+  public GetItemResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class GetItemOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(GetItemResult transformedOutput);
+    Builder transformedOutput(GetItemResponse transformedOutput);
 
-    GetItemResult transformedOutput();
+    GetItemResponse transformedOutput();
 
     GetItemOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected GetItemResult transformedOutput;
+    protected GetItemResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class GetItemOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(GetItemResult transformedOutput) {
+    public Builder transformedOutput(GetItemResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public GetItemResult transformedOutput() {
+    public GetItemResponse transformedOutput() {
       return this.transformedOutput;
     }
 

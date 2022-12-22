@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import java.util.Objects;
 
 public class GetItemOutputTransformInput {
-  private final GetItemResult sdkOutput;
+  private final GetItemResponse sdkOutput;
 
   private final GetItemRequest originalInput;
 
@@ -19,7 +19,7 @@ public class GetItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public GetItemResult sdkOutput() {
+  public GetItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class GetItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(GetItemResult sdkOutput);
+    Builder sdkOutput(GetItemResponse sdkOutput);
 
-    GetItemResult sdkOutput();
+    GetItemResponse sdkOutput();
 
     Builder originalInput(GetItemRequest originalInput);
 
@@ -48,7 +48,7 @@ public class GetItemOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected GetItemResult sdkOutput;
+    protected GetItemResponse sdkOutput;
 
     protected GetItemRequest originalInput;
 
@@ -60,12 +60,12 @@ public class GetItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(GetItemResult sdkOutput) {
+    public Builder sdkOutput(GetItemResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public GetItemResult sdkOutput() {
+    public GetItemResponse sdkOutput() {
       return this.sdkOutput;
     }
 

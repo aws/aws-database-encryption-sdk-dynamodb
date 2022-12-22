@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 import java.util.Objects;
 
 public class UpdateItemOutputTransformInput {
-  private final UpdateItemResult sdkOutput;
+  private final UpdateItemResponse sdkOutput;
 
   private final UpdateItemRequest originalInput;
 
@@ -19,7 +19,7 @@ public class UpdateItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public UpdateItemResult sdkOutput() {
+  public UpdateItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class UpdateItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(UpdateItemResult sdkOutput);
+    Builder sdkOutput(UpdateItemResponse sdkOutput);
 
-    UpdateItemResult sdkOutput();
+    UpdateItemResponse sdkOutput();
 
     Builder originalInput(UpdateItemRequest originalInput);
 
@@ -48,7 +48,7 @@ public class UpdateItemOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected UpdateItemResult sdkOutput;
+    protected UpdateItemResponse sdkOutput;
 
     protected UpdateItemRequest originalInput;
 
@@ -60,12 +60,12 @@ public class UpdateItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(UpdateItemResult sdkOutput) {
+    public Builder sdkOutput(UpdateItemResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public UpdateItemResult sdkOutput() {
+    public UpdateItemResponse sdkOutput() {
       return this.sdkOutput;
     }
 

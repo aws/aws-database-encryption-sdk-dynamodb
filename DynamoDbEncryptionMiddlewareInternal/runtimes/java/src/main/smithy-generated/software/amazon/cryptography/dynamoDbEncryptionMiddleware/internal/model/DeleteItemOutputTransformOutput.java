@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.DeleteItemResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
 import java.util.Objects;
 
 public class DeleteItemOutputTransformOutput {
-  private final DeleteItemResult transformedOutput;
+  private final DeleteItemResponse transformedOutput;
 
   protected DeleteItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public DeleteItemResult transformedOutput() {
+  public DeleteItemResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class DeleteItemOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(DeleteItemResult transformedOutput);
+    Builder transformedOutput(DeleteItemResponse transformedOutput);
 
-    DeleteItemResult transformedOutput();
+    DeleteItemResponse transformedOutput();
 
     DeleteItemOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected DeleteItemResult transformedOutput;
+    protected DeleteItemResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class DeleteItemOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(DeleteItemResult transformedOutput) {
+    public Builder transformedOutput(DeleteItemResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public DeleteItemResult transformedOutput() {
+    public DeleteItemResponse transformedOutput() {
       return this.transformedOutput;
     }
 

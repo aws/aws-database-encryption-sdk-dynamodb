@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.BatchExecuteStatementResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementResponse;
 import java.util.Objects;
 
 public class BatchExecuteStatementOutputTransformOutput {
-  private final BatchExecuteStatementResult transformedOutput;
+  private final BatchExecuteStatementResponse transformedOutput;
 
   protected BatchExecuteStatementOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public BatchExecuteStatementResult transformedOutput() {
+  public BatchExecuteStatementResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class BatchExecuteStatementOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(BatchExecuteStatementResult transformedOutput);
+    Builder transformedOutput(BatchExecuteStatementResponse transformedOutput);
 
-    BatchExecuteStatementResult transformedOutput();
+    BatchExecuteStatementResponse transformedOutput();
 
     BatchExecuteStatementOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchExecuteStatementResult transformedOutput;
+    protected BatchExecuteStatementResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class BatchExecuteStatementOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(BatchExecuteStatementResult transformedOutput) {
+    public Builder transformedOutput(BatchExecuteStatementResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public BatchExecuteStatementResult transformedOutput() {
+    public BatchExecuteStatementResponse transformedOutput() {
       return this.transformedOutput;
     }
 

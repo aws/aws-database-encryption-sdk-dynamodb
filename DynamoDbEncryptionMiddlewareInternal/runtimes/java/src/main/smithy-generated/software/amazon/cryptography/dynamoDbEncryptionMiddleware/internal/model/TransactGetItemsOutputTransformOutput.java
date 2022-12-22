@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.TransactGetItemsResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsResponse;
 import java.util.Objects;
 
 public class TransactGetItemsOutputTransformOutput {
-  private final TransactGetItemsResult transformedOutput;
+  private final TransactGetItemsResponse transformedOutput;
 
   protected TransactGetItemsOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public TransactGetItemsResult transformedOutput() {
+  public TransactGetItemsResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class TransactGetItemsOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(TransactGetItemsResult transformedOutput);
+    Builder transformedOutput(TransactGetItemsResponse transformedOutput);
 
-    TransactGetItemsResult transformedOutput();
+    TransactGetItemsResponse transformedOutput();
 
     TransactGetItemsOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected TransactGetItemsResult transformedOutput;
+    protected TransactGetItemsResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class TransactGetItemsOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(TransactGetItemsResult transformedOutput) {
+    public Builder transformedOutput(TransactGetItemsResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public TransactGetItemsResult transformedOutput() {
+    public TransactGetItemsResponse transformedOutput() {
       return this.transformedOutput;
     }
 

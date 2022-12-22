@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.ScanResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 import java.util.Objects;
 
 public class ScanOutputTransformOutput {
-  private final ScanResult transformedOutput;
+  private final ScanResponse transformedOutput;
 
   protected ScanOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public ScanResult transformedOutput() {
+  public ScanResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class ScanOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(ScanResult transformedOutput);
+    Builder transformedOutput(ScanResponse transformedOutput);
 
-    ScanResult transformedOutput();
+    ScanResponse transformedOutput();
 
     ScanOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ScanResult transformedOutput;
+    protected ScanResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class ScanOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(ScanResult transformedOutput) {
+    public Builder transformedOutput(ScanResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public ScanResult transformedOutput() {
+    public ScanResponse transformedOutput() {
       return this.transformedOutput;
     }
 

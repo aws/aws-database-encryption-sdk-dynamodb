@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.TransactGetItemsRequest;
-import com.amazonaws.services.dynamodbv2.model.TransactGetItemsResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsRequest;
+import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsResponse;
 import java.util.Objects;
 
 public class TransactGetItemsOutputTransformInput {
-  private final TransactGetItemsResult sdkOutput;
+  private final TransactGetItemsResponse sdkOutput;
 
   private final TransactGetItemsRequest originalInput;
 
@@ -19,7 +19,7 @@ public class TransactGetItemsOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public TransactGetItemsResult sdkOutput() {
+  public TransactGetItemsResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class TransactGetItemsOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(TransactGetItemsResult sdkOutput);
+    Builder sdkOutput(TransactGetItemsResponse sdkOutput);
 
-    TransactGetItemsResult sdkOutput();
+    TransactGetItemsResponse sdkOutput();
 
     Builder originalInput(TransactGetItemsRequest originalInput);
 
@@ -48,7 +48,7 @@ public class TransactGetItemsOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected TransactGetItemsResult sdkOutput;
+    protected TransactGetItemsResponse sdkOutput;
 
     protected TransactGetItemsRequest originalInput;
 
@@ -60,12 +60,12 @@ public class TransactGetItemsOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(TransactGetItemsResult sdkOutput) {
+    public Builder sdkOutput(TransactGetItemsResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public TransactGetItemsResult sdkOutput() {
+    public TransactGetItemsResponse sdkOutput() {
       return this.sdkOutput;
     }
 

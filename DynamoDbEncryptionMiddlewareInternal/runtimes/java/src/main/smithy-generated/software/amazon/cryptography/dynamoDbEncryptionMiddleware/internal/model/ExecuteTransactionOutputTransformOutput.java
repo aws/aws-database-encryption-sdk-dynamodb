@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.ExecuteTransactionResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionResponse;
 import java.util.Objects;
 
 public class ExecuteTransactionOutputTransformOutput {
-  private final ExecuteTransactionResult transformedOutput;
+  private final ExecuteTransactionResponse transformedOutput;
 
   protected ExecuteTransactionOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public ExecuteTransactionResult transformedOutput() {
+  public ExecuteTransactionResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class ExecuteTransactionOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(ExecuteTransactionResult transformedOutput);
+    Builder transformedOutput(ExecuteTransactionResponse transformedOutput);
 
-    ExecuteTransactionResult transformedOutput();
+    ExecuteTransactionResponse transformedOutput();
 
     ExecuteTransactionOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteTransactionResult transformedOutput;
+    protected ExecuteTransactionResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class ExecuteTransactionOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(ExecuteTransactionResult transformedOutput) {
+    public Builder transformedOutput(ExecuteTransactionResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public ExecuteTransactionResult transformedOutput() {
+    public ExecuteTransactionResponse transformedOutput() {
       return this.transformedOutput;
     }
 

@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.ExecuteStatementResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementResponse;
 import java.util.Objects;
 
 public class ExecuteStatementOutputTransformOutput {
-  private final ExecuteStatementResult transformedOutput;
+  private final ExecuteStatementResponse transformedOutput;
 
   protected ExecuteStatementOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public ExecuteStatementResult transformedOutput() {
+  public ExecuteStatementResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class ExecuteStatementOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(ExecuteStatementResult transformedOutput);
+    Builder transformedOutput(ExecuteStatementResponse transformedOutput);
 
-    ExecuteStatementResult transformedOutput();
+    ExecuteStatementResponse transformedOutput();
 
     ExecuteStatementOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteStatementResult transformedOutput;
+    protected ExecuteStatementResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class ExecuteStatementOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(ExecuteStatementResult transformedOutput) {
+    public Builder transformedOutput(ExecuteStatementResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public ExecuteStatementResult transformedOutput() {
+    public ExecuteStatementResponse transformedOutput() {
       return this.transformedOutput;
     }
 

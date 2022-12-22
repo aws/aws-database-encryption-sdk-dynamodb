@@ -4,13 +4,13 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.ExecuteStatementRequest;
-import com.amazonaws.services.dynamodbv2.model.ExecuteStatementResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementRequest;
+import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementResponse;
 import java.util.Objects;
 
 public class ExecuteStatementOutputTransformInput {
-  private final ExecuteStatementResult sdkOutput;
+  private final ExecuteStatementResponse sdkOutput;
 
   private final ExecuteStatementRequest originalInput;
 
@@ -19,7 +19,7 @@ public class ExecuteStatementOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public ExecuteStatementResult sdkOutput() {
+  public ExecuteStatementResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -36,9 +36,9 @@ public class ExecuteStatementOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(ExecuteStatementResult sdkOutput);
+    Builder sdkOutput(ExecuteStatementResponse sdkOutput);
 
-    ExecuteStatementResult sdkOutput();
+    ExecuteStatementResponse sdkOutput();
 
     Builder originalInput(ExecuteStatementRequest originalInput);
 
@@ -48,7 +48,7 @@ public class ExecuteStatementOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteStatementResult sdkOutput;
+    protected ExecuteStatementResponse sdkOutput;
 
     protected ExecuteStatementRequest originalInput;
 
@@ -60,12 +60,12 @@ public class ExecuteStatementOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(ExecuteStatementResult sdkOutput) {
+    public Builder sdkOutput(ExecuteStatementResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public ExecuteStatementResult sdkOutput() {
+    public ExecuteStatementResponse sdkOutput() {
       return this.sdkOutput;
     }
 

@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.QueryResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import java.util.Objects;
 
 public class QueryOutputTransformOutput {
-  private final QueryResult transformedOutput;
+  private final QueryResponse transformedOutput;
 
   protected QueryOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public QueryResult transformedOutput() {
+  public QueryResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class QueryOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(QueryResult transformedOutput);
+    Builder transformedOutput(QueryResponse transformedOutput);
 
-    QueryResult transformedOutput();
+    QueryResponse transformedOutput();
 
     QueryOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected QueryResult transformedOutput;
+    protected QueryResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class QueryOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(QueryResult transformedOutput) {
+    public Builder transformedOutput(QueryResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public QueryResult transformedOutput() {
+    public QueryResponse transformedOutput() {
       return this.transformedOutput;
     }
 

@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.BatchGetItemResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.BatchGetItemResponse;
 import java.util.Objects;
 
 public class BatchGetItemOutputTransformOutput {
-  private final BatchGetItemResult transformedOutput;
+  private final BatchGetItemResponse transformedOutput;
 
   protected BatchGetItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public BatchGetItemResult transformedOutput() {
+  public BatchGetItemResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class BatchGetItemOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(BatchGetItemResult transformedOutput);
+    Builder transformedOutput(BatchGetItemResponse transformedOutput);
 
-    BatchGetItemResult transformedOutput();
+    BatchGetItemResponse transformedOutput();
 
     BatchGetItemOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchGetItemResult transformedOutput;
+    protected BatchGetItemResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class BatchGetItemOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(BatchGetItemResult transformedOutput) {
+    public Builder transformedOutput(BatchGetItemResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public BatchGetItemResult transformedOutput() {
+    public BatchGetItemResponse transformedOutput() {
       return this.transformedOutput;
     }
 

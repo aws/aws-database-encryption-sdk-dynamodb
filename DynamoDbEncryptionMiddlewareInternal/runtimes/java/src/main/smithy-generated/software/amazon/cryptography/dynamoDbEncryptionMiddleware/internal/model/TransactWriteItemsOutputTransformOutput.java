@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model;
 
 // TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import com.amazonaws.services.dynamodbv2.model.TransactWriteItemsResult;
+// TODO manually updated native type name, i.e. Input->Request Output->Response
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsResponse;
 import java.util.Objects;
 
 public class TransactWriteItemsOutputTransformOutput {
-  private final TransactWriteItemsResult transformedOutput;
+  private final TransactWriteItemsResponse transformedOutput;
 
   protected TransactWriteItemsOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public TransactWriteItemsResult transformedOutput() {
+  public TransactWriteItemsResponse transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -28,15 +28,15 @@ public class TransactWriteItemsOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(TransactWriteItemsResult transformedOutput);
+    Builder transformedOutput(TransactWriteItemsResponse transformedOutput);
 
-    TransactWriteItemsResult transformedOutput();
+    TransactWriteItemsResponse transformedOutput();
 
     TransactWriteItemsOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected TransactWriteItemsResult transformedOutput;
+    protected TransactWriteItemsResponse transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class TransactWriteItemsOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(TransactWriteItemsResult transformedOutput) {
+    public Builder transformedOutput(TransactWriteItemsResponse transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public TransactWriteItemsResult transformedOutput() {
+    public TransactWriteItemsResponse transformedOutput() {
       return this.transformedOutput;
     }
 
