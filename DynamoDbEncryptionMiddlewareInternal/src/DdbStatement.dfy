@@ -44,18 +44,21 @@ module DdbStatement {
     : Option<DDB.TableName>
   {
     var s := StripLeadingWhitespace(s);
-    var len := FindTokenLen(s);
-    var cmd := AsciiLower(s[..len]);
-    if cmd == "select" then
-      TableFromSelectStatement(s[len..])
-    else if cmd == "update" then
-      TableFromUpdateStatement(s[len..])
-    else if cmd == "delete" then
-      TableFromDeleteStatement(s[len..])
-    else if cmd == "insert" then
-      TableFromInsertStatement(s[len..])
+    if |s| > 6 && AsciiLower(s[0..6]) == "exists" then
+      TableFromExistsStatement(s[6..])
     else
-      None
+      var len := FindTokenLen(s);
+      var cmd := AsciiLower(s[..len]);
+      if cmd == "select" then
+        TableFromSelectStatement(s[len..])
+      else if cmd == "update" then
+        TableFromUpdateStatement(s[len..])
+      else if cmd == "delete" then
+        TableFromDeleteStatement(s[len..])
+      else if cmd == "insert" then
+        TableFromInsertStatement(s[len..])
+      else
+        None
   }
 
   // TODO - find reference to ensure a naked "from" cannot appear in the select expression
@@ -79,6 +82,22 @@ module DdbStatement {
         TableFromSelectStatementInner(t[len..])
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-functions.exists.html
+  function method {:tailrecursion} {:opaque} TableFromExistsStatement(s : string)
+    : Option<DDB.TableName>
+  {
+    var s := StripLeadingWhitespace(s);
+    if |s| == 0 || s[0] != '(' then
+      None
+    else
+      var s := StripLeadingWhitespace(s[1..]);
+      var len := FindTokenLen(s);
+      if AsciiLower(s[..len]) == "select" then
+        TableFromSelectStatement(s[len..])
+      else
+        None
+  }
+
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.select.html
   // states that the target of the select is either "Table" or "Table.Index"
   // In either case, we want just the Table
@@ -93,6 +112,7 @@ module DdbStatement {
       GetTableName(name)
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.update.html
   function method {:opaque} TableFromUpdateStatement(s : string)
   : Option<DDB.TableName>
   {
@@ -104,6 +124,7 @@ module DdbStatement {
       GetTableName(s[..len])
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.delete.html
   function method {:opaque} TableFromDeleteStatement(s : string)
   : Option<DDB.TableName>
   {
@@ -120,6 +141,7 @@ module DdbStatement {
         GetTableName(s[..len])
   }
 
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.insert.html
   function method {:opaque} TableFromInsertStatement(s : string)
   : Option<DDB.TableName>
   {
@@ -203,5 +225,4 @@ module DdbStatement {
     else
       1 + FindTokenLenQuoted(s[1..])
   }
-
 }
