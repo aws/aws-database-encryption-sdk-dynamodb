@@ -23,6 +23,7 @@ cd "$POLYMORPH_ROOT"
 ./gradlew run --args="\
     --output-dafny \
     --include-dafny $StandardLibrary_ROOT/src/Index.dfy \
+    --output-java $DynamoDbItemEncryptor_ROOT/runtimes/java/src/main/smithy-generated \
     --model $DynamoDbItemEncryptor_ROOT/Model \
     --dependent-model $ComAmazonawsKms_ROOT/Model \
     --dependent-model $ComAmazonawsDynamodb_ROOT/Model \

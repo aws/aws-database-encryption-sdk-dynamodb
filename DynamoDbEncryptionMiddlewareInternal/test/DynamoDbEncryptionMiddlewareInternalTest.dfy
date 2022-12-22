@@ -206,7 +206,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     var input := DDB.BatchGetItemInput(
       RequestItems := map[
         "foo" := DDB.KeysAndAttributes(
-          KeyList := [
+          Keys := [
             map[]
           ],
           AttributesToGet := None(),
@@ -237,7 +237,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
     var input := DDB.BatchGetItemInput(
       RequestItems := map[
         "foo" := DDB.KeysAndAttributes(
-          KeyList := [
+          Keys := [
             map[]
           ],
           AttributesToGet := None(),
@@ -292,7 +292,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
   method {:test} TestScanOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.ScanOutput(
-      ItemList := None(),
+      Items := None(),
       Count := None(),
       ScannedCount := None(),
       LastEvaluatedKey := None(),
@@ -361,7 +361,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
   method {:test} TestQueryOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.QueryOutput(
-      ItemList := None(),
+      Items := None(),
       Count := None(),
       ScannedCount := None(),
       LastEvaluatedKey := None(),
@@ -692,7 +692,7 @@ module DynamoDbEncryptionMiddlewareInternalTest {
   method {:test} TestExecuteStatementOutput() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionMiddlewareInternal();
     var output := DDB.ExecuteStatementOutput(
-      ItemList := None(),
+      Items := None(),
       NextToken := None(),
       ConsumedCapacity := None(),
       LastEvaluatedKey := None()

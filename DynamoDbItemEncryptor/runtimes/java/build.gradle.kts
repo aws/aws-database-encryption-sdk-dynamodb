@@ -60,6 +60,7 @@ dependencies {
     implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:ComAmazonawsDynamodb:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:ComAmazonawsKms:1.0-SNAPSHOT")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.368")
 }
 
 publishing {

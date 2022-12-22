@@ -296,25 +296,25 @@ module DynamoToStruct {
     //# - `0x00` if the value is `false`
     //# - `0x01` if the value is `true`
     ensures a.BOOL? && !prefix ==>
-      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 1)
-      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 0)
+      && (a.BOOL  ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 1)
+      && (!a.BOOL ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 0)
     ensures a.BOOL? && prefix ==>
-      && (a.BooleanAttributeValue  ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 1
+      && (a.BOOL  ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 1
           && ret.value[0..TYPEID_LEN] == BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1])
-      && (!a.BooleanAttributeValue ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 0
+      && (!a.BOOL ==> ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 0
           && ret.value[0..TYPEID_LEN] == BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1])
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#binary
     //= type=implication
     //# Binary MUST be serialized with the identity function;
     //# or more plainly, Binary Attribute Values are used as is.
-    ensures a.B? && !prefix ==> ret.Success? && ret.value == a.BinaryAttributeValue
+    ensures a.B? && !prefix ==> ret.Success? && ret.value == a.B
     ensures a.B? && prefix && ret.Success? ==>
-      && ret.value[PREFIX_LEN..] == a.BinaryAttributeValue
+      && ret.value[PREFIX_LEN..] == a.B
       && ret.value[0..TYPEID_LEN] == BINARY
-      && U32ToBigEndian(|a.BinaryAttributeValue|).Success?
-      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|a.BinaryAttributeValue|).value
-      && BigEndianToU32(ret.value[TYPEID_LEN..PREFIX_LEN]).value == |a.BinaryAttributeValue|
+      && U32ToBigEndian(|a.B|).Success?
+      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|a.B|).value
+      && BigEndianToU32(ret.value[TYPEID_LEN..PREFIX_LEN]).value == |a.B|
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#null
     //= type=implication
@@ -326,32 +326,32 @@ module DynamoToStruct {
     //= type=implication
     //# String MUST be serialized as UTF-8 encoded bytes.
     ensures a.S? && ret.Success? && !prefix ==> 
-      UTF8.Decode(ret.value).Success? && UTF8.Decode(ret.value).value == a.StringAttributeValue
+      UTF8.Decode(ret.value).Success? && UTF8.Decode(ret.value).value == a.S
     ensures a.S? && ret.Success? && prefix ==> 
       && UTF8.Decode(ret.value[PREFIX_LEN..]).Success?
-      && UTF8.Decode(ret.value[PREFIX_LEN..]).value == a.StringAttributeValue
+      && UTF8.Decode(ret.value[PREFIX_LEN..]).value == a.S
       && ret.value[0..TYPEID_LEN] == STRING
-      && UTF8.Encode(a.StringAttributeValue).Success?
-      && U32ToBigEndian(|UTF8.Encode(a.StringAttributeValue).value|).Success?
-      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(a.StringAttributeValue).value|).value
+      && UTF8.Encode(a.S).Success?
+      && U32ToBigEndian(|UTF8.Encode(a.S).value|).Success?
+      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(a.S).value|).value
  
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#number
     //= type=implication
     //# Number MUST be serialized as UTF-8 encoded bytes.
     ensures a.N? && ret.Success? && !prefix ==> 
-      UTF8.Decode(ret.value).Success? && UTF8.Decode(ret.value).value == a.NumberAttributeValue
+      UTF8.Decode(ret.value).Success? && UTF8.Decode(ret.value).value == a.N
     ensures a.N? && ret.Success? && prefix ==> 
       && UTF8.Decode(ret.value[PREFIX_LEN..]).Success?
-      && UTF8.Decode(ret.value[PREFIX_LEN..]).value == a.NumberAttributeValue
+      && UTF8.Decode(ret.value[PREFIX_LEN..]).value == a.N
       && ret.value[0..TYPEID_LEN] == NUMBER
-      && UTF8.Encode(a.NumberAttributeValue).Success?
-      && U32ToBigEndian(|UTF8.Encode(a.NumberAttributeValue).value|).Success?
-      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(a.NumberAttributeValue).value|).value
+      && UTF8.Encode(a.N).Success?
+      && U32ToBigEndian(|UTF8.Encode(a.N).value|).Success?
+      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(a.N).value|).value
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
     //# Binary Sets MUST NOT contain duplicate entries.
-    ensures a.BS? && ret.Success? ==> Seq.HasNoDuplicates(a.BinarySetAttributeValue)
+    ensures a.BS? && ret.Success? ==> Seq.HasNoDuplicates(a.BS)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set
     //= type=implication
@@ -367,56 +367,56 @@ module DynamoToStruct {
     //# equal to the number of serialized entries in
     //# [Set Entries](#set-entries).
     ensures a.BS? && ret.Success? && !prefix ==>
-      && U32ToBigEndian(|a.BinarySetAttributeValue|).Success?
+      && U32ToBigEndian(|a.BS|).Success?
       && |ret.value| >= LENGTH_LEN
-      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.BinarySetAttributeValue|).value
-      && BigEndianToU32(ret.value[0..LENGTH_LEN]).value == |a.BinarySetAttributeValue|
+      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.BS|).value
+      && BigEndianToU32(ret.value[0..LENGTH_LEN]).value == |a.BS|
 
       //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-count
       //= type=implication
       //# Set Count MAY be `0`,
       //# in which case [Set Entries](#set-entries) is a zero-length byte string.
-      && (|a.BinarySetAttributeValue| == 0 ==> |ret.value| == LENGTH_LEN)
+      && (|a.BS| == 0 ==> |ret.value| == LENGTH_LEN)
 
     ensures a.BS? && ret.Success? && prefix ==>
-      && U32ToBigEndian(|a.BinarySetAttributeValue|).Success?
+      && U32ToBigEndian(|a.BS|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
       && ret.value[0..TYPEID_LEN] == BINARY_SET
-      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.BinarySetAttributeValue|).value
-      && (|a.BinarySetAttributeValue| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
+      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.BS|).value
+      && (|a.BS| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
     //# String Sets MUST NOT contain duplicate entries.
     // Other implications for Binary Sets apply here too
-    ensures a.SS? && ret.Success? ==> Seq.HasNoDuplicates(a.StringSetAttributeValue)
+    ensures a.SS? && ret.Success? ==> Seq.HasNoDuplicates(a.SS)
 
     ensures a.SS? && ret.Success? && !prefix ==>
-      && U32ToBigEndian(|a.StringSetAttributeValue|).Success?
+      && U32ToBigEndian(|a.SS|).Success?
       && |ret.value| >= LENGTH_LEN
-      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.StringSetAttributeValue|).value
-      && BigEndianToU32(ret.value[0..LENGTH_LEN]).value == |a.StringSetAttributeValue|
+      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.SS|).value
+      && BigEndianToU32(ret.value[0..LENGTH_LEN]).value == |a.SS|
     ensures a.SS? && ret.Success? && prefix ==>
-      && U32ToBigEndian(|a.StringSetAttributeValue|).Success?
+      && U32ToBigEndian(|a.SS|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
       && ret.value[0..TYPEID_LEN] == STRING_SET
-      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.StringSetAttributeValue|).value
+      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.SS|).value
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
     //# Number Sets MUST NOT contain duplicate entries.
     // Other implications for Binary Sets apply here too
-    ensures a.NS? && ret.Success? ==> Seq.HasNoDuplicates(a.NumberSetAttributeValue)
+    ensures a.NS? && ret.Success? ==> Seq.HasNoDuplicates(a.NS)
 
     ensures a.NS? && ret.Success? && !prefix ==>
-      && U32ToBigEndian(|a.NumberSetAttributeValue|).Success?
+      && U32ToBigEndian(|a.NS|).Success?
       && |ret.value| >= LENGTH_LEN
-      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.NumberSetAttributeValue|).value
+      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.NS|).value
     ensures a.NS? && ret.Success? && prefix ==>
-      && U32ToBigEndian(|a.NumberSetAttributeValue|).Success?
+      && U32ToBigEndian(|a.NS|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
       && ret.value[0..TYPEID_LEN] == NUMBER_SET
-      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.NumberSetAttributeValue|).value
+      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.NS|).value
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list
     //= type=implication
@@ -431,23 +431,23 @@ module DynamoToStruct {
       //# List Count MUST be a big-endian unsigned integer
       //# equal to the number of serialized list entries in
       //# [List Entries](#list-entries).
-      && U32ToBigEndian(|a.ListAttributeValue|).Success?
+      && U32ToBigEndian(|a.L|).Success?
       && |ret.value| >= LENGTH_LEN
-      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.ListAttributeValue|).value
-      && BigEndianToU32(ret.value[0..LENGTH_LEN]).value == |a.ListAttributeValue|
+      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.L|).value
+      && BigEndianToU32(ret.value[0..LENGTH_LEN]).value == |a.L|
 
       //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-count
       //= type=implication
       //# List Count MAY be `0`,
       //# in which case [List Entries](#list-entries) is an empty byte string.
-      && (|a.ListAttributeValue| == 0 ==> |ret.value| == LENGTH_LEN)
+      && (|a.L| == 0 ==> |ret.value| == LENGTH_LEN)
 
     ensures a.L? && ret.Success? && prefix ==>
-      && U32ToBigEndian(|a.ListAttributeValue|).Success?
+      && U32ToBigEndian(|a.L|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
       && ret.value[0..TYPEID_LEN] == LIST
-      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.ListAttributeValue|).value
-      && (|a.ListAttributeValue| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
+      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
+      && (|a.L| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-todo-duvet-currently-can-t-handle-headers-named-map
     //= type=implication
@@ -457,7 +457,7 @@ module DynamoToStruct {
     //# | Key Value Pair Count    | 4        |
     //# | Key Value Pair Entries  | Variable |
     ensures a.M? && ret.Success? && !prefix ==>
-      && U32ToBigEndian(|a.MapAttributeValue|).Success?
+      && U32ToBigEndian(|a.M|).Success?
       && |ret.value| >= LENGTH_LEN
       
       //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-count
@@ -465,21 +465,21 @@ module DynamoToStruct {
       //# Key Value Pair Count MUST be a big-endian unsigned integer
       //# equal to the number of serialized key-value pairs in
       //# [Key Value Pair Entries](#key-value-pair-entries).
-      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.MapAttributeValue|).value
-      && BigEndianToU32(ret.value[0..LENGTH_LEN]).value == |a.MapAttributeValue|
+      && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|a.M|).value
+      && BigEndianToU32(ret.value[0..LENGTH_LEN]).value == |a.M|
 
       //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-count
       //= type=implication
       //# Key Value Pair Count MAY be `0`,
       //# in which case [Key Value Pair Entries](#key-value-pair-entries) is an empty bytestring.
-      && (|a.MapAttributeValue| == 0 ==> |ret.value| == LENGTH_LEN)
+      && (|a.M| == 0 ==> |ret.value| == LENGTH_LEN)
 
     ensures a.M? && ret.Success? && prefix ==>
-      && U32ToBigEndian(|a.MapAttributeValue|).Success?
+      && U32ToBigEndian(|a.M|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
       && ret.value[0..TYPEID_LEN] == MAP
-      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.MapAttributeValue|).value
-      && (|a.MapAttributeValue| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
+      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.M|).value
+      && (|a.M| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
   {
     var baseBytes :- match a {
@@ -762,10 +762,10 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
     //= type=implication
     //# - Conversion from a Structured Data Binary Set MUST fail if it has duplicate values
-    ensures ret.Success? && (remainingCount == 0) ==> IsUnique(resultSet.val.BinarySetAttributeValue)
+    ensures ret.Success? && (remainingCount == 0) ==> IsUnique(resultSet.val.BS)
   {
     if remainingCount == 0 then
-      :- Need(IsUnique(resultSet.val.BinarySetAttributeValue), "Binary set values must not have duplicates");
+      :- Need(IsUnique(resultSet.val.BS), "Binary set values must not have duplicates");
       Success(resultSet)
     else if |serialized| < LENGTH_LEN then
       Failure("Out of bytes reading Binary Set")
@@ -775,7 +775,7 @@ module DynamoToStruct {
       if |serialized| < len as int then
         Failure("Binary Set Structured Data has too few bytes")
       else
-        var nattr := AttributeValue.BS(resultSet.val.BinarySetAttributeValue + [serialized[..len]]);
+        var nattr := AttributeValue.BS(resultSet.val.BS + [serialized[..len]]);
         DeserializeBinarySet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN))
   }
 
@@ -794,10 +794,10 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
     //= type=implication
     //# - Conversion from a Structured Data String Set MUST fail if it has duplicate values
-    ensures ret.Success? && (remainingCount == 0) ==> IsUnique(resultSet.val.StringSetAttributeValue)
+    ensures ret.Success? && (remainingCount == 0) ==> IsUnique(resultSet.val.SS)
   {
     if remainingCount == 0 then
-      :- Need(IsUnique(resultSet.val.StringSetAttributeValue), "String set values must not have duplicates");
+      :- Need(IsUnique(resultSet.val.SS), "String set values must not have duplicates");
       Success(resultSet)
     else if |serialized| < LENGTH_LEN then
       Failure("Out of bytes reading String Set")
@@ -808,7 +808,7 @@ module DynamoToStruct {
         Failure("String Set Structured Data has too few bytes")
       else
         var nstring :- UTF8.Decode(serialized[..len]);
-        var nattr := AttributeValue.SS(resultSet.val.StringSetAttributeValue + [nstring]);
+        var nattr := AttributeValue.SS(resultSet.val.SS + [nstring]);
         DeserializeStringSet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN))
   }
 
@@ -827,10 +827,10 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
     //= type=implication
     //# - Conversion from a Structured Data Number Set MUST fail if it has duplicate values
-    ensures ret.Success? && (remainingCount == 0) ==> IsUnique(resultSet.val.NumberSetAttributeValue)
+    ensures ret.Success? && (remainingCount == 0) ==> IsUnique(resultSet.val.NS)
   {
     if remainingCount == 0 then
-      :- Need(IsUnique(resultSet.val.NumberSetAttributeValue), "Number set values must not have duplicates");
+      :- Need(IsUnique(resultSet.val.NS), "Number set values must not have duplicates");
       Success(resultSet)
     else if |serialized| < LENGTH_LEN then
       Failure("Out of bytes reading String Set")
@@ -841,7 +841,7 @@ module DynamoToStruct {
         Failure("Number Set Structured Data has too few bytes")
       else
         var nstring :- UTF8.Decode(serialized[..len]);
-        var nattr := AttributeValue.NS(resultSet.val.NumberSetAttributeValue + [nstring]);
+        var nattr := AttributeValue.NS(resultSet.val.NS + [nstring]);
         DeserializeNumberSet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN))
   }
   
@@ -872,7 +872,7 @@ module DynamoToStruct {
         Failure("Out of bytes reading Content of List element")
       else
         var nval :- BytesToAttr(serialized[..len], TerminalTypeId, false);
-        var nattr := AttributeValue.L(resultList.val.ListAttributeValue + [nval.val]);
+        var nattr := AttributeValue.L(resultList.val.L + [nval.val]);
         DeserializeList(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultList.len + len + 6))
   }
 
@@ -917,8 +917,8 @@ module DynamoToStruct {
 
       //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
       //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
-      :- Need(key !in resultMap.val.MapAttributeValue, "");
-      var nattr := AttributeValue.M(resultMap.val.MapAttributeValue[key := nval.val]);
+      :- Need(key !in resultMap.val.M, "");
+      var nattr := AttributeValue.M(resultMap.val.M[key := nval.val]);
       DeserializeMap(serialized[nval.len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultMap.len + nval.len + 8 + len))
   }
   

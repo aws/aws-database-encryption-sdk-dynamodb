@@ -6,7 +6,7 @@ include "DdbStatement.dfy"
 include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryptionMiddlewareInternal" }
+  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryptionMiddleware.Internal" }
   DynamoDbEncryptionMiddlewareInternal refines AbstractAwsCryptographyDynamoDbEncryptionMiddlewareInternalService
 {
   import AwsCryptographyDynamoDbItemEncryptorTypes
