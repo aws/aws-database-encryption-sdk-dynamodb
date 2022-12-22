@@ -59,7 +59,7 @@ import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementReque
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
-import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring; // TODO resources
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.DynamoDbEncryptionMiddlewareInternal;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.DynamoDbEncryptionMiddlewareInternalConfig;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.DynamoDbTableEncryptionConfig;

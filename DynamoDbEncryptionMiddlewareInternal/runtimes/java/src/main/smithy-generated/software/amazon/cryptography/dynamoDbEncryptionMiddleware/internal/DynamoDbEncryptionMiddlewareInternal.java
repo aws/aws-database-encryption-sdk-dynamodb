@@ -335,6 +335,10 @@ public class DynamoDbEncryptionMiddlewareInternal {
     return ToNative.ExecuteTransactionOutputTransformOutput(result.dtor_value());
   }
 
+  protected IDynamoDbEncryptionMiddlewareInternalClient impl() {
+    return this._impl;
+  }
+
   public interface Builder {
     Builder DynamoDbEncryptionMiddlewareInternalConfig(
         DynamoDbEncryptionMiddlewareInternalConfig DynamoDbEncryptionMiddlewareInternalConfig);
