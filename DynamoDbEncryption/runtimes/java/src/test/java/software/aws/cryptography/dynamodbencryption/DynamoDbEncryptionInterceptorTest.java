@@ -94,7 +94,7 @@ public class DynamoDbEncryptionInterceptorTest {
         HashMap<String,AttributeValue> itemValues = new HashMap<String,AttributeValue>();
 
         // Add all content to the table
-        itemValues.put("partition_key", AttributeValue.builder().s("foo").build());
+        itemValues.put("partition_key", AttributeValue.builder().s("foo1").build());
         itemValues.put("sort_key", AttributeValue.builder().n("42").build());
         itemValues.put("attr1", AttributeValue.builder().s("bar").build());
 
@@ -116,8 +116,9 @@ public class DynamoDbEncryptionInterceptorTest {
                 .tableName("gazelleJavaTestTable")
                 .build();
 
-        Map<String,AttributeValue> returnedItem = ddb.getItem(request2).item();
+        GetItemResponse response = ddb.getItem(request2);
+        Map<String, AttributeValue> returnedItem = response.item();
         assertNotNull(returnedItem);
-        assertEquals(returnedItem.get("attr1"), "foo");
+        assertEquals("bar", returnedItem.get("attr1").s());
     }
 }

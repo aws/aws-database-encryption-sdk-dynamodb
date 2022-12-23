@@ -59,7 +59,7 @@ import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementReque
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.IKeyring;
+import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.DynamoDbEncryptionMiddlewareInternal;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.DynamoDbEncryptionMiddlewareInternalConfig;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.DynamoDbTableEncryptionConfig;
@@ -75,13 +75,15 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
     static DynamoDbEncryptionMiddlewareInternal transformer;
 
+    // TODO the transformations currently drop the override config
+
     public DynamoDbEncryptionInterceptor() {
         // TODO passthrough inputs
         MaterialProviders matProv = MaterialProviders.builder().MaterialProvidersConfig(
             MaterialProvidersConfig.builder().build()
         ).build();
         CreateAwsKmsMultiKeyringInput keyringInput = CreateAwsKmsMultiKeyringInput.builder().generator("arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f").build();
-        IKeyring kmsKeyring = matProv.CreateAwsKmsMultiKeyring(keyringInput);
+        Keyring kmsKeyring = matProv.CreateAwsKmsMultiKeyring(keyringInput);
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap();
         Map<String, CryptoAction> actions = new HashMap();
         actions.put("partition_key", CryptoAction.ENCRYPT_AND_SIGN);
@@ -183,6 +185,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
             transformedRequest = originalRequest;
         }
         return transformedRequest;
+        // TODO request overrideConfig is lost here (not modelled in smithy)
     }
 
     @Override

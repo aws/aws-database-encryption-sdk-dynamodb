@@ -7,7 +7,6 @@ plugins {
     `maven-publish`
 }
 
-
 group = "software.amazon.cryptography"
 version = "1.0-SNAPSHOT"
 description = "AwsCryptographyDynamoDbEncryption"
@@ -74,6 +73,7 @@ dependencies {
 
 
 tasks.test {
+    enableAssertions = false
     useJUnitPlatform()
 }
 
