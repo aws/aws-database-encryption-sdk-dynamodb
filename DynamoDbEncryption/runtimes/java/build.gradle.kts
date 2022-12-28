@@ -61,7 +61,6 @@ dependencies {
     implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:ComAmazonawsDynamodb:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:ComAmazonawsKms:1.0-SNAPSHOT")
-    implementation("com.amazonaws:aws-java-sdk:1.12.347")
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:kms")
@@ -71,9 +70,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
 
-
 tasks.test {
-    enableAssertions = false
     useJUnitPlatform()
 }
 

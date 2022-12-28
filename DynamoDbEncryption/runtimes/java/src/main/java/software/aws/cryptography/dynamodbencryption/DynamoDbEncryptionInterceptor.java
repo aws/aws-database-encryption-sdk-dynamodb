@@ -1,35 +1,12 @@
 package software.aws.cryptography.dynamodbencryption;
 
-import software.amazon.awssdk.core.interceptor.Context;
-import software.amazon.awssdk.core.interceptor.ExecutionAttributes;
-import software.amazon.awssdk.core.interceptor.ExecutionInterceptor;
+import software.amazon.awssdk.awscore.AwsRequest;
+import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
+import software.amazon.awssdk.core.interceptor.*;
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.SdkResponse;
 
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.UpdateItemOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.TransactWriteItemsOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.TransactGetItemsOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.ScanOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.QueryOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.PutItemOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.GetItemOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.ExecuteTransactionOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.ExecuteStatementOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchWriteItemOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchGetItemOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchExecuteStatementOutputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.UpdateItemInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.TransactWriteItemsInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.TransactGetItemsInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.ScanInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.QueryInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.PutItemInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.GetItemInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.ExecuteTransactionInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.ExecuteStatementInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchWriteItemInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchGetItemInputTransformInput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchExecuteStatementInputTransformInput;
+import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.*;
 
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsResponse;
@@ -56,231 +33,359 @@ import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementRequest;
 
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.DynamoDbEncryptionMiddlewareInternal;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.DynamoDbEncryptionMiddlewareInternalConfig;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import static software.aws.cryptography.dynamodbencryption.DynamoDbEncryptionExecutionAttribute.ORIGINAL_REQUEST;
+import static software.aws.cryptography.dynamodbencryption.SupportedOperations.SUPPORTED_OPERATION_NAMES;
 
 /**
  * Implementation of {@link ExecutionInterceptor} with configurable wait times
  */
 public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
-    static DynamoDbEncryptionMiddlewareInternal transformer;
+    private final DynamoDbEncryptionMiddlewareInternalConfig config;
+    private DynamoDbEncryptionMiddlewareInternal transformer;
 
-    // TODO the transformations currently drop the override config
+    // TODO find where in sdk we can pull this string from
+    static final String DDB_NAME = "DynamoDb";
 
-    public DynamoDbEncryptionInterceptor() {
-        // TODO passthrough inputs
-        MaterialProviders matProv = MaterialProviders.builder().MaterialProvidersConfig(
-            MaterialProvidersConfig.builder().build()
-        ).build();
-        CreateAwsKmsMultiKeyringInput keyringInput = CreateAwsKmsMultiKeyringInput.builder().generator("arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f").build();
-        Keyring kmsKeyring = matProv.CreateAwsKmsMultiKeyring(keyringInput);
-        Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap();
-        Map<String, CryptoAction> actions = new HashMap();
-        actions.put("partition_key", CryptoAction.ENCRYPT_AND_SIGN);
-        actions.put("sort_key", CryptoAction.SIGN_ONLY);
-        actions.put("attr1", CryptoAction.DO_NOTHING);
-
-        tableConfigs.put("gazelleJavaTestTable", DynamoDbTableEncryptionConfig.builder()
-                .partitionKeyName("partition_key")
-                .sortKeyName("sort_key")
-                .attributeActions(actions)
-                .keyring(kmsKeyring)
-                .build());
+    protected DynamoDbEncryptionInterceptor(BuilderImpl builder) {
+        this.config = builder.config();
         this.transformer = DynamoDbEncryptionMiddlewareInternal.builder()
-                .DynamoDbEncryptionMiddlewareInternalConfig(
-                    DynamoDbEncryptionMiddlewareInternalConfig.builder()
-                            .tableEncryptionConfigs(tableConfigs)
-                            .build())
+                .DynamoDbEncryptionMiddlewareInternalConfig(config)
                 .build();
+    }
+
+    public DynamoDbEncryptionMiddlewareInternalConfig config() {
+        return this.config;
     }
 
     @Override
     public SdkRequest modifyRequest(Context.ModifyRequest context, ExecutionAttributes executionAttributes) {
         SdkRequest originalRequest = context.request();
-        SdkRequest transformedRequest;
-        if (originalRequest instanceof BatchExecuteStatementRequest) {
-            transformedRequest = transformer.BatchExecuteStatementInputTransform(
-                BatchExecuteStatementInputTransformInput.builder()
-                    .sdkInput((BatchExecuteStatementRequest)originalRequest)
-                    .build()).transformedInput();
 
-        } else if (originalRequest instanceof BatchGetItemRequest) {
-            transformedRequest = transformer.BatchGetItemInputTransform(
-                 BatchGetItemInputTransformInput.builder()
-                    .sdkInput((BatchGetItemRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof BatchWriteItemRequest) {
-            transformedRequest = transformer.BatchWriteItemInputTransform(
-                 BatchWriteItemInputTransformInput.builder()
-                    .sdkInput((BatchWriteItemRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof ExecuteStatementRequest) {
-            transformedRequest = transformer.ExecuteStatementInputTransform(
-                 ExecuteStatementInputTransformInput.builder()
-                    .sdkInput((ExecuteStatementRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof ExecuteTransactionRequest) {
-            transformedRequest = transformer.ExecuteTransactionInputTransform(
-                 ExecuteTransactionInputTransformInput.builder()
-                    .sdkInput((ExecuteTransactionRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof GetItemRequest) {
-            transformedRequest = transformer.GetItemInputTransform(
-                 GetItemInputTransformInput.builder()
-                    .sdkInput((GetItemRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof PutItemRequest) {
-            transformedRequest = transformer.PutItemInputTransform(
-                 PutItemInputTransformInput.builder()
-                    .sdkInput((PutItemRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof QueryRequest) {
-            transformedRequest = transformer.QueryInputTransform(
-                 QueryInputTransformInput.builder()
-                    .sdkInput((QueryRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof ScanRequest) {
-            transformedRequest = transformer.ScanInputTransform(
-                 ScanInputTransformInput.builder()
-                    .sdkInput((ScanRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof TransactGetItemsRequest) {
-            transformedRequest = transformer.TransactGetItemsInputTransform(
-                 TransactGetItemsInputTransformInput.builder()
-                    .sdkInput((TransactGetItemsRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof TransactWriteItemsRequest) {
-            transformedRequest = transformer.TransactWriteItemsInputTransform(
-                 TransactWriteItemsInputTransformInput.builder()
-                    .sdkInput((TransactWriteItemsRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else if (originalRequest instanceof UpdateItemRequest) {
-            transformedRequest = transformer.UpdateItemInputTransform(
-                 UpdateItemInputTransformInput.builder()
-                    .sdkInput((UpdateItemRequest)originalRequest)
-                    .build()).transformedInput();
-
-        } else {
-            // passthrough, but eventually we want to check against list on ok APIs to passthrough and error otherwise
-            transformedRequest = originalRequest;
+        // Only transform DDB requests. Otherwise, throw an error.
+        if (!executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME).equals(DDB_NAME)) {
+            throw new IllegalStateException("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.");
         }
-        return transformedRequest;
-        // TODO request overrideConfig is lost here (not modelled in smithy)
+
+        // Store original request so it can be used when intercepting the response
+        executionAttributes.putAttribute(ORIGINAL_REQUEST, originalRequest);
+
+        String operationName = executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME);
+        checkSupportedOperation(operationName);
+
+        SdkRequest outgoingRequest;
+        switch(operationName) {
+            case "BatchExecuteStatement": {
+                BatchExecuteStatementRequest transformedRequest = transformer.BatchExecuteStatementInputTransform(
+                        BatchExecuteStatementInputTransformInput.builder()
+                                .sdkInput((BatchExecuteStatementRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((BatchExecuteStatementRequest) originalRequest, transformedRequest);
+                break;
+            } case "BatchGetItem": {
+                BatchGetItemRequest transformedRequest = transformer.BatchGetItemInputTransform(
+                        BatchGetItemInputTransformInput.builder()
+                                .sdkInput((BatchGetItemRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((BatchGetItemRequest) originalRequest, transformedRequest);
+                break;
+            } case "BatchWriteItem": {
+                BatchWriteItemRequest transformedRequest = transformer.BatchWriteItemInputTransform(
+                        BatchWriteItemInputTransformInput.builder()
+                                .sdkInput((BatchWriteItemRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((BatchWriteItemRequest) originalRequest, transformedRequest);
+                break;
+            } case "ExecuteStatement": {
+                ExecuteStatementRequest transformedRequest = transformer.ExecuteStatementInputTransform(
+                        ExecuteStatementInputTransformInput.builder()
+                                .sdkInput((ExecuteStatementRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((ExecuteStatementRequest) originalRequest, transformedRequest);
+                break;
+            } case "ExecuteTransaction": {
+                ExecuteTransactionRequest transformedRequest = transformer.ExecuteTransactionInputTransform(
+                        ExecuteTransactionInputTransformInput.builder()
+                                .sdkInput((ExecuteTransactionRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((ExecuteTransactionRequest) originalRequest, transformedRequest);
+                break;
+            } case "GetItem": {
+                GetItemRequest transformedRequest = transformer.GetItemInputTransform(
+                        GetItemInputTransformInput.builder()
+                                .sdkInput((GetItemRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((GetItemRequest) originalRequest, transformedRequest);
+                break;
+            } case "PutItem": {
+                PutItemRequest transformedRequest = transformer.PutItemInputTransform(
+                        PutItemInputTransformInput.builder()
+                                .sdkInput((PutItemRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((PutItemRequest) originalRequest, transformedRequest);
+                break;
+            } case "Query": {
+                QueryRequest transformedRequest = transformer.QueryInputTransform(
+                        QueryInputTransformInput.builder()
+                                .sdkInput((QueryRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((QueryRequest) originalRequest, transformedRequest);
+                break;
+            } case "Scan": {
+                ScanRequest transformedRequest = transformer.ScanInputTransform(
+                        ScanInputTransformInput.builder()
+                                .sdkInput((ScanRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((ScanRequest) originalRequest, transformedRequest);
+                break;
+            } case "TransactGetItems": {
+                TransactGetItemsRequest transformedRequest = transformer.TransactGetItemsInputTransform(
+                        TransactGetItemsInputTransformInput.builder()
+                                .sdkInput((TransactGetItemsRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((TransactGetItemsRequest) originalRequest, transformedRequest);
+                break;
+            } case "TransactWriteItems": {
+                TransactWriteItemsRequest transformedRequest = transformer.TransactWriteItemsInputTransform(
+                        TransactWriteItemsInputTransformInput.builder()
+                                .sdkInput((TransactWriteItemsRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((TransactWriteItemsRequest) originalRequest, transformedRequest);
+                break;
+            } case "UpdateItem": {
+                UpdateItemRequest transformedRequest = transformer.UpdateItemInputTransform(
+                        UpdateItemInputTransformInput.builder()
+                                .sdkInput((UpdateItemRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((UpdateItemRequest) originalRequest, transformedRequest);
+                break;
+            } default: {
+                // passthrough
+                outgoingRequest = originalRequest;
+                break;
+            }
+        }
+        return outgoingRequest;
     }
 
     @Override
     public SdkResponse modifyResponse(Context.ModifyResponse context, ExecutionAttributes executionAttributes) {
         SdkResponse originalResponse = context.response();
-        SdkRequest originalRequest = context.request();
-        SdkResponse transformedResponse;
-        if (originalResponse instanceof BatchExecuteStatementResponse) {
-            transformedResponse = transformer.BatchExecuteStatementOutputTransform(
-                BatchExecuteStatementOutputTransformInput.builder()
-                    .sdkOutput((BatchExecuteStatementResponse)originalResponse)
-                    .originalInput((BatchExecuteStatementRequest)originalRequest)
-                    .build()).transformedOutput();
 
-        } else if (originalResponse instanceof BatchGetItemResponse) {
-            transformedResponse = transformer.BatchGetItemOutputTransform(
-                 BatchGetItemOutputTransformInput.builder()
-                    .sdkOutput((BatchGetItemResponse)originalResponse)
-                    .originalInput((BatchGetItemRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof BatchWriteItemResponse) {
-            transformedResponse = transformer.BatchWriteItemOutputTransform(
-                 BatchWriteItemOutputTransformInput.builder()
-                    .sdkOutput((BatchWriteItemResponse)originalResponse)
-                    .originalInput((BatchWriteItemRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof ExecuteStatementResponse) {
-            transformedResponse = transformer.ExecuteStatementOutputTransform(
-                 ExecuteStatementOutputTransformInput.builder()
-                    .sdkOutput((ExecuteStatementResponse)originalResponse)
-                    .originalInput((ExecuteStatementRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof ExecuteTransactionResponse) {
-            transformedResponse = transformer.ExecuteTransactionOutputTransform(
-                 ExecuteTransactionOutputTransformInput.builder()
-                    .sdkOutput((ExecuteTransactionResponse)originalResponse)
-                    .originalInput((ExecuteTransactionRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof GetItemResponse) {
-            transformedResponse = transformer.GetItemOutputTransform(
-                 GetItemOutputTransformInput.builder()
-                    .sdkOutput((GetItemResponse)originalResponse)
-                    .originalInput((GetItemRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof PutItemResponse) {
-            transformedResponse = transformer.PutItemOutputTransform(
-                 PutItemOutputTransformInput.builder()
-                    .sdkOutput((PutItemResponse)originalResponse)
-                    .originalInput((PutItemRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof QueryResponse) {
-            transformedResponse = transformer.QueryOutputTransform(
-                 QueryOutputTransformInput.builder()
-                    .sdkOutput((QueryResponse)originalResponse)
-                    .originalInput((QueryRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof ScanResponse) {
-            transformedResponse = transformer.ScanOutputTransform(
-                 ScanOutputTransformInput.builder()
-                    .sdkOutput((ScanResponse)originalResponse)
-                    .originalInput((ScanRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof TransactGetItemsResponse) {
-            transformedResponse = transformer.TransactGetItemsOutputTransform(
-                 TransactGetItemsOutputTransformInput.builder()
-                    .sdkOutput((TransactGetItemsResponse)originalResponse)
-                    .originalInput((TransactGetItemsRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof TransactWriteItemsResponse) {
-            transformedResponse = transformer.TransactWriteItemsOutputTransform(
-                 TransactWriteItemsOutputTransformInput.builder()
-                    .sdkOutput((TransactWriteItemsResponse)originalResponse)
-                    .originalInput((TransactWriteItemsRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else if (originalResponse instanceof UpdateItemResponse) {
-            transformedResponse = transformer.UpdateItemOutputTransform(
-                 UpdateItemOutputTransformInput.builder()
-                    .sdkOutput((UpdateItemResponse)originalResponse)
-                    .originalInput((UpdateItemRequest)originalRequest)
-                    .build()).transformedOutput();
-
-        } else {
-            // passthrough, but eventually we want to check against list on ok APIs to passthrough and error otherwise
-            transformedResponse = originalResponse;
+        // Only transform DDB requests. Otherwise, throw an error.
+        if (!executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME).equals(DDB_NAME)) {
+            throw new IllegalStateException("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.");
         }
-        return transformedResponse;
+
+        SdkRequest originalRequest = executionAttributes.getAttribute(ORIGINAL_REQUEST);
+        String operationName = executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME);
+        checkSupportedOperation(operationName);
+
+        SdkResponse outgoingResponse;
+        switch(operationName) {
+            case "BatchExecuteStatement": {
+                BatchExecuteStatementResponse transformedResponse = transformer.BatchExecuteStatementOutputTransform(
+                        BatchExecuteStatementOutputTransformInput.builder()
+                                .sdkOutput((BatchExecuteStatementResponse) originalResponse)
+                                .originalInput((BatchExecuteStatementRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((BatchExecuteStatementResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "BatchGetItem": {
+                BatchGetItemResponse transformedResponse = transformer.BatchGetItemOutputTransform(
+                        BatchGetItemOutputTransformInput.builder()
+                                .sdkOutput((BatchGetItemResponse) originalResponse)
+                                .originalInput((BatchGetItemRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((BatchGetItemResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "BatchWriteItem": {
+                BatchWriteItemResponse transformedResponse = transformer.BatchWriteItemOutputTransform(
+                        BatchWriteItemOutputTransformInput.builder()
+                                .sdkOutput((BatchWriteItemResponse) originalResponse)
+                                .originalInput((BatchWriteItemRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((BatchWriteItemResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "ExecuteStatement": {
+                ExecuteStatementResponse transformedResponse = transformer.ExecuteStatementOutputTransform(
+                        ExecuteStatementOutputTransformInput.builder()
+                                .sdkOutput((ExecuteStatementResponse) originalResponse)
+                                .originalInput((ExecuteStatementRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((ExecuteStatementResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "ExecuteTransaction": {
+                ExecuteTransactionResponse transformedResponse = transformer.ExecuteTransactionOutputTransform(
+                        ExecuteTransactionOutputTransformInput.builder()
+                                .sdkOutput((ExecuteTransactionResponse) originalResponse)
+                                .originalInput((ExecuteTransactionRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((ExecuteTransactionResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "GetItem": {
+                GetItemResponse transformedResponse = transformer.GetItemOutputTransform(
+                        GetItemOutputTransformInput.builder()
+                                .sdkOutput((GetItemResponse) originalResponse)
+                                .originalInput((GetItemRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((GetItemResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "PutItem": {
+                PutItemResponse transformedResponse = transformer.PutItemOutputTransform(
+                        PutItemOutputTransformInput.builder()
+                                .sdkOutput((PutItemResponse) originalResponse)
+                                .originalInput((PutItemRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((PutItemResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "Query": {
+                QueryResponse transformedResponse = transformer.QueryOutputTransform(
+                        QueryOutputTransformInput.builder()
+                                .sdkOutput((QueryResponse) originalResponse)
+                                .originalInput((QueryRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((QueryResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "Scan": {
+                ScanResponse transformedResponse = transformer.ScanOutputTransform(
+                        ScanOutputTransformInput.builder()
+                                .sdkOutput((ScanResponse) originalResponse)
+                                .originalInput((ScanRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((ScanResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "TransactGetItems": {
+                TransactGetItemsResponse transformedResponse = transformer.TransactGetItemsOutputTransform(
+                        TransactGetItemsOutputTransformInput.builder()
+                                .sdkOutput((TransactGetItemsResponse) originalResponse)
+                                .originalInput((TransactGetItemsRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((TransactGetItemsResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "TransactWriteItems": {
+                TransactWriteItemsResponse transformedResponse = transformer.TransactWriteItemsOutputTransform(
+                        TransactWriteItemsOutputTransformInput.builder()
+                                .sdkOutput((TransactWriteItemsResponse) originalResponse)
+                                .originalInput((TransactWriteItemsRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((TransactGetItemsResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } case "UpdateItem": {
+                UpdateItemResponse transformedResponse = transformer.UpdateItemOutputTransform(
+                        UpdateItemOutputTransformInput.builder()
+                                .sdkOutput((UpdateItemResponse) originalResponse)
+                                .originalInput((UpdateItemRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((UpdateItemResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
+            } default: {
+                // Passthrough
+                outgoingResponse = originalResponse;
+                break;
+            }
+        }
+        return outgoingResponse;
+    }
+
+    private void checkSupportedOperation(String operationName) {
+        if (!SUPPORTED_OPERATION_NAMES.contains(operationName)) {
+            throw new IllegalStateException(
+                    String.format("DynamoDbEncryptionInterceptor does not support use with unrecognized operation: %s",
+                            operationName));
+        }
+    }
+
+    private AwsRequest copyOverrideConfig(AwsRequest original, AwsRequest transformed) {
+        Optional<AwsRequestOverrideConfiguration> config = original.overrideConfiguration();
+        if (!config.isPresent()) {
+            // If there is no config to copy over, this is a no-op
+            return transformed;
+        }
+        return transformed.toBuilder()
+                .overrideConfiguration(config.get())
+                .build();
+    }
+
+    public Builder toBuilder() {
+        return new BuilderImpl(this);
+    }
+
+    public static Builder builder() {
+        return new BuilderImpl();
+    }
+
+    public interface Builder {
+        Builder config(DynamoDbEncryptionMiddlewareInternalConfig config);
+        DynamoDbEncryptionMiddlewareInternalConfig config();
+        DynamoDbEncryptionInterceptor build();
+    }
+
+    static class BuilderImpl implements Builder {
+        protected DynamoDbEncryptionMiddlewareInternalConfig config;
+
+        protected BuilderImpl() {
+        }
+
+        protected BuilderImpl(DynamoDbEncryptionInterceptor model) {
+            this.config = model.config();
+        }
+
+        public Builder config(DynamoDbEncryptionMiddlewareInternalConfig config) {
+            this.config = config;
+            return this;
+        }
+
+        public DynamoDbEncryptionMiddlewareInternalConfig config() {
+            return this.config;
+        }
+
+        public DynamoDbEncryptionInterceptor build() {
+            if (Objects.isNull(this.config())) {
+                throw new IllegalArgumentException("Missing value for required field `config`");
+            }
+            return new DynamoDbEncryptionInterceptor(this);
+        }
     }
 }
