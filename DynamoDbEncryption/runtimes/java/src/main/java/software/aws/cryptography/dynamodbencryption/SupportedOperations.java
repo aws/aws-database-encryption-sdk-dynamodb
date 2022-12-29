@@ -1,8 +1,5 @@
 package software.aws.cryptography.dynamodbencryption;
 
-import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.*;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,6 +17,7 @@ public class SupportedOperations {
         "CreateGlobalTable",
         "CreateTable",
         "DeleteBackup",
+        "DeleteItem",
         "DeleteTable",
         "DescribeBackup",
         "DescribeContinuousBackups",

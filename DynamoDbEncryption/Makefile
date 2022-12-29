@@ -21,4 +21,4 @@ mvn_local_deploy:
 	gradle -p runtimes/java publishToMavenLocal
 
 test_java:
-	gradle -p runtimes/java runTests
+	gradle -p runtimes/java test

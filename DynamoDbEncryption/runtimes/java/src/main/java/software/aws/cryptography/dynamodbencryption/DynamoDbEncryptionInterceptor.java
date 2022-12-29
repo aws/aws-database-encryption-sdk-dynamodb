@@ -6,33 +6,9 @@ import software.amazon.awssdk.core.interceptor.*;
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.SdkResponse;
 
+import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryptionMiddlewareInternal;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
-
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsResponse;
-import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsResponse;
-import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
-import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionResponse;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementResponse;
-import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.BatchGetItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest;
-import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsRequest;
-import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
-import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementRequest;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -68,7 +44,9 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
         // Only transform DDB requests. Otherwise, throw an error.
         if (!executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME).equals(DDB_NAME)) {
-            throw new IllegalStateException("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.");
+            throw DynamoDbEncryptionException.builder()
+                    .message("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.")
+                    .build();
         }
 
         // Store original request so it can be used when intercepting the response
@@ -99,6 +77,13 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                                 .sdkInput((BatchWriteItemRequest) originalRequest)
                                 .build()).transformedInput();
                 outgoingRequest = copyOverrideConfig((BatchWriteItemRequest) originalRequest, transformedRequest);
+                break;
+            } case "DeleteItem": {
+                DeleteItemRequest transformedRequest = transformer.DeleteItemInputTransform(
+                        DeleteItemInputTransformInput.builder()
+                                .sdkInput((DeleteItemRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((DeleteItemRequest) originalRequest, transformedRequest);
                 break;
             } case "ExecuteStatement": {
                 ExecuteStatementRequest transformedRequest = transformer.ExecuteStatementInputTransform(
@@ -178,7 +163,9 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
         // Only transform DDB requests. Otherwise, throw an error.
         if (!executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME).equals(DDB_NAME)) {
-            throw new IllegalStateException("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.");
+            throw DynamoDbEncryptionException.builder()
+                    .message("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.")
+                    .build();
         }
 
         SdkRequest originalRequest = executionAttributes.getAttribute(ORIGINAL_REQUEST);
@@ -330,9 +317,9 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
     private void checkSupportedOperation(String operationName) {
         if (!SUPPORTED_OPERATION_NAMES.contains(operationName)) {
-            throw new IllegalStateException(
-                    String.format("DynamoDbEncryptionInterceptor does not support use with unrecognized operation: %s",
-                            operationName));
+            throw DynamoDbEncryptionException.builder()
+                    .message(String.format("DynamoDbEncryptionInterceptor does not support use with unrecognized operation: %s", operationName))
+                    .build();
         }
     }
 
@@ -382,7 +369,9 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
         public DynamoDbEncryptionInterceptor build() {
             if (Objects.isNull(this.config())) {
-                throw new IllegalArgumentException("Missing value for required field `config`");
+                throw DynamoDbEncryptionException.builder()
+                        .message("Missing value for required field `config`")
+                        .build();
             }
             return new DynamoDbEncryptionInterceptor(this);
         }

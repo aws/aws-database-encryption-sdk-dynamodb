@@ -101,7 +101,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.model.OpaqueError;
 
 public class ToDafny {
-  public static Error Error(NativeError nativeValue) {
+  public static Error Error(RuntimeException nativeValue) {
     if (nativeValue instanceof DynamoDbEncryptionException) {
       return ToDafny.Error((DynamoDbEncryptionException) nativeValue);
     }

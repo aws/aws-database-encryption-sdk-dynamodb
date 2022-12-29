@@ -3,15 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption;
 
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.*;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_Collection;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_DynamoDbEncryptionException;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_Opaque;
+import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Character;
 import java.lang.String;
 import java.util.Map;
+
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementInputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementOutputTransformInput;
@@ -44,7 +46,6 @@ import software.amazon.cryptography.dynamoDbEncryption.model.GetItemInputTransfo
 import software.amazon.cryptography.dynamoDbEncryption.model.GetItemInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformOutput;
-import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.model.OpaqueError;
 import software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformOutput;
@@ -70,6 +71,8 @@ import software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemInputTran
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformOutput;
+import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
+import software.amazon.cryptography.materialProviders.model.AwsCryptographicMaterialProvidersException;
 
 public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
@@ -93,9 +96,39 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static NativeError Error(Error dafnyValue) {
+  public static DynamoDbItemEncryptorException Error(Error_AwsCryptographyDynamoDbItemEncryptor dafnyValue) {
+    DynamoDbItemEncryptorException.Builder nativeBuilder = DynamoDbItemEncryptorException.builder();
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_AwsCryptographyDynamoDbItemEncryptor().dtor_message()));
+    return nativeBuilder.build();
+  }
+
+  public static AwsCryptographicMaterialProvidersException Error(Error_AwsCryptographyMaterialProviders dafnyValue) {
+    AwsCryptographicMaterialProvidersException.Builder nativeBuilder = AwsCryptographicMaterialProvidersException.builder();
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_AwsCryptographyMaterialProviders().dtor_message()));
+    return nativeBuilder.build();
+  }
+
+  public static AwsServiceException Error(Error_ComAmazonawsDynamodb dafnyValue) {
+    DynamoDbException.Builder nativeBuilder = DynamoDbException.builder();
+    Option<DafnySequence<? extends Character>> maybeMessage = dafnyValue.dtor_ComAmazonawsDynamodb().dtor_message();
+    if (maybeMessage.is_Some()) {
+      nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(maybeMessage.dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static RuntimeException Error(Error dafnyValue) {
     if (dafnyValue.is_DynamoDbEncryptionException()) {
       return ToNative.Error((Error_DynamoDbEncryptionException) dafnyValue);
+    }
+    if (dafnyValue.is_AwsCryptographyDynamoDbItemEncryptor()) {
+      return ToNative.Error((Error_AwsCryptographyDynamoDbItemEncryptor) dafnyValue);
+    }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return ToNative.Error((Error_AwsCryptographyMaterialProviders) dafnyValue);
+    }
+    if (dafnyValue.is_DynamoDbEncryptionException()) {
+      return ToNative.Error((Error_ComAmazonawsDynamodb) dafnyValue);
     }
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
