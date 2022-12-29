@@ -47,7 +47,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);
-        actions.put("bad", CryptoAction.SIGN_ONLY);
+        actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
 
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
@@ -65,6 +65,21 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .build();
     }
 
+    public Map<String, AttributeValue> createTestItem(String partition, String sort, String attr) {
+        HashMap<String, AttributeValue> item = new HashMap<>();
+        item.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partition).build());
+        item.put(TEST_SORT_NAME, AttributeValue.builder().n(sort).build());
+        item.put(TEST_ATTR_NAME, AttributeValue.builder().s(attr).build());
+        return item;
+    }
+
+    public Map<String, AttributeValue> createTestKey(String partition, String sort) {
+        HashMap<String, AttributeValue> key = new HashMap<>();
+        key.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partition).build());
+        key.put(TEST_SORT_NAME, AttributeValue.builder().n(sort).build());
+        return key;
+    }
+
     @Test
     public void TestPutItemGetItem() {
         DynamoDbEncryptionInterceptor interceptor = createInterceptor();
@@ -75,15 +90,10 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                                 .build())
                 .build();
 
-        // Put Item into table
-        HashMap<String, AttributeValue> item = new HashMap<>();
-
         String partitionValue = "foo";
         String sortValue = "42";
         String attrValue = "bar";
-        item.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partitionValue).build());
-        item.put(TEST_SORT_NAME, AttributeValue.builder().n(sortValue).build());
-        item.put(TEST_ATTR_NAME, AttributeValue.builder().s(attrValue).build());
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue);
 
         PutItemRequest putRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
@@ -94,10 +104,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         assertEquals(200, putResponse.sdkHttpResponse().statusCode());
 
         // Get Item back from table
-        HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-
-        keyToGet.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partitionValue).build());
-        keyToGet.put(TEST_SORT_NAME, AttributeValue.builder().n(sortValue).build());
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
 
         GetItemRequest getRequest = GetItemRequest.builder()
                 .key(keyToGet)
@@ -105,7 +112,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .build();
 
         GetItemResponse getResponse = ddb.getItem(getRequest);
-        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+        assertEquals(200, getResponse.sdkHttpResponse().statusCode());
         Map<String, AttributeValue> returnedItem = getResponse.item();
         assertNotNull(returnedItem);
         assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
@@ -126,19 +133,12 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         // Batch write items to table
         Map<String, List<WriteRequest>> writeRequestItems = new HashMap<>();
 
-        HashMap<String,AttributeValue> item1 = new HashMap<>();
         String partitionValue = "batch";
         String sortValue1 = "1";
-        String attrValue = "lorem ipsum";
-        item1.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partitionValue).build());
-        item1.put(TEST_SORT_NAME, AttributeValue.builder().n(sortValue1).build());
-        item1.put(TEST_ATTR_NAME, AttributeValue.builder().s(attrValue).build());
-
-        HashMap<String,AttributeValue> item2 = new HashMap<>();
         String sortValue2 = "2";
-        item2.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partitionValue).build());
-        item2.put(TEST_SORT_NAME, AttributeValue.builder().n(sortValue2).build());
-        item2.put(TEST_ATTR_NAME, AttributeValue.builder().s(attrValue).build());
+        String attrValue = "lorem ipsum";
+        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue);
+        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue);
 
         List<WriteRequest> tableRequests = new ArrayList<>();
         tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item1).build()).build());
@@ -159,13 +159,8 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         // Batch get items back from table
         Map<String, KeysAndAttributes> getRequestItems = new HashMap<>();
 
-        HashMap<String,AttributeValue> key1 = new HashMap<>();
-        key1.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partitionValue).build());
-        key1.put(TEST_SORT_NAME, AttributeValue.builder().n(sortValue1).build());
-
-        HashMap<String,AttributeValue> key2 = new HashMap<>();
-        key2.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partitionValue).build());
-        key2.put(TEST_SORT_NAME, AttributeValue.builder().n(sortValue2).build());
+        Map<String,AttributeValue> key1 = createTestKey(partitionValue, sortValue1);
+        Map<String,AttributeValue> key2 = createTestKey(partitionValue, sortValue2);
 
         List<Map<String,AttributeValue>> tableGetRequests = new ArrayList<>();
         tableGetRequests.add(key1);
@@ -187,5 +182,174 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         Map<String, AttributeValue> returnedItem = returnedItems.get(0);
         assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
         assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
+    }
+
+    @Test
+    public void TestTransactWriteAndGet() {
+        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        // Put Item into table
+        HashMap<String, AttributeValue> item = new HashMap<>();
+
+        String partitionValue = "transact";
+        String sortValue1 = "1";
+        String sortValue2 = "2";
+        String attrValue = "lorem ipsum";
+        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue);
+        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue);
+
+        // TODO Transactions need to be built with TableName, otherwise we get a NPE.
+        // TableName is @required but the Java object builder does not enforce it.
+        // We should add validation on our conversions to give a helpful error message instead.
+        TransactWriteItemsRequest writeRequest = TransactWriteItemsRequest.builder()
+                .transactItems(
+                        TransactWriteItem.builder()
+                                .put(Put.builder()
+                                        .item(item1)
+                                        .tableName(TEST_TABLE_NAME)
+                                        .build())
+                                .build(),
+                        TransactWriteItem.builder()
+                                .put(Put.builder()
+                                        .item(item2)
+                                        .tableName(TEST_TABLE_NAME)
+                                        .build())
+                                .build())
+                .build();
+
+        TransactWriteItemsResponse putResponse = ddb.transactWriteItems(writeRequest);
+        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+
+        // Get Item back from table
+        Map<String,AttributeValue> key1 = createTestKey(partitionValue, sortValue1);
+        Map<String,AttributeValue> key2 = createTestKey(partitionValue, sortValue2);
+
+
+        TransactGetItemsRequest getRequest = TransactGetItemsRequest.builder()
+                .transactItems(
+                        TransactGetItem.builder()
+                                .get(Get.builder()
+                                        .key(key1)
+                                        .tableName(TEST_TABLE_NAME)
+                                        .build())
+                                .build(),
+                        TransactGetItem.builder()
+                                .get(Get.builder()
+                                        .key(key2)
+                                        .tableName(TEST_TABLE_NAME)
+                                        .build())
+                                .build()
+                )
+                .build();
+
+        TransactGetItemsResponse getResponse = ddb.transactGetItems(getRequest);
+        assertEquals(200, getResponse.sdkHttpResponse().statusCode());
+        List<ItemResponse> responses = getResponse.responses();
+        assertEquals(2, responses.size());
+        ItemResponse response = responses.get(0);
+        assertEquals(partitionValue, response.item().get(TEST_PARTITION_NAME).s());
+        assertEquals(attrValue, response.item().get(TEST_ATTR_NAME).s());
+    }
+
+    @Test
+    public void TestScan() {
+        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        // Ensure table is populated with expected items
+        String partitionValue = "scan";
+        String sortValue1 = "1";
+        String sortValue2 = "2";
+        String attrValue = "lorem ipsum";
+        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue);
+        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue);
+        List<WriteRequest> tableRequests = new ArrayList<>();
+        tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item1).build()).build());
+        tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item2).build()).build());
+        Map<String, List<WriteRequest>> writeRequestItems = new HashMap<>();
+        writeRequestItems.put(TEST_TABLE_NAME, tableRequests);
+
+        BatchWriteItemRequest writeRequest = BatchWriteItemRequest.builder()
+                .requestItems(writeRequestItems)
+                .build();
+        BatchWriteItemResponse writeResponse = ddb.batchWriteItem(writeRequest);
+        assertEquals(200, writeResponse.sdkHttpResponse().statusCode());
+        assertEquals(0, writeResponse.unprocessedItems().size());
+
+        // Scan and filter for items with "scan"
+        Map<String, AttributeValue> attrValues = new HashMap();
+        attrValues.put(":val", AttributeValue.builder().s(partitionValue).build());
+        ScanRequest scanRequest = ScanRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .filterExpression("partition_key = :val")
+                .expressionAttributeValues(attrValues)
+                .build();
+
+        ScanResponse scanResponse  = ddb.scan(scanRequest);
+        assertEquals(200, scanResponse.sdkHttpResponse().statusCode());
+        assertEquals(2, scanResponse.count());
+        Map<String, AttributeValue> item = scanResponse.items().get(0);
+        assertEquals(partitionValue, item.get(TEST_PARTITION_NAME).s());
+        assertEquals(attrValue, item.get(TEST_ATTR_NAME).s());
+    }
+
+    @Test
+    public void TestQuery() {
+        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        // Ensure table is populated with expected items
+        String partitionValue = "query";
+        String sortValue1 = "1";
+        String sortValue2 = "2";
+        String attrValue = "lorem ipsum";
+        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue);
+        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue);
+        List<WriteRequest> tableRequests = new ArrayList<>();
+        tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item1).build()).build());
+        tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item2).build()).build());
+        Map<String, List<WriteRequest>> writeRequestItems = new HashMap<>();
+        writeRequestItems.put(TEST_TABLE_NAME, tableRequests);
+
+        BatchWriteItemRequest writeRequest = BatchWriteItemRequest.builder()
+                .requestItems(writeRequestItems)
+                .build();
+        BatchWriteItemResponse writeResponse = ddb.batchWriteItem(writeRequest);
+        assertEquals(200, writeResponse.sdkHttpResponse().statusCode());
+        assertEquals(0, writeResponse.unprocessedItems().size());
+
+        // Query such that we get one "query" item back, but not the other
+        Map<String, AttributeValue> attrValues = new HashMap();
+        attrValues.put(":v1", AttributeValue.builder().s(partitionValue).build());
+        attrValues.put(":v2", AttributeValue.builder().n(sortValue1).build());
+        QueryRequest queryRequest = QueryRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .keyConditionExpression("partition_key = :v1 AND sort_key > :v2")
+                .expressionAttributeValues(attrValues)
+                .build();
+
+        QueryResponse queryResponse  = ddb.query(queryRequest);
+        assertEquals(200, queryResponse.sdkHttpResponse().statusCode());
+        assertEquals(1, queryResponse.count());
+        Map<String, AttributeValue> item = queryResponse.items().get(0);
+        assertEquals(partitionValue, item.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue2, item.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, item.get(TEST_ATTR_NAME).s());
     }
 }

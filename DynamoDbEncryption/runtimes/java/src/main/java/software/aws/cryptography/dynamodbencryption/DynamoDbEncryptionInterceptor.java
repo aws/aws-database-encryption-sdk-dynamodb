@@ -305,7 +305,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                                 .originalInput((TransactWriteItemsRequest) originalRequest)
                                 .build()).transformedOutput();
                 outgoingResponse = transformedResponse.toBuilder()
-                        .responseMetadata(((TransactGetItemsResponse) originalResponse).responseMetadata())
+                        .responseMetadata(((TransactWriteItemsResponse) originalResponse).responseMetadata())
                         .sdkHttpResponse(originalResponse.sdkHttpResponse())
                         .build();
                 break;
