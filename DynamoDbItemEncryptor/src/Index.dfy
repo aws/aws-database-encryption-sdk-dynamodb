@@ -10,6 +10,7 @@ module
   DynamoDbItemEncryptor refines AbstractAwsCryptographyDynamoDbItemEncryptorService
 {
   import StructuredEncryption
+  import CSE = AwsCryptographyStructuredEncryptionTypes
   import MaterialProviders
   import Operations = AwsCryptographyDynamoDbItemEncryptorOperations
 
@@ -43,26 +44,70 @@ module
   {
     // TODO validation of config input
 
+    :- Need(config.keyring.None? || config.cmm.None?, Types.DynamoDbItemEncryptorException(
+      message := "Cannot provide both a keyring and a CMM"
+    ));
+
+    :- Need(config.keyring.Some? || config.cmm.Some?, Types.DynamoDbItemEncryptorException(
+      message := "Must provide eiterh a keyring or a CMM"
+    ));
+
+    :- Need(
+        && config.partitionKeyName in config.attributeActions
+        && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY,
+      Types.DynamoDbItemEncryptorException(
+        message := "Partition key attribute action MUST be SIGN_ONLY"
+      ));
+
+    :- Need(
+      (config.sortKeyName.Some? ==>
+        && config.sortKeyName.value in config.attributeActions
+        && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY),
+      Types.DynamoDbItemEncryptorException(
+        message := "Sort key attribute action MUST be SIGN_ONLY"
+      ));
+
+    var attributeActions' := config.attributeActions;
+    while attributeActions'.Keys != {}
+      invariant forall attribute <- (config.attributeActions - attributeActions'.Keys)
+      :: Operations.ForwardCompatibleAttributeAction(
+          attribute,
+          config.attributeActions[attribute],
+          config.allowedUnauthenticatedAttributes,
+          config.allowedUnauthenticatedAttributePrefix)
+    {
+      var attribute :| attribute in attributeActions';
+      var action := config.attributeActions[attribute];
+      :- Need(Operations.ForwardCompatibleAttributeAction(
+            attribute,
+            action,
+            config.allowedUnauthenticatedAttributes,
+            config.allowedUnauthenticatedAttributePrefix
+          ),
+          DynamoDbItemEncryptorException(
+            message := "Attribute: " + attribute + " configuration not compatible with unauthenticated configuration."
+          ));
+      attributeActions' := attributeActions' - {attribute};
+    }
+
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
     var structuredEncryption :- structuredEncryptionRes
       .MapFailure(e => AwsCryptographyStructuredEncryption(e));
 
     // TODO For now just passthrough cmm or wrap keyring with DefaultCMM
-    var maybeCmm := config.cmm;
     var cmm;
-    if (maybeCmm.Some?) {
-      cmm := maybeCmm.value;
+    if (config.cmm.Some?) {
+      cmm := config.cmm.value;
     } else {
-      // TODO for now assume valid input
-      expect config.keyring.Some?;
       var keyring := config.keyring.value;
       var matProv :- expect MaterialProviders.MaterialProviders();
-      cmm :- expect matProv.CreateDefaultCryptographicMaterialsManager(
+      var maybeCmm := matProv.CreateDefaultCryptographicMaterialsManager(
         AwsCryptographyMaterialProvidersTypes.CreateDefaultCryptographicMaterialsManagerInput(
           keyring := keyring
         )
       );
+      cmm :- maybeCmm.MapFailure(e => Types.AwsCryptographyMaterialProviders(e));
     }
 
     var internalConfig := Operations.Config(

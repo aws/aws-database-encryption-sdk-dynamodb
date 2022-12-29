@@ -163,7 +163,54 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   {
     && config.cmm.ValidState()
     && config.structuredEncryption.ValidState()
-    && config.cmm.Modifies !! config.structuredEncryption.Modifies
+    && (config.cmm.Modifies !! config.structuredEncryption.Modifies)
+
+    // The parition key MUST be CSE.SIGN_ONLY
+    && config.partitionKeyName in config.attributeActions
+    && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY
+    // The sort key MUST be CSE.SIGN_ONLY
+    && (config.sortKeyName.Some? ==>
+      && config.sortKeyName.value in config.attributeActions
+      && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY)
+
+    // attributeActions only apply on Encrypt.
+    // The config on Encrypt MAY NOT be the same as the config on Decrypt.
+    // This means that Encrypt MUST be "forward compatible" with Decrypt.
+    // Every current and *past* CSE.DO_NOTHING action
+    // MUST be derivable from allowedUnauthenticated information
+    // otherwise Decrypt will attempt to authenticate an attribute that was unauthenticated on Encrypt.
+    // Also, every current and *past* CSE.ENCRYPT_AND_SIGN or CSE.SIGN_ONLY action
+    // MUST NOT overlap with allowedUnauthenticated information
+    // otherwise Decrypt will not authenticate at attribute that was authenticate on Encrypt.
+    // For this to work the scope of allowedUnauthenticated information MUST only increase.
+    // This means that an attribute that is added to allowedUnauthenticatedAttributes
+    // MUST NOT ever be removed.
+    // This means that is a allowedUnauthenticatedAttributePrefix is added
+    // allowedUnauthenticatedAttributePrefix <= old(allowedUnauthenticatedAttributePrefix).
+    // The simple case is do not change allowedUnauthenticatedAttributePrefix.
+    // But allowedUnauthenticatedAttributePrefix MAY get shorter,
+    // however this is a dangrous operation as it may impact other attributes.
+    && (forall attribute <- config.attributeActions.Keys
+      :: ForwardCompatibleAttributeAction(
+          attribute,
+          config.attributeActions[attribute],
+          config.allowedUnauthenticatedAttributes,
+          config.allowedUnauthenticatedAttributePrefix))
+  }
+
+  predicate method ForwardCompatibleAttributeAction(
+      attribute: string,
+      action: CSE.CryptoAction,
+      unauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
+      unauthenticatedPrefix: Option<string>
+    )
+  {
+    if action == CSE.DO_NOTHING then
+      || (unauthenticatedAttributes.Some? && attribute in unauthenticatedAttributes.value)
+      || (unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attribute)
+    else
+      && !(unauthenticatedAttributes.Some? && attribute in unauthenticatedAttributes.value)
+      && !(unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attribute)
   }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
