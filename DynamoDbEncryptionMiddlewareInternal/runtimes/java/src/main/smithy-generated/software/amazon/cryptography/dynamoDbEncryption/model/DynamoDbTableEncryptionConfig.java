@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
@@ -92,11 +94,11 @@ public class DynamoDbTableEncryptionConfig {
 
     String allowedUnauthenticatedAttributePrefix();
 
-    Builder keyring(Keyring keyring);
+    <I extends IKeyring> Builder keyring(I keyring);
 
     Keyring keyring();
 
-    Builder cmm(CryptographicMaterialsManager cmm);
+    <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
 
     CryptographicMaterialsManager cmm();
 
@@ -177,8 +179,8 @@ public class DynamoDbTableEncryptionConfig {
       return this.allowedUnauthenticatedAttributePrefix;
     }
 
-    public Builder keyring(Keyring keyring) {
-      this.keyring = keyring;
+    public <I extends IKeyring> Builder keyring(I keyring) {
+      this.keyring = Keyring.create(keyring);
       return this;
     }
 
@@ -186,8 +188,8 @@ public class DynamoDbTableEncryptionConfig {
       return this.keyring;
     }
 
-    public Builder cmm(CryptographicMaterialsManager cmm) {
-      this.cmm = cmm;
+    public <I extends ICryptographicMaterialsManager> Builder cmm(I cmm) {
+      this.cmm = CryptographicMaterialsManager.create(cmm);
       return this;
     }
 
