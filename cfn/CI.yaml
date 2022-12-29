@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "DDB Table and IAM Managed Policy to access for DynamoDbEncryption testing"
+
+Parameters:
+  TableName:
+    Type: String
+    Description: Test Table Name
+    Default: DynamoDbEncryptionInterceptorTestTable
+
+Resources:
+  TestTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "partition_key"
+          AttributeType: "S"
+        - AttributeName: "sort_key"
+          AttributeType: "N"
+      KeySchema:
+        - AttributeName: "partition_key"
+          KeyType: "HASH"
+        - AttributeName: "sort_key"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref TableName
+
+  # This policy SHOULD be given to:
+  #  - awslabs/aws-dynamodb-encryption-dafny
+  #  - ToolsDevelopment
+  TestTableUsage:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      Description: "Allow Read, Write, and Delete of Items in Test Table"
+      ManagedPolicyName: !Sub "${TableName}-ReadWriteDelete-${AWS::Region}"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:BatchWriteItem
+              - dynamodb:ConditionCheckItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:GetItem
+              - dynamodb:Scan
+              - dynamodb:Query
+              - dynamodb:UpdateItem
+            Resource:
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*"

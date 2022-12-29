@@ -1,4 +1,5 @@
 .idea/*
+**/.idea/*
 .vscode/*
 *.sln?*
 **/.DS_Store
