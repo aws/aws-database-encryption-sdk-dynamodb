@@ -12,7 +12,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionC
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
-import software.amazon.cryptography.materialProviders.Keyring;
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.AesWrappingAlg;
 import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
@@ -38,7 +38,7 @@ public class DynamoDbEncryptionInterceptorTest {
                 .wrappingAlg(AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16)
                 .wrappingKey(key)
                 .build();
-        Keyring kmsKeyring = matProv.CreateRawAesKeyring(keyringInput);
+        IKeyring kmsKeyring = matProv.CreateRawAesKeyring(keyringInput);
 
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);

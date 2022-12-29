@@ -13,7 +13,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.materialProviders.Keyring;
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
@@ -43,7 +43,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         CreateAwsKmsMultiKeyringInput keyringInput = CreateAwsKmsMultiKeyringInput.builder()
                 .generator(KMS_TEST_KEY_ID)
                 .build();
-        Keyring kmsKeyring = matProv.CreateAwsKmsMultiKeyring(keyringInput);
+        IKeyring kmsKeyring = matProv.CreateAwsKmsMultiKeyring(keyringInput);
 
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);
