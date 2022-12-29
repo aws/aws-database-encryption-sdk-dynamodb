@@ -5,15 +5,17 @@ package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal;
 
 // TODO manually updated this file to update Dafny.Com.Amazonaws.Dynamodb -> Dafny.Com.Amazonaws.Dynamodb
 
+import Dafny.Aws.Cryptography.DynamoDbEncryptionMiddleware.Internal.Types.*;
 import Dafny.Aws.Cryptography.DynamoDbEncryptionMiddleware.Internal.Types.Error;
-import Dafny.Aws.Cryptography.DynamoDbEncryptionMiddleware.Internal.Types.Error_Collection;
-import Dafny.Aws.Cryptography.DynamoDbEncryptionMiddleware.Internal.Types.Error_DynamoDbEncryptionMiddlewareInternalException;
-import Dafny.Aws.Cryptography.DynamoDbEncryptionMiddleware.Internal.Types.Error_Opaque;
+import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Character;
 import java.lang.String;
 import java.util.Map;
+
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchExecuteStatementInputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchExecuteStatementInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.BatchExecuteStatementOutputTransformInput;
@@ -46,7 +48,6 @@ import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.GetItemInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.GetItemOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.GetItemOutputTransformOutput;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.OpaqueError;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.PutItemInputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.PutItemInputTransformOutput;
@@ -72,6 +73,8 @@ import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.UpdateItemInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.UpdateItemOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.UpdateItemOutputTransformOutput;
+import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
+import software.amazon.cryptography.materialProviders.model.AwsCryptographicMaterialProvidersException;
 
 public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
@@ -96,9 +99,44 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static NativeError Error(Error dafnyValue) {
+  public static DynamoDbItemEncryptorException Error(
+          Error_AwsCryptographyDynamoDbItemEncryptor dafnyValue) {
+    DynamoDbItemEncryptorException.Builder nativeBuilder = DynamoDbItemEncryptorException.builder();
+    DafnySequence<? extends Character> maybeMessage = dafnyValue.dtor_AwsCryptographyDynamoDbItemEncryptor().dtor_message();
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(maybeMessage));
+    return nativeBuilder.build();
+  }
+
+  public static AwsCryptographicMaterialProvidersException Error(
+          Error_AwsCryptographyMaterialProviders dafnyValue) {
+    AwsCryptographicMaterialProvidersException.Builder nativeBuilder = AwsCryptographicMaterialProvidersException.builder();
+    DafnySequence<? extends Character> maybeMessage = dafnyValue.dtor_AwsCryptographyMaterialProviders().dtor_message();
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(maybeMessage));
+    return nativeBuilder.build();
+  }
+
+  public static AwsServiceException Error(
+          Error_ComAmazonawsDynamodb dafnyValue) {
+    DynamoDbException.Builder nativeBuilder = DynamoDbException.builder();
+    Option<DafnySequence<? extends Character>> maybeMessage = dafnyValue.dtor_ComAmazonawsDynamodb().dtor_message();
+    if (maybeMessage.is_Some()) {
+      nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(maybeMessage.dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static RuntimeException Error(Error dafnyValue) {
     if (dafnyValue.is_DynamoDbEncryptionMiddlewareInternalException()) {
       return ToNative.Error((Error_DynamoDbEncryptionMiddlewareInternalException) dafnyValue);
+    }
+    if (dafnyValue.is_AwsCryptographyDynamoDbItemEncryptor()) {
+      return ToNative.Error((Error_AwsCryptographyDynamoDbItemEncryptor) dafnyValue);
+    }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return ToNative.Error((Error_AwsCryptographyMaterialProviders) dafnyValue);
+    }
+    if (dafnyValue.is_ComAmazonawsDynamodb()) {
+      return ToNative.Error((Error_ComAmazonawsDynamodb) dafnyValue);
     }
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);

@@ -6,14 +6,14 @@ package software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model
 import java.util.List;
 
 public class CollectionOfErrors extends NativeError {
-  private final List<NativeError> list;
+  private final List<RuntimeException> list;
 
   protected CollectionOfErrors(BuilderImpl builder) {
     super(builder);
     this.list = builder.list();
   }
 
-  public List<NativeError> list() {
+  public List<RuntimeException> list() {
     return this.list;
   }
 
@@ -31,15 +31,15 @@ public class CollectionOfErrors extends NativeError {
 
     Builder cause(Throwable cause);
 
-    Builder list(List<NativeError> list);
+    Builder list(List<RuntimeException> list);
 
-    List<NativeError> list();
+    List<RuntimeException> list();
 
     CollectionOfErrors build();
   }
 
   static class BuilderImpl extends NativeError.BuilderImpl implements Builder {
-    protected List<NativeError> list;
+    protected List<RuntimeException> list;
 
     protected BuilderImpl() {
     }
@@ -49,12 +49,12 @@ public class CollectionOfErrors extends NativeError {
       this.list = model.list();
     }
 
-    public Builder list(List<NativeError> list) {
+    public Builder list(List<RuntimeException> list) {
       this.list = list;
       return this;
     }
 
-    public List<NativeError> list() {
+    public List<RuntimeException> list() {
       return this.list;
     }
 
