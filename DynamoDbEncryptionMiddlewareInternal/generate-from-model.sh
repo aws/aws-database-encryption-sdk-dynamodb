@@ -33,6 +33,6 @@ cd "$POLYMORPH_ROOT"
     --dependent-model $AwsCryptographyPrimitives_ROOT/Model \
     --dependent-model $StructuredEncryption_ROOT/Model \
     --dependent-model $DynamoDbItemEncryptor_ROOT/Model \
-    --namespace aws.cryptography.dynamoDbEncryptionMiddleware.internal"
+    --namespace aws.cryptography.dynamoDbEncryption"
 
 popd

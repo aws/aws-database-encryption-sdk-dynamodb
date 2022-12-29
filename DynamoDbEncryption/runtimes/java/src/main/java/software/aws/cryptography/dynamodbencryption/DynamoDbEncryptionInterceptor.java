@@ -6,7 +6,8 @@ import software.amazon.awssdk.core.interceptor.*;
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.SdkResponse;
 
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.*;
+import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryptionMiddlewareInternal;
+import software.amazon.cryptography.dynamoDbEncryption.model.*;
 
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsResponse;
@@ -33,8 +34,6 @@ import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementRequest;
 
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.DynamoDbEncryptionMiddlewareInternal;
-
 import java.util.Objects;
 import java.util.Optional;
 
@@ -46,7 +45,7 @@ import static software.aws.cryptography.dynamodbencryption.SupportedOperations.S
  */
 public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
-    private final DynamoDbEncryptionMiddlewareInternalConfig config;
+    private final DynamoDbEncryptionConfig config;
     private DynamoDbEncryptionMiddlewareInternal transformer;
 
     // TODO find where in sdk we can pull this string from
@@ -55,11 +54,11 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
     protected DynamoDbEncryptionInterceptor(BuilderImpl builder) {
         this.config = builder.config();
         this.transformer = DynamoDbEncryptionMiddlewareInternal.builder()
-                .DynamoDbEncryptionMiddlewareInternalConfig(config)
+                .DynamoDbEncryptionConfig(config)
                 .build();
     }
 
-    public DynamoDbEncryptionMiddlewareInternalConfig config() {
+    public DynamoDbEncryptionConfig config() {
         return this.config;
     }
 
@@ -357,13 +356,13 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
     }
 
     public interface Builder {
-        Builder config(DynamoDbEncryptionMiddlewareInternalConfig config);
-        DynamoDbEncryptionMiddlewareInternalConfig config();
+        Builder config(DynamoDbEncryptionConfig config);
+        DynamoDbEncryptionConfig config();
         DynamoDbEncryptionInterceptor build();
     }
 
     static class BuilderImpl implements Builder {
-        protected DynamoDbEncryptionMiddlewareInternalConfig config;
+        protected DynamoDbEncryptionConfig config;
 
         protected BuilderImpl() {
         }
@@ -372,12 +371,12 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
             this.config = model.config();
         }
 
-        public Builder config(DynamoDbEncryptionMiddlewareInternalConfig config) {
+        public Builder config(DynamoDbEncryptionConfig config) {
             this.config = config;
             return this;
         }
 
-        public DynamoDbEncryptionMiddlewareInternalConfig config() {
+        public DynamoDbEncryptionConfig config() {
             return this.config;
         }
 

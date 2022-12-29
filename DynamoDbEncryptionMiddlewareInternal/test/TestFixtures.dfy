@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../src/Index.dfy"
-include "../Model/AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.dfy"
+include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/Model/AwsCryptographyMaterialProvidersTypes.dfy"
 
 module TestFixtures {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes
-  import DynamoDbEncryptionMiddlewareInternal
+  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import DynamoDbEncryption
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
 
@@ -30,15 +30,15 @@ module TestFixtures {
     );
   }
 
-  method GetDynamoDbEncryptionMiddlewareInternal()
-      returns (encryption: DynamoDbEncryptionMiddlewareInternal.DynamoDbEncryptionMiddlewareInternalClient)
+  method GetDynamoDbEncryption()
+      returns (encryption: DynamoDbEncryption.DynamoDbEncryptionMiddlewareInternalClient)
     ensures encryption.ValidState()
     ensures fresh(encryption)
     ensures fresh(encryption.Modifies)
   {
     var keyring := GetStaticKeyring();
-    encryption :- expect DynamoDbEncryptionMiddlewareInternal.DynamoDbEncryptionMiddlewareInternal(
-      DynamoDbEncryptionMiddlewareInternalConfig(
+    encryption :- expect DynamoDbEncryption.DynamoDbEncryption(
+      DynamoDbEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
             partitionKeyName := "bar",

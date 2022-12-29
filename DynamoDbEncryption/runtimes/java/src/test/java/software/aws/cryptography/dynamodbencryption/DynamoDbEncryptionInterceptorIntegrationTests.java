@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.DynamoDbEncryptionMiddlewareInternalConfig;
-import software.amazon.cryptography.dynamoDbEncryptionMiddleware.internal.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
@@ -59,7 +59,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .build());
 
         return DynamoDbEncryptionInterceptor.builder()
-                .config(DynamoDbEncryptionMiddlewareInternalConfig.builder()
+                .config(DynamoDbEncryptionConfig.builder()
                         .tableEncryptionConfigs(tableConfigs)
                         .build())
                 .build();
