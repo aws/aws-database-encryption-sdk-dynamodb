@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
-include "../../StructuredEncryption/src/Index.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
 
 module
   {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryptor" }
@@ -44,28 +42,53 @@ module
   {
     // TODO validation of config input
 
-    :- Need(config.keyring.None? || config.cmm.None?, Types.DynamoDbItemEncryptorException(
-      message := "Cannot provide both a keyring and a CMM"
-    ));
-
-    :- Need(config.keyring.Some? || config.cmm.Some?, Types.DynamoDbItemEncryptorException(
-      message := "Must provide eiterh a keyring or a CMM"
-    ));
-
-    :- Need(
-        && config.partitionKeyName in config.attributeActions
-        && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY,
-      Types.DynamoDbItemEncryptorException(
+    // TODO Fix this when the compile bug is fixed (https://t.corp.amazon.com/P78273149)
+    // :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
+    //   message := "Cannot provide both a keyring and a CMM"
+    // ));
+    if !(config.keyring.None? || config.cmm.None?) {
+      return Failure(DynamoDbItemEncryptorException(
+        message := "Cannot provide both a keyring and a CMM"
+      ));
+    }
+    // :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
+    //   message := "Must provide eiterh a keyring or a CMM"
+    // ));
+    if !(config.keyring.Some? || config.cmm.Some?) {
+      return Failure(DynamoDbItemEncryptorException(
+        message := "Must provide eiterh a keyring or a CMM"
+      ));
+    }
+    // :- Need(
+    //     && config.partitionKeyName in config.attributeActions
+    //     && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY,
+    //   DynamoDbItemEncryptorException(
+    //     message := "Partition key attribute action MUST be SIGN_ONLY"
+    //   ));
+    if 
+        !(&& config.partitionKeyName in config.attributeActions
+        && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY)
+    {
+      return Failure(DynamoDbItemEncryptorException(
         message := "Partition key attribute action MUST be SIGN_ONLY"
       ));
-
-    :- Need(
+    }
+    // :- Need(
+    //   (config.sortKeyName.Some? ==>
+    //     && config.sortKeyName.value in config.attributeActions
+    //     && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY),
+    //   DynamoDbItemEncryptorException(
+    //     message := "Sort key attribute action MUST be SIGN_ONLY"
+    //   ));
+    if !(
       (config.sortKeyName.Some? ==>
         && config.sortKeyName.value in config.attributeActions
-        && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY),
-      Types.DynamoDbItemEncryptorException(
+        && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY))
+    {
+      return Failure(DynamoDbItemEncryptorException(
         message := "Sort key attribute action MUST be SIGN_ONLY"
       ));
+    }
 
     var attributeActions' := config.attributeActions;
     while attributeActions'.Keys != {}
@@ -78,15 +101,26 @@ module
     {
       var attribute :| attribute in attributeActions';
       var action := config.attributeActions[attribute];
-      :- Need(Operations.ForwardCompatibleAttributeAction(
-            attribute,
-            action,
-            config.allowedUnauthenticatedAttributes,
-            config.allowedUnauthenticatedAttributePrefix
-          ),
-          DynamoDbItemEncryptorException(
-            message := "Attribute: " + attribute + " configuration not compatible with unauthenticated configuration."
-          ));
+      // :- Need(Operations.ForwardCompatibleAttributeAction(
+      //       attribute,
+      //       action,
+      //       config.allowedUnauthenticatedAttributes,
+      //       config.allowedUnauthenticatedAttributePrefix
+      //     ),
+      //     DynamoDbItemEncryptorException(
+      //       message := "Attribute: " + attribute + " configuration not compatible with unauthenticated configuration."
+      //     ));
+      if !(Operations.ForwardCompatibleAttributeAction(
+          attribute,
+          action,
+          config.allowedUnauthenticatedAttributes,
+          config.allowedUnauthenticatedAttributePrefix
+        ))
+      {
+        return Failure(DynamoDbItemEncryptorException(
+          message := "Attribute: " + attribute + " configuration not compatible with unauthenticated configuration."
+        ));
+      }
       attributeActions' := attributeActions' - {attribute};
     }
 
@@ -107,7 +141,7 @@ module
           keyring := keyring
         )
       );
-      cmm :- maybeCmm.MapFailure(e => Types.AwsCryptographyMaterialProviders(e));
+      cmm :- maybeCmm.MapFailure(e => AwsCryptographyMaterialProviders(e));
     }
 
     var internalConfig := Operations.Config(
