@@ -35,7 +35,6 @@ module TestFixtures {
     map["bar" := CTypes.SIGN_ONLY, "encrypt" := CTypes.ENCRYPT_AND_SIGN, "sign" := CTypes.SIGN_ONLY, "nothing" := CTypes.DO_NOTHING]
   }
 
-
   method GetEncryptorConfig() returns (output : Types.DynamoDbItemEncryptorConfig) {
     var keyring := GetStaticKeyring();
     output := Types.DynamoDbItemEncryptorConfig(
@@ -43,7 +42,7 @@ module TestFixtures {
       partitionKeyName := "bar",
       sortKeyName := None(),
       attributeActions := GetAttributeActions(),
-      allowedUnauthenticatedAttributes := None(),
+      allowedUnauthenticatedAttributes := Some(["nothing"]),
       allowedUnauthenticatedAttributePrefix := None(),
       keyring := Some(keyring),
       cmm := None()

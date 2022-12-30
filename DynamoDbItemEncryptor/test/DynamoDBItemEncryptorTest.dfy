@@ -17,6 +17,7 @@ module DynamoDbItemEncryptorTest {
   import DDB = ComAmazonawsDynamodbTypes
   import TestFixtures
   import AwsCryptographyDynamoDbItemEncryptorOperations
+  import CSE = AwsCryptographyStructuredEncryptionTypes
 
   // round trip
   // encrypt => ecrypted fields changed, others did not
@@ -60,7 +61,10 @@ module DynamoDbItemEncryptorTest {
   method {:test} TestMissingSortKey() {
     var config := TestFixtures.GetEncryptorConfig();
     var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
-    var config2 := config.(sortKeyName := Some("sort"));
+    var config2 := config.(
+      sortKeyName := Some("sort"),
+      attributeActions := config.attributeActions["sort" := CSE.SIGN_ONLY]
+    );
     var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config2);
     var encryptRes := encryptor.EncryptItem(
       Types.EncryptItemInput(

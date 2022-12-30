@@ -163,7 +163,54 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   {
     && config.cmm.ValidState()
     && config.structuredEncryption.ValidState()
-    && config.cmm.Modifies !! config.structuredEncryption.Modifies
+    && (config.cmm.Modifies !! config.structuredEncryption.Modifies)
+
+    // The parition key MUST be CSE.SIGN_ONLY
+    && config.partitionKeyName in config.attributeActions
+    && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY
+    // The sort key MUST be CSE.SIGN_ONLY
+    && (config.sortKeyName.Some? ==>
+      && config.sortKeyName.value in config.attributeActions
+      && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY)
+
+    // attributeActions only apply on Encrypt.
+    // The config on Encrypt MAY NOT be the same as the config on Decrypt.
+    // This means that Encrypt MUST be "forward compatible" with Decrypt.
+    // Every current and *past* CSE.DO_NOTHING action
+    // MUST be derivable from allowedUnauthenticated information
+    // otherwise Decrypt will attempt to authenticate an attribute that was unauthenticated on Encrypt.
+    // Also, every current and *past* CSE.ENCRYPT_AND_SIGN or CSE.SIGN_ONLY action
+    // MUST NOT overlap with allowedUnauthenticated information
+    // otherwise Decrypt will not authenticate at attribute that was authenticate on Encrypt.
+    // For this to work the scope of allowedUnauthenticated information MUST only increase.
+    // This means that an attribute that is added to allowedUnauthenticatedAttributes
+    // MUST NOT ever be removed.
+    // This means that is a allowedUnauthenticatedAttributePrefix is added
+    // allowedUnauthenticatedAttributePrefix <= old(allowedUnauthenticatedAttributePrefix).
+    // The simple case is do not change allowedUnauthenticatedAttributePrefix.
+    // But allowedUnauthenticatedAttributePrefix MAY get shorter,
+    // however this is a dangrous operation as it may impact other attributes.
+    && (forall attribute <- config.attributeActions.Keys
+      :: ForwardCompatibleAttributeAction(
+          attribute,
+          config.attributeActions[attribute],
+          config.allowedUnauthenticatedAttributes,
+          config.allowedUnauthenticatedAttributePrefix))
+  }
+
+  predicate method ForwardCompatibleAttributeAction(
+      attribute: string,
+      action: CSE.CryptoAction,
+      unauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
+      unauthenticatedPrefix: Option<string>
+    )
+  {
+    if action == CSE.DO_NOTHING then
+      || (unauthenticatedAttributes.Some? && attribute in unauthenticatedAttributes.value)
+      || (unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attribute)
+    else
+      && !(unauthenticatedAttributes.Some? && attribute in unauthenticatedAttributes.value)
+      && !(unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attribute)
   }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
@@ -179,7 +226,6 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     : (ret : Result<CSE.CryptoAction, string>)
     ensures (attr !in config.attributeActions && !DoNotSign(config, attr)) ==> ret.Failure?
   {
-    :- CheckConsistantSpec(config, attr);
     if attr in config.attributeActions then
       Success(config.attributeActions[attr])
     else if DoNotSign(config, attr) then
@@ -200,21 +246,6 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     Success(CSE.CryptoSchema(content := newElement, attributes := None))
   }
 
-  // The same attr must not be in two places
-  predicate method InvalidSpec(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
-  {
-    attr in config.attributeActions && 
-      (|| (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
-      || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr))
-  }
-
-  function method CheckConsistantSpec(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) : Outcome<string> {
-    if InvalidSpec(config, attr) then
-      Fail("Attribute " + attr + " is configures both as an explicit attribute and as an implicit unauthenticated attribute.")
-    else
-      Pass
-  }
-
   // Attr must not be part of signature
   predicate method DoNotSign(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
@@ -233,6 +264,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
     : (ret : Result<CSE.AuthenticateAction, string>)
+    requires ValidInternalConfig?(config)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
     //= type=implication
@@ -258,7 +290,6 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
       && DoNotSign(config, attr)
       ==> ret.Failure?
   {
-    :- CheckConsistantSpec(config, attr);
     if DoNotSign(config, attr) then
       Success(CSE.AuthenticateAction.DO_NOT_SIGN)
     else
@@ -270,6 +301,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
     : Result<CSE.AuthenticateSchema, string>
+    requires ValidInternalConfig?(config)
   {
     var newElement :- GetAuthenticateSchemaActionInner(config, attr);
     var newElement := CSE.AuthenticateSchemaContent.Action(newElement);
@@ -329,6 +361,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
     : (ret : Result<CSE.AuthenticateSchema, Error>)
+    requires ValidInternalConfig?(config)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
