@@ -1,4 +1,4 @@
-package software.aws.cryptography.dynamodbencryption;
+package software.aws.cryptography.dynamoDbEncryption;
 
 import java.util.Arrays;
 import java.util.List;

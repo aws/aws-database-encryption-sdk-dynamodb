@@ -1,4 +1,4 @@
-package software.aws.cryptography.dynamodbencryption;
+package software.aws.cryptography.dynamoDbEncryption;
 
 import org.junit.jupiter.api.BeforeAll;
 import software.amazon.awssdk.core.SdkBytes;
@@ -15,7 +15,7 @@ import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static software.aws.cryptography.dynamodbencryption.TestUtils.*;
+import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
 /*
   Tests require access to a DynamoDb table in the default region with:

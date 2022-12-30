@@ -63,6 +63,7 @@ dependencies {
     implementation("software.amazon.cryptography:ComAmazonawsKms:1.0-SNAPSHOT")
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")
+    implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
     implementation("software.amazon.awssdk:core:2.19.1")
 

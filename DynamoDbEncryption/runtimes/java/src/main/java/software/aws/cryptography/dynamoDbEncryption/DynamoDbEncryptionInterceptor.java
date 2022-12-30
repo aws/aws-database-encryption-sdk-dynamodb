@@ -1,4 +1,4 @@
-package software.aws.cryptography.dynamodbencryption;
+package software.aws.cryptography.dynamoDbEncryption;
 
 import software.amazon.awssdk.awscore.AwsRequest;
 import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
@@ -13,8 +13,8 @@ import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import java.util.Objects;
 import java.util.Optional;
 
-import static software.aws.cryptography.dynamodbencryption.DynamoDbEncryptionExecutionAttribute.ORIGINAL_REQUEST;
-import static software.aws.cryptography.dynamodbencryption.SupportedOperations.SUPPORTED_OPERATION_NAMES;
+import static software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionExecutionAttribute.ORIGINAL_REQUEST;
+import static software.aws.cryptography.dynamoDbEncryption.SupportedOperations.SUPPORTED_OPERATION_NAMES;
 
 /**
  * Implementation of {@link ExecutionInterceptor} with configurable wait times

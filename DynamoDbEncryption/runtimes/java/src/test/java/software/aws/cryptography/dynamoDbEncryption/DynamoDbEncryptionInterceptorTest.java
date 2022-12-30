@@ -1,4 +1,4 @@
-package software.aws.cryptography.dynamodbencryption;
+package software.aws.cryptography.dynamoDbEncryption;
 
 import org.junit.jupiter.api.BeforeAll;
 import software.amazon.awssdk.core.SdkBytes;
@@ -24,7 +24,7 @@ import software.amazon.cryptography.materialProviders.model.MaterialProvidersCon
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static software.aws.cryptography.dynamodbencryption.TestUtils.*;
+import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
 public class DynamoDbEncryptionInterceptorTest {
     static DynamoDbEncryptionInterceptor interceptor;

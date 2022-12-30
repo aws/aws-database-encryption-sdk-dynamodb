@@ -1,4 +1,4 @@
-package software.aws.cryptography.dynamodbencryption;
+package software.aws.cryptography.dynamoDbEncryption;
 
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.core.SdkBytes;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static software.aws.cryptography.dynamodbencryption.TestUtils.*;
+import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
 public class DynamoDbItemConversionIntegrationTests {
     // TODO break this up into distinct tests
