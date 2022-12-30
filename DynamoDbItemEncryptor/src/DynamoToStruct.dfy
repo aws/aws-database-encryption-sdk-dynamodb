@@ -946,10 +946,10 @@ module DynamoToStruct {
         Failure("NULL type did not have length zero")
       else
         // DynamoDB includes a boolean with the NULL
-        // We arbitrarily pick false
-        // NOTE : if you start with NULL(true), Decode(Encode()) will produce NULL(true)
+        // We pick true because it appears that the server rejects NULL(false)
+        // NOTE : if you start with NULL(false), Decode(Encode()) will produce NULL(true)
         // and so round-trip identity is NOT preserved
-        Success(AttrValueAndLength(AttributeValue.NULL(false), lengthBytes))
+        Success(AttrValueAndLength(AttributeValue.NULL(true), lengthBytes))
 
     else if typeId == STRING then
       var str :- UTF8.Decode(value[..len]);
