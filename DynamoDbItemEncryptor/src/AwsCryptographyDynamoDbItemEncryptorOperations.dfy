@@ -226,7 +226,6 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     : (ret : Result<CSE.CryptoAction, string>)
     ensures (attr !in config.attributeActions && !DoNotSign(config, attr)) ==> ret.Failure?
   {
-    :- CheckConsistantSpec(config, attr);
     if attr in config.attributeActions then
       Success(config.attributeActions[attr])
     else if DoNotSign(config, attr) then
@@ -247,21 +246,6 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     Success(CSE.CryptoSchema(content := newElement, attributes := None))
   }
 
-  // The same attr must not be in two places
-  predicate method InvalidSpec(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
-  {
-    attr in config.attributeActions && 
-      (|| (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
-      || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr))
-  }
-
-  function method CheckConsistantSpec(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) : Outcome<string> {
-    if InvalidSpec(config, attr) then
-      Fail("Attribute " + attr + " is configures both as an explicit attribute and as an implicit unauthenticated attribute.")
-    else
-      Pass
-  }
-
   // Attr must not be part of signature
   predicate method DoNotSign(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
@@ -280,6 +264,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
     : (ret : Result<CSE.AuthenticateAction, string>)
+    requires ValidInternalConfig?(config)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
     //= type=implication
@@ -305,7 +290,6 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
       && DoNotSign(config, attr)
       ==> ret.Failure?
   {
-    :- CheckConsistantSpec(config, attr);
     if DoNotSign(config, attr) then
       Success(CSE.AuthenticateAction.DO_NOT_SIGN)
     else
@@ -317,6 +301,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
     : Result<CSE.AuthenticateSchema, string>
+    requires ValidInternalConfig?(config)
   {
     var newElement :- GetAuthenticateSchemaActionInner(config, attr);
     var newElement := CSE.AuthenticateSchemaContent.Action(newElement);
@@ -376,6 +361,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
     : (ret : Result<CSE.AuthenticateSchema, Error>)
+    requires ValidInternalConfig?(config)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
