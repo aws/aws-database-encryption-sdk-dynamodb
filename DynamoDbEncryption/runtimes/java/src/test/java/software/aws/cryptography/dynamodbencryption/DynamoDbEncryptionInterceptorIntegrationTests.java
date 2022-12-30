@@ -1,26 +1,21 @@
 package software.aws.cryptography.dynamodbencryption;
 
+import org.junit.jupiter.api.BeforeAll;
+import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.materialProviders.Keyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static software.aws.cryptography.dynamodbencryption.TestUtils.*;
 
 /*
   Tests require access to a DynamoDb table in the default region with:
@@ -29,67 +24,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
     - sort key off type 'N' with name "sort_key"
  */
 public class DynamoDbEncryptionInterceptorIntegrationTests {
-    static final String TEST_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
-    static final String TEST_PARTITION_NAME = "partition_key";
-    static final String TEST_SORT_NAME = "sort_key";
-    static final String TEST_ATTR_NAME = "attr1";
+    static DynamoDbEncryptionInterceptor interceptor;
+    static DynamoDbClient ddb;
 
-    static final String KMS_TEST_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-
-    public DynamoDbEncryptionInterceptor createInterceptor() {
-        MaterialProviders matProv = MaterialProviders.builder()
-                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-                .build();
-        CreateAwsKmsMultiKeyringInput keyringInput = CreateAwsKmsMultiKeyringInput.builder()
-                .generator(KMS_TEST_KEY_ID)
-                .build();
-        Keyring kmsKeyring = matProv.CreateAwsKmsMultiKeyring(keyringInput);
-
-        Map<String, CryptoAction> actions = new HashMap<>();
-        actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);
-        actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
-        actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
-
-        Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME, DynamoDbTableEncryptionConfig.builder()
-                .partitionKeyName(TEST_PARTITION_NAME)
-                .sortKeyName(TEST_SORT_NAME)
-                .attributeActions(actions)
-                .keyring(kmsKeyring)
-                .build());
-
-        return DynamoDbEncryptionInterceptor.builder()
-                .config(DynamoDbEncryptionConfig.builder()
-                        .tableEncryptionConfigs(tableConfigs)
-                        .build())
-                .build();
-    }
-
-    public Map<String, AttributeValue> createTestItem(String partition, String sort, String attr) {
-        HashMap<String, AttributeValue> item = new HashMap<>();
-        item.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partition).build());
-        item.put(TEST_SORT_NAME, AttributeValue.builder().n(sort).build());
-        item.put(TEST_ATTR_NAME, AttributeValue.builder().s(attr).build());
-        return item;
-    }
-
-    public Map<String, AttributeValue> createTestKey(String partition, String sort) {
-        HashMap<String, AttributeValue> key = new HashMap<>();
-        key.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partition).build());
-        key.put(TEST_SORT_NAME, AttributeValue.builder().n(sort).build());
-        return key;
-    }
-
-    @Test
-    public void TestPutItemGetItem() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-        DynamoDbClient ddb = DynamoDbClient.builder()
+    @BeforeAll
+    public static void setup() {
+        interceptor = createInterceptor(createKmsKeyring());
+        ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
                                 .addExecutionInterceptor(interceptor)
                                 .build())
                 .build();
+    }
 
+    @Test
+    public void TestPutItemGetItem() {
+        // Put item into table
         String partitionValue = "foo";
         String sortValue = "42";
         String attrValue = "bar";
@@ -122,14 +73,6 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     @Test
     public void TestBatchWriteBatchGet() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
-                                .build())
-                .build();
-
         // Batch write items to table
         Map<String, List<WriteRequest>> writeRequestItems = new HashMap<>();
 
@@ -186,15 +129,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     @Test
     public void TestTransactWriteAndGet() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
-                                .build())
-                .build();
-
-        // Put Item into table
+        // Put Item into table via transactions
         HashMap<String, AttributeValue> item = new HashMap<>();
 
         String partitionValue = "transact";
@@ -226,7 +161,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         TransactWriteItemsResponse putResponse = ddb.transactWriteItems(writeRequest);
         assertEquals(200, putResponse.sdkHttpResponse().statusCode());
 
-        // Get Item back from table
+        // Get Item back from table via transactions
         Map<String,AttributeValue> key1 = createTestKey(partitionValue, sortValue1);
         Map<String,AttributeValue> key2 = createTestKey(partitionValue, sortValue2);
 
@@ -259,14 +194,6 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     @Test
     public void TestScan() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
-                                .build())
-                .build();
-
         // Ensure table is populated with expected items
         String partitionValue = "scan";
         String sortValue1 = "1";
@@ -306,14 +233,6 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     @Test
     public void TestQuery() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
-                                .build())
-                .build();
-
         // Ensure table is populated with expected items
         String partitionValue = "query";
         String sortValue1 = "1";

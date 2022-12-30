@@ -1,7 +1,11 @@
 package software.aws.cryptography.dynamodbencryption;
 
+import org.junit.jupiter.api.BeforeAll;
+import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.core.SdkRequest;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.interceptor.*;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.nio.ByteBuffer;
@@ -20,62 +24,18 @@ import software.amazon.cryptography.materialProviders.model.MaterialProvidersCon
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static software.aws.cryptography.dynamodbencryption.TestUtils.*;
 
 public class DynamoDbEncryptionInterceptorTest {
-    static final String TEST_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
-    static final String TEST_PARTITION_NAME = "partition_key";
-    static final String TEST_SORT_NAME = "sort_key";
-    static final String TEST_ATTR_NAME = "attr1";
+    static DynamoDbEncryptionInterceptor interceptor;
 
-    public DynamoDbEncryptionInterceptor createInterceptor() {
-        MaterialProviders matProv = MaterialProviders.builder()
-                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-                .build();
-        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
-        CreateRawAesKeyringInput keyringInput = CreateRawAesKeyringInput.builder()
-                .keyName("name")
-                .keyNamespace("namespace")
-                .wrappingAlg(AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16)
-                .wrappingKey(key)
-                .build();
-        Keyring kmsKeyring = matProv.CreateRawAesKeyring(keyringInput);
-
-        Map<String, CryptoAction> actions = new HashMap<>();
-        actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);
-        actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
-        actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
-
-        Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME, DynamoDbTableEncryptionConfig.builder()
-                .partitionKeyName(TEST_PARTITION_NAME)
-                .sortKeyName(TEST_SORT_NAME)
-                .attributeActions(actions)
-                .keyring(kmsKeyring)
-                .build());
-
-        return DynamoDbEncryptionInterceptor.builder()
-                .config(DynamoDbEncryptionConfig.builder()
-                        .tableEncryptionConfigs(tableConfigs)
-                        .build())
-                .build();
-    }
-
-    public Map<String, AttributeValue> createTestItem() {
-        return createTestItem("partition", "42", "attr1");
-    }
-
-    public Map<String, AttributeValue> createTestItem(String partition, String sort, String attr) {
-        HashMap<String, AttributeValue> item = new HashMap<>();
-        item.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partition).build());
-        item.put(TEST_SORT_NAME, AttributeValue.builder().n(sort).build());
-        item.put(TEST_ATTR_NAME, AttributeValue.builder().s(attr).build());
-        return item;
+    @BeforeAll
+    public static void setup() {
+        interceptor = createInterceptor(createStaticKeyring());
     }
 
     @Test
     public void TestPutItemGetItemWithConditionExpression() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         PutItemRequest oldRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
                 .conditionExpression("foo")
@@ -97,8 +57,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestUpdateItemOnEncryptedTable() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         UpdateItemRequest oldRequest = UpdateItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
                 .build();
@@ -119,10 +77,9 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestUpdateItemOnNonEncryptedTable() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         UpdateItemRequest oldRequest = UpdateItemRequest.builder()
                 .tableName("otherTable")
+                .key(Collections.EMPTY_MAP) // TODO another case where 'key' is required by the server but not checked client side
                 .build();
 
         Context.ModifyRequest context = InterceptorContext.builder()
@@ -139,8 +96,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestTransactWriteItemsWithConditionCheck() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
                         TransactWriteItem.builder()
@@ -169,8 +124,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestTransactWriteItemsWithPutConditionExpression() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
                         TransactWriteItem.builder()
@@ -197,8 +150,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestTransactWriteItemsWithDeleteConditionExpression() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
                         TransactWriteItem.builder()
@@ -225,8 +176,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestTransactWriteItemsWithUpdateOnEncryptedTable() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
                         TransactWriteItem.builder()
@@ -252,8 +201,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestDeleteItemWithConditionExpression() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         DeleteItemRequest oldRequest = DeleteItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
                 .conditionExpression("foo")
@@ -275,10 +222,9 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestDeleteItemWithConditionExpressionNonEncryptedTable() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         DeleteItemRequest oldRequest = DeleteItemRequest.builder()
                 .tableName("otherTable")
+                .key(Collections.EMPTY_MAP) // TODO another case where 'key' is required by the server but not checked client side
                 .conditionExpression("foo")
                 .build();
 
@@ -296,8 +242,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestExecuteStatementOnEncryptedTable() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         ExecutionAttributes attributes = ExecutionAttributes.builder()
                 .put(SdkExecutionAttribute.OPERATION_NAME, "ExecuteStatement")
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
@@ -327,8 +271,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestExecuteStatementOnNonEncryptedTable() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         ExecuteStatementRequest oldRequest = ExecuteStatementRequest.builder()
                 .statement("SELECT * FROM otherTable")
                 .build();
@@ -347,8 +289,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestUnknownOperationRequest() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(PutItemRequest.builder().build())
                 .build();
@@ -365,8 +305,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestUnknownServiceRequest() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(PutItemRequest.builder().build())
                 .build();
@@ -391,8 +329,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestPutWithInvalidCryptoAction() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar");
         // Add an attribute not modelled in the crypto schema
         item.put("attr2", AttributeValue.fromS("attr2"));
@@ -417,8 +353,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestPutMissingPartition() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar");
         // Remove partition key from item
         item.remove(TEST_PARTITION_NAME);
@@ -443,8 +377,6 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestPutMissingSort() {
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor();
-
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar");
         // Remove partition key from item
         item.remove(TEST_SORT_NAME);
