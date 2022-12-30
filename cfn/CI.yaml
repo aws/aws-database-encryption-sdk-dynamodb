@@ -10,10 +10,6 @@ Parameters:
     Type: String
     Description: A prefix that will be applied to any names
     Default: DDBEC-Dafny
-  PolymorphCAStackName:
-    Type: String
-    Description: CFN Stack Name that created the Polymorph CA
-    Default: Polymorph-CA
   GitHubRepo:
     Type: String
     Description: GitHub Repo that invokes CI
@@ -86,7 +82,7 @@ Resources:
       RoleName: !Sub "GitHub-CI-${ProjectName}-Role-${AWS::Region}"
       Description: "Access DDB, KMS, & CA Resources for CI from GitHub"
       ManagedPolicyArns:
-        - Fn::ImportValue: !Sub "${CAStackName}-GitHubCAReadPolicyArn"
+        - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
         - !Ref KMSUsage
         - !Ref TestTableUsage
       AssumeRolePolicyDocument: !Sub |
