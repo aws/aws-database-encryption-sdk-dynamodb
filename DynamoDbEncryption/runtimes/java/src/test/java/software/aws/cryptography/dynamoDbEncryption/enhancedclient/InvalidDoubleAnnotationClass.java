@@ -9,13 +9,11 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
  */
 
 @DynamoDbBean
-public class SimpleClass {
+public class InvalidDoubleAnnotationClass {
 
     private String id;
     private String sortKey;
-    private String encryptAndSign;
-    private String doNothing;
-    private String signOnly;
+    private String invalid;
 
     @DynamoDbPartitionKey
     public String getId() {
@@ -35,29 +33,13 @@ public class SimpleClass {
         this.sortKey = sortKey;
     }
 
-    public String getEncryptAndSign() {
-        return this.encryptAndSign;
-    }
-
-    public void setEncryptAndSign(String encryptAndSign) {
-        this.encryptAndSign = encryptAndSign;
-    }
-
     @DynamoDbEncryptionSignOnly
-    public String getSignOnly() {
-        return this.signOnly;
-    }
-
-    public void setSignOnly(String signOnly) {
-        this.signOnly = signOnly;
-    }
-
     @DynamoDbEncryptionDoNothing
-    public String getDoNothing() {
-        return this.doNothing;
+    public String getInvalid() {
+        return this.invalid;
     }
 
-    public void setDoNothing(String doNothing) {
-        this.doNothing = doNothing;
+    public void setInvalid(String invalid) {
+        this.invalid = invalid;
     }
 }

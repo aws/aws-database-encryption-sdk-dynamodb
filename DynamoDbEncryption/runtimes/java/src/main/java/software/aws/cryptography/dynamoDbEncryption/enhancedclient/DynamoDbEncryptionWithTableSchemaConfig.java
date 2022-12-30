@@ -1,28 +1,25 @@
 package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 
 import java.util.List;
+import java.util.Objects;
+
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.Keyring;
 
-public class CreateDynamoDbEncryptionInterceptorWithTableSchemaInput {
-    private final String tableName;
+public class DynamoDbEncryptionWithTableSchemaConfig {
     private final TableSchema tableSchema;
     private final List<String> allowedUnauthenticatedAttributes;
     private final String allowedUnauthenticatedAttributePrefix;
     private final Keyring keyring;
     private final CryptographicMaterialsManager cmm;
 
-    protected CreateDynamoDbEncryptionInterceptorWithTableSchemaInput(BuilderImpl builder) {
-        this.tableName = builder.tableName();
+    protected DynamoDbEncryptionWithTableSchemaConfig(BuilderImpl builder) {
         this.tableSchema = builder.tableSchema();
         this.allowedUnauthenticatedAttributes = builder.allowedUnauthenticatedAttributes();
         this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
         this.keyring = builder.keyring();
         this.cmm = builder.cmm();
-    }
-    public String tableName() {
-        return this.tableName;
     }
 
     public TableSchema tableSchema() {
@@ -54,8 +51,6 @@ public class CreateDynamoDbEncryptionInterceptorWithTableSchemaInput {
     }
 
     public interface Builder {
-        Builder tableName(String tableName);
-        String tableName();
         Builder tableSchema(TableSchema tableSchema);
         TableSchema tableSchema();
         Builder allowedUnauthenticatedAttributes(List<String> allowedUnauthenticatedAttributes);
@@ -65,11 +60,10 @@ public class CreateDynamoDbEncryptionInterceptorWithTableSchemaInput {
         Builder keyring(Keyring keyring);
         Keyring keyring();
         CryptographicMaterialsManager cmm();
-        CreateDynamoDbEncryptionInterceptorWithTableSchemaInput build();
+        DynamoDbEncryptionWithTableSchemaConfig build();
     }
 
     protected static class BuilderImpl implements Builder {
-        protected String tableName;
         protected TableSchema tableSchema;
         protected List<String> allowedUnauthenticatedAttributes;
         protected String allowedUnauthenticatedAttributePrefix;
@@ -78,23 +72,12 @@ public class CreateDynamoDbEncryptionInterceptorWithTableSchemaInput {
         protected BuilderImpl() {
         }
 
-        protected BuilderImpl(CreateDynamoDbEncryptionInterceptorWithTableSchemaInput model) {
-            this.tableName = model.tableName();
+        protected BuilderImpl(DynamoDbEncryptionWithTableSchemaConfig model) {
             this.tableSchema = model.tableSchema();
             this.allowedUnauthenticatedAttributes = model.allowedUnauthenticatedAttributes();
             this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
             this.keyring = model.keyring();
             this.cmm = model.cmm();
-        }
-
-        public Builder tableName(
-                String tableName) {
-            this.tableName = tableName;
-            return this;
-        }
-
-        public String tableName() {
-            return this.tableName;
         }
 
         public Builder tableSchema(TableSchema tableSchema) {
@@ -143,8 +126,11 @@ public class CreateDynamoDbEncryptionInterceptorWithTableSchemaInput {
             return this.cmm;
         }
 
-        public CreateDynamoDbEncryptionInterceptorWithTableSchemaInput build() {
-            return new CreateDynamoDbEncryptionInterceptorWithTableSchemaInput(this);
+        public DynamoDbEncryptionWithTableSchemaConfig build() {
+            if (Objects.isNull(this.tableSchema())) {
+                throw new IllegalArgumentException("Missing value for required field `tableSchema`");
+            }
+            return new DynamoDbEncryptionWithTableSchemaConfig(this);
         }
     }
 }

@@ -6,12 +6,12 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
@@ -19,13 +19,17 @@ import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     @Test
     public void TestPutAndGet() {
-        TableSchema<SimpleClass> customerTableSchema = TableSchema.fromBean(SimpleClass.class);
+        TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put("SimpleClassTestTable",
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .tableSchema(tableSchema)
+                        .build());
         DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                        CreateDynamoDbEncryptionInterceptorWithTableSchemaInput.builder()
-                                .tableName("DynamoDbEncryptionEnhancedClientTestTable")
-                                .keyring(createStaticKeyring())
-                                .tableSchema(customerTableSchema)
+                        CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                                .tableEncryptionConfigs(tableConfigs)
                                 .build()
                 );
         DynamoDbClient ddb = DynamoDbClient.builder()
@@ -38,7 +42,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
                 .dynamoDbClient(ddb)
                 .build();
 
-        DynamoDbTable<SimpleClass> table = enhancedClient.table("DynamoDbEncryptionEnhancedClientTestTable", customerTableSchema);
+        DynamoDbTable<SimpleClass> table = enhancedClient.table("DynamoDbEncryptionEnhancedClientTestTable", tableSchema);
 
         SimpleClass record = new SimpleClass();
         record.setId("foo");

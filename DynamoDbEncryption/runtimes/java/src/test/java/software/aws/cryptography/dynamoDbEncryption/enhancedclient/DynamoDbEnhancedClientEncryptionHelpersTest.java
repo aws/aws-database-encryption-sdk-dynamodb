@@ -1,0 +1,109 @@
+package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
+
+import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
+import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createStaticKeyring;
+
+public class DynamoDbEnhancedClientEncryptionHelpersTest {
+    @Test
+    public void TestMultipleTables() {
+        TableSchema<SimpleClass> simpleSchema = TableSchema.fromBean(SimpleClass.class);
+        TableSchema<SignOnlyClass> signOnlySchema = TableSchema.fromBean(SignOnlyClass.class);
+        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put("SimpleClassTestTable",
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .tableSchema(simpleSchema)
+                        .build());
+        tableConfigs.put("SignOnlyClassTestTable",
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .tableSchema(signOnlySchema)
+                        .build());
+        DynamoDbEncryptionInterceptor interceptor =
+                DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
+                        CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                                .tableEncryptionConfigs(tableConfigs)
+                                .build()
+                );
+        assertEquals(2, interceptor.config().tableEncryptionConfigs().size());
+
+        DynamoDbTableEncryptionConfig simpleConfig = interceptor.config().tableEncryptionConfigs().get("SimpleClassTestTable");
+        assertEquals(CryptoAction.DO_NOTHING, simpleConfig.attributeActions().get("doNothing"));
+        assertEquals(CryptoAction.SIGN_ONLY, simpleConfig.attributeActions().get("signOnly"));
+        assertEquals(CryptoAction.SIGN_ONLY, simpleConfig.attributeActions().get("id"));
+        assertEquals(CryptoAction.SIGN_ONLY, simpleConfig.attributeActions().get("sortKey"));
+        assertEquals(CryptoAction.ENCRYPT_AND_SIGN, simpleConfig.attributeActions().get("encryptAndSign"));
+
+        DynamoDbTableEncryptionConfig signOnlyConfig = interceptor.config().tableEncryptionConfigs().get("SignOnlyClassTestTable");
+        assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("id"));
+        assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("attr1"));
+        assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("attr2"));
+    }
+
+    @Test
+    public void TestDoNothingOnPartitionAttribute() {
+        TableSchema<InvalidAnnotatedPartitionClass> tableSchema = TableSchema.fromBean(InvalidAnnotatedPartitionClass.class);
+        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .tableSchema(tableSchema)
+                        .build());
+        Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
+            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
+                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                            .tableEncryptionConfigs(tableConfigs)
+                            .build());
+        });
+        assertTrue(exception.getMessage().contains("Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."));
+    }
+
+    @Test
+    public void TestDoNothingOnSortAttribute() {
+        TableSchema<InvalidAnnotatedSortClass> tableSchema = TableSchema.fromBean(InvalidAnnotatedSortClass.class);
+        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .tableSchema(tableSchema)
+                        .build());
+        Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
+            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
+                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                            .tableEncryptionConfigs(tableConfigs)
+                            .build());
+        });
+        assertTrue(exception.getMessage().contains("Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."));
+    }
+
+    @Test
+    public void TestDoubleAnnotationOnAttribute() {
+        TableSchema<InvalidDoubleAnnotationClass> tableSchema = TableSchema.fromBean(InvalidDoubleAnnotationClass.class);
+        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .tableSchema(tableSchema)
+                        .build());
+        Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
+            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
+                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                            .tableEncryptionConfigs(tableConfigs)
+                            .build());
+        });
+        assertTrue(exception.getMessage().contains("Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute."));
+    }
+}
