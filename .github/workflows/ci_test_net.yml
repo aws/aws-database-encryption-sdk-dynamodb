@@ -59,6 +59,13 @@ jobs:
         working-directory: ./${{ matrix.library }}
         run: make setup_net
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Net-Tests
+
       - name: Compile ${{ matrix.library }} implementation
         shell: bash
         working-directory: ./${{ matrix.library }}

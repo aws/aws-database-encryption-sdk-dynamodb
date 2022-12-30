@@ -1,4 +1,4 @@
-# This workflow performs tests in .NET.
+# This workflow performs tests in Java.
 name: Library Java tests
 
 on: 
@@ -33,9 +33,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-west-2
-          # TODO: This role was manually created.
-          role-to-assume: arn:aws:iam::370957321024:role/DDBEC-Dafny-Private-CA-Read
-          role-session-name: JavaDDBECDafnyTests
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Java-Tests
 
       - uses: actions/checkout@v3
 
