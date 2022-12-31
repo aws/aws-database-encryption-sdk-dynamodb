@@ -1,14 +1,13 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
+import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.AesWrappingAlg;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.materialProviders.model.*;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import java.nio.ByteBuffer;
@@ -37,6 +36,20 @@ public class TestUtils {
         return matProv.CreateRawAesKeyring(keyringInput);
     }
 
+    public static Keyring createHierarchyKeyring() {
+        MaterialProviders matProv = MaterialProviders.builder()
+                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+                .build();
+        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
+        CreateAwsKmsHierarchyKeyringInput keyringInput = CreateAwsKmsHierarchyKeyringInput.builder()
+                .branchKeyId("myBranchKey")
+                .branchKeysTableName("HierarchyKeyringBranchKeyTestTable")
+                .ddbClient(DynamoDbClient.create())
+                .kmsClient(AWSKMSClientBuilder.standard().build())
+                .build();
+        return matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
+    }
+
     public static Keyring createKmsKeyring() {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
@@ -44,6 +57,7 @@ public class TestUtils {
         CreateAwsKmsMultiKeyringInput keyringInput = CreateAwsKmsMultiKeyringInput.builder()
                 .generator(KMS_TEST_KEY_ID)
                 .build();
+        CreateAwsKmsKeyringInput input = CreateAwsKmsKeyringInput.builder().kmsClient(AWSKMSClientBuilder.standard().build()).build();
         return matProv.CreateAwsKmsMultiKeyring(keyringInput);
     }
 

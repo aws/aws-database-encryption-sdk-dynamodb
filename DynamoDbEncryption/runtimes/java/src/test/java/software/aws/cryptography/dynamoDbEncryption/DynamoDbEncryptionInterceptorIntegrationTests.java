@@ -39,6 +39,10 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     }
 
     @Test
+    public void TestHierarchyKeyring() {
+    }
+
+    @Test
     public void TestPutItemGetItem() {
         // Put item into table
         String partitionValue = "foo";
