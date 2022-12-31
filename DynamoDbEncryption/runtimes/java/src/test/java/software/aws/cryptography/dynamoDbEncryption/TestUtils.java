@@ -54,11 +54,11 @@ public class TestUtils {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
-        CreateAwsKmsMultiKeyringInput keyringInput = CreateAwsKmsMultiKeyringInput.builder()
-                .generator(KMS_TEST_KEY_ID)
+        CreateAwsKmsKeyringInput keyringInput = CreateAwsKmsKeyringInput.builder()
+                .kmsClient(AWSKMSClientBuilder.standard().build())
+                .kmsKeyId(KMS_TEST_KEY_ID)
                 .build();
-        CreateAwsKmsKeyringInput input = CreateAwsKmsKeyringInput.builder().kmsClient(AWSKMSClientBuilder.standard().build()).build();
-        return matProv.CreateAwsKmsMultiKeyring(keyringInput);
+        return matProv.CreateAwsKmsKeyring(keyringInput);
     }
 
     public static DynamoDbEncryptionInterceptor createInterceptor(Map<String, CryptoAction> actions, Keyring keyring) {

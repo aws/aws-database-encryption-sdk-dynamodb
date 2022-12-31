@@ -3,8 +3,10 @@ package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 import java.util.List;
 import java.util.Objects;
 
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.Keyring;
 
 public class DynamoDbEncryptionWithTableSchemaConfig {
@@ -57,9 +59,8 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
         List<String> allowedUnauthenticatedAttributes();
         Builder allowedUnauthenticatedAttributePrefix(String allowedUnauthenticatedAttributePrefix);
         String allowedUnauthenticatedAttributePrefix();
-        Builder keyring(Keyring keyring);
-        Keyring keyring();
-        CryptographicMaterialsManager cmm();
+        <I extends IKeyring> Builder keyring(I keyring);
+        <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
         DynamoDbEncryptionWithTableSchemaConfig build();
     }
 
@@ -108,8 +109,8 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
             return this.allowedUnauthenticatedAttributePrefix;
         }
 
-        public Builder keyring(Keyring keyring) {
-            this.keyring = keyring;
+        public <I extends IKeyring> Builder keyring(I keyring) {
+            this.keyring = Keyring.create(keyring);
             return this;
         }
 
@@ -117,8 +118,8 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
             return this.keyring;
         }
 
-        public Builder cmm(CryptographicMaterialsManager cmm) {
-            this.cmm = cmm;
+        public <I extends ICryptographicMaterialsManager> Builder cmm(I cmm) {
+            this.cmm = CryptographicMaterialsManager.create(cmm);
             return this;
         }
 

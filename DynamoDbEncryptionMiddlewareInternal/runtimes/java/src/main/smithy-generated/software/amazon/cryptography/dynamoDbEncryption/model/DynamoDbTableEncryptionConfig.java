@@ -179,8 +179,8 @@ public class DynamoDbTableEncryptionConfig {
       return this.allowedUnauthenticatedAttributePrefix;
     }
 
-    public Builder keyring(Keyring keyring) {
-      this.keyring = keyring;
+    public <I extends IKeyring> Builder keyring(I keyring) {
+      this.keyring = Keyring.create(keyring);
       return this;
     }
 

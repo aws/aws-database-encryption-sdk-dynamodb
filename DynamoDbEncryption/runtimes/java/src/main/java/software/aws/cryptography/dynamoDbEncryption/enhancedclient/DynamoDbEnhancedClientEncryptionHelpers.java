@@ -69,11 +69,17 @@ public class DynamoDbEnhancedClientEncryptionHelpers {
             builder = builder.sortKeyName(sortName.get());
         }
 
+        if (!Objects.isNull(configWithSchema.keyring())) {
+            builder = builder.keyring(configWithSchema.keyring());
+        }
+
+        if (!Objects.isNull(configWithSchema.cmm())) {
+            builder = builder.cmm(configWithSchema.cmm());
+        }
+
         return builder.allowedUnauthenticatedAttributePrefix(configWithSchema.allowedUnauthenticatedAttributePrefix())
                 .allowedUnauthenticatedAttributes(configWithSchema.allowedUnauthenticatedAttributes())
                 .attributeActions(actions)
-                .keyring(configWithSchema.keyring())
-                .cmm(configWithSchema.cmm())
                 .build();
     }
 }
