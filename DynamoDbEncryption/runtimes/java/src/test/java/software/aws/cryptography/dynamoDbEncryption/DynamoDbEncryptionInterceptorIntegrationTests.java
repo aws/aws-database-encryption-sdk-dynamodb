@@ -40,7 +40,42 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     @Test
     public void TestHierarchyKeyring() {
-        // TODO
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(createInterceptor(createHierarchyKeyring()))
+                                .build())
+                .build();
+
+        // Put item into table
+        String partitionValue = "hierarchy";
+        String sortValue = "0";
+        String attrValue = "bar";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue);
+
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        PutItemResponse putResponse = ddb.putItem(putRequest);
+        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+
+        // Get Item back from table
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+
+        GetItemRequest getRequest = GetItemRequest.builder()
+                .key(keyToGet)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        GetItemResponse getResponse = ddb.getItem(getRequest);
+        assertEquals(200, getResponse.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem = getResponse.item();
+        assertNotNull(returnedItem);
+        assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
     }
 
     @Test
