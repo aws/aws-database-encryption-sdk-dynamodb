@@ -19,7 +19,7 @@ public class DynamoDbItemConversionIntegrationTests {
     @Test
     public void TestPutItemGetRichItem() {
         Map<String, CryptoAction> actions = new HashMap<>();
-        actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
         actions.put("Sattr", CryptoAction.SIGN_ONLY);
@@ -69,7 +69,7 @@ public class DynamoDbItemConversionIntegrationTests {
         item.put("Mattr", AttributeValue.fromM(mValue));
         item.put("Mattr-empty", AttributeValue.fromM(Collections.EMPTY_MAP));
 
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor(actions, createStaticKeyring());
+        DynamoDbEncryptionInterceptor interceptor = createInterceptor(actions, Arrays.asList(TEST_ATTR_NAME), createStaticKeyring());
         DynamoDbClient ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()

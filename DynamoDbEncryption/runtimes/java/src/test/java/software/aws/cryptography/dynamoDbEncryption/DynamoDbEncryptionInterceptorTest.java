@@ -328,6 +328,55 @@ public class DynamoDbEncryptionInterceptorTest {
     }
 
     @Test
+    public void TestBadCryptoActionOnPartitionKey() {
+        Map<String, CryptoAction> actions = new HashMap<>();
+        actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
+        actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
+        List<String> allowedUnauth = Arrays.asList(TEST_ATTR_NAME);
+
+        Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
+            createInterceptor(actions, allowedUnauth, createStaticKeyring());
+        });
+        assertTrue(exception.getMessage().contains("Partition key attribute action MUST be SIGN_ONLY"));
+    }
+
+    @Test
+    public void TestBadCryptoActionOnSortKey() {
+        Map<String, CryptoAction> actions = new HashMap<>();
+        actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
+        actions.put(TEST_SORT_NAME, CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
+        List<String> allowedUnauth = Arrays.asList(TEST_ATTR_NAME);
+
+        Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
+            createInterceptor(actions, allowedUnauth, createStaticKeyring());
+        });
+        assertTrue(exception.getMessage().contains("Sort key attribute action MUST be SIGN_ONLY"));
+    }
+
+    @Test
+    public void TestInconsistentSignatureScope() {
+        Map<String, CryptoAction> actions = new HashMap<>();
+        actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
+        actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
+        actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
+        List<String> allowedUnauth = Arrays.asList();
+
+        Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
+            createInterceptor(actions, allowedUnauth, createStaticKeyring());
+        });
+        assertTrue(exception.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_ATTR_NAME)));
+
+        List<String> allowedUnauth2 = Arrays.asList(TEST_ATTR_NAME, TEST_SORT_NAME);
+
+        Exception exception2 = assertThrows(DynamoDbItemEncryptorException.class, () -> {
+            createInterceptor(actions, allowedUnauth2, createStaticKeyring());
+        });
+        assertTrue(exception2.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_SORT_NAME)));
+    }
+
+    @Test
     public void TestPutWithInvalidCryptoAction() {
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar");
         // Add an attribute not modelled in the crypto schema

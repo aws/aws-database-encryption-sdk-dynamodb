@@ -10,6 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         tableConfigs.put("SimpleClassTestTable",
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
+                        .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(tableSchema)
                         .build());
         DynamoDbEncryptionInterceptor interceptor =

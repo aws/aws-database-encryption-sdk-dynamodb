@@ -11,16 +11,18 @@ import software.amazon.cryptography.materialProviders.model.*;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TestUtils {
-    static final String TEST_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
-    static final String TEST_PARTITION_NAME = "partition_key";
-    static final String TEST_SORT_NAME = "sort_key";
-    static final String TEST_ATTR_NAME = "attr1";
+    public static final String TEST_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
+    public static final String TEST_PARTITION_NAME = "partition_key";
+    public static final String TEST_SORT_NAME = "sort_key";
+    public static final String TEST_ATTR_NAME = "attr1";
 
-    static final String KMS_TEST_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    public static final String KMS_TEST_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
     public static Keyring createStaticKeyring() {
         MaterialProviders matProv = MaterialProviders.builder()
@@ -61,14 +63,17 @@ public class TestUtils {
         return matProv.CreateAwsKmsKeyring(keyringInput);
     }
 
-    public static DynamoDbEncryptionInterceptor createInterceptor(Map<String, CryptoAction> actions, Keyring keyring) {
+    public static DynamoDbEncryptionInterceptor createInterceptor(Map<String, CryptoAction> actions, List<String> allowedUnauth, Keyring keyring) {
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME, DynamoDbTableEncryptionConfig.builder()
+        DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder()
                 .partitionKeyName(TEST_PARTITION_NAME)
                 .sortKeyName(TEST_SORT_NAME)
                 .attributeActions(actions)
-                .keyring(keyring)
-                .build());
+                .keyring(keyring);
+        if (!allowedUnauth.isEmpty()) {
+            builder = builder.allowedUnauthenticatedAttributes(allowedUnauth);
+        }
+        tableConfigs.put(TEST_TABLE_NAME, builder.build());
 
         return DynamoDbEncryptionInterceptor.builder()
                 .config(DynamoDbEncryptionConfig.builder()
@@ -78,10 +83,11 @@ public class TestUtils {
     }
     public static DynamoDbEncryptionInterceptor createInterceptor(Keyring keyring) {
         Map<String, CryptoAction> actions = new HashMap<>();
-        actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
-        return createInterceptor(actions, keyring);
+        List<String> allowedUnauth = Arrays.asList(TEST_ATTR_NAME);
+        return createInterceptor(actions, allowedUnauth, keyring);
     }
 
     public static Map<String, AttributeValue> createTestItem(String partition, String sort, String attr) {

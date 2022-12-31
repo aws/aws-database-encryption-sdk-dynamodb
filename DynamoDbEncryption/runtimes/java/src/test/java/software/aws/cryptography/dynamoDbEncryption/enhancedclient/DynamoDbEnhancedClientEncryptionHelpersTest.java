@@ -7,9 +7,12 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +28,7 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
         tableConfigs.put("SimpleClassTestTable",
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
+                        .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
                         .build());
         tableConfigs.put("SignOnlyClassTestTable",
@@ -69,6 +73,42 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
                             .build());
         });
         assertTrue(exception.getMessage().contains("Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."));
+    }
+
+    @Test
+    public void TestInconsistentSignatureScope() {
+        TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+
+        // Do not specify Unauthenticated attributes when you should
+        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .tableSchema(tableSchema)
+                        .build());
+        Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
+            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
+                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                            .tableEncryptionConfigs(tableConfigs)
+                            .build());
+        });
+        assertTrue(exception.getMessage().contains("Attribute: doNothing configuration not compatible with unauthenticated configuration."));
+
+        // Specify Unauthenticated attributes when you should not
+        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs2 = new HashMap<>();
+        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .allowedUnauthenticatedAttributes(Arrays.asList("doNothing", "id"))
+                        .tableSchema(tableSchema)
+                        .build());
+        Exception exception2 = assertThrows(DynamoDbItemEncryptorException.class, () -> {
+            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
+                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                            .tableEncryptionConfigs(tableConfigs)
+                            .build());
+        });
+        assertTrue(exception2.getMessage().contains("Attribute: id configuration not compatible with unauthenticated configuration."));
     }
 
     @Test
