@@ -12,6 +12,7 @@ module TestFixtures {
   import DynamoDbEncryption
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
+  import CSE = AwsCryptographyStructuredEncryptionTypes
 
   method GetStaticKeyring()
       returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
@@ -43,7 +44,7 @@ module TestFixtures {
           "foo" := DynamoDbTableEncryptionConfig(
             partitionKeyName := "bar",
             sortKeyName := None(),
-            attributeActions := map[],
+            attributeActions := map["bar" := CSE.SIGN_ONLY],
             allowedUnauthenticatedAttributes := None(),
             allowedUnauthenticatedAttributePrefix := None(),
             keyring := Some(keyring),

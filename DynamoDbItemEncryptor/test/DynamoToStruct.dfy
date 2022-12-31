@@ -158,7 +158,7 @@ module DynamoToStructTest {
     expect newBinaryValue.Success?;
     expect newBinaryValue.value == binaryValue;
 
-    var nullValue := AttributeValue.NULL(false);
+    var nullValue := AttributeValue.NULL(true);
     var encodedNullData := StructuredDataTerminal(value := [], typeId := [0,0]);
     var encodedNullValue := StructuredData(content := Terminal(encodedNullData), attributes := None);
     var nullStruct := AttrToStructured(nullValue);
@@ -287,7 +287,7 @@ module DynamoToStructTest {
     var val2 := AttributeValue.N("12345");
     var val3 := AttributeValue.B([1,2,3,4,5]);
     var val4 := AttributeValue.BOOL(true);
-    var val5 := AttributeValue.NULL(false);
+    var val5 := AttributeValue.NULL(true);
     var val6 := AttributeValue.BS([[1,2,3,4,5],[2,3,4,5,6],[3,4,5,6,7]]);
     var val7 := AttributeValue.SS(["ab","cdef","ghijk"]);
     var val8 := AttributeValue.NS(["1","234.567","0"]);
