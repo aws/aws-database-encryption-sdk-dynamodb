@@ -1,12 +1,16 @@
 package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
+import com.amazonaws.services.kms.AWSKMS;
+import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
@@ -14,6 +18,7 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.ENHANCED_CLIENT_TEST_TABLE_NAME;
@@ -55,6 +60,39 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("id"));
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("attr1"));
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("attr2"));
+    }
+
+    @Test
+    public void TestCreateAcceptsLegacyConfig() {
+        // Encryptor creation
+        AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
+        final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(kmsClient, "kmsKeyARN");
+        final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
+        final Map<String, Set<EncryptionFlags>> oldActions = new HashMap<>();
+
+        TableSchema<SimpleClass> simpleSchema = TableSchema.fromBean(SimpleClass.class);
+        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(ENHANCED_CLIENT_TEST_TABLE_NAME,
+                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
+                        .tableSchema(simpleSchema)
+                        .legacyConfig(
+                                LegacyConfig.builder()
+                                        .legacyEncryptor(LegacyDynamoDbItemEncryptor.builder()
+                                                .encryptor(oldEncryptor)
+                                                .attributeFlags(oldActions)
+                                                .build())
+                                        .legacyPolicy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
+                                        .build())
+                        .build());
+        DynamoDbEncryptionInterceptor interceptor =
+                DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
+                        CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                                .tableEncryptionConfigs(tableConfigs)
+                                .build()
+                );
+        assertNotNull(interceptor);
     }
 
     @Test

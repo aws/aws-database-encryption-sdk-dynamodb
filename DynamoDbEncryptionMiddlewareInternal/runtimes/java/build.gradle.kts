@@ -64,6 +64,7 @@ dependencies {
     implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.368")
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")
+    implementation("com.amazonaws:aws-dynamodb-encryption-java:2.0.3")
 }
 
 publishing {

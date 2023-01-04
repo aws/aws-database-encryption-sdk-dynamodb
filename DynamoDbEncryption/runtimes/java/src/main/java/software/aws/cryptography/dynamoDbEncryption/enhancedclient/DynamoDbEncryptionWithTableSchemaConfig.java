@@ -3,6 +3,8 @@ package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 import java.util.List;
 import java.util.Objects;
 
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
@@ -15,6 +17,8 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
     private final String allowedUnauthenticatedAttributePrefix;
     private final Keyring keyring;
     private final CryptographicMaterialsManager cmm;
+    private final LegacyConfig legacyConfig;
+
 
     protected DynamoDbEncryptionWithTableSchemaConfig(BuilderImpl builder) {
         this.tableSchema = builder.tableSchema();
@@ -22,6 +26,8 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
         this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
         this.keyring = builder.keyring();
         this.cmm = builder.cmm();
+        this.legacyConfig = builder.legacyConfig();
+
     }
 
     public TableSchema tableSchema() {
@@ -44,6 +50,10 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
         return this.cmm;
     }
 
+    public LegacyConfig legacyConfig() {
+        return this.legacyConfig;
+    }
+
     public Builder toBuilder() {
         return new BuilderImpl(this);
     }
@@ -61,6 +71,8 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
         String allowedUnauthenticatedAttributePrefix();
         <I extends IKeyring> Builder keyring(I keyring);
         <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
+        Builder legacyConfig(LegacyConfig legacyConfig);
+        LegacyConfig legacyConfig();
         DynamoDbEncryptionWithTableSchemaConfig build();
     }
 
@@ -70,6 +82,7 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
         protected String allowedUnauthenticatedAttributePrefix;
         protected Keyring keyring;
         protected CryptographicMaterialsManager cmm;
+        protected LegacyConfig legacyConfig;
         protected BuilderImpl() {
         }
 
@@ -79,6 +92,7 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
             this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
             this.keyring = model.keyring();
             this.cmm = model.cmm();
+            this.legacyConfig = model.legacyConfig();
         }
 
         public Builder tableSchema(TableSchema tableSchema) {
@@ -125,6 +139,15 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
 
         public CryptographicMaterialsManager cmm() {
             return this.cmm;
+        }
+
+        public Builder legacyConfig(LegacyConfig legacyConfig) {
+            this.legacyConfig = legacyConfig;
+            return this;
+        }
+
+        public LegacyConfig legacyConfig() {
+            return this.legacyConfig;
         }
 
         public DynamoDbEncryptionWithTableSchemaConfig build() {
