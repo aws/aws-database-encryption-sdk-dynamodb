@@ -3,10 +3,10 @@ package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 import java.util.Map;
 import java.util.Objects;
 
-public class CreateDynamoDbEncryptionInterceptorWithTableSchemasInput {
+public class CreateDynamoDbEncryptionInterceptorInput {
     private final Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs;
 
-    protected CreateDynamoDbEncryptionInterceptorWithTableSchemasInput(BuilderImpl builder) {
+    protected CreateDynamoDbEncryptionInterceptorInput(BuilderImpl builder) {
         this.tableEncryptionConfigs = builder.tableEncryptionConfigs();
     }
 
@@ -28,7 +28,7 @@ public class CreateDynamoDbEncryptionInterceptorWithTableSchemasInput {
 
         Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs();
 
-        CreateDynamoDbEncryptionInterceptorWithTableSchemasInput build();
+        CreateDynamoDbEncryptionInterceptorInput build();
     }
 
     static class BuilderImpl implements Builder {
@@ -37,7 +37,7 @@ public class CreateDynamoDbEncryptionInterceptorWithTableSchemasInput {
         protected BuilderImpl() {
         }
 
-        protected BuilderImpl(CreateDynamoDbEncryptionInterceptorWithTableSchemasInput model) {
+        protected BuilderImpl(CreateDynamoDbEncryptionInterceptorInput model) {
             this.tableEncryptionConfigs = model.tableEncryptionConfigs();
         }
 
@@ -51,11 +51,11 @@ public class CreateDynamoDbEncryptionInterceptorWithTableSchemasInput {
             return this.tableEncryptionConfigs;
         }
 
-        public CreateDynamoDbEncryptionInterceptorWithTableSchemasInput build() {
+        public CreateDynamoDbEncryptionInterceptorInput build() {
             if (Objects.isNull(this.tableEncryptionConfigs())) {
                 throw new IllegalArgumentException("Missing value for required field `tableEncryptionConfigs`");
             }
-            return new CreateDynamoDbEncryptionInterceptorWithTableSchemasInput(this);
+            return new CreateDynamoDbEncryptionInterceptorInput(this);
         }
     }
 }

@@ -30,8 +30,8 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
                         .tableSchema(tableSchema)
                         .build());
         DynamoDbEncryptionInterceptor interceptor =
-                DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                        CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                        CreateDynamoDbEncryptionInterceptorInput.builder()
                                 .tableEncryptionConfigs(tableConfigs)
                                 .build()
                 );

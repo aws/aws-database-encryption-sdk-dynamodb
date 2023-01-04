@@ -7,9 +7,6 @@ import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
@@ -24,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.TEST_TABLE_NAME;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createStaticKeyring;
 
-public class DynamoDbEnhancedClientEncryptionHelpersTest {
+public class DynamoDbEnhancedClientEncryptionTest {
     @Test
     public void TestMultipleTables() {
         TableSchema<SimpleClass> simpleSchema = TableSchema.fromBean(SimpleClass.class);
@@ -42,8 +39,8 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
                         .tableSchema(signOnlySchema)
                         .build());
         DynamoDbEncryptionInterceptor interceptor =
-                DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                        CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                        CreateDynamoDbEncryptionInterceptorInput.builder()
                                 .tableEncryptionConfigs(tableConfigs)
                                 .build()
                 );
@@ -87,8 +84,8 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
                                         .build())
                         .build());
         DynamoDbEncryptionInterceptor interceptor =
-                DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                        CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                        CreateDynamoDbEncryptionInterceptorInput.builder()
                                 .tableEncryptionConfigs(tableConfigs)
                                 .build()
                 );
@@ -105,8 +102,8 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
                         .tableSchema(tableSchema)
                         .build());
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
-            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                    CreateDynamoDbEncryptionInterceptorInput.builder()
                             .tableEncryptionConfigs(tableConfigs)
                             .build());
         });
@@ -125,8 +122,8 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
                         .tableSchema(tableSchema)
                         .build());
         Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
-            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                    CreateDynamoDbEncryptionInterceptorInput.builder()
                             .tableEncryptionConfigs(tableConfigs)
                             .build());
         });
@@ -141,8 +138,8 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
                         .tableSchema(tableSchema)
                         .build());
         Exception exception2 = assertThrows(DynamoDbItemEncryptorException.class, () -> {
-            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                    CreateDynamoDbEncryptionInterceptorInput.builder()
                             .tableEncryptionConfigs(tableConfigs)
                             .build());
         });
@@ -159,8 +156,8 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
                         .tableSchema(tableSchema)
                         .build());
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
-            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                    CreateDynamoDbEncryptionInterceptorInput.builder()
                             .tableEncryptionConfigs(tableConfigs)
                             .build());
         });
@@ -177,8 +174,8 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
                         .tableSchema(tableSchema)
                         .build());
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
-            DynamoDbEnhancedClientEncryptionHelpers.CreateDynamoDbEncryptionInterceptorWithTableSchema(
-                    CreateDynamoDbEncryptionInterceptorWithTableSchemasInput.builder()
+            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                    CreateDynamoDbEncryptionInterceptorInput.builder()
                             .tableEncryptionConfigs(tableConfigs)
                             .build());
         });

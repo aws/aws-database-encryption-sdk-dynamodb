@@ -3,7 +3,6 @@ package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
 
@@ -13,9 +12,9 @@ import java.util.stream.Collectors;
 import static software.aws.cryptography.dynamoDbEncryption.enhancedclient.DoNothingTag.CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX;
 import static software.aws.cryptography.dynamoDbEncryption.enhancedclient.SignOnlyTag.CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX;
 
-public class DynamoDbEnhancedClientEncryptionHelpers {
-    public static DynamoDbEncryptionInterceptor CreateDynamoDbEncryptionInterceptorWithTableSchema(
-            CreateDynamoDbEncryptionInterceptorWithTableSchemasInput input) {
+public class DynamoDbEnhancedClientEncryption {
+    public static DynamoDbEncryptionInterceptor CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput input) {
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         for (String tableName : input.tableEncryptionConfigs().keySet()) {
             tableConfigs.put(tableName, getTableConfig(input.tableEncryptionConfigs().get(tableName)));
