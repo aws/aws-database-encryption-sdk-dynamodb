@@ -27,7 +27,7 @@ public class DynamoDbEnhancedClientEncryption {
                 .build();
     }
 
-    private static DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEncryptionWithTableSchemaConfig configWithSchema) {
+    private static DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEnhancedTableEncryptionConfig configWithSchema) {
         Map<String, CryptoAction> actions = new HashMap<>();
 
         Set<String> signOnlyAttributes = configWithSchema.tableSchema().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class).orElseGet(HashSet::new);

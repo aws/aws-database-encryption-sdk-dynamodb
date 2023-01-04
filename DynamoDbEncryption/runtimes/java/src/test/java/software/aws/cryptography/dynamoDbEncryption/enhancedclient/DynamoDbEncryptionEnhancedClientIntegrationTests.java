@@ -22,9 +22,9 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     @Test
     public void TestPutAndGet() {
         TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
-        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
-                DynamoDbEncryptionWithTableSchemaConfig.builder()
+                DynamoDbEnhancedTableEncryptionConfig.builder()
                         .keyring(createStaticKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(tableSchema)

@@ -3,7 +3,6 @@ package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 import java.util.List;
 import java.util.Objects;
 
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -11,7 +10,7 @@ import software.amazon.cryptography.materialProviders.CryptographicMaterialsMana
 import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.Keyring;
 
-public class DynamoDbEncryptionWithTableSchemaConfig {
+public class DynamoDbEnhancedTableEncryptionConfig {
     private final TableSchema tableSchema;
     private final List<String> allowedUnauthenticatedAttributes;
     private final String allowedUnauthenticatedAttributePrefix;
@@ -20,7 +19,7 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
     private final LegacyConfig legacyConfig;
 
 
-    protected DynamoDbEncryptionWithTableSchemaConfig(BuilderImpl builder) {
+    protected DynamoDbEnhancedTableEncryptionConfig(BuilderImpl builder) {
         this.tableSchema = builder.tableSchema();
         this.allowedUnauthenticatedAttributes = builder.allowedUnauthenticatedAttributes();
         this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
@@ -73,7 +72,7 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
         <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
         Builder legacyConfig(LegacyConfig legacyConfig);
         LegacyConfig legacyConfig();
-        DynamoDbEncryptionWithTableSchemaConfig build();
+        DynamoDbEnhancedTableEncryptionConfig build();
     }
 
     protected static class BuilderImpl implements Builder {
@@ -86,7 +85,7 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
         protected BuilderImpl() {
         }
 
-        protected BuilderImpl(DynamoDbEncryptionWithTableSchemaConfig model) {
+        protected BuilderImpl(DynamoDbEnhancedTableEncryptionConfig model) {
             this.tableSchema = model.tableSchema();
             this.allowedUnauthenticatedAttributes = model.allowedUnauthenticatedAttributes();
             this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
@@ -150,11 +149,11 @@ public class DynamoDbEncryptionWithTableSchemaConfig {
             return this.legacyConfig;
         }
 
-        public DynamoDbEncryptionWithTableSchemaConfig build() {
+        public DynamoDbEnhancedTableEncryptionConfig build() {
             if (Objects.isNull(this.tableSchema())) {
                 throw new IllegalArgumentException("Missing value for required field `tableSchema`");
             }
-            return new DynamoDbEncryptionWithTableSchemaConfig(this);
+            return new DynamoDbEnhancedTableEncryptionConfig(this);
         }
     }
 }

@@ -1,6 +1,5 @@
 package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Consumer;
 

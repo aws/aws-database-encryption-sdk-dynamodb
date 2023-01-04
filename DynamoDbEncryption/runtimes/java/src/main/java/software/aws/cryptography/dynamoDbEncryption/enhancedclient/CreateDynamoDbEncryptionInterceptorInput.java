@@ -4,13 +4,13 @@ import java.util.Map;
 import java.util.Objects;
 
 public class CreateDynamoDbEncryptionInterceptorInput {
-    private final Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs;
+    private final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableEncryptionConfigs;
 
     protected CreateDynamoDbEncryptionInterceptorInput(BuilderImpl builder) {
         this.tableEncryptionConfigs = builder.tableEncryptionConfigs();
     }
 
-    public Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs() {
+    public Map<String, DynamoDbEnhancedTableEncryptionConfig> tableEncryptionConfigs() {
         return this.tableEncryptionConfigs;
     }
 
@@ -24,15 +24,15 @@ public class CreateDynamoDbEncryptionInterceptorInput {
 
     public interface Builder {
         Builder tableEncryptionConfigs(
-                Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs);
+                Map<String, DynamoDbEnhancedTableEncryptionConfig> tableEncryptionConfigs);
 
-        Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs();
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableEncryptionConfigs();
 
         CreateDynamoDbEncryptionInterceptorInput build();
     }
 
     static class BuilderImpl implements Builder {
-        protected Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs;
+        protected Map<String, DynamoDbEnhancedTableEncryptionConfig> tableEncryptionConfigs;
 
         protected BuilderImpl() {
         }
@@ -42,12 +42,12 @@ public class CreateDynamoDbEncryptionInterceptorInput {
         }
 
         public Builder tableEncryptionConfigs(
-                Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs) {
+                Map<String, DynamoDbEnhancedTableEncryptionConfig> tableEncryptionConfigs) {
             this.tableEncryptionConfigs = tableEncryptionConfigs;
             return this;
         }
 
-        public Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableEncryptionConfigs() {
+        public Map<String, DynamoDbEnhancedTableEncryptionConfig> tableEncryptionConfigs() {
             return this.tableEncryptionConfigs;
         }
 
