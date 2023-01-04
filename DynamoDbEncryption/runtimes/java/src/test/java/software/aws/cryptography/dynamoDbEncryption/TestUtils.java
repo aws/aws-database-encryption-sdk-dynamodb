@@ -1,6 +1,7 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
@@ -38,15 +39,22 @@ public class TestUtils {
         return matProv.CreateRawAesKeyring(keyringInput);
     }
 
-    public static IKeyring createKmsKeyring() {
+    public static IKeyring createHierarchicalKeyring() {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
-        CreateAwsKmsKeyringInput keyringInput = CreateAwsKmsKeyringInput.builder()
-                .kmsClient(AWSKMSClientBuilder.standard().build())
+        // TODO for now these inputs are just to pass initial validation,
+        // no actual hierarchical logic is exercised.
+        CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
+                .kmsClient(AWSKMSClientBuilder.defaultClient())
                 .kmsKeyId(KMS_TEST_KEY_ID)
+                .branchKeyId("myBranchKey")
+                .branchKeysTableName("branch-keys-table")
+                .ddbClient(DynamoDbClient.create())
+                .ttlMilliseconds(6000l)
+                .maxCacheSize(100)
                 .build();
-        return matProv.CreateAwsKmsKeyring(keyringInput);
+        return matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
     }
 
     public static DynamoDbEncryptionInterceptor createInterceptor(Map<String, CryptoAction> actions, List<String> allowedUnauth, IKeyring keyring) {
