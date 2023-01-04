@@ -17,12 +17,13 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
+// TODO test various schema updates
 public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     @Test
     public void TestPutAndGet() {
         TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
         Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put("SimpleClassTestTable",
+        tableConfigs.put(ENHANCED_CLIENT_TEST_TABLE_NAME,
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
@@ -44,7 +45,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
                 .dynamoDbClient(ddb)
                 .build();
 
-        DynamoDbTable<SimpleClass> table = enhancedClient.table("DynamoDbEncryptionEnhancedClientTestTable", tableSchema);
+        DynamoDbTable<SimpleClass> table = enhancedClient.table(ENHANCED_CLIENT_TEST_TABLE_NAME, tableSchema);
 
         SimpleClass record = new SimpleClass();
         record.setId("foo");

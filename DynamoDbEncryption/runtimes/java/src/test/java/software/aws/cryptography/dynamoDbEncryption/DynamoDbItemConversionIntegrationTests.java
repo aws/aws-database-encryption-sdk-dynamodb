@@ -3,6 +3,7 @@ package software.aws.cryptography.dynamoDbEncryption;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.util.DefaultSdkAutoConstructList;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
@@ -21,20 +22,21 @@ public class DynamoDbItemConversionIntegrationTests {
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
-        actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
-        actions.put("Sattr", CryptoAction.SIGN_ONLY);
-        actions.put("Nattr", CryptoAction.SIGN_ONLY);
-        actions.put("Battr", CryptoAction.SIGN_ONLY);
-        actions.put("SSattr", CryptoAction.SIGN_ONLY);
-        actions.put("NSattr", CryptoAction.SIGN_ONLY);
-        actions.put("BSattr", CryptoAction.SIGN_ONLY);
-        actions.put("Lattr", CryptoAction.SIGN_ONLY);
-        actions.put("Lattr-empty", CryptoAction.SIGN_ONLY);
-        actions.put("Mattr", CryptoAction.SIGN_ONLY);
-        actions.put("Mattr-empty", CryptoAction.SIGN_ONLY);
-        actions.put("BOOLattr-true", CryptoAction.SIGN_ONLY);
-        actions.put("BOOLattr-false", CryptoAction.SIGN_ONLY);
-        actions.put("NULattr", CryptoAction.SIGN_ONLY);
+        actions.put(TEST_ATTR_NAME, CryptoAction.SIGN_ONLY);
+        actions.put(TEST_ATTR2_NAME, CryptoAction.DO_NOTHING);
+        actions.put("Sattr", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("Nattr", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("Battr", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("SSattr", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("NSattr", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("BSattr", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("Lattr", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("Lattr-empty", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("Mattr", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("Mattr-empty", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("BOOLattr-true", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("BOOLattr-false", CryptoAction.ENCRYPT_AND_SIGN);
+        actions.put("NULattr", CryptoAction.ENCRYPT_AND_SIGN);
 
         String sValue = "Sattr";
         String sValue2 = "";
@@ -54,7 +56,7 @@ public class DynamoDbItemConversionIntegrationTests {
         mValue.put("M:Sattr", AttributeValue.fromS(sValue2));
         mValue.put("M:Battr", AttributeValue.fromB(bValue2));
 
-        Map<String, AttributeValue> item = createTestItem("foo", "42", "bar");
+        Map<String, AttributeValue> item = createTestItem("foo", "42", "bar", "awol");
         item.put("Sattr", AttributeValue.fromS(sValue));
         item.put("Nattr", AttributeValue.fromN(nValue));
         item.put("Battr", AttributeValue.fromB(bValue));
@@ -69,7 +71,7 @@ public class DynamoDbItemConversionIntegrationTests {
         item.put("Mattr", AttributeValue.fromM(mValue));
         item.put("Mattr-empty", AttributeValue.fromM(Collections.EMPTY_MAP));
 
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor(actions, Arrays.asList(TEST_ATTR_NAME), createStaticKeyring());
+        DynamoDbEncryptionInterceptor interceptor = createInterceptor(actions, Arrays.asList(TEST_ATTR2_NAME), createStaticKeyring());
         DynamoDbClient ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -89,13 +91,56 @@ public class DynamoDbItemConversionIntegrationTests {
         PutItemResponse putResponse = ddb.putItem(putRequest);
         assertEquals(200, putResponse.sdkHttpResponse().statusCode());
 
-        // Get Item back from table
+        // Using a client with the DDBEncryptionInterceptor, ensure that attributes have been "encrypted"
+        DynamoDbClient ddbWithoutDecryption = DynamoDbClient.create();
+
         Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
 
         GetItemRequest getRequest = GetItemRequest.builder()
                 .key(keyToGet)
                 .tableName(TEST_TABLE_NAME)
                 .build();
+        GetItemResponse encryptedGetResponse = ddbWithoutDecryption.getItem(getRequest);
+        Map<String, AttributeValue> encryptedItem = encryptedGetResponse.item();
+        assertNotNull(encryptedItem);
+        assertEquals(partitionValue, encryptedItem.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, encryptedItem.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, encryptedItem.get(TEST_ATTR_NAME).s());
+
+        // Check Simple Types
+        assertNotEquals(sValue, encryptedItem.get("Sattr").s());
+        assertNull(encryptedItem.get("Nattr").n());
+        assertNotEquals(nValue, encryptedItem.get("Nattr").s());
+        assertNull(encryptedItem.get("Battr").b());
+        assertNotNull(encryptedItem.get("Battr").s());
+        assertNull(encryptedItem.get("BOOLattr-true").bool());
+        assertNotNull(encryptedItem.get("BOOLattr-true").s());
+        assertNull(encryptedItem.get("BOOLattr-false").bool());
+        assertNotNull(encryptedItem.get("BOOLattr-false").s());
+        assertNull(encryptedItem.get("NULattr").nul());
+        assertNotNull(encryptedItem.get("NULattr").s());
+
+        // Check Sets
+        assertEquals(0, encryptedItem.get("SSattr").ss().size());
+        assertNotNull(encryptedItem.get("SSattr").s());
+        assertEquals(0, encryptedItem.get("NSattr").ss().size());
+        assertNotNull(encryptedItem.get("NSattr").s());
+        assertEquals(0, encryptedItem.get("BSattr").ss().size());
+        assertNotNull(encryptedItem.get("BSattr").s());
+
+        // Check List
+        assertEquals(0, encryptedItem.get("Lattr").l().size());
+        assertNotNull(encryptedItem.get("Lattr").s());
+        assertEquals(0, encryptedItem.get("Lattr-empty").l().size());
+        assertNotNull(encryptedItem.get("Lattr-empty").s());
+
+        // Check Map
+        assertEquals(0, encryptedItem.get("Mattr").m().size());
+        assertNotNull(encryptedItem.get("Mattr").s());
+        assertEquals(0, encryptedItem.get("Mattr-empty").m().size());
+        assertNotNull(encryptedItem.get("Mattr-empty").s());
+
+        // Get Item back from table using Interceptor
 
         GetItemResponse getResponse = ddb.getItem(getRequest);
         assertEquals(200, getResponse.sdkHttpResponse().statusCode());

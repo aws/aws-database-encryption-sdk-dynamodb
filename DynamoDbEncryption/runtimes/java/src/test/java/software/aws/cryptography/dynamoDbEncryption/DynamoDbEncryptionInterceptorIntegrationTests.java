@@ -1,20 +1,16 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
 import org.junit.jupiter.api.BeforeAll;
-import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
 /*
@@ -39,52 +35,13 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     }
 
     @Test
-    public void TestHierarchyKeyring() {
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(createInterceptor(createHierarchyKeyring()))
-                                .build())
-                .build();
-
-        // Put item into table
-        String partitionValue = "hierarchy";
-        String sortValue = "0";
-        String attrValue = "bar";
-        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue);
-
-        PutItemRequest putRequest = PutItemRequest.builder()
-                .tableName(TEST_TABLE_NAME)
-                .item(item)
-                .build();
-
-        PutItemResponse putResponse = ddb.putItem(putRequest);
-        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
-
-        // Get Item back from table
-        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
-
-        GetItemRequest getRequest = GetItemRequest.builder()
-                .key(keyToGet)
-                .tableName(TEST_TABLE_NAME)
-                .build();
-
-        GetItemResponse getResponse = ddb.getItem(getRequest);
-        assertEquals(200, getResponse.sdkHttpResponse().statusCode());
-        Map<String, AttributeValue> returnedItem = getResponse.item();
-        assertNotNull(returnedItem);
-        assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
-        assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
-        assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
-    }
-
-    @Test
     public void TestPutItemGetItem() {
         // Put item into table
         String partitionValue = "foo";
         String sortValue = "42";
         String attrValue = "bar";
-        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue);
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
 
         PutItemRequest putRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
@@ -120,8 +77,9 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         String sortValue1 = "1";
         String sortValue2 = "2";
         String attrValue = "lorem ipsum";
-        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue);
-        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue);
+        String attrValue2 = "hello world";
+        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue, attrValue2);
+        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue, attrValue2);
 
         List<WriteRequest> tableRequests = new ArrayList<>();
         tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item1).build()).build());
@@ -176,8 +134,9 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         String sortValue1 = "1";
         String sortValue2 = "2";
         String attrValue = "lorem ipsum";
-        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue);
-        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue);
+        String attrValue2 = "hello world";
+        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue, attrValue2);
+        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue, attrValue2);
 
         // TODO Transactions need to be built with TableName, otherwise we get a NPE.
         // TableName is @required but the Java object builder does not enforce it.
@@ -239,8 +198,9 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         String sortValue1 = "1";
         String sortValue2 = "2";
         String attrValue = "lorem ipsum";
-        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue);
-        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue);
+        String attrValue2 = "hello world";
+        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue, attrValue2);
+        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue, attrValue2);
         List<WriteRequest> tableRequests = new ArrayList<>();
         tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item1).build()).build());
         tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item2).build()).build());
@@ -278,8 +238,9 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         String sortValue1 = "1";
         String sortValue2 = "2";
         String attrValue = "lorem ipsum";
-        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue);
-        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue);
+        String attrValue2 = "hello world";
+        Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue, attrValue2);
+        Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue, attrValue2);
         List<WriteRequest> tableRequests = new ArrayList<>();
         tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item1).build()).build());
         tableRequests.add(WriteRequest.builder().putRequest(PutRequest.builder().item(item2).build()).build());

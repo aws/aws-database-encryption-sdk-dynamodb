@@ -75,13 +75,14 @@ module DynamoDbItemEncryptorTest {
     expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Sort key sort not found in Item to be encrypted or decrypted");
   }
 
-/*
   method {:test} TestEncryptItem() {
-    // Create the Item Encryptor
     var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
-    
-    // This method is currently stubbed, so it doesn't matter what our input is
-    var inputItem := map[];
+    var inputItem := map[
+      "bar" := DDBS("key"),
+      "encrypt" := DDBS(TestFixtures.TEST_STRING_TO_ENCRYPT),
+      "sign" := DDBS("bar"),
+      "nothing" := DDBS("baz")
+    ];
 
     var encryptRes := encryptor.EncryptItem(
       Types.EncryptItemInput(
@@ -89,11 +90,12 @@ module DynamoDbItemEncryptorTest {
       )
     );
 
-    // We know what to expect back from our stubbed data
+    // Ensure the "encrypted" attribute is as expected
     var expectedItem := map[
-      "foo" := DDB.AttributeValue.B(BinaryAttributeValue:=TestFixtures.EXPECTED_STUBBED_BLOB),
-      "bar" := DDB.AttributeValue.B(BinaryAttributeValue:=TestFixtures.EXPECTED_STUBBED_BLOB),
-      "fizzbuzz" := DDB.AttributeValue.B(BinaryAttributeValue:=TestFixtures.EXPECTED_STUBBED_BLOB)
+      "bar" := DDBS("key"),
+      "encrypt" := DDBS(TestFixtures.TEST_FAKE_ENCRYPTED_STRING),
+      "sign" := DDBS("bar"),
+      "nothing" := DDBS("baz")
     ];
 
     expect encryptRes.Success?;
@@ -101,11 +103,13 @@ module DynamoDbItemEncryptorTest {
   }
 
   method {:test} TestDecryptItem() {
-    // Create the Item Encryptor
     var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
-    
-    // This method is currently stubbed, so it doesn't matter what our input is
-    var inputItem := map[];
+    var inputItem := map[
+      "bar" := DDBS("key"),
+      "encrypt" := DDBS(TestFixtures.TEST_FAKE_ENCRYPTED_STRING),
+      "sign" := DDBS("bar"),
+      "nothing" := DDBS("baz")
+    ];
 
     var decryptRes := encryptor.DecryptItem(
       Types.DecryptItemInput(
@@ -113,15 +117,15 @@ module DynamoDbItemEncryptorTest {
       )
     );
 
-    // We know what to expect from our stubbed data
+    // Ensure the "encrypted" attribute is "decrypted" as expected
     var expectedItem := map[
-      "foo" := DDB.AttributeValue.B(BinaryAttributeValue:=TestFixtures.EXPECTED_STUBBED_BLOB),
-      "bar" := DDB.AttributeValue.B(BinaryAttributeValue:=TestFixtures.EXPECTED_STUBBED_BLOB),
-      "fizzbuzz" := DDB.AttributeValue.B(BinaryAttributeValue:=TestFixtures.EXPECTED_STUBBED_BLOB)
+      "bar" := DDBS("key"),
+      "encrypt" := DDBS(TestFixtures.TEST_STRING_TO_ENCRYPT),
+      "sign" := DDBS("bar"),
+      "nothing" := DDBS("baz")
     ];
 
     expect decryptRes.Success?;
     expect decryptRes.value.plaintextItem == expectedItem;
   }
-  */
 }

@@ -35,6 +35,39 @@ public class DynamoDbEncryptionInterceptorTest {
     }
 
     @Test
+    public void TestPutItemEncryptsAccordingToAttributeActions() {
+        String partitionValue = "foo";
+        String sortValue = "42";
+        String attrValue = "encrypt";
+        String attrValue2 = "do nothing";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest oldRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        Context.ModifyRequest context = InterceptorContext.builder()
+                .request(oldRequest)
+                .build();
+        ExecutionAttributes attributes = ExecutionAttributes.builder()
+                .put(SdkExecutionAttribute.OPERATION_NAME, "PutItem")
+                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
+                .build();
+
+        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        assertTrue(newRequest instanceof PutItemRequest);
+
+        // ENCRYPT_AND_SIGN results in changed attribute
+        assertNotEquals(oldRequest.item().get(TEST_ATTR_NAME), ((PutItemRequest) newRequest).item().get(TEST_ATTR_NAME));
+
+        // SIGN_ONLY and DO_NOTHING does not modify any attribute values
+        assertEquals(oldRequest.item().get(TEST_ATTR2_NAME), ((PutItemRequest) newRequest).item().get(TEST_ATTR2_NAME));
+        assertEquals(oldRequest.item().get(TEST_PARTITION_NAME), ((PutItemRequest) newRequest).item().get(TEST_PARTITION_NAME));
+        assertEquals(oldRequest.item().get(TEST_SORT_NAME), ((PutItemRequest) newRequest).item().get(TEST_SORT_NAME));
+    }
+
+    @Test
     public void TestPutItemGetItemWithConditionExpression() {
         PutItemRequest oldRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
@@ -378,9 +411,9 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestPutWithInvalidCryptoAction() {
-        Map<String, AttributeValue> item = createTestItem("foo", "10", "bar");
+        Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");
         // Add an attribute not modelled in the crypto schema
-        item.put("attr2", AttributeValue.fromS("attr2"));
+        item.put("attr3", AttributeValue.fromS("attr3"));
         PutItemRequest oldRequest = PutItemRequest.builder()
                 .item(item)
                 .tableName(TEST_TABLE_NAME)
@@ -402,7 +435,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestPutMissingPartition() {
-        Map<String, AttributeValue> item = createTestItem("foo", "10", "bar");
+        Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");
         // Remove partition key from item
         item.remove(TEST_PARTITION_NAME);
         PutItemRequest oldRequest = PutItemRequest.builder()
@@ -426,7 +459,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test
     public void TestPutMissingSort() {
-        Map<String, AttributeValue> item = createTestItem("foo", "10", "bar");
+        Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");
         // Remove partition key from item
         item.remove(TEST_SORT_NAME);
         PutItemRequest oldRequest = PutItemRequest.builder()

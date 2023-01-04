@@ -12,11 +12,11 @@ import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static software.aws.cryptography.dynamoDbEncryption.TestUtils.ENHANCED_CLIENT_TEST_TABLE_NAME;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createStaticKeyring;
 
 public class DynamoDbEnhancedClientEncryptionHelpersTest {
@@ -61,7 +61,7 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
     public void TestDoNothingOnPartitionAttribute() {
         TableSchema<InvalidAnnotatedPartitionClass> tableSchema = TableSchema.fromBean(InvalidAnnotatedPartitionClass.class);
         Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+        tableConfigs.put(ENHANCED_CLIENT_TEST_TABLE_NAME,
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
                         .tableSchema(tableSchema)
@@ -81,7 +81,7 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
 
         // Do not specify Unauthenticated attributes when you should
         Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+        tableConfigs.put(ENHANCED_CLIENT_TEST_TABLE_NAME,
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
                         .tableSchema(tableSchema)
@@ -96,7 +96,7 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
 
         // Specify Unauthenticated attributes when you should not
         Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs2 = new HashMap<>();
-        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+        tableConfigs.put(ENHANCED_CLIENT_TEST_TABLE_NAME,
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing", "id"))
@@ -115,7 +115,7 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
     public void TestDoNothingOnSortAttribute() {
         TableSchema<InvalidAnnotatedSortClass> tableSchema = TableSchema.fromBean(InvalidAnnotatedSortClass.class);
         Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+        tableConfigs.put(ENHANCED_CLIENT_TEST_TABLE_NAME,
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
                         .tableSchema(tableSchema)
@@ -133,7 +133,7 @@ public class DynamoDbEnhancedClientEncryptionHelpersTest {
     public void TestDoubleAnnotationOnAttribute() {
         TableSchema<InvalidDoubleAnnotationClass> tableSchema = TableSchema.fromBean(InvalidDoubleAnnotationClass.class);
         Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put("DynamoDbEncryptionEnhancedClientTestTable",
+        tableConfigs.put(ENHANCED_CLIENT_TEST_TABLE_NAME,
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
                         .tableSchema(tableSchema)
