@@ -1,5 +1,16 @@
 # Ignore Gradle project-specific cache directory
 .gradle
 
+# JetBrains
+.idea/*
+*.iml
+
 # Ignore Gradle build output directory
 build
+
+# Mac OS X
+.DS_Store
+
+# Dafny Generated Java
+src/main/dafny-generated/
+src/test/dafny-generated/
