@@ -1,5 +1,6 @@
 package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
@@ -11,27 +12,29 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 @DynamoDbBean
 public class SimpleClass {
 
-    private String id;
-    private String sortKey;
+    private String partitionKey;
+    private int sortKey;
     private String encryptAndSign;
     private String doNothing;
     private String signOnly;
 
     @DynamoDbPartitionKey
-    public String getId() {
-        return this.id;
+    @DynamoDbAttribute(value = "partition_key")
+    public String getPartitionKey() {
+        return this.partitionKey;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setPartitionKey(String partitionKey) {
+        this.partitionKey = partitionKey;
     }
 
     @DynamoDbSortKey
-    public String getSortKey() {
+    @DynamoDbAttribute(value = "sort_key")
+    public int getSortKey() {
         return this.sortKey;
     }
 
-    public void setSortKey(String sortKey) {
+    public void setSortKey(int sortKey) {
         this.sortKey = sortKey;
     }
 

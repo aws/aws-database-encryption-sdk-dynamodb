@@ -14,7 +14,7 @@ build_java_dependencies:
 	$(MAKE) -C $(ROOT_DIR)/../DynamoDbItemEncryptor mvn_local_deploy
 	$(MAKE) -C $(ROOT_DIR)/../DynamoDbEncryptionMiddlewareInternal mvn_local_deploy
 
-build_java:
+build_java: build_java_dependencies
 	gradle -p runtimes/java build
 
 mvn_local_deploy:

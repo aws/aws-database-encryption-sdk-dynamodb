@@ -23,7 +23,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     public void TestPutAndGet() {
         TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
         Map<String, DynamoDbEncryptionWithTableSchemaConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(ENHANCED_CLIENT_TEST_TABLE_NAME,
+        tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEncryptionWithTableSchemaConfig.builder()
                         .keyring(createStaticKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
@@ -45,11 +45,11 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
                 .dynamoDbClient(ddb)
                 .build();
 
-        DynamoDbTable<SimpleClass> table = enhancedClient.table(ENHANCED_CLIENT_TEST_TABLE_NAME, tableSchema);
+        DynamoDbTable<SimpleClass> table = enhancedClient.table(TEST_TABLE_NAME, tableSchema);
 
         SimpleClass record = new SimpleClass();
-        record.setId("foo");
-        record.setSortKey("bar");
+        record.setPartitionKey("foo");
+        record.setSortKey(777);
         record.setEncryptAndSign("lorem");
         record.setSignOnly("ipsum");
         record.setDoNothing("fizzbuzz");
@@ -59,14 +59,14 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
 
         // Get the item back from the table
         Key key = Key.builder()
-                .partitionValue("foo").sortValue("bar")
+                .partitionValue("foo").sortValue(777)
                 .build();
 
         // Get the item by using the key.
         SimpleClass result = table.getItem(
                 (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
-        assertEquals("foo", result.getId());
-        assertEquals("bar", result.getSortKey());
+        assertEquals("foo", result.getPartitionKey());
+        assertEquals(777, result.getSortKey());
         assertEquals("lorem", result.getEncryptAndSign());
         assertEquals("ipsum", result.getSignOnly());
         assertEquals("fizzbuzz", result.getDoNothing());

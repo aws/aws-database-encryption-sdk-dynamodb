@@ -17,7 +17,6 @@ import java.util.Map;
 
 public class TestUtils {
     public static final String TEST_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
-    public static final String ENHANCED_CLIENT_TEST_TABLE_NAME = "DynamoDbEncryptionEnhancedClientTestTable";
     public static final String TEST_PARTITION_NAME = "partition_key";
     public static final String TEST_SORT_NAME = "sort_key";
     public static final String TEST_ATTR_NAME = "attr1";
