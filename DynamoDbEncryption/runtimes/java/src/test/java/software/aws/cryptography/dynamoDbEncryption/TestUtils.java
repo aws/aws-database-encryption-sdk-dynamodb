@@ -48,7 +48,7 @@ public class TestUtils {
         CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
                 .kmsClient(AWSKMSClientBuilder.defaultClient())
                 .kmsKeyId(KMS_TEST_KEY_ID)
-                .branchKeyId("myBranchKey")
+                .branchKeyId("guid")
                 .branchKeysTableName("branch-keys-table")
                 .ddbClient(DynamoDbClient.create())
                 .ttlMilliseconds(6000l)
