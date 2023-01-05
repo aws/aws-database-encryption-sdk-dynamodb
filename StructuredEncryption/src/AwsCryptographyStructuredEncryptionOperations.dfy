@@ -43,6 +43,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
       returns (output: Result<EncryptStructureOutput, Error>)
   {
+    // TODO call configured cmm to obtain materials
+
     // TODO: Currently implemented with "fake" encryption for ddb items.
     // For each attribute that should be encrypted:
     // - Concatenate typeId and value
@@ -91,6 +93,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
       cryptoSchema := cryptoSchema - {attributeName};
     }
+    // TODO call configured cmm to obtain materials after deserializing info from header
+
     var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
       content := StructuredDataContent.DataMap(
         DataMap := attributeValues
