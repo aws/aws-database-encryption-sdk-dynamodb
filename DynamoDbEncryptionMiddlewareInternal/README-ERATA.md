@@ -27,3 +27,8 @@ Resources were not modelled correctly in generated code. They were manually upda
 such that the right type was being inputted/outputted by our conversions.
 For example, we should directly return AWS SDK clients instead of our wrapper around them.
 Similarly, when returning Keyring/CMM types we need to return/accept their interfaces.
+
+## Legacy Config missing from Smithy model
+
+The Legacy Config on the TableEncryptionConfig was manually added, and needs to be
+modeled in smithy and generated from there.
