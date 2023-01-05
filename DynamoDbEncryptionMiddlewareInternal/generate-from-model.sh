@@ -24,6 +24,7 @@ cd "$POLYMORPH_ROOT"
 ./gradlew run --args="\
     --output-dafny \
     --include-dafny $StandardLibrary_ROOT/src/Index.dfy \
+    --output-java $DynamoDbEncryptionMiddleware_ROOT/runtimes/java/src/main/smithy-generated \
     --model $DynamoDbEncryptionMiddleware_ROOT/Model \
     --dependent-model $ComAmazonawsKms_ROOT/Model \
     --dependent-model $ComAmazonawsDynamodb_ROOT/Model \
@@ -32,6 +33,6 @@ cd "$POLYMORPH_ROOT"
     --dependent-model $AwsCryptographyPrimitives_ROOT/Model \
     --dependent-model $StructuredEncryption_ROOT/Model \
     --dependent-model $DynamoDbItemEncryptor_ROOT/Model \
-    --namespace aws.cryptography.dynamoDbEncryptionMiddleware.internal"
+    --namespace aws.cryptography.dynamoDbEncryption"
 
 popd

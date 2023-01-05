@@ -1,6 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-namespace aws.cryptography.dynamoDbEncryptionMiddleware.internal
+namespace aws.cryptography.dynamoDbEncryption
 
 use com.amazonaws.dynamodb#PutItemInput
 use com.amazonaws.dynamodb#PutItemOutput

@@ -1,6 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-namespace aws.cryptography.dynamoDbEncryptionMiddleware.internal
+namespace aws.cryptography.dynamoDbEncryption
 
 use aws.polymorph#localService
 
@@ -12,6 +12,8 @@ use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
 
+// TODO "hide" the below APIs from customers, but keep the config structures "public"
+
 // TODO The middleware trait is not yet implemented,
 // Ideally, this trait will:
 //     1. Be syntactic sugar to represent the verbose Transform operation smithy models.
@@ -19,17 +21,17 @@ use com.amazonaws.dynamodb#KeySchemaAttributeName
 //        with an ability to easily add more specific impl via specific Transform*' methods.
 //     3. Generate the language-idiomatic way to integrate with the SDK
 //        (e.g. the Java SDK Interceptor)
-//        that takes in DynamoDbEncryptionMiddlewareInternalConfig as input.
+//        that takes in DynamoDbEncryptionConfig as input.
 // 
 // @middleware(
 //     awsService: DynamoDB_20120810,
-//     config: DynamoDbEncryptionMiddlewareInternalConfig,
-//     errors: [DynamoDbEncryptionMiddlewareInternalException]
+//     config: DynamoDbEncryptionConfig,
+//     errors: [DynamoDbEncryptionException]
 //     name: "DynamoDbEncryptionMiddlewareInternal"
 // )
 @localService(
   sdkId: "DynamoDbEncryptionMiddlewareInternal",
-  config: DynamoDbEncryptionMiddlewareInternalConfig,
+  config: DynamoDbEncryptionConfig,
 )
 service DynamoDbEncryptionMiddlewareInternal {
     version: "2022-11-21",
@@ -61,17 +63,10 @@ service DynamoDbEncryptionMiddlewareInternal {
       ExecuteTransactionInputTransform,
       ExecuteTransactionOutputTransform,
     ],
-    errors: [ DynamoDbEncryptionMiddlewareInternalException ]
+    errors: [ DynamoDbEncryptionException ]
 }
 
-// TODO These configs are in the 'internal' package,
-// But ideally this config should represent exactly the
-// config the customer needs to input to create the Middleware.
-// We can either move these into the itemEncryptor package,
-// move this into a new namespace with not service (would require extra Polymorph work),
-// Or implement a target-language specific config object which wraps this config.
-// Or don't message this package as 'internal'.
-structure DynamoDbEncryptionMiddlewareInternalConfig {
+structure DynamoDbEncryptionConfig {
     @required
     tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
     // TODO allowed passthrough tables
@@ -107,7 +102,7 @@ structure DynamoDbTableEncryptionConfig {
 // Errors
 
 @error("client")
-structure DynamoDbEncryptionMiddlewareInternalException {
+structure DynamoDbEncryptionException {
   @required
   message: String,
 }

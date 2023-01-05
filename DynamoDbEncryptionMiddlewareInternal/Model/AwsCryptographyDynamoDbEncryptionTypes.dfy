@@ -5,7 +5,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  include "../../DynamoDbItemEncryptor/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/src/Index.dfy"
- module {:extern "Dafny.Aws.Cryptography.DynamoDbEncryptionMiddleware.Internal.Types" } AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes
+ module {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.Types" } AwsCryptographyDynamoDbEncryptionTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
@@ -70,6 +70,9 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype DeleteItemOutputTransformOutput = | DeleteItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.DeleteItemOutput
  )
+ datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
+ nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
+ )
  class IDynamoDbEncryptionMiddlewareInternalClientCallHistory {
  ghost constructor() {
  PutItemInputTransform := [];
@@ -133,9 +136,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -147,7 +151,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
@@ -543,9 +547,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures History.ExecuteTransactionOutputTransform == old(History.ExecuteTransactionOutputTransform) + [DafnyCallEvent(input, output)]
  
 }
- datatype DynamoDbEncryptionMiddlewareInternalConfig = | DynamoDbEncryptionMiddlewareInternalConfig (
- nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
- )
  datatype DynamoDbTableEncryptionConfig = | DynamoDbTableEncryptionConfig (
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
@@ -675,7 +676,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  datatype Error =
  // Local Error structures are listed here
- | DynamoDbEncryptionMiddlewareInternalException (
+ | DynamoDbEncryptionException (
  nameonly message: string
  )
  // Any dependent models are listed here
@@ -710,17 +711,16 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
 }
-
- abstract module AbstractAwsCryptographyDynamoDbEncryptionMiddlewareInternalService
+ abstract module AbstractAwsCryptographyDynamoDbEncryptionService
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
- import opened Types = AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes
- import Operations : AbstractAwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations
+ import opened Types = AwsCryptographyDynamoDbEncryptionTypes
+ import Operations : AbstractAwsCryptographyDynamoDbEncryptionOperations
 
- function method DefaultDynamoDbEncryptionMiddlewareInternalConfig(): DynamoDbEncryptionMiddlewareInternalConfig
- method DynamoDbEncryptionMiddlewareInternal(config: DynamoDbEncryptionMiddlewareInternalConfig := DefaultDynamoDbEncryptionMiddlewareInternalConfig())
+ function method DefaultDynamoDbEncryptionConfig(): DynamoDbEncryptionConfig
+ method DynamoDbEncryption(config: DynamoDbEncryptionConfig := DefaultDynamoDbEncryptionConfig())
  returns (res: Result<DynamoDbEncryptionMiddlewareInternalClient, Error>)
  // TODO smithy->Dafny needs to generate the following
  ///// MANUAL UPDATE STARTS HERE
@@ -1288,11 +1288,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  
 }
 }
- abstract module AbstractAwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations {
+ abstract module AbstractAwsCryptographyDynamoDbEncryptionOperations {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
- import opened Types = AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes
+ import opened Types = AwsCryptographyDynamoDbEncryptionTypes
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>

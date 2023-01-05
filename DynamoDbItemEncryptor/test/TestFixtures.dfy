@@ -12,7 +12,9 @@ module TestFixtures {
   import DynamoDbItemEncryptor
   import CTypes = AwsCryptographyStructuredEncryptionTypes
 
-  //const EXPECTED_STUBBED_BLOB : seq<uint8> := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
+  // TODO These values are to help test with StructuredEncryption's "fake" encryption
+  const TEST_STRING_TO_ENCRYPT := "!dlrow olleh"
+  const TEST_FAKE_ENCRYPTED_STRING := "THIS_IS_NOT_ENCRYPTEDAAEhZGxyb3cgb2xsZWg=";
 
   method GetStaticKeyring()
       returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)

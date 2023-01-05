@@ -3,10 +3,27 @@
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
 module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptographyStructuredEncryptionOperations {
+  import Base64
 
   datatype Config = Config()
 
   type InternalConfig = Config
+
+  // UTF-8 encoded "THIS_IS_NOT_ENCRYPTED"
+  // TODO this is temporary, only used for our "fake" encryption
+  // in order to make it clear that the value is not actually being encrypted yet.
+  const THIS_IS_NOT_ENCRYPTED: UTF8.ValidUTF8Bytes :=
+    var s := [0x54, 0x48, 0x49, 0x53, 0x5f, 0x49, 0x53, 0x5f, 0x4e, 0x4f, 0x54, 0x5f, 0x45, 0x4e, 0x43, 0x52, 0x59, 0x50, 0x54, 0x45, 0x44];
+    assert UTF8.ValidUTF8Range(s, 0, 21);
+    s
+
+  // TODO: This is temporary in order to support "fake" encryption with DDB,
+  // which is a placeholder to demonstrate the crypto schema is piping to this
+  // layer as expected when testing end to end with the DDB Encryption interceptor.
+  const DDB_STRING_TYPE_ID: UTF8.ValidUTF8Bytes :=
+    var s := [0x00, 0x01];
+    assert UTF8.ValidUTF8Range(s, 0, 2);
+    s
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {true}
@@ -26,8 +43,64 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
       returns (output: Result<EncryptStructureOutput, Error>)
   {
-    // TODO: Currently is a no-op, and just returns the inputted data
-    var encryptOutput := EncryptStructureOutput(encryptedStructure := input.plaintextStructure);
+    // TODO call configured cmm to obtain materials
+
+    // TODO: Currently implemented with "fake" encryption for ddb items.
+    // For each attribute that should be encrypted:
+    // - Concatenate typeId and value
+    // - Base64 encode
+    // - Concatenate THIS_IS_NOT_ENCRYPTED and output of the above
+    // - Create a new 'Terminal' with typeId 0x0001 (to be interpreted as string in DDB)
+    //   and value of the output of the above
+    :- Need(input.plaintextStructure.content.DataMap?
+        && input.cryptoSchema.content.SchemaMap?, StructuredEncryptionException(
+      message := "Unexpected Structured Data Item. Currently only implemented to accept DDB Items."
+    ));
+    
+    // Iterate through presumed DDB Item's attributes to perform "fake" encryption
+    var cryptoSchema := input.cryptoSchema.content.SchemaMap;
+    var ddbItem := input.plaintextStructure.content.DataMap;
+    var attributeValues := map[]; 
+    while cryptoSchema.Keys != {}
+    {
+      var attributeName :| attributeName in cryptoSchema;
+      :- Need(cryptoSchema[attributeName].content.Action?
+        && attributeName in ddbItem
+        && ddbItem[attributeName].content.Terminal?, StructuredEncryptionException(
+        message := "Unexpected Structured Data Item. Currently only implemented to accept DDB Items."
+      ));
+      if (cryptoSchema[attributeName].content.Action == CryptoAction.ENCRYPT_AND_SIGN) {
+        var attributeValue := ddbItem[attributeName].content.Terminal;
+        var concatValue := attributeValue.typeId + attributeValue.value;
+        var base64Value := Base64.Encode(concatValue);
+        var base64ValueAsBytes :- UTF8.Encode(base64Value)
+            .MapFailure(e => Types.StructuredEncryptionException( message := e ));
+        var finalValue := THIS_IS_NOT_ENCRYPTED + base64ValueAsBytes;
+        var transformedAttribute := StructuredData(
+          content := StructuredDataContent.Terminal(
+            Terminal := StructuredDataTerminal(
+              typeId := DDB_STRING_TYPE_ID,
+              value := finalValue
+            )
+          ),
+          attributes := None
+        );
+        attributeValues := attributeValues[attributeName:=transformedAttribute];
+      } else {
+        // passthrough
+        attributeValues := attributeValues[attributeName:=ddbItem[attributeName]];
+      }
+
+      cryptoSchema := cryptoSchema - {attributeName};
+    }
+    // TODO call configured cmm to obtain materials after deserializing info from header
+
+    var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
+      content := StructuredDataContent.DataMap(
+        DataMap := attributeValues
+      ),
+      attributes := None
+    ));
     output := Success(encryptOutput);
   }
 
@@ -43,8 +116,67 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   method DecryptStructure(config: InternalConfig, input: DecryptStructureInput)
       returns (output: Result<DecryptStructureOutput, Error>)
   {
-    // TODO: Currently is a no-op, and just returns the inputted data
-    var decryptOutput := DecryptStructureOutput(plaintextStructure := input.encryptedStructure);
+    // TODO: Currently implemented with "fake" decryption for ddb itmes. This is currently brittle,
+    // but for now is useful to demonstrate that the attribute actions are being properly piped
+    // through the system.
+    :- Need(input.encryptedStructure.content.DataMap?, StructuredEncryptionException(
+      message := "Unexpected Structured Data Item. Currently only implemented to accept DDB Items."
+    ));
+    
+    // Iterate through presumed DDB Item's attributes to perform "fake" encryption
+    var cryptoSchema := input.encryptedStructure.content.DataMap;
+    var attributeValues := map[];
+    while cryptoSchema.Keys != {}
+    {
+      var attributeName :| attributeName in cryptoSchema;
+      :- Need(cryptoSchema[attributeName].content.Terminal?, StructuredEncryptionException(
+        message := "Unexpected Structured Data Item. Currently only implemented to accept DDB Items."
+      ));
+      var attributeValue := cryptoSchema[attributeName].content.Terminal;
+      // Since we are not storing the cryptoSchema that was used on encrypt,
+      // for our "fake" approach simply look for attributes that appear to be
+      // "fake" encrypted. Anyone testing integration with this fake encryption
+      // MUST NOT use the value "THIS_IS_NOT_ENCRYPTED" in their data set.
+      if (attributeValue.typeId == DDB_STRING_TYPE_ID
+          && |attributeValue.value| >= |THIS_IS_NOT_ENCRYPTED|
+          && attributeValue.value[..|THIS_IS_NOT_ENCRYPTED|] == THIS_IS_NOT_ENCRYPTED) {
+        // To "fake" decrypt:
+        // - String "THIS_IS_NOT_ENCRYPTED"
+        // - Base64 Decode the rest
+        // - Grab the first two bytes as typeId, the rest are the serialized value
+        var base64Value := attributeValue.value[|THIS_IS_NOT_ENCRYPTED|..];
+        var base64AsChar :- UTF8.Decode(base64Value)
+            .MapFailure(e => Types.StructuredEncryptionException( message := e ));
+        var concatValue :- Base64.Decode(base64AsChar)
+            .MapFailure(e => Types.StructuredEncryptionException( message := e ));
+        :- Need(|concatValue| >= 2, StructuredEncryptionException(
+          message := "Invalid 'fake' encryption: Missing typeId"
+        ));
+        var originalTypeId := concatValue[..2];
+        var originalValue := concatValue[2..];
+        var untransformedAttribute := StructuredData(
+          content := StructuredDataContent.Terminal(
+            Terminal := StructuredDataTerminal(
+              typeId := originalTypeId,
+              value := originalValue
+            )
+          ),
+          attributes := None
+        );
+        attributeValues := attributeValues[attributeName:=untransformedAttribute];
+      } else {
+        // else it is not "fake" encrypted, so pass through
+        attributeValues := attributeValues[attributeName:=cryptoSchema[attributeName]];
+      }
+
+      cryptoSchema := cryptoSchema - {attributeName};
+    }
+    var decryptOutput := DecryptStructureOutput(plaintextStructure := StructuredData(
+      content := StructuredDataContent.DataMap(
+        DataMap := attributeValues
+      ),
+      attributes := None
+    ));
     output := Success(decryptOutput);
   }
 }

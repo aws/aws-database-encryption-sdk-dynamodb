@@ -35,8 +35,8 @@ module HappyCaseTests {
     );
 
     expect encryptRes.Success?;
-    // TODO Encrypt Structure is currently a no-op
-    expect encryptRes.value.encryptedStructure == TestFixtures.TEST_STRUCTURED_DATA;
+    // TODO: Right now this just tests expected "fake" encryption
+    expect encryptRes.value.encryptedStructure == TestFixtures.TEST_STRUCTURED_DATA_ENCRYPTED;
   }
 
   method {:test} TestDecryptStructure() {
@@ -46,7 +46,7 @@ module HappyCaseTests {
 
     var decryptRes := structuredEncryption.DecryptStructure(
       DecryptStructureInput(
-        encryptedStructure := TestFixtures.TEST_STRUCTURED_DATA,
+        encryptedStructure := TestFixtures.TEST_STRUCTURED_DATA_ENCRYPTED,
         authenticateSchema := TestFixtures.TEST_AUTHENTICATE_SCHEMA,
         cmm := cmm,
         encryptionContext := None()
@@ -54,7 +54,7 @@ module HappyCaseTests {
     );
 
     expect decryptRes.Success?;
-    // TODO Encrypt Structure is currently a no-op
+    // TODO: Right now this just tests expected "fake" decryption
     expect decryptRes.value.plaintextStructure == TestFixtures.TEST_STRUCTURED_DATA;
   }
 }

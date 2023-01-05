@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Collections/Maps/Maps.dfy"
-include "../Model/AwsCryptographyDynamoDbEncryptionMiddlewareInternalTypes.dfy"
+include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 include "../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "../../DynamoDbItemEncryptor/src/DynamoToStruct.dfy"
 include "DdbStatement.dfy"
 
 // TODO break this into multiple files
-module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines AbstractAwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations {
+module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptographyDynamoDbEncryptionOperations {
   import DDB = ComAmazonawsDynamodbTypes
   import AwsCryptographyDynamoDbItemEncryptorTypes
   import DynamoDbItemEncryptor
@@ -60,12 +60,12 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
   }
 
   function method MapString<T>(r : Result<T, string>) : Result<T, Error> {
-    r.MapFailure(e => Error.DynamoDbEncryptionMiddlewareInternalException(message := e))
+    r.MapFailure(e => Error.DynamoDbEncryptionException(message := e))
   }
 
   function method MakeError<X>(s : string) : Result<X, Error>
   {
-    Failure(Error.DynamoDbEncryptionMiddlewareInternalException(message := s))
+    Failure(Error.DynamoDbEncryptionException(message := s))
   }
 
   predicate SameOption<X>(x : Option<X>, y : Option<X>)
@@ -567,21 +567,21 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
   method ScanOutputTransform(config: InternalConfig, input: ScanOutputTransformInput)
     returns (output: Result<ScanOutputTransformOutput, Error>)
 
-    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || input.sdkOutput.ItemList.None? ==>
+    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? ==>
       && output.Success?
       && output.value.transformedOutput == input.sdkOutput
 
-    ensures output.Success?  && input.sdkOutput.ItemList.None?  ==> output.value.transformedOutput.ItemList.None?
-    ensures output.Success?  && input.sdkOutput.ItemList.Some?  ==>
-      && output.value.transformedOutput.ItemList.Some?
-      && |output.value.transformedOutput.ItemList.value| == |input.sdkOutput.ItemList.value|
+    ensures output.Success?  && input.sdkOutput.Items.None?  ==> output.value.transformedOutput.Items.None?
+    ensures output.Success?  && input.sdkOutput.Items.Some?  ==>
+      && output.value.transformedOutput.Items.Some?
+      && |output.value.transformedOutput.Items.value| == |input.sdkOutput.Items.value|
 
-    ensures output.Success? && input.sdkOutput.ItemList.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
+    ensures output.Success? && input.sdkOutput.Items.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
       var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
       var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
-      && (|newHistory| == |oldHistory| + |input.sdkOutput.ItemList.value|)
+      && (|newHistory| == |oldHistory| + |input.sdkOutput.Items.value|)
 
-      && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.ItemList.value| + |oldHistory| ::
+      && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.Items.value| + |oldHistory| ::
 
           //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
           //= type=implication
@@ -599,7 +599,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
           //# the corresponding Item Encryptor MUST perform [Decrypt Item](./decrypt-item.md)
           //# where the input [DynamoDB Item](./decrypt-item.md#dynamodb-item)
           //# is this list entry.
-          && newHistory[i].input.encryptedItem == input.sdkOutput.ItemList.value[i-|oldHistory|]
+          && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[i-|oldHistory|]
 
           //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
           //= type=implication
@@ -607,16 +607,16 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
           //# with the resulting decrypted
           //# [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
           && newHistory[i].output.value.plaintextItem ==
-              output.value.transformedOutput.ItemList.value[i-|oldHistory|]
+              output.value.transformedOutput.Items.value[i-|oldHistory|]
         )
   {
     var tableName := input.originalInput.TableName;
-    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.ItemList.None? {
+    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
       return Success(ScanOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     var tableConfig := config.tableEncryptionConfigs[tableName];
     var decryptedItems : DDB.ItemList := [];
-    var encryptedItems := input.sdkOutput.ItemList.value;
+    var encryptedItems := input.sdkOutput.Items.value;
     ghost var historySize := |tableConfig.itemEncryptor.History.DecryptItem|;
     for x := 0 to |encryptedItems|
       invariant |decryptedItems| == x
@@ -627,7 +627,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
       invariant (forall i : nat | historySize <= i < |decryptedItems|+historySize ::
         var item := tableConfig.itemEncryptor.History.DecryptItem[i];
         && item.output.Success?
-        && item.input.encryptedItem == input.sdkOutput.ItemList.value[i-historySize]
+        && item.input.encryptedItem == input.sdkOutput.Items.value[i-historySize]
         && item.output.value.plaintextItem == decryptedItems[i-historySize])
     {
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(EncTypes.DecryptItemInput(encryptedItem:=encryptedItems[x]));
@@ -635,7 +635,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
     }
     var finalResult := decryptedItems; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
-    return Success(ScanOutputTransformOutput(transformedOutput := input.sdkOutput.(ItemList := Some(finalResult))));
+    return Success(ScanOutputTransformOutput(transformedOutput := input.sdkOutput.(Items := Some(finalResult))));
   }
 
   predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput, output: Result<QueryInputTransformOutput, Error>)
@@ -654,24 +654,24 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
   method QueryOutputTransform(config: InternalConfig, input: QueryOutputTransformInput)
     returns (output: Result<QueryOutputTransformOutput, Error>)
 
-    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || input.sdkOutput.ItemList.None? ==>
+    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? ==>
       && output.Success?
       && output.value.transformedOutput == input.sdkOutput
 
-    ensures output.Success?  && input.sdkOutput.ItemList.Some?  ==>
-      && output.value.transformedOutput.ItemList.Some?
-      && |output.value.transformedOutput.ItemList.value| == |input.sdkOutput.ItemList.value|
+    ensures output.Success?  && input.sdkOutput.Items.Some?  ==>
+      && output.value.transformedOutput.Items.Some?
+      && |output.value.transformedOutput.Items.value| == |input.sdkOutput.Items.value|
 
-    ensures output.Success?  && input.sdkOutput.ItemList.None?  ==>
-      && output.value.transformedOutput.ItemList.None?
+    ensures output.Success?  && input.sdkOutput.Items.None?  ==>
+      && output.value.transformedOutput.Items.None?
 
-    ensures output.Success? && input.sdkOutput.ItemList.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
+    ensures output.Success? && input.sdkOutput.Items.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
       var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
       var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
 
-      && (|newHistory| == |oldHistory| + |input.sdkOutput.ItemList.value|)
+      && (|newHistory| == |oldHistory| + |input.sdkOutput.Items.value|)
 
-      && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.ItemList.value| + |oldHistory| ::
+      && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.Items.value| + |oldHistory| ::
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
             //= type=implication
@@ -689,23 +689,23 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
             //# the corresponding Item Encryptor MUST perform [Decrypt Item](./decrypt-item.md)
             //# where the input [DynamoDB Item](./decrypt-item.md#dynamodb-item)
             //# is this list entry.
-            && newHistory[i].input.encryptedItem == input.sdkOutput.ItemList.value[i-|oldHistory|]
+            && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[i-|oldHistory|]
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
             //= type=implication
             //# Each of these entries on the original repsonse MUST be replaced
             //# with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
             && newHistory[i].output.value.plaintextItem ==
-               output.value.transformedOutput.ItemList.value[i-|oldHistory|]
+               output.value.transformedOutput.Items.value[i-|oldHistory|]
          )
   {
     var tableName := input.originalInput.TableName;
-    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.ItemList.None? {
+    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
       return Success(QueryOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     var tableConfig := config.tableEncryptionConfigs[tableName];
     var decryptedItems : DDB.ItemList := [];
-    var encryptedItems := input.sdkOutput.ItemList.value;
+    var encryptedItems := input.sdkOutput.Items.value;
     ghost var historySize := |tableConfig.itemEncryptor.History.DecryptItem|;
     for x := 0 to |encryptedItems|
       invariant |decryptedItems| == x
@@ -717,7 +717,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
       invariant (forall i : nat | historySize <= i < |decryptedItems|+historySize ::
         var item := tableConfig.itemEncryptor.History.DecryptItem[i];
         && item.output.Success?
-        && item.input.encryptedItem == input.sdkOutput.ItemList.value[i-historySize]
+        && item.input.encryptedItem == input.sdkOutput.Items.value[i-historySize]
         && item.output.value.plaintextItem == decryptedItems[i-historySize])
     {
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(EncTypes.DecryptItemInput(encryptedItem:=encryptedItems[x]));
@@ -725,7 +725,7 @@ module AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations refines Abs
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
     }
     var someItems := Some(decryptedItems); // TODO this needs to be done on its own line until we upgrade to Dafny 3.10.0
-    return Success(QueryOutputTransformOutput(transformedOutput := input.sdkOutput.(ItemList := someItems)));
+    return Success(QueryOutputTransformOutput(transformedOutput := input.sdkOutput.(Items := someItems)));
   }
 
   predicate TransactGetItemsInputTransformEnsuresPublicly(input: TransactGetItemsInputTransformInput, output: Result<TransactGetItemsInputTransformOutput, Error>)

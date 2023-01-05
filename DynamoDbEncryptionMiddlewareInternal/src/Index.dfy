@@ -1,30 +1,30 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations.dfy"
+include "AwsCryptographyDynamoDbEncryptionOperations.dfy"
 include "DdbStatement.dfy"
 include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryptionMiddlewareInternal" }
-  DynamoDbEncryptionMiddlewareInternal refines AbstractAwsCryptographyDynamoDbEncryptionMiddlewareInternalService
+  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption" }
+  DynamoDbEncryption refines AbstractAwsCryptographyDynamoDbEncryptionService
 {
   import AwsCryptographyDynamoDbItemEncryptorTypes
-  import Operations = AwsCryptographyDynamoDbEncryptionMiddlewareInternalOperations
+  import Operations = AwsCryptographyDynamoDbEncryptionOperations
   import DynamoDbItemEncryptor
   import DdbStatement
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
   // build a default config?
-  function method DefaultDynamoDbEncryptionMiddlewareInternalConfig(): DynamoDbEncryptionMiddlewareInternalConfig
+  function method DefaultDynamoDbEncryptionConfig(): DynamoDbEncryptionConfig
   {
-    DynamoDbEncryptionMiddlewareInternalConfig(
+    DynamoDbEncryptionConfig(
       tableEncryptionConfigs := map[]
     )
   }
 
-  method DynamoDbEncryptionMiddlewareInternal(config: DynamoDbEncryptionMiddlewareInternalConfig)
+  method DynamoDbEncryption(config: DynamoDbEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionMiddlewareInternalClient, Error>)
   {
     // TODO validate input
