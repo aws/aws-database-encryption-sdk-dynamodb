@@ -9,7 +9,10 @@ import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
 
+import java.nio.ByteBuffer;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static com.amazonaws.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.KMS_TEST_KEY_ID;
 
 // Here we are testing some manually generated interfaces that don't technically belong to this package,
@@ -127,6 +130,24 @@ public class OtherTests {
                 .maxCacheSize(100)
                 .build();
         Keyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
+        assertNotNull(keyring);
+    }
+
+    @Test
+    public void TestBuildEncryptDecryptAwsKmsRsaKeyring() {
+        MaterialProviders matProv = MaterialProviders.builder()
+                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+                .build();
+
+        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
+
+        CreateAwsKmsRsaKeyringInput input = CreateAwsKmsRsaKeyringInput.builder()
+                .kmsClient(AWSKMSClientBuilder.defaultClient())
+                .kmsKeyId(KMS_TEST_KEY_ID)
+                .encryptionAlgorithm(RSAES_OAEP_SHA_1)
+                .publicKey(key)
+                .build();
+        Keyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
         assertNotNull(keyring);
     }
 
