@@ -199,6 +199,9 @@ map AuthenticateSchemaAttributes {
     value: AuthenticateAction
 }
 
+@aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
+structure AtomicPrimitivesReference {}
+
 // TODO: Is there a way in smithy we can ensure that the
 // StructuredData/CryptoSchema/AuthenticateSchema all
 // express the same complex shape?

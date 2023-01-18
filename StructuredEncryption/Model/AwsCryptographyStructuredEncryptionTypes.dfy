@@ -3,12 +3,14 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
+ include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographyPrimitives/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.StructuredEncryption.Types" } AwsCryptographyStructuredEncryptionTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
  import AwsCryptographyMaterialProvidersTypes
+ import AwsCryptographyPrimitivesTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
  
@@ -91,9 +93,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -105,7 +108,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
@@ -164,6 +167,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  // Any dependent models are listed here
  | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
+ | AwsCryptographyPrimitives(AwsCryptographyPrimitives: AwsCryptographyPrimitivesTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.
  // Consider the following method:
