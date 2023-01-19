@@ -67,32 +67,24 @@ module TrussHeader {
     }
   }
 
-    method create(data : EncryptStructureInput)
-      returns (ret : Result<Header, Error>)
-      modifies data.cmm, data.cmm.Modifies
-      requires data.cmm.ValidState()
-    {
-      var input := CMP.GetEncryptionMaterialsInput(
-        encryptionContext := map[],
-        commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-        algorithmSuiteId := Option.None,
-        maxPlaintextLength := Option.None
-      );
-      var output := data.cmm.GetEncryptionMaterials(input);
-      var mat :- output.MapFailure(e => AwsCryptographyMaterialProviders(e));
-
-      var randBytes := Random.GenerateBytes(32);
-      var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
-      var legend :- MakeLegend(data.cryptoSchema);
-      return Success(Header(
-        version := 1,
-        flavor := 1, // or zero if algorithm suite is TODO?
-        msgID := msgID,
-        legend := legend,
-        encContext := mat.encryptionMaterials.encryptionContext,
-        dataKeys := mat.encryptionMaterials.encryptedDataKeys
-      ));
-    }
+  function method Create(
+      schema : CryptoSchema,
+      msgID : MessageID,
+      encContext : CMP.EncryptionContext,
+      dataKeys : CMP.EncryptedDataKeyList
+    )
+    : (ret : Result<Header, Error>)
+  {
+    var legend :- MakeLegend(schema);
+    Success(Header(
+      version := 1,
+      flavor := 1, // or zero if algorithm suite is TODO?
+      msgID := msgID,
+      legend := legend,
+      encContext := encContext,
+      dataKeys := dataKeys
+    ))
+  }
   
   function method Deserialize(data : seq<uint8>)
     : (ret : Result<Header, Error>)

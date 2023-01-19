@@ -1,9 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "Header.dfy"
 
 module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptographyStructuredEncryptionOperations {
   import Base64
+  import TrussHeader
+  import CMP = AwsCryptographyMaterialProvidersTypes
+  import Random
 
   datatype Config = Config()
 
@@ -40,9 +44,29 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
   }
 
-  method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
-      returns (output: Result<EncryptStructureOutput, Error>)
+  method CreateHeader(data : EncryptStructureInput)
+    returns (ret : Result<TrussHeader.Header, Error>)
+    modifies data.cmm.Modifies
+    requires data.cmm.ValidState()
   {
+    var input := CMP.GetEncryptionMaterialsInput(
+      encryptionContext := map[],
+      commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
+      algorithmSuiteId := Option.None,
+      maxPlaintextLength := Option.None
+    );
+    var output := data.cmm.GetEncryptionMaterials(input);
+    var out :- output.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var mat := out.encryptionMaterials;
+    var randBytes := Random.GenerateBytes(32);
+    var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
+    return TrussHeader.Create(data.cryptoSchema, msgID, mat.encryptionContext, mat.encryptedDataKeys);
+  }
+
+  method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
+    returns (output: Result<EncryptStructureOutput, Error>)
+  {
+    var head := CreateHeader(input);
     // TODO call configured cmm to obtain materials
 
     // TODO: Currently implemented with "fake" encryption for ddb items.
