@@ -34,6 +34,9 @@ module HappyCaseTests {
       )
     );
 
+    if encryptRes.Failure? {
+      print encryptRes;
+    }
     expect encryptRes.Success?;
     // TODO: Right now this just tests expected "fake" encryption
     expect encryptRes.value.encryptedStructure == TestFixtures.TEST_STRUCTURED_DATA_ENCRYPTED;

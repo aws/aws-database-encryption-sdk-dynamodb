@@ -24,15 +24,16 @@ The Version MUST be `0x01`.
 
 ### Format Flavor
 
-The "flavor" currently only encodes whether signatures are enabled for this record.
+The flavor currently only encodes whether signatures are enabled for this record.
+The flavor MUST be one of these two values.
 
 | Value | Meaning |
 |---|---|
 | 0x01 | Signatures enabled (default) |
 | 0x00 | Signatures disabled |
 
-When signatures are enabled in the Format Flavor, an ECDSA signature will be included in the
-footer.
+When signatures are enabled in the Format Flavor, a signature will be included in the
+[footer](./footer.md#signature).
 
 ### Message ID
 
@@ -44,11 +45,11 @@ Implementations MUST generate a fresh 256-bit random MessageID for each record e
 
 The Encrypt Legend is a serialized description of which authenticated fields in the record were encrypted.
 
-The Encrypt Legend is serialized as
+The Encrypt Legend MUST be serialized as
 
 | Field | Length (bytes) | Interpreted as |
 | ----- | -------------- | -------------- |
-| Encrypt Legend Length | 2 | UInt16 |
+| Encrypt Legend Length | 2 | big endian UInt16 |
 | [Encrypt Legend Bytes](#encrypt-legend-bytes) | Variable. Equal to the value specified in the previous 2 bytes (Encrypt Legend Length). | Bytes |
 
 #### Encrypt Legend Bytes
@@ -62,9 +63,9 @@ The following byte values represent one of two states:
   but still included in the signature calculation.
   This indicates that this field MUST NOT be attempted to be decrypted during decryption.
 
-The Encrypt Legend Bytes are serialized as follows:
+The Encrypt Legend Bytes MUST be serialized as follows:
 
-1. Order every authenticated attribute in the item lexicographically the attribute name.
+1. Order every authenticated attribute in the item lexicographically by the attribute name.
 2. For each authenticated attribute, in order,
 append one of the byte values specified above to indicate whether
 that field should be encrypted.
@@ -76,11 +77,11 @@ by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
 
 TODO: Link directly to the MPL definition once it is more generalized.
 
-The Encryption Context is serialized as follows
+The Encryption Context MUST be serialized as follows
 
 | Field | Length (bytes) | Interpreted as |
 | ----- | -------------- | -------------- |
-| [Key Value Pair Count](#key-value-pair-count) | 2 | UInt16 |
+| [Key Value Pair Count](#key-value-pair-count) | 2 | big endian UInt16 |
 | [Key Value Pair Entries](#key-value-pair-entries) | Variable. Determined by the count and length of each key-value pair. | [Key Value Pair Entries](#key-value-pair-entries) |
 
 #### Key Value Pair Count
@@ -97,24 +98,24 @@ This sequence MUST NOT contain duplicate entries.
 These entries MUST have entries sorted, by key,
 in ascending order according to the UTF-8 encoded binary value.
 
-The following table describes the fields that form each key value pair entry.
-The bytes are appended in the order shown.
+Each Key Value Pair MUST be serialized as follows
 
 | Field | Length (bytes) | Interpreted as |
 | ----- | -------------- | -------------- |
-| Key Length | 2 | UInt16 |
+| Key Length | 2 | big endian UInt16 |
 | Key | Variable. Equal to the value specified in the previous 2 bytes (Key Length). | UTF-8 encoded bytes |
-| Value Length | 2 | UInt16 |
+| Value Length | 2 | big endian UInt16 |
 | Value | Variable. Equal to the value specified in the previous 2 bytes (Value Length). | UTF-8 encoded bytes |
 
 ### Encrypted Data Keys
 
-The following table describes the fields that form the encrypted data keys.
-The bytes are appended in the order shown.
+TODO : This is the same as in ESDK and MPL. Should they be unified somehow?
+
+The Encrypted Data Keys MUST be serialized as follows
 
 | Field | Length (bytes) | Interpreted as |
 | ----- | -------------- | -------------- |
-| [Encrypted Data Key Count](#encrypted-data-key-count) | 2 | UInt16 |
+| [Encrypted Data Key Count](#encrypted-data-key-count) | 2 | big endian UInt16 |
 | [Encrypted Data Key Entries](#encrypted-data-key-entries) | Variable. Determined by the count and length of each key-value pair. | [Encrypted Data Key Entries](#encrypted-data-key-entries) |
 
 #### Encrypted Data Key Count
@@ -124,18 +125,15 @@ This value MUST be greater than 0.
 
 #### Encrypted Data Key Entries
 
-A sequence of one or more encrypted data key entries.
-
-The following table describes the fields that form each encrypted data key entry.
-The bytes are appended in the order shown.
+Each Encrypted Data Key MUST be serialized as follows
 
 | Field | Length (bytes) | Interpreted as |
 | ----- | -------------- | -------------- |
-| [Key Provider ID Length](#key-provider-id-length)  | 2 | UInt16 |
+| [Key Provider ID Length](#key-provider-id-length)  | 2 | big endian UInt16 |
 | [Key Provider ID](#key-provider-id) | Variable. Equal to the value specified in the previous 2 bytes (Key Provider ID Length). | UTF-8 encoded bytes |
-| [Key Provider Information Length](#key-provider-information-length) | 2 | UInt16 |
+| [Key Provider Information Length](#key-provider-information-length) | 2 | big endian UInt16 |
 | [Key Provider Information](#key-provider-information) | Variable. Equal to the value specified in the previous 2 bytes (Key Provider Information Length). | Bytes |
-| [Encrypted Data Key Length](#encrypted-data-key-length) | 2 | UInt16 |
+| [Encrypted Data Key Length](#encrypted-data-key-length) | 2 | big endian UInt16 |
 | [Encrypted Data Key](#encrypted-data-key) | Variable. Equal to the value specified in the previous 2 bytes (Encrypted Data Key Length). | Bytes |
 
 ##### Key Provider ID Length
@@ -165,8 +163,9 @@ It is the data key encrypted by the key provider.
 
 ### Header Commitment
 
-The **Header Commitment** value is a 256-bit HMAC output, with all preceding header bytes
-as the message, with a commitment key of "TRUSS_COMMIT_KEY"
+The Header Commitment MUST be calculated as a 256-bit HmacSha384,
+with all preceding header bytes as the message
+and a commitment key of "TRUSS_COMMIT_KEY"
 
 ```
 def GetHeaderCommitment(Header, CommitKey):
@@ -179,6 +178,6 @@ def CheckHeaderCommitment(Header, CommitKey):
     return ConstantTimeEquals(Commitment, GetHeaderCommitment(Preceding, CommitKey)    
 ```
 
-It's important to note that, while the Header Commitment does produce a distinct 256-bit hash
-output per header and commitment key, it does not provide any integrity guarantees over the
-encrypted attributes.
+It's important to note that, while the Header Commitment does
+produce a distinct 256-bit hash output per header and commitment key,
+it does not provide any integrity guarantees over the encrypted attributes.
