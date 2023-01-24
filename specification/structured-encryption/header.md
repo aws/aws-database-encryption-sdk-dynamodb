@@ -54,7 +54,7 @@ The Encrypt Legend MUST be serialized as
 
 #### Encrypt Legend Bytes
 
-The following byte values represent one of two states:
+Each Crypto Action MUST be encoded as follows
 
 - `0x65` (`e` in UTF-8, for "Encrypt and Sign") means that a particular field was encrypted
   and included in the signature calculation.
@@ -62,6 +62,7 @@ The following byte values represent one of two states:
 - `0x73` (`s` in UTF-8, for "Sign Only") means that a particular field was not encrypted,
   but still included in the signature calculation.
   This indicates that this field MUST NOT be attempted to be decrypted during decryption.
+- no entry if the attribute is not signed
 
 The Encrypt Legend Bytes MUST be serialized as follows:
 
@@ -115,7 +116,7 @@ The Encrypted Data Keys MUST be serialized as follows
 
 | Field | Length (bytes) | Interpreted as |
 | ----- | -------------- | -------------- |
-| [Encrypted Data Key Count](#encrypted-data-key-count) | 2 | big endian UInt16 |
+| [Encrypted Data Key Count](#encrypted-data-key-count) | 1 | unsigned 8 bit number |
 | [Encrypted Data Key Entries](#encrypted-data-key-entries) | Variable. Determined by the count and length of each key-value pair. | [Encrypted Data Key Entries](#encrypted-data-key-entries) |
 
 #### Encrypted Data Key Count
