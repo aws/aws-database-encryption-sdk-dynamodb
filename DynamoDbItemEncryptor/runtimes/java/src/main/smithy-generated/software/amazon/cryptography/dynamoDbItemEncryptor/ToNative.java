@@ -98,10 +98,10 @@ public class ToNative {
       nativeBuilder.allowedUnauthenticatedAttributePrefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().dtor_value()));
     }
     if (dafnyValue.dtor_keyring().is_Some()) {
-      nativeBuilder.keyring((dafnyValue.dtor_keyring().dtor_value()));
+      nativeBuilder.keyring(software.amazon.cryptography.materialProviders.ToNative.Keyring((dafnyValue.dtor_keyring().dtor_value())));
     }
     if (dafnyValue.dtor_cmm().is_Some()) {
-      nativeBuilder.cmm((dafnyValue.dtor_cmm().dtor_value()));
+      nativeBuilder.cmm(software.amazon.cryptography.materialProviders.ToNative.CryptographicMaterialsManager((dafnyValue.dtor_cmm().dtor_value())));
     }
     return nativeBuilder.build();
   }
