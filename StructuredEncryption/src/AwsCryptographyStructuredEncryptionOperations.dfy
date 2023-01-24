@@ -58,6 +58,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var output := data.cmm.GetEncryptionMaterials(input);
     var out :- output.MapFailure(e => AwsCryptographyMaterialProviders(e));
     var mat := out.encryptionMaterials;
+    //= specification/structured-encryption/header.md#message-id
+    //# Implementations MUST generate a fresh 256-bit random MessageID for each record encrypted. 
     var randBytes := Random.GenerateBytes(32);
     var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
     return TrussHeader.Create(data.cryptoSchema, msgID, mat.encryptionContext, mat.encryptedDataKeys);
