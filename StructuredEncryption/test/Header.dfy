@@ -1,5 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 include "../src/Index.dfy"
 include "TestFixtures.dfy"
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
