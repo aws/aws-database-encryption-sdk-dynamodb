@@ -3,7 +3,6 @@
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Header.dfy"
 
-
 module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptographyStructuredEncryptionOperations {
   import Base64
   import TrussHeader

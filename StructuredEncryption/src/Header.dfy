@@ -86,7 +86,8 @@ module TrussHeader {
     //# and a commitment key of "TRUSS_COMMIT_KEY"
     ensures ret.Success? ==>
       && |ret.value| >= 34
-      && ret.value[|ret.value|-32..] == HMAC2(client, ret.value[..|ret.value|-32])
+      && HMAC(client, ret.value[..|ret.value|-32]).Success?
+      && ret.value[|ret.value|-32..] == HMAC(client, ret.value[..|ret.value|-32]).value
   {
     var body := header.serialize();
     var commitment :- HMAC(client, body);
@@ -227,21 +228,6 @@ module TrussHeader {
       Failure(E("SHA_384 did not produce 384 bits"))
     else
       Success(output[..32])
-  }
-
-  function method HMAC2(
-    client: Prim.IAwsCryptographicPrimitivesClient,
-    data: seq<uint8>
-  ) : (ret : seq<uint8>)
-    requires client.ValidState()
-    ensures client.ValidState()
-    ensures |ret| == 32
-  {
-    var h := HMAC(client, data);
-    if h.Success? then
-      h.value
-    else
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
   }
 
   predicate method ByteLess(x : uint8, y : uint8)
@@ -906,7 +892,6 @@ module TrussHeader {
       assert GetLegend(SerializeLegend(h.legend)).Success?;
       assert GetLegend(SerializeLegend(h.legend)).value.0 == h.legend;
       assert GetLegend(SerializeLegend(h.legend)).value.1 == |SerializeLegend(h.legend)|;
-       
       assert GetContext(SerializeContext(h.encContext)).Success?;
       assert GetDataKeys(SerializeDataKeys(h.dataKeys)).Success?;
 
