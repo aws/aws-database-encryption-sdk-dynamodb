@@ -3,13 +3,17 @@
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Header.dfy"
 
+
 module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptographyStructuredEncryptionOperations {
   import Base64
   import TrussHeader
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Random
+  import Aws.Cryptography.Primitives
 
-  datatype Config = Config()
+  datatype Config = Config(
+    primatives : Primitives.AtomicPrimitivesClient
+  )
 
   type InternalConfig = Config
 
@@ -30,10 +34,10 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     s
 
   predicate ValidInternalConfig?(config: InternalConfig)
-  {true}
+  {config.primatives.ValidState()}
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
-  {{}}
+  {config.primatives.Modifies}
 
   predicate EncryptStructureEnsuresPublicly(
     input: EncryptStructureInput, 

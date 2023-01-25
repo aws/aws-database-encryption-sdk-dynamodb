@@ -9,6 +9,7 @@ module
 {
 
   import Operations = AwsCryptographyStructuredEncryptionOperations
+  import Aws.Cryptography.Primitives
 
   function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
   {
@@ -18,7 +19,9 @@ module
   method StructuredEncryption(config: StructuredEncryptionConfig)
     returns (res: Result<StructuredEncryptionClient, Error>)
   {
-    var client := new StructuredEncryptionClient(Operations.Config());
+    var maybePrimatives := Primitives.AtomicPrimitives();
+    var primatives :- maybePrimatives.MapFailure(e => AwsCryptographyPrimitives(e));
+    var client := new StructuredEncryptionClient(Operations.Config(primatives := primatives));
     return Success(client);
   }
 

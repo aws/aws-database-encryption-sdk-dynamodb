@@ -6,11 +6,13 @@ module TrussHeader {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyStructuredEncryptionTypes
   import CMP = AwsCryptographyMaterialProvidersTypes
+  import Prim = AwsCryptographyPrimitivesTypes
   import opened Sets
   import opened UTF8
   import Random
 
   type MessageID = x: seq<uint8> | |x| == 32 witness *
+  type Commitment = x: seq<uint8> | |x| == 32 witness *
   const UINT8_LIMIT := 256
   type CMPEncryptedDataKey = x : CMP.EncryptedDataKey | ValidEncryptedDataKey(x) witness *
   type CMPEncryptionContext  = x : CMP.EncryptionContext | ValidEncryptionContext(x) witness *
@@ -43,13 +45,7 @@ module TrussHeader {
     // Header to Bytes
     function method {:opaque} serialize() : (ret : seq<uint8>)
       ensures
-        && |ret| > 66
-        //= specification/structured-encryption/header.md#header-commitment
-        //= type=implication
-        //# The Header Commitment MUST be calculated as a 256-bit HmacSha384,
-        //# with all preceding header bytes as the message
-        //# and a commitment key of "TRUSS_COMMIT_KEY"
-        && ret[|ret|-32..] == HmacSha384(ret[..|ret|-32], EncodeAscii("TRUSS_COMMIT_KEY"))
+        && |ret| >= 34
         //= specification/structured-encryption/header.md#header-format
         //= type=implication
         //# The serialized form of the header MUST be
@@ -61,7 +57,6 @@ module TrussHeader {
         // | Variable | Encrypt Legend |
         // | Variable | Encrypt Context|
         // | Variable | Encrypted Data Keys |
-        // | 32 | Header Commitment |
         && ret == (
             [version]
           + [flavor]
@@ -69,23 +64,47 @@ module TrussHeader {
           + SerializeLegend(legend)
           + SerializeContext(encContext)
           + SerializeDataKeys(dataKeys)
-          + HmacSha384(ret[..|ret|-32], EncodeAscii("TRUSS_COMMIT_KEY"))
         )
     {
       var context := SerializeContext(encContext);
       var keys := SerializeDataKeys(dataKeys);
       var leg := SerializeLegend(legend);
-      var baseHeader :=
-          [version]
-        + [flavor]
-        + msgID
-        + leg
-        + context
-        + keys
-      ;
-      var commitment := HmacSha384(baseHeader, EncodeAscii("TRUSS_COMMIT_KEY"));
-      baseHeader + commitment
+      [version] + [flavor] + msgID + leg + context + keys
     }
+  }
+
+  // serialize and add commitment
+  function method FullSerialize(client: Prim.IAwsCryptographicPrimitivesClient, header : Header)
+    : (ret : Result<seq<uint8>, Error>)
+    requires client.ValidState()
+    ensures client.ValidState()
+
+    //= specification/structured-encryption/header.md#header-commitment
+    //= type=implication
+    //# The Header Commitment MUST be calculated as a 256-bit HmacSha384,
+    //# with all preceding header bytes as the message
+    //# and a commitment key of "TRUSS_COMMIT_KEY"
+    ensures ret.Success? ==>
+      && |ret.value| >= 34
+      && ret.value[|ret.value|-32..] == HMAC2(client, ret.value[..|ret.value|-32])
+  {
+    var body := header.serialize();
+    var commitment :- HMAC(client, body);
+    Success(body + commitment)
+  }
+
+  // deserialize, and check commitment
+  function method FullDeserialize(client: Prim.IAwsCryptographicPrimitivesClient, data : seq<uint8>)
+    : Result<Header, Error>
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    :- Need(|data| > 32, E("Header too short"));
+    var head :- Deserialize(data[..|data|-32]);
+    var storedCommitment := data[|data|-32..];
+    var calcCommitment :- HMAC(client, data[..|data|-32]);
+    :- Need(storedCommitment == calcCommitment, E("Key commitment mismatch."));
+    Success(head)
   }
 
   // config to Header
@@ -138,15 +157,14 @@ module TrussHeader {
   function method Deserialize(data : seq<uint8>)
     : (ret : Result<Header, Error>)
     ensures
-     (&& |data| > 66
-      && data[|data|-32..] == HmacSha384(data[..|data|-32], EncodeAscii("TRUSS_COMMIT_KEY"))
+     (&& |data| >= 34
       && GetLegend(data[34..]).Success?
       && var leg := GetLegend(data[34..]).value;
       && GetContext(data[34+leg.1..]).Success?
       && var cont := GetContext(data[34+leg.1..]).value;
       && GetDataKeys(data[34+leg.1+cont.1..]).Success?
       && var dk := GetDataKeys(data[34+leg.1+cont.1..]).value;
-      && |data| == 34+leg.1+cont.1+dk.1+32) <==>
+      && |data| == 34+leg.1+cont.1+dk.1) <==>
       ret.Success?
     ensures ret.Success? ==> 
       && var v := ret.value;
@@ -161,10 +179,7 @@ module TrussHeader {
       && var contextAndLen := GetContext(data2).value;
       && v.encContext == contextAndLen.0
   {
-    :- Need(|data| > 66, E("Serialized header too short."));
-    var storedCommitment := data[|data|-32..];
-    var calcCommitment := HmacSha384(data[..|data|-32], EncodeAscii("TRUSS_COMMIT_KEY"));
-    :- Need(storedCommitment == calcCommitment, E("Key commitment mismatch."));
+    :- Need(|data| >= 34, E("Serialized header too short."));
     var version := data[0];
     var flavor := data[1];
     var msgID := data[2..34];
@@ -182,7 +197,7 @@ module TrussHeader {
     var dataKeys := keysAndLen.0;
     var data4 := data3[keysAndLen.1..];
 
-    :- Need(|data4| == 32, E("Invalid header size"));
+    :- Need(|data4| == 0, E("Invalid header size"));
     Success(Header(
       version := version,
       flavor := flavor,
@@ -193,10 +208,40 @@ module TrussHeader {
     ))
   }
 
-  function method HmacSha384(data : seq<uint8>, key : seq<uint8>) : (ret : seq<uint8>)
+  function method HMAC(
+    client: Prim.IAwsCryptographicPrimitivesClient,
+    data: seq<uint8>
+  ) : (ret : Result<seq<uint8>, Error>)
+    requires client.ValidState()
+    ensures client.ValidState()
+    ensures ret.Success? ==> |ret.value| == 32
+  {
+    var input := Prim.HMacInput (
+      digestAlgorithm := Prim.SHA_384,
+      key := EncodeAscii("TRUSS_COMMIT_KEY"),
+      message := data
+    );
+    var outputR := client.HMac(input);
+    var output :- outputR.MapFailure(e => AwsCryptographyPrimitives(e));
+    if |output| != 48 then
+      Failure(E("SHA_384 did not produce 384 bits"))
+    else
+      Success(output[..32])
+  }
+
+  function method HMAC2(
+    client: Prim.IAwsCryptographicPrimitivesClient,
+    data: seq<uint8>
+  ) : (ret : seq<uint8>)
+    requires client.ValidState()
+    ensures client.ValidState()
     ensures |ret| == 32
   {
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    var h := HMAC(client, data);
+    if h.Success? then
+      h.value
+    else
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
   }
 
   predicate method ByteLess(x : uint8, y : uint8)
@@ -822,8 +867,7 @@ module TrussHeader {
     requires Deserialize(data).Success?
     ensures
       && var ret := Deserialize(data).value;
-      && |data| > 66
-      && data[|data|-32..] == HmacSha384(data[..|data|-32], EncodeAscii("TRUSS_COMMIT_KEY"))
+      && |data| >= 34
       && data == (
             [ret.version]
           + [ret.flavor]
@@ -831,12 +875,10 @@ module TrussHeader {
           + SerializeLegend(ret.legend)
           + SerializeContext(ret.encContext)
           + SerializeDataKeys(ret.dataKeys)
-          + HmacSha384(data[..|data|-32], EncodeAscii("TRUSS_COMMIT_KEY"))
         )
     {
       var ret := Deserialize(data).value;
-      assert |data| > 66;
-      assert data[|data|-32..] == HmacSha384(data[..|data|-32], EncodeAscii("TRUSS_COMMIT_KEY"));
+      assert |data| >= 34;
       var leg := SerializeLegend(ret.legend);
       GetLegendRoundTrip(leg);
       var data1 := data[34..];
@@ -857,12 +899,14 @@ module TrussHeader {
       ensures h == Deserialize(h.serialize()).value
     {
       var data := h.serialize();
-
+      assert data == [h.version] + [h.flavor] + h.msgID + SerializeLegend(h.legend) + SerializeContext(h.encContext) + SerializeDataKeys(h.dataKeys);
       SerializeLegendRoundTrip(h.legend);
       SerializeContextRoundTrip(h.encContext);
       SerializeDataKeysRoundTrip(h.dataKeys);
-
       assert GetLegend(SerializeLegend(h.legend)).Success?;
+      assert GetLegend(SerializeLegend(h.legend)).value.0 == h.legend;
+      assert GetLegend(SerializeLegend(h.legend)).value.1 == |SerializeLegend(h.legend)|;
+       
       assert GetContext(SerializeContext(h.encContext)).Success?;
       assert GetDataKeys(SerializeDataKeys(h.dataKeys)).Success?;
 
@@ -889,5 +933,19 @@ module TrussHeader {
       GetContextRoundTrip(data2);
       var encContext := contextAndLen.0;
       var data3 := data2[contextAndLen.1..];
+
+      var serKeys1 := SerializeDataKeys(h.dataKeys);
+      var serKeys2 := data3[..|serKeys1|];
+      assert serKeys1 == serKeys2;
+      assert |serKeys1| == |data3|;
+
+      assert |data| >= 34;
+      assert GetLegend(data[34..]).Success?;
+      var leg := GetLegend(data[34..]).value;
+      assert GetContext(data[34+leg.1..]).Success?;
+      var cont := GetContext(data[34+leg.1..]).value;
+      assert GetDataKeys(data[34+leg.1+cont.1..]).Success?;
+      var dk := GetDataKeys(data[34+leg.1+cont.1..]).value;
+      assert |data| == 34+leg.1+cont.1+dk.1;
     }
 }
