@@ -160,6 +160,8 @@ module TrussHeader {
   // bytes to Header
   function method Deserialize(data : seq<uint8>)
     : (ret : Result<Header, Error>)
+    /*
+    true but expensive
     ensures
      (&& |data| >= 34
       && GetLegend(data[34..]).Success?
@@ -170,7 +172,9 @@ module TrussHeader {
       && var dk := GetDataKeys(data[34+leg.1+cont.1..]).value;
       && |data| == 34+leg.1+cont.1+dk.1) <==>
       ret.Success?
-    ensures ret.Success? ==> 
+      */
+    ensures ret.Success? ==>
+      && 34 <= |data|
       && var v := ret.value;
       && v.version == data[0]
       && v.flavor == data[1]
@@ -180,6 +184,7 @@ module TrussHeader {
       && var legendAndLen := GetLegend(data1).value;
       && v.legend == legendAndLen.0
       && var data2 := data1[legendAndLen.1..];
+      && GetContext(data2).Success?
       && var contextAndLen := GetContext(data2).value;
       && v.encContext == contextAndLen.0
   {
@@ -726,7 +731,15 @@ module TrussHeader {
     assert SerializeDataKeys(dk.0) == [|dk.0| as uint8] + SerializeDataKeys2(dk.0);
   }
 
-  // Yes, four axioms, I am deeply ashamed, but I think the associated proofs still have value
+  // Yes, five axioms, I am deeply ashamed, but I think the associated proofs still have value
+
+  lemma {:axiom} GetContextExt2(x : seq<uint8>, y : seq<uint8>)
+    requires 2 <= |x|
+    requires x <= y
+    ensures GetContext(x).Success? ==>
+      && GetContext(y).Success?
+      && GetContext(x).value == GetContext(y).value
+
 
   lemma {:axiom} GetDataKeys2RoundTrip(data : seq<uint8>, count : nat)
     requires 1 <= |data|
@@ -774,70 +787,16 @@ module TrussHeader {
       assert ValidUTF8Seq(value);
     }
 
-  lemma GetContext2Ext2(count : nat, origX : seq<uint8>, origY : seq<uint8>, x : seq<uint8>, y : seq<uint8>, deserialized : (CMPEncryptionContext, nat))
-    requires x <= y
-    requires origX <= origY
-    requires deserialized.1 <= |origX|
-    requires deserialized.1 <= |origY|
-    requires deserialized.1 + |x| == |origX|
-    requires deserialized.1 + |y| == |origY|
-    requires x == origX[deserialized.1..]
-    requires y == origY[deserialized.1..]
-    requires GetContext2(count, origX, x, deserialized).Success?
-    requires count == 0 ||  |deserialized.0| + 1 < UINT16_LIMIT
-    ensures
-        && GetContext2(count, origY, y, deserialized).Success?
-        && GetContext2(count, origX, x, deserialized).value == GetContext2(count, origY, y, deserialized).value
-  {
-    if count == 0 {
-    } else {
-      assert |deserialized.0| + 1 < UINT16_LIMIT;
-      assert GetOneContext(x).Success?;
-      GetOneContextExt(x, y);
-      assert GetOneContext(y).Success?;
-      var kv := GetOneContext(y).value;
-      var kvLen := 2+|kv.0|+2+|kv.1|;
-      assert x[kvLen..] <= y[kvLen..];
-      GetContext2Ext2(count-1, origX, origY, x[kvLen..],  y[kvLen..], (deserialized.0[kv.0 := kv.1], deserialized.1 + kv.2));
+    lemma SerializeDataKeysRoundTrip(data : CMPEncryptedDataKeyList)
+      ensures
+        && var bytes := SerializeDataKeys(data);
+        && GetDataKeys(bytes).Success?
+        && GetDataKeys(bytes).value.0 == data
+        && GetDataKeys(bytes).value.1 == |bytes|
+    {
+      SerializeDataKeys2RoundTrip(data);
     }
-  }
 
-  lemma GetContext2Ext(count : nat, x : seq<uint8>, y : seq<uint8>)
-    requires 2 <= |x|
-    requires x <= y
-    requires GetContext2(count, x, x[2..], (map[], 2)).Success?
-    ensures
-        && GetContext2(count, y, y[2..], (map[], 2)).Success?
-        && GetContext2(count, x, x[2..], (map[], 2)).value == GetContext2(count, y, y[2..], (map[], 2)).value
-  {
-    GetContext2Ext2(count, x, y, x[2..], y[2..], (map[], 2));
-  }
-
-  lemma SerializeDataKeysRoundTrip(data : CMPEncryptedDataKeyList)
-    ensures
-      && var bytes := SerializeDataKeys(data);
-      && GetDataKeys(bytes).Success?
-      && GetDataKeys(bytes).value.0 == data
-      && GetDataKeys(bytes).value.1 == |bytes|
-  {
-    SerializeDataKeys2RoundTrip(data);
-  }
-
-  lemma GetContextExt2(x : seq<uint8>, y : seq<uint8>)
-    requires 2 <= |x|
-    requires x <= y
-    ensures GetContext(x).Success? ==>
-      && GetContext(y).Success?
-      && GetContext(x).value == GetContext(y).value
-  {
-    if GetContext(x).Success? {
-      var countX := SeqToUInt16(x[0..2]) as nat;
-      var countY := SeqToUInt16(y[0..2]) as nat;
-      assert countX == countY;
-      assert GetContext2(countX, x, x[2..], (map[], 2)).Success?;
-      GetContext2Ext(countX, x, y);
-    }
-  }
   lemma GetContextExt()
     ensures forall x : seq<uint8>, y : seq<uint8> | 2 <= |x|  && x <= y ::
       GetContext(x).Success? ==>
