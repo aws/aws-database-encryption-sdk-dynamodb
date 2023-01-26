@@ -3,7 +3,7 @@
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
-module TrussHeader {
+module Header {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt

@@ -1,14 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/test/TestUtils.dfy"
 include "Header.dfy"
 
 module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptographyStructuredEncryptionOperations {
   import Base64
-  import TrussHeader
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Random
   import Aws.Cryptography.Primitives
+  import Header
+  import MaterialProviders
+  import TestUtils
 
   datatype Config = Config(
     primatives : Primitives.AtomicPrimitivesClient
@@ -46,33 +49,80 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.DataList? ==> output.value.encryptedStructure.content.DataList?)
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
   }
-
-  method CreateHeader(data : EncryptStructureInput)
-    returns (ret : Result<TrussHeader.Header, Error>)
-    modifies data.cmm.Modifies
-    requires data.cmm.ValidState()
+/*
+  method GetMaterials2() returns (ret : Result<CMP.EncryptionMaterials, Error>)
   {
-    var input := CMP.GetEncryptionMaterialsInput(
-      encryptionContext := map[],
-      commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-      algorithmSuiteId := Option.None,
-      maxPlaintextLength := Option.None
+    var mpl :- MaterialProviders.MaterialProviders();
+
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var rawAESKeyringR := mpl.CreateRawAesKeyring(CMP.CreateRawAesKeyringInput(
+      keyNamespace := namespace,
+      keyName := name,
+      wrappingKey := seq(32, i => 0),
+      wrappingAlg := CMP.ALG_AES256_GCM_IV12_TAG16
+    ));
+    rawAESKeyring :- rawAESKeyringR.MapFailure(e => AwsCryptographyPrimitives(e));
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+
+    var algorithmSuiteId := CMP.AlgorithmSuiteId.ESDK(CMP.ALG_AES_256_GCM_IV12_TAG16_NO_KDF);
+    var encryptionMaterialsIn :- mpl.InitializeEncryptionMaterials(
+      CMP.InitializeEncryptionMaterialsInput(
+        algorithmSuiteId := algorithmSuiteId,
+        encryptionContext := encryptionContext,
+        signingKey := None,
+        verificationKey := None
+      )
     );
-    var output := data.cmm.GetEncryptionMaterials(input);
-    var out :- output.MapFailure(e => AwsCryptographyMaterialProviders(e));
-    var mat := out.encryptionMaterials;
-    //= specification/structured-encryption/header.md#message-id
-    //# Implementations MUST generate a fresh 256-bit random MessageID for each record encrypted. 
-    var randBytes := Random.GenerateBytes(32);
-    var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
-    return TrussHeader.Create(data.cryptoSchema, msgID, mat.encryptionContext, mat.encryptedDataKeys);
+
+    var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt( 
+      CMP.OnEncryptInput(materials:=encryptionMaterialsIn)
+    );
+
+    return Success(encryptionMaterialsOut.materials);
+  }
+*/
+  method GetMaterials() returns (ret : CMP.EncryptionMaterials)
+  {
+    var mpl :- expect MaterialProviders.MaterialProviders();
+
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var rawAESKeyring :- expect mpl.CreateRawAesKeyring(CMP.CreateRawAesKeyringInput(
+      keyNamespace := namespace,
+      keyName := name,
+      wrappingKey := seq(32, i => 0),
+      wrappingAlg := CMP.ALG_AES256_GCM_IV12_TAG16
+    ));
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+
+    var algorithmSuiteId := CMP.AlgorithmSuiteId.ESDK(CMP.ALG_AES_256_GCM_IV12_TAG16_NO_KDF);
+    var encryptionMaterialsIn :- expect mpl.InitializeEncryptionMaterials(
+      CMP.InitializeEncryptionMaterialsInput(
+        algorithmSuiteId := algorithmSuiteId,
+        encryptionContext := encryptionContext,
+        signingKey := None,
+        verificationKey := None
+      )
+    );
+
+    var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt( 
+      CMP.OnEncryptInput(materials:=encryptionMaterialsIn)
+    );
+
+    return encryptionMaterialsOut.materials;
   }
 
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
   {
-    var head := CreateHeader(input);
-    // TODO call configured cmm to obtain materials
+    print "****************** Before GetMaterials\n";
+    var mat := GetMaterials();
+    print "****************** After GetMaterials\n";
+    //= specification/structured-encryption/header.md#message-id
+    //# Implementations MUST generate a fresh 256-bit random MessageID for each record encrypted. 
+    var randBytes := Random.GenerateBytes(32);
+    var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
+    var head :- Header.Create(input.cryptoSchema, msgID, mat.encryptionContext, mat.encryptedDataKeys);
+
 
     // TODO: Currently implemented with "fake" encryption for ddb items.
     // For each attribute that should be encrypted:
@@ -89,7 +139,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     // Iterate through presumed DDB Item's attributes to perform "fake" encryption
     var cryptoSchema := input.cryptoSchema.content.SchemaMap;
     var ddbItem := input.plaintextStructure.content.DataMap;
-    var attributeValues := map[]; 
+    var attributeValues := map[];
     while cryptoSchema.Keys != {}
     {
       var attributeName :| attributeName in cryptoSchema;
@@ -122,6 +172,18 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
       cryptoSchema := cryptoSchema - {attributeName};
     }
+    var headerBytes :- Header.FullSerialize(config.primatives, head);
+    var headerAttribute := StructuredData(
+      content := StructuredDataContent.Terminal(
+        Terminal := StructuredDataTerminal(
+          typeId := DDB_STRING_TYPE_ID,
+          value := headerBytes
+        )
+      ),
+      attributes := None
+    );
+    attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
+
     // TODO call configured cmm to obtain materials after deserializing info from header
 
     var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(

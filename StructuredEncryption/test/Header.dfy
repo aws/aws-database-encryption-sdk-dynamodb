@@ -16,7 +16,7 @@ module TestTrussHeader {
   import CMP = AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
   import TestFixtures
-  import opened TrussHeader
+  import opened Header
   import opened UTF8
   import Aws.Cryptography.Primitives
 

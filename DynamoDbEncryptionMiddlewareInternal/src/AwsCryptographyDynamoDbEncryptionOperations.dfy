@@ -282,7 +282,6 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
     while tableNames != {}
       decreases |tableNames|
       invariant tableNames <= input.sdkInput.RequestItems.Keys
-      // invariant |result.Keys + tableNames| == |input.sdkInput.RequestItems.Keys|
       invariant result.Keys + tableNames == input.sdkInput.RequestItems.Keys
       // true but expensive -- invariant forall k <- result.Keys :: |input.sdkInput.RequestItems[k]| == |result[k]|
     {
