@@ -262,6 +262,15 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
   predicate BatchWriteItemInputTransformEnsuresPublicly(input: BatchWriteItemInputTransformInput, output: Result<BatchWriteItemInputTransformOutput, Error>)
   {true}
 
+  lemma MapAdds<X,Y>(m : map<X,Y>, x : X, y : Y)
+    ensures
+      && var newMap := m[x := y];
+      && newMap.Keys == m.Keys + {x}
+    {}
+  lemma AddThree<X>(x : set<X>, y : set<X>, z : set<X>)
+    ensures x + y + z == x + z + y
+  {}
+
   method BatchWriteItemInputTransform(config: InternalConfig, input: BatchWriteItemInputTransformInput)
     returns (output: Result<BatchWriteItemInputTransformOutput, Error>)
     ensures output.Success? ==>
@@ -273,7 +282,8 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
     while tableNames != {}
       decreases |tableNames|
       invariant tableNames <= input.sdkInput.RequestItems.Keys
-      // true but expensive -- invariant result.Keys + tableNames == input.sdkInput.RequestItems.Keys
+      // invariant |result.Keys + tableNames| == |input.sdkInput.RequestItems.Keys|
+      invariant result.Keys + tableNames == input.sdkInput.RequestItems.Keys
       // true but expensive -- invariant forall k <- result.Keys :: |input.sdkInput.RequestItems[k]| == |result[k]|
     {
       var tableName :| tableName in tableNames;
@@ -282,6 +292,8 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
       tableNames := tableNames - { tableName };
       assert oldTableNames == tableNames + { tableName };
       assert tableNames < input.sdkInput.RequestItems.Keys;
+      assert result.Keys + oldTableNames == input.sdkInput.RequestItems.Keys;
+      assert result.Keys + tableNames + { tableName } == input.sdkInput.RequestItems.Keys;
 
       var writeRequests : DDB.WriteRequests := input.sdkInput.RequestItems[tableName];
       if tableName in config.tableEncryptionConfigs {
@@ -316,18 +328,27 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
             encryptedItems := encryptedItems + [req.(PutRequest := Some(DDB.PutRequest(Item := encrypted.encryptedItem)))];
           }
         }
-        assert |encryptedItems| == |input.sdkInput.RequestItems[tableName]|;
-        result := result[tableName := encryptedItems];
-      } else {
-        // If table not configured with encryption, do not transform requests for that table
-        result := result[tableName := writeRequests];
+        assert |writeRequests| == |encryptedItems|;
+        writeRequests := encryptedItems;
       }
+      ghost var oldResult := result;
+      assert result.Keys + tableNames + { tableName } == input.sdkInput.RequestItems.Keys;
+      assert oldResult.Keys + tableNames + { tableName } == input.sdkInput.RequestItems.Keys;
+      AddThree(oldResult.Keys, tableNames, { tableName } );
+      assert oldResult.Keys + { tableName } + tableNames == input.sdkInput.RequestItems.Keys;
+      MapAdds(result, tableName, writeRequests);
+      MapAdds(oldResult, tableName, writeRequests);
+      result := result[tableName := writeRequests];
+      assert oldResult[tableName := writeRequests].Keys == oldResult.Keys + {tableName};
+      assert oldResult[tableName := writeRequests] == result;
+      assert oldResult[tableName := writeRequests].Keys == result.Keys;
+
+      assert oldResult.Keys + { tableName } == result.Keys;
+      assert oldResult.Keys + { tableName } + tableNames == result.Keys + tableNames;
+      assert oldResult.Keys + { tableName } + tableNames == input.sdkInput.RequestItems.Keys;
+      assert result.Keys + tableNames == input.sdkInput.RequestItems.Keys;
     }
-    if result.Keys + tableNames == input.sdkInput.RequestItems.Keys {
-      return Success(BatchWriteItemInputTransformOutput(transformedInput := input.sdkInput.(RequestItems := result)));
-    } else {
-      return MakeError("Math doesn't work.");
-    }
+    return Success(BatchWriteItemInputTransformOutput(transformedInput := input.sdkInput.(RequestItems := result)));
   }
 
   predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput, output: Result<BatchWriteItemOutputTransformOutput, Error>)
