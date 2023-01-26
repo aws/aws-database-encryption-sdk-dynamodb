@@ -3,13 +3,11 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbItemEncryptor.model;
 
+import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
-import software.amazon.cryptography.materialProviders.Keyring;
-import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
-import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 public class DynamoDbItemEncryptorConfig {
@@ -25,9 +23,9 @@ public class DynamoDbItemEncryptorConfig {
 
   private final String allowedUnauthenticatedAttributePrefix;
 
-  private final Keyring keyring;
+  private final IKeyring keyring;
 
-  private final CryptographicMaterialsManager cmm;
+  private final ICryptographicMaterialsManager cmm;
 
   protected DynamoDbItemEncryptorConfig(BuilderImpl builder) {
     this.tableName = builder.tableName();
@@ -64,11 +62,11 @@ public class DynamoDbItemEncryptorConfig {
     return this.allowedUnauthenticatedAttributePrefix;
   }
 
-  public Keyring keyring() {
+  public IKeyring keyring() {
     return this.keyring;
   }
 
-  public CryptographicMaterialsManager cmm() {
+  public ICryptographicMaterialsManager cmm() {
     return this.cmm;
   }
 
@@ -105,13 +103,13 @@ public class DynamoDbItemEncryptorConfig {
 
     String allowedUnauthenticatedAttributePrefix();
 
-    <I extends IKeyring> Builder keyring(I keyring);
+    Builder keyring(IKeyring keyring);
 
-    Keyring keyring();
+    IKeyring keyring();
 
-    <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
+    Builder cmm(ICryptographicMaterialsManager cmm);
 
-    CryptographicMaterialsManager cmm();
+    ICryptographicMaterialsManager cmm();
 
     DynamoDbItemEncryptorConfig build();
   }
@@ -129,9 +127,9 @@ public class DynamoDbItemEncryptorConfig {
 
     protected String allowedUnauthenticatedAttributePrefix;
 
-    protected Keyring keyring;
+    protected IKeyring keyring;
 
-    protected CryptographicMaterialsManager cmm;
+    protected ICryptographicMaterialsManager cmm;
 
     protected BuilderImpl() {
     }
@@ -202,21 +200,21 @@ public class DynamoDbItemEncryptorConfig {
       return this.allowedUnauthenticatedAttributePrefix;
     }
 
-    public <I extends IKeyring> Builder keyring(I keyring) {
-      this.keyring = Keyring.create(keyring);
+    public Builder keyring(IKeyring keyring) {
+      this.keyring = keyring;
       return this;
     }
 
-    public Keyring keyring() {
+    public IKeyring keyring() {
       return this.keyring;
     }
 
-    public <I extends ICryptographicMaterialsManager> Builder cmm(I cmm) {
-      this.cmm = CryptographicMaterialsManager.create(cmm);
+    public Builder cmm(ICryptographicMaterialsManager cmm) {
+      this.cmm = cmm;
       return this;
     }
 
-    public CryptographicMaterialsManager cmm() {
+    public ICryptographicMaterialsManager cmm() {
       return this.cmm;
     }
 

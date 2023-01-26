@@ -95,11 +95,11 @@ public class ToDafny {
         : Option.create_None();
     Option<IKeyring> keyring;
     keyring = Objects.nonNull(nativeValue.keyring()) ?
-        Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.Keyring(nativeValue.keyring()))
+        Option.create_Some((nativeValue.keyring()))
         : Option.create_None();
     Option<ICryptographicMaterialsManager> cmm;
     cmm = Objects.nonNull(nativeValue.cmm()) ?
-        Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.CryptographicMaterialsManager(nativeValue.cmm()))
+        Option.create_Some((nativeValue.cmm()))
         : Option.create_None();
     return new DynamoDbItemEncryptorConfig(tableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, keyring, cmm);
   }
