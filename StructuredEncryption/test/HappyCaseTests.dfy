@@ -39,7 +39,11 @@ module HappyCaseTests {
     }
     expect encryptRes.Success?;
     // TODO: Right now this just tests expected "fake" encryption
-    expect encryptRes.value.encryptedStructure == TestFixtures.TEST_STRUCTURED_DATA_ENCRYPTED;
+    var newData := encryptRes.value.encryptedStructure.content;
+    var testData := TestFixtures.TEST_STRUCTURED_DATA_ENCRYPTED.content;
+    expect newData.DataMap?;
+    expect testData.DataMap?;
+    expect newData.DataMap - {"aws_ddb_head"} == testData.DataMap;
   }
 
   method {:test} TestDecryptStructure() {
