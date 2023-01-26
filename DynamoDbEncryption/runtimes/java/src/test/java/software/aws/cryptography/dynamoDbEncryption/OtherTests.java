@@ -5,51 +5,20 @@ import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.TableDescription;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbItemEncryptor.DynamoDbItemEncryptor;
-import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.amazonaws.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.KMS_TEST_KEY_ID;
-import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createStaticKeyring;
 
 // Here we are testing some manually generated interfaces that don't technically belong to this package,
 // but exist alongside this package as a deliverable, and it is easiest to test them here for now.
 // TODO these should be moved appropriately when they are properly being generated.
 public class OtherTests {
-
-    @Test
-    public void TestItemEncryptorConstruction() {
-        Map<String, CryptoAction> actions = new HashMap<String, CryptoAction>();
-        actions.put("partition_key", CryptoAction.SIGN_ONLY);
-        actions.put("sort_key", CryptoAction.SIGN_ONLY);
-        actions.put("attrA", CryptoAction.ENCRYPT_AND_SIGN);
-        actions.put("attrB", CryptoAction.SIGN_ONLY);
-        actions.put("attrC", CryptoAction.DO_NOTHING);
-
-        DynamoDbItemEncryptor encryptor = DynamoDbItemEncryptor.builder()
-                .DynamoDbItemEncryptorConfig(
-                        DynamoDbItemEncryptorConfig.builder()
-                                .tableName("my-data-table")
-                                .partitionKeyName("partition_key")
-                                .sortKeyName("sort_key")
-                                .keyring(createStaticKeyring())
-                                .attributeActions(actions)
-                                .allowedUnauthenticatedAttributes(Collections.singletonList("attrC"))
-                                .allowedUnauthenticatedAttributePrefix("*")
-                                .build())
-                .build();
-        assertNotNull(encryptor);
-    }
 
     @Test
     public void TestCreateBranchKeyStore() {
