@@ -49,10 +49,11 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.DataList? ==> output.value.encryptedStructure.content.DataList?)
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
   }
-/*
-  method GetMaterials2() returns (ret : Result<CMP.EncryptionMaterials, Error>)
+
+  method GetMaterials() returns (ret : Result<CMP.EncryptionMaterials, Error>)
   {
-    var mpl :- MaterialProviders.MaterialProviders();
+    var mplR := MaterialProviders.MaterialProviders();
+    var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     var namespace, name := TestUtils.NamespaceAndName(0);
     var rawAESKeyringR := mpl.CreateRawAesKeyring(CMP.CreateRawAesKeyringInput(
@@ -61,11 +62,11 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       wrappingKey := seq(32, i => 0),
       wrappingAlg := CMP.ALG_AES256_GCM_IV12_TAG16
     ));
-    rawAESKeyring :- rawAESKeyringR.MapFailure(e => AwsCryptographyPrimitives(e));
+    var rawAESKeyring :- rawAESKeyringR.MapFailure(e => AwsCryptographyMaterialProviders(e));
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
     var algorithmSuiteId := CMP.AlgorithmSuiteId.ESDK(CMP.ALG_AES_256_GCM_IV12_TAG16_NO_KDF);
-    var encryptionMaterialsIn :- mpl.InitializeEncryptionMaterials(
+    var encryptionMaterialsInR := mpl.InitializeEncryptionMaterials(
       CMP.InitializeEncryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
@@ -73,48 +74,19 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         verificationKey := None
       )
     );
-
-    var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt( 
+    var encryptionMaterialsIn :- encryptionMaterialsInR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var encryptionMaterialsOutR := rawAESKeyring.OnEncrypt( 
       CMP.OnEncryptInput(materials:=encryptionMaterialsIn)
     );
+    var encryptionMaterialsOut :- encryptionMaterialsOutR.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     return Success(encryptionMaterialsOut.materials);
-  }
-*/
-  method GetMaterials() returns (ret : CMP.EncryptionMaterials)
-  {
-    var mpl :- expect MaterialProviders.MaterialProviders();
-
-    var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring :- expect mpl.CreateRawAesKeyring(CMP.CreateRawAesKeyringInput(
-      keyNamespace := namespace,
-      keyName := name,
-      wrappingKey := seq(32, i => 0),
-      wrappingAlg := CMP.ALG_AES256_GCM_IV12_TAG16
-    ));
-    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
-
-    var algorithmSuiteId := CMP.AlgorithmSuiteId.ESDK(CMP.ALG_AES_256_GCM_IV12_TAG16_NO_KDF);
-    var encryptionMaterialsIn :- expect mpl.InitializeEncryptionMaterials(
-      CMP.InitializeEncryptionMaterialsInput(
-        algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext,
-        signingKey := None,
-        verificationKey := None
-      )
-    );
-
-    var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt( 
-      CMP.OnEncryptInput(materials:=encryptionMaterialsIn)
-    );
-
-    return encryptionMaterialsOut.materials;
   }
 
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
   {
-    var mat := GetMaterials();
+    var mat :- GetMaterials();
     //= specification/structured-encryption/header.md#message-id
     //# Implementations MUST generate a fresh 256-bit random MessageID for each record encrypted. 
     var randBytes := Random.GenerateBytes(32);
@@ -149,8 +121,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         var attributeValue := ddbItem[attributeName].content.Terminal;
         var concatValue := attributeValue.typeId + attributeValue.value;
         var base64Value := Base64.Encode(concatValue);
-        var base64ValueAsBytes :- UTF8.Encode(base64Value)
-            .MapFailure(e => Types.StructuredEncryptionException( message := e ));
+        var base64ValueAsBytes := UTF8.EncodeAscii(base64Value);
         var finalValue := THIS_IS_NOT_ENCRYPTED + base64ValueAsBytes;
         var transformedAttribute := StructuredData(
           content := StructuredDataContent.Terminal(
@@ -169,7 +140,9 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
       cryptoSchema := cryptoSchema - {attributeName};
     }
-    var headerBytes :- Header.FullSerialize(config.primatives, head);
+    var headerSerialized :- Header.FullSerialize(config.primatives, head);
+    var headerString := Base64.Encode(headerSerialized);
+    var headerBytes := UTF8.EncodeAscii(headerString);
     var headerAttribute := StructuredData(
       content := StructuredDataContent.Terminal(
         Terminal := StructuredDataTerminal(
@@ -179,7 +152,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       ),
       attributes := None
     );
-    attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
+    //attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
 
     // TODO call configured cmm to obtain materials after deserializing info from header
 
