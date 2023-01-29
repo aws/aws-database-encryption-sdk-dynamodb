@@ -54,7 +54,7 @@ module DynamoDbItemEncryptorTest {
       )
     );
     var decrypted :- expect decryptRes;
-    expect decrypted.plaintextItem == inputItem;
+    expect decrypted.plaintextItem - {"aws_ddb_head"} == inputItem;
   }
 
 
@@ -99,33 +99,15 @@ module DynamoDbItemEncryptorTest {
     ];
 
     expect encryptRes.Success?;
-    expect encryptRes.value.encryptedItem == expectedItem;
-  }
-
-  method {:test} TestDecryptItem() {
-    var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
-    var inputItem := map[
-      "bar" := DDBS("key"),
-      "encrypt" := DDBS(TestFixtures.TEST_FAKE_ENCRYPTED_STRING),
-      "sign" := DDBS("bar"),
-      "nothing" := DDBS("baz")
-    ];
+    expect encryptRes.value.encryptedItem - {"aws_ddb_head"} == expectedItem;
 
     var decryptRes := encryptor.DecryptItem(
       Types.DecryptItemInput(
-        encryptedItem:=inputItem
+        encryptedItem:=encryptRes.value.encryptedItem
       )
     );
 
-    // Ensure the "encrypted" attribute is "decrypted" as expected
-    var expectedItem := map[
-      "bar" := DDBS("key"),
-      "encrypt" := DDBS(TestFixtures.TEST_STRING_TO_ENCRYPT),
-      "sign" := DDBS("bar"),
-      "nothing" := DDBS("baz")
-    ];
-
     expect decryptRes.Success?;
-    expect decryptRes.value.plaintextItem == expectedItem;
+    expect decryptRes.value.plaintextItem  - {"aws_ddb_head"} == inputItem;
   }
 }
