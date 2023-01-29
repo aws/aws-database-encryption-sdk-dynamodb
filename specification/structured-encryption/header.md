@@ -11,7 +11,7 @@ The serialized form of the header MUST be
 | 1 | [Format Flavor](#format-flavor) |
 | 32 | [Message ID](#message-id) |
 | Variable | [Encrypt Legend](#encrypt-legend) |
-| Variable | [Encrypt Context](#encrypt-context) |
+| Variable | [Encryption Context](#encryption-context) |
 | Variable | [Encrypted Data Keys](#encrypted-data-keys) |
 | 32 | [Header Commitment](#header-commitment) |
 
@@ -39,7 +39,7 @@ When signatures are enabled in the Format Flavor, a signature will be included i
 
 The Message ID is a random 256-bit value.
 
-Implementations MUST generate a fresh 256-bit random MessageID for each record encrypted.
+Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
 
 ### Encrypt Legend
 
@@ -67,14 +67,16 @@ Each Crypto Action MUST be encoded as follows
 The Encrypt Legend Bytes MUST be serialized as follows:
 
 1. Order every authenticated attribute in the item lexicographically by the attribute name.
-2. For each authenticated attribute, in order,
+TODO - hypotheticaly, one day we might need to encode more complex structures, and calculate
+a full canonical path for each attribute; but until then, ordering by the attribute name is equivalent.
+2. For each authenticated terminal, in order,
 append one of the byte values specified above to indicate whether
 that field should be encrypted.
 
 The length of this serialized value (in bytes) MUST equal the number of authenticated fields indicated
 by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
 
-### Encrypt Context
+### Encryption Context
 
 TODO: Link directly to the MPL definition once it is more generalized.
 
@@ -88,7 +90,6 @@ The Encryption Context MUST be serialized as follows
 #### Key Value Pair Count
 
 The number of key-value pairs within the [Key Value Pair Entries](#key-value-pair-entries) field.
-The value of this field MUST be greater than 0.
 
 #### Key Value Pair Entries
 
@@ -182,3 +183,7 @@ def CheckHeaderCommitment(Header, CommitKey):
 It's important to note that, while the Header Commitment does
 produce a distinct 256-bit hash output per header and commitment key,
 it does not provide any integrity guarantees over the encrypted attributes.
+Integrity over the encrypted attributes is ensured by the signatures in the footer.
+
+When reading or deserializing a Header, the implementation MUST recalculate the commitment,
+and fail if the calculated commitment does not match the stored commitment.

@@ -21,7 +21,7 @@ module TestTrussHeader {
   import Aws.Cryptography.Primitives
 
   method {:test} TestRoundTrip() {
-    var head := Header (
+    var head := PartialHeader (
       version := 1,
       flavor := 1,
       msgID := [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],
@@ -39,7 +39,7 @@ module TestTrussHeader {
 
   method {:test} TestRoundTripWithCommit() {
     var client :- expect Primitives.AtomicPrimitives();
-    var head := Header (
+    var head := PartialHeader (
       version := 1,
       flavor := 1,
       msgID := [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],

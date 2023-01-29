@@ -7,16 +7,12 @@ The serialized form of the footer MUST be
 
 | Field | Length (bytes) | Interpreted as |
 | ----- | -------------- | -------------- |
-| [HMAC Count](#hmac-count) | 2 | big endian UInt16 |
 | [HMACs](#hmacs) | Variable. Equal to 48 times the value specified in the previous 2 bytes (HMAC Count). | [HMAC Count](#hmac-count) individual HMACs |
 | [Signature](#signature) | 0 or 96 | Signature, if signatures are enabled |
 
-### HMAC Count
-
-The HMAC Count MUST be equal to the number of Encrypted Data Keys
-in the [header](./header.md#encrypted-data-keys)
-
 ### HMACs
+
+There MUST be one HMAC for each Encrypted Data Keys in the [header](./header.md#encrypted-data-keys)
 
 Each HMAC for each Encrypted Data Key MUST be calculated as follows:
 

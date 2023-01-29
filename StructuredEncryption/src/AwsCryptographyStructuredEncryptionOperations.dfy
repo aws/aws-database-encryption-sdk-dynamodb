@@ -50,6 +50,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
   }
 
+  // This is all wrong. We need to construct the Encryption Materials from the input CMM
   method GetMaterials() returns (ret : Result<CMP.EncryptionMaterials, Error>)
   {
     var mplR := MaterialProviders.MaterialProviders();
@@ -88,7 +89,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   {
     var mat :- GetMaterials();
     //= specification/structured-encryption/header.md#message-id
-    //# Implementations MUST generate a fresh 256-bit random MessageID for each record encrypted. 
+    //# Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
     var randBytes := Random.GenerateBytes(32);
     var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
     var head :- Header.Create(input.cryptoSchema, msgID, mat.encryptionContext, mat.encryptedDataKeys);
@@ -152,7 +153,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       ),
       attributes := None
     );
-    //attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
+    attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
 
     // TODO call configured cmm to obtain materials after deserializing info from header
 
@@ -172,27 +173,37 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.encryptedStructure.content.DataMap? ==> output.value.plaintextStructure.content.DataMap?)
     && (output.Success? && input.encryptedStructure.content.DataList? ==> output.value.plaintextStructure.content.DataList?)
     && (output.Success? && input.encryptedStructure.content.Terminal? ==> output.value.plaintextStructure.content.Terminal?)
-}
+  }
   
+  function method E(message : string) : Error {
+    StructuredEncryptionException(message := message)
+  }
+
   method DecryptStructure(config: InternalConfig, input: DecryptStructureInput)
       returns (output: Result<DecryptStructureOutput, Error>)
   {
     // TODO: Currently implemented with "fake" decryption for ddb itmes. This is currently brittle,
     // but for now is useful to demonstrate that the attribute actions are being properly piped
     // through the system.
-    :- Need(input.encryptedStructure.content.DataMap?, StructuredEncryptionException(
-      message := "Unexpected Structured Data Item. Currently only implemented to accept DDB Items."
-    ));
+    :- Need(input.encryptedStructure.content.DataMap?, E("Unexpected Structured Data Item. Currently only implemented to accept DDB Items."));
     
     // Iterate through presumed DDB Item's attributes to perform "fake" encryption
     var cryptoSchema := input.encryptedStructure.content.DataMap;
+    :- Need("aws_ddb_head" in cryptoSchema, E("aws_ddb_head field absent"));
+    var headerAttribute := cryptoSchema["aws_ddb_head"];
+    :- Need(headerAttribute.content.Terminal?, E("aws_ddb_head must be a Terminal"));
+    var headerBytes := headerAttribute.content.Terminal.value;
+    var headerStringR := UTF8.Decode(headerBytes);
+    var headerString :- headerStringR.MapFailure(e => E(e));
+    var headerSerializedR := Base64.Decode(headerString);
+    var headerSerialized :- headerSerializedR.MapFailure(e => E(e));
+    var head :- Header.FullDeserialize(config.primatives, headerSerialized);
+
     var attributeValues := map[];
     while cryptoSchema.Keys != {}
     {
       var attributeName :| attributeName in cryptoSchema;
-      :- Need(cryptoSchema[attributeName].content.Terminal?, StructuredEncryptionException(
-        message := "Unexpected Structured Data Item. Currently only implemented to accept DDB Items."
-      ));
+      :- Need(cryptoSchema[attributeName].content.Terminal?, E("Unexpected Structured Data Item. Currently only implemented to accept DDB Items."));
       var attributeValue := cryptoSchema[attributeName].content.Terminal;
       // Since we are not storing the cryptoSchema that was used on encrypt,
       // for our "fake" approach simply look for attributes that appear to be

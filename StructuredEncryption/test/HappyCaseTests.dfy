@@ -44,24 +44,19 @@ module HappyCaseTests {
     expect newData.DataMap?;
     expect testData.DataMap?;
     expect newData.DataMap - {"aws_ddb_head"} == testData.DataMap;
-  }
-
-  method {:test} TestDecryptStructure() {
-    var structuredEncryption :-
-      expect StructuredEncryption.StructuredEncryption(StructuredEncryption.DefaultStructuredEncryptionConfig());
-    var cmm := TestFixtures.GetDefaultCMMWithKMSKeyring();
 
     var decryptRes := structuredEncryption.DecryptStructure(
       DecryptStructureInput(
-        encryptedStructure := TestFixtures.TEST_STRUCTURED_DATA_ENCRYPTED,
+        encryptedStructure := encryptRes.value.encryptedStructure,
         authenticateSchema := TestFixtures.TEST_AUTHENTICATE_SCHEMA,
         cmm := cmm,
         encryptionContext := None()
       )
     );
-
     expect decryptRes.Success?;
     // TODO: Right now this just tests expected "fake" decryption
-    expect decryptRes.value.plaintextStructure == TestFixtures.TEST_STRUCTURED_DATA;
+    var newResult := decryptRes.value.plaintextStructure.content;
+    var testResult := TestFixtures.TEST_STRUCTURED_DATA.content;
+    expect newResult.DataMap - {"aws_ddb_head"} == testResult.DataMap;
   }
 }
