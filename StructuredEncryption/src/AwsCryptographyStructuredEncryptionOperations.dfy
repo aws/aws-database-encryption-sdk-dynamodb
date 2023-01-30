@@ -123,7 +123,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
       cryptoSchema := cryptoSchema - {attributeName};
     }
-    var headerSerialized :- Header.FullSerialize(config.primatives, head);
+    var headerSerialized :- Header.Serialize(config.primatives, head);
     var headerString := Base64.Encode(headerSerialized);
     var headerBytes := UTF8.EncodeAscii(headerString);
     var headerAttribute := StructuredData(
@@ -177,7 +177,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var headerString :- headerStringR.MapFailure(e => E(e));
     var headerSerializedR := Base64.Decode(headerString);
     var headerSerialized :- headerSerializedR.MapFailure(e => E(e));
-    var head :- Header.FullDeserialize(config.primatives, headerSerialized);
+    var head :- Header.Deserialize(config.primatives, headerSerialized);
 
     var attributeValues := map[];
     while cryptoSchema.Keys != {}

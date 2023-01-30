@@ -7,7 +7,7 @@ include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
 include "../src/Header.dfy"
 
-module TestTrussHeader {
+module TestHeader {
   import opened Wrappers
   import opened StandardLibrary.UInt
   import opened AwsCryptographyStructuredEncryptionTypes
@@ -33,7 +33,7 @@ module TestTrussHeader {
         ciphertext := [6,7,8,9])]
     );
     var ser := head.serialize();
-    var orig :- expect Deserialize(ser);
+    var orig :- expect PartialDeserialize(ser);
     expect orig == head;
   }
 
@@ -50,14 +50,14 @@ module TestTrussHeader {
         keyProviderInfo := [1,2,3,4,5],
         ciphertext := [6,7,8,9])]
     );
-    var ser :- expect FullSerialize(client, head);
-    var orig :- expect FullDeserialize(client, ser);
+    var ser :- expect Serialize(client, head);
+    var orig :- expect Deserialize(client, ser);
     expect orig == head;
 
     var lastByte := ser[|ser|-1];
     var badByte : uint8 := if lastByte == 0 then 255 as uint8 else lastByte - 1;
     var badSer := ser[..|ser|-1] + [badByte];
-    var badness := FullDeserialize(client, badSer);
+    var badness := Deserialize(client, badSer);
     expect badness.Failure?;
     expect badness.error == E("Key commitment mismatch.");
   }

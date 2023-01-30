@@ -341,11 +341,6 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
       assert oldResult[tableName := writeRequests].Keys == oldResult.Keys + {tableName};
       assert oldResult[tableName := writeRequests] == result;
       assert oldResult[tableName := writeRequests].Keys == result.Keys;
-
-      assert oldResult.Keys + { tableName } == result.Keys;
-      assert oldResult.Keys + { tableName } + tableNames == result.Keys + tableNames;
-      assert oldResult.Keys + { tableName } + tableNames == input.sdkInput.RequestItems.Keys;
-      assert result.Keys + tableNames == input.sdkInput.RequestItems.Keys;
     }
     return Success(BatchWriteItemInputTransformOutput(transformedInput := input.sdkInput.(RequestItems := result)));
   }

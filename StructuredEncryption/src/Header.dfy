@@ -95,7 +95,7 @@ module Header {
   }
 
   // serialize and add commitment
-  function method FullSerialize(client: Prim.IAwsCryptographicPrimitivesClient, PartialHeader : PartialHeader)
+  function method Serialize(client: Prim.IAwsCryptographicPrimitivesClient, PartialHeader : PartialHeader)
     : (ret : Result<seq<uint8>, Error>)
     requires client.ValidState()
     ensures client.ValidState()
@@ -116,7 +116,7 @@ module Header {
   }
 
   // deserialize, and check commitment
-  function method FullDeserialize(client: Prim.IAwsCryptographicPrimitivesClient, data : seq<uint8>)
+  function method Deserialize(client: Prim.IAwsCryptographicPrimitivesClient, data : seq<uint8>)
     : (ret : Result<PartialHeader, Error>)
     requires client.ValidState()
     ensures client.ValidState()
@@ -132,7 +132,7 @@ module Header {
       && storedCommitment == calcCommitment
   {
     :- Need(32 < |data|, E("PartialHeader too short"));
-    var head :- Deserialize(data[..|data|-32]);
+    var head :- PartialDeserialize(data[..|data|-32]);
     var storedCommitment := data[|data|-32..];
     var calcCommitment :- HMAC(client, data[..|data|-32]);
     :- Need(storedCommitment == calcCommitment, E("Key commitment mismatch."));
@@ -180,8 +180,8 @@ module Header {
     ))
   }
   
-  // bytes to PartialHeader, i.e. does not look at commitment -- FullDeserialize does that
-  function method Deserialize(data : seq<uint8>)
+  // bytes to PartialHeader, i.e. does not look at commitment -- Deserialize does that
+  function method PartialDeserialize(data : seq<uint8>)
     : (ret : Result<PartialHeader, Error>)
     ensures ret.Success? ==>
       && PREFIX_LEN <= |data|
@@ -291,14 +291,13 @@ module Header {
       && var attrs := ComputeSetToOrderedSequence2(schema.content.SchemaMap.Keys, CharLess);
       && MakeLegend2(attrs, schema.content.SchemaMap).Success?
       && ret.value == MakeLegend2(attrs, schema.content.SchemaMap).value
-
   {
     :- Need(schema.content.SchemaMap?, E("Should be a SchemaMap"));
     :- Need(CryptoSchemaMapIsFlat(schema.content.SchemaMap), E("SchemaMap must be flat."));
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //# The Encrypt Legend Bytes MUST be serialized as follows:
     // 1. Order every authenticated attribute in the item lexicographically by the attribute name.
-    // 2. For each authenticated attribute, in order,
+    // 2. For each authenticated terminal, in order,
     // append one of the byte values specified above to indicate whether
     // that field should be encrypted.
     var attrs := ComputeSetToOrderedSequence2(schema.content.SchemaMap.Keys, CharLess);
@@ -324,20 +323,16 @@ module Header {
       if (|serialized| + 1) >= UINT16_LIMIT then
         Failure(E("Legend Too Long."))
       else
-        var legendChar := SerializeCryptoAction(data[attrs[0]].content.Action);
+        var legendChar := GetActionLegend(data[attrs[0]].content.Action);
         MakeLegend2(attrs[1..], data, serialized + legendChar)
   }
 
   // CryptoAction to bytes. One vyte for signed, zero bytes for unsigned
-  function method SerializeCryptoAction(x : CryptoAction)
+  function method GetActionLegend(x : CryptoAction)
     : (ret : seq<uint8>)
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=implication
     //# Each Crypto Action MUST be encoded as follows
-    // | Field | Length (bytes) | Interpreted as |
-    // | ----- | -------------- | -------------- |
-    // | Encrypt Legend Length | 2 | big endian UInt16 |
-    // | Encrypt Legend Bytes | Variable. Equal to the value specified in the previous 2 bytes (Encrypt Legend Length). | Bytes |
     // - `0x65` (`e` in UTF-8, for "Encrypt and Sign") means that a particular field was encrypted
     //   and included in the signature calculation.
     //   This indicates that this field will be attempted to be decrypted during decryption.
@@ -507,11 +502,12 @@ module Header {
     if count == 0 then
       Success(deserialized)
     else
-      if |deserialized.0| + 1 >= UINT16_LIMIT then
-        Failure(E("Too much context"))
-      else
-        var kv :- GetOneKVPair(data);
-        GetContext2(count-1, origData, data[2+|kv.0|+2+|kv.1|..], (deserialized.0[kv.0 := kv.1], deserialized.1 + kv.2))
+      :- Need(|deserialized.0| + 1  < UINT16_LIMIT, E("Too much context"));
+      var kv :- GetOneKVPair(data);
+      //= specification/structured-encryption/header.md#key-value-pair-entries
+      //# This sequence MUST NOT contain duplicate entries.
+      :- Need(kv.0 !in deserialized.0, E("Duplicate key in encryption context."));
+      GetContext2(count-1, origData, data[2+|kv.0|+2+|kv.1|..], (deserialized.0[kv.0 := kv.1], deserialized.1 + kv.2))
   }
 
   // Encryption Context to Bytes
@@ -519,10 +515,6 @@ module Header {
     : (ret : seq<uint8>)
     ensures
       && |ret| >= 2
-      //= specification/structured-encryption/header.md#key-value-pair-entries
-      //= type=implication
-      //# These entries MUST have entries sorted, by key,
-      //# in ascending order according to the UTF-8 encoded binary value.
       && var keys := ComputeSetToOrderedSequence2(x.Keys, ByteLess);
       //= specification/structured-encryption/header.md#encryption-context
       //= type=implication
@@ -533,6 +525,9 @@ module Header {
       // | Key Value Pair Entries | Variable. Determined by the count and length of each key-value pair. | Key Value Pair Entries |
       && ret == UInt16ToSeq(|x| as uint16) + SerializeContext2(keys, x)
   {
+    //= specification/structured-encryption/header.md#key-value-pair-entries
+    //# These entries MUST have entries sorted, by key,
+    //# in ascending order according to the UTF-8 encoded binary value.
     var keys := ComputeSetToOrderedSequence2(x.Keys, ByteLess);
     UInt16ToSeq(|x| as uint16) + SerializeContext2(keys, x)
   }
@@ -776,67 +771,6 @@ module Header {
       && SerializeOneDataKey(cont.0) == data[..cont.1]
   {}
 
-  // GetDataKeys ==> SerializeDataKeys
-  lemma GetDataKeysRoundTrip(data : seq<uint8>)
-    requires GetDataKeys(data).Success?
-    ensures
-      && var dk := GetDataKeys(data).value;
-      && SerializeDataKeys(dk.0) == data[..dk.1]
-  {
-    var dk := GetDataKeys(data).value;
-    GetDataKeys2RoundTrip(data, |dk.0|);
-    assert SerializeDataKeys(dk.0) == [|dk.0| as uint8] + SerializeDataKeys2(dk.0);
-  }
-
-  // Yes, five axioms, I am deeply ashamed, but I think the associated proofs still have value
-
-  // When deserializing an Encryption Context with GetContext
-  // the unexamined bytes do not change the result
-  // much like the non-lemma GetOneKVPairExt
-  lemma {:axiom} GetContextExt2(x : seq<uint8>, y : seq<uint8>)
-    requires 2 <= |x|
-    requires x <= y
-    ensures GetContext(x).Success? ==>
-      && GetContext(y).Success?
-      && GetContext(x).value == GetContext(y).value
-
-  // GetDataKeys2 ==> SerializeDataKeys2
-  // we have proven GetOneDataKeyRoundTrip
-  // and the remaining code is obvious to a human
-  lemma {:axiom} GetDataKeys2RoundTrip(data : seq<uint8>, count : nat)
-    requires 1 <= |data|
-    requires GetDataKeys2(count, count, data, data[1..], ([], 1)).Success?
-    ensures
-      && var dk := GetDataKeys2(count, count, data, data[1..], ([], 1)).value;
-      && SerializeDataKeys2(dk.0) == data[1..dk.1]    
-
-  // SerializeDataKeys2 ==> GetDataKeys2
-  // we have proven GetOneDataKeyRoundTrip
-  // and the mapping between these two functions is simple and obvious to a human
-  lemma {:axiom} SerializeDataKeys2RoundTrip(data : CMPEncryptedDataKeyList)
-    ensures
-      && var bytes := SerializeDataKeys2(data);
-      && var count := |data|;
-      && var bytes2 := [count as uint8] + bytes;
-      && GetDataKeys2(count, count, bytes2, bytes2[1..], ([], 1)).Success?
-      && GetDataKeys2(count, count, bytes2, bytes2[1..], ([], 1)).value.0 == data
-      && GetDataKeys2(count, count, bytes2, bytes2[1..], ([], 1)).value.1 == |bytes2|
-
-  // SerializeContext ==> GetContext
-  // we have proven SerializeOneKVPairRoundTrip
-  // and the mapping between these two functions is simple and obvious to a human
-  lemma {:axiom} SerializeContextRoundTrip(x : CMPEncryptionContext)
-    ensures GetContext(SerializeContext(x)).Success?
-    ensures GetContext(SerializeContext(x)).value.0 == x  
-    ensures GetContext(SerializeContext(x)).value.1 == |SerializeContext(x)|
-  
-  // GetContext ==> SerializeContext
-  // we have proven GetOneKVPairRoundTrip
-  // and the mapping between these two functions is simple and obvious to a human
-  lemma {:axiom} GetContextRoundTrip(x : seq<uint8>)
-    requires GetContext(x).Success?
-    ensures SerializeContext(GetContext(x).value.0) == x
-  
   // When deserializing a Key Value Pair with GetOneKVPair
   // the unexamined bytes do not change the result
   lemma GetOneKVPairExt(x : seq<uint8>, y : seq<uint8>)
@@ -859,120 +793,4 @@ module Header {
       assert x[keylen+4..kvLen] == y[keylen+4..kvLen];
       assert ValidUTF8Seq(value);
     }
-
-    // SerializeDataKeys ==> GetDataKeys
-    lemma SerializeDataKeysRoundTrip(data : CMPEncryptedDataKeyList)
-      ensures
-        && var bytes := SerializeDataKeys(data);
-        && GetDataKeys(bytes).Success?
-        && GetDataKeys(bytes).value.0 == data
-        && GetDataKeys(bytes).value.1 == |bytes|
-    {
-      SerializeDataKeys2RoundTrip(data);
-    }
-
-  // When deserializing an Encryption Context with GetContext
-  // the unexamined bytes do not change the result
-  lemma GetContextExt()
-    ensures forall x : seq<uint8>, y : seq<uint8> | 2 <= |x|  && x <= y ::
-      GetContext(x).Success? ==>
-        && GetContext(y).Success?
-        && GetContext(x).value == GetContext(y).value
-    {
-      forall x : seq<uint8>, y : seq<uint8> | 2 <= |x|  && x <= y ensures
-        GetContext(x).Success? ==>
-          && GetContext(y).Success?
-          && GetContext(x).value == GetContext(y).value {
-            GetContextExt2(x, y);
-          }
-    }
-
-  // Deserialize ==> Serialize
-  // There is no lemma proving FullDeserialize ==> FullSerialize
-  // because those are methods whch cannot be used in requires and ensures clauses
-  lemma DeserializeRoundTrip(data : seq<uint8>)
-    requires Deserialize(data).Success?
-    ensures
-      && var ret := Deserialize(data).value;
-      && PREFIX_LEN <= |data|
-      && data == (
-            [ret.version]
-          + [ret.flavor]
-          + ret.msgID
-          + SerializeLegend(ret.legend)
-          + SerializeContext(ret.encContext)
-          + SerializeDataKeys(ret.dataKeys)
-        )
-    {
-      var ret := Deserialize(data).value;
-      assert PREFIX_LEN <= |data|;
-      var leg := SerializeLegend(ret.legend);
-      GetLegendRoundTrip(leg);
-      var data1 := data[PREFIX_LEN..];
-      assert GetLegend(data1).Success?;
-      var legendAndLen := GetLegend(data1).value;
-      var data2 := data1[legendAndLen.1..];
-      var contextAndLen := GetContext(data2).value;
-      GetContextRoundTrip(data2);
-      SerializeContextRoundTrip(ret.encContext);
-      SerializeDataKeysRoundTrip(ret.dataKeys);
-      var cont := SerializeContext(ret.encContext);
-      GetDataKeysRoundTrip(cont);
-    }
-
-  // Serialize ==> Deerialize
-  // There is no lemma proving FullSerialize ==> FullDeserialize
-  // because those are methods whch cannot be used in requires and ensures clauses
-  lemma SerializeRoundTrip(h : PartialHeader)
-    ensures Deserialize(h.serialize()).Success?
-    ensures h == Deserialize(h.serialize()).value
-  {
-    var data : seq<uint8> := h.serialize();
-    assert data == [h.version] + [h.flavor] + h.msgID + SerializeLegend(h.legend) + SerializeContext(h.encContext) + SerializeDataKeys(h.dataKeys);
-    SerializeLegendRoundTrip(h.legend);
-    SerializeContextRoundTrip(h.encContext);
-    SerializeDataKeysRoundTrip(h.dataKeys);
-    assert GetLegend(SerializeLegend(h.legend)).Success?;
-    assert GetLegend(SerializeLegend(h.legend)).value.0 == h.legend;
-    assert GetLegend(SerializeLegend(h.legend)).value.1 == |SerializeLegend(h.legend)|;
-    assert GetContext(SerializeContext(h.encContext)).Success?;
-    assert GetDataKeys(SerializeDataKeys(h.dataKeys)).Success?;
-    var data1 : seq<uint8> := data[PREFIX_LEN..];
-
-    var serLegend1 : seq<uint8> := SerializeLegend(h.legend);
-    var serLegend2 : seq<uint8> := data1[..|serLegend1|];
-    var legendAndLenR := GetLegend(serLegend2);
-    assert legendAndLenR.Success?;
-    GetLegendRoundTrip(data1);
-    var legendAndLen : (Legend, nat) := legendAndLenR.value;
-    var legend : Legend := legendAndLen.0;
-
-    var data2 : seq<uint8> := data1[legendAndLen.1..];
-
-    var serContext1 : seq<uint8> := SerializeContext(h.encContext);
-    var serContext2 : seq<uint8> := data2[..|serContext1|];
-    assert serContext1 == serContext2;
-    var contextAndLenR := GetContext(serContext2);
-    assert contextAndLenR.Success?;
-    var contextAndLen := contextAndLenR.value;
-    GetContextRoundTrip(serContext2);
-    GetContextExt();
-    GetContextRoundTrip(data2);
-    var encContext := contextAndLen.0;
-    var data3 : seq<uint8> := data2[contextAndLen.1..];
-
-    var serKeys1 : seq<uint8> := SerializeDataKeys(h.dataKeys);
-    var serKeys2 : seq<uint8> := data3[..|serKeys1|];
-    assert serKeys1 == serKeys2;
-    assert |serKeys1| == |data3|;
-
-    assert PREFIX_LEN <= |data|;
-    assert GetLegend(data[PREFIX_LEN..]).Success?;
-    var leg := GetLegend(data[PREFIX_LEN..]).value;
-    assert GetContext(data[PREFIX_LEN+leg.1..]).Success?;
-    var cont := GetContext(data[PREFIX_LEN+leg.1..]).value;
-    assert GetDataKeys(data[PREFIX_LEN+leg.1+cont.1..]).Success?;
-    var dk := GetDataKeys(data[PREFIX_LEN+leg.1+cont.1..]).value;
-    assert |data| == PREFIX_LEN+leg.1+cont.1+dk.1;
-  }
 }
