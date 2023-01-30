@@ -137,8 +137,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     );
     attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
 
-    // TODO call configured cmm to obtain materials after deserializing info from header
-
     var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
       content := StructuredDataContent.DataMap(
         DataMap := attributeValues

@@ -25,7 +25,8 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     @BeforeAll
     public static void setup() {
-        interceptor = createInterceptor(createHierarchicalKeyring());
+	// TODO - switch back to createHierarchicalKeyring
+        interceptor = createInterceptor(createStaticKeyring());
         ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
