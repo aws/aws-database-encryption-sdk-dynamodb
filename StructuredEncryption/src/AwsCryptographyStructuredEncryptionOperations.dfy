@@ -50,44 +50,26 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
   }
 
-  // This is all wrong. We need to construct the Encryption Materials from the input CMM
-  method GetMaterials() returns (ret : Result<CMP.EncryptionMaterials, Error>)
+  method MaterialsFromCMM(cmm : CMP.ICryptographicMaterialsManager) returns (ret : Result<CMP.EncryptionMaterials, Error>)
+    requires cmm.ValidState()
+    ensures cmm.ValidState()
+    modifies cmm.Modifies
   {
-    var mplR := MaterialProviders.MaterialProviders();
-    var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
-
-    var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyringR := mpl.CreateRawAesKeyring(CMP.CreateRawAesKeyringInput(
-      keyNamespace := namespace,
-      keyName := name,
-      wrappingKey := seq(32, i => 0),
-      wrappingAlg := CMP.ALG_AES256_GCM_IV12_TAG16
-    ));
-    var rawAESKeyring :- rawAESKeyringR.MapFailure(e => AwsCryptographyMaterialProviders(e));
-    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
-
-    var algorithmSuiteId := CMP.AlgorithmSuiteId.ESDK(CMP.ALG_AES_256_GCM_IV12_TAG16_NO_KDF);
-    var encryptionMaterialsInR := mpl.InitializeEncryptionMaterials(
-      CMP.InitializeEncryptionMaterialsInput(
-        algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext,
-        signingKey := None,
-        verificationKey := None
-      )
+    var input := CMP.GetEncryptionMaterialsInput(
+      encryptionContext := map[],
+      commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
+      algorithmSuiteId := None,
+      maxPlaintextLength := None
     );
-    var encryptionMaterialsIn :- encryptionMaterialsInR.MapFailure(e => AwsCryptographyMaterialProviders(e));
-    var encryptionMaterialsOutR := rawAESKeyring.OnEncrypt( 
-      CMP.OnEncryptInput(materials:=encryptionMaterialsIn)
-    );
-    var encryptionMaterialsOut :- encryptionMaterialsOutR.MapFailure(e => AwsCryptographyMaterialProviders(e));
-
-    return Success(encryptionMaterialsOut.materials);
+    var matR := cmm.GetEncryptionMaterials(input);
+    var mat :- matR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    return Success(mat.encryptionMaterials);
   }
 
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
   {
-    var mat :- GetMaterials();
+    var mat :- MaterialsFromCMM(input.cmm);
     //= specification/structured-encryption/header.md#message-id
     //# Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
     var randBytes := Random.GenerateBytes(32);
