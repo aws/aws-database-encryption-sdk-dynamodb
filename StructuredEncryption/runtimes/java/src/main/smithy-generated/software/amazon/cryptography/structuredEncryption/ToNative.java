@@ -84,6 +84,7 @@ public class ToNative {
   public static EncryptStructureInput EncryptStructureInput(
       Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureInput dafnyValue) {
     EncryptStructureInput.Builder nativeBuilder = EncryptStructureInput.builder();
+    nativeBuilder.tableName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableName()));
     nativeBuilder.plaintextStructure(ToNative.StructuredData(dafnyValue.dtor_plaintextStructure()));
     nativeBuilder.cryptoSchema(ToNative.CryptoSchema(dafnyValue.dtor_cryptoSchema()));
     nativeBuilder.cmm((dafnyValue.dtor_cmm()));
@@ -113,6 +114,7 @@ public class ToNative {
   public static DecryptStructureInput DecryptStructureInput(
       Dafny.Aws.Cryptography.StructuredEncryption.Types.DecryptStructureInput dafnyValue) {
     DecryptStructureInput.Builder nativeBuilder = DecryptStructureInput.builder();
+    nativeBuilder.tableName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableName()));
     nativeBuilder.encryptedStructure(ToNative.StructuredData(dafnyValue.dtor_encryptedStructure()));
     nativeBuilder.authenticateSchema(ToNative.AuthenticateSchema(dafnyValue.dtor_authenticateSchema()));
     nativeBuilder.cmm((dafnyValue.dtor_cmm()));

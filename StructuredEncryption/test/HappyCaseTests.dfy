@@ -27,6 +27,7 @@ module HappyCaseTests {
     assert && cmm.Modifies !! {structuredEncryption.History};
     var encryptRes := structuredEncryption.EncryptStructure(
       EncryptStructureInput(
+        tableName := "myTable",
         plaintextStructure := TestFixtures.TEST_STRUCTURED_DATA,
         cryptoSchema := TestFixtures.TEST_CRYPTO_SCHEMA,
         cmm := cmm,
@@ -47,6 +48,7 @@ module HappyCaseTests {
 
     var decryptRes := structuredEncryption.DecryptStructure(
       DecryptStructureInput(
+        tableName := "myTable",
         encryptedStructure := encryptRes.value.encryptedStructure,
         authenticateSchema := TestFixtures.TEST_AUTHENTICATE_SCHEMA,
         cmm := cmm,

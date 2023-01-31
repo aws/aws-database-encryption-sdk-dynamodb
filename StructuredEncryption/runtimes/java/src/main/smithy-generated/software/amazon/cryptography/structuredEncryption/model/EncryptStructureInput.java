@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class EncryptStructureInput {
+  private final String tableName;
+
   private final StructuredData plaintextStructure;
 
   private final CryptoSchema cryptoSchema;
@@ -17,10 +19,15 @@ public class EncryptStructureInput {
   private final Map<String, String> encryptionContext;
 
   protected EncryptStructureInput(BuilderImpl builder) {
+    this.tableName = builder.tableName();
     this.plaintextStructure = builder.plaintextStructure();
     this.cryptoSchema = builder.cryptoSchema();
     this.cmm = builder.cmm();
     this.encryptionContext = builder.encryptionContext();
+  }
+
+  public String tableName() {
+    return this.tableName;
   }
 
   public StructuredData plaintextStructure() {
@@ -48,6 +55,10 @@ public class EncryptStructureInput {
   }
 
   public interface Builder {
+    Builder tableName(String tableName);
+
+    String tableName();
+
     Builder plaintextStructure(StructuredData plaintextStructure);
 
     StructuredData plaintextStructure();
@@ -68,6 +79,8 @@ public class EncryptStructureInput {
   }
 
   static class BuilderImpl implements Builder {
+    protected String tableName;
+
     protected StructuredData plaintextStructure;
 
     protected CryptoSchema cryptoSchema;
@@ -80,10 +93,20 @@ public class EncryptStructureInput {
     }
 
     protected BuilderImpl(EncryptStructureInput model) {
+      this.tableName = model.tableName();
       this.plaintextStructure = model.plaintextStructure();
       this.cryptoSchema = model.cryptoSchema();
       this.cmm = model.cmm();
       this.encryptionContext = model.encryptionContext();
+    }
+
+    public Builder tableName(String tableName) {
+      this.tableName = tableName;
+      return this;
+    }
+
+    public String tableName() {
+      return this.tableName;
     }
 
     public Builder plaintextStructure(StructuredData plaintextStructure) {
@@ -123,6 +146,9 @@ public class EncryptStructureInput {
     }
 
     public EncryptStructureInput build() {
+      if (Objects.isNull(this.tableName()))  {
+        throw new IllegalArgumentException("Missing value for required field `tableName`");
+      }
       if (Objects.isNull(this.plaintextStructure()))  {
         throw new IllegalArgumentException("Missing value for required field `plaintextStructure`");
       }
