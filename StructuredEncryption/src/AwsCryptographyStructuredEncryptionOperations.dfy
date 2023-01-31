@@ -1,11 +1,21 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/test/TestUtils.dfy"
+include "Header.dfy"
 
 module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptographyStructuredEncryptionOperations {
   import Base64
+  import CMP = AwsCryptographyMaterialProvidersTypes
+  import Random
+  import Aws.Cryptography.Primitives
+  import Header
+  import MaterialProviders
+  import TestUtils
 
-  datatype Config = Config()
+  datatype Config = Config(
+    primatives : Primitives.AtomicPrimitivesClient
+  )
 
   type InternalConfig = Config
 
@@ -20,16 +30,14 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   // TODO: This is temporary in order to support "fake" encryption with DDB,
   // which is a placeholder to demonstrate the crypto schema is piping to this
   // layer as expected when testing end to end with the DDB Encryption interceptor.
-  const DDB_STRING_TYPE_ID: UTF8.ValidUTF8Bytes :=
-    var s := [0x00, 0x01];
-    assert UTF8.ValidUTF8Range(s, 0, 2);
-    s
+  const DDB_STRING_TYPE_ID : seq<uint8> := [0x00, 0x01];
+  const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF];
 
   predicate ValidInternalConfig?(config: InternalConfig)
-  {true}
+  {config.primatives.ValidState()}
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
-  {{}}
+  {config.primatives.Modifies}
 
   predicate EncryptStructureEnsuresPublicly(
     input: EncryptStructureInput, 
@@ -41,9 +49,24 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   }
 
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
-      returns (output: Result<EncryptStructureOutput, Error>)
+    returns (output: Result<EncryptStructureOutput, Error>)
   {
-    // TODO call configured cmm to obtain materials
+    var matR := input.cmm.GetEncryptionMaterials(
+      CMP.GetEncryptionMaterialsInput(
+        encryptionContext := input.encryptionContext.UnwrapOr(map[]),
+        commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
+        algorithmSuiteId := None,
+        maxPlaintextLength := None
+      )
+    );
+    var matOutput :- matR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var mat := matOutput.encryptionMaterials;
+
+    //= specification/structured-encryption/header.md#message-id
+    //# Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
+    var randBytes := Random.GenerateBytes(32);
+    var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
+    var head :- Header.Create(input.cryptoSchema, msgID, mat.encryptionContext, mat.encryptedDataKeys);
 
     // TODO: Currently implemented with "fake" encryption for ddb items.
     // For each attribute that should be encrypted:
@@ -60,7 +83,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     // Iterate through presumed DDB Item's attributes to perform "fake" encryption
     var cryptoSchema := input.cryptoSchema.content.SchemaMap;
     var ddbItem := input.plaintextStructure.content.DataMap;
-    var attributeValues := map[]; 
+    var attributeValues := map[];
     while cryptoSchema.Keys != {}
     {
       var attributeName :| attributeName in cryptoSchema;
@@ -73,8 +96,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         var attributeValue := ddbItem[attributeName].content.Terminal;
         var concatValue := attributeValue.typeId + attributeValue.value;
         var base64Value := Base64.Encode(concatValue);
-        var base64ValueAsBytes :- UTF8.Encode(base64Value)
-            .MapFailure(e => Types.StructuredEncryptionException( message := e ));
+        var base64ValueAsBytes := UTF8.EncodeAscii(base64Value);
         var finalValue := THIS_IS_NOT_ENCRYPTED + base64ValueAsBytes;
         var transformedAttribute := StructuredData(
           content := StructuredDataContent.Terminal(
@@ -93,7 +115,19 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
       cryptoSchema := cryptoSchema - {attributeName};
     }
-    // TODO call configured cmm to obtain materials after deserializing info from header
+    var headerSerialized :- Header.Serialize(config.primatives, head);
+    var headerString := Base64.Encode(headerSerialized);
+    var headerBytes := UTF8.EncodeAscii(headerString);
+    var headerAttribute := StructuredData(
+      content := StructuredDataContent.Terminal(
+        Terminal := StructuredDataTerminal(
+          typeId := BYTES_TYPE_ID,
+          value := headerBytes
+        )
+      ),
+      attributes := None
+    );
+    attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
 
     var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
       content := StructuredDataContent.DataMap(
@@ -111,27 +145,37 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.encryptedStructure.content.DataMap? ==> output.value.plaintextStructure.content.DataMap?)
     && (output.Success? && input.encryptedStructure.content.DataList? ==> output.value.plaintextStructure.content.DataList?)
     && (output.Success? && input.encryptedStructure.content.Terminal? ==> output.value.plaintextStructure.content.Terminal?)
-}
+  }
   
+  function method E(message : string) : Error {
+    StructuredEncryptionException(message := message)
+  }
+
   method DecryptStructure(config: InternalConfig, input: DecryptStructureInput)
       returns (output: Result<DecryptStructureOutput, Error>)
   {
     // TODO: Currently implemented with "fake" decryption for ddb itmes. This is currently brittle,
     // but for now is useful to demonstrate that the attribute actions are being properly piped
     // through the system.
-    :- Need(input.encryptedStructure.content.DataMap?, StructuredEncryptionException(
-      message := "Unexpected Structured Data Item. Currently only implemented to accept DDB Items."
-    ));
+    :- Need(input.encryptedStructure.content.DataMap?, E("Unexpected Structured Data Item. Currently only implemented to accept DDB Items."));
     
     // Iterate through presumed DDB Item's attributes to perform "fake" encryption
     var cryptoSchema := input.encryptedStructure.content.DataMap;
+    :- Need("aws_ddb_head" in cryptoSchema, E("aws_ddb_head field absent"));
+    var headerAttribute := cryptoSchema["aws_ddb_head"];
+    :- Need(headerAttribute.content.Terminal?, E("aws_ddb_head must be a Terminal"));
+    var headerBytes := headerAttribute.content.Terminal.value;
+    var headerStringR := UTF8.Decode(headerBytes);
+    var headerString :- headerStringR.MapFailure(e => E(e));
+    var headerSerializedR := Base64.Decode(headerString);
+    var headerSerialized :- headerSerializedR.MapFailure(e => E(e));
+    var head :- Header.Deserialize(config.primatives, headerSerialized);
+
     var attributeValues := map[];
     while cryptoSchema.Keys != {}
     {
       var attributeName :| attributeName in cryptoSchema;
-      :- Need(cryptoSchema[attributeName].content.Terminal?, StructuredEncryptionException(
-        message := "Unexpected Structured Data Item. Currently only implemented to accept DDB Items."
-      ));
+      :- Need(cryptoSchema[attributeName].content.Terminal?, E("Unexpected Structured Data Item. Currently only implemented to accept DDB Items."));
       var attributeValue := cryptoSchema[attributeName].content.Terminal;
       // Since we are not storing the cryptoSchema that was used on encrypt,
       // for our "fake" approach simply look for attributes that appear to be

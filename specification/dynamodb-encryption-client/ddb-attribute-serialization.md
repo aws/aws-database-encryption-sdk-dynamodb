@@ -37,11 +37,11 @@ be serialized and deserialized as.
 | Null (NULL)               | 0x0000           |
 | String (S)                | 0x0001           |
 | Number (N)                | 0x0002           |
-| Binary (B)                | 0x0003           |
+| Binary (B)                | 0xFFFF           |
 | Boolean (BOOL)            | 0x0004           |
 | String Set (SS)           | 0x0101           |
 | Number Set (NS)           | 0x0102           |
-| Binary Set (BS)           | 0x0103           |
+| Binary Set (BS)           | 0x01FF           |
 | Map (M)                   | 0x0200           |
 | List (L)                  | 0x0300           |
 

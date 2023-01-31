@@ -39,25 +39,6 @@ module DynamoDbItemEncryptorTest {
     expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "No Crypto Action configured for attribute unknown");
   }
 
-    method {:test} TestRoundTrip() {
-    var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
-    var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
-    var encryptRes := encryptor.EncryptItem(
-      Types.EncryptItemInput(
-        plaintextItem:=inputItem
-      )
-    );
-    var encrypted :- expect encryptRes;
-    var decryptRes := encryptor.DecryptItem(
-      Types.DecryptItemInput(
-        encryptedItem:=encrypted.encryptedItem
-      )
-    );
-    var decrypted :- expect decryptRes;
-    expect decrypted.plaintextItem == inputItem;
-  }
-
-
   method {:test} TestMissingSortKey() {
     var config := TestFixtures.GetEncryptorConfig();
     var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
@@ -75,7 +56,7 @@ module DynamoDbItemEncryptorTest {
     expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Sort key sort not found in Item to be encrypted or decrypted");
   }
 
-  method {:test} TestEncryptItem() {
+  method {:test} TestRoundTrip() {
     var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
     var inputItem := map[
       "bar" := DDBS("key"),
@@ -99,33 +80,15 @@ module DynamoDbItemEncryptorTest {
     ];
 
     expect encryptRes.Success?;
-    expect encryptRes.value.encryptedItem == expectedItem;
-  }
-
-  method {:test} TestDecryptItem() {
-    var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
-    var inputItem := map[
-      "bar" := DDBS("key"),
-      "encrypt" := DDBS(TestFixtures.TEST_FAKE_ENCRYPTED_STRING),
-      "sign" := DDBS("bar"),
-      "nothing" := DDBS("baz")
-    ];
+    expect encryptRes.value.encryptedItem - {"aws_ddb_head"} == expectedItem;
 
     var decryptRes := encryptor.DecryptItem(
       Types.DecryptItemInput(
-        encryptedItem:=inputItem
+        encryptedItem:=encryptRes.value.encryptedItem
       )
     );
 
-    // Ensure the "encrypted" attribute is "decrypted" as expected
-    var expectedItem := map[
-      "bar" := DDBS("key"),
-      "encrypt" := DDBS(TestFixtures.TEST_STRING_TO_ENCRYPT),
-      "sign" := DDBS("bar"),
-      "nothing" := DDBS("baz")
-    ];
-
     expect decryptRes.Success?;
-    expect decryptRes.value.plaintextItem == expectedItem;
+    expect decryptRes.value.plaintextItem  - {"aws_ddb_head"} == inputItem;
   }
 }

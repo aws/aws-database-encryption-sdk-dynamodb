@@ -22,22 +22,22 @@ module DynamoToStructTest {
     }
     expect result.Failure?;
   }
-  method DoSucceed(data : seq<uint8>, typeId : TerminalTypeId)
+  method DoSucceed(data : seq<uint8>, typeId : TerminalTypeId, pos : nat)
   {
     var data := StructuredDataTerminal(value := data, typeId := typeId);
     var sdata := StructuredData(content := Terminal(data), attributes := None);
     var result := StructuredToAttr(sdata);
     if !result.Success? {
-      print "\nUnexpected failure of StructuredToAttr : ", result, "\n";
+      print "\nUnexpected failure of StructuredToAttr : (", pos, ") : ", result, "\n";
     }
     expect result.Success?;
   }
 
   method {:test} {:vcs_split_on_every_assert} TestZeroBytes() {
-    DoSucceed([], DynamoToStruct.NULL);
-    DoSucceed([], STRING);
-    DoSucceed([], NUMBER);
-    DoSucceed([], BINARY);
+    DoSucceed([], DynamoToStruct.NULL, 1);
+    DoSucceed([], STRING, 2);
+    DoSucceed([], NUMBER, 3);
+    DoSucceed([], BINARY, 4);
     DoFail([], BOOLEAN);
     DoFail([], STRING_SET);
     DoFail([], NUMBER_SET);
@@ -55,19 +55,19 @@ module DynamoToStructTest {
     const D := 'D' as uint8;
 
   method {:test} {:vcs_split_on_every_assert} TestBadType() {
-    DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST);
+    DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST, 5);
     DoFail   ([0,0,0,1, 3,1, 0,0,0,0], LIST);
   }
 
   method {:test} {:vcs_split_on_every_assert} TestBadLengthList() {
     DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1], LIST);
-    DoSucceed([0,0,0,1, 0,3, 0,0,0,2, 1,2], LIST);
+    DoSucceed([0,0,0,1, 0xff,0xff, 0,0,0,2, 1,2], LIST, 6);
     DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1,2,3], LIST);
   }
 
   method {:test} {:vcs_split_on_every_assert} TestBadLengthMap() {
     DoFail([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4], MAP);
-    DoSucceed([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5], MAP);
+    DoSucceed([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], MAP, 7);
     DoFail([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5,6], MAP);
   }
 
@@ -75,16 +75,16 @@ module DynamoToStructTest {
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
     //= type=test
     //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
-    DoSucceed([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,B, 0,3, 0,0,0,5, 1,2,3,4,5], MAP);
-    DoFail   ([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5], MAP);
+    DoSucceed([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,B, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], MAP, 8);
+    DoFail   ([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], MAP);
 
-    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], BINARY_SET);
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], BINARY_SET, 9);
     DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], BINARY_SET);
 
-    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], NUMBER_SET);
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], NUMBER_SET, 10);
     DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], NUMBER_SET);
 
-    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], STRING_SET);
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], STRING_SET, 11);
     DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], STRING_SET);
   }
 
@@ -135,7 +135,7 @@ module DynamoToStructTest {
     expect newStringSetValue.value == stringSetValue;
 
     var binarySetValue := AttributeValue.BS([[1,2,3],[4,5]]);
-    var encodedBinarySetData := StructuredDataTerminal(value := [0,0,0,2, 0,0,0,3, 1,2,3, 0,0,0,2, 4,5], typeId := [1,3]);
+    var encodedBinarySetData := StructuredDataTerminal(value := [0,0,0,2, 0,0,0,3, 1,2,3, 0,0,0,2, 4,5], typeId := [1,0xff]);
     var encodedBinarySetValue := StructuredData(content := Terminal(encodedBinarySetData), attributes := None);
     var binarySetStruct := AttrToStructured(binarySetValue);
     expect binarySetStruct.Success?;
@@ -148,7 +148,7 @@ module DynamoToStructTest {
 
   method {:test} {:vcs_split_on_every_assert} TestEncode() {
     var binaryValue := AttributeValue.B([1,2,3,4,5]);
-    var encodedBinaryData := StructuredDataTerminal(value := [1,2,3,4,5], typeId := [0,3]);
+    var encodedBinaryData := StructuredDataTerminal(value := [1,2,3,4,5], typeId := [0xff,0xff]);
     var encodedBinaryValue := StructuredData(content := Terminal(encodedBinaryData), attributes := None);
     var binaryStruct := AttrToStructured(binaryValue);
     expect binaryStruct.Success?;
@@ -209,7 +209,7 @@ module DynamoToStructTest {
     //# A List MAY hold any DynamoDB Attribute Value data type,
     //# and MAY hold values of different types.
     var listValue := AttributeValue.L([binaryValue, nullValue, boolValue]);
-    var encodedListData := StructuredDataTerminal(value := [0,0,0,3, 0,3, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0], typeId := [3,0]);
+    var encodedListData := StructuredDataTerminal(value := [0,0,0,3, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0], typeId := [3,0]);
     var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
     var listStruct := AttrToStructured(listValue);
     expect listStruct.Success?;
@@ -260,10 +260,10 @@ module DynamoToStructTest {
     //# and MAY hold values of different types.
     var encodedMapData := StructuredDataTerminal(value :=
       [0,0,0,4,
-        0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5,
+        0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5,
         0,1, 0,0,0,4, k,e,y,B, 0,0, 0,0,0,0,
         0,1, 0,0,0,4, k,e,y,C, 0,4, 0,0,0,1, 0,
-        0,1, 0,0,0,4, k,e,y,D, 3,0, 0,0,0,28, 0,0,0,3, 0,3, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0],
+        0,1, 0,0,0,4, k,e,y,D, 3,0, 0,0,0,28, 0,0,0,3, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0],
     typeId := [2,0]);
     var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
     var mapStruct := AttrToStructured(mapValue);

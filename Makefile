@@ -7,7 +7,7 @@ duvet: | duvet_extract duvet_report
 
 duvet_extract:
 	rm -rf compliance
-	$(foreach file, $(shell find specification/dynamodb-encryption-client -name '*.md'), duvet extract -o compliance -f MARKDOWN $(file);)
+	$(foreach file, $(shell find specification -name '*.md'), duvet extract -o compliance -f MARKDOWN $(file);)
 
 # TODO add Structured Encryption specs
 
@@ -23,6 +23,9 @@ duvet_report:
 		--source-pattern "DynamoDbItemEncryptor/src/**/*.dfy" \
 		--source-pattern "DynamoDbItemEncryptor/test/**/*.dfy" \
 		--source-pattern "DynamoDbItemEncryptor/Model/**/*.smithy" \
+		--source-pattern "StructuredEncryption/src/**/*.dfy" \
+		--source-pattern "StructuredEncryption/test/**/*.dfy" \
+		--source-pattern "StructuredEncryption/Model/**/*.smithy" \
 		--source-pattern "DynamoDbEncryptionMiddlewareInternal/src/**/*.dfy" \
 		--source-pattern "DynamoDbEncryptionMiddlewareInternal/Model/**/*.smithy" \
 		--html specification_compliance_report.html

@@ -255,7 +255,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   }
 
   // Attr must be part of signature
-  predicate method InSignatureScope(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) {
+  predicate InSignatureScope(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) {
     !DoNotSign(config, attr)
   }
 
@@ -277,7 +277,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= type=implication
     //# Otherwise, Attributes MUST be considered as within the signature scope.
     ensures ret.Success? ==>
-      ret.value == CSE.AuthenticateAction.DO_NOT_SIGN <==> DoNotSign(config, attr)
+      ((ret.value == CSE.AuthenticateAction.DO_NOT_SIGN) <==> DoNotSign(config, attr))
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
     //= type=implication
