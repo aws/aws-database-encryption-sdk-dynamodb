@@ -30,10 +30,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   // TODO: This is temporary in order to support "fake" encryption with DDB,
   // which is a placeholder to demonstrate the crypto schema is piping to this
   // layer as expected when testing end to end with the DDB Encryption interceptor.
-  const DDB_STRING_TYPE_ID: UTF8.ValidUTF8Bytes :=
-    var s := [0x00, 0x01];
-    assert UTF8.ValidUTF8Range(s, 0, 2);
-    s
+  const DDB_STRING_TYPE_ID : seq<uint8> := [0x00, 0x01];
+  const BYTES_TYPE_ID : seq<uint8> := [0xff, 0xff];
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {config.primatives.ValidState()}
@@ -50,26 +48,20 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
   }
 
-  method MaterialsFromCMM(cmm : CMP.ICryptographicMaterialsManager) returns (ret : Result<CMP.EncryptionMaterials, Error>)
-    requires cmm.ValidState()
-    ensures cmm.ValidState()
-    modifies cmm.Modifies
-  {
-    var input := CMP.GetEncryptionMaterialsInput(
-      encryptionContext := map[],
-      commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-      algorithmSuiteId := None,
-      maxPlaintextLength := None
-    );
-    var matR := cmm.GetEncryptionMaterials(input);
-    var mat :- matR.MapFailure(e => AwsCryptographyMaterialProviders(e));
-    return Success(mat.encryptionMaterials);
-  }
-
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
   {
-    var mat :- MaterialsFromCMM(input.cmm);
+    var matR := input.cmm.GetEncryptionMaterials(
+      CMP.GetEncryptionMaterialsInput(
+        encryptionContext := input.encryptionContext.UnwrapOr(map[]),
+        commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
+        algorithmSuiteId := None,
+        maxPlaintextLength := None
+      )
+    );
+    var matOutput :- matR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var mat := matOutput.encryptionMaterials;
+
     //= specification/structured-encryption/header.md#message-id
     //# Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
     var randBytes := Random.GenerateBytes(32);
@@ -129,7 +121,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var headerAttribute := StructuredData(
       content := StructuredDataContent.Terminal(
         Terminal := StructuredDataTerminal(
-          typeId := DDB_STRING_TYPE_ID,
+          typeId := BYTES_TYPE_ID,
           value := headerBytes
         )
       ),

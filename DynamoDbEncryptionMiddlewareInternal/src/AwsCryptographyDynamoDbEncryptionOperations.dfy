@@ -330,6 +330,7 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
         assert |writeRequests| == |encryptedItems|;
         writeRequests := encryptedItems;
       }
+
       ghost var oldResult := result;
       assert result.Keys + tableNames + { tableName } == input.sdkInput.RequestItems.Keys;
       assert oldResult.Keys + tableNames + { tableName } == input.sdkInput.RequestItems.Keys;
@@ -337,7 +338,9 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
       assert oldResult.Keys + { tableName } + tableNames == input.sdkInput.RequestItems.Keys;
       MapAdds(result, tableName, writeRequests);
       MapAdds(oldResult, tableName, writeRequests);
+
       result := result[tableName := writeRequests];
+
       assert oldResult[tableName := writeRequests].Keys == oldResult.Keys + {tableName};
       assert oldResult[tableName := writeRequests] == result;
       assert oldResult[tableName := writeRequests].Keys == result.Keys;

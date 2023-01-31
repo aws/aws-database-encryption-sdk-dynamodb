@@ -20,16 +20,34 @@ module Header {
   const COMMITMENT_LEN := 32
   const PREFIX_LEN := VERSION_LEN + FLAVOR_LEN + MSGID_LEN
   const TRUSS_COMMIT_KEY := "TRUSS_COMMIT_KEY";
+  const UINT8_LIMIT := 256
+  const ENCRYPT_AND_SIGN_LEGEND : uint8 := 0x65;
+  const SIGN_ONLY_LEGEND : uint8 := 0x73;
+
+  //= specification/structured-encryption/header.md#format-version
+  //= type=implication
+  //# The Version MUST be `0x01`.
+  type Version = x : uint8 | ValidVersion(x) witness 1
+
+  //= specification/structured-encryption/header.md#format-flavor
+  //= type=implication
+  //# The flavor MUST be one of these two values.
+  // | Value | Meaning |
+  // |---|---|
+  // | 0x01 | Signatures enabled (default) |
+  // | 0x00 | Signatures disabled |
+  type Flavor = x : uint8 | ValidFlavor(x)
+
+  //= specification/structured-encryption/header.md#encrypted-data-key-count
+  //= type=implication
+  //# This value MUST be greater than 0.
+  type CMPEncryptedDataKeyList = x : seq<CMPEncryptedDataKey> | 0 < |x| < UINT8_LIMIT witness *
 
   type MessageID = x: seq<uint8> | |x| == MSGID_LEN witness *
   type Commitment = x: seq<uint8> | |x| == COMMITMENT_LEN witness *
-  const UINT8_LIMIT := 256
-  type Version = x : uint8 | ValidVersion(x) witness 1
-  type Flavor = x : uint8 | ValidFlavor(x)
   type CMPEncryptedDataKey = x : CMP.EncryptedDataKey | ValidEncryptedDataKey(x) witness *
   type CMPEncryptionContext  = x : CMP.EncryptionContext | ValidEncryptionContext(x) witness *
   type CMPEncryptedDataKeyListEmptyOK = x : seq<CMPEncryptedDataKey> | |x| < UINT8_LIMIT
-  type CMPEncryptedDataKeyList = x : seq<CMPEncryptedDataKey> | 0 < |x| < UINT8_LIMIT witness *
   type Legend = x : seq<uint8> | |x| < UINT16_LIMIT
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
@@ -107,11 +125,11 @@ module Header {
     //# and a commitment key of "TRUSS_COMMIT_KEY"
     ensures ret.Success? ==>
       && PREFIX_LEN <= |ret.value|
-      && HMAC(client, ret.value[..|ret.value|-32]).Success?
-      && ret.value[|ret.value|-32..] == HMAC(client, ret.value[..|ret.value|-32]).value
+      && CalculateHeaderCommitment(client, ret.value[..|ret.value|-32]).Success?
+      && ret.value[|ret.value|-32..] == CalculateHeaderCommitment(client, ret.value[..|ret.value|-32]).value
   {
     var body := PartialHeader.serialize();
-    var commitment :- HMAC(client, body);
+    var commitment :- CalculateHeaderCommitment(client, body);
     Success(body + commitment)
   }
 
@@ -127,14 +145,14 @@ module Header {
     ensures ret.Success? ==>
       && 32 < |data|
       && var storedCommitment := data[|data|-32..];
-      && HMAC(client, data[..|data|-32]).Success?
-      && var calcCommitment := HMAC(client, data[..|data|-32]).value;
+      && CalculateHeaderCommitment(client, data[..|data|-32]).Success?
+      && var calcCommitment := CalculateHeaderCommitment(client, data[..|data|-32]).value;
       && storedCommitment == calcCommitment
   {
     :- Need(32 < |data|, E("PartialHeader too short"));
     var head :- PartialDeserialize(data[..|data|-32]);
     var storedCommitment := data[|data|-32..];
-    var calcCommitment :- HMAC(client, data[..|data|-32]);
+    var calcCommitment :- CalculateHeaderCommitment(client, data[..|data|-32]);
     :- Need(storedCommitment == calcCommitment, E("Key commitment mismatch."));
     Success(head)
   }
@@ -147,23 +165,6 @@ module Header {
       dataKeys : CMP.EncryptedDataKeyList
     )
     : (ret : Result<PartialHeader, Error>)
-    ensures ret.Success? ==>
-      //= specification/structured-encryption/header.md#format-version
-      //= type=implication
-      //# The Version MUST be `0x01`.
-      && ret.value.version == 1
-      //= specification/structured-encryption/header.md#format-flavor
-      //= type=implication
-      //# The flavor MUST be one of these two values.
-      // | Value | Meaning |
-      // |---|---|
-      // | 0x01 | Signatures enabled (default) |
-      // | 0x00 | Signatures disabled |
-      && ret.value.flavor == 1
-      //= specification/structured-encryption/header.md#encrypted-data-key-count
-      //= type=implication
-      //# This value MUST be greater than 0.
-      && 0 < |dataKeys|
   {
     :- Need(ValidEncryptionContext(encContext), E("Invalid Encryption Context"));
     :- Need(0 < |dataKeys|, E("There must be at least one data key"));
@@ -232,7 +233,7 @@ module Header {
   }
 
   // calculate Hmac384 for header commitment
-  function method HMAC(
+  function method CalculateHeaderCommitment(
     client: Prim.IAwsCryptographicPrimitivesClient,
     data: seq<uint8>
   ) : (ret : Result<seq<uint8>, Error>)
@@ -240,7 +241,7 @@ module Header {
     ensures client.ValidState()
     ensures ret.Success? ==> |ret.value| == 32
   {
-    // TODO - Prim.SHA_384
+    // TODO - Get hashing algorithm from algorithm suite
     var input := Prim.HMacInput (
       digestAlgorithm := Prim.SHA_384,
       key := EncodeAscii(TRUSS_COMMIT_KEY),
@@ -341,19 +342,19 @@ module Header {
     //   This indicates that this field will not be attempted to be decrypted during decryption.
     // - no entry if the attribute is not signed
     ensures match (x) {
-      case ENCRYPT_AND_SIGN => ret == [0x65]
-      case SIGN_ONLY => ret == [0x73]
+      case ENCRYPT_AND_SIGN => ret == [ENCRYPT_AND_SIGN_LEGEND]
+      case SIGN_ONLY => ret == [SIGN_ONLY_LEGEND]
       case DO_NOTHING => ret == []
     }
   {
     match (x) {
-      case ENCRYPT_AND_SIGN => [0x65]
-      case SIGN_ONLY => [0x73]
+      case ENCRYPT_AND_SIGN => [ENCRYPT_AND_SIGN_LEGEND]
+      case SIGN_ONLY => [SIGN_ONLY_LEGEND]
       case DO_NOTHING => []
     }
   }
 
-  // attibute is "authorized", a.k.a. "signed"
+  // attibute is "authorized", a.k.a. included in the signature
   function method IsAuthAttr(x : CryptoAction) : nat
   {
     match (x) {
@@ -384,7 +385,7 @@ module Header {
     CryptoSchemaMapIsFlat2(attrs, data)
   }
 
-  // How many of the given elements of the Schema are authorized?
+  // How many of the given elements of the Schema are included in the signature?
   function CountAuthAttrs2(attrs : seq<string>, data : CryptoSchemaMap)
     : (ret : nat)
     requires forall k <- attrs :: k in data
@@ -397,7 +398,7 @@ module Header {
       CountAuthAttrs2(attrs[1..], data) + IsAuthAttr(data[attrs[0]].content.Action)
   }
 
-  // How many elements of Schema are authorized?
+  // How many elements of Schema are included in the signature?
   function CountAuthAttrs(data : CryptoSchemaMap)
     : nat
     requires forall x <- data.Values :: x.content.Action?

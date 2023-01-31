@@ -62,4 +62,72 @@ module TestHeader {
     expect badness.error == E("Key commitment mismatch.");
   }
 
+  const a : uint8 := 'a' as uint8;
+  const b : uint8 := 'b' as uint8;
+  const c : uint8 := 'c' as uint8;
+  const d : uint8 := 'd' as uint8;
+  const e : uint8 := 'e' as uint8;
+  const f : uint8 := 'f' as uint8;
+  method {:test} TestDuplicateContext() {
+    var cont : CMPEncryptionContext := map[EncodeAscii("abc") := EncodeAscii("def"), EncodeAscii("cba") := EncodeAscii("fed")];
+    var serCont := SerializeContext(cont);
+    expect serCont == [
+      0,2, // two items
+      0,3,a,b,c,
+      0,3,d,e,f,
+      0,3,c,b,a,
+      0,3,f,e,d
+    ];
+    var newCont := GetContext(serCont);
+    expect newCont.Success?;
+    expect newCont.value.0 == cont;
+    expect newCont.value.1 == |serCont|;
+
+    var badSerCont := [
+      0,3, // three items
+      0,3,a,b,c,
+      0,3,d,e,f,
+      0,3,c,b,a,
+      0,3,f,e,d,
+      0,3,a,b,c, // oops, a duplicate
+      0,3,e,d,f
+    ];
+    var newBadCont := GetContext(badSerCont);
+    //= specification/structured-encryption/header.md#key-value-pair-entries
+    //= type=test
+    //# This sequence MUST NOT contain duplicate entries.
+    expect newBadCont == Failure(E("Duplicate key in encryption context."));
+  }
+
+  function method MakeSchema(action: CryptoAction) : CryptoSchema
+  {
+    CryptoSchema (
+      content := CryptoSchemaContent.Action(action),
+      attributes := None
+    )
+  }
+
+  method {:test} TestSchemaOrder() {
+    var schemaMap : CryptoSchemaMap := map[
+      "abc" := MakeSchema(ENCRYPT_AND_SIGN),
+      "def" := MakeSchema(SIGN_ONLY),
+      "ghi" := MakeSchema(DO_NOTHING),
+      "jkl" := MakeSchema(ENCRYPT_AND_SIGN),
+      "mno" := MakeSchema(SIGN_ONLY),
+      "pqr" := MakeSchema(DO_NOTHING)
+    ];
+    var schema := CryptoSchema(content := CryptoSchemaContent.SchemaMap(schemaMap), attributes := None);
+    var legend :- expect MakeLegend(schema);
+    //= specification/structured-encryption/header.md#encrypt-legend-bytes
+    //= type=test
+    //# The Encrypt Legend Bytes MUST be serialized as follows:
+    // 1. Order every authenticated attribute in the item lexicographically by the attribute name.
+    // TODO - we must sort by the Canoncial Path, which is slightly different, even for just plain
+    // attribute names in a single table.
+    // 2. For each authenticated terminal, in order,
+    // append one of the byte values specified above to indicate whether
+    // that field should be encrypted.
+    expect legend == [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND, ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND];
+  }
+
 }

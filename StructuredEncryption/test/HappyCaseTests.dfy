@@ -16,7 +16,7 @@ module HappyCaseTests {
   import MaterialProviders
   import TestFixtures
 
-  method {:test} TestEncryptStructure() {
+  method {:test} TestRoundTrip() {
     var structuredEncryption :-
       expect StructuredEncryption.StructuredEncryption(StructuredEncryption.DefaultStructuredEncryptionConfig());
     var cmm := TestFixtures.GetDefaultCMMWithKMSKeyring();

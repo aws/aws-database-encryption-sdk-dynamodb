@@ -39,25 +39,6 @@ module DynamoDbItemEncryptorTest {
     expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "No Crypto Action configured for attribute unknown");
   }
 
-    method {:test} TestRoundTrip() {
-    var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
-    var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
-    var encryptRes := encryptor.EncryptItem(
-      Types.EncryptItemInput(
-        plaintextItem:=inputItem
-      )
-    );
-    var encrypted :- expect encryptRes;
-    var decryptRes := encryptor.DecryptItem(
-      Types.DecryptItemInput(
-        encryptedItem:=encrypted.encryptedItem
-      )
-    );
-    var decrypted :- expect decryptRes;
-    expect decrypted.plaintextItem - {"aws_ddb_head"} == inputItem;
-  }
-
-
   method {:test} TestMissingSortKey() {
     var config := TestFixtures.GetEncryptorConfig();
     var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
@@ -75,7 +56,7 @@ module DynamoDbItemEncryptorTest {
     expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Sort key sort not found in Item to be encrypted or decrypted");
   }
 
-  method {:test} TestEncryptItem() {
+  method {:test} TestRoundTrip() {
     var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
     var inputItem := map[
       "bar" := DDBS("key"),

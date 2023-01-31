@@ -67,8 +67,8 @@ Each Crypto Action MUST be encoded as follows
 The Encrypt Legend Bytes MUST be serialized as follows:
 
 1. Order every authenticated attribute in the item lexicographically by the attribute name.
-TODO - hypotheticaly, one day we might need to encode more complex structures, and calculate
-a full canonical path for each attribute; but until then, ordering by the attribute name is equivalent.
+TODO - we must sort by the Canoncial Path, which is slightly different, even for just plain
+attribute names in a single table.
 2. For each authenticated terminal, in order,
 append one of the byte values specified above to indicate whether
 that field should be encrypted.
@@ -168,6 +168,7 @@ It is the data key encrypted by the key provider.
 The Header Commitment MUST be calculated as a 256-bit HmacSha384,
 with all preceding header bytes as the message
 and a commitment key of "TRUSS_COMMIT_KEY"
+TODO - use real commitment key
 
 ```
 def GetHeaderCommitment(Header, CommitKey):
