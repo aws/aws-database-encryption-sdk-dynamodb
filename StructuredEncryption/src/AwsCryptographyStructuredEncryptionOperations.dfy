@@ -31,7 +31,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   // which is a placeholder to demonstrate the crypto schema is piping to this
   // layer as expected when testing end to end with the DDB Encryption interceptor.
   const DDB_STRING_TYPE_ID : seq<uint8> := [0x00, 0x01];
-  const BYTES_TYPE_ID : seq<uint8> := [0xff, 0xff];
+  const BYTES_TYPE_ID : seq<uint8> := [0x00, 0x03];
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {config.primatives.ValidState()}
