@@ -226,7 +226,7 @@ module DynamoToStruct {
     //# | Boolean (BOOL)            | 0x0004           |
     //# | String Set (SS)           | 0x0101           |
     //# | Number Set (NS)           | 0x0102           |
-    //# | Binary Set (BS)           | 0x0103           |
+    //# | Binary Set (BS)           | 0x01FF           |
     //# | Map (M)                   | 0x0200           |
     //# | List (L)                  | 0x0300           |
     const TERM_T : uint8 := 0x00;
