@@ -222,7 +222,7 @@ module DynamoToStruct {
     //# | Null (NULL)               | 0x0000           |
     //# | String (S)                | 0x0001           |
     //# | Number (N)                | 0x0002           |
-    //# | Binary (B)                | 0x0003           |
+    //# | Binary (B)                | 0xFFFF           |
     //# | Boolean (BOOL)            | 0x0004           |
     //# | String Set (SS)           | 0x0101           |
     //# | Number Set (NS)           | 0x0102           |
@@ -236,12 +236,13 @@ module DynamoToStruct {
     const NULL_T : uint8 := 0x00;
     const STRING_T  : uint8 := 0x01;
     const NUMBER_T  : uint8 := 0x02;
-    const BINARY_T : uint8 := 0x03;
+    const BINARY_T : uint8 := 0xFF;
     const BOOLEAN_T : uint8 := 0x04;
+
     const NULL       : TerminalTypeId := [TERM_T, NULL_T];
     const STRING     : TerminalTypeId := [TERM_T, STRING_T];
     const NUMBER     : TerminalTypeId := [TERM_T, NUMBER_T];
-    const BINARY     : TerminalTypeId := [TERM_T, BINARY_T];
+    const BINARY     : TerminalTypeId := [BINARY_T, BINARY_T]; // Really : BINARY_T not TERM_T
     const BOOLEAN    : TerminalTypeId := [TERM_T, BOOLEAN_T];
     const STRING_SET : TerminalTypeId := [SET_T,  STRING_T];
     const NUMBER_SET : TerminalTypeId := [SET_T,  NUMBER_T];
