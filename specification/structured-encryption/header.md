@@ -84,7 +84,7 @@ The canoncial path MUST start with the UTF8 encoded table name.
 
 This MUST be followed by the depth of the location within a record.
 
-This MUST be followed by the encoding for each item in the path, including the item itself.
+This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
 
 For numerical-indexed arrays, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
 
