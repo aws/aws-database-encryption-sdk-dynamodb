@@ -66,7 +66,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
     var randBytes := Random.GenerateBytes(32);
     var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
-    var head :- Header.Create(input.cryptoSchema, msgID, mat.encryptionContext, mat.encryptedDataKeys);
+    var head :- Header.Create(input.tableName, input.cryptoSchema, msgID, mat.encryptionContext, mat.encryptedDataKeys);
 
     // TODO: Currently implemented with "fake" encryption for ddb items.
     // For each attribute that should be encrypted:

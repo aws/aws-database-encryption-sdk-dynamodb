@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "Paths.dfy"
 
 module Header {
   import opened Wrappers
@@ -12,6 +13,7 @@ module Header {
   import Prim = AwsCryptographyPrimitivesTypes
   import opened Sets
   import opened UTF8
+  import opened Paths
   import Random
 
   const VERSION_LEN := 1
@@ -43,12 +45,12 @@ module Header {
   //# This value MUST be greater than 0.
   type CMPEncryptedDataKeyList = x : seq<CMPEncryptedDataKey> | 0 < |x| < UINT8_LIMIT witness *
 
-  type MessageID = x: seq<uint8> | |x| == MSGID_LEN witness *
-  type Commitment = x: seq<uint8> | |x| == COMMITMENT_LEN witness *
+  type MessageID = x: Bytes | |x| == MSGID_LEN witness *
+  type Commitment = x: Bytes | |x| == COMMITMENT_LEN witness *
   type CMPEncryptedDataKey = x : CMP.EncryptedDataKey | ValidEncryptedDataKey(x) witness *
   type CMPEncryptionContext  = x : CMP.EncryptionContext | ValidEncryptionContext(x) witness *
   type CMPEncryptedDataKeyListEmptyOK = x : seq<CMPEncryptedDataKey> | |x| < UINT8_LIMIT
-  type Legend = x : seq<uint8> | |x| < UINT16_LIMIT
+  type Legend = x : Bytes | |x| < UINT16_LIMIT
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
   predicate method ValidVersion(x : uint8) {
@@ -82,7 +84,7 @@ module Header {
   )
   {
     // PartialHeader to Bytes
-    function method {:opaque} serialize() : (ret : seq<uint8>)
+    function method {:opaque} serialize() : (ret : Bytes)
       ensures
         && PREFIX_LEN <= |ret|
         //= specification/structured-encryption/header.md#header-format
@@ -114,7 +116,7 @@ module Header {
 
   // serialize and add commitment
   function method Serialize(client: Prim.IAwsCryptographicPrimitivesClient, PartialHeader : PartialHeader)
-    : (ret : Result<seq<uint8>, Error>)
+    : (ret : Result<Bytes, Error>)
     requires client.ValidState()
     ensures client.ValidState()
 
@@ -134,7 +136,7 @@ module Header {
   }
 
   // deserialize, and check commitment
-  function method Deserialize(client: Prim.IAwsCryptographicPrimitivesClient, data : seq<uint8>)
+  function method Deserialize(client: Prim.IAwsCryptographicPrimitivesClient, data : Bytes)
     : (ret : Result<PartialHeader, Error>)
     requires client.ValidState()
     ensures client.ValidState()
@@ -159,6 +161,7 @@ module Header {
 
   // config to PartialHeader
   function method Create(
+      tableName : string,
       schema : CryptoSchema,
       msgID : MessageID,
       encContext : CMP.EncryptionContext,
@@ -166,11 +169,14 @@ module Header {
     )
     : (ret : Result<PartialHeader, Error>)
   {
+    :- Need(ValidString(tableName), E("Invalid table name."));
     :- Need(ValidEncryptionContext(encContext), E("Invalid Encryption Context"));
     :- Need(0 < |dataKeys|, E("There must be at least one data key"));
     :- Need(|dataKeys| < UINT8_LIMIT, E("Too many data keys."));
     :- Need(forall x | x in dataKeys :: ValidEncryptedDataKey(x), E("Invalid Data Key"));
-    var legend :- MakeLegend(schema);
+    :- Need(schema.content.SchemaMap?, E("Schema must be a Map"));
+    :- Need(CryptoSchemaMapIsFlat(schema.content.SchemaMap), E("Schema must be flat."));
+    var legend :- MakeLegend(tableName, schema);
     Success(PartialHeader(
       version := 1,
       flavor := 1, // or zero if algorithm suite is TODO?
@@ -182,7 +188,7 @@ module Header {
   }
   
   // bytes to PartialHeader, i.e. does not look at commitment -- Deserialize does that
-  function method PartialDeserialize(data : seq<uint8>)
+  function method PartialDeserialize(data : Bytes)
     : (ret : Result<PartialHeader, Error>)
     ensures ret.Success? ==>
       && PREFIX_LEN <= |data|
@@ -235,8 +241,8 @@ module Header {
   // calculate Hmac384 for header commitment
   function method CalculateHeaderCommitment(
     client: Prim.IAwsCryptographicPrimitivesClient,
-    data: seq<uint8>
-  ) : (ret : Result<seq<uint8>, Error>)
+    data: Bytes
+  ) : (ret : Result<Bytes, Error>)
     requires client.ValidState()
     ensures client.ValidState()
     ensures ret.Success? ==> |ret.value| == 32
@@ -279,44 +285,40 @@ module Header {
   }
 
   // Create a Legend from the Schema
-  function method MakeLegend(schema : CryptoSchema)
+  function method MakeLegend(tableName : GoodString, schema : CryptoSchema)
     : (ret : Result<Legend, Error>)
+    requires schema.content.SchemaMap?
+    requires CryptoSchemaMapIsFlat(schema.content.SchemaMap)
     ensures ret.Success? ==>
-      && schema.content.SchemaMap?
-      && CryptoSchemaMapIsFlat(schema.content.SchemaMap)
       //= specification/structured-encryption/header.md#encrypt-legend-bytes
       //= type=implication
       //# The length of this serialized value (in bytes) MUST equal the number of authenticated fields indicated
       //# by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
       && |ret.value| == CountAuthAttrs(schema.content.SchemaMap)
-      && var attrs := ComputeSetToOrderedSequence2(schema.content.SchemaMap.Keys, CharLess);
-      && MakeLegend2(attrs, schema.content.SchemaMap).Success?
-      && ret.value == MakeLegend2(attrs, schema.content.SchemaMap).value
   {
-    :- Need(schema.content.SchemaMap?, E("Should be a SchemaMap"));
-    :- Need(CryptoSchemaMapIsFlat(schema.content.SchemaMap), E("SchemaMap must be flat."));
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //# The Encrypt Legend Bytes MUST be serialized as follows:
     // 1. Order every authenticated attribute in the item lexicographically by the attribute name.
     // 2. For each authenticated terminal, in order,
     // append one of the byte values specified above to indicate whether
     // that field should be encrypted.
-    var attrs := ComputeSetToOrderedSequence2(schema.content.SchemaMap.Keys, CharLess);
-    MakeLegend2(attrs, schema.content.SchemaMap)
+    :- Need(forall x <- schema.content.SchemaMap.Keys :: Paths.ValidString(x), E("bad attribute name"));
+    Paths.SimpleCanonUnique(tableName);
+    var canonSchema := map kv <- schema.content.SchemaMap.Items | true :: Paths.SimpleCanon(tableName, kv.0) := kv.1;
+    var attrs := ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);
+    var legend :- MakeLegend2(attrs, canonSchema);
+    :- Need(|legend| == CountAuthAttrs(schema.content.SchemaMap), E("Internal Error."));
+    Success(legend)
   }
 
   // Create a Legend for the given attrs of the Schema
   function method {:tailrecursion} MakeLegend2(
-      attrs : seq<string>,
-      data : CryptoSchemaMap,
+      attrs : seq<Bytes>,
+      data : map<Bytes, CryptoSchema>,
       serialized : Legend := []
     )
     : (ret : Result<Legend, Error>)
-    requires CryptoSchemaMapIsFlat(data)
     requires forall k <- attrs :: k in data
-    requires CountAuthAttrs2(attrs, data) + |serialized| == CountAuthAttrs(data)
-    ensures ret.Success? ==>
-      && |ret.value| == CountAuthAttrs(data)
   {
     if |attrs| == 0 then
       Success(serialized)
@@ -324,13 +326,14 @@ module Header {
       if (|serialized| + 1) >= UINT16_LIMIT then
         Failure(E("Legend Too Long."))
       else
+        :- Need(data[attrs[0]].content.Action?, E("Scema must be flat"));
         var legendChar := GetActionLegend(data[attrs[0]].content.Action);
         MakeLegend2(attrs[1..], data, serialized + legendChar)
   }
 
-  // CryptoAction to bytes. One vyte for signed, zero bytes for unsigned
+  // CryptoAction to bytes. One byte for signed, zero bytes for unsigned
   function method GetActionLegend(x : CryptoAction)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=implication
     //# Each Crypto Action MUST be encoded as follows
@@ -357,59 +360,36 @@ module Header {
   // attibute is "authorized", a.k.a. included in the signature
   function method IsAuthAttr(x : CryptoAction) : nat
   {
-    match (x) {
-      case ENCRYPT_AND_SIGN => 1
-      case SIGN_ONLY => 1
-      case DO_NOTHING => 0
-    }
+    if IsAuthAttr2(x) then
+      1
+    else
+      0
   }
 
-  // Are all the given attrs in the CryptoSchemaMap flat, i.e., does it contain only Actions?
-  function method {:tailrecursion} CryptoSchemaMapIsFlat2(attrs : seq<string>, data : CryptoSchemaMap) : (ret : bool)
-    requires forall k <- attrs :: k in data
-    ensures ret ==> (forall k <- attrs :: data[k].content.Action?)
+  // attibute is "authorized", a.k.a. included in the signature
+  predicate method IsAuthAttr2(x : CryptoAction)
   {
-    if |attrs| == 0 then
-      true
-    else if !data[attrs[0]].content.Action? then
-      false
-    else
-      CryptoSchemaMapIsFlat2(attrs[1..], data)
+    x.ENCRYPT_AND_SIGN? || x.SIGN_ONLY?
   }
 
   // Is the CryptoSchemaMap flat, i.e., does it contain only Actions?
   function method CryptoSchemaMapIsFlat(data : CryptoSchemaMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Action?)
   {
-    var attrs := ComputeSetToOrderedSequence2(data.Keys, CharLess);
-    CryptoSchemaMapIsFlat2(attrs, data)
-  }
-
-  // How many of the given elements of the Schema are included in the signature?
-  function CountAuthAttrs2(attrs : seq<string>, data : CryptoSchemaMap)
-    : (ret : nat)
-    requires forall k <- attrs :: k in data
-    requires forall x | x in attrs :: data[x].content.Action?
-    ensures |attrs| > 0 ==> ret == CountAuthAttrs2(attrs[1..], data) + IsAuthAttr(data[attrs[0]].content.Action)
-  {
-    if |attrs| == 0 then
-      0
-    else 
-      CountAuthAttrs2(attrs[1..], data) + IsAuthAttr(data[attrs[0]].content.Action)
+    forall v <- data.Values :: v.content.Action? 
   }
 
   // How many elements of Schema are included in the signature?
-  function CountAuthAttrs(data : CryptoSchemaMap)
+  function method CountAuthAttrs(data : CryptoSchemaMap)
     : nat
     requires forall x <- data.Values :: x.content.Action?
   {
-    var attrs := ComputeSetToOrderedSequence2(data.Keys, CharLess);
-    CountAuthAttrs2(attrs, data)
+    |map k <- data.Keys | IsAuthAttr2(data[k].content.Action) :: k := data[k]|
   }
 
-  // Legens to Bytes
+  // Legend to Bytes
   function method {:opaque} SerializeLegend(x : Legend)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
     //= specification/structured-encryption/header.md#encrypt-legend
     //= type=implication
     //# The Encrypt Legend MUST be serialized as
@@ -426,7 +406,7 @@ module Header {
   }
 
   // Bytes to Legend
-  function method GetLegend(data : seq<uint8>)
+  function method GetLegend(data : Bytes)
     : (ret : Result<(Legend, nat), Error>)
     ensures ret.Success? ==>
       && ret.value.1 <= |data|
@@ -441,7 +421,7 @@ module Header {
   }
 
   // Bytes to Encryption Context
-  function method GetContext(data : seq<uint8>)
+  function method GetContext(data : Bytes)
     : (ret : Result<(CMPEncryptionContext, nat), Error>)
     ensures ret.Success? ==>
       && ret.value.1 <= |data|
@@ -458,7 +438,7 @@ module Header {
   }
 
   // Bytes to one Key Value pair
-  function method GetOneKVPair(data : seq<uint8>)
+  function method GetOneKVPair(data : Bytes)
     : (ret : Result<(CMPUtf8Bytes, CMPUtf8Bytes, nat), Error>)
     ensures ret.Success? ==>
       && ret.value.2 <= |data|
@@ -486,12 +466,26 @@ module Header {
     Success((key, value, kvLen))
   }
 
+  predicate method {:tailrecursion} BytesLess(a: Bytes, b : Bytes) {
+    if a == b then
+      false
+    else if |a| == 0 then
+      true
+    else if |b| == 0 then
+      false
+    else if a[0] != b[0] then
+      a[0] < b[0]
+    else
+      BytesLess(a[1..], b[1..])
+  }
+
   // For "count" items, Deserialize key value pairs into an Encryption Context
   function method {:tailrecursion} GetContext2(
     count : nat,
-    origData : seq<uint8>,
-    data : seq<uint8>,
-    deserialized : (CMPEncryptionContext, nat))
+    origData : Bytes,
+    data : Bytes,
+    deserialized : (CMPEncryptionContext, nat),
+    prevKey : CMPUtf8Bytes := [])
     : (ret : Result<(CMPEncryptionContext, nat), Error>)
     requires deserialized.1 <= |origData|
     requires deserialized.1 + |data| == |origData|
@@ -507,13 +501,17 @@ module Header {
       var kv :- GetOneKVPair(data);
       //= specification/structured-encryption/header.md#key-value-pair-entries
       //# This sequence MUST NOT contain duplicate entries.
-      :- Need(kv.0 !in deserialized.0, E("Duplicate key in encryption context."));
-      GetContext2(count-1, origData, data[2+|kv.0|+2+|kv.1|..], (deserialized.0[kv.0 := kv.1], deserialized.1 + kv.2))
+
+      //= specification/structured-encryption/header.md#key-value-pair-entries
+      //# These entries MUST have entries sorted, by key,
+      //# in ascending order according to the UTF-8 encoded binary value.
+      :- Need(BytesLess(prevKey, kv.0), E("Context keys out of order."));
+      GetContext2(count-1, origData, data[2+|kv.0|+2+|kv.1|..], (deserialized.0[kv.0 := kv.1], deserialized.1 + kv.2), kv.0)
   }
 
   // Encryption Context to Bytes
   function method {:opaque} SerializeContext(x : CMPEncryptionContext)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
     ensures
       && |ret| >= 2
       && var keys := ComputeSetToOrderedSequence2(x.Keys, ByteLess);
@@ -535,7 +533,7 @@ module Header {
 
   // Key Value Pair to Bytes
   function method SerializeOneKVPair(key : CMPUtf8Bytes, value : CMPUtf8Bytes)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
     //= specification/structured-encryption/header.md#key-value-pair-entries
     //= type=implication
     //# Each Key Value Pair MUST be serialized as follows
@@ -552,7 +550,7 @@ module Header {
 
   // Data Key to Bytes
   function method SerializeOneDataKey(k : CMPEncryptedDataKey)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
     //= specification/structured-encryption/header.md#encrypted-data-key-entries
     //= type=implication
     //# Each Encrypted Data Key MUST be serialized as follows
@@ -586,7 +584,7 @@ module Header {
   }
   
   // Bytes to Data Key
-  function method GetOneDataKey(data : seq<uint8>)
+  function method GetOneDataKey(data : Bytes)
     : (ret : Result<(CMPEncryptedDataKey, nat), Error>)
     ensures ret.Success? ==>
       && ret.value.1 <= |data|
@@ -618,7 +616,7 @@ module Header {
 
   // for items in "keys", turn Key Value Pairs into Bytes
   function method {:tailrecursion} SerializeContext2(keys : seq<CMPUtf8Bytes>, x : CMPEncryptionContext)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
     requires forall k <- keys :: k in x
   {
     if |keys| == 0 then
@@ -629,7 +627,7 @@ module Header {
 
   // Data Key List to Bytes
   function method SerializeDataKeys(x : CMPEncryptedDataKeyList)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
       //= specification/structured-encryption/header.md#encrypted-data-keys
       //= type=implication
       //# The Encrypted Data Keys MUST be serialized as follows
@@ -648,7 +646,7 @@ module Header {
 
   // Data Keys to Bytes
   function method {:tailrecursion} SerializeDataKeys2(x : CMPEncryptedDataKeyListEmptyOK)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
   {
     if |x| == 0 then
       []
@@ -657,7 +655,7 @@ module Header {
   }
 
   // Bytes to Data Key List
-  function method GetDataKeys(data : seq<uint8>)
+  function method GetDataKeys(data : Bytes)
     : (ret : Result<(CMPEncryptedDataKeyList, nat), Error>)
     ensures ret.Success? ==>
       && ret.value.1 <= |data|
@@ -679,8 +677,8 @@ module Header {
   function method {:tailrecursion} GetDataKeys2(
     count : nat,
     origCount : nat,
-    origData : seq<uint8>,
-    data : seq<uint8>,
+    origData : Bytes,
+    data : Bytes,
     deserialized
     : (CMPEncryptedDataKeyListEmptyOK, nat))
     : (ret : Result<(CMPEncryptedDataKeyListEmptyOK, nat), Error>)
@@ -716,7 +714,7 @@ module Header {
   {}
 
   // GetLegend ==> SerializeLegend
-  lemma GetLegendRoundTrip(x : seq<uint8>)
+  lemma GetLegendRoundTrip(x : Bytes)
     requires GetLegend(x).Success?
     ensures
       && var ret := SerializeLegend(GetLegend(x).value.0);
@@ -741,7 +739,7 @@ module Header {
   }
   
   // GetOneKVPair ==> SerializeOneKVPair
-  lemma GetOneKVPairRoundTrip(data : seq<uint8>)
+  lemma GetOneKVPairRoundTrip(data : Bytes)
     requires GetOneKVPair(data).Success?
     ensures
       && var cont := GetOneKVPair(data).value;
@@ -765,7 +763,7 @@ module Header {
     }
 
   // GetOneDataKey ==> SerializeOneDataKey
-  lemma GetOneDataKeyRoundTrip(data : seq<uint8>)
+  lemma GetOneDataKeyRoundTrip(data : Bytes)
     requires GetOneDataKey(data).Success?
     ensures
       && var cont := GetOneDataKey(data).value;
@@ -774,7 +772,7 @@ module Header {
 
   // When deserializing a Key Value Pair with GetOneKVPair
   // the unexamined bytes do not change the result
-  lemma GetOneKVPairExt(x : seq<uint8>, y : seq<uint8>)
+  lemma GetOneKVPairExt(x : Bytes, y : Bytes)
     requires x <= y
     requires GetOneKVPair(x).Success?
     ensures
