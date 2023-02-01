@@ -91,7 +91,7 @@ For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF
 For Structured Data in Structured Data Maps, this MUST be a 0x24 byte ($ in UTF-8),
 followed by the length of the key, followed by the key as a UTF8 string.
 
-For attributes (XML documents) this MUST be a 0x40 byte (@ in UTF-8),
+For Attributes on Structured Data, this MUST be a 0x40 byte (@ in UTF-8),
 followed by the length of the key, followed by the key as a UTF8 string.
 
 ### Encryption Context
