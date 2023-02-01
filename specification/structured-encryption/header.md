@@ -82,7 +82,7 @@ All numbers are encoded as a big endian 8 byte values.
 
 The canoncial path MUST start with the UTF8 encoded table name.
 
-This MUST be followed by the depth of the location within a record.
+This MUST be followed by the depth of the Terminal within Structured Data.
 
 This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
 
