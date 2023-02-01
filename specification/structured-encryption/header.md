@@ -76,7 +76,7 @@ by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
 
 #### Canoncial Path
 
-The canoncial path is a unique byte sequence indicating a location within a record.
+The canoncial path is a unique byte sequence indicating a Terminal within Structured Data.
 
 All numbers are encoded as a big endian 8 byte values.
 
