@@ -88,7 +88,7 @@ This MUST be followed by the encoding for each Structured Data in the path, incl
 
 For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
 
-For alphanumeric-indexed arrays (i.e. object keys in JSON), this MUST be a 0x24 byte ($ in UTF-8),
+For Structured Data in Structured Data Maps, this MUST be a 0x24 byte ($ in UTF-8),
 followed by the length of the key, followed by the key as a UTF8 string.
 
 For attributes (XML documents) this MUST be a 0x40 byte (@ in UTF-8),
