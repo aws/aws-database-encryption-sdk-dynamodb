@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class DecryptStructureInput {
+  private final String tableName;
+
   private final StructuredData encryptedStructure;
 
   private final AuthenticateSchema authenticateSchema;
@@ -17,10 +19,15 @@ public class DecryptStructureInput {
   private final Map<String, String> encryptionContext;
 
   protected DecryptStructureInput(BuilderImpl builder) {
+    this.tableName = builder.tableName();
     this.encryptedStructure = builder.encryptedStructure();
     this.authenticateSchema = builder.authenticateSchema();
     this.cmm = builder.cmm();
     this.encryptionContext = builder.encryptionContext();
+  }
+
+  public String tableName() {
+    return this.tableName;
   }
 
   public StructuredData encryptedStructure() {
@@ -48,6 +55,10 @@ public class DecryptStructureInput {
   }
 
   public interface Builder {
+    Builder tableName(String tableName);
+
+    String tableName();
+
     Builder encryptedStructure(StructuredData encryptedStructure);
 
     StructuredData encryptedStructure();
@@ -68,6 +79,8 @@ public class DecryptStructureInput {
   }
 
   static class BuilderImpl implements Builder {
+    protected String tableName;
+
     protected StructuredData encryptedStructure;
 
     protected AuthenticateSchema authenticateSchema;
@@ -80,10 +93,20 @@ public class DecryptStructureInput {
     }
 
     protected BuilderImpl(DecryptStructureInput model) {
+      this.tableName = model.tableName();
       this.encryptedStructure = model.encryptedStructure();
       this.authenticateSchema = model.authenticateSchema();
       this.cmm = model.cmm();
       this.encryptionContext = model.encryptionContext();
+    }
+
+    public Builder tableName(String tableName) {
+      this.tableName = tableName;
+      return this;
+    }
+
+    public String tableName() {
+      return this.tableName;
     }
 
     public Builder encryptedStructure(StructuredData encryptedStructure) {
@@ -123,6 +146,9 @@ public class DecryptStructureInput {
     }
 
     public DecryptStructureInput build() {
+      if (Objects.isNull(this.tableName()))  {
+        throw new IllegalArgumentException("Missing value for required field `tableName`");
+      }
       if (Objects.isNull(this.encryptedStructure()))  {
         throw new IllegalArgumentException("Missing value for required field `encryptedStructure`");
       }

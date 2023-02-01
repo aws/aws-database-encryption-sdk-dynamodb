@@ -473,6 +473,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
     var encryptRes := config.structuredEncryption.EncryptStructure(
       CSE.EncryptStructureInput(
+        tableName := "myTable",
         plaintextStructure:=wrappedStruct,
         cryptoSchema:=cryptoSchema,
         cmm:=config.cmm,
@@ -562,6 +563,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
     var decryptRes := config.structuredEncryption.DecryptStructure(
       CSE.DecryptStructureInput(
+        tableName := "myTable",
         encryptedStructure:=wrappedStruct,
         authenticateSchema:=authenticateSchema,
         cmm:=config.cmm,

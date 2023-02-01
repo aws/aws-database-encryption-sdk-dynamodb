@@ -32,6 +32,8 @@ operation DecryptStructure {
 
 structure EncryptStructureInput {
     @required
+    tableName: String,
+    @required
     plaintextStructure: StructuredData,
     @required
     cryptoSchema: CryptoSchema,
@@ -49,6 +51,8 @@ structure EncryptStructureOutput {
 }
 
 structure DecryptStructureInput {
+    @required
+    tableName: String,
     @required
     encryptedStructure: StructuredData,
     @required

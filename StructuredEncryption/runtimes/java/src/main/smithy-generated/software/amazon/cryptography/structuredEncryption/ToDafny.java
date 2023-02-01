@@ -75,6 +75,8 @@ public class ToDafny {
 
   public static EncryptStructureInput EncryptStructureInput(
       software.amazon.cryptography.structuredEncryption.model.EncryptStructureInput nativeValue) {
+    DafnySequence<? extends Character> tableName;
+    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     StructuredData plaintextStructure;
     plaintextStructure = ToDafny.StructuredData(nativeValue.plaintextStructure());
     CryptoSchema cryptoSchema;
@@ -85,7 +87,7 @@ public class ToDafny {
     encryptionContext = Objects.nonNull(nativeValue.encryptionContext()) ?
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.EncryptionContext(nativeValue.encryptionContext()))
         : Option.create_None();
-    return new EncryptStructureInput(plaintextStructure, cryptoSchema, cmm, encryptionContext);
+    return new EncryptStructureInput(tableName, plaintextStructure, cryptoSchema, cmm, encryptionContext);
   }
 
   public static StructuredData StructuredData(
@@ -108,6 +110,8 @@ public class ToDafny {
 
   public static DecryptStructureInput DecryptStructureInput(
       software.amazon.cryptography.structuredEncryption.model.DecryptStructureInput nativeValue) {
+    DafnySequence<? extends Character> tableName;
+    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     StructuredData encryptedStructure;
     encryptedStructure = ToDafny.StructuredData(nativeValue.encryptedStructure());
     AuthenticateSchema authenticateSchema;
@@ -118,7 +122,7 @@ public class ToDafny {
     encryptionContext = Objects.nonNull(nativeValue.encryptionContext()) ?
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.EncryptionContext(nativeValue.encryptionContext()))
         : Option.create_None();
-    return new DecryptStructureInput(encryptedStructure, authenticateSchema, cmm, encryptionContext);
+    return new DecryptStructureInput(tableName, encryptedStructure, authenticateSchema, cmm, encryptionContext);
   }
 
   public static CryptoSchema CryptoSchema(
