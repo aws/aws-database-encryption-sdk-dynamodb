@@ -298,7 +298,7 @@ module Header {
   {
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //# The Encrypt Legend Bytes MUST be serialized as follows:
-    // 1. Order every authenticated attribute in the item lexicographically by the attribute name.
+    // 1. Order every authenticated attribute in the item by the Canoncial Path
     // 2. For each authenticated terminal, in order,
     // append one of the byte values specified above to indicate whether
     // that field should be encrypted.

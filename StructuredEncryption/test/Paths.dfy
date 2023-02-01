@@ -11,7 +11,7 @@ module PathsTests {
   method {:test} TestSpecExamples() {
     var tableName : GoodString := "example_table";
     assert(ValidString("example_table"));
-    var nameSrc :- expect MakeSource("name");
+    var nameSrc :- expect MakeTerminalLocation("name");
     expect nameSrc.canonicalPath(tableName) == 
          UTF8.EncodeAscii("example_table")
       + [0,0,0,0,0,0,0,1] // depth
@@ -19,7 +19,7 @@ module PathsTests {
       + [0,0,0,0,0,0,0,4] // length
       + UTF8.EncodeAscii("name");
 
-    var stampSrc :- expect MakeSource("status-history[0].timestamp");
+    var stampSrc :- expect MakeTerminalLocation("status-history[0].timestamp");
     expect stampSrc.canonicalPath(tableName) == 
         UTF8.EncodeAscii("example_table")
       + [0,0,0,0,0,0,0,3] // depth

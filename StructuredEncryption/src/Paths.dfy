@@ -25,7 +25,7 @@ module Paths {
   type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
 
   // a specific part of a structure
-  datatype Source = Source (
+  datatype TerminalLocation = TerminalLocation (
     parts : SelectorList
   )
   {
@@ -40,17 +40,17 @@ module Paths {
           UTF8.Encode(table).value
           //= specification/structured-encryption/header.md#canoncial-path
           //= type=implication
-          //# This MUST be followed by the depth of the location within a record.
+          //# This MUST be followed by the depth of the Terminal within Structured Data.
         + UInt64ToSeq(|parts| as uint64)
           //= specification/structured-encryption/header.md#canoncial-path
           //= type=implication
-          //# This MUST be followed by the encoding for each item in the path, including the item itself.
+          //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
         + CanonicalPath(parts)
     {
       var tableName := UTF8.Encode(table).value;
-      var sourceDepth := UInt64ToSeq(|parts| as uint64);
+      var depth := UInt64ToSeq(|parts| as uint64);
       var path := CanonicalPath(parts);
-      tableName + sourceDepth + path
+      tableName + depth + path
     }
   }
 
@@ -132,37 +132,37 @@ module Paths {
       GetSelectors(s[end..], acc + [sel])
   }
 
-  // convert string to Source
-  function method {:opaque} MakeSource(s : string)
-    : (ret : Result<Source, string>)
+  // convert string to TerminalLocation
+  function method {:opaque} MakeTerminalLocation(s : string)
+    : (ret : Result<TerminalLocation, string>)
     ensures ret.Success? ==> 0 < |ret.value.parts|
   {
     :- Need(0 < |s|, "Path specification must not be empty.");
     var pos := FindStartOfNext(s);
     if pos.None? then
       var m :- MakeMap(s);
-      Success(Source([m]))
+      Success(TerminalLocation([m]))
     else
       var name := s[..pos.value];
       var selectors :- GetSelectors(s[pos.value..]);
       var m :- MakeMap(name);
       :- Need(|selectors|+1 < UINT64_LIMIT, "Selector Overflow");
-      Success(Source([m] + selectors))
+      Success(TerminalLocation([m] + selectors))
   }
 
-  // make Source from single top level attribute
-  function method SimpleSource(s : string)
-    : (ret : Result<Source, string>)
+  // make TerminalLocation from single top level attribute
+  function method SimpleTerminalLocation(s : string)
+    : (ret : Result<TerminalLocation, string>)
     ensures ret.Success? ==> 0 < |ret.value.parts|
   {
     var m :- MakeMap(s);
-    Success(Source([m]))
+    Success(TerminalLocation([m]))
   }
 
   function method SimpleCanon(table : GoodString, attr : GoodString)
     : Bytes
   {
-    Source([Map(attr)]).canonicalPath(table)
+    TerminalLocation([Map(attr)]).canonicalPath(table)
   }
 
   const ARRAY_TAG : uint8 := '#' as uint8
@@ -174,17 +174,17 @@ module Paths {
     : (ret : Bytes)
     //= specification/structured-encryption/header.md#canoncial-path
     //= type=implication
-    //# object keys in JSON), this MUST be a 0x24 byte ($ in UTF-8),
+    //# For Structured Data in Structured Data Maps, this MUST be a 0x24 byte ($ in UTF-8),
     //# followed by the length of the key, followed by the key as a UTF8 string.
     ensures s.Map? ==> ret == [MAP_TAG] + UInt64ToSeq(|s.key| as uint64) + UTF8.Encode(s.key).value
     //= specification/structured-encryption/header.md#canoncial-path
     //= type=implication
-    //# For attributes (XML documents) this MUST be a 0x40 byte (@ in UTF-8),
+    //# For Attributes on Structured Data, this MUST be a 0x40 byte (@ in UTF-8),
     //# followed by the length of the key, followed by the key as a UTF8 string.
     ensures s.Attr? ==> ret == [ATTR_TAG] + UInt64ToSeq(|s.key| as uint64) + UTF8.Encode(s.key).value
     //= specification/structured-encryption/header.md#canoncial-path
     //= type=implication
-    //# For numerical-indexed arrays, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
+    //# For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
     ensures s.List? ==> ret == [ARRAY_TAG] + UInt64ToSeq(s.pos as uint64)
   {
     match s {
@@ -258,16 +258,16 @@ module Paths {
     ensures SimpleCanon(table, x) != SimpleCanon(table, y)
   {
     assert SimpleCanon(table, x) != SimpleCanon(table, y) by {
-      assert Source([Map(x)]).canonicalPath(table) != Source([Map(y)]).canonicalPath(table) by {
+      assert TerminalLocation([Map(x)]).canonicalPath(table) != TerminalLocation([Map(y)]).canonicalPath(table) by {
         OnePart([Map(x)]);
         OnePart([Map(y)]);
         CanonicalPartMapUnique(Map(x), Map(y));
         var prefix := UTF8.Encode(table).value + UInt64ToSeq(1 as uint64);
-        assert Source([Map(x)]).canonicalPath(table) == prefix + CanonicalPart(Map(x));
-        assert Source([Map(y)]).canonicalPath(table) == prefix + CanonicalPart(Map(y));
+        assert TerminalLocation([Map(x)]).canonicalPath(table) == prefix + CanonicalPart(Map(x));
+        assert TerminalLocation([Map(y)]).canonicalPath(table) == prefix + CanonicalPart(Map(y));
         assert CanonicalPart(Map(x)) != CanonicalPart(Map(y));
         OnePlusOne(prefix, CanonicalPart(Map(x)), CanonicalPart(Map(y)));
-        assert Source([Map(x)]).canonicalPath(table) != Source([Map(y)]).canonicalPath(table);
+        assert TerminalLocation([Map(x)]).canonicalPath(table) != TerminalLocation([Map(y)]).canonicalPath(table);
       }
     }
   }
