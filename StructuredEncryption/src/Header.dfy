@@ -3,6 +3,7 @@
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Paths.dfy"
+include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Functions.dfy"
 
 module Header {
   import opened Wrappers
@@ -15,6 +16,7 @@ module Header {
   import opened UTF8
   import opened Paths
   import Random
+  import Functions
 
   const VERSION_LEN := 1
   const FLAVOR_LEN := 1
@@ -188,7 +190,7 @@ module Header {
   }
   
   // bytes to PartialHeader, i.e. does not look at commitment -- Deserialize does that
-  function method PartialDeserialize(data : Bytes)
+  function method {:opaque} PartialDeserialize(data : Bytes)
     : (ret : Result<PartialHeader, Error>)
     ensures ret.Success? ==>
       && PREFIX_LEN <= |data|
@@ -266,11 +268,6 @@ module Header {
     x < y
   }
 
-  predicate method CharLess(x : char, y : char)
-  {
-    x < y
-  }
-
   function method ToUInt16(x : nat)
     : (ret : Result<uint16, Error>)
     ensures x < UINT16_LIMIT ==> ret.Success?
@@ -282,6 +279,12 @@ module Header {
   // string to Error
   function method E(s : string) : Error {
     StructuredEncryptionException(message := s)
+  }
+
+  function method MyMap<X, Y, Z>(f: X -> Y, m: map<X, Z>): map<Y, Z>
+    requires forall a, b | a in m.Keys && b in m.Keys :: a != b ==> f(a) != f(b)
+  {
+    map k | k in m.Keys :: f(k) := m[k]
   }
 
   // Create a Legend from the Schema
@@ -296,6 +299,11 @@ module Header {
       //# by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
       && |ret.value| == CountAuthAttrs(schema.content.SchemaMap)
   {
+    var data := schema.content.SchemaMap;
+    var authSchema := map k <- data.Keys | IsAuthAttr(data[k].content.Action) :: k := data[k];
+    assert (map k <- authSchema.Keys | IsAuthAttr(authSchema[k].content.Action) :: k := authSchema[k]) == authSchema;
+    assert CountAuthAttrs(data) == CountAuthAttrs(authSchema);
+    assert CountAuthAttrs(data) == |authSchema|;
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //# The Encrypt Legend Bytes MUST be serialized as follows:
     // 1. Order every authenticated attribute in the item by the Canoncial Path
@@ -304,11 +312,12 @@ module Header {
     // that field should be encrypted.
     :- Need(forall x <- schema.content.SchemaMap.Keys :: Paths.ValidString(x), E("bad attribute name"));
     Paths.SimpleCanonUnique(tableName);
-    var canonSchema := map kv <- schema.content.SchemaMap.Items | true :: Paths.SimpleCanon(tableName, kv.0) := kv.1;
+    var fn := k => Paths.SimpleCanon(tableName, k);
+    MapKeepsCount(authSchema, k => Paths.SimpleCanon(tableName, k));
+    var canonSchema := MyMap(fn, authSchema);
+    assert |authSchema| == |canonSchema|;
     var attrs := ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);
-    var legend :- MakeLegend2(attrs, canonSchema);
-    :- Need(|legend| == CountAuthAttrs(schema.content.SchemaMap), E("Internal Error."));
-    Success(legend)
+    MakeLegend2(attrs, canonSchema)
   }
 
   // Create a Legend for the given attrs of the Schema
@@ -319,21 +328,24 @@ module Header {
     )
     : (ret : Result<Legend, Error>)
     requires forall k <- attrs :: k in data
+    requires forall k <- data.Keys :: data[k].content.Action?;
+    requires forall k <- data.Keys :: IsAuthAttr(data[k].content.Action);
+    requires |attrs| + |serialized| == |data|
+    ensures ret.Success? ==> |ret.value| == |data|
   {
     if |attrs| == 0 then
       Success(serialized)
     else
-      if (|serialized| + 1) >= UINT16_LIMIT then
-        Failure(E("Legend Too Long."))
-      else
-        :- Need(data[attrs[0]].content.Action?, E("Scema must be flat"));
-        var legendChar := GetActionLegend(data[attrs[0]].content.Action);
-        MakeLegend2(attrs[1..], data, serialized + legendChar)
+      :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
+      :- Need(data[attrs[0]].content.Action?, E("Scema must be flat"));
+      var legendChar := GetActionLegend(data[attrs[0]].content.Action);
+      MakeLegend2(attrs[1..], data, serialized + [legendChar])
   }
 
   // CryptoAction to bytes. One byte for signed, zero bytes for unsigned
   function method GetActionLegend(x : CryptoAction)
-    : (ret : Bytes)
+    : (ret : uint8)
+    requires IsAuthAttr(x)
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=implication
     //# Each Crypto Action MUST be encoded as follows
@@ -345,29 +357,18 @@ module Header {
     //   This indicates that this field will not be attempted to be decrypted during decryption.
     // - no entry if the attribute is not signed
     ensures match (x) {
-      case ENCRYPT_AND_SIGN => ret == [ENCRYPT_AND_SIGN_LEGEND]
-      case SIGN_ONLY => ret == [SIGN_ONLY_LEGEND]
-      case DO_NOTHING => ret == []
+      case ENCRYPT_AND_SIGN => ret == ENCRYPT_AND_SIGN_LEGEND
+      case SIGN_ONLY => ret == SIGN_ONLY_LEGEND
     }
   {
     match (x) {
-      case ENCRYPT_AND_SIGN => [ENCRYPT_AND_SIGN_LEGEND]
-      case SIGN_ONLY => [SIGN_ONLY_LEGEND]
-      case DO_NOTHING => []
+      case ENCRYPT_AND_SIGN => ENCRYPT_AND_SIGN_LEGEND
+      case SIGN_ONLY => SIGN_ONLY_LEGEND
     }
   }
 
   // attibute is "authorized", a.k.a. included in the signature
-  function method IsAuthAttr(x : CryptoAction) : nat
-  {
-    if IsAuthAttr2(x) then
-      1
-    else
-      0
-  }
-
-  // attibute is "authorized", a.k.a. included in the signature
-  predicate method IsAuthAttr2(x : CryptoAction)
+  predicate method IsAuthAttr(x : CryptoAction)
   {
     x.ENCRYPT_AND_SIGN? || x.SIGN_ONLY?
   }
@@ -380,11 +381,11 @@ module Header {
   }
 
   // How many elements of Schema are included in the signature?
-  function method CountAuthAttrs(data : CryptoSchemaMap)
+  function CountAuthAttrs(data : CryptoSchemaMap)
     : nat
     requires forall x <- data.Values :: x.content.Action?
   {
-    |map k <- data.Keys | IsAuthAttr2(data[k].content.Action) :: k := data[k]|
+    |map k <- data.Keys | IsAuthAttr(data[k].content.Action) :: k := data[k]|
   }
 
   // Legend to Bytes
@@ -429,7 +430,6 @@ module Header {
       && 2 <= |data|
       && GetContext2(SeqToUInt16(data[0..2]) as nat, data, data[2..], (map[], 2)).Success?
     ) ==> ret.Success?
-
   {
     :- Need(2 <= |data|, E("Unexpected end of header data."));
     var count := SeqToUInt16(data[0..2]) as nat;
@@ -501,6 +501,7 @@ module Header {
       var kv :- GetOneKVPair(data);
       //= specification/structured-encryption/header.md#key-value-pair-entries
       //# This sequence MUST NOT contain duplicate entries.
+      // if the previous key is always less than the current key, there can be no duplicates
 
       //= specification/structured-encryption/header.md#key-value-pair-entries
       //# These entries MUST have entries sorted, by key,
@@ -704,6 +705,34 @@ module Header {
 
 // End code, begin proofs
 
+  // copy pasted from libraries/Sets.dfy, because I already include StandardLibrary/Sets.dfy
+  /* If an injective function is applied to each element of a set to construct
+  another set, the two sets have the same size.  */
+  lemma MyLemmaMapSize<X(!new), Y>(xs: set<X>, ys: set<Y>, f: X-->Y)
+    requires forall x {:trigger f.requires(x)} :: f.requires(x)
+    requires Functions.Injective(f)
+    requires forall x {:trigger f(x)} :: x in xs <==> f(x) in ys
+    requires forall y {:trigger y in ys} :: y in ys ==> exists x :: x in xs && y == f(x)
+    ensures |xs| == |ys|
+  {
+    if xs != {} {
+      var x :| x in xs;
+      var xs' := xs - {x};
+      var ys' := ys - {f(x)};
+      MyLemmaMapSize(xs', ys', f);
+    }
+  }
+
+  // mapping with no filter does not change map size
+  lemma MapKeepsCount<Y,Z>(m : map<GoodString,Y>, f : (GoodString) -> Z)
+    requires forall a : GoodString, b : GoodString :: a != b ==> f(a) != f(b)
+    requires Functions.Injective(f)
+    ensures |m.Keys| == |MyMap(f, m).Keys|
+    ensures |m| == |MyMap(f, m)|
+  {
+    MyLemmaMapSize(m.Keys, MyMap(f, m).Keys, f);
+  }
+
   // SerializeLegend ==> GetLegend
   lemma SerializeLegendRoundTrip(x : Legend)
     ensures GetLegend(SerializeLegend(x)).Success?
@@ -719,8 +748,7 @@ module Header {
     ensures
       && var ret := SerializeLegend(GetLegend(x).value.0);
       && ret == x[..GetLegend(x).value.1]
-  {
-  }
+  {}
 
   // SerializeOneKVPair ==> GetOneKVPair
   lemma SerializeOneKVPairRoundTrip(key : CMPUtf8Bytes, value : CMPUtf8Bytes)

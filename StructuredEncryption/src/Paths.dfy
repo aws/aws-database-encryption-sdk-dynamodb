@@ -3,6 +3,9 @@
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
+// The only entry point currently used is SimpleCanon
+// which converts a top level terminal to its canonical form
+
 module Paths {
   import opened Wrappers
   import opened StandardLibrary
