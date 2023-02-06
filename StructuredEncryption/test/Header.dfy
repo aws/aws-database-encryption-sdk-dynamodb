@@ -17,6 +17,7 @@ module TestHeader {
   import MaterialProviders
   import TestFixtures
   import opened Header
+  import opened Paths
   import opened UTF8
   import Aws.Cryptography.Primitives
 
@@ -96,7 +97,23 @@ module TestHeader {
     //= specification/structured-encryption/header.md#key-value-pair-entries
     //= type=test
     //# This sequence MUST NOT contain duplicate entries.
-    expect newBadCont == Failure(E("Duplicate key in encryption context."));
+    expect newBadCont == Failure(E("Context keys out of order."));
+  }
+
+  method {:test} TestOutOfOrderContext() {
+    var badSerCont := [
+      0,2, // two items
+      0,3,c,b,a,
+      0,3,f,e,d,
+      0,3,a,b,c, // oops, abc after cba
+      0,3,d,e,f
+    ];
+    var newBadCont := GetContext(badSerCont);
+    //= specification/structured-encryption/header.md#key-value-pair-entries
+    //= type=test
+    //# These entries MUST have entries sorted, by key,
+    //# in ascending order according to the UTF-8 encoded binary value.
+    expect newBadCont == Failure(E("Context keys out of order."));
   }
 
   function method MakeSchema(action: CryptoAction) : CryptoSchema
@@ -107,7 +124,7 @@ module TestHeader {
     )
   }
 
-  method {:test} TestSchemaOrder() {
+  method {:test} TestSchemaOrderAlpha() {
     var schemaMap : CryptoSchemaMap := map[
       "abc" := MakeSchema(ENCRYPT_AND_SIGN),
       "def" := MakeSchema(SIGN_ONLY),
@@ -117,7 +134,32 @@ module TestHeader {
       "pqr" := MakeSchema(DO_NOTHING)
     ];
     var schema := CryptoSchema(content := CryptoSchemaContent.SchemaMap(schemaMap), attributes := None);
-    var legend :- expect MakeLegend(schema);
+    var tableName : GoodString := "name";
+    var legend :- expect MakeLegend(tableName, schema);
+    //= specification/structured-encryption/header.md#encrypt-legend-bytes
+    //= type=test
+    //# The Encrypt Legend Bytes MUST be serialized as follows:
+    // 1. Order every authenticated attribute in the item lexicographically by the attribute name.
+    // TODO - we must sort by the Canoncial Path, which is slightly different, even for just plain
+    // attribute names in a single table.
+    // 2. For each authenticated terminal, in order,
+    // append one of the byte values specified above to indicate whether
+    // that field should be encrypted.
+    expect legend == [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND, ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND];
+  }
+
+  method {:test} TestSchemaOrderLength() {
+    var schemaMap : CryptoSchemaMap := map[
+      "aa" := MakeSchema(ENCRYPT_AND_SIGN),
+      "zz" := MakeSchema(SIGN_ONLY),
+      "aaa" := MakeSchema(DO_NOTHING),
+      "zzz" := MakeSchema(ENCRYPT_AND_SIGN),
+      "aaaa" := MakeSchema(SIGN_ONLY),
+      "zzzz" := MakeSchema(DO_NOTHING)
+    ];
+    var schema := CryptoSchema(content := CryptoSchemaContent.SchemaMap(schemaMap), attributes := None);
+    var tableName : GoodString := "name";
+    var legend :- expect MakeLegend(tableName, schema);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:

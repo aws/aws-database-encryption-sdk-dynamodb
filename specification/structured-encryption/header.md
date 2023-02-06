@@ -66,15 +66,33 @@ Each Crypto Action MUST be encoded as follows
 
 The Encrypt Legend Bytes MUST be serialized as follows:
 
-1. Order every authenticated attribute in the item lexicographically by the attribute name.
-TODO - we must sort by the Canoncial Path, which is slightly different, even for just plain
-attribute names in a single table.
+1. Order every authenticated attribute in the item by the [Canoncial Path](#canonical-path)
 2. For each authenticated terminal, in order,
 append one of the byte values specified above to indicate whether
 that field should be encrypted.
 
 The length of this serialized value (in bytes) MUST equal the number of authenticated fields indicated
 by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
+
+#### Canoncial Path
+
+The canoncial path is a unique byte sequence indicating a Terminal within Structured Data.
+
+All numbers are encoded as a big endian 8 byte values.
+
+The canoncial path MUST start with the UTF8 encoded table name.
+
+This MUST be followed by the depth of the Terminal within Structured Data.
+
+This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
+
+For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
+
+For Structured Data in Structured Data Maps, this MUST be a 0x24 byte ($ in UTF-8),
+followed by the length of the key, followed by the key as a UTF8 string.
+
+For Attributes on Structured Data, this MUST be a 0x40 byte (@ in UTF-8),
+followed by the length of the key, followed by the key as a UTF8 string.
 
 ### Encryption Context
 
