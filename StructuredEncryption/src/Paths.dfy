@@ -2,23 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "Util.dfy"
 
 // The only entry point currently used is SimpleCanon
 // which converts a top level terminal to its canonical form
 
-module Paths {
+module StructuredEncryptionPaths {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import UTF8
-
-  type Bytes = seq<uint8>
-  type GoodString = x : string | ValidString(x)
-  predicate method ValidString(x : string)
-  {
-    && |x| <  UINT64_LIMIT
-    && UTF8.Encode(x).Success?
-  }
+  import opened StructuredEncryptionUtil
 
   datatype Selector =
     | List(pos : uint64)

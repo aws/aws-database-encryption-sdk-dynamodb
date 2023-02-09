@@ -29,63 +29,22 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
   type InternalConfig = Config
 
-  // Encode ASCII as UTF8 in a function, to allow use in ensures clause
-  function method {:opaque} {:tailrecursion} EncodeAscii(s : string) : (ret : ValidUTF8Bytes)
-    requires IsASCIIString(s)
-    ensures |s| == |ret|
-    ensures forall i | 0 <= i < |s| :: s[i] as uint8 == ret[i]
-  {
-    if |s| == 0 then
-      []
-    else
-      var x := [s[0] as uint8];
-      assert ValidUTF8Seq(x);
-      ValidUTF8Concat(x, EncodeAscii(s[1..]));
-      x + EncodeAscii(s[1..])
-  }
-
-  // if ascii strings are different, their encoding is also unique
-  lemma EncodeAsciiUnique2(x : string, y : string)
-    requires IsASCIIString(x) && IsASCIIString(y)
-    requires x != y
-    ensures EncodeAscii(x) != EncodeAscii(y)
-  {
-    reveal EncodeAscii();
-    if EncodeAscii(x) == EncodeAscii(y) {
-      if |EncodeAscii(x)| == 0 && |EncodeAscii(y)| == 0 {
-      } else if EncodeAscii(x)[0] == EncodeAscii(y)[0] {
-        assert EncodeAscii(x)[1..] != EncodeAscii(y)[1..] by {
-          EncodeAsciiUnique2(x[1..], y[1..]);
-        }
-      } else {
-      }
-    }
-  }
-
-  // if ascii strings are different, their encoding is also unique
-  lemma {:opaque} EncodeAsciiUnique()
-    ensures forall x : string, y : string :: IsASCIIString(x) && IsASCIIString(y) && x != y ==> EncodeAscii(x) != EncodeAscii(y)
-  {
-    forall x : string, y : string ensures IsASCIIString(x) && IsASCIIString(y) && x != y ==> EncodeAscii(x) != EncodeAscii(y) {
-        if IsASCIIString(x) && IsASCIIString(y) && x != y {
-            EncodeAsciiUnique2(x, y);
-        }
-    }
-  }
+  // all attributes with this prefix reserved for the implementation
+  const ReservedPrefix := "aws_ddb_"
 
   // constant attribute names for the encryption context
-  const TABLE_NAME : seq<uint8> := EncodeAscii("aws-crypto-table-name");
-  const PARTITION_NAME : seq<uint8> := EncodeAscii("aws-crypto-partition-name");
-  const PARTITION_VALUE : seq<uint8> := EncodeAscii("aws-crypto-partition-value");
-  const SORT_NAME : seq<uint8> := EncodeAscii("aws-crypto-sort-name");
-  const SORT_VALUE : seq<uint8> := EncodeAscii("aws-crypto-sort-value");
+  const TABLE_NAME : seq<uint8> := UTF8.EncodeAscii("aws-crypto-table-name");
+  const PARTITION_NAME : seq<uint8> := UTF8.EncodeAscii("aws-crypto-partition-name");
+  const PARTITION_VALUE : seq<uint8> := UTF8.EncodeAscii("aws-crypto-partition-value");
+  const SORT_NAME : seq<uint8> := UTF8.EncodeAscii("aws-crypto-sort-name");
+  const SORT_VALUE : seq<uint8> := UTF8.EncodeAscii("aws-crypto-sort-value");
 
   // transform AttributeValue into encoded encryption context value
   function method {:opaque} EncodeValue(val : ComAmazonawsDynamodbTypes.AttributeValue) : Result<ValidUTF8Bytes, string>
   {
     var nValue :- DynamoToStruct.TopLevelAttributeToBytes(val);
     var val64 := Base64.Encode(nValue);
-    Success(EncodeAscii(val64))
+    Success(UTF8.EncodeAscii(val64))
   }
 
   // create encryption content from DynamoDB item
@@ -133,7 +92,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     ensures ret.Success? ==> config.sortKeyName.None? || (config.sortKeyName.value in item)
     ensures ret.Success? ==> config.partitionKeyName in item
   {
-    EncodeAsciiUnique();
+    UTF8.EncodeAsciiUnique();
     :- Need(config.partitionKeyName in item, "Partition key " + config.partitionKeyName + " not found in Item to be encrypted or decrypted");
     var tableName :- UTF8.Encode(config.tableName);
     var partitionName :- UTF8.Encode(config.partitionKeyName);
@@ -246,17 +205,30 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     Success(CSE.CryptoSchema(content := newElement, attributes := None))
   }
 
+  predicate method IsUnauthenticated(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
+  {
+    || (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
+    || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr)
+    || ReservedPrefix <= attr
+  }
+
+  predicate method IsConfigured(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
+  {
+    || (attr in config.attributeActions)
+    || IsUnauthenticated(config, attr)
+  }
+
   // Attr must not be part of signature
   predicate method DoNotSign(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
     || (attr in config.attributeActions && config.attributeActions[attr] == CSE.CryptoAction.DO_NOTHING)
-    || (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
-    || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr)
+    || IsUnauthenticated(config, attr)
   }
 
   // Attr must be part of signature
-  predicate InSignatureScope(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) {
-    !DoNotSign(config, attr)
+  predicate method InSignatureScope(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName) {
+    && attr in config.attributeActions
+    && config.attributeActions[attr] != CSE.CryptoAction.DO_NOTHING
   }
 
   // return proper Authenticate Action by name
@@ -285,11 +257,12 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //# or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix),
     //# this operation MUST yield an error.
     ensures
-      && attr in config.attributeActions
-      && config.attributeActions[attr] != CSE.CryptoAction.DO_NOTHING
-      && DoNotSign(config, attr)
+      && InSignatureScope(config, attr)
+      && IsUnauthenticated(config, attr)
       ==> ret.Failure?
   {
+    :- Need(IsConfigured(config, attr), "Attribute " + attr + " is not configured");
+    :- Need(!(InSignatureScope(config, attr) && IsUnauthenticated(config, attr)), "Attribute " + attr + " is both signed and unsigned.");
     if DoNotSign(config, attr) then
       Success(CSE.AuthenticateAction.DO_NOT_SIGN)
     else
@@ -473,7 +446,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
     var encryptRes := config.structuredEncryption.EncryptStructure(
       CSE.EncryptStructureInput(
-        tableName := "myTable",
+        tableName := config.tableName,
         plaintextStructure:=wrappedStruct,
         cryptoSchema:=cryptoSchema,
         cmm:=config.cmm,
@@ -563,7 +536,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
     var decryptRes := config.structuredEncryption.DecryptStructure(
       CSE.DecryptStructureInput(
-        tableName := "myTable",
+        tableName := config.tableName,
         encryptedStructure:=wrappedStruct,
         authenticateSchema:=authenticateSchema,
         cmm:=config.cmm,

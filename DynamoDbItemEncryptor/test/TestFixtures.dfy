@@ -12,10 +12,6 @@ module TestFixtures {
   import DynamoDbItemEncryptor
   import CTypes = AwsCryptographyStructuredEncryptionTypes
 
-  // TODO These values are to help test with StructuredEncryption's "fake" encryption
-  const TEST_STRING_TO_ENCRYPT := "!dlrow olleh"
-  const TEST_FAKE_ENCRYPTED_STRING := "THIS_IS_NOT_ENCRYPTEDAAEhZGxyb3cgb2xsZWg=";
-
   method GetStaticKeyring()
       returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
     ensures keyring.ValidState()
