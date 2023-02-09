@@ -5,12 +5,11 @@ include "TestFixtures.dfy"
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
 
-// TODO EncryptStructure and DecryptStructure are currently no-ops,
-// so the only test cases right now are simple smoke tests
 module HappyCaseTests {
   import opened Wrappers
   import opened StandardLibrary.UInt
   import opened AwsCryptographyStructuredEncryptionTypes
+  import opened StructuredEncryptionUtil
   import StructuredEncryption
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
@@ -39,12 +38,14 @@ module HappyCaseTests {
       print encryptRes;
     }
     expect encryptRes.Success?;
-    // TODO: Right now this just tests expected "fake" encryption
     var newData := encryptRes.value.encryptedStructure.content;
-    var testData := TestFixtures.TEST_STRUCTURED_DATA_ENCRYPTED.content;
+    var testData := TestFixtures.TEST_STRUCTURED_DATA.content;
     expect newData.DataMap?;
     expect testData.DataMap?;
-    expect newData.DataMap - {"aws_ddb_head"} == testData.DataMap;
+    expect newData.DataMap.Keys == testData.DataMap.Keys + {HeaderField, FooterField};
+    expect newData.DataMap["foo"] != testData.DataMap["foo"];
+    expect newData.DataMap["bar"] == testData.DataMap["bar"];
+    expect newData.DataMap["fizzbuzz"] == testData.DataMap["fizzbuzz"];
 
     var decryptRes := structuredEncryption.DecryptStructure(
       DecryptStructureInput(
@@ -55,10 +56,13 @@ module HappyCaseTests {
         encryptionContext := None()
       )
     );
+
+    if decryptRes.Failure? {
+      print "\n\n",decryptRes,"\n\n";
+    }
     expect decryptRes.Success?;
-    // TODO: Right now this just tests expected "fake" decryption
     var newResult := decryptRes.value.plaintextStructure.content;
     var testResult := TestFixtures.TEST_STRUCTURED_DATA.content;
-    expect newResult.DataMap - {"aws_ddb_head"} == testResult.DataMap;
+    expect newResult.DataMap == testResult.DataMap;
   }
 }
