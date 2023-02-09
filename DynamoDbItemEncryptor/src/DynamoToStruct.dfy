@@ -647,7 +647,13 @@ module DynamoToStruct {
   //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-value
   //# A List MAY hold any DynamoDB Attribute Value data type,
   //# and MAY hold values of different types.
-  function method CollectList(listToSerialize : ListAttributeValue, serialized : seq<uint8> := []) : Result<seq<uint8>, string>
+  function method {:opaque} CollectList(
+    listToSerialize : ListAttributeValue,
+    serialized : seq<uint8> := []
+  )
+    : (ret : Result<seq<uint8>, string>)
+    ensures (ret.Success? && |listToSerialize| == 0) ==> (ret.value == serialized)
+    ensures (ret.Success? && |listToSerialize| == 0) ==> (|ret.value| == |serialized|)
   {
     if |listToSerialize| == 0 then
       Success(serialized)
@@ -704,8 +710,15 @@ module DynamoToStruct {
   }
   // Map to Bytes
   // input sequence is already serialized
-  function method {:tailrecursion} CollectMap(keys : seq<AttributeName>, mapToSerialize : map<AttributeName, seq<uint8>>, serialized : seq<uint8> := []) : Result<seq<uint8>, string>
+  function method {:tailrecursion} {:opaque} CollectMap(
+    keys : seq<AttributeName>,
+    mapToSerialize : map<AttributeName, seq<uint8>>,
+    serialized : seq<uint8> := []
+  )
+    : (ret : Result<seq<uint8>, string>)
     requires forall k <- keys :: k in mapToSerialize
+    ensures (ret.Success? && |keys| == 0) ==> (ret.value == serialized)
+    ensures (ret.Success? && |keys| == 0) ==> (|ret.value| == |serialized|)
   {
     if |keys| == 0 then
       Success(serialized)
