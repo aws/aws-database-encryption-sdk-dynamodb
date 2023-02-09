@@ -107,37 +107,43 @@ public class DynamoDbItemConversionIntegrationTests {
         assertEquals(attrValue, encryptedItem.get(TEST_ATTR_NAME).s());
 
         // Check Simple Types
-        assertNotEquals(sValue, encryptedItem.get("Sattr").s());
+        assertNull(encryptedItem.get("Sattr").s());
+        assertNotNull(encryptedItem.get("Sattr").b());
+        assertNotEquals(sValue, encryptedItem.get("Sattr").b());
+
         assertNull(encryptedItem.get("Nattr").n());
-        assertNotEquals(nValue, encryptedItem.get("Nattr").s());
-        assertNull(encryptedItem.get("Battr").b());
-        assertNotNull(encryptedItem.get("Battr").s());
+        assertNotNull(encryptedItem.get("Nattr").b());
+        assertNotEquals(nValue, encryptedItem.get("Nattr").b());
+
+        assertNotNull(encryptedItem.get("Battr").b());
+        assertNotEquals(bValue, encryptedItem.get("Battr").b());
+
         assertNull(encryptedItem.get("BOOLattr-true").bool());
-        assertNotNull(encryptedItem.get("BOOLattr-true").s());
+        assertNotNull(encryptedItem.get("BOOLattr-true").b());
         assertNull(encryptedItem.get("BOOLattr-false").bool());
-        assertNotNull(encryptedItem.get("BOOLattr-false").s());
+        assertNotNull(encryptedItem.get("BOOLattr-false").b());
         assertNull(encryptedItem.get("NULattr").nul());
-        assertNotNull(encryptedItem.get("NULattr").s());
+        assertNotNull(encryptedItem.get("NULattr").b());
 
         // Check Sets
         assertEquals(0, encryptedItem.get("SSattr").ss().size());
-        assertNotNull(encryptedItem.get("SSattr").s());
+        assertNotNull(encryptedItem.get("SSattr").b());
         assertEquals(0, encryptedItem.get("NSattr").ss().size());
-        assertNotNull(encryptedItem.get("NSattr").s());
+        assertNotNull(encryptedItem.get("NSattr").b());
         assertEquals(0, encryptedItem.get("BSattr").ss().size());
-        assertNotNull(encryptedItem.get("BSattr").s());
+        assertNotNull(encryptedItem.get("BSattr").b());
 
         // Check List
         assertEquals(0, encryptedItem.get("Lattr").l().size());
-        assertNotNull(encryptedItem.get("Lattr").s());
+        assertNotNull(encryptedItem.get("Lattr").b());
         assertEquals(0, encryptedItem.get("Lattr-empty").l().size());
-        assertNotNull(encryptedItem.get("Lattr-empty").s());
+        assertNotNull(encryptedItem.get("Lattr-empty").b());
 
         // Check Map
         assertEquals(0, encryptedItem.get("Mattr").m().size());
-        assertNotNull(encryptedItem.get("Mattr").s());
+        assertNotNull(encryptedItem.get("Mattr").b());
         assertEquals(0, encryptedItem.get("Mattr-empty").m().size());
-        assertNotNull(encryptedItem.get("Mattr-empty").s());
+        assertNotNull(encryptedItem.get("Mattr-empty").b());
 
         // Get Item back from table using Interceptor
 
