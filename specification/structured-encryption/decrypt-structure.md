@@ -105,7 +105,7 @@ If any of these steps fails, this operation MUST halt and indicate a failure to 
 
 Given the [input Structured Data](#structured-data),
 this operation MUST access the [Terminal Data](./structures.md#terminal-data)
-at string index "aws:truss-header"(TODO).
+at the [header index](./header.md#header-index).
 
 The [Terminal Type Id](./structures.md#terminal-type-id) on this Terminal Data MUST be `0xFFFF`.
 We refer to the [Terminal Value](./structures.md#terminal-value)
@@ -182,7 +182,7 @@ of the [Structured Data](#structured-data), with the following specifics:
 
 Given the [input Structured Data](#structured-data),
 this operation MUST access the [Terminal Data](./structures.md#terminal-data)
-at string index "aws:truss-footer"(TODO).
+at the [footer index](./footer.md#footer-index).
 
 The [Terminal Type Id](./structures.md#terminal-type-id) MUST be `0xFFFF`.
 
@@ -233,8 +233,8 @@ that MUST be derived with the following specifics:
   [algorithm suite's encryption key length](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
 This operation MUST output a [Structured Data](#structured-data) with the following specifics:
-- [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the indexes(TODO) for the [header](./header.md)
-  and [footer](./footer.md).
+- [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the [header index](./header.md#header-index)
+  or [footer index](./footer.md#footer-index).
 - for every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
   (aside from the header and footer),
   a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the output Structured Data.
@@ -250,7 +250,7 @@ This operation MUST output a [Structured Data](#structured-data) with the follow
     this Terminal Data is the [decryption](#terminal-data-decryption) of
     the input Terminal Data.
 - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
-  a Terminal Data MUST exist with the same [canonical path](#TODO-truss) in the [input Structured Data](#structured-data).
+  a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the [input Structured Data](#structured-data).
   Put plainly, the output Structured Data does not add any extra Structured Data during decryption.
 
 #### Terminal Data Decryption

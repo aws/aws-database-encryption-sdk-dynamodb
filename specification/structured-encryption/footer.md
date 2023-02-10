@@ -1,9 +1,22 @@
 
 # Structured Encryption Footer
 
+## Overview
+
+The footer is a special [Terminal Data](./structures.md#terminal-data)
+that exists on encrypted [Structured Data](./structures.md#structured-data)
+in order to store signatures over signed values in that structured data.
+
+## Footer Index
+
+The header MUST exist at string index "aws-dbe-foot" for
+encrypted [Structured Data](./structures.md#structured-data).
+
 ## Footer Format
 
-The serialized form of the footer MUST be
+The [Terminal Type ID](./structures.md#terminal-type-id) MUST be `0xFF 0xFF`.
+
+The [Terminal Value](./structures.md#terminal-value) of the footer MUST be
 
 | Field | Length (bytes) | Interpreted as |
 | ----- | -------------- | -------------- |

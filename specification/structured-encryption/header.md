@@ -1,9 +1,22 @@
 
 # Structured Encryption Header
 
+## Overview
+
+The header is a special [Terminal Data](./structures.md#terminal-data)
+that exists on encrypted [Structured Data](./structures.md#structured-data)
+in order to store metadata on its encryption.
+
+## Header Index
+
+The header MUST exist at string index "aws-dbe-head" for
+encrypted [Structured Data](./structures.md#structured-data).
+
 ## Header Format
 
-The serialized form of the header MUST be
+The [Terminal Type ID](./structures.md#terminal-type-id) MUST be `0xFF 0xFF`.
+
+The [Terminal Value](./structures.md#terminal-value) of the header MUST be
 
 | Length (bytes) | Meaning |
 |---|---|
@@ -24,15 +37,11 @@ The Version MUST be `0x01`.
 
 ### Format Flavor
 
-(TODO should we just encode the whole two bytes in the message instead?)
-
 The flavor dictates the
 [algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md)
 this message is written under.
 The algorithm suite indicated by the flavor MUST be a
-[DDBEC supported algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum).
-(TODO should we update the name in the spec to be generic for structured encryption?)
-The flavor MUST be one of these two values:
+[DBE supported algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 
 | Value | Algorithm Suite ID | Algorithm Suite Enum |
 |---|---|---|
@@ -189,7 +198,7 @@ It is the data key encrypted by the key provider.
 
 The Header Commitment MUST be calculated as a 256-bit HmacSha384,
 with all preceding header bytes as the message
-and a commitment key of "TRUSS_COMMIT_KEY"
+and a commitment key of "AWS_DBE_COMMIT_KEY"
 TODO - use real commitment key
 
 ```

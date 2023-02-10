@@ -121,13 +121,18 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var headerAttribute := StructuredData(
       content := StructuredDataContent.Terminal(
         Terminal := StructuredDataTerminal(
+          //= specification/structured-encryption/header.md#header-format
+          //# The [Terminal Type ID](./structures.md#terminal-type-id) MUST be `0xFF 0xFF`.
           typeId := BYTES_TYPE_ID,
           value := headerBytes
         )
       ),
       attributes := None
     );
-    attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
+    //= specification/structured-encryption/header.md#header-index
+    //# The header MUST exist at string index "aws-dbe-head" for
+    //# encrypted [Structured Data](./structures.md#structured-data).
+    attributeValues := attributeValues[Header.HEADER_INDEX := headerAttribute];
 
     var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
       content := StructuredDataContent.DataMap(

@@ -45,8 +45,8 @@ The following inputs to this behavior MUST be OPTIONAL:
 The [Structured Data](./structures.md#structured-data) to be encrypted.
 
 This Structured Data MUST be a [Structured Data Map](./structures.md#structured-data-map).
-This Structured Data MUST NOT already contain the reserved [header](./header.md) and [footer](./footer.md) fields
-as keys in it's map. (TODO decide the exact header/footer field names)
+This Structured Data MUST NOT already contain data located at the [header index](./header.md#header-index)
+or the [footer index](./footer.md#footer-index).
 
 ### Crypto Schema
 
@@ -79,8 +79,9 @@ otherwise, this operation MUST yield an error.
 
 See [encryption context](./structures.md#encryption-context).
 
-The prefix `aws-crypto-` is reserved for internal use by the AWS Encryption SDK;
-see the [the Default CMM spec](default-cmm.md) for one such use.
+The prefix `aws-crypto-` is reserved for internal use by the AWS Encryption SDK; see the
+[the Default CMM spec](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/default-cmm.md)
+for one such use.
 
 If the input encryption context contains any entries with a key beginning with this prefix,
 the encryption operation MUST yield an error.
@@ -188,7 +189,7 @@ The Intermediate Encryption Structured Data MUST be calculated with the followin
   a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the [input Structured Data](#structured-data),
 - a [Terminal Data](./structures.md#terminal-data) with [Terminal Type ID](./structures.md#terminal-type-id) `0xFFFF` and
   with [Terminal Value](./structures.md#terminal-value) equal to the [serialized header](./header.md)
-  MUST exist on the Intermediate Encrypted Structured Data, indexed at the top level by `aws:truss-header`.
+  MUST exist on the Intermediate Encrypted Structured Data, indexed at the top level by "aws-dbe-head".
   The values of this header have the following requirements:
   - Message Format Version MUST be `0x01`
   - Message Format Flavor MUST [correspond to the algorithm suite](./header.md#format-flavor) used in this encryption.
@@ -225,7 +226,7 @@ The Encrypted Terminal Value MUST derived according to the following encryption:
 - The encryption algorithm used is the
   [encryption algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.
-- The AAD is the [canonical path](#TODO-truss-canonical-path) for this Terminal Data
+- The AAD is the [canonical path](./header.md#canoncial-path) for this Terminal Data
 - The Nonce is [derived according to the field encryption key derivation scheme](#TODO), using the FieldRootKey as input.
 - The Cipherkey is [derived according to the field encryption key derivation scheme](#TODO), using the FieldRootKey as input.
 - The plaintext is the [Terminal Value](./structures.md#terminal-value) for this Terminal Data.
@@ -239,7 +240,7 @@ and the final Encrypted Structured Data outputted.
 The calculations below REQUIRE determining a [canonical hash](#TODO-truss-signature-canonicalization)
 of the [Structured Data](#structured-data), with the following specifics:
 - The header bytes are the [Terminal Value](./structures.md#terminal-value) of the
-  [Terminal Data](./structures.md#terminal-data) at string index "aws:truss-header" in the
+  [Terminal Data](./structures.md#terminal-data), located at the [header index](./header.md#header-index) in the
   [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data).
 - The fields are the set of [Terminal Data](./structures.md#terminal-data)
   on the [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data)
