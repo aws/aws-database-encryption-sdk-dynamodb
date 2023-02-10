@@ -24,16 +24,20 @@ The Version MUST be `0x01`.
 
 ### Format Flavor
 
-The flavor currently only encodes whether signatures are enabled for this record.
-The flavor MUST be one of these two values.
+(TODO should we just encode the whole two bytes in the message instead?)
 
-| Value | Meaning |
-|---|---|
-| 0x01 | Signatures enabled (default) |
-| 0x00 | Signatures disabled |
+The flavor dictates the
+[algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md)
+this message is written under.
+The algorithm suite indicated by the flavor MUST be a
+[DDBEC supported algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum).
+(TODO should we update the name in the spec to be generic for structured encryption?)
+The flavor MUST be one of these two values:
 
-When signatures are enabled in the Format Flavor, a signature will be included in the
-[footer](./footer.md#signature).
+| Value | Algorithm Suite ID | Algorithm Suite Enum |
+|---|---|---|
+| 0x01 | 0x67 0x01 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 |
+| 0x00 | 0x67 0x00 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
 
 ### Message ID
 
@@ -198,6 +202,8 @@ def CheckHeaderCommitment(Header, CommitKey):
     Preceding = Header[:-32]     # Everything before the Header Commitment
     return ConstantTimeEquals(Commitment, GetHeaderCommitment(Preceding, CommitKey)    
 ```
+
+Header commitment comparisons MUST be constant time operations.
 
 It's important to note that, while the Header Commitment does
 produce a distinct 256-bit hash output per header and commitment key,

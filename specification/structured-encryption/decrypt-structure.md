@@ -71,9 +71,9 @@ See [encryption context](./structures.md#encryption-context).
 In order for decryption to succeed:
 - This MUST include any key-values pairs that were used during the original [encryption](./encrypt-structure.md)
 of the [input Structured Data](#structured-data),
-but not stored in the [input Structured Data's header](#TODO-truss-header).
+but not stored in the [input Structured Data's header](./header.md#encryption-context).
 - This MAY include any key-values pairs that are stored
-in the [input Structured Data's header](#TODO-truss-header).
+in the [input Structured Data's header](./header.md#encryption-context).
 - This MUST NOT include any key-values pairs that were not
 used during the original [encryption](./encrypt-structure.md) of the [input Structured Data](#structured-data).
 
@@ -112,11 +112,11 @@ We refer to the [Terminal Value](./structures.md#terminal-value)
 on this Terminal Data as the header bytes.
 
 This operation MUST deserialize the header bytes
-according to the [header format](#TODO-truss-header).
+according to the [header format](./header.md).
 
 The below calculations REQUIRE a [Crypto Schema](./structures.md#crypto-schema),
 which is determined based on the input [Authentication Schema](#authenticate-schema) and the
-parsed [Encrypt Legend](#TODO-truss-header) in the header,
+parsed [Encrypt Legend](./header.md#encrypt-legend) in the header,
 such that for each [Terminal Data](./structures.md#terminal-data)
 in the [input Structed Data](#structured-data):
 - The Crypto Action is [DO_NOTHING](./structures.md#DO_NOTHING) if
@@ -128,25 +128,12 @@ in the [input Structed Data](#structured-data):
   the Authentication Schema indicates [SIGN](./structures.md#sign) for this Terminal Data
   and the Encrypt Legend byte corresponding to this Terminal Data is `0x65`.
 
-If the parsed [Encryption Context](#TODO-truss-header) contains fields that exist in the
+If the parsed [Encryption Context](./header.md#encryption-context) contains fields that exist in the
 [input Encryption Context](#encryption-context),
 and the corresponding values do not match,
 this operation MUST yield an error.
 
-The parsed [Encrypted Data Keys](#TODO-truss-header)
-MUST be non-empty.
-(TODO move to truss header spec)
-
 ### Retrieve Decryption Materials
-
-Based on the [Message Format Version](#TODO-truss-header)
-and [Message Format Flavor](#TODO-truss-header) parsed in the header,
-the following [algorithm suite](#TODO-mpl-alg-suites) MUST be used:
-
-| Message Format Version (hex) | Message Format Flavor (hex) | Algorithm Suite ID (hex) |
-| ---------------------------- | --------------------------- | ------------------------ |
-| 00 01                        | 00 00                       | TODO                     |
-| 00 01                        | 00 01                       | TODO                     |
 
 This operation MUST obtain a set of decryption materials by calling
 [Decrypt Materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md#decrypt-materials)
@@ -155,28 +142,32 @@ on the [input CMM](#cmm).
 The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
 - Encryption Context: The encryption context containing exactly the union of
   key-value pairs in the [input Encryption Context](#encryption-context)
-  and the key-value pairs in the [Encryption Context parsed from the header](#TODO-truss-header).
-- Algorithm Suite ID: The algorithm suite ID as determined above.
-- Encrypted Data Keys: The [Encrypted Data Keys](#TODO-truss-header) parsed from the header.
+  and the key-value pairs in the [Encryption Context parsed from the header](./header.md#encryption-context).
+- Algorithm Suite ID: The algorithm suite [indicated by the Message Format Flavor](./header.md#format-flavor)
+  parsed in the header.
+- Encrypted Data Keys: The [Encrypted Data Keys parsed from the header](./header.md#encrypted-data-keys).
 
 The algorithm suite used in all further aspects of this operation MUST be
 the algorithm suite in the
 [decryption materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/structures.md#decryption-materials)
 returned from the Decrypt Materials call.
 Note that the algorithm suite in the retrieved decryption materials MAY be different from the input algorithm suite.
-If this algorithm suite is not a [Structured Encryption Library Supported suite](#TODO-mpl-alg-suites) this operation MUST yield an error.
+If this algorithm suite is not a
+[supported suite for DDBEC](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum)
+this operation MUST yield an error.
 
 This operation MUST derive a [Commitment Key](#TODO-truss-key-wrapping)
 with the following specifics:
-- the KDF used to calculate the Commitment Key MUST be the KDF indicated by the algorithm suite.
+- the KDF used to calculate the Commitment Key MUST be the
+  [Commit Key KDF](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
+  indicated by the algorithm suite.
 - the key input to the KDF MUST be the plaintext data key in the decryption materials.
-- the Message ID used in this KDF calculation MUST be the Message ID parsed from the header
-- the calculated Commitment Key MUST have length equal to the algorithm suite's encryption key length.
+- the Message ID used in the Commitment Key derivation MUST be the [Message ID parsed from the header](./header.md#message-id).
+- the calculated Commitment Key MUST have length equal to the
+  [algorithm suite's encryption key length](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
-The parsed [Header Commitment](#TODO-truss-header) MUST be [checked](#TODO-truss-header)
+The parsed [Header Commitment MUST be checked](./header.md#header-commitment)
 using this Commitment Key and the header.
-TODO: the HMAC used here is SHA-384, so can't easily tie to Alg Suite
-TODO: ensure we specify constant-time equality check
 
 ### Verify Signatures
 
@@ -186,7 +177,7 @@ of the [Structured Data](#structured-data), with the following specifics:
 - The fields are the set of [Terminal Data](./structures.md#terminal-data)
   on the [Structured Data](#structured-data) that the [Authenticate Schema](#authenticate-schema)
   configues as [SIGN](./structures.md#sign).
-- The AAD is the [serialization of the Encryption Context](#TODO-mpl-structures)
+- The AAD is the [serialization of the Encryption Context](./header.md#encryption-context)
   in the decryption materials.
 
 Given the [input Structured Data](#structured-data),
@@ -196,32 +187,35 @@ at string index "aws:truss-footer"(TODO).
 The [Terminal Type Id](./structures.md#terminal-type-id) MUST be `0xFFFF`.
 
 This operation MUST deserialize the bytes in [Terminal Value](./structures.md#terminal-value)
-according to the [footer format](#TODO-truss-footer).
+according to the [footer format](./footer.md).
 
-The number of [HMACs in the footer](#TODO-truss-footer) 
-MUST be the number of [Encrypted Data Keys in the header](#TODO-truss-header).
+The number of [HMACs in the footer](./footer.md#hmacs) 
+MUST be the number of [Encrypted Data Keys in the header](./header.md#encrypted-data-keys).
 
-This operation MUST [verify](#TODO-truss-signature-canonicalization) one
-of the [HMACs](#TODO-truss-footer) in the footer,
+This operations MUST generate a new symmetric signature over the encrypted structure,
 with the following specifics:
-- The key is the symmetric verification key in the decryption materials.
-- The [HMAC](#TODO-truss-footer) to verify is the HMAC that shares
-  an index with the [encrypted data key](#TODO-truss-header) that
-  was successfully unwrapped.
-  TODO: in the MPL update the symmetric key will need a way to tie
-  the symmetric key to the related encrypted data key.
-  Otherwise we'll need to store more info in the footer.
-- The canonical hash is as calculated above.
-- TODO: the HMAC used here is SHA-384, so can't easily tie to Alg Suite
+- this HMAC MUST be calculated using the
+  [symmetric signature algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-signature-settings)
+  indicated in the algorithm suite.
+- this HMAC MUST be calculated over the [canonical hash](#TODO-truss-signature-canonicalization),
+  using the
+  [symmetric signing key](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/structures.md#symmetric-signing-keys)
+  in the decryption materials.
+
+This operation MUST verify that one of the [footer HMACs](./footer.md#hmacs)
+equals the HMAC generated above, in a constant time operation.
+TODO: tie the signature key more strongly to a particular HMAC/EDK,
+that way we aren't forced to just try verifying each HMAC in the list.
 
 If this algorithm suite includes signing,
 this operation MUST [verify](#TODO-truss-signature-canonicalization)
-the [asymmetric signature](#TODO-truss-footer)
+the [asymmetric signature](./footer.md#signature)
 with the following specifics:
 - The key is the asymmetric signing key in the decryption materials.
 - The canonical hash is as calculated above.
-- The asymmetric algorithm used is the asymmetric algorithm indicated by the
-  algorithm suite.
+- the asymmetric signature is calculated using the
+  [asymmetric signature algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-signature-settings)
+  indicated by the algorithm suite.
 
 If either verification fails, this operation MUST NOT continue
 and MUST yield an error.
@@ -230,17 +224,20 @@ and MUST yield an error.
 
 The calculations below REQUIRE a [Field Root Key](#TODO-truss-key-wraping)
 that MUST be derived with the following specifics:
-- the KDF used to calculate the Field Root Key MUST be the KDF indicated by the algorithm suite.
+- the KDF used to calculate the Field Root Key MUST be the 
+  [Encryption Key KDF](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
+  indicated by the algorithm suite.
 - the key input to the KDF MUST be the plaintext data key in the decryption materials.
-- the Message ID used in this KDF calculation MUST be the Message ID parsed from the header.
-- the calculated Field Root Key MUST have length equal to the algorithm suite's encryption key length.
+- the Message ID used in this calculation MUST be the Message ID parsed from the header.
+- the calculated Field Root Key MUST have length equal to the
+  [algorithm suite's encryption key length](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
 This operation MUST output a [Structured Data](#structured-data) with the following specifics:
-- [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the indexes for the [header](#TODO-truss-header)
-  and [footer](#TODO-truss-footer).
+- [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the indexes(TODO) for the [header](./header.md)
+  and [footer](./footer.md).
 - for every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
   (aside from the header and footer),
-  a Terminal Data MUST exist with the same [canonical path](#TODO-truss) in the output Structured Data.
+  a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the output Structured Data.
   Put plainly, the output Structured Data does not drop any Terminal Data during decryption, other than
   the header or footer.
   Each of these Terminal Data in the output Structured Data MUST:
@@ -273,8 +270,10 @@ equal to the deserialized Terminal Type Id.
 
 The output Terminal Data MUST have a [Terminal Value](./structures.md#terminal-type-id)
 equal to the following decryption:
-- The decryption algorithm used is the encryption algorithm indicated in the algorithm suite.
-- The AAD is the [canonical path](#TODO-truss-canonical-path) for this Terminal Data
+- The decryption algorithm used is the
+  [encryption algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
+  indicated in the algorithm suite.
+- The AAD is the [canonical path](./header.md#canoncial-path) for this Terminal Data
 - The Nonce is [derived according to the field encryption key derivation scheme](#TODO-truss-key-derivation),
   using the FieldRootKey as input.
 - The Cipherkey is [derived according to the field encryption key derivation scheme](#TODO-truss-key-derivation),
