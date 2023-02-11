@@ -9,7 +9,7 @@ in order to store signatures over signed values in that structured data.
 
 ## Footer Index
 
-The header MUST exist at string index "aws-dbe-foot" for
+The header MUST exist at string index "aws_dbe_foot" for
 encrypted [Structured Data](./structures.md#structured-data).
 
 ## Footer Format

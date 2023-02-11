@@ -257,6 +257,8 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     ensures
       && InSignatureScope(config, attr)
       && IsUnauthenticated(config, attr)
+      && InSignatureScope(config, attr)
+      && IsUnauthenticated(config, attr)
       ==> ret.Failure?
   {
     :- Need(IsConfigured(config, attr), "Attribute " + attr + " is not configured");

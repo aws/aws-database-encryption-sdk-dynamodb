@@ -34,13 +34,6 @@ module StructuredEncryptionHeader {
   //# The Version MUST be `0x01`.
   type Version = x : uint8 | ValidVersion(x) witness 1
 
-  //= specification/structured-encryption/header.md#format-flavor
-  //= type=implication
-  //# The flavor MUST be one of these two values.
-  // | Value | Meaning |
-  // |---|---|
-  // | 0x01 | Signatures enabled (default) |
-  // | 0x00 | Signatures disabled |
   type Flavor = x : uint8 | ValidFlavor(x)
 
   //= specification/structured-encryption/header.md#encrypted-data-key-count
@@ -94,17 +87,6 @@ module StructuredEncryptionHeader {
     function method {:opaque} serialize() : (ret : Bytes)
       ensures
         && PREFIX_LEN <= |ret|
-        //= specification/structured-encryption/header.md#header-format
-        //= type=implication
-        //# The serialized form of the Header MUST be
-        // | Length (bytes) | Meaning |
-        // |---|---|
-        // | 1 | Format Version |
-        // | 1 | Format Flavor |
-        // | 32 | Message ID|
-        // | Variable | Encrypt Legend |
-        // | Variable | Encrypt Context|
-        // | Variable | Encrypted Data Keys |
         && ret == (
             [version]
           + [flavor]

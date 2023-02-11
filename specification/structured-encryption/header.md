@@ -9,7 +9,7 @@ in order to store metadata on its encryption.
 
 ## Header Index
 
-The header MUST exist at string index "aws-dbe-head" for
+The header MUST exist at string index "aws_dbe_head" for
 encrypted [Structured Data](./structures.md#structured-data).
 
 ## Header Format
