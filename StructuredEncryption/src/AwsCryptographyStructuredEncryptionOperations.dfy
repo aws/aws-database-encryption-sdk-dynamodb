@@ -127,7 +127,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       ),
       attributes := None
     );
-    attributeValues := attributeValues[Header.HEADER_INDEX := headerAttribute];
+    attributeValues := attributeValues["aws_ddb_head" := headerAttribute];
 
     var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
       content := StructuredDataContent.DataMap(
