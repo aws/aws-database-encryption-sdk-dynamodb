@@ -1,9 +1,22 @@
 
 # Structured Encryption Header
 
+## Overview
+
+The header is a special [Terminal Data](./structures.md#terminal-data)
+that exists on encrypted [Structured Data](./structures.md#structured-data)
+in order to store metadata on its encryption.
+
+## Header Index
+
+The header MUST exist at string index "aws-dbe-head" for
+encrypted [Structured Data](./structures.md#structured-data).
+
 ## Header Format
 
-The serialized form of the header MUST be
+The [Terminal Type ID](./structures.md#terminal-type-id) MUST be `0xFF 0xFF`.
+
+The [Terminal Value](./structures.md#terminal-value) of the header MUST be
 
 | Length (bytes) | Meaning |
 |---|---|
@@ -24,16 +37,16 @@ The Version MUST be `0x01`.
 
 ### Format Flavor
 
-The flavor currently only encodes whether signatures are enabled for this record.
-The flavor MUST be one of these two values.
+The flavor dictates the
+[algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md)
+this message is written under.
+The algorithm suite indicated by the flavor MUST be a
+[DBE supported algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 
-| Value | Meaning |
-|---|---|
-| 0x01 | Signatures enabled (default) |
-| 0x00 | Signatures disabled |
-
-When signatures are enabled in the Format Flavor, a signature will be included in the
-[footer](./footer.md#signature).
+| Value | Algorithm Suite ID | Algorithm Suite Enum |
+|---|---|---|
+| 0x01 | 0x67 0x01 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 |
+| 0x00 | 0x67 0x00 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
 
 ### Message ID
 
@@ -185,7 +198,7 @@ It is the data key encrypted by the key provider.
 
 The Header Commitment MUST be calculated as a 256-bit HmacSha384,
 with all preceding header bytes as the message
-and a commitment key of "TRUSS_COMMIT_KEY"
+and a commitment key of "AWS_DBE_COMMIT_KEY"
 TODO - use real commitment key
 
 ```
@@ -198,6 +211,8 @@ def CheckHeaderCommitment(Header, CommitKey):
     Preceding = Header[:-32]     # Everything before the Header Commitment
     return ConstantTimeEquals(Commitment, GetHeaderCommitment(Preceding, CommitKey)    
 ```
+
+Header commitment comparisons MUST be constant time operations.
 
 It's important to note that, while the Header Commitment does
 produce a distinct 256-bit hash output per header and commitment key,
