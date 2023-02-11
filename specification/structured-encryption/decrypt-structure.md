@@ -153,7 +153,7 @@ the algorithm suite in the
 returned from the Decrypt Materials call.
 Note that the algorithm suite in the retrieved decryption materials MAY be different from the input algorithm suite.
 If this algorithm suite is not a
-[supported suite for DDBEC](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum)
+[supported suite for DBE](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum)
 this operation MUST yield an error.
 
 This operation MUST derive a [Commitment Key](#TODO-truss-key-wrapping)
