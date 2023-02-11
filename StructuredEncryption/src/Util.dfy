@@ -9,16 +9,38 @@ module StructuredEncryptionUtil {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import UTF8
+  import CMP = AwsCryptographyMaterialProvidersTypes
 
-  // These two should be part of the DDB layer, and passed in somehow
-  // Or maybe part of AwsCryptographyStructuredEncryptionOperations.Config?
-  const HeaderField := "aws_ddb_head"
-  const FooterField := "aws_ddb_foot"
+  // all attributes with this prefix reserved for the implementation
+  const ReservedPrefix := "aws_dbe_"
+  const HeaderField := ReservedPrefix + "head"
+  const FooterField := ReservedPrefix + "foot"
 
   const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF];
 
+  // Currently, only one set of sizes are supported
+  const KeySize := 32 // 256 bits, for 256-bit AES keys
+  const NonceSize := 12 // 96 bits, per AES-GCM nonces
+  const AuthTagSize := 16
+  const MSGID_LEN := 32
+
+  type Key = x : seq<uint8> | |x| == KeySize witness *
+  type Nonce = x : seq<uint8> | |x| == NonceSize witness *
+  type AuthTag = x : seq<uint8> | |x| == AuthTagSize witness *
+  type MessageID = x: Bytes | |x| == MSGID_LEN witness *
+
   type Bytes = seq<uint8>
   type GoodString = x : string | ValidString(x)
+
+  // Within the context of the StructuredEncryptionClient, certains things must be true of any Algorithm Suite
+  predicate method ValidSuite(alg : CMP.AlgorithmSuiteInfo)
+  {
+    && alg.commitment.HKDF?
+    && alg.commitment.HKDF.outputKeyLength as int == KeySize
+    && alg.kdf.HKDF?
+    && alg.kdf.HKDF.outputKeyLength as int == KeySize
+  }
+
   predicate method ValidString(x : string)
   {
     && |x| <  UINT64_LIMIT

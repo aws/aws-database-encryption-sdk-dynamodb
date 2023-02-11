@@ -23,10 +23,8 @@ module StructuredEncryptionHeader {
 
   const VERSION_LEN := 1
   const FLAVOR_LEN := 1
-  const MSGID_LEN := 32
   const COMMITMENT_LEN := 32
   const PREFIX_LEN := VERSION_LEN + FLAVOR_LEN + MSGID_LEN
-  const TRUSS_COMMIT_KEY := "TRUSS_COMMIT_KEY";
   const UINT8_LIMIT := 256
   const ENCRYPT_AND_SIGN_LEGEND : uint8 := 0x65;
   const SIGN_ONLY_LEGEND : uint8 := 0x73;
@@ -50,7 +48,6 @@ module StructuredEncryptionHeader {
   //# This value MUST be greater than 0.
   type CMPEncryptedDataKeyList = x : seq<CMPEncryptedDataKey> | 0 < |x| < UINT8_LIMIT witness *
 
-  type MessageID = x: Bytes | |x| == MSGID_LEN witness *
   type Commitment = x: Bytes | |x| == COMMITMENT_LEN witness *
   type CMPEncryptedDataKey = x : CMP.EncryptedDataKey | ValidEncryptedDataKey(x) witness *
   type CMPEncryptionContext  = x : CMP.EncryptionContext | ValidEncryptionContext(x) witness *
@@ -126,10 +123,13 @@ module StructuredEncryptionHeader {
     // Calculate key commitment. Fail if it doesn't match the stored one.
     function method check(
       client: Prim.IAwsCryptographicPrimitivesClient,
+      alg : CMP.AlgorithmSuiteInfo,
       commitKey : Bytes,
       data : Bytes
     )
       : (ret : Result<bool, Error>)
+      requires ValidSuite(alg)
+
       requires client.ValidState()
       ensures client.ValidState()
       //= specification/structured-encryption/header.md#header-commitment
@@ -139,13 +139,13 @@ module StructuredEncryptionHeader {
       ensures ret.Success? ==>
         && COMMITMENT_LEN < |data|
         && var storedCommitment := data[|data|-COMMITMENT_LEN..];
-        && CalculateHeaderCommitment(client, commitKey, data[..|data|-COMMITMENT_LEN]).Success?
-        && var calcCommitment := CalculateHeaderCommitment(client, commitKey, data[..|data|-COMMITMENT_LEN]).value;
+        && CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]).Success?
+        && var calcCommitment := CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]).value;
         && storedCommitment == calcCommitment
     {
       :- Need(COMMITMENT_LEN < |data|, E("Serialized header too short"));
       var storedCommitment := data[|data|-COMMITMENT_LEN..];
-      var calcCommitment :- CalculateHeaderCommitment(client, commitKey, data[..|data|-COMMITMENT_LEN]);
+      var calcCommitment :- CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]);
       :- Need(storedCommitment == calcCommitment, E("Key commitment mismatch."));
       Success(true)
     }
@@ -154,25 +154,23 @@ module StructuredEncryptionHeader {
   // serialize and add commitment
   function method Serialize(
     client: Prim.IAwsCryptographicPrimitivesClient,
+    alg : CMP.AlgorithmSuiteInfo,
     commitKey : Bytes,
     PartialHeader : PartialHeader
   )
     : (ret : Result<Bytes, Error>)
+    requires ValidSuite(alg)
+
     requires client.ValidState()
     ensures client.ValidState()
 
-    //= specification/structured-encryption/header.md#header-commitment
-    //= type=implication
-    //# The Header Commitment MUST be calculated as a 256-bit HmacSha384,
-    //# with all preceding Header bytes as the message
-    //# and a commitment key of "TRUSS_COMMIT_KEY"
     ensures ret.Success? ==>
       && PREFIX_LEN <= |ret.value|
-      && CalculateHeaderCommitment(client, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).Success?
-      && ret.value[|ret.value|-COMMITMENT_LEN..] == CalculateHeaderCommitment(client, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).value
+      && CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).Success?
+      && ret.value[|ret.value|-COMMITMENT_LEN..] == CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).value
   {
     var body := PartialHeader.serialize();
-    var commitment :- CalculateHeaderCommitment(client, commitKey, body);
+    var commitment :- CalculateHeaderCommitment(client, alg, commitKey, body);
     Success(body + commitment)
   }
 
@@ -181,26 +179,28 @@ module StructuredEncryptionHeader {
       tableName : string,
       schema : CryptoSchema,
       msgID : MessageID,
-      encContext : CMP.EncryptionContext,
-      dataKeys : CMP.EncryptedDataKeyList
+      mat : CMP.EncryptionMaterials
     )
     : (ret : Result<PartialHeader, Error>)
   {
     :- Need(ValidString(tableName), E("Invalid table name."));
-    :- Need(ValidEncryptionContext(encContext), E("Invalid Encryption Context"));
-    :- Need(0 < |dataKeys|, E("There must be at least one data key"));
-    :- Need(|dataKeys| < UINT8_LIMIT, E("Too many data keys."));
-    :- Need(forall x | x in dataKeys :: ValidEncryptedDataKey(x), E("Invalid Data Key"));
+    :- Need(ValidEncryptionContext(mat.encryptionContext), E("Invalid Encryption Context"));
+    :- Need(0 < |mat.encryptedDataKeys|, E("There must be at least one data key"));
+    :- Need(|mat.encryptedDataKeys| < UINT8_LIMIT, E("Too many data keys."));
+    :- Need(forall x | x in mat.encryptedDataKeys :: ValidEncryptedDataKey(x), E("Invalid Data Key"));
     :- Need(schema.content.SchemaMap?, E("Schema must be a Map"));
     :- Need(CryptoSchemaMapIsFlat(schema.content.SchemaMap), E("Schema must be flat."));
+    :- Need(|mat.algorithmSuite.binaryId| == 2, E("Invalid Algoritm Suite Binary ID"));
+    // :- Need(mat.algorithmSuite.binaryId[0] == 0x67, E("Algoritm Suite not suitable for structured encryption."));
+    // :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algoritm Suite has unexpected flavor."));
     var legend :- MakeLegend(tableName, schema);
     Success(PartialHeader(
       version := 1,
-      flavor := 1, // or zero if algorithm suite is TODO?
+      flavor := 1, // mat.algorithmSuite.binaryId[1],
       msgID := msgID,
       legend := legend,
-      encContext := encContext,
-      dataKeys := dataKeys
+      encContext := mat.encryptionContext,
+      dataKeys := mat.encryptedDataKeys
     ))
   }
   
@@ -260,23 +260,25 @@ module StructuredEncryptionHeader {
   // calculate Hmac384 for header commitment
   function method CalculateHeaderCommitment(
     client: Prim.IAwsCryptographicPrimitivesClient,
+    alg : CMP.AlgorithmSuiteInfo,
     commitKey : Bytes,
     data: Bytes
   ) : (ret : Result<Bytes, Error>)
+    requires ValidSuite(alg)
+    ensures ret.Success? ==> |ret.value| == COMMITMENT_LEN
+
     requires client.ValidState()
     ensures client.ValidState()
-    ensures ret.Success? ==> |ret.value| == COMMITMENT_LEN
   {
-    // TODO - Get hashing algorithm from algorithm suite
     var input := Prim.HMacInput (
-      digestAlgorithm := Prim.SHA_384,
+      digestAlgorithm := alg.commitment.HKDF.hmac,
       key := commitKey,
       message := data
     );
     var outputR := client.HMac(input);
     var output :- outputR.MapFailure(e => AwsCryptographyPrimitives(e));
-    if |output| != 48 then
-      Failure(E("SHA_384 did not produce 384 bits"))
+    if |output| < COMMITMENT_LEN then
+      Failure(E("HMAC did not produce enough bits"))
     else
       Success(output[..COMMITMENT_LEN])
   }

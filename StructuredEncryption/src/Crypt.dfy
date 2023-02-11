@@ -19,18 +19,6 @@ module StructuredEncryptionCrypt {
   import Header = StructuredEncryptionHeader
   import HKDF
 
-  const KeySize := 32 // 256 bits, for 256-bit AES keys
-  const NonceSize := 12 // 96 bits, per AES-GCM nonces
-  const AuthTagSize := 16
-
-  // TODO - an extern that actually does AES CTR
-  function method aes256ctr(length : nat, key : Bytes, nonce : Bytes)
-    : (ret : Bytes)
-    ensures |ret| == length
-  {
-    seq(length, i => (i % 256) as uint8)
-  }
-
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Bytes)
     requires |HKDFOutput| == KeySize
@@ -41,31 +29,29 @@ module StructuredEncryptionCrypt {
   }
 
   function method FieldKeyNonce(offset : uint32)
-    : (ret : Bytes)
-    ensures |ret| == 16
+    : (ret : seq<uint8>)
+    ensures |ret| == 16 // NOT NonceSize
     {
-        UTF8.EncodeAscii("Truss")
-      + [0]
-      + UTF8.EncodeAscii("Field")
+      UTF8.EncodeAscii("AwsDbeField")
       + [(KeySize+NonceSize) as uint8] // length
       + UInt32ToSeq(offset)
     }
     
   // the underscore is not present in the AWS Encryption SDK's constants
-  const LABEL_COMMITMENT_KEY := UTF8.EncodeAscii("TRUSS_COMMIT_KEY")
-  const LABEL_ENCRYPTION_KEY := UTF8.EncodeAscii("TRUSS_DERIVE_KEY")
+  const LABEL_COMMITMENT_KEY := UTF8.EncodeAscii("AWS_DBE_COMMIT_KEY")
+  const LABEL_ENCRYPTION_KEY := UTF8.EncodeAscii("AWS_DBE_DERIVE_KEY")
   
   // suitable for header field
-  method GetCommitKey(key : CMP.Secret, msgID : Bytes) returns (ret : Bytes)
-    requires |msgID| == 32
-    requires |key| == KeySize
+  method GetCommitKey(alg : CMP.AlgorithmSuiteInfo, key : Key, msgID : MessageID)
+    returns (ret : Key)
+    requires ValidSuite(alg)
   {
     ret := HKDF.Hkdf(
-      Prim.SHA_512, 
+      alg.commitment.HKDF.hmac,
       None, // salt
       key, // ikm
       LABEL_COMMITMENT_KEY + msgID, // info
-      KeySize // length
+      alg.commitment.HKDF.outputKeyLength as int // length
     );
   }
 
@@ -75,7 +61,8 @@ module StructuredEncryptionCrypt {
   method Crypt(
     mode : EncryptionSelector,
     client: Primitives.AtomicPrimitivesClient,
-    key : Bytes,
+    alg : CMP.AlgorithmSuiteInfo,
+    key : Key,
     head : Header.PartialHeader,
     keys : seq<Bytes>,
     data : map<Bytes, StructuredData>)
@@ -83,22 +70,21 @@ module StructuredEncryptionCrypt {
     requires forall k <- keys :: k in data
     requires |keys| < (UINT32_LIMIT / 3)
     requires forall k <- data :: data[k].content.Terminal?
+    requires ValidSuite(alg)
     ensures ret.Success? ==> forall k <- ret.value :: ret.value[k].content.Terminal?
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    :- Need(|key| < INT32_MAX_LIMIT, E("key too long"));
-
     var FieldRootKey := HKDF.Hkdf(
-      Prim.SHA_512, 
+      alg.kdf.HKDF.hmac,
       None, // salt
       key, // ikm
       LABEL_ENCRYPTION_KEY + head.msgID, // info
-      KeySize // length
+      alg.kdf.HKDF.outputKeyLength as int // length
     );
-    var result := CryptList(mode, client, FieldRootKey, 0, keys, data, map[]);
+    var result := CryptList(mode, client, alg, FieldRootKey, 0, keys, data, map[]);
     return result;
   }
 
@@ -106,7 +92,8 @@ module StructuredEncryptionCrypt {
   method {:tailrecursion} CryptList(
     mode : EncryptionSelector,
     client: Primitives.AtomicPrimitivesClient,
-    FieldRootKey : Bytes,
+    alg : CMP.AlgorithmSuiteInfo,
+    FieldRootKey : Key,
     offset : uint32,
     keys : seq<Bytes>,
     input : map<Bytes, StructuredData>,
@@ -115,7 +102,6 @@ module StructuredEncryptionCrypt {
     returns (ret : Result<map<Bytes, StructuredData>, Error>)
     requires forall k <- keys :: k in input
     requires |keys| * 3 + (offset as nat) < UINT32_LIMIT
-    requires |FieldRootKey| == KeySize
     requires forall k <- input :: input[k].content.Terminal?
     requires forall k <- output :: output[k].content.Terminal?
     ensures ret.Success? ==> forall k <- ret.value :: ret.value[k].content.Terminal?
@@ -128,8 +114,8 @@ module StructuredEncryptionCrypt {
     if |keys| == 0 {
       return Success(output);
     }
-    var data :- CryptOne(mode, client, FieldRootKey, offset, input[keys[0]]);
-    var result := CryptList(mode, client, FieldRootKey, offset+1, keys[1..], input, output[keys[0] := data]);
+    var data :- CryptOne(mode, client, alg, FieldRootKey, offset, keys[0], input[keys[0]]);
+    var result := CryptList(mode, client, alg, FieldRootKey, offset+1, keys[1..], input, output[keys[0] := data]);
     return result;
   }
 
@@ -137,12 +123,13 @@ module StructuredEncryptionCrypt {
   method CryptOne(
     mode : EncryptionSelector,
     client: Primitives.AtomicPrimitivesClient,
-    FieldRootKey : Bytes,
+    alg : CMP.AlgorithmSuiteInfo,
+    FieldRootKey : Key,
     offset : uint32,
+    path : seq<uint8>,
     data : StructuredData
   )
     returns (ret : Result<StructuredData, Error>)
-    requires |FieldRootKey| == KeySize
     requires data.content.Terminal?
     ensures ret.Success? ==> ret.value.content.Terminal?
 
@@ -151,32 +138,32 @@ module StructuredEncryptionCrypt {
     ensures client.ValidState()
   {
     var dataKey := FieldKey(FieldRootKey, offset);
-    var encryptionKey := dataKey[0..KeySize];
-    var nonce := dataKey[KeySize..];
-
-    // TODO - algorithm suite
-    var encAlg := Prim.AES_GCM(keyLength := KeySize as Prim.SymmetricKeyLength, tagLength := AuthTagSize as Prim.Uint8Bits, ivLength := NonceSize as Prim.Uint8Bits);
+    var encryptionKey : Key := dataKey[0..KeySize];
+    var nonce : Nonce := dataKey[KeySize..];
     var value := data.content.Terminal.value;
+
     if mode == Encrypt {
       var encInput := Prim.AESEncryptInput(
-        encAlg := encAlg,
+        encAlg := alg.encrypt.AES_GCM,
         iv := nonce,
         key := encryptionKey,
         msg := data.content.Terminal.typeId + value,
-        aad := [] // encryption context
+        aad := path
       );
 
       var encOutR := client.AESEncrypt(encInput);
       var encOut :- encOutR.MapFailure(e => AwsCryptographyPrimitives(e));
-      return Success(ValueToData(encOut.cipherText + encOut.authTag, [0xff, 0xff]));
+      :- Need (|encOut.authTag| == AuthTagSize, E("Auth Tag Wrong Size."));
+      return Success(ValueToData(encOut.cipherText + encOut.authTag, BYTES_TYPE_ID));
+
     } else {
       :- Need(AuthTagSize <= |value|, E("cipherTxt too short."));
       var decInput := Prim.AESDecryptInput(
-        encAlg := encAlg,
+        encAlg := alg.encrypt.AES_GCM,
         iv := nonce,
         key := encryptionKey,
         cipherTxt := value[..|value| - AuthTagSize],
-        aad := [], // enc context
+        aad := path,
         authTag := value[|value|-AuthTagSize..]
       );
 
@@ -186,6 +173,4 @@ module StructuredEncryptionCrypt {
       return Success(ValueToData(decOut[2..], decOut[..2]));
     }
   }
-
-
 }

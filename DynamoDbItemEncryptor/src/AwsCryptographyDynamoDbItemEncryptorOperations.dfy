@@ -12,6 +12,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   import opened StandardLibrary
   import Seq
   import CSE = AwsCryptographyStructuredEncryptionTypes
+  import SE =  StructuredEncryptionUtil
 
   datatype Config = Config(
     nameonly tableName: ComAmazonawsDynamodbTypes.TableName,
@@ -28,9 +29,6 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   )
 
   type InternalConfig = Config
-
-  // all attributes with this prefix reserved for the implementation
-  const ReservedPrefix := "aws_ddb_"
 
   // constant attribute names for the encryption context
   const TABLE_NAME : seq<uint8> := UTF8.EncodeAscii("aws-crypto-table-name");
@@ -209,7 +207,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   {
     || (config.allowedUnauthenticatedAttributes.Some? && attr in config.allowedUnauthenticatedAttributes.value)
     || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= attr)
-    || ReservedPrefix <= attr
+    || SE.ReservedPrefix <= attr
   }
 
   predicate method IsConfigured(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
