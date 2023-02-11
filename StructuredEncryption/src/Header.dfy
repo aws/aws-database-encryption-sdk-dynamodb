@@ -18,14 +18,12 @@ module Header {
   import Random
   import Functions
 
-  const HEADER_INDEX := "aws-dbe-head"
-
   const VERSION_LEN := 1
   const FLAVOR_LEN := 1
   const MSGID_LEN := 32
   const COMMITMENT_LEN := 32
   const PREFIX_LEN := VERSION_LEN + FLAVOR_LEN + MSGID_LEN
-  const AWS_DBE_COMMIT_KEY := "AWS_DBE_COMMIT_KEY";
+  const TRUSS_COMMIT_KEY := "TRUSS_COMMIT_KEY";
   const UINT8_LIMIT := 256
   const ENCRYPT_AND_SIGN_LEGEND : uint8 := 0x65;
   const SIGN_ONLY_LEGEND : uint8 := 0x73;
@@ -93,7 +91,7 @@ module Header {
         && PREFIX_LEN <= |ret|
         //= specification/structured-encryption/header.md#header-format
         //= type=implication
-        //# The [Terminal Value](./structures.md#terminal-value) of the header MUST be
+        //# The serialized form of the Header MUST be
         // | Length (bytes) | Meaning |
         // |---|---|
         // | 1 | Format Version |
@@ -128,7 +126,7 @@ module Header {
     //= type=implication
     //# The Header Commitment MUST be calculated as a 256-bit HmacSha384,
     //# with all preceding Header bytes as the message
-    //# and a commitment key of "AWS_DBE_COMMIT_KEY"
+    //# and a commitment key of "TRUSS_COMMIT_KEY"
     ensures ret.Success? ==>
       && PREFIX_LEN <= |ret.value|
       && CalculateHeaderCommitment(client, ret.value[..|ret.value|-32]).Success?
@@ -254,7 +252,7 @@ module Header {
     // TODO - Get hashing algorithm from algorithm suite
     var input := Prim.HMacInput (
       digestAlgorithm := Prim.SHA_384,
-      key := EncodeAscii(AWS_DBE_COMMIT_KEY),
+      key := EncodeAscii(TRUSS_COMMIT_KEY),
       message := data
     );
     var outputR := client.HMac(input);
