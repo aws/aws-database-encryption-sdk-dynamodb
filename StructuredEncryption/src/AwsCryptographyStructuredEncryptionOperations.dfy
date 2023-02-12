@@ -266,7 +266,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   
   method DecryptStructure(config: InternalConfig, input: DecryptStructureInput)
     returns (output: Result<DecryptStructureOutput, Error>)
-    ensures
+    ensures output.Success? ==>
       && input.encryptedStructure.content.DataMap?
       && var encRecord := input.encryptedStructure.content.DataMap;
 
