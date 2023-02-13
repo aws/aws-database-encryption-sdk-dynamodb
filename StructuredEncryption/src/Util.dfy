@@ -101,4 +101,14 @@ module StructuredEncryptionUtil {
   {
     data.content.Terminal.value
   }
+
+  predicate method ByteLess(x : uint8, y : uint8)
+  {
+    x < y
+  }
+
+  predicate method CharLess(x : char, y : char)
+  {
+    x < y
+  }
 }

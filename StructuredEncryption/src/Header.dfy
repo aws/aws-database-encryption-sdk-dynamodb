@@ -87,6 +87,17 @@ module StructuredEncryptionHeader {
     function method {:opaque} serialize() : (ret : Bytes)
       ensures
         && PREFIX_LEN <= |ret|
+        //= specification/structured-encryption/header.md#partial-header
+        //= type=implication
+        //# The Partial Header MUST be
+        // | Length (bytes) | Meaning |
+        // |---|---|
+        // | 1 | [Format Version](#format-version) |
+        // | 1 | [Format Flavor](#format-flavor) |
+        // | 32 | [Message ID](#message-id) |
+        // | Variable | [Encrypt Legend](#encrypt-legend) |
+        // | Variable | [Encryption Context](#encryption-context) |
+        // | Variable | [Encrypted Data Keys](#encrypted-data-keys) |
         && ret == (
             [version]
           + [flavor]
@@ -143,13 +154,20 @@ module StructuredEncryptionHeader {
     : (ret : Result<Bytes, Error>)
     requires ValidSuite(alg)
 
-    requires client.ValidState()
-    ensures client.ValidState()
-
+    //= specification/structured-encryption/header.md#header-value
+    //= type=implication
+    //# The [Terminal Value](./structures.md#terminal-value) of the header MUST be
+    // | Length (bytes) | Meaning |
+    // |---|---|
+    // | Variable | [Partial Header](#partial-header) |
+    // | 32 | [Header Commitment](#header-commitment) |
     ensures ret.Success? ==>
       && PREFIX_LEN <= |ret.value|
       && CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).Success?
       && ret.value[|ret.value|-COMMITMENT_LEN..] == CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).value
+
+    requires client.ValidState()
+    ensures client.ValidState()
   {
     var body := PartialHeader.serialize();
     var commitment :- CalculateHeaderCommitment(client, alg, commitKey, body);
@@ -263,11 +281,6 @@ module StructuredEncryptionHeader {
       Failure(E("HMAC did not produce enough bits"))
     else
       Success(output[..COMMITMENT_LEN])
-  }
-
-  predicate method ByteLess(x : uint8, y : uint8)
-  {
-    x < y
   }
 
   function method ToUInt16(x : nat)

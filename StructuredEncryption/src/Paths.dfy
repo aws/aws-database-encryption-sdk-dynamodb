@@ -165,5 +165,4 @@ module StructuredEncryptionPaths {
       }
     }
   }
-
 }

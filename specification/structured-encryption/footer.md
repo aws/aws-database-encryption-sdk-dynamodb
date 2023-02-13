@@ -14,8 +14,6 @@ encrypted [Structured Data](./structures.md#structured-data).
 
 ## Footer Format
 
-The [Terminal Type ID](./structures.md#terminal-type-id) MUST be `0xFF 0xFF`.
-
 The [Terminal Value](./structures.md#terminal-value) of the footer MUST be
 
 | Field | Length (bytes) | Interpreted as |

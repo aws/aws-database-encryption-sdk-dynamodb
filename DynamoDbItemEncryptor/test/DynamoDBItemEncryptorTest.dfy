@@ -72,6 +72,9 @@ module DynamoDbItemEncryptorTest {
       )
     );
 
+    if encryptRes.Failure? {
+      print "\n\n", encryptRes, "\n\n";
+    }
     expect encryptRes.Success?;
     expect encryptRes.value.encryptedItem.Keys == inputItem.Keys + {SE.HeaderField, SE.FooterField};
     expect encryptRes.value.encryptedItem["bar"] == inputItem["bar"];
@@ -85,7 +88,6 @@ module DynamoDbItemEncryptorTest {
       )
     );
 
-    print decryptRes;
     expect decryptRes.Success?;
     expect decryptRes.value.plaintextItem == inputItem;
   }
