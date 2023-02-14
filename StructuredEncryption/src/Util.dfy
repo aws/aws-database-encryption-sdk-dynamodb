@@ -32,6 +32,13 @@ module StructuredEncryptionUtil {
   type Bytes = seq<uint8>
   type GoodString = x : string | ValidString(x)
 
+  type StructuredDataPlain = x : map<GoodString, StructuredData> | (forall k <- x :: x[k].content.Terminal?)
+  type StructuredDataCanon = x : map<Bytes, StructuredData> | (forall k <- x :: x[k].content.Terminal?)
+  type CryptoSchemaPlain = x : map<GoodString, CryptoSchema> | (forall k <- x :: x[k].content.Action?)
+  type CryptoSchemaCanon = x : map<Bytes, CryptoSchema> | (forall k <- x :: x[k].content.Action?)
+  type AuthSchemaPlain = x : map<GoodString, AuthenticateSchema> | (forall k <- x :: x[k].content.Action?)
+  type AuthSchemaCanon = x : map<Bytes, AuthenticateSchema> | (forall k <- x :: x[k].content.Action?)
+
   // Within the context of the StructuredEncryptionClient, certains things must be true of any Algorithm Suite
   predicate method ValidSuite(alg : CMP.AlgorithmSuiteInfo)
   {
