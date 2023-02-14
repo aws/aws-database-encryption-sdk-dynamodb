@@ -63,6 +63,7 @@ public class TestUtils {
                 .partitionKeyName(TEST_PARTITION_NAME)
                 .sortKeyName(TEST_SORT_NAME)
                 .attributeActions(actions)
+                .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                 .keyring(keyring);
         if (!allowedUnauth.isEmpty()) {
             builder = builder.allowedUnauthenticatedAttributes(allowedUnauth);
