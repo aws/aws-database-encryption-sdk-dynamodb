@@ -81,6 +81,10 @@ public class DynamoDbEncryptionMiddlewareInternal {
     return new BuilderImpl();
   }
 
+  protected IDynamoDbEncryptionMiddlewareInternalClient impl() {
+    return this._impl;
+  }
+
   public PutItemInputTransformOutput PutItemInputTransform(PutItemInputTransformInput nativeValue) {
     Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PutItemInputTransformInput dafnyValue = ToDafny.PutItemInputTransformInput(nativeValue);
     Result<Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PutItemInputTransformOutput, Error> result = this._impl.PutItemInputTransform(dafnyValue);
@@ -333,10 +337,6 @@ public class DynamoDbEncryptionMiddlewareInternal {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.ExecuteTransactionOutputTransformOutput(result.dtor_value());
-  }
-
-  protected IDynamoDbEncryptionMiddlewareInternalClient impl() {
-    return this._impl;
   }
 
   public interface Builder {
