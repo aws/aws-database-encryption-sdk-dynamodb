@@ -72,7 +72,7 @@ A CMM that implements the [CMM interface](https://github.com/awslabs/aws-encrypt
 The [algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md) that SHOULD be used for encryption.
 
 This algorithm suite MUST be a
-[supported suite for DDBEC](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum);
+[supported suite for Database Encryption (DBE)](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum);
 otherwise, this operation MUST yield an error.
 
 ### Encryption Context
@@ -123,7 +123,7 @@ The call to Get Encryption Materials MUST be constructed as follows:
   [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
 - Algorithm Suite: If provided, this is the [input algorithm suite](#algorithm-suite);
   otherwise, this field MUST be the algorithm suite corresponding to the enum 
-  [DDBEC.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum).
+  [DBE.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 - Max Plaintext Length: This field MUST be the result of the calculation `encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize`
   - `encryptedTerminalDataNum` is the number of [Terminal Data](./structures.md#terminal-data)
     in the [input Structured Data](#structured-data) being encrypted,
@@ -138,7 +138,7 @@ the algorithm suite in the
 returned from the Get Encryption Materials call.
 Note that the algorithm suite in the retrieved encryption materials MAY be different from the input algorithm suite.
 If this algorithm suite is not a
-[supported suite for DDBEC](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum),
+[supported suite for Database Encryption (DBE)](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum),
 this operation MUST yield an error.
 
 ### Calculate Intermediate Encrypted Structured Data
