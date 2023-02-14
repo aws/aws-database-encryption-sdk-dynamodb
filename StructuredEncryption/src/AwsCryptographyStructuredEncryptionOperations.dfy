@@ -7,6 +7,7 @@ include "Header.dfy"
 module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptographyStructuredEncryptionOperations {
   import Base64
   import CMP = AwsCryptographyMaterialProvidersTypes
+  import MPL = AwsCryptographyMaterialProvidersTypes
   import Random
   import Aws.Cryptography.Primitives
   import Header
@@ -26,6 +27,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var s := [0x54, 0x48, 0x49, 0x53, 0x5f, 0x49, 0x53, 0x5f, 0x4e, 0x4f, 0x54, 0x5f, 0x45, 0x4e, 0x43, 0x52, 0x59, 0x50, 0x54, 0x45, 0x44];
     assert UTF8.ValidUTF8Range(s, 0, 21);
     s
+
+  const DBE_COMMITMENT_POLICY := CMP.CommitmentPolicy.DBE(CMP.DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT)
 
   // TODO: This is temporary in order to support "fake" encryption with DDB,
   // which is a placeholder to demonstrate the crypto schema is piping to this
@@ -51,11 +54,16 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
   {
+    var algorithmSuiteId := if input.algorithmSuiteId.Some? then
+      Some(MPL.AlgorithmSuiteId.DBE(input.algorithmSuiteId.value))
+    else
+      None;
+
     var matR := input.cmm.GetEncryptionMaterials(
       CMP.GetEncryptionMaterialsInput(
         encryptionContext := input.encryptionContext.UnwrapOr(map[]),
-        commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-        algorithmSuiteId := None,
+        commitmentPolicy := DBE_COMMITMENT_POLICY,
+        algorithmSuiteId := algorithmSuiteId,
         maxPlaintextLength := None
       )
     );
