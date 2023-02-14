@@ -12,6 +12,7 @@ use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#KeySchemaAttributeName
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
+use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.structuredEncryption#CryptoAction
 
 @localService(
@@ -35,7 +36,8 @@ structure DynamoDbItemEncryptorConfig {
     attributeActions: AttributeActions,
     allowedUnauthenticatedAttributes: AttributeNameList,
     allowedUnauthenticatedAttributePrefix: String,
-    // TODO algorithmSuite
+
+    algorithmSuiteId: DBEAlgorithmSuiteId,
 
     // Requires a Keyring XOR a CMM
     keyring: KeyringReference,

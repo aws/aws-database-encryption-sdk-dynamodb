@@ -47,7 +47,8 @@ module TestFixtures {
       allowedUnauthenticatedAttributes := Some(["nothing"]),
       allowedUnauthenticatedAttributePrefix := None(),
       keyring := Some(keyring),
-      cmm := None()
+      cmm := None(),
+      algorithmSuiteId := None()
     );
   }
 
@@ -66,7 +67,8 @@ module TestFixtures {
       allowedUnauthenticatedAttributes := config.allowedUnauthenticatedAttributes,
       allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
       keyring := Some(keyring),
-      cmm := None()
+      cmm := None(),
+      algorithmSuiteId := None()
     );
     encryptor :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
   }
