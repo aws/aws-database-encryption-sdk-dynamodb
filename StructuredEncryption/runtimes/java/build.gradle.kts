@@ -76,7 +76,7 @@ tasks.withType<JavaCompile>() {
 
 tasks {
     register("runTests", JavaExec::class.java) {
-        mainClass.set("AwsCryptographyStructuredEncryptionTests")
+        mainClass.set("TestsFromDafny")
         classpath = sourceSets["test"].runtimeClasspath
     }
 }
