@@ -1,24 +1,21 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-DEPS_DIR:=$(ROOT_DIR)/../private-aws-encryption-sdk-dafny-staging
+CORES=2
+DEPS_DIR:=private-aws-encryption-sdk-dafny-staging
 
-build_java_dependencies:
-	$(MAKE) -C $(DEPS_DIR)/StandardLibrary mvn_local_deploy
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives mvn_local_deploy
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms mvn_local_deploy
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb mvn_local_deploy
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders mvn_local_deploy
-	$(MAKE) -C $(ROOT_DIR)/../StructuredEncryption mvn_local_deploy
-	$(MAKE) -C $(ROOT_DIR)/../DynamoDbItemEncryptor mvn_local_deploy
-	$(MAKE) -C $(ROOT_DIR)/../DynamoDbEncryptionMiddlewareInternal mvn_local_deploy
+include ../SharedMakefile.mk
 
-build_java: build_java_dependencies
-	gradle -p runtimes/java build
-
-mvn_local_deploy:
-	gradle -p runtimes/java publishToMavenLocal
-
-test_java:
-	gradle -p runtimes/java test
+MAX_RESOURCE_COUNT=10000000
+# Order is important
+# In java they MUST be built
+# in the order they depend on each other
+LIBRARIES := \
+	$(DEPS_DIR)/StandardLibrary \
+	$(DEPS_DIR)/AwsCryptographyPrimitives \
+	$(DEPS_DIR)/ComAmazonawsKms \
+	$(DEPS_DIR)/ComAmazonawsDynamodb \
+	$(DEPS_DIR)/AwsCryptographicMaterialProviders \
+	StructuredEncryption \
+	DynamoDbItemEncryptor \
+	DynamoDbEncryptionMiddlewareInternal
