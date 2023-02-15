@@ -7,7 +7,6 @@ include "Header.dfy"
 module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptographyStructuredEncryptionOperations {
   import Base64
   import CMP = AwsCryptographyMaterialProvidersTypes
-  import MPL = AwsCryptographyMaterialProvidersTypes
   import Random
   import Aws.Cryptography.Primitives
   import Header
@@ -55,7 +54,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     returns (output: Result<EncryptStructureOutput, Error>)
   {
     var algorithmSuiteId := if input.algorithmSuiteId.Some? then
-      Some(MPL.AlgorithmSuiteId.DBE(input.algorithmSuiteId.value))
+      Some(CMP.AlgorithmSuiteId.DBE(input.algorithmSuiteId.value))
     else
       None;
 
