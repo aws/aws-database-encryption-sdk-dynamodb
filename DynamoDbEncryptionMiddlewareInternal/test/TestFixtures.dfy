@@ -47,6 +47,7 @@ module TestFixtures {
             attributeActions := map["bar" := CSE.SIGN_ONLY],
             allowedUnauthenticatedAttributes := None(),
             allowedUnauthenticatedAttributePrefix := None(),
+            algorithmSuiteId := None(),
             keyring := Some(keyring),
             cmm := None()
           )

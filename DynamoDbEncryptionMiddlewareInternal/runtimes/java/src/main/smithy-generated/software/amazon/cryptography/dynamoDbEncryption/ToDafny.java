@@ -59,6 +59,7 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateItemInputTransformI
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateItemInputTransformOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateItemOutputTransformInput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateItemOutputTransformOutput;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoAction;
@@ -123,7 +124,7 @@ public class ToDafny {
         nativeValue.list(), 
         ToDafny::Error, 
         Error._typeDescriptor());
-    return Error.create_Collection(list);
+    return Error.create_CollectionOfErrors(list);
   }
 
   public static UpdateItemInputTransformOutput UpdateItemInputTransformOutput(
@@ -352,6 +353,10 @@ public class ToDafny {
     allowedUnauthenticatedAttributePrefix = Objects.nonNull(nativeValue.allowedUnauthenticatedAttributePrefix()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.allowedUnauthenticatedAttributePrefix()))
         : Option.create_None();
+    Option<DBEAlgorithmSuiteId> algorithmSuiteId;
+    algorithmSuiteId = Objects.nonNull(nativeValue.algorithmSuiteId()) ?
+        Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.DBEAlgorithmSuiteId(nativeValue.algorithmSuiteId()))
+        : Option.create_None();
     Option<IKeyring> keyring;
     keyring = Objects.nonNull(nativeValue.keyring()) ?
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.Keyring(nativeValue.keyring()))
@@ -360,7 +365,7 @@ public class ToDafny {
     cmm = Objects.nonNull(nativeValue.cmm()) ?
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.CryptographicMaterialsManager(nativeValue.cmm()))
         : Option.create_None();
-    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, keyring, cmm);
+    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm);
   }
 
   public static ScanOutputTransformInput ScanOutputTransformInput(

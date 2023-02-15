@@ -6,6 +6,7 @@ package software.amazon.cryptography.structuredEncryption.model;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 
 public class EncryptStructureInput {
   private final String tableName;
@@ -16,6 +17,8 @@ public class EncryptStructureInput {
 
   private final ICryptographicMaterialsManager cmm;
 
+  private final DBEAlgorithmSuiteId algorithmSuiteId;
+
   private final Map<String, String> encryptionContext;
 
   protected EncryptStructureInput(BuilderImpl builder) {
@@ -23,6 +26,7 @@ public class EncryptStructureInput {
     this.plaintextStructure = builder.plaintextStructure();
     this.cryptoSchema = builder.cryptoSchema();
     this.cmm = builder.cmm();
+    this.algorithmSuiteId = builder.algorithmSuiteId();
     this.encryptionContext = builder.encryptionContext();
   }
 
@@ -40,6 +44,10 @@ public class EncryptStructureInput {
 
   public ICryptographicMaterialsManager cmm() {
     return this.cmm;
+  }
+
+  public DBEAlgorithmSuiteId algorithmSuiteId() {
+    return this.algorithmSuiteId;
   }
 
   public Map<String, String> encryptionContext() {
@@ -71,6 +79,10 @@ public class EncryptStructureInput {
 
     ICryptographicMaterialsManager cmm();
 
+    Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
+
+    DBEAlgorithmSuiteId algorithmSuiteId();
+
     Builder encryptionContext(Map<String, String> encryptionContext);
 
     Map<String, String> encryptionContext();
@@ -87,6 +99,8 @@ public class EncryptStructureInput {
 
     protected ICryptographicMaterialsManager cmm;
 
+    protected DBEAlgorithmSuiteId algorithmSuiteId;
+
     protected Map<String, String> encryptionContext;
 
     protected BuilderImpl() {
@@ -97,6 +111,7 @@ public class EncryptStructureInput {
       this.plaintextStructure = model.plaintextStructure();
       this.cryptoSchema = model.cryptoSchema();
       this.cmm = model.cmm();
+      this.algorithmSuiteId = model.algorithmSuiteId();
       this.encryptionContext = model.encryptionContext();
     }
 
@@ -134,6 +149,15 @@ public class EncryptStructureInput {
 
     public ICryptographicMaterialsManager cmm() {
       return this.cmm;
+    }
+
+    public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
+      this.algorithmSuiteId = algorithmSuiteId;
+      return this;
+    }
+
+    public DBEAlgorithmSuiteId algorithmSuiteId() {
+      return this.algorithmSuiteId;
     }
 
     public Builder encryptionContext(Map<String, String> encryptionContext) {

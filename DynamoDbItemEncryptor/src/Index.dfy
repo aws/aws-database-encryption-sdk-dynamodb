@@ -25,7 +25,8 @@ module
       allowedUnauthenticatedAttributes := None(),
       allowedUnauthenticatedAttributePrefix := None(),
       keyring := None(),
-      cmm := None()
+      cmm := None(),
+      algorithmSuiteId := None()
     )
   }
 
@@ -38,6 +39,7 @@ module
       && res.value.config.attributeActions == config.attributeActions
       && res.value.config.allowedUnauthenticatedAttributes == config.allowedUnauthenticatedAttributes
       && res.value.config.allowedUnauthenticatedAttributePrefix == config.allowedUnauthenticatedAttributePrefix
+      && res.value.config.algorithmSuiteId == config.algorithmSuiteId
     // TODO expected CMM/Keyring behavior
   {
     // TODO validation of config input
@@ -151,6 +153,7 @@ module
       attributeActions := config.attributeActions,
       allowedUnauthenticatedAttributes := config.allowedUnauthenticatedAttributes,
       allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
+      algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption
     );

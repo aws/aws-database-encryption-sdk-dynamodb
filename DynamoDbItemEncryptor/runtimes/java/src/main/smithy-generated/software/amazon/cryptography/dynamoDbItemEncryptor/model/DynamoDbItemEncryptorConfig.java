@@ -8,6 +8,7 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 public class DynamoDbItemEncryptorConfig {
@@ -23,6 +24,8 @@ public class DynamoDbItemEncryptorConfig {
 
   private final String allowedUnauthenticatedAttributePrefix;
 
+  private final DBEAlgorithmSuiteId algorithmSuiteId;
+
   private final IKeyring keyring;
 
   private final ICryptographicMaterialsManager cmm;
@@ -34,6 +37,7 @@ public class DynamoDbItemEncryptorConfig {
     this.attributeActions = builder.attributeActions();
     this.allowedUnauthenticatedAttributes = builder.allowedUnauthenticatedAttributes();
     this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
+    this.algorithmSuiteId = builder.algorithmSuiteId();
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
   }
@@ -60,6 +64,10 @@ public class DynamoDbItemEncryptorConfig {
 
   public String allowedUnauthenticatedAttributePrefix() {
     return this.allowedUnauthenticatedAttributePrefix;
+  }
+
+  public DBEAlgorithmSuiteId algorithmSuiteId() {
+    return this.algorithmSuiteId;
   }
 
   public IKeyring keyring() {
@@ -103,6 +111,10 @@ public class DynamoDbItemEncryptorConfig {
 
     String allowedUnauthenticatedAttributePrefix();
 
+    Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
+
+    DBEAlgorithmSuiteId algorithmSuiteId();
+
     Builder keyring(IKeyring keyring);
 
     IKeyring keyring();
@@ -127,6 +139,8 @@ public class DynamoDbItemEncryptorConfig {
 
     protected String allowedUnauthenticatedAttributePrefix;
 
+    protected DBEAlgorithmSuiteId algorithmSuiteId;
+
     protected IKeyring keyring;
 
     protected ICryptographicMaterialsManager cmm;
@@ -141,6 +155,7 @@ public class DynamoDbItemEncryptorConfig {
       this.attributeActions = model.attributeActions();
       this.allowedUnauthenticatedAttributes = model.allowedUnauthenticatedAttributes();
       this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
+      this.algorithmSuiteId = model.algorithmSuiteId();
       this.keyring = model.keyring();
       this.cmm = model.cmm();
     }
@@ -198,6 +213,15 @@ public class DynamoDbItemEncryptorConfig {
 
     public String allowedUnauthenticatedAttributePrefix() {
       return this.allowedUnauthenticatedAttributePrefix;
+    }
+
+    public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
+      this.algorithmSuiteId = algorithmSuiteId;
+      return this;
+    }
+
+    public DBEAlgorithmSuiteId algorithmSuiteId() {
+      return this.algorithmSuiteId;
     }
 
     public Builder keyring(IKeyring keyring) {

@@ -10,6 +10,7 @@ import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemInput;
 import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemOutput;
 import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error;
 import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_DynamoDbItemEncryptorException;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoAction;
@@ -49,7 +50,7 @@ public class ToDafny {
         nativeValue.list(), 
         ToDafny::Error, 
         Error._typeDescriptor());
-    return Error.create_Collection(list);
+    return Error.create_CollectionOfErrors(list);
   }
 
   public static DecryptItemOutput DecryptItemOutput(
@@ -93,6 +94,10 @@ public class ToDafny {
     allowedUnauthenticatedAttributePrefix = Objects.nonNull(nativeValue.allowedUnauthenticatedAttributePrefix()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.allowedUnauthenticatedAttributePrefix()))
         : Option.create_None();
+    Option<DBEAlgorithmSuiteId> algorithmSuiteId;
+    algorithmSuiteId = Objects.nonNull(nativeValue.algorithmSuiteId()) ?
+        Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.DBEAlgorithmSuiteId(nativeValue.algorithmSuiteId()))
+        : Option.create_None();
     Option<IKeyring> keyring;
     keyring = Objects.nonNull(nativeValue.keyring()) ?
         Option.create_Some((nativeValue.keyring()))
@@ -101,7 +106,7 @@ public class ToDafny {
     cmm = Objects.nonNull(nativeValue.cmm()) ?
         Option.create_Some((nativeValue.cmm()))
         : Option.create_None();
-    return new DynamoDbItemEncryptorConfig(tableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, keyring, cmm);
+    return new DynamoDbItemEncryptorConfig(tableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm);
   }
 
   public static EncryptItemInput EncryptItemInput(

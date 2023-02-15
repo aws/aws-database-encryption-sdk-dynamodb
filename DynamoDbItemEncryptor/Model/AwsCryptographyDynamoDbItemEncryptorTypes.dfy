@@ -3,16 +3,16 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Index.dfy"
  include "../../StructuredEncryption/src/Index.dfy"
- include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
+ include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types" } AwsCryptographyDynamoDbItemEncryptorTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
  import AwsCryptographyStructuredEncryptionTypes
- import ComAmazonawsDynamodbTypes
  import AwsCryptographyMaterialProvidersTypes
+ import ComAmazonawsDynamodbTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
  
@@ -40,9 +40,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -54,12 +55,12 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IDynamoDbItemEncryptorClientCallHistory
- predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
+ predicate EncryptItemEnsuresPublicly(input: EncryptItemInput , output: Result<EncryptItemOutput, Error>)
  // The public method to be called by library consumers
  method EncryptItem ( input: EncryptItemInput )
  returns (output: Result<EncryptItemOutput, Error>)
@@ -74,7 +75,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures EncryptItemEnsuresPublicly(input, output)
  ensures History.EncryptItem == old(History.EncryptItem) + [DafnyCallEvent(input, output)]
  
- predicate DecryptItemEnsuresPublicly(input: DecryptItemInput, output: Result<DecryptItemOutput, Error>)
+ predicate DecryptItemEnsuresPublicly(input: DecryptItemInput , output: Result<DecryptItemOutput, Error>)
  // The public method to be called by library consumers
  method DecryptItem ( input: DecryptItemInput )
  returns (output: Result<DecryptItemOutput, Error>)
@@ -97,6 +98,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly attributeActions: AttributeActions ,
  nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
  nameonly allowedUnauthenticatedAttributePrefix: Option<string> ,
+ nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager>
  )
@@ -113,8 +115,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  // Any dependent models are listed here
  | AwsCryptographyStructuredEncryption(AwsCryptographyStructuredEncryption: AwsCryptographyStructuredEncryptionTypes.Error)
- | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
+ | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.
  // Consider the following method:
@@ -138,7 +140,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | Collection(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
@@ -192,7 +194,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  && Operations.ValidInternalConfig?(config)
  && History !in Operations.ModifiesInternalConfig(config)
  && Modifies == Operations.ModifiesInternalConfig(config) + {History}
- predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
+ predicate EncryptItemEnsuresPublicly(input: EncryptItemInput , output: Result<EncryptItemOutput, Error>)
  {Operations.EncryptItemEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method EncryptItem ( input: EncryptItemInput )
@@ -212,7 +214,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.EncryptItem := History.EncryptItem + [DafnyCallEvent(input, output)];
 }
  
- predicate DecryptItemEnsuresPublicly(input: DecryptItemInput, output: Result<DecryptItemOutput, Error>)
+ predicate DecryptItemEnsuresPublicly(input: DecryptItemInput , output: Result<DecryptItemOutput, Error>)
  {Operations.DecryptItemEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method DecryptItem ( input: DecryptItemInput )
@@ -242,11 +244,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
- predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
+ predicate EncryptItemEnsuresPublicly(input: EncryptItemInput , output: Result<EncryptItemOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method EncryptItem ( config: InternalConfig,  input: EncryptItemInput )
+ method EncryptItem ( config: InternalConfig , input: EncryptItemInput )
  returns (output: Result<EncryptItemOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -258,11 +260,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures EncryptItemEnsuresPublicly(input, output)
 
 
- predicate DecryptItemEnsuresPublicly(input: DecryptItemInput, output: Result<DecryptItemOutput, Error>)
+ predicate DecryptItemEnsuresPublicly(input: DecryptItemInput , output: Result<DecryptItemOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DecryptItem ( config: InternalConfig,  input: DecryptItemInput )
+ method DecryptItem ( config: InternalConfig , input: DecryptItemInput )
  returns (output: Result<DecryptItemOutput, Error>)
  requires
  && ValidInternalConfig?(config)

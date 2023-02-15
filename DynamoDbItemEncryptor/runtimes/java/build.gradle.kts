@@ -79,7 +79,7 @@ tasks.withType<JavaCompile>() {
 
 tasks {
     register("runTests", JavaExec::class.java) {
-        mainClass.set("AwsCryptographyDynamoDbItemEncryptorTests")
+        mainClass.set("TestsFromDafny")
         classpath = sourceSets["test"].runtimeClasspath
     }
 }

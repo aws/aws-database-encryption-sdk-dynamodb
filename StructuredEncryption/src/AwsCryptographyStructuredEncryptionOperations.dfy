@@ -27,6 +27,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     assert UTF8.ValidUTF8Range(s, 0, 21);
     s
 
+  const DBE_COMMITMENT_POLICY := CMP.CommitmentPolicy.DBE(CMP.DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT)
+
   // TODO: This is temporary in order to support "fake" encryption with DDB,
   // which is a placeholder to demonstrate the crypto schema is piping to this
   // layer as expected when testing end to end with the DDB Encryption interceptor.
@@ -51,11 +53,16 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
   {
+    var algorithmSuiteId := if input.algorithmSuiteId.Some? then
+      Some(CMP.AlgorithmSuiteId.DBE(input.algorithmSuiteId.value))
+    else
+      None;
+
     var matR := input.cmm.GetEncryptionMaterials(
       CMP.GetEncryptionMaterialsInput(
         encryptionContext := input.encryptionContext.UnwrapOr(map[]),
-        commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-        algorithmSuiteId := None,
+        commitmentPolicy := DBE_COMMITMENT_POLICY,
+        algorithmSuiteId := algorithmSuiteId,
         maxPlaintextLength := None
       )
     );

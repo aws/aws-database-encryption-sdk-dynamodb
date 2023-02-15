@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
+import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
 
@@ -60,7 +61,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
     }
 
     @Test
-    public void TestCreateAcceptsLegacyConfig() {
+    public void TestEnhancedCreateWithLegacyPolicy() {
         // Encryptor creation
         AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
         final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(kmsClient, "kmsKeyARN");
@@ -82,6 +83,30 @@ public class DynamoDbEnhancedClientEncryptionTest {
                                                 .build())
                                         .legacyPolicy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
                                         .build())
+                        .build());
+        DynamoDbEncryptionInterceptor interceptor =
+                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                        CreateDynamoDbEncryptionInterceptorInput.builder()
+                                .tableEncryptionConfigs(tableConfigs)
+                                .build()
+                );
+        assertNotNull(interceptor);
+    }
+
+    @Test
+    public void TestEnhancedCreateWithAlgorithmSuite() {
+        // Encryptor creation
+        AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
+        final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(kmsClient, "kmsKeyARN");
+
+        TableSchema<SimpleClass> simpleSchema = TableSchema.fromBean(SimpleClass.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+                DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .keyring(createStaticKeyring())
+                        .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
+                        .tableSchema(simpleSchema)
+                        .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                         .build());
         DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
