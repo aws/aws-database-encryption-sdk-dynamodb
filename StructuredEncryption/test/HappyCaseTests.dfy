@@ -30,6 +30,7 @@ module HappyCaseTests {
         plaintextStructure := TestFixtures.TEST_STRUCTURED_DATA,
         cryptoSchema := TestFixtures.TEST_CRYPTO_SCHEMA,
         cmm := cmm,
+        algorithmSuiteId := None(),
         encryptionContext := None()
       )
     );

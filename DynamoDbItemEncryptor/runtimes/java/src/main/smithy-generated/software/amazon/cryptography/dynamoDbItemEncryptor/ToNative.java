@@ -4,7 +4,7 @@
 package software.amazon.cryptography.dynamoDbItemEncryptor;
 
 import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error;
-import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_Collection;
+import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_CollectionOfErrors;
 import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_DynamoDbItemEncryptorException;
 import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_Opaque;
 import dafny.DafnyMap;
@@ -30,7 +30,7 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static CollectionOfErrors Error(Error_Collection dafnyValue) {
+  public static CollectionOfErrors Error(Error_CollectionOfErrors dafnyValue) {
     CollectionOfErrors.Builder nativeBuilder = CollectionOfErrors.builder();
     nativeBuilder.list(
         software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
@@ -53,8 +53,8 @@ public class ToNative {
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }
-    if (dafnyValue.is_Collection()) {
-      return ToNative.Error((Error_Collection) dafnyValue);
+    if (dafnyValue.is_CollectionOfErrors()) {
+      return ToNative.Error((Error_CollectionOfErrors) dafnyValue);
     }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue);
@@ -96,6 +96,9 @@ public class ToNative {
     }
     if (dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().is_Some()) {
       nativeBuilder.allowedUnauthenticatedAttributePrefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().dtor_value()));
+    }
+    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
+      nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialProviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId().dtor_value()));
     }
     if (dafnyValue.dtor_keyring().is_Some()) {
       nativeBuilder.keyring((dafnyValue.dtor_keyring().dtor_value()));

@@ -59,6 +59,7 @@ module
           attributeActions := inputConfig.attributeActions,
           allowedUnauthenticatedAttributes := inputConfig.allowedUnauthenticatedAttributes,
           allowedUnauthenticatedAttributePrefix := inputConfig.allowedUnauthenticatedAttributePrefix,
+          algorithmSuiteId := inputConfig.algorithmSuiteId,
           keyring := inputConfig.keyring,
           cmm := inputConfig.cmm
         );

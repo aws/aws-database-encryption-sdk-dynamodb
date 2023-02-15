@@ -22,8 +22,8 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     nameonly attributeActions: AttributeActions,
     nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
     nameonly allowedUnauthenticatedAttributePrefix: Option<string>,
+    nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId>,
     nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient
-    // TODO algorithmSuite
     // TODO legacy encryptor
     // TODO legacy schema
   )
@@ -450,6 +450,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
         plaintextStructure:=wrappedStruct,
         cryptoSchema:=cryptoSchema,
         cmm:=config.cmm,
+        algorithmSuiteId:=config.algorithmSuiteId,
         encryptionContext:=Some(context)
       )
     );

@@ -156,7 +156,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IDynamoDbEncryptionMiddlewareInternalClientCallHistory
- predicate PutItemInputTransformEnsuresPublicly(input: PutItemInputTransformInput, output: Result<PutItemInputTransformOutput, Error>)
+ predicate PutItemInputTransformEnsuresPublicly(input: PutItemInputTransformInput , output: Result<PutItemInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method PutItemInputTransform ( input: PutItemInputTransformInput )
  returns (output: Result<PutItemInputTransformOutput, Error>)
@@ -171,7 +171,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures PutItemInputTransformEnsuresPublicly(input, output)
  ensures History.PutItemInputTransform == old(History.PutItemInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate PutItemOutputTransformEnsuresPublicly(input: PutItemOutputTransformInput, output: Result<PutItemOutputTransformOutput, Error>)
+ predicate PutItemOutputTransformEnsuresPublicly(input: PutItemOutputTransformInput , output: Result<PutItemOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method PutItemOutputTransform ( input: PutItemOutputTransformInput )
  returns (output: Result<PutItemOutputTransformOutput, Error>)
@@ -186,7 +186,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures PutItemOutputTransformEnsuresPublicly(input, output)
  ensures History.PutItemOutputTransform == old(History.PutItemOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate GetItemInputTransformEnsuresPublicly(input: GetItemInputTransformInput, output: Result<GetItemInputTransformOutput, Error>)
+ predicate GetItemInputTransformEnsuresPublicly(input: GetItemInputTransformInput , output: Result<GetItemInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method GetItemInputTransform ( input: GetItemInputTransformInput )
  returns (output: Result<GetItemInputTransformOutput, Error>)
@@ -201,7 +201,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures GetItemInputTransformEnsuresPublicly(input, output)
  ensures History.GetItemInputTransform == old(History.GetItemInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate GetItemOutputTransformEnsuresPublicly(input: GetItemOutputTransformInput, output: Result<GetItemOutputTransformOutput, Error>)
+ predicate GetItemOutputTransformEnsuresPublicly(input: GetItemOutputTransformInput , output: Result<GetItemOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method GetItemOutputTransform ( input: GetItemOutputTransformInput )
  returns (output: Result<GetItemOutputTransformOutput, Error>)
@@ -216,7 +216,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures GetItemOutputTransformEnsuresPublicly(input, output)
  ensures History.GetItemOutputTransform == old(History.GetItemOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate BatchWriteItemInputTransformEnsuresPublicly(input: BatchWriteItemInputTransformInput, output: Result<BatchWriteItemInputTransformOutput, Error>)
+ predicate BatchWriteItemInputTransformEnsuresPublicly(input: BatchWriteItemInputTransformInput , output: Result<BatchWriteItemInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method BatchWriteItemInputTransform ( input: BatchWriteItemInputTransformInput )
  returns (output: Result<BatchWriteItemInputTransformOutput, Error>)
@@ -231,7 +231,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchWriteItemInputTransformEnsuresPublicly(input, output)
  ensures History.BatchWriteItemInputTransform == old(History.BatchWriteItemInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput, output: Result<BatchWriteItemOutputTransformOutput, Error>)
+ predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput , output: Result<BatchWriteItemOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method BatchWriteItemOutputTransform ( input: BatchWriteItemOutputTransformInput )
  returns (output: Result<BatchWriteItemOutputTransformOutput, Error>)
@@ -246,7 +246,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchWriteItemOutputTransformEnsuresPublicly(input, output)
  ensures History.BatchWriteItemOutputTransform == old(History.BatchWriteItemOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate BatchGetItemInputTransformEnsuresPublicly(input: BatchGetItemInputTransformInput, output: Result<BatchGetItemInputTransformOutput, Error>)
+ predicate BatchGetItemInputTransformEnsuresPublicly(input: BatchGetItemInputTransformInput , output: Result<BatchGetItemInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method BatchGetItemInputTransform ( input: BatchGetItemInputTransformInput )
  returns (output: Result<BatchGetItemInputTransformOutput, Error>)
@@ -261,7 +261,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchGetItemInputTransformEnsuresPublicly(input, output)
  ensures History.BatchGetItemInputTransform == old(History.BatchGetItemInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate BatchGetItemOutputTransformEnsuresPublicly(input: BatchGetItemOutputTransformInput, output: Result<BatchGetItemOutputTransformOutput, Error>)
+ predicate BatchGetItemOutputTransformEnsuresPublicly(input: BatchGetItemOutputTransformInput , output: Result<BatchGetItemOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method BatchGetItemOutputTransform ( input: BatchGetItemOutputTransformInput )
  returns (output: Result<BatchGetItemOutputTransformOutput, Error>)
@@ -276,7 +276,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchGetItemOutputTransformEnsuresPublicly(input, output)
  ensures History.BatchGetItemOutputTransform == old(History.BatchGetItemOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate ScanInputTransformEnsuresPublicly(input: ScanInputTransformInput, output: Result<ScanInputTransformOutput, Error>)
+ predicate ScanInputTransformEnsuresPublicly(input: ScanInputTransformInput , output: Result<ScanInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method ScanInputTransform ( input: ScanInputTransformInput )
  returns (output: Result<ScanInputTransformOutput, Error>)
@@ -291,7 +291,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ScanInputTransformEnsuresPublicly(input, output)
  ensures History.ScanInputTransform == old(History.ScanInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate ScanOutputTransformEnsuresPublicly(input: ScanOutputTransformInput, output: Result<ScanOutputTransformOutput, Error>)
+ predicate ScanOutputTransformEnsuresPublicly(input: ScanOutputTransformInput , output: Result<ScanOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method ScanOutputTransform ( input: ScanOutputTransformInput )
  returns (output: Result<ScanOutputTransformOutput, Error>)
@@ -306,7 +306,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ScanOutputTransformEnsuresPublicly(input, output)
  ensures History.ScanOutputTransform == old(History.ScanOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput, output: Result<QueryInputTransformOutput, Error>)
+ predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput , output: Result<QueryInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method QueryInputTransform ( input: QueryInputTransformInput )
  returns (output: Result<QueryInputTransformOutput, Error>)
@@ -321,7 +321,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures QueryInputTransformEnsuresPublicly(input, output)
  ensures History.QueryInputTransform == old(History.QueryInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate QueryOutputTransformEnsuresPublicly(input: QueryOutputTransformInput, output: Result<QueryOutputTransformOutput, Error>)
+ predicate QueryOutputTransformEnsuresPublicly(input: QueryOutputTransformInput , output: Result<QueryOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method QueryOutputTransform ( input: QueryOutputTransformInput )
  returns (output: Result<QueryOutputTransformOutput, Error>)
@@ -336,7 +336,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures QueryOutputTransformEnsuresPublicly(input, output)
  ensures History.QueryOutputTransform == old(History.QueryOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate TransactWriteItemsInputTransformEnsuresPublicly(input: TransactWriteItemsInputTransformInput, output: Result<TransactWriteItemsInputTransformOutput, Error>)
+ predicate TransactWriteItemsInputTransformEnsuresPublicly(input: TransactWriteItemsInputTransformInput , output: Result<TransactWriteItemsInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method TransactWriteItemsInputTransform ( input: TransactWriteItemsInputTransformInput )
  returns (output: Result<TransactWriteItemsInputTransformOutput, Error>)
@@ -351,7 +351,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures TransactWriteItemsInputTransformEnsuresPublicly(input, output)
  ensures History.TransactWriteItemsInputTransform == old(History.TransactWriteItemsInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput, output: Result<TransactWriteItemsOutputTransformOutput, Error>)
+ predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput , output: Result<TransactWriteItemsOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method TransactWriteItemsOutputTransform ( input: TransactWriteItemsOutputTransformInput )
  returns (output: Result<TransactWriteItemsOutputTransformOutput, Error>)
@@ -366,7 +366,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures TransactWriteItemsOutputTransformEnsuresPublicly(input, output)
  ensures History.TransactWriteItemsOutputTransform == old(History.TransactWriteItemsOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate UpdateItemInputTransformEnsuresPublicly(input: UpdateItemInputTransformInput, output: Result<UpdateItemInputTransformOutput, Error>)
+ predicate UpdateItemInputTransformEnsuresPublicly(input: UpdateItemInputTransformInput , output: Result<UpdateItemInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method UpdateItemInputTransform ( input: UpdateItemInputTransformInput )
  returns (output: Result<UpdateItemInputTransformOutput, Error>)
@@ -381,7 +381,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures UpdateItemInputTransformEnsuresPublicly(input, output)
  ensures History.UpdateItemInputTransform == old(History.UpdateItemInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate UpdateItemOutputTransformEnsuresPublicly(input: UpdateItemOutputTransformInput, output: Result<UpdateItemOutputTransformOutput, Error>)
+ predicate UpdateItemOutputTransformEnsuresPublicly(input: UpdateItemOutputTransformInput , output: Result<UpdateItemOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method UpdateItemOutputTransform ( input: UpdateItemOutputTransformInput )
  returns (output: Result<UpdateItemOutputTransformOutput, Error>)
@@ -396,7 +396,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures UpdateItemOutputTransformEnsuresPublicly(input, output)
  ensures History.UpdateItemOutputTransform == old(History.UpdateItemOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate DeleteItemInputTransformEnsuresPublicly(input: DeleteItemInputTransformInput, output: Result<DeleteItemInputTransformOutput, Error>)
+ predicate DeleteItemInputTransformEnsuresPublicly(input: DeleteItemInputTransformInput , output: Result<DeleteItemInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method DeleteItemInputTransform ( input: DeleteItemInputTransformInput )
  returns (output: Result<DeleteItemInputTransformOutput, Error>)
@@ -411,7 +411,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures DeleteItemInputTransformEnsuresPublicly(input, output)
  ensures History.DeleteItemInputTransform == old(History.DeleteItemInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate DeleteItemOutputTransformEnsuresPublicly(input: DeleteItemOutputTransformInput, output: Result<DeleteItemOutputTransformOutput, Error>)
+ predicate DeleteItemOutputTransformEnsuresPublicly(input: DeleteItemOutputTransformInput , output: Result<DeleteItemOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method DeleteItemOutputTransform ( input: DeleteItemOutputTransformInput )
  returns (output: Result<DeleteItemOutputTransformOutput, Error>)
@@ -426,7 +426,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures DeleteItemOutputTransformEnsuresPublicly(input, output)
  ensures History.DeleteItemOutputTransform == old(History.DeleteItemOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate TransactGetItemsInputTransformEnsuresPublicly(input: TransactGetItemsInputTransformInput, output: Result<TransactGetItemsInputTransformOutput, Error>)
+ predicate TransactGetItemsInputTransformEnsuresPublicly(input: TransactGetItemsInputTransformInput , output: Result<TransactGetItemsInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method TransactGetItemsInputTransform ( input: TransactGetItemsInputTransformInput )
  returns (output: Result<TransactGetItemsInputTransformOutput, Error>)
@@ -441,7 +441,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures TransactGetItemsInputTransformEnsuresPublicly(input, output)
  ensures History.TransactGetItemsInputTransform == old(History.TransactGetItemsInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate TransactGetItemsOutputTransformEnsuresPublicly(input: TransactGetItemsOutputTransformInput, output: Result<TransactGetItemsOutputTransformOutput, Error>)
+ predicate TransactGetItemsOutputTransformEnsuresPublicly(input: TransactGetItemsOutputTransformInput , output: Result<TransactGetItemsOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method TransactGetItemsOutputTransform ( input: TransactGetItemsOutputTransformInput )
  returns (output: Result<TransactGetItemsOutputTransformOutput, Error>)
@@ -456,7 +456,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures TransactGetItemsOutputTransformEnsuresPublicly(input, output)
  ensures History.TransactGetItemsOutputTransform == old(History.TransactGetItemsOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate ExecuteStatementInputTransformEnsuresPublicly(input: ExecuteStatementInputTransformInput, output: Result<ExecuteStatementInputTransformOutput, Error>)
+ predicate ExecuteStatementInputTransformEnsuresPublicly(input: ExecuteStatementInputTransformInput , output: Result<ExecuteStatementInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method ExecuteStatementInputTransform ( input: ExecuteStatementInputTransformInput )
  returns (output: Result<ExecuteStatementInputTransformOutput, Error>)
@@ -471,7 +471,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ExecuteStatementInputTransformEnsuresPublicly(input, output)
  ensures History.ExecuteStatementInputTransform == old(History.ExecuteStatementInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate ExecuteStatementOutputTransformEnsuresPublicly(input: ExecuteStatementOutputTransformInput, output: Result<ExecuteStatementOutputTransformOutput, Error>)
+ predicate ExecuteStatementOutputTransformEnsuresPublicly(input: ExecuteStatementOutputTransformInput , output: Result<ExecuteStatementOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method ExecuteStatementOutputTransform ( input: ExecuteStatementOutputTransformInput )
  returns (output: Result<ExecuteStatementOutputTransformOutput, Error>)
@@ -486,7 +486,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ExecuteStatementOutputTransformEnsuresPublicly(input, output)
  ensures History.ExecuteStatementOutputTransform == old(History.ExecuteStatementOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate BatchExecuteStatementInputTransformEnsuresPublicly(input: BatchExecuteStatementInputTransformInput, output: Result<BatchExecuteStatementInputTransformOutput, Error>)
+ predicate BatchExecuteStatementInputTransformEnsuresPublicly(input: BatchExecuteStatementInputTransformInput , output: Result<BatchExecuteStatementInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method BatchExecuteStatementInputTransform ( input: BatchExecuteStatementInputTransformInput )
  returns (output: Result<BatchExecuteStatementInputTransformOutput, Error>)
@@ -501,7 +501,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchExecuteStatementInputTransformEnsuresPublicly(input, output)
  ensures History.BatchExecuteStatementInputTransform == old(History.BatchExecuteStatementInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate BatchExecuteStatementOutputTransformEnsuresPublicly(input: BatchExecuteStatementOutputTransformInput, output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
+ predicate BatchExecuteStatementOutputTransformEnsuresPublicly(input: BatchExecuteStatementOutputTransformInput , output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method BatchExecuteStatementOutputTransform ( input: BatchExecuteStatementOutputTransformInput )
  returns (output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
@@ -516,7 +516,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchExecuteStatementOutputTransformEnsuresPublicly(input, output)
  ensures History.BatchExecuteStatementOutputTransform == old(History.BatchExecuteStatementOutputTransform) + [DafnyCallEvent(input, output)]
  
- predicate ExecuteTransactionInputTransformEnsuresPublicly(input: ExecuteTransactionInputTransformInput, output: Result<ExecuteTransactionInputTransformOutput, Error>)
+ predicate ExecuteTransactionInputTransformEnsuresPublicly(input: ExecuteTransactionInputTransformInput , output: Result<ExecuteTransactionInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method ExecuteTransactionInputTransform ( input: ExecuteTransactionInputTransformInput )
  returns (output: Result<ExecuteTransactionInputTransformOutput, Error>)
@@ -531,7 +531,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ExecuteTransactionInputTransformEnsuresPublicly(input, output)
  ensures History.ExecuteTransactionInputTransform == old(History.ExecuteTransactionInputTransform) + [DafnyCallEvent(input, output)]
  
- predicate ExecuteTransactionOutputTransformEnsuresPublicly(input: ExecuteTransactionOutputTransformInput, output: Result<ExecuteTransactionOutputTransformOutput, Error>)
+ predicate ExecuteTransactionOutputTransformEnsuresPublicly(input: ExecuteTransactionOutputTransformInput , output: Result<ExecuteTransactionOutputTransformOutput, Error>)
  // The public method to be called by library consumers
  method ExecuteTransactionOutputTransform ( input: ExecuteTransactionOutputTransformInput )
  returns (output: Result<ExecuteTransactionOutputTransformOutput, Error>)
@@ -553,6 +553,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly attributeActions: AwsCryptographyDynamoDbItemEncryptorTypes.AttributeActions ,
  nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
  nameonly allowedUnauthenticatedAttributePrefix: Option<string> ,
+ nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager>
  )
@@ -706,7 +707,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | Collection(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
@@ -766,7 +767,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  && Operations.ValidInternalConfig?(config)
  && History !in Operations.ModifiesInternalConfig(config)
  && Modifies == Operations.ModifiesInternalConfig(config) + {History}
- predicate PutItemInputTransformEnsuresPublicly(input: PutItemInputTransformInput, output: Result<PutItemInputTransformOutput, Error>)
+ predicate PutItemInputTransformEnsuresPublicly(input: PutItemInputTransformInput , output: Result<PutItemInputTransformOutput, Error>)
  {Operations.PutItemInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method PutItemInputTransform ( input: PutItemInputTransformInput )
@@ -786,7 +787,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.PutItemInputTransform := History.PutItemInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate PutItemOutputTransformEnsuresPublicly(input: PutItemOutputTransformInput, output: Result<PutItemOutputTransformOutput, Error>)
+ predicate PutItemOutputTransformEnsuresPublicly(input: PutItemOutputTransformInput , output: Result<PutItemOutputTransformOutput, Error>)
  {Operations.PutItemOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method PutItemOutputTransform ( input: PutItemOutputTransformInput )
@@ -806,7 +807,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.PutItemOutputTransform := History.PutItemOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate GetItemInputTransformEnsuresPublicly(input: GetItemInputTransformInput, output: Result<GetItemInputTransformOutput, Error>)
+ predicate GetItemInputTransformEnsuresPublicly(input: GetItemInputTransformInput , output: Result<GetItemInputTransformOutput, Error>)
  {Operations.GetItemInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method GetItemInputTransform ( input: GetItemInputTransformInput )
@@ -826,7 +827,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.GetItemInputTransform := History.GetItemInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate GetItemOutputTransformEnsuresPublicly(input: GetItemOutputTransformInput, output: Result<GetItemOutputTransformOutput, Error>)
+ predicate GetItemOutputTransformEnsuresPublicly(input: GetItemOutputTransformInput , output: Result<GetItemOutputTransformOutput, Error>)
  {Operations.GetItemOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method GetItemOutputTransform ( input: GetItemOutputTransformInput )
@@ -846,7 +847,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.GetItemOutputTransform := History.GetItemOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate BatchWriteItemInputTransformEnsuresPublicly(input: BatchWriteItemInputTransformInput, output: Result<BatchWriteItemInputTransformOutput, Error>)
+ predicate BatchWriteItemInputTransformEnsuresPublicly(input: BatchWriteItemInputTransformInput , output: Result<BatchWriteItemInputTransformOutput, Error>)
  {Operations.BatchWriteItemInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method BatchWriteItemInputTransform ( input: BatchWriteItemInputTransformInput )
@@ -866,7 +867,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.BatchWriteItemInputTransform := History.BatchWriteItemInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput, output: Result<BatchWriteItemOutputTransformOutput, Error>)
+ predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput , output: Result<BatchWriteItemOutputTransformOutput, Error>)
  {Operations.BatchWriteItemOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method BatchWriteItemOutputTransform ( input: BatchWriteItemOutputTransformInput )
@@ -886,7 +887,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.BatchWriteItemOutputTransform := History.BatchWriteItemOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate BatchGetItemInputTransformEnsuresPublicly(input: BatchGetItemInputTransformInput, output: Result<BatchGetItemInputTransformOutput, Error>)
+ predicate BatchGetItemInputTransformEnsuresPublicly(input: BatchGetItemInputTransformInput , output: Result<BatchGetItemInputTransformOutput, Error>)
  {Operations.BatchGetItemInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method BatchGetItemInputTransform ( input: BatchGetItemInputTransformInput )
@@ -906,7 +907,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.BatchGetItemInputTransform := History.BatchGetItemInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate BatchGetItemOutputTransformEnsuresPublicly(input: BatchGetItemOutputTransformInput, output: Result<BatchGetItemOutputTransformOutput, Error>)
+ predicate BatchGetItemOutputTransformEnsuresPublicly(input: BatchGetItemOutputTransformInput , output: Result<BatchGetItemOutputTransformOutput, Error>)
  {Operations.BatchGetItemOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method BatchGetItemOutputTransform ( input: BatchGetItemOutputTransformInput )
@@ -926,7 +927,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.BatchGetItemOutputTransform := History.BatchGetItemOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate ScanInputTransformEnsuresPublicly(input: ScanInputTransformInput, output: Result<ScanInputTransformOutput, Error>)
+ predicate ScanInputTransformEnsuresPublicly(input: ScanInputTransformInput , output: Result<ScanInputTransformOutput, Error>)
  {Operations.ScanInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method ScanInputTransform ( input: ScanInputTransformInput )
@@ -946,7 +947,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.ScanInputTransform := History.ScanInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate ScanOutputTransformEnsuresPublicly(input: ScanOutputTransformInput, output: Result<ScanOutputTransformOutput, Error>)
+ predicate ScanOutputTransformEnsuresPublicly(input: ScanOutputTransformInput , output: Result<ScanOutputTransformOutput, Error>)
  {Operations.ScanOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method ScanOutputTransform ( input: ScanOutputTransformInput )
@@ -966,7 +967,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.ScanOutputTransform := History.ScanOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput, output: Result<QueryInputTransformOutput, Error>)
+ predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput , output: Result<QueryInputTransformOutput, Error>)
  {Operations.QueryInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method QueryInputTransform ( input: QueryInputTransformInput )
@@ -986,7 +987,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.QueryInputTransform := History.QueryInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate QueryOutputTransformEnsuresPublicly(input: QueryOutputTransformInput, output: Result<QueryOutputTransformOutput, Error>)
+ predicate QueryOutputTransformEnsuresPublicly(input: QueryOutputTransformInput , output: Result<QueryOutputTransformOutput, Error>)
  {Operations.QueryOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method QueryOutputTransform ( input: QueryOutputTransformInput )
@@ -1006,7 +1007,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.QueryOutputTransform := History.QueryOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate TransactWriteItemsInputTransformEnsuresPublicly(input: TransactWriteItemsInputTransformInput, output: Result<TransactWriteItemsInputTransformOutput, Error>)
+ predicate TransactWriteItemsInputTransformEnsuresPublicly(input: TransactWriteItemsInputTransformInput , output: Result<TransactWriteItemsInputTransformOutput, Error>)
  {Operations.TransactWriteItemsInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method TransactWriteItemsInputTransform ( input: TransactWriteItemsInputTransformInput )
@@ -1026,7 +1027,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.TransactWriteItemsInputTransform := History.TransactWriteItemsInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput, output: Result<TransactWriteItemsOutputTransformOutput, Error>)
+ predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput , output: Result<TransactWriteItemsOutputTransformOutput, Error>)
  {Operations.TransactWriteItemsOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method TransactWriteItemsOutputTransform ( input: TransactWriteItemsOutputTransformInput )
@@ -1046,7 +1047,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.TransactWriteItemsOutputTransform := History.TransactWriteItemsOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate UpdateItemInputTransformEnsuresPublicly(input: UpdateItemInputTransformInput, output: Result<UpdateItemInputTransformOutput, Error>)
+ predicate UpdateItemInputTransformEnsuresPublicly(input: UpdateItemInputTransformInput , output: Result<UpdateItemInputTransformOutput, Error>)
  {Operations.UpdateItemInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method UpdateItemInputTransform ( input: UpdateItemInputTransformInput )
@@ -1066,7 +1067,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.UpdateItemInputTransform := History.UpdateItemInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate UpdateItemOutputTransformEnsuresPublicly(input: UpdateItemOutputTransformInput, output: Result<UpdateItemOutputTransformOutput, Error>)
+ predicate UpdateItemOutputTransformEnsuresPublicly(input: UpdateItemOutputTransformInput , output: Result<UpdateItemOutputTransformOutput, Error>)
  {Operations.UpdateItemOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method UpdateItemOutputTransform ( input: UpdateItemOutputTransformInput )
@@ -1086,7 +1087,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.UpdateItemOutputTransform := History.UpdateItemOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate DeleteItemInputTransformEnsuresPublicly(input: DeleteItemInputTransformInput, output: Result<DeleteItemInputTransformOutput, Error>)
+ predicate DeleteItemInputTransformEnsuresPublicly(input: DeleteItemInputTransformInput , output: Result<DeleteItemInputTransformOutput, Error>)
  {Operations.DeleteItemInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method DeleteItemInputTransform ( input: DeleteItemInputTransformInput )
@@ -1106,7 +1107,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.DeleteItemInputTransform := History.DeleteItemInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate DeleteItemOutputTransformEnsuresPublicly(input: DeleteItemOutputTransformInput, output: Result<DeleteItemOutputTransformOutput, Error>)
+ predicate DeleteItemOutputTransformEnsuresPublicly(input: DeleteItemOutputTransformInput , output: Result<DeleteItemOutputTransformOutput, Error>)
  {Operations.DeleteItemOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method DeleteItemOutputTransform ( input: DeleteItemOutputTransformInput )
@@ -1126,7 +1127,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.DeleteItemOutputTransform := History.DeleteItemOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate TransactGetItemsInputTransformEnsuresPublicly(input: TransactGetItemsInputTransformInput, output: Result<TransactGetItemsInputTransformOutput, Error>)
+ predicate TransactGetItemsInputTransformEnsuresPublicly(input: TransactGetItemsInputTransformInput , output: Result<TransactGetItemsInputTransformOutput, Error>)
  {Operations.TransactGetItemsInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method TransactGetItemsInputTransform ( input: TransactGetItemsInputTransformInput )
@@ -1146,7 +1147,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.TransactGetItemsInputTransform := History.TransactGetItemsInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate TransactGetItemsOutputTransformEnsuresPublicly(input: TransactGetItemsOutputTransformInput, output: Result<TransactGetItemsOutputTransformOutput, Error>)
+ predicate TransactGetItemsOutputTransformEnsuresPublicly(input: TransactGetItemsOutputTransformInput , output: Result<TransactGetItemsOutputTransformOutput, Error>)
  {Operations.TransactGetItemsOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method TransactGetItemsOutputTransform ( input: TransactGetItemsOutputTransformInput )
@@ -1166,7 +1167,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.TransactGetItemsOutputTransform := History.TransactGetItemsOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate ExecuteStatementInputTransformEnsuresPublicly(input: ExecuteStatementInputTransformInput, output: Result<ExecuteStatementInputTransformOutput, Error>)
+ predicate ExecuteStatementInputTransformEnsuresPublicly(input: ExecuteStatementInputTransformInput , output: Result<ExecuteStatementInputTransformOutput, Error>)
  {Operations.ExecuteStatementInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method ExecuteStatementInputTransform ( input: ExecuteStatementInputTransformInput )
@@ -1186,7 +1187,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.ExecuteStatementInputTransform := History.ExecuteStatementInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate ExecuteStatementOutputTransformEnsuresPublicly(input: ExecuteStatementOutputTransformInput, output: Result<ExecuteStatementOutputTransformOutput, Error>)
+ predicate ExecuteStatementOutputTransformEnsuresPublicly(input: ExecuteStatementOutputTransformInput , output: Result<ExecuteStatementOutputTransformOutput, Error>)
  {Operations.ExecuteStatementOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method ExecuteStatementOutputTransform ( input: ExecuteStatementOutputTransformInput )
@@ -1206,7 +1207,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.ExecuteStatementOutputTransform := History.ExecuteStatementOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate BatchExecuteStatementInputTransformEnsuresPublicly(input: BatchExecuteStatementInputTransformInput, output: Result<BatchExecuteStatementInputTransformOutput, Error>)
+ predicate BatchExecuteStatementInputTransformEnsuresPublicly(input: BatchExecuteStatementInputTransformInput , output: Result<BatchExecuteStatementInputTransformOutput, Error>)
  {Operations.BatchExecuteStatementInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method BatchExecuteStatementInputTransform ( input: BatchExecuteStatementInputTransformInput )
@@ -1226,7 +1227,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.BatchExecuteStatementInputTransform := History.BatchExecuteStatementInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate BatchExecuteStatementOutputTransformEnsuresPublicly(input: BatchExecuteStatementOutputTransformInput, output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
+ predicate BatchExecuteStatementOutputTransformEnsuresPublicly(input: BatchExecuteStatementOutputTransformInput , output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
  {Operations.BatchExecuteStatementOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method BatchExecuteStatementOutputTransform ( input: BatchExecuteStatementOutputTransformInput )
@@ -1246,7 +1247,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.BatchExecuteStatementOutputTransform := History.BatchExecuteStatementOutputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate ExecuteTransactionInputTransformEnsuresPublicly(input: ExecuteTransactionInputTransformInput, output: Result<ExecuteTransactionInputTransformOutput, Error>)
+ predicate ExecuteTransactionInputTransformEnsuresPublicly(input: ExecuteTransactionInputTransformInput , output: Result<ExecuteTransactionInputTransformOutput, Error>)
  {Operations.ExecuteTransactionInputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method ExecuteTransactionInputTransform ( input: ExecuteTransactionInputTransformInput )
@@ -1266,7 +1267,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.ExecuteTransactionInputTransform := History.ExecuteTransactionInputTransform + [DafnyCallEvent(input, output)];
 }
  
- predicate ExecuteTransactionOutputTransformEnsuresPublicly(input: ExecuteTransactionOutputTransformInput, output: Result<ExecuteTransactionOutputTransformOutput, Error>)
+ predicate ExecuteTransactionOutputTransformEnsuresPublicly(input: ExecuteTransactionOutputTransformInput , output: Result<ExecuteTransactionOutputTransformOutput, Error>)
  {Operations.ExecuteTransactionOutputTransformEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method ExecuteTransactionOutputTransform ( input: ExecuteTransactionOutputTransformInput )
@@ -1296,11 +1297,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
- predicate PutItemInputTransformEnsuresPublicly(input: PutItemInputTransformInput, output: Result<PutItemInputTransformOutput, Error>)
+ predicate PutItemInputTransformEnsuresPublicly(input: PutItemInputTransformInput , output: Result<PutItemInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method PutItemInputTransform ( config: InternalConfig,  input: PutItemInputTransformInput )
+ method PutItemInputTransform ( config: InternalConfig , input: PutItemInputTransformInput )
  returns (output: Result<PutItemInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1312,11 +1313,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures PutItemInputTransformEnsuresPublicly(input, output)
 
 
- predicate PutItemOutputTransformEnsuresPublicly(input: PutItemOutputTransformInput, output: Result<PutItemOutputTransformOutput, Error>)
+ predicate PutItemOutputTransformEnsuresPublicly(input: PutItemOutputTransformInput , output: Result<PutItemOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method PutItemOutputTransform ( config: InternalConfig,  input: PutItemOutputTransformInput )
+ method PutItemOutputTransform ( config: InternalConfig , input: PutItemOutputTransformInput )
  returns (output: Result<PutItemOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1328,11 +1329,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures PutItemOutputTransformEnsuresPublicly(input, output)
 
 
- predicate GetItemInputTransformEnsuresPublicly(input: GetItemInputTransformInput, output: Result<GetItemInputTransformOutput, Error>)
+ predicate GetItemInputTransformEnsuresPublicly(input: GetItemInputTransformInput , output: Result<GetItemInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method GetItemInputTransform ( config: InternalConfig,  input: GetItemInputTransformInput )
+ method GetItemInputTransform ( config: InternalConfig , input: GetItemInputTransformInput )
  returns (output: Result<GetItemInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1344,11 +1345,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures GetItemInputTransformEnsuresPublicly(input, output)
 
 
- predicate GetItemOutputTransformEnsuresPublicly(input: GetItemOutputTransformInput, output: Result<GetItemOutputTransformOutput, Error>)
+ predicate GetItemOutputTransformEnsuresPublicly(input: GetItemOutputTransformInput , output: Result<GetItemOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method GetItemOutputTransform ( config: InternalConfig,  input: GetItemOutputTransformInput )
+ method GetItemOutputTransform ( config: InternalConfig , input: GetItemOutputTransformInput )
  returns (output: Result<GetItemOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1360,11 +1361,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures GetItemOutputTransformEnsuresPublicly(input, output)
 
 
- predicate BatchWriteItemInputTransformEnsuresPublicly(input: BatchWriteItemInputTransformInput, output: Result<BatchWriteItemInputTransformOutput, Error>)
+ predicate BatchWriteItemInputTransformEnsuresPublicly(input: BatchWriteItemInputTransformInput , output: Result<BatchWriteItemInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchWriteItemInputTransform ( config: InternalConfig,  input: BatchWriteItemInputTransformInput )
+ method BatchWriteItemInputTransform ( config: InternalConfig , input: BatchWriteItemInputTransformInput )
  returns (output: Result<BatchWriteItemInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1376,11 +1377,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchWriteItemInputTransformEnsuresPublicly(input, output)
 
 
- predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput, output: Result<BatchWriteItemOutputTransformOutput, Error>)
+ predicate BatchWriteItemOutputTransformEnsuresPublicly(input: BatchWriteItemOutputTransformInput , output: Result<BatchWriteItemOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchWriteItemOutputTransform ( config: InternalConfig,  input: BatchWriteItemOutputTransformInput )
+ method BatchWriteItemOutputTransform ( config: InternalConfig , input: BatchWriteItemOutputTransformInput )
  returns (output: Result<BatchWriteItemOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1392,11 +1393,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchWriteItemOutputTransformEnsuresPublicly(input, output)
 
 
- predicate BatchGetItemInputTransformEnsuresPublicly(input: BatchGetItemInputTransformInput, output: Result<BatchGetItemInputTransformOutput, Error>)
+ predicate BatchGetItemInputTransformEnsuresPublicly(input: BatchGetItemInputTransformInput , output: Result<BatchGetItemInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchGetItemInputTransform ( config: InternalConfig,  input: BatchGetItemInputTransformInput )
+ method BatchGetItemInputTransform ( config: InternalConfig , input: BatchGetItemInputTransformInput )
  returns (output: Result<BatchGetItemInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1408,11 +1409,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchGetItemInputTransformEnsuresPublicly(input, output)
 
 
- predicate BatchGetItemOutputTransformEnsuresPublicly(input: BatchGetItemOutputTransformInput, output: Result<BatchGetItemOutputTransformOutput, Error>)
+ predicate BatchGetItemOutputTransformEnsuresPublicly(input: BatchGetItemOutputTransformInput , output: Result<BatchGetItemOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchGetItemOutputTransform ( config: InternalConfig,  input: BatchGetItemOutputTransformInput )
+ method BatchGetItemOutputTransform ( config: InternalConfig , input: BatchGetItemOutputTransformInput )
  returns (output: Result<BatchGetItemOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1424,11 +1425,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchGetItemOutputTransformEnsuresPublicly(input, output)
 
 
- predicate ScanInputTransformEnsuresPublicly(input: ScanInputTransformInput, output: Result<ScanInputTransformOutput, Error>)
+ predicate ScanInputTransformEnsuresPublicly(input: ScanInputTransformInput , output: Result<ScanInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ScanInputTransform ( config: InternalConfig,  input: ScanInputTransformInput )
+ method ScanInputTransform ( config: InternalConfig , input: ScanInputTransformInput )
  returns (output: Result<ScanInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1440,11 +1441,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ScanInputTransformEnsuresPublicly(input, output)
 
 
- predicate ScanOutputTransformEnsuresPublicly(input: ScanOutputTransformInput, output: Result<ScanOutputTransformOutput, Error>)
+ predicate ScanOutputTransformEnsuresPublicly(input: ScanOutputTransformInput , output: Result<ScanOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ScanOutputTransform ( config: InternalConfig,  input: ScanOutputTransformInput )
+ method ScanOutputTransform ( config: InternalConfig , input: ScanOutputTransformInput )
  returns (output: Result<ScanOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1456,11 +1457,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ScanOutputTransformEnsuresPublicly(input, output)
 
 
- predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput, output: Result<QueryInputTransformOutput, Error>)
+ predicate QueryInputTransformEnsuresPublicly(input: QueryInputTransformInput , output: Result<QueryInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method QueryInputTransform ( config: InternalConfig,  input: QueryInputTransformInput )
+ method QueryInputTransform ( config: InternalConfig , input: QueryInputTransformInput )
  returns (output: Result<QueryInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1472,11 +1473,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures QueryInputTransformEnsuresPublicly(input, output)
 
 
- predicate QueryOutputTransformEnsuresPublicly(input: QueryOutputTransformInput, output: Result<QueryOutputTransformOutput, Error>)
+ predicate QueryOutputTransformEnsuresPublicly(input: QueryOutputTransformInput , output: Result<QueryOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method QueryOutputTransform ( config: InternalConfig,  input: QueryOutputTransformInput )
+ method QueryOutputTransform ( config: InternalConfig , input: QueryOutputTransformInput )
  returns (output: Result<QueryOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1488,11 +1489,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures QueryOutputTransformEnsuresPublicly(input, output)
 
 
- predicate TransactWriteItemsInputTransformEnsuresPublicly(input: TransactWriteItemsInputTransformInput, output: Result<TransactWriteItemsInputTransformOutput, Error>)
+ predicate TransactWriteItemsInputTransformEnsuresPublicly(input: TransactWriteItemsInputTransformInput , output: Result<TransactWriteItemsInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method TransactWriteItemsInputTransform ( config: InternalConfig,  input: TransactWriteItemsInputTransformInput )
+ method TransactWriteItemsInputTransform ( config: InternalConfig , input: TransactWriteItemsInputTransformInput )
  returns (output: Result<TransactWriteItemsInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1504,11 +1505,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures TransactWriteItemsInputTransformEnsuresPublicly(input, output)
 
 
- predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput, output: Result<TransactWriteItemsOutputTransformOutput, Error>)
+ predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput , output: Result<TransactWriteItemsOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method TransactWriteItemsOutputTransform ( config: InternalConfig,  input: TransactWriteItemsOutputTransformInput )
+ method TransactWriteItemsOutputTransform ( config: InternalConfig , input: TransactWriteItemsOutputTransformInput )
  returns (output: Result<TransactWriteItemsOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1520,11 +1521,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures TransactWriteItemsOutputTransformEnsuresPublicly(input, output)
 
 
- predicate UpdateItemInputTransformEnsuresPublicly(input: UpdateItemInputTransformInput, output: Result<UpdateItemInputTransformOutput, Error>)
+ predicate UpdateItemInputTransformEnsuresPublicly(input: UpdateItemInputTransformInput , output: Result<UpdateItemInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateItemInputTransform ( config: InternalConfig,  input: UpdateItemInputTransformInput )
+ method UpdateItemInputTransform ( config: InternalConfig , input: UpdateItemInputTransformInput )
  returns (output: Result<UpdateItemInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1536,11 +1537,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures UpdateItemInputTransformEnsuresPublicly(input, output)
 
 
- predicate UpdateItemOutputTransformEnsuresPublicly(input: UpdateItemOutputTransformInput, output: Result<UpdateItemOutputTransformOutput, Error>)
+ predicate UpdateItemOutputTransformEnsuresPublicly(input: UpdateItemOutputTransformInput , output: Result<UpdateItemOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateItemOutputTransform ( config: InternalConfig,  input: UpdateItemOutputTransformInput )
+ method UpdateItemOutputTransform ( config: InternalConfig , input: UpdateItemOutputTransformInput )
  returns (output: Result<UpdateItemOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1552,11 +1553,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures UpdateItemOutputTransformEnsuresPublicly(input, output)
 
 
- predicate DeleteItemInputTransformEnsuresPublicly(input: DeleteItemInputTransformInput, output: Result<DeleteItemInputTransformOutput, Error>)
+ predicate DeleteItemInputTransformEnsuresPublicly(input: DeleteItemInputTransformInput , output: Result<DeleteItemInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DeleteItemInputTransform ( config: InternalConfig,  input: DeleteItemInputTransformInput )
+ method DeleteItemInputTransform ( config: InternalConfig , input: DeleteItemInputTransformInput )
  returns (output: Result<DeleteItemInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1568,11 +1569,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures DeleteItemInputTransformEnsuresPublicly(input, output)
 
 
- predicate DeleteItemOutputTransformEnsuresPublicly(input: DeleteItemOutputTransformInput, output: Result<DeleteItemOutputTransformOutput, Error>)
+ predicate DeleteItemOutputTransformEnsuresPublicly(input: DeleteItemOutputTransformInput , output: Result<DeleteItemOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DeleteItemOutputTransform ( config: InternalConfig,  input: DeleteItemOutputTransformInput )
+ method DeleteItemOutputTransform ( config: InternalConfig , input: DeleteItemOutputTransformInput )
  returns (output: Result<DeleteItemOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1584,11 +1585,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures DeleteItemOutputTransformEnsuresPublicly(input, output)
 
 
- predicate TransactGetItemsInputTransformEnsuresPublicly(input: TransactGetItemsInputTransformInput, output: Result<TransactGetItemsInputTransformOutput, Error>)
+ predicate TransactGetItemsInputTransformEnsuresPublicly(input: TransactGetItemsInputTransformInput , output: Result<TransactGetItemsInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method TransactGetItemsInputTransform ( config: InternalConfig,  input: TransactGetItemsInputTransformInput )
+ method TransactGetItemsInputTransform ( config: InternalConfig , input: TransactGetItemsInputTransformInput )
  returns (output: Result<TransactGetItemsInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1600,11 +1601,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures TransactGetItemsInputTransformEnsuresPublicly(input, output)
 
 
- predicate TransactGetItemsOutputTransformEnsuresPublicly(input: TransactGetItemsOutputTransformInput, output: Result<TransactGetItemsOutputTransformOutput, Error>)
+ predicate TransactGetItemsOutputTransformEnsuresPublicly(input: TransactGetItemsOutputTransformInput , output: Result<TransactGetItemsOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method TransactGetItemsOutputTransform ( config: InternalConfig,  input: TransactGetItemsOutputTransformInput )
+ method TransactGetItemsOutputTransform ( config: InternalConfig , input: TransactGetItemsOutputTransformInput )
  returns (output: Result<TransactGetItemsOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1616,11 +1617,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures TransactGetItemsOutputTransformEnsuresPublicly(input, output)
 
 
- predicate ExecuteStatementInputTransformEnsuresPublicly(input: ExecuteStatementInputTransformInput, output: Result<ExecuteStatementInputTransformOutput, Error>)
+ predicate ExecuteStatementInputTransformEnsuresPublicly(input: ExecuteStatementInputTransformInput , output: Result<ExecuteStatementInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ExecuteStatementInputTransform ( config: InternalConfig,  input: ExecuteStatementInputTransformInput )
+ method ExecuteStatementInputTransform ( config: InternalConfig , input: ExecuteStatementInputTransformInput )
  returns (output: Result<ExecuteStatementInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1632,11 +1633,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ExecuteStatementInputTransformEnsuresPublicly(input, output)
 
 
- predicate ExecuteStatementOutputTransformEnsuresPublicly(input: ExecuteStatementOutputTransformInput, output: Result<ExecuteStatementOutputTransformOutput, Error>)
+ predicate ExecuteStatementOutputTransformEnsuresPublicly(input: ExecuteStatementOutputTransformInput , output: Result<ExecuteStatementOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ExecuteStatementOutputTransform ( config: InternalConfig,  input: ExecuteStatementOutputTransformInput )
+ method ExecuteStatementOutputTransform ( config: InternalConfig , input: ExecuteStatementOutputTransformInput )
  returns (output: Result<ExecuteStatementOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1648,11 +1649,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ExecuteStatementOutputTransformEnsuresPublicly(input, output)
 
 
- predicate BatchExecuteStatementInputTransformEnsuresPublicly(input: BatchExecuteStatementInputTransformInput, output: Result<BatchExecuteStatementInputTransformOutput, Error>)
+ predicate BatchExecuteStatementInputTransformEnsuresPublicly(input: BatchExecuteStatementInputTransformInput , output: Result<BatchExecuteStatementInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchExecuteStatementInputTransform ( config: InternalConfig,  input: BatchExecuteStatementInputTransformInput )
+ method BatchExecuteStatementInputTransform ( config: InternalConfig , input: BatchExecuteStatementInputTransformInput )
  returns (output: Result<BatchExecuteStatementInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1664,11 +1665,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchExecuteStatementInputTransformEnsuresPublicly(input, output)
 
 
- predicate BatchExecuteStatementOutputTransformEnsuresPublicly(input: BatchExecuteStatementOutputTransformInput, output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
+ predicate BatchExecuteStatementOutputTransformEnsuresPublicly(input: BatchExecuteStatementOutputTransformInput , output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchExecuteStatementOutputTransform ( config: InternalConfig,  input: BatchExecuteStatementOutputTransformInput )
+ method BatchExecuteStatementOutputTransform ( config: InternalConfig , input: BatchExecuteStatementOutputTransformInput )
  returns (output: Result<BatchExecuteStatementOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1680,11 +1681,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures BatchExecuteStatementOutputTransformEnsuresPublicly(input, output)
 
 
- predicate ExecuteTransactionInputTransformEnsuresPublicly(input: ExecuteTransactionInputTransformInput, output: Result<ExecuteTransactionInputTransformOutput, Error>)
+ predicate ExecuteTransactionInputTransformEnsuresPublicly(input: ExecuteTransactionInputTransformInput , output: Result<ExecuteTransactionInputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ExecuteTransactionInputTransform ( config: InternalConfig,  input: ExecuteTransactionInputTransformInput )
+ method ExecuteTransactionInputTransform ( config: InternalConfig , input: ExecuteTransactionInputTransformInput )
  returns (output: Result<ExecuteTransactionInputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1696,11 +1697,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ExecuteTransactionInputTransformEnsuresPublicly(input, output)
 
 
- predicate ExecuteTransactionOutputTransformEnsuresPublicly(input: ExecuteTransactionOutputTransformInput, output: Result<ExecuteTransactionOutputTransformOutput, Error>)
+ predicate ExecuteTransactionOutputTransformEnsuresPublicly(input: ExecuteTransactionOutputTransformInput , output: Result<ExecuteTransactionOutputTransformOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ExecuteTransactionOutputTransform ( config: InternalConfig,  input: ExecuteTransactionOutputTransformInput )
+ method ExecuteTransactionOutputTransform ( config: InternalConfig , input: ExecuteTransactionOutputTransformInput )
  returns (output: Result<ExecuteTransactionOutputTransformOutput, Error>)
  requires
  && ValidInternalConfig?(config)

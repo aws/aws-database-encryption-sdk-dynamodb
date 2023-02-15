@@ -60,6 +60,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly plaintextStructure: StructuredData ,
  nameonly cryptoSchema: CryptoSchema ,
  nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
+ nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
  )
  datatype EncryptStructureOutput = | EncryptStructureOutput (
@@ -115,7 +116,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IStructuredEncryptionClientCallHistory
- predicate EncryptStructureEnsuresPublicly(input: EncryptStructureInput, output: Result<EncryptStructureOutput, Error>)
+ predicate EncryptStructureEnsuresPublicly(input: EncryptStructureInput , output: Result<EncryptStructureOutput, Error>)
  // The public method to be called by library consumers
  method EncryptStructure ( input: EncryptStructureInput )
  returns (output: Result<EncryptStructureOutput, Error>)
@@ -134,7 +135,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures EncryptStructureEnsuresPublicly(input, output)
  ensures History.EncryptStructure == old(History.EncryptStructure) + [DafnyCallEvent(input, output)]
  
- predicate DecryptStructureEnsuresPublicly(input: DecryptStructureInput, output: Result<DecryptStructureOutput, Error>)
+ predicate DecryptStructureEnsuresPublicly(input: DecryptStructureInput , output: Result<DecryptStructureOutput, Error>)
  // The public method to be called by library consumers
  method DecryptStructure ( input: DecryptStructureInput )
  returns (output: Result<DecryptStructureOutput, Error>)
@@ -193,7 +194,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | Collection(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
@@ -227,7 +228,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  && Operations.ValidInternalConfig?(config)
  && History !in Operations.ModifiesInternalConfig(config)
  && Modifies == Operations.ModifiesInternalConfig(config) + {History}
- predicate EncryptStructureEnsuresPublicly(input: EncryptStructureInput, output: Result<EncryptStructureOutput, Error>)
+ predicate EncryptStructureEnsuresPublicly(input: EncryptStructureInput , output: Result<EncryptStructureOutput, Error>)
  {Operations.EncryptStructureEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method EncryptStructure ( input: EncryptStructureInput )
@@ -251,7 +252,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.EncryptStructure := History.EncryptStructure + [DafnyCallEvent(input, output)];
 }
  
- predicate DecryptStructureEnsuresPublicly(input: DecryptStructureInput, output: Result<DecryptStructureOutput, Error>)
+ predicate DecryptStructureEnsuresPublicly(input: DecryptStructureInput , output: Result<DecryptStructureOutput, Error>)
  {Operations.DecryptStructureEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method DecryptStructure ( input: DecryptStructureInput )
@@ -285,11 +286,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
- predicate EncryptStructureEnsuresPublicly(input: EncryptStructureInput, output: Result<EncryptStructureOutput, Error>)
+ predicate EncryptStructureEnsuresPublicly(input: EncryptStructureInput , output: Result<EncryptStructureOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method EncryptStructure ( config: InternalConfig,  input: EncryptStructureInput )
+ method EncryptStructure ( config: InternalConfig , input: EncryptStructureInput )
  returns (output: Result<EncryptStructureOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -304,11 +305,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures EncryptStructureEnsuresPublicly(input, output)
 
 
- predicate DecryptStructureEnsuresPublicly(input: DecryptStructureInput, output: Result<DecryptStructureOutput, Error>)
+ predicate DecryptStructureEnsuresPublicly(input: DecryptStructureInput , output: Result<DecryptStructureOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DecryptStructure ( config: InternalConfig,  input: DecryptStructureInput )
+ method DecryptStructure ( config: InternalConfig , input: DecryptStructureInput )
  returns (output: Result<DecryptStructureOutput, Error>)
  requires
  && ValidInternalConfig?(config)

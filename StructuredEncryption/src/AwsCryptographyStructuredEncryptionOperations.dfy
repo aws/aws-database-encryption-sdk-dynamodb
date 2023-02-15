@@ -31,6 +31,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
   type InternalConfig = Config
 
+  const DBE_COMMITMENT_POLICY := CMP.CommitmentPolicy.DBE(CMP.DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT)
+
   predicate ValidInternalConfig?(config: InternalConfig)
   {config.primatives.ValidState()}
 
@@ -263,11 +265,16 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var maxLength :=  encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize;
     :- Need(maxLength < INT64_MAX_LIMIT, E("Encrypted Size too long."));
 
-    var matR := cmm.GetEncryptionMaterials(
+    var algorithmSuiteId := if input.algorithmSuiteId.Some? then
+      Some(CMP.AlgorithmSuiteId.DBE(input.algorithmSuiteId.value))
+    else
+      None;
+
+    var matR := input.cmm.GetEncryptionMaterials(
       CMP.GetEncryptionMaterialsInput(
         encryptionContext := encryptionContext.UnwrapOr(map[]),
-        commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-        algorithmSuiteId := None,
+        commitmentPolicy := DBE_COMMITMENT_POLICY,
+        algorithmSuiteId := algorithmSuiteId,
         maxPlaintextLength := Some(maxLength as int64)
       )
     );

@@ -3,6 +3,7 @@
 namespace aws.cryptography.structuredEncryption
 
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
+use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptionContext
 
 use aws.polymorph#localService
@@ -40,9 +41,8 @@ structure EncryptStructureInput {
     @required
     cmm: CryptographicMaterialsManagerReference,
 
-    // TODO Truss-compatible Algorithm Suite.
-
-    encryptionContext: EncryptionContext,
+    algorithmSuiteId: DBEAlgorithmSuiteId,
+    encryptionContext: EncryptionContext
 }
 
 structure EncryptStructureOutput {
