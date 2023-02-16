@@ -24,6 +24,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   import Digest
   import Defaults
   import HKDF
+  import AlgorithmSuites
 
   datatype Config = Config(
     primatives : Primitives.AtomicPrimitivesClient
@@ -214,6 +215,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   method {:opaque} GetStructuredEncryptionMaterials(
     cmm : AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager,
     encryptionContext : Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>,
+    algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
     encryptedTerminalDataNum : nat,
     totalEncryptedTerminalValuesSize : nat
   )
@@ -243,7 +245,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //= type=implication
       //# - Commitment Policy: This MUST be
       //# [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
-      && getEncIn.commitmentPolicy == CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT)
+      && getEncIn.commitmentPolicy == DBE_COMMITMENT_POLICY
 
       //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
       //= type=implication
@@ -265,12 +267,12 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var maxLength :=  encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize;
     :- Need(maxLength < INT64_MAX_LIMIT, E("Encrypted Size too long."));
 
-    var algorithmSuiteId := if input.algorithmSuiteId.Some? then
-      Some(CMP.AlgorithmSuiteId.DBE(input.algorithmSuiteId.value))
+    var algorithmSuiteId := if algorithmSuiteId.Some? then
+      Some(CMP.AlgorithmSuiteId.DBE(algorithmSuiteId.value))
     else
       None;
 
-    var matR := input.cmm.GetEncryptionMaterials(
+    var matR := cmm.GetEncryptionMaterials(
       CMP.GetEncryptionMaterialsInput(
         encryptionContext := encryptionContext.UnwrapOr(map[]),
         commitmentPolicy := DBE_COMMITMENT_POLICY,
@@ -402,6 +404,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var mat :- GetStructuredEncryptionMaterials(
                 input.cmm,
                 input.encryptionContext,
+                input.algorithmSuiteId,
                 |context.encFields|,
                 SumValueSize(context.encFields, context.data));
 
@@ -484,12 +487,13 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var headerSerialized := encRecord[HeaderField].content.Terminal.value;
     var footerSerialized := encRecord[FooterField].content.Terminal.value;
     var head :- Header.PartialDeserialize(headerSerialized);
+    var algorithmSuiteR := AlgorithmSuites.GetAlgorithmSuiteInfo([0x67, head.flavor as uint8]);
+    var algorithmSuite :- algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     var matR := input.cmm.DecryptMaterials(
       CMP.DecryptMaterialsInput (
-        // algorithmSuiteId := GetAlgorithmSuiteInfo([0x67, head.flavor]),
-        algorithmSuiteId := Defaults.GetAlgorithmSuiteForCommitmentPolicy(CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT)),
-        commitmentPolicy := CMP.CommitmentPolicy.ESDK(CMP.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
+        algorithmSuiteId := algorithmSuite.id,
+        commitmentPolicy := DBE_COMMITMENT_POLICY,
         encryptedDataKeys := head.dataKeys,
         encryptionContext := head.encContext
       )

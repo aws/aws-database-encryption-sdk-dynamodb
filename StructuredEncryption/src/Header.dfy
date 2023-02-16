@@ -191,12 +191,12 @@ module StructuredEncryptionHeader {
     :- Need(schema.content.SchemaMap?, E("Schema must be a Map"));
     :- Need(CryptoSchemaMapIsFlat(schema.content.SchemaMap), E("Schema must be flat."));
     :- Need(|mat.algorithmSuite.binaryId| == 2, E("Invalid Algoritm Suite Binary ID"));
-    // :- Need(mat.algorithmSuite.binaryId[0] == 0x67, E("Algoritm Suite not suitable for structured encryption."));
-    // :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algoritm Suite has unexpected flavor."));
+    :- Need(mat.algorithmSuite.binaryId[0] == 0x67, E("Algoritm Suite not suitable for structured encryption."));
+    :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algoritm Suite has unexpected flavor."));
     var legend :- MakeLegend(tableName, schema);
     Success(PartialHeader(
       version := 1,
-      flavor := 1, // mat.algorithmSuite.binaryId[1],
+      flavor := mat.algorithmSuite.binaryId[1],
       msgID := msgID,
       legend := legend,
       encContext := mat.encryptionContext,
