@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographyPrimitives/src/AesKdfCtr.dfy"
+
 include "Header.dfy"
 include "Util.dfy"
 
@@ -18,14 +20,18 @@ module StructuredEncryptionCrypt {
   import UTF8
   import Header = StructuredEncryptionHeader
   import HKDF
+  import AesKdfCtr
+
 
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
-    : (ret : Bytes)
+    : (ret : Result<Bytes, Error>)
     requires |HKDFOutput| == KeySize
-    ensures |ret| == KeySize+NonceSize
+    requires offset as nat * 3 < UINT32_LIMIT
+    ensures ret.Success? ==> |ret.value| == KeySize+NonceSize
   {
-    (HKDFOutput+HKDFOutput)[..44] // good enough for testing
-    //aes256ctr(KeySize+NonceSize, HKDFOutput, FieldKeyNonce(offset * 3))
+    Success((HKDFOutput+HKDFOutput)[..44]) // good enough for testing
+    //var keyR := AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32);
+    //keyR.MapFailure(e => AwsCryptographyPrimitives(e))
   }
 
   function method FieldKeyNonce(offset : uint32)
@@ -65,13 +71,11 @@ module StructuredEncryptionCrypt {
     key : Key,
     head : Header.PartialHeader,
     keys : seq<Bytes>,
-    data : map<Bytes, StructuredData>)
-    returns (ret : Result<map<Bytes, StructuredData>, Error>)
+    data : StructuredDataCanon)
+    returns (ret : Result<StructuredDataCanon, Error>)
     requires forall k <- keys :: k in data
     requires |keys| < (UINT32_LIMIT / 3)
-    requires forall k <- data :: data[k].content.Terminal?
     requires ValidSuite(alg)
-    ensures ret.Success? ==> forall k <- ret.value :: ret.value[k].content.Terminal?
 
     modifies client.Modifies
     requires client.ValidState()
@@ -96,15 +100,12 @@ module StructuredEncryptionCrypt {
     FieldRootKey : Key,
     offset : uint32,
     keys : seq<Bytes>,
-    input : map<Bytes, StructuredData>,
-    output : map<Bytes, StructuredData>
+    input : StructuredDataCanon,
+    output : StructuredDataCanon
   )
-    returns (ret : Result<map<Bytes, StructuredData>, Error>)
+    returns (ret : Result<StructuredDataCanon, Error>)
     requires forall k <- keys :: k in input
-    requires |keys| * 3 + (offset as nat) < UINT32_LIMIT
-    requires forall k <- input :: input[k].content.Terminal?
-    requires forall k <- output :: output[k].content.Terminal?
-    ensures ret.Success? ==> forall k <- ret.value :: ret.value[k].content.Terminal?
+    requires (|keys| + offset as nat) * 3 < UINT32_LIMIT
     decreases |keys|
 
     modifies client.Modifies
@@ -114,7 +115,7 @@ module StructuredEncryptionCrypt {
     if |keys| == 0 {
       return Success(output);
     }
-    var data :- CryptOne(mode, client, alg, FieldRootKey, offset, keys[0], input[keys[0]]);
+    var data :- CryptOne(mode, client, alg, FieldRootKey, offset, keys[0], input[keys[0]].content.Terminal);
     var result := CryptList(mode, client, alg, FieldRootKey, offset+1, keys[1..], input, output[keys[0] := data]);
     return result;
   }
@@ -127,27 +128,27 @@ module StructuredEncryptionCrypt {
     FieldRootKey : Key,
     offset : uint32,
     path : seq<uint8>,
-    data : StructuredData
+    data : StructuredDataTerminal
   )
     returns (ret : Result<StructuredData, Error>)
-    requires data.content.Terminal?
+    requires offset as nat * 3 < UINT32_LIMIT
     ensures ret.Success? ==> ret.value.content.Terminal?
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    var dataKey := FieldKey(FieldRootKey, offset);
+    var dataKey :- FieldKey(FieldRootKey, offset);
     var encryptionKey : Key := dataKey[0..KeySize];
     var nonce : Nonce := dataKey[KeySize..];
-    var value := data.content.Terminal.value;
+    var value := data.value;
 
     if mode == Encrypt {
       var encInput := Prim.AESEncryptInput(
         encAlg := alg.encrypt.AES_GCM,
         iv := nonce,
         key := encryptionKey,
-        msg := data.content.Terminal.typeId + value,
+        msg := data.typeId + value,
         aad := path
       );
 
