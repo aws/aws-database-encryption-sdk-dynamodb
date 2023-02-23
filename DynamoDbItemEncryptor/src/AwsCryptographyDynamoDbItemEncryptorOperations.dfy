@@ -236,10 +236,10 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   }
 
   // return proper Authenticate Action by name
-  function method GetAuthenticateSchemaActionInner(
+  function method GetAuthenticateSchemaAction(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-    : (ret : Result<CSE.AuthenticateAction, string>)
+    : (ret : Result<CSE.AuthenticateSchema, string>)
     requires ValidInternalConfig?(config)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
@@ -253,25 +253,13 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= type=implication
     //# Otherwise, Attributes MUST be considered as within the signature scope.
     ensures ret.Success? ==>
-      ((ret.value == CSE.AuthenticateAction.DO_NOT_SIGN) <==> !InSignatureScope(config, attr))
+      ((ret.value == SE.DoNotSign) <==> !InSignatureScope(config, attr))
   {
     :- Need(!UnknownAttibute(config, attr), "Attribute " + attr + " is not configured");
     if InSignatureScope(config, attr) then
-      Success(CSE.AuthenticateAction.SIGN)
+      Success(SE.DoSign)
     else
-      Success(CSE.AuthenticateAction.DO_NOT_SIGN)
-  }
-
-  // get Authenticate Action and wrap in AuthenticateSchema
-  function method GetAuthenticateSchemaAction(
-    config : InternalConfig,
-    attr : ComAmazonawsDynamodbTypes.AttributeName)
-    : Result<CSE.AuthenticateSchema, string>
-    requires ValidInternalConfig?(config)
-  {
-    var newElement :- GetAuthenticateSchemaActionInner(config, attr);
-    var newElement := CSE.AuthenticateSchemaContent.Action(newElement);
-    Success(CSE.AuthenticateSchema(content := newElement, attributes := None))
+      Success(SE.DoNotSign)
   }
 
   // get CryptoSchema for this item

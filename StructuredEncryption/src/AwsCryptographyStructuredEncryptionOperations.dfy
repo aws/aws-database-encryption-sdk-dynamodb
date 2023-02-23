@@ -472,8 +472,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && NeedBinary(encRecord, FooterField).Pass?
   {
     :- Need(input.authenticateSchema.content.SchemaMap?, E("Authenticate Schema must be a SchemaMap"));
-    :- Need(HeaderField !in input.authenticateSchema.content.SchemaMap, E(HeaderField + " is reserved"));
-    :- Need(FooterField !in input.authenticateSchema.content.SchemaMap, E(FooterField + " is reserved"));
     :- Need(AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap), E("Schema must be flat."));
     :- Need(forall k <- input.authenticateSchema.content.SchemaMap :: ValidString(k), E("Schema has bad field name."));
     var authSchema : AuthSchemaPlain := input.authenticateSchema.content.SchemaMap + ReservedAuthMap;
