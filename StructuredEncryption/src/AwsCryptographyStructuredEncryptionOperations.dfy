@@ -261,16 +261,17 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   datatype EncryptCanon = EncryptCanon (
     encFields_c : seq<CanonicalPath>,   // these fields should be encrypted
     signedFields_c : seq<CanonicalPath>,// these fields should be signed
-    data_c : StructuredDataCanon        // same as input data, but with canonized paths
+    data_c : StructuredDataCanon        // all signed fields with canonized paths
   )
 
   // for decryption, data fields and schema, both plain field names and canonical path
   datatype DecryptCanon = DecryptCanon (
     signedFields_c : seq<CanonicalPath>,// these fields were signed
-    data_c : StructuredDataCanon        // same as input data, but with canonized paths
+    data_c : StructuredDataCanon        // all signed fields with canonized paths
   )
 
-  function method {:tailrecursion} FilterSchema2(fields : seq<CanonicalPath>, fieldMap : CanonMap, schema : CryptoSchemaPlain, act1 : CryptoAction, act2 : CryptoAction)
+  // return the subset of "fields" which are ENCRYPT_AND_SIGN 
+  function method {:tailrecursion} FilterEncrypt(fields : seq<CanonicalPath>, fieldMap : CanonMap, schema : CryptoSchemaPlain)
     : (ret : seq<CanonicalPath>)
     requires forall k <- fields :: k in fieldMap
     requires forall k <- fieldMap :: fieldMap[k] in schema
@@ -280,10 +281,10 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       []
     else
       var act := schema[fieldMap[fields[0]]].content.Action;
-      if act == act1 || act == act2 then
-        [fields[0]] + FilterSchema2(fields[1..], fieldMap, schema, act1, act2)
+      if act == ENCRYPT_AND_SIGN then
+        [fields[0]] + FilterEncrypt(fields[1..], fieldMap, schema)
       else
-        FilterSchema2(fields[1..], fieldMap, schema, act1, act2)
+        FilterEncrypt(fields[1..], fieldMap, schema)
   }
 
   // contruct the EncryptCanon
@@ -295,37 +296,18 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && (forall k <- r.encFields_c :: k in r.data_c)
       && (forall k <- r.signedFields_c :: k in r.data_c)
       && (forall k <- r.encFields_c :: k in r.signedFields_c)
-
-    {
-      Paths.SimpleCanonUnique(tableName);
-      var fieldMap := map k | k in data.Keys :: Paths.SimpleCanon(tableName, k) := k;
-      var data_c := map k | k in fieldMap :: k := data[fieldMap[k]];
-      var allFields_c := Sets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
-
-      var signedFields_c := FilterSchema2(allFields_c, fieldMap, schema, ENCRYPT_AND_SIGN, SIGN_ONLY);
-      var encFields_c := FilterSchema2(signedFields_c, fieldMap, schema, ENCRYPT_AND_SIGN, ENCRYPT_AND_SIGN);
-
-      Success(EncryptCanon(
-        encFields_c,
-        signedFields_c,
-        data_c
-      ))
-    }
-
-  function method {:tailrecursion} FilterSigned(fields : seq<CanonicalPath>, fieldMap : CanonMap, schema : AuthSchemaPlain)
-    : (ret : seq<CanonicalPath>)
-    requires forall k <- fields :: k in fieldMap
-    requires forall k <- fieldMap :: fieldMap[k] in schema
-    ensures forall k <- ret :: k in fields
   {
-    if |fields| == 0 then
-      []
-    else
-      var act := schema[fieldMap[fields[0]]].content.Action;
-      if act == CSE.AuthenticateAction.SIGN then
-        [fields[0]] + FilterSigned(fields[1..], fieldMap, schema)
-      else
-        FilterSigned(fields[1..], fieldMap, schema)
+    Paths.SimpleCanonUnique(tableName);
+    var fieldMap := map k <- data.Keys | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k;
+    var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
+    var signedFields_c := Sets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
+    var encFields_c := FilterEncrypt(signedFields_c, fieldMap, schema);
+
+    Success(EncryptCanon(
+      encFields_c,
+      signedFields_c,
+      data_c
+    ))
   }
 
   // contruct the DecryptCanon
@@ -335,19 +317,17 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     ensures ret.Success? ==>
       && var r := ret.value;
       && (forall k <- r.signedFields_c :: k in r.data_c)
-    {
-      Paths.SimpleCanonUnique(tableName);
-      var fieldMap := map k | k in data.Keys :: Paths.SimpleCanon(tableName, k) := k;
-      var data_c := map k | k in fieldMap :: k := data[fieldMap[k]];
-      var allFields_c := Sets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
+  {
+    Paths.SimpleCanonUnique(tableName);
+    var fieldMap := map k <- data.Keys | schema[k].content.Action == SIGN :: Paths.SimpleCanon(tableName, k) := k;
+    var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
+    var signedFields_c := Sets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
 
-      var signedFields_c := FilterSigned(allFields_c, fieldMap, schema);
-
-      Success(DecryptCanon(
-        signedFields_c,
-        data_c
-      ))
-    }
+    Success(DecryptCanon(
+      signedFields_c,
+      data_c
+    ))
+  }
 
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
