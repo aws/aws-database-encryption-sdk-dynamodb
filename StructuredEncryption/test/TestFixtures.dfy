@@ -96,18 +96,6 @@ module TestFixtures {
               Action := AuthenticateAction.DO_NOT_SIGN
           ),
           attributes := None()
-        ),
-        HeaderField := AuthenticateSchema(
-          content := AuthenticateSchemaContent.Action(
-              Action := AuthenticateAction.DO_NOT_SIGN
-          ),
-          attributes := None()
-        ),
-        FooterField := AuthenticateSchema(
-          content := AuthenticateSchemaContent.Action(
-              Action := AuthenticateAction.DO_NOT_SIGN
-          ),
-          attributes := None()
         )
       ]
     ),

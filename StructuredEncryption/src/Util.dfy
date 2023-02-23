@@ -10,13 +10,19 @@ module StructuredEncryptionUtil {
   import opened StandardLibrary.UInt
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes
+  import CSE = AwsCryptographyStructuredEncryptionTypes
+  import AlgorithmSuites
 
   // all attributes with this prefix reserved for the implementation
   const ReservedPrefix := "aws_dbe_"
   const HeaderField := ReservedPrefix + "head"
   const FooterField := ReservedPrefix + "foot"
 
-  const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF];
+  const TYPEID_LEN := 2
+  const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF]
+  lemma BYTES_TYPE_ID_OK()
+    ensures |BYTES_TYPE_ID| == TYPEID_LEN
+  {}
 
   // Currently, only one set of sizes are supported
   const KeySize := 32 // 256 bits, for 256-bit AES keys
@@ -24,28 +30,46 @@ module StructuredEncryptionUtil {
   const AuthTagSize := 16
   const MSGID_LEN := 32
 
+  lemma ValidSuiteSizes(alg : CMP.AlgorithmSuiteInfo)
+    requires ValidSuite(alg)
+    ensures AlgorithmSuites.GetEncryptKeyLength(alg) as int == KeySize
+    ensures alg.encrypt.AES_GCM.keyLength as int == KeySize
+    ensures alg.encrypt.AES_GCM.tagLength as int == AuthTagSize
+    ensures alg.encrypt.AES_GCM.ivLength as int == NonceSize
+  {}
+
+  const DoNotSign :=
+    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN), attributes := None)
+  const DoSign :=
+    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
+  const EncryptAndSign :=
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.ENCRYPT_AND_SIGN), attributes := None);
+  const SIGN_ONLY :=
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_ONLY), attributes := None);
+  const DoNothing :=
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.DO_NOTHING), attributes := None);
+
   type Key = x : seq<uint8> | |x| == KeySize witness *
   type Nonce = x : seq<uint8> | |x| == NonceSize witness *
   type AuthTag = x : seq<uint8> | |x| == AuthTagSize witness *
   type MessageID = x: Bytes | |x| == MSGID_LEN witness *
 
   type Bytes = seq<uint8>
+  type CanonicalPath = seq<uint8>
   type GoodString = x : string | ValidString(x)
 
   type StructuredDataPlain = x : map<GoodString, StructuredData> | (forall k <- x :: x[k].content.Terminal?)
-  type StructuredDataCanon = x : map<Bytes, StructuredData> | (forall k <- x :: x[k].content.Terminal?)
+  type StructuredDataCanon = x : map<CanonicalPath, StructuredData> | (forall k <- x :: x[k].content.Terminal?)
   type CryptoSchemaPlain = x : map<GoodString, CryptoSchema> | (forall k <- x :: x[k].content.Action?)
-  type CryptoSchemaCanon = x : map<Bytes, CryptoSchema> | (forall k <- x :: x[k].content.Action?)
+  type CryptoSchemaCanon = x : map<CanonicalPath, CryptoSchema> | (forall k <- x :: x[k].content.Action?)
   type AuthSchemaPlain = x : map<GoodString, AuthenticateSchema> | (forall k <- x :: x[k].content.Action?)
-  type AuthSchemaCanon = x : map<Bytes, AuthenticateSchema> | (forall k <- x :: x[k].content.Action?)
+  type AuthSchemaCanon = x : map<CanonicalPath, AuthenticateSchema> | (forall k <- x :: x[k].content.Action?)
+  type CanonMap = map<CanonicalPath, GoodString>
 
   // Within the context of the StructuredEncryptionClient, certains things must be true of any Algorithm Suite
   predicate method ValidSuite(alg : CMP.AlgorithmSuiteInfo)
   {
-    && alg.commitment.HKDF?
-    && alg.commitment.HKDF.outputKeyLength as int == KeySize
-    && alg.kdf.HKDF?
-    && alg.kdf.HKDF.outputKeyLength as int == KeySize
+    alg.id.DBE? && AlgorithmSuites.DBEAlgorithmSuite?(alg)
   }
 
   predicate method ValidString(x : string)
@@ -63,21 +87,21 @@ module StructuredEncryptionUtil {
   function method CryptoSchemaMapIsFlat(data : CryptoSchemaMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Action?)
   {
-    forall v <- data.Values :: v.content.Action? 
+    forall v <- data.Values :: v.content.Action?
   }
 
   // Schema must contain only Actions
   function method AuthSchemaIsFlat(data : AuthenticateSchemaMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Action?)
   {
-    forall v <- data.Values :: v.content.Action? 
+    forall v <- data.Values :: v.content.Action?
   }
 
   // Map must contain only Terminals
   function method DataMapIsFlat(data : StructuredDataMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Terminal?)
   {
-    forall v <- data.Values :: v.content.Terminal? 
+    forall v <- data.Values :: v.content.Terminal?
   }
 
   // attibute is "authorized", a.k.a. included in the signature

@@ -114,7 +114,7 @@ module StructuredEncryptionHeader {
     }
 
     // Calculate key commitment. Fail if it doesn't match the stored one.
-    function method check(
+    function method verifyCommitment(
       client: Prim.IAwsCryptographicPrimitivesClient,
       alg : CMP.AlgorithmSuiteInfo,
       commitKey : Bytes,
@@ -139,9 +139,17 @@ module StructuredEncryptionHeader {
       :- Need(COMMITMENT_LEN < |data|, E("Serialized header too short"));
       var storedCommitment := data[|data|-COMMITMENT_LEN..];
       var calcCommitment :- CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]);
+      // TODO - this needs to be a constant time comparison
       :- Need(storedCommitment == calcCommitment, E("Key commitment mismatch."));
       Success(true)
     }
+
+    function method GetAlgorithmSuite() : Result<CMP.AlgorithmSuiteInfo, Error>
+    {
+      var algorithmSuiteR := AlgorithmSuites.GetAlgorithmSuiteInfo([0x67, flavor as uint8]);
+      algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e))
+    }
+
   }
 
   // serialize and add commitment

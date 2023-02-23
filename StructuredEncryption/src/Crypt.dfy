@@ -29,13 +29,13 @@ module StructuredEncryptionCrypt {
     requires offset as nat * 3 < UINT32_LIMIT
     ensures ret.Success? ==> |ret.value| == KeySize+NonceSize
   {
-    Success((HKDFOutput+HKDFOutput)[..44]) // good enough for testing
+    Success((HKDFOutput+HKDFOutput)[..44]) // TODO - replace with below after next merge with private-dafny
     //var keyR := AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32);
     //keyR.MapFailure(e => AwsCryptographyPrimitives(e))
   }
 
   function method FieldKeyNonce(offset : uint32)
-    : (ret : seq<uint8>)
+    : (ret : Bytes)
     ensures |ret| == 16 // NOT NonceSize
     {
       UTF8.EncodeAscii("AwsDbeField")
@@ -43,7 +43,6 @@ module StructuredEncryptionCrypt {
       + UInt32ToSeq(offset)
     }
     
-  // the underscore is not present in the AWS Encryption SDK's constants
   const LABEL_COMMITMENT_KEY := UTF8.EncodeAscii("AWS_DBE_COMMIT_KEY")
   const LABEL_ENCRYPTION_KEY := UTF8.EncodeAscii("AWS_DBE_DERIVE_KEY")
   
@@ -61,34 +60,75 @@ module StructuredEncryptionCrypt {
     );
   }
 
-  datatype EncryptionSelector = Encrypt | Decrypt
+  datatype EncryptionSelector = DoEncrypt | DoDecrypt
 
-  // Encrypt or Decrypt a StructuredDataMap
-  method Crypt(
-    mode : EncryptionSelector,
+  // Encrypt a StructuredDataMap
+  method Encrypt(
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    keys : seq<Bytes>,
+    fieldNames : seq<CanonicalPath>,
     data : StructuredDataCanon)
     returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- keys :: k in data
-    requires |keys| < (UINT32_LIMIT / 3)
+    requires forall k <- fieldNames :: k in data
+    requires |fieldNames| < (UINT32_LIMIT / 3)
     requires ValidSuite(alg)
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    var FieldRootKey := HKDF.Hkdf(
+    ret := Crypt(DoEncrypt, client, alg, key, head, fieldNames, data);
+  }
+
+  // Decrypt a StructuredDataMap
+  method Decrypt(
+    client: Primitives.AtomicPrimitivesClient,
+    alg : CMP.AlgorithmSuiteInfo,
+    key : Key,
+    head : Header.PartialHeader,
+    fieldNames : seq<CanonicalPath>,
+    data : StructuredDataCanon)
+    returns (ret : Result<StructuredDataCanon, Error>)
+    requires forall k <- fieldNames :: k in data
+    requires |fieldNames| < (UINT32_LIMIT / 3)
+    requires ValidSuite(alg)
+
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    ret := Crypt(DoDecrypt, client, alg, key, head, fieldNames, data);
+  }
+
+  // Encrypt or Decrypt a StructuredDataMap
+  // TODO - some guarantee that this encryption is being done in the right order
+  method Crypt(
+    mode : EncryptionSelector,
+    client: Primitives.AtomicPrimitivesClient,
+    alg : CMP.AlgorithmSuiteInfo,
+    key : Key,
+    head : Header.PartialHeader,
+    fieldNames : seq<CanonicalPath>,
+    data : StructuredDataCanon)
+    returns (ret : Result<StructuredDataCanon, Error>)
+    requires forall k <- fieldNames :: k in data
+    requires |fieldNames| < (UINT32_LIMIT / 3)
+    requires ValidSuite(alg)
+
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    var fieldRootKey := HKDF.Hkdf(
       alg.kdf.HKDF.hmac,
       None, // salt
       key, // ikm
       LABEL_ENCRYPTION_KEY + head.msgID, // info
       alg.kdf.HKDF.outputKeyLength as int // length
     );
-    var result := CryptList(mode, client, alg, FieldRootKey, 0, keys, data, map[]);
+    var result := CryptList(mode, client, alg, fieldRootKey, 0, fieldNames, data, map[]);
     return result;
   }
 
@@ -97,37 +137,41 @@ module StructuredEncryptionCrypt {
     mode : EncryptionSelector,
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
-    FieldRootKey : Key,
+    fieldRootKey : Key,
     offset : uint32,
-    keys : seq<Bytes>,
+    fieldNames : seq<CanonicalPath>,
     input : StructuredDataCanon,
     output : StructuredDataCanon
   )
     returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- keys :: k in input
-    requires (|keys| + offset as nat) * 3 < UINT32_LIMIT
-    decreases |keys|
+    requires forall k <- fieldNames :: k in input
+    requires (|fieldNames| + offset as nat) * 3 < UINT32_LIMIT
+    decreases |fieldNames|
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    if |keys| == 0 {
+    if |fieldNames| == 0 {
       return Success(output);
     }
-    var data :- CryptOne(mode, client, alg, FieldRootKey, offset, keys[0], input[keys[0]].content.Terminal);
-    var result := CryptList(mode, client, alg, FieldRootKey, offset+1, keys[1..], input, output[keys[0] := data]);
+    var data;
+    if mode == DoEncrypt {
+      data :- EncryptTermina(client, alg, fieldRootKey, offset, fieldNames[0], input[fieldNames[0]].content.Terminal);
+    } else {
+      data :- DecryptTerminal(client, alg, fieldRootKey, offset, fieldNames[0], input[fieldNames[0]].content.Terminal);
+    }
+    var result := CryptList(mode, client, alg, fieldRootKey, offset+1, fieldNames[1..], input, output[fieldNames[0] := data]);
     return result;
   }
 
-  // Encrypt or Decrypt a single Terminal
-  method CryptOne(
-    mode : EncryptionSelector,
+  // Encrypt a single Terminal
+  method EncryptTermina(
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
-    FieldRootKey : Key,
+    fieldRootKey : Key,
     offset : uint32,
-    path : seq<uint8>,
+    path : CanonicalPath,
     data : StructuredDataTerminal
   )
     returns (ret : Result<StructuredData, Error>)
@@ -138,40 +182,59 @@ module StructuredEncryptionCrypt {
     requires client.ValidState()
     ensures client.ValidState()
   {
-    var dataKey :- FieldKey(FieldRootKey, offset);
+    var dataKey :- FieldKey(fieldRootKey, offset);
     var encryptionKey : Key := dataKey[0..KeySize];
     var nonce : Nonce := dataKey[KeySize..];
     var value := data.value;
 
-    if mode == Encrypt {
-      var encInput := Prim.AESEncryptInput(
-        encAlg := alg.encrypt.AES_GCM,
-        iv := nonce,
-        key := encryptionKey,
-        msg := data.typeId + value,
-        aad := path
-      );
+    var encInput := Prim.AESEncryptInput(
+      encAlg := alg.encrypt.AES_GCM,
+      iv := nonce,
+      key := encryptionKey,
+      msg := value,
+      aad := path
+    );
 
-      var encOutR := client.AESEncrypt(encInput);
-      var encOut :- encOutR.MapFailure(e => AwsCryptographyPrimitives(e));
-      :- Need (|encOut.authTag| == AuthTagSize, E("Auth Tag Wrong Size."));
-      return Success(ValueToData(encOut.cipherText + encOut.authTag, BYTES_TYPE_ID));
+    var encOutR := client.AESEncrypt(encInput);
+    var encOut :- encOutR.MapFailure(e => AwsCryptographyPrimitives(e));
+    :- Need (|encOut.authTag| == AuthTagSize, E("Auth Tag Wrong Size."));
+    return Success(ValueToData(data.typeId + encOut.cipherText + encOut.authTag, BYTES_TYPE_ID));
+  }
 
-    } else {
-      :- Need(AuthTagSize <= |value|, E("cipherTxt too short."));
-      var decInput := Prim.AESDecryptInput(
-        encAlg := alg.encrypt.AES_GCM,
-        iv := nonce,
-        key := encryptionKey,
-        cipherTxt := value[..|value| - AuthTagSize],
-        aad := path,
-        authTag := value[|value|-AuthTagSize..]
-      );
+  // Decrypt a single Terminal
+  method DecryptTerminal(
+    client: Primitives.AtomicPrimitivesClient,
+    alg : CMP.AlgorithmSuiteInfo,
+    fieldRootKey : Key,
+    offset : uint32,
+    path : CanonicalPath,
+    data : StructuredDataTerminal
+  )
+    returns (ret : Result<StructuredData, Error>)
+    requires offset as nat * 3 < UINT32_LIMIT
+    ensures ret.Success? ==> ret.value.content.Terminal?
 
-      var decOutR := client.AESDecrypt(decInput);
-      var decOut :- decOutR.MapFailure(e => AwsCryptographyPrimitives(e));
-      :- Need(2 <= |decOut|, E("Too little data."));
-      return Success(ValueToData(decOut[2..], decOut[..2]));
-    }
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    var dataKey :- FieldKey(fieldRootKey, offset);
+    var encryptionKey : Key := dataKey[0..KeySize];
+    var nonce : Nonce := dataKey[KeySize..];
+    var value := data.value;
+
+    :- Need((AuthTagSize+2) <= |value|, E("cipherTxt too short."));
+    var decInput := Prim.AESDecryptInput(
+      encAlg := alg.encrypt.AES_GCM,
+      iv := nonce,
+      key := encryptionKey,
+      cipherTxt := value[TYPEID_LEN..|value| - AuthTagSize],
+      aad := path,
+      authTag := value[|value|-AuthTagSize..]
+    );
+
+    var decOutR := client.AESDecrypt(decInput);
+    var decOut :- decOutR.MapFailure(e => AwsCryptographyPrimitives(e));
+    return Success(ValueToData(decOut, value[..TYPEID_LEN]));
   }
 }

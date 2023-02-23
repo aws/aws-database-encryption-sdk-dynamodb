@@ -55,19 +55,18 @@ module TestHeader {
         ciphertext := [6,7,8,9])]
     );
     var key : Bytes := head.msgID;
-    // TODO - use an actual DBE suite
-    var alg := AlgorithmSuites.GetSuite(CMP.AlgorithmSuiteId.ESDK(CMP.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384));
+    var alg := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
     var ser :- expect Serialize(client, alg, key, head);
     var orig :- expect PartialDeserialize(ser);
     expect orig == head;
-    var goodResult :- expect head.check(client, alg, key, ser);
+    var goodResult :- expect head.verifyCommitment(client, alg, key, ser);
 
     var lastByte := ser[|ser|-1];
     var badByte : uint8 := if lastByte == 0 then 255 as uint8 else lastByte - 1;
     var badSer := ser[..|ser|-1] + [badByte];
     var head2 :- expect PartialDeserialize(badSer);
     expect head2 == head;
-    var badResult := head.check(client, alg, key, badSer);
+    var badResult := head.verifyCommitment(client, alg, key, badSer);
 
     expect badResult.Failure?;
     expect badResult.error == E("Key commitment mismatch.");
