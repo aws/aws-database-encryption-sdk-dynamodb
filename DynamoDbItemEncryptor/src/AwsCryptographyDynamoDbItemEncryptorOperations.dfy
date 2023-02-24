@@ -46,6 +46,11 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     || (unauthenticatedAttributes.Some? && attr in unauthenticatedAttributes.value)
     || (unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attr)
     || SE.ReservedPrefix <= attr
+    // Attributes with the reserved prefix are "allowed unauthenticated" in that
+    // they are not specified as signed within attributeActions.
+    // These attributes MAY still be authenticated via other methods,
+    // such as "aws_dbe_head" which is explicitly added to the canonical hash
+    // used in signing.
   }
 
   //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
@@ -68,10 +73,13 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   }
 
   // Is this attribute unknown to the config?
-  predicate method UnknownAttibute(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
+  predicate method UnknownAttribute(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
-    && attr !in config.attributeActions // i.e. not in signature scope
     && InSignatureScope(config, attr)
+    && attr !in config.attributeActions
+    // Attributes in signature scope MUST be configured in attributeActions
+    // so these two lines are saying "in scope && not in scope"
+    // and that's why it's an error
   }
 
   // Is the attribute name in signature scope?
@@ -168,7 +176,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     && config.structuredEncryption.ValidState()
     && (config.cmm.Modifies !! config.structuredEncryption.Modifies)
 
-    // The parition key MUST be CSE.SIGN_ONLY
+    // The partition key MUST be CSE.SIGN_ONLY
     && config.partitionKeyName in config.attributeActions
     && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY
     // The sort key MUST be CSE.SIGN_ONLY
@@ -192,13 +200,22 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     // allowedUnauthenticatedAttributePrefix <= old(allowedUnauthenticatedAttributePrefix).
     // The simple case is do not change allowedUnauthenticatedAttributePrefix.
     // But allowedUnauthenticatedAttributePrefix MAY get shorter,
-    // however this is a dangrous operation as it may impact other attributes.
+    // however this is a dangerous operation as it may impact other attributes.
+    //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
+    //# If an Authenticate Action other than DO_NOTHING is configured for an attribute name included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
+    //# or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix),
+    //# this operation MUST yield an error.
     && (forall attribute <- config.attributeActions.Keys
       :: ForwardCompatibleAttributeAction(
           attribute,
           config.attributeActions[attribute],
           config.allowedUnauthenticatedAttributes,
           config.allowedUnauthenticatedAttributePrefix))
+
+    // It is forbidden to explicitly configure an attribute with the reserved prefix
+    && (forall attribute <- config.attributeActions.Keys ::
+          !(SE.ReservedPrefix <= attribute))
+
   }
 
 
@@ -255,7 +272,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     ensures ret.Success? ==>
       ((ret.value == SE.DoNotSign) <==> !InSignatureScope(config, attr))
   {
-    :- Need(!UnknownAttibute(config, attr), "Attribute " + attr + " is not configured");
+    :- Need(!UnknownAttribute(config, attr), "Attribute " + attr + " is not configured");
     if InSignatureScope(config, attr) then
       Success(SE.DoSign)
     else

@@ -134,22 +134,20 @@ module StructuredEncryptionHeader {
         && var storedCommitment := data[|data|-COMMITMENT_LEN..];
         && CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]).Success?
         && var calcCommitment := CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]).value;
-        && storedCommitment == calcCommitment
+        && ConstantTimeEquals(storedCommitment, calcCommitment)
     {
       :- Need(COMMITMENT_LEN < |data|, E("Serialized header too short"));
       var storedCommitment := data[|data|-COMMITMENT_LEN..];
       var calcCommitment :- CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]);
-      // TODO - this needs to be a constant time comparison
-      :- Need(storedCommitment == calcCommitment, E("Key commitment mismatch."));
+      :- Need(ConstantTimeEquals(storedCommitment, calcCommitment), E("Key commitment mismatch."));
       Success(true)
     }
 
     function method GetAlgorithmSuite() : Result<CMP.AlgorithmSuiteInfo, Error>
     {
-      var algorithmSuiteR := AlgorithmSuites.GetAlgorithmSuiteInfo([0x67, flavor as uint8]);
+      var algorithmSuiteR := AlgorithmSuites.GetAlgorithmSuiteInfo([DbeAlgorithmFamily, flavor as uint8]);
       algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e))
     }
-
   }
 
   // serialize and add commitment
@@ -198,9 +196,9 @@ module StructuredEncryptionHeader {
     :- Need(forall x | x in mat.encryptedDataKeys :: ValidEncryptedDataKey(x), E("Invalid Data Key"));
     :- Need(schema.content.SchemaMap?, E("Schema must be a Map"));
     :- Need(CryptoSchemaMapIsFlat(schema.content.SchemaMap), E("Schema must be flat."));
-    :- Need(|mat.algorithmSuite.binaryId| == 2, E("Invalid Algoritm Suite Binary ID"));
-    :- Need(mat.algorithmSuite.binaryId[0] == 0x67, E("Algoritm Suite not suitable for structured encryption."));
-    :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algoritm Suite has unexpected flavor."));
+    :- Need(|mat.algorithmSuite.binaryId| == 2, E("Invalid Algorithm Suite Binary ID"));
+    :- Need(mat.algorithmSuite.binaryId[0] == DbeAlgorithmFamily, E("Algorithm Suite not suitable for structured encryption."));
+    :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algorithm Suite has unexpected flavor."));
     var legend :- MakeLegend(tableName, schema);
     Success(PartialHeader(
       version := 1,
@@ -324,7 +322,7 @@ module StructuredEncryptionHeader {
     assert CountAuthAttrs(data) == |authSchema|;
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //# The Encrypt Legend Bytes MUST be serialized as follows:
-    // 1. Order every authenticated attribute in the item by the Canoncial Path
+    // 1. Order every authenticated attribute in the item by the Canonical Path
     // 2. For each authenticated terminal, in order,
     // append one of the byte values specified above to indicate whether
     // that field should be encrypted.

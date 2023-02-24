@@ -29,6 +29,7 @@ module StructuredEncryptionUtil {
   const NonceSize := 12 // 96 bits, per AES-GCM nonces
   const AuthTagSize := 16
   const MSGID_LEN := 32
+  const DbeAlgorithmFamily : uint8 := 0x67
 
   lemma ValidSuiteSizes(alg : CMP.AlgorithmSuiteInfo)
     requires ValidSuite(alg)
@@ -66,7 +67,7 @@ module StructuredEncryptionUtil {
   type AuthSchemaCanon = x : map<CanonicalPath, AuthenticateSchema> | (forall k <- x :: x[k].content.Action?)
   type CanonMap = map<CanonicalPath, GoodString>
 
-  // Within the context of the StructuredEncryptionClient, certains things must be true of any Algorithm Suite
+  // Within the context of the StructuredEncryptionClient, certain things must be true of any Algorithm Suite
   predicate method ValidSuite(alg : CMP.AlgorithmSuiteInfo)
   {
     alg.id.DBE? && AlgorithmSuites.DBEAlgorithmSuite?(alg)
@@ -81,6 +82,24 @@ module StructuredEncryptionUtil {
   // string to Error
   function method E(s : string) : Error {
     StructuredEncryptionException(message := s)
+  }
+
+  // sequences are equal if zero is returned
+  // Some care should be taken to ensure that target languages don't over optimize this.
+  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, acc : bv8 := 0) : bv8
+    requires |a| == |b|
+  {
+    if |a| == 0 then
+      acc
+    else
+      var x := ((a[0] as bv8) ^ (b[0] as bv8));
+      ConstantTimeCompare(a[1..], b[1..], x | acc)
+  }
+
+  predicate method ConstantTimeEquals(a : Bytes, b : Bytes)
+    requires |a| == |b|
+  {
+    ConstantTimeCompare(a, b) == 0
   }
 
   // Is the CryptoSchemaMap flat, i.e., does it contain only Actions?
@@ -104,7 +123,7 @@ module StructuredEncryptionUtil {
     forall v <- data.Values :: v.content.Terminal?
   }
 
-  // attibute is "authorized", a.k.a. included in the signature
+  // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
   {
     x.ENCRYPT_AND_SIGN? || x.SIGN_ONLY?

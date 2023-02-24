@@ -11,6 +11,7 @@ module
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import MaterialProviders
   import Operations = AwsCryptographyDynamoDbItemEncryptorOperations
+  import SE =  StructuredEncryptionUtil
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
@@ -28,6 +29,12 @@ module
       cmm := None(),
       algorithmSuiteId := None()
     )
+  }
+
+  // because an inline "!(SE.ReservedPrefix <= attr)" is too hard for Dafny
+  predicate method UnreservedPrefix(attr : string)
+  {
+    !(SE.ReservedPrefix <= attr)
   }
 
   method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
@@ -54,11 +61,11 @@ module
       ));
     }
     // :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
-    //   message := "Must provide eiterh a keyring or a CMM"
+    //   message := "Must provide either a keyring or a CMM"
     // ));
     if !(config.keyring.Some? || config.cmm.Some?) {
       return Failure(DynamoDbItemEncryptorException(
-        message := "Must provide eiterh a keyring or a CMM"
+        message := "Must provide either a keyring or a CMM"
       ));
     }
     // :- Need(
@@ -100,6 +107,8 @@ module
           config.attributeActions[attribute],
           config.allowedUnauthenticatedAttributes,
           config.allowedUnauthenticatedAttributePrefix)
+      invariant forall attribute <- (config.attributeActions - attributeActions'.Keys)
+      :: UnreservedPrefix(attribute)
     {
       var attribute :| attribute in attributeActions';
       var action := config.attributeActions[attribute];
@@ -121,6 +130,11 @@ module
       {
         return Failure(DynamoDbItemEncryptorException(
           message := "Attribute: " + attribute + " configuration not compatible with unauthenticated configuration."
+        ));
+      }
+      if !UnreservedPrefix(attribute) {
+        return Failure(DynamoDbItemEncryptorException(
+          message := "Attribute: " + attribute + " is reserved, and may not be configured."
         ));
       }
       attributeActions' := attributeActions' - {attribute};
