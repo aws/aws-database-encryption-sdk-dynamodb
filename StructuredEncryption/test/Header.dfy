@@ -11,15 +11,18 @@ module TestHeader {
   import opened Wrappers
   import opened StandardLibrary.UInt
   import opened AwsCryptographyStructuredEncryptionTypes
+  import opened StructuredEncryptionUtil
+
   import StructuredEncryption
   import AwsCryptographyMaterialProvidersTypes
   import CMP = AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
   import TestFixtures
-  import opened Header
-  import opened Paths
+  import opened StructuredEncryptionHeader
+  import opened StructuredEncryptionPaths
   import opened UTF8
   import Aws.Cryptography.Primitives
+  import AlgorithmSuites
 
   method {:test} TestRoundTrip() {
     var head := PartialHeader (
@@ -33,7 +36,7 @@ module TestHeader {
         keyProviderInfo := [1,2,3,4,5],
         ciphertext := [6,7,8,9])]
     );
-    var ser := head.serialize();
+    var ser := head.serialize() + head.msgID; // msgID as fake commitment
     var orig :- expect PartialDeserialize(ser);
     expect orig == head;
   }
@@ -51,16 +54,22 @@ module TestHeader {
         keyProviderInfo := [1,2,3,4,5],
         ciphertext := [6,7,8,9])]
     );
-    var ser :- expect Serialize(client, head);
-    var orig :- expect Deserialize(client, ser);
+    var key : Bytes := head.msgID;
+    var alg := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
+    var ser :- expect Serialize(client, alg, key, head);
+    var orig :- expect PartialDeserialize(ser);
     expect orig == head;
+    var goodResult :- expect head.verifyCommitment(client, alg, key, ser);
 
     var lastByte := ser[|ser|-1];
     var badByte : uint8 := if lastByte == 0 then 255 as uint8 else lastByte - 1;
     var badSer := ser[..|ser|-1] + [badByte];
-    var badness := Deserialize(client, badSer);
-    expect badness.Failure?;
-    expect badness.error == E("Key commitment mismatch.");
+    var head2 :- expect PartialDeserialize(badSer);
+    expect head2 == head;
+    var badResult := head.verifyCommitment(client, alg, key, badSer);
+
+    expect badResult.Failure?;
+    expect badResult.error == E("Key commitment mismatch.");
   }
 
   const a : uint8 := 'a' as uint8;

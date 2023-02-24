@@ -116,7 +116,7 @@ This operation MUST obtain a set of encryption materials by calling
 [Get Encryption Materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md#get-encryption-materials)
 on the input [CMM](#cmm).
 
-The call to Get Encryption Materials MUST be constructed as follows:
+The call to Get Encryption Materials is constructed as follows:
 - Encryption Context: If provided, this MUST be the [input encryption context](#encryption-context);
   otherwise, this is an empty encryption context.
 - Commitment Policy: This MUST be
@@ -189,7 +189,7 @@ The Intermediate Encryption Structured Data MUST be calculated with the followin
   a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the [input Structured Data](#structured-data),
 - a [Terminal Data](./structures.md#terminal-data) with [Terminal Type ID](./structures.md#terminal-type-id) `0xFFFF` and
   with [Terminal Value](./structures.md#terminal-value) equal to the [serialized header](./header.md)
-  MUST exist on the Intermediate Encrypted Structured Data, indexed at the top level by "aws-dbe-head".
+  MUST exist on the Intermediate Encrypted Structured Data, indexed at the top level by "aws_dbe_head".
   The values of this header have the following requirements:
   - Message Format Version MUST be `0x01`
   - Message Format Flavor MUST [correspond to the algorithm suite](./header.md#format-flavor) used in this encryption.

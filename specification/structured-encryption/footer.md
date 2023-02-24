@@ -9,12 +9,10 @@ in order to store signatures over signed values in that structured data.
 
 ## Footer Index
 
-The header MUST exist at string index "aws-dbe-foot" for
+The header MUST exist at string index "aws_dbe_foot" for
 encrypted [Structured Data](./structures.md#structured-data).
 
 ## Footer Format
-
-The [Terminal Type ID](./structures.md#terminal-type-id) MUST be `0xFF 0xFF`.
 
 The [Terminal Value](./structures.md#terminal-value) of the footer MUST be
 

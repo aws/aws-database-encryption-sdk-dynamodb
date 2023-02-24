@@ -6,7 +6,8 @@ module PathsTests {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened Paths
+  import opened StructuredEncryptionUtil
+  import opened StructuredEncryptionPaths
 
   // This first part converts strings to TerminalLocations
   // It will be moved to src/Paths when we do Beacons 

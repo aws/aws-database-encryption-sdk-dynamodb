@@ -3,27 +3,28 @@
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Paths.dfy"
+include "Util.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Functions.dfy"
 
-module Header {
+module StructuredEncryptionHeader {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened AwsCryptographyStructuredEncryptionTypes
+  import opened StructuredEncryptionUtil
+
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
-  import opened Sets
-  import opened UTF8
-  import opened Paths
+  import Sets
+  import UTF8
+  import Paths = StructuredEncryptionPaths
   import Random
   import Functions
 
   const VERSION_LEN := 1
   const FLAVOR_LEN := 1
-  const MSGID_LEN := 32
   const COMMITMENT_LEN := 32
   const PREFIX_LEN := VERSION_LEN + FLAVOR_LEN + MSGID_LEN
-  const TRUSS_COMMIT_KEY := "TRUSS_COMMIT_KEY";
   const UINT8_LIMIT := 256
   const ENCRYPT_AND_SIGN_LEGEND : uint8 := 0x65;
   const SIGN_ONLY_LEGEND : uint8 := 0x73;
@@ -33,13 +34,6 @@ module Header {
   //# The Version MUST be `0x01`.
   type Version = x : uint8 | ValidVersion(x) witness 1
 
-  //= specification/structured-encryption/header.md#format-flavor
-  //= type=implication
-  //# The flavor MUST be one of these two values.
-  // | Value | Meaning |
-  // |---|---|
-  // | 0x01 | Signatures enabled (default) |
-  // | 0x00 | Signatures disabled |
   type Flavor = x : uint8 | ValidFlavor(x)
 
   //= specification/structured-encryption/header.md#encrypted-data-key-count
@@ -47,12 +41,12 @@ module Header {
   //# This value MUST be greater than 0.
   type CMPEncryptedDataKeyList = x : seq<CMPEncryptedDataKey> | 0 < |x| < UINT8_LIMIT witness *
 
-  type MessageID = x: Bytes | |x| == MSGID_LEN witness *
   type Commitment = x: Bytes | |x| == COMMITMENT_LEN witness *
   type CMPEncryptedDataKey = x : CMP.EncryptedDataKey | ValidEncryptedDataKey(x) witness *
   type CMPEncryptionContext  = x : CMP.EncryptionContext | ValidEncryptionContext(x) witness *
   type CMPEncryptedDataKeyListEmptyOK = x : seq<CMPEncryptedDataKey> | |x| < UINT8_LIMIT
-  type Legend = x : Bytes | |x| < UINT16_LIMIT
+  type LegendByte = x : uint8 | ValidLegendByte(x) witness SIGN_ONLY_LEGEND
+  type Legend = x : seq<LegendByte> | |x| < UINT16_LIMIT
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
   predicate method ValidVersion(x : uint8) {
@@ -61,6 +55,10 @@ module Header {
 
   predicate method ValidFlavor(x : uint8) {
     x in [0, 1]
+  }
+
+  predicate method ValidLegendByte(x : uint8) {
+    x in [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND]
   }
   
   predicate method ValidEncryptionContext(x : CMP.EncryptionContext) {
@@ -89,17 +87,17 @@ module Header {
     function method {:opaque} serialize() : (ret : Bytes)
       ensures
         && PREFIX_LEN <= |ret|
-        //= specification/structured-encryption/header.md#header-format
+        //= specification/structured-encryption/header.md#partial-header
         //= type=implication
-        //# The serialized form of the Header MUST be
+        //# The Partial Header MUST be
         // | Length (bytes) | Meaning |
         // |---|---|
-        // | 1 | Format Version |
-        // | 1 | Format Flavor |
-        // | 32 | Message ID|
-        // | Variable | Encrypt Legend |
-        // | Variable | Encrypt Context|
-        // | Variable | Encrypted Data Keys |
+        // | 1 | [Format Version](#format-version) |
+        // | 1 | [Format Flavor](#format-flavor) |
+        // | 32 | [Message ID](#message-id) |
+        // | Variable | [Encrypt Legend](#encrypt-legend) |
+        // | Variable | [Encryption Context](#encryption-context) |
+        // | Variable | [Encrypted Data Keys](#encrypted-data-keys) |
         && ret == (
             [version]
           + [flavor]
@@ -114,51 +112,72 @@ module Header {
       var leg := SerializeLegend(legend);
       [version] + [flavor] + msgID + leg + context + keys
     }
+
+    // Calculate key commitment. Fail if it doesn't match the stored one.
+    function method verifyCommitment(
+      client: Prim.IAwsCryptographicPrimitivesClient,
+      alg : CMP.AlgorithmSuiteInfo,
+      commitKey : Bytes,
+      data : Bytes
+    )
+      : (ret : Result<bool, Error>)
+      requires ValidSuite(alg)
+
+      requires client.ValidState()
+      ensures client.ValidState()
+      //= specification/structured-encryption/header.md#header-commitment
+      //= type=implication
+      //# When reading or deserializing a Header, the implementation MUST recalculate the commitment,
+      //# and fail if the calculated commitment does not match the stored commitment.
+      ensures ret.Success? ==>
+        && COMMITMENT_LEN < |data|
+        && var storedCommitment := data[|data|-COMMITMENT_LEN..];
+        && CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]).Success?
+        && var calcCommitment := CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]).value;
+        && ConstantTimeEquals(storedCommitment, calcCommitment)
+    {
+      :- Need(COMMITMENT_LEN < |data|, E("Serialized header too short"));
+      var storedCommitment := data[|data|-COMMITMENT_LEN..];
+      var calcCommitment :- CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]);
+      :- Need(ConstantTimeEquals(storedCommitment, calcCommitment), E("Key commitment mismatch."));
+      Success(true)
+    }
+
+    function method GetAlgorithmSuite() : Result<CMP.AlgorithmSuiteInfo, Error>
+    {
+      var algorithmSuiteR := AlgorithmSuites.GetAlgorithmSuiteInfo([DbeAlgorithmFamily, flavor as uint8]);
+      algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e))
+    }
   }
 
   // serialize and add commitment
-  function method Serialize(client: Prim.IAwsCryptographicPrimitivesClient, PartialHeader : PartialHeader)
+  function method Serialize(
+    client: Prim.IAwsCryptographicPrimitivesClient,
+    alg : CMP.AlgorithmSuiteInfo,
+    commitKey : Bytes,
+    PartialHeader : PartialHeader
+  )
     : (ret : Result<Bytes, Error>)
-    requires client.ValidState()
-    ensures client.ValidState()
+    requires ValidSuite(alg)
 
-    //= specification/structured-encryption/header.md#header-commitment
+    //= specification/structured-encryption/header.md#header-value
     //= type=implication
-    //# The Header Commitment MUST be calculated as a 256-bit HmacSha384,
-    //# with all preceding Header bytes as the message
-    //# and a commitment key of "TRUSS_COMMIT_KEY"
+    //# The [Terminal Value](./structures.md#terminal-value) of the header MUST be
+    // | Length (bytes) | Meaning |
+    // |---|---|
+    // | Variable | [Partial Header](#partial-header) |
+    // | 32 | [Header Commitment](#header-commitment) |
     ensures ret.Success? ==>
       && PREFIX_LEN <= |ret.value|
-      && CalculateHeaderCommitment(client, ret.value[..|ret.value|-32]).Success?
-      && ret.value[|ret.value|-32..] == CalculateHeaderCommitment(client, ret.value[..|ret.value|-32]).value
-  {
-    var body := PartialHeader.serialize();
-    var commitment :- CalculateHeaderCommitment(client, body);
-    Success(body + commitment)
-  }
+      && CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).Success?
+      && ret.value[|ret.value|-COMMITMENT_LEN..] == CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).value
 
-  // deserialize, and check commitment
-  function method Deserialize(client: Prim.IAwsCryptographicPrimitivesClient, data : Bytes)
-    : (ret : Result<PartialHeader, Error>)
     requires client.ValidState()
     ensures client.ValidState()
-    //= specification/structured-encryption/header.md#header-commitment
-    //= type=implication
-    //# When reading or deserializing a Header, the implementation MUST recalculate the commitment,
-    //# and fail if the calculated commitment does not match the stored commitment.
-    ensures ret.Success? ==>
-      && 32 < |data|
-      && var storedCommitment := data[|data|-32..];
-      && CalculateHeaderCommitment(client, data[..|data|-32]).Success?
-      && var calcCommitment := CalculateHeaderCommitment(client, data[..|data|-32]).value;
-      && storedCommitment == calcCommitment
   {
-    :- Need(32 < |data|, E("PartialHeader too short"));
-    var head :- PartialDeserialize(data[..|data|-32]);
-    var storedCommitment := data[|data|-32..];
-    var calcCommitment :- CalculateHeaderCommitment(client, data[..|data|-32]);
-    :- Need(storedCommitment == calcCommitment, E("Key commitment mismatch."));
-    Success(head)
+    var body := PartialHeader.serialize();
+    var commitment :- CalculateHeaderCommitment(client, alg, commitKey, body);
+    Success(body + commitment)
   }
 
   // config to PartialHeader
@@ -166,26 +185,28 @@ module Header {
       tableName : string,
       schema : CryptoSchema,
       msgID : MessageID,
-      encContext : CMP.EncryptionContext,
-      dataKeys : CMP.EncryptedDataKeyList
+      mat : CMP.EncryptionMaterials
     )
     : (ret : Result<PartialHeader, Error>)
   {
     :- Need(ValidString(tableName), E("Invalid table name."));
-    :- Need(ValidEncryptionContext(encContext), E("Invalid Encryption Context"));
-    :- Need(0 < |dataKeys|, E("There must be at least one data key"));
-    :- Need(|dataKeys| < UINT8_LIMIT, E("Too many data keys."));
-    :- Need(forall x | x in dataKeys :: ValidEncryptedDataKey(x), E("Invalid Data Key"));
+    :- Need(ValidEncryptionContext(mat.encryptionContext), E("Invalid Encryption Context"));
+    :- Need(0 < |mat.encryptedDataKeys|, E("There must be at least one data key"));
+    :- Need(|mat.encryptedDataKeys| < UINT8_LIMIT, E("Too many data keys."));
+    :- Need(forall x | x in mat.encryptedDataKeys :: ValidEncryptedDataKey(x), E("Invalid Data Key"));
     :- Need(schema.content.SchemaMap?, E("Schema must be a Map"));
     :- Need(CryptoSchemaMapIsFlat(schema.content.SchemaMap), E("Schema must be flat."));
+    :- Need(|mat.algorithmSuite.binaryId| == 2, E("Invalid Algorithm Suite Binary ID"));
+    :- Need(mat.algorithmSuite.binaryId[0] == DbeAlgorithmFamily, E("Algorithm Suite not suitable for structured encryption."));
+    :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algorithm Suite has unexpected flavor."));
     var legend :- MakeLegend(tableName, schema);
     Success(PartialHeader(
       version := 1,
-      flavor := 1, // or zero if algorithm suite is TODO?
+      flavor := mat.algorithmSuite.binaryId[1],
       msgID := msgID,
       legend := legend,
-      encContext := encContext,
-      dataKeys := dataKeys
+      encContext := mat.encryptionContext,
+      dataKeys := mat.encryptedDataKeys
     ))
   }
   
@@ -229,7 +250,9 @@ module Header {
     var dataKeys := keysAndLen.0;
     var trailingData := keysData[keysAndLen.1..];
 
-    :- Need(|trailingData| == 0, E("Invalid header serialization: unexpected bytes."));
+    :- Need(|trailingData| >= COMMITMENT_LEN, E("Invalid header serialization: unexpected end of data."));
+    :- Need(|trailingData| <= COMMITMENT_LEN, E("Invalid header serialization: unexpected bytes."));
+    assert |trailingData| == COMMITMENT_LEN;
     Success(PartialHeader(
       version := version,
       flavor := flavor,
@@ -243,29 +266,27 @@ module Header {
   // calculate Hmac384 for header commitment
   function method CalculateHeaderCommitment(
     client: Prim.IAwsCryptographicPrimitivesClient,
+    alg : CMP.AlgorithmSuiteInfo,
+    commitKey : Bytes,
     data: Bytes
   ) : (ret : Result<Bytes, Error>)
+    requires ValidSuite(alg)
+    ensures ret.Success? ==> |ret.value| == COMMITMENT_LEN
+
     requires client.ValidState()
     ensures client.ValidState()
-    ensures ret.Success? ==> |ret.value| == 32
   {
-    // TODO - Get hashing algorithm from algorithm suite
     var input := Prim.HMacInput (
-      digestAlgorithm := Prim.SHA_384,
-      key := EncodeAscii(TRUSS_COMMIT_KEY),
+      digestAlgorithm := alg.commitment.HKDF.hmac,
+      key := commitKey,
       message := data
     );
     var outputR := client.HMac(input);
     var output :- outputR.MapFailure(e => AwsCryptographyPrimitives(e));
-    if |output| != 48 then
-      Failure(E("SHA_384 did not produce 384 bits"))
+    if |output| < COMMITMENT_LEN then
+      Failure(E("HMAC did not produce enough bits"))
     else
-      Success(output[..32])
-  }
-
-  predicate method ByteLess(x : uint8, y : uint8)
-  {
-    x < y
+      Success(output[..COMMITMENT_LEN])
   }
 
   function method ToUInt16(x : nat)
@@ -274,11 +295,6 @@ module Header {
   {
     :- Need(x < UINT16_LIMIT, E("Value too big for 16 bits"));
     Success(x as uint16)
-  }
-
-  // string to Error
-  function method E(s : string) : Error {
-    StructuredEncryptionException(message := s)
   }
 
   function method MyMap<X, Y, Z>(f: X -> Y, m: map<X, Z>): map<Y, Z>
@@ -306,17 +322,17 @@ module Header {
     assert CountAuthAttrs(data) == |authSchema|;
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //# The Encrypt Legend Bytes MUST be serialized as follows:
-    // 1. Order every authenticated attribute in the item by the Canoncial Path
+    // 1. Order every authenticated attribute in the item by the Canonical Path
     // 2. For each authenticated terminal, in order,
     // append one of the byte values specified above to indicate whether
     // that field should be encrypted.
-    :- Need(forall x <- schema.content.SchemaMap.Keys :: Paths.ValidString(x), E("bad attribute name"));
+    :- Need(forall x <- schema.content.SchemaMap.Keys :: ValidString(x), E("bad attribute name"));
     Paths.SimpleCanonUnique(tableName);
     var fn := k => Paths.SimpleCanon(tableName, k);
     MapKeepsCount(authSchema, k => Paths.SimpleCanon(tableName, k));
     var canonSchema := MyMap(fn, authSchema);
     assert |authSchema| == |canonSchema|;
-    var attrs := ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);
+    var attrs := Sets.ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);
     MakeLegend2(attrs, canonSchema)
   }
 
@@ -337,7 +353,7 @@ module Header {
       Success(serialized)
     else
       :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
-      :- Need(data[attrs[0]].content.Action?, E("Scema must be flat"));
+      :- Need(data[attrs[0]].content.Action?, E("Schema must be flat"));
       var legendChar := GetActionLegend(data[attrs[0]].content.Action);
       MakeLegend2(attrs[1..], data, serialized + [legendChar])
   }
@@ -367,25 +383,12 @@ module Header {
     }
   }
 
-  // attibute is "authorized", a.k.a. included in the signature
-  predicate method IsAuthAttr(x : CryptoAction)
-  {
-    x.ENCRYPT_AND_SIGN? || x.SIGN_ONLY?
-  }
-
-  // Is the CryptoSchemaMap flat, i.e., does it contain only Actions?
-  function method CryptoSchemaMapIsFlat(data : CryptoSchemaMap) : (ret : bool)
-    ensures ret ==> (forall v <- data.Values :: v.content.Action?)
-  {
-    forall v <- data.Values :: v.content.Action? 
-  }
-
   // How many elements of Schema are included in the signature?
   function CountAuthAttrs(data : CryptoSchemaMap)
     : nat
     requires forall x <- data.Values :: x.content.Action?
   {
-    |map k <- data.Keys | IsAuthAttr(data[k].content.Action) :: k := data[k]|
+    |set k <- data.Keys | IsAuthAttr(data[k].content.Action) :: k|
   }
 
   // Legend to Bytes
@@ -418,6 +421,7 @@ module Header {
     var len := SeqToUInt16(data[0..2]);
     var size := len as nat + 2;
     :- Need(size <= |data|, E("Unexpected end of header data."));
+    :- Need(forall x <- data[2..size] :: ValidLegendByte(x), E("Invalid byte in stored legend"));
     Success((data[2..size], size))
   }
 
@@ -447,22 +451,22 @@ module Header {
       && 2 <= |data|
       && var keylen := SeqToUInt16(data[0..2]) as nat;
       && keylen + 4 <= |data|
-      && ValidUTF8Seq(data[2..keylen+2])
+      && UTF8.ValidUTF8Seq(data[2..keylen+2])
       && var valueLen := SeqToUInt16(data[keylen+2..keylen+4]) as nat;
       && keylen + valueLen + 4 <= |data|
-      && ValidUTF8Seq(data[keylen+4..keylen + valueLen + 4])
+      && UTF8.ValidUTF8Seq(data[keylen+4..keylen + valueLen + 4])
     ) <==> ret.Success? && SerializeOneKVPair(ret.value.0, ret.value.1) == data[..ret.value.2]
   {
     :- Need(2 <= |data|, E("Unexpected end of header data."));
     var keylen := SeqToUInt16(data[0..2]) as nat;
     :- Need(keylen + 4 <= |data|, E("Unexpected end of header data."));
     var key := data[2..keylen+2];
-    :- Need(ValidUTF8Seq(key), E("Invalid UTF8 found in header."));
+    :- Need(UTF8.ValidUTF8Seq(key), E("Invalid UTF8 found in header."));
     var valuelen := SeqToUInt16(data[keylen+2..keylen+4]) as nat;
     var kvLen := 2 + keylen + 2 + valuelen;
     :- Need(kvLen <= |data|, E("Unexpected end of header data."));
     var value := data[keylen+4..kvLen];
-    :- Need(ValidUTF8Seq(value), E("Invalid UTF8 found in header."));
+    :- Need(UTF8.ValidUTF8Seq(value), E("Invalid UTF8 found in header."));
     Success((key, value, kvLen))
   }
 
@@ -515,7 +519,7 @@ module Header {
     : (ret : Bytes)
     ensures
       && |ret| >= 2
-      && var keys := ComputeSetToOrderedSequence2(x.Keys, ByteLess);
+      && var keys := Sets.ComputeSetToOrderedSequence2(x.Keys, ByteLess);
       //= specification/structured-encryption/header.md#encryption-context
       //= type=implication
       //# The Encryption Context MUST be serialized as follows
@@ -528,7 +532,7 @@ module Header {
     //= specification/structured-encryption/header.md#key-value-pair-entries
     //# These entries MUST have entries sorted, by key,
     //# in ascending order according to the UTF-8 encoded binary value.
-    var keys := ComputeSetToOrderedSequence2(x.Keys, ByteLess);
+    var keys := Sets.ComputeSetToOrderedSequence2(x.Keys, ByteLess);
     UInt16ToSeq(|x| as uint16) + SerializeContext2(keys, x)
   }
 
@@ -596,7 +600,7 @@ module Header {
     var provIdSize := SeqToUInt16(data[0..2]) as nat;
     :- Need(provIdSize + 2 < |data|, E("Unexpected end of header data."));
     var provId := data[2..2+provIdSize];
-    :- Need(ValidUTF8Seq(provId), E("Invalid UTF8 found in header."));
+    :- Need(UTF8.ValidUTF8Seq(provId), E("Invalid UTF8 found in header."));
     var part1Size := 2 + provIdSize;
 
     :- Need(part1Size+2 <= |data|, E("Unexpected end of header data."));
@@ -759,11 +763,11 @@ module Header {
     var keylen := SeqToUInt16(data[0..2]) as nat;
     assert keylen + 4 <= |data|;
     assert data[2..keylen+2] == key;
-    assert ValidUTF8Seq(data[2..keylen+2]);
+    assert UTF8.ValidUTF8Seq(data[2..keylen+2]);
     var valueLen := SeqToUInt16(data[keylen+2..keylen+4]) as nat;
     assert keylen + valueLen + 4 <= |data|;
     assert data[keylen+4..keylen + valueLen + 4] == value;
-    assert ValidUTF8Seq(data[keylen+4..keylen + valueLen + 4]);
+    assert UTF8.ValidUTF8Seq(data[keylen+4..keylen + valueLen + 4]);
   }
   
   // GetOneKVPair ==> SerializeOneKVPair
@@ -812,12 +816,12 @@ module Header {
       assert(keylen + 4 <= |y|);
       var key := y[2..keylen+2];
       assert x[2..keylen+2] == y[2..keylen+2];
-      assert(ValidUTF8Seq(key));
+      assert(UTF8.ValidUTF8Seq(key));
       var valuelen := SeqToUInt16(y[keylen+2..keylen+4]) as nat;
       var kvLen := 2 + keylen + 2 + valuelen;
       assert kvLen <= |y|;
       var value := y[keylen+4..kvLen];
       assert x[keylen+4..kvLen] == y[keylen+4..kvLen];
-      assert ValidUTF8Seq(value);
+      assert UTF8.ValidUTF8Seq(value);
     }
 }

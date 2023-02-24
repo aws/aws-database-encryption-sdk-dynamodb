@@ -2,23 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "Util.dfy"
 
 // The only entry point currently used is SimpleCanon
 // which converts a top level terminal to its canonical form
 
-module Paths {
+module StructuredEncryptionPaths {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import UTF8
-
-  type Bytes = seq<uint8>
-  type GoodString = x : string | ValidString(x)
-  predicate method ValidString(x : string)
-  {
-    && |x| <  UINT64_LIMIT
-    && UTF8.Encode(x).Success?
-  }
+  import opened StructuredEncryptionUtil
 
   datatype Selector =
     | List(pos : uint64)
@@ -33,7 +26,7 @@ module Paths {
   {
     // Return the Canonical Path for this part of an item in this table
     function method canonicalPath(table : GoodString)
-      : (ret : Bytes)
+      : (ret : CanonicalPath)
       requires 0 < |parts|
       ensures ret ==
           //= specification/structured-encryption/header.md#canoncial-path
@@ -47,17 +40,17 @@ module Paths {
           //= specification/structured-encryption/header.md#canoncial-path
           //= type=implication
           //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
-        + CanonicalPath(parts)
+        + MakeCanonicalPath(parts)
     {
       var tableName := UTF8.Encode(table).value;
       var depth := UInt64ToSeq(|parts| as uint64);
-      var path := CanonicalPath(parts);
+      var path := MakeCanonicalPath(parts);
       tableName + depth + path
     }
   }
 
   function method SimpleCanon(table : GoodString, attr : GoodString)
-    : Bytes
+    : CanonicalPath
   {
     TerminalLocation([Map(attr)]).canonicalPath(table)
   }
@@ -85,13 +78,13 @@ module Paths {
   }
 
   // get the Canonical Path for these Selectors
-  function method {:tailrecursion} CanonicalPath(src : SelectorList)
-   : Bytes
+  function method {:tailrecursion} MakeCanonicalPath(src : SelectorList)
+   : CanonicalPath
   {
     if |src| == 0 then
       []
     else
-      CanonicalPart(src[0]) + CanonicalPath(src[1..])
+      CanonicalPart(src[0]) + MakeCanonicalPath(src[1..])
   }
 
 // End code, begin lemmas. 
@@ -123,7 +116,7 @@ module Paths {
 
   lemma OnePart(src : SelectorList)
     requires |src| == 1
-    ensures CanonicalPath(src) == CanonicalPart(src[0])
+    ensures MakeCanonicalPath(src) == CanonicalPart(src[0])
   {}
 
   lemma SubstrNE<T>(x : seq<T>, y : seq<T>, len : nat)
@@ -172,5 +165,4 @@ module Paths {
       }
     }
   }
-
 }

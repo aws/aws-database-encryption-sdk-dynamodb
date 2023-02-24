@@ -2,21 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
-include "./SetSort.dfy"
 
 module DynamoToStruct {
 
-  import AwsCryptographyDynamoDbItemEncryptorTypes
   import opened ComAmazonawsDynamodbTypes
   import opened AwsCryptographyStructuredEncryptionTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import AwsCryptographyDynamoDbItemEncryptorTypes
   import UTF8
-  import Set
+  import Sets
   import Seq
-  import opened Seq.MergeSort
-  import opened Relations
+  import SE = StructuredEncryptionUtil
 
   type Error = AwsCryptographyDynamoDbItemEncryptorTypes.Error
 
@@ -242,7 +240,7 @@ module DynamoToStruct {
     const NULL       : TerminalTypeId := [TERM_T, NULL_T];
     const STRING     : TerminalTypeId := [TERM_T, STRING_T];
     const NUMBER     : TerminalTypeId := [TERM_T, NUMBER_T];
-    const BINARY     : TerminalTypeId := [BINARY_T, BINARY_T]; // Really : BINARY_T not TERM_T
+    const BINARY     : TerminalTypeId := SE.BYTES_TYPE_ID;
     const BOOLEAN    : TerminalTypeId := [TERM_T, BOOLEAN_T];
     const STRING_SET : TerminalTypeId := [SET_T,  STRING_T];
     const NUMBER_SET : TerminalTypeId := [SET_T,  NUMBER_T];
@@ -266,24 +264,9 @@ module DynamoToStruct {
     }
   }
 
-  type AttrNameAndSerializedValue = (AttributeName, seq<uint8>)
-
   predicate method CharLess(x : char, y : char) {
     x < y
   }
-
-  predicate method AttrLexicographicLessOrEqual(x : AttrNameAndSerializedValue, y : AttrNameAndSerializedValue) {
-    LexicographicLessOrEqual(x.0, y.0, CharLess)
-  }
-  
-/*
-  We know this is a total order, because LexicographicLessOrEqual on strings is a total order
-  TODO - actually prove it
-
-  I am assured that a solution to this will be pushed to the Dafny standard library by December 9th.
-*/
-  lemma {:axiom} AttrLexicographicLessOrEqualIsTotal()
-    ensures TotalOrdering(AttrLexicographicLessOrEqual)
 
   // convert AttributeValue to byte sequence
   // if `prefix` is true, prefix sequence with TypeID and Length
@@ -519,12 +502,11 @@ module DynamoToStruct {
         //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
         //# A Map MAY hold any DynamoDB Attribute Value data type,
         //# and MAY hold values of different types.
-       var bytes := map kv <- m.Items | true :: kv.0 := AttrToBytes(kv.1, true);
+        var bytes := map kv <- m.Items | true :: kv.0 := AttrToBytes(kv.1, true);
         var bytes :- SimplifyMapValue(bytes);
-        AttrLexicographicLessOrEqualIsTotal();
-        var sset := Set.Sort.SortSet(bytes.Items, AttrLexicographicLessOrEqual);
+        var keys := Sets.ComputeSetToOrderedSequence2(bytes.Keys, CharLess);
         var count :- U32ToBigEndian(|m|);
-        var body :- CollectMap(sset);
+        var body :- CollectMap(keys, bytes);
         Success(count + body)
      case L(l) =>
         var count :- U32ToBigEndian(|l|);
@@ -595,7 +577,7 @@ module DynamoToStruct {
     Success(len + val)
   }
   // String Set or Number Set to Bytes
-  function method {:tailrecursion} CollectString(
+  function method {:tailrecursion} {:opaque} CollectString(
     setToSerialize : StringSetAttributeValue,
     serialized : seq<uint8> := []) 
     : Result<seq<uint8>, string>
@@ -665,7 +647,13 @@ module DynamoToStruct {
   //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-value
   //# A List MAY hold any DynamoDB Attribute Value data type,
   //# and MAY hold values of different types.
-  function method CollectList(listToSerialize : ListAttributeValue, serialized : seq<uint8> := []) : Result<seq<uint8>, string>
+  function method {:opaque} CollectList(
+    listToSerialize : ListAttributeValue,
+    serialized : seq<uint8> := []
+  )
+    : (ret : Result<seq<uint8>, string>)
+    ensures (ret.Success? && |listToSerialize| == 0) ==> (ret.value == serialized)
+    ensures (ret.Success? && |listToSerialize| == 0) ==> (|ret.value| == |serialized|)
   {
     if |listToSerialize| == 0 then
       Success(serialized)
@@ -674,7 +662,7 @@ module DynamoToStruct {
       CollectList(listToSerialize[1..], serialized + val)
   }
 
-  function method SerializeMapItem(a : AttrNameAndSerializedValue) : (ret : Result<seq<uint8>, string>)
+  function method SerializeMapItem(key : string, value : seq<uint8>) : (ret : Result<seq<uint8>, string>)
     
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-type
     //= type=implication
@@ -686,22 +674,22 @@ module DynamoToStruct {
     ensures ret.Success? ==>
       && |ret.value| >= TYPEID_LEN
       && ret.value[0..TYPEID_LEN] == STRING
-      && UTF8.Encode(a.0).Success?
-      && |ret.value| == TYPEID_LEN + LENGTH_LEN + |UTF8.Encode(a.0).value| + |a.1|
-      && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(a.0).value|]).Success?
-      && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(a.0).value|]).value == a.0
+      && UTF8.Encode(key).Success?
+      && |ret.value| == TYPEID_LEN + LENGTH_LEN + |UTF8.Encode(key).value| + |value|
+      && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(key).value|]).Success?
+      && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(key).value|]).value == key
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-length
     //= type=implication
     //# Key Length MUST be a non-zero big-endian unsigned integer
     //# equal to the length of [Map Key](#map-key).
     ensures ret.Success? ==>
-      && UTF8.Encode(a.0).Success?
-      && U32ToBigEndian(|UTF8.Encode(a.0).value|).Success?
+      && UTF8.Encode(key).Success?
+      && U32ToBigEndian(|UTF8.Encode(key).value|).Success?
       && |ret.value| >= TYPEID_LEN+LENGTH_LEN
-      && ret.value[TYPEID_LEN..TYPEID_LEN+LENGTH_LEN] == U32ToBigEndian(|UTF8.Encode(a.0).value|).value
+      && ret.value[TYPEID_LEN..TYPEID_LEN+LENGTH_LEN] == U32ToBigEndian(|UTF8.Encode(key).value|).value
 
   {
-      var name :- UTF8.Encode(a.0);
+      var name :- UTF8.Encode(key);
       assert UTF8.Decode(name).Success?;
       var len :- U32ToBigEndian(|name|);
 
@@ -716,20 +704,27 @@ module DynamoToStruct {
       //# | Value Length | 4        |
       //# | Map Value    | Variable |
 
-      var serialized := STRING + len + name + a.1;
-      assert |serialized| == TYPEID_LEN + LENGTH_LEN + |name| + |a.1|;
+      var serialized := STRING + len + name + value;
+      assert |serialized| == TYPEID_LEN + LENGTH_LEN + |name| + |value|;
       Success(serialized)
   }
   // Map to Bytes
   // input sequence is already serialized
-  function method {:tailrecursion} CollectMap(mapToSerialize : seq<AttrNameAndSerializedValue>, serialized : seq<uint8> := []) : Result<seq<uint8>, string>
-    requires IsSorted(mapToSerialize, AttrLexicographicLessOrEqual)
+  function method {:tailrecursion} {:opaque} CollectMap(
+    keys : seq<AttributeName>,
+    mapToSerialize : map<AttributeName, seq<uint8>>,
+    serialized : seq<uint8> := []
+  )
+    : (ret : Result<seq<uint8>, string>)
+    requires forall k <- keys :: k in mapToSerialize
+    ensures (ret.Success? && |keys| == 0) ==> (ret.value == serialized)
+    ensures (ret.Success? && |keys| == 0) ==> (|ret.value| == |serialized|)
   {
-    if |mapToSerialize| == 0 then
+    if |keys| == 0 then
       Success(serialized)
     else
-      var data :- SerializeMapItem(mapToSerialize[0]);
-      CollectMap(mapToSerialize[1..], serialized + data)
+      var data :- SerializeMapItem(keys[0], mapToSerialize[keys[0]]);
+      CollectMap(keys[1..], mapToSerialize, serialized + data)
   }
   
   function method BoolToUint8(b : bool) : uint8

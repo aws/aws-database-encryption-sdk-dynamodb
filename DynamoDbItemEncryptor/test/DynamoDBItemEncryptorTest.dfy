@@ -18,6 +18,7 @@ module DynamoDbItemEncryptorTest {
   import TestFixtures
   import AwsCryptographyDynamoDbItemEncryptorOperations
   import CSE = AwsCryptographyStructuredEncryptionTypes
+  import SE = StructuredEncryptionUtil
 
   // round trip
   // encrypt => ecrypted fields changed, others did not
@@ -60,7 +61,7 @@ module DynamoDbItemEncryptorTest {
     var encryptor := TestFixtures.GetDynamoDbItemEncryptor();
     var inputItem := map[
       "bar" := DDBS("key"),
-      "encrypt" := DDBS(TestFixtures.TEST_STRING_TO_ENCRYPT),
+      "encrypt" := DDBS("text"),
       "sign" := DDBS("bar"),
       "nothing" := DDBS("baz")
     ];
@@ -71,16 +72,15 @@ module DynamoDbItemEncryptorTest {
       )
     );
 
-    // Ensure the "encrypted" attribute is as expected
-    var expectedItem := map[
-      "bar" := DDBS("key"),
-      "encrypt" := DDBS(TestFixtures.TEST_FAKE_ENCRYPTED_STRING),
-      "sign" := DDBS("bar"),
-      "nothing" := DDBS("baz")
-    ];
-
+    if encryptRes.Failure? {
+      print "\n\n", encryptRes, "\n\n";
+    }
     expect encryptRes.Success?;
-    expect encryptRes.value.encryptedItem - {"aws_ddb_head"} == expectedItem;
+    expect encryptRes.value.encryptedItem.Keys == inputItem.Keys + {SE.HeaderField, SE.FooterField};
+    expect encryptRes.value.encryptedItem["bar"] == inputItem["bar"];
+    expect encryptRes.value.encryptedItem["encrypt"] != inputItem["encrypt"];
+    expect encryptRes.value.encryptedItem["sign"] == inputItem["sign"];
+    expect encryptRes.value.encryptedItem["nothing"] == inputItem["nothing"];
 
     var decryptRes := encryptor.DecryptItem(
       Types.DecryptItemInput(
@@ -89,6 +89,6 @@ module DynamoDbItemEncryptorTest {
     );
 
     expect decryptRes.Success?;
-    expect decryptRes.value.plaintextItem  - {"aws_ddb_head"} == inputItem;
+    expect decryptRes.value.plaintextItem == inputItem;
   }
 }

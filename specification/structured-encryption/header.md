@@ -9,14 +9,14 @@ in order to store metadata on its encryption.
 
 ## Header Index
 
-The header MUST exist at string index "aws-dbe-head" for
+The header MUST exist at string index "aws_dbe_head" for
 encrypted [Structured Data](./structures.md#structured-data).
 
 ## Header Format
 
-The [Terminal Type ID](./structures.md#terminal-type-id) MUST be `0xFF 0xFF`.
+### Partial Header
 
-The [Terminal Value](./structures.md#terminal-value) of the header MUST be
+The Partial Header MUST be
 
 | Length (bytes) | Meaning |
 |---|---|
@@ -26,6 +26,14 @@ The [Terminal Value](./structures.md#terminal-value) of the header MUST be
 | Variable | [Encrypt Legend](#encrypt-legend) |
 | Variable | [Encryption Context](#encryption-context) |
 | Variable | [Encrypted Data Keys](#encrypted-data-keys) |
+
+### Header Value
+
+The [Terminal Value](./structures.md#terminal-value) of the header MUST be
+
+| Length (bytes) | Meaning |
+|---|---|
+| Variable | [Partial Header](#partial-header) |
 | 32 | [Header Commitment](#header-commitment) |
 
 ### Format Version
@@ -99,12 +107,10 @@ This MUST be followed by the depth of the Terminal within Structured Data.
 
 This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
 
-For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
+For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF-8),
+followed by the numerical index.
 
 For Structured Data in Structured Data Maps, this MUST be a 0x24 byte ($ in UTF-8),
-followed by the length of the key, followed by the key as a UTF8 string.
-
-For Attributes on Structured Data, this MUST be a 0x40 byte (@ in UTF-8),
 followed by the length of the key, followed by the key as a UTF8 string.
 
 ### Encryption Context
