@@ -353,7 +353,7 @@ module StructuredEncryptionHeader {
       Success(serialized)
     else
       :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
-      :- Need(data[attrs[0]].content.Action?, E("Scema must be flat"));
+      :- Need(data[attrs[0]].content.Action?, E("Schema must be flat"));
       var legendChar := GetActionLegend(data[attrs[0]].content.Action);
       MakeLegend2(attrs[1..], data, serialized + [legendChar])
   }

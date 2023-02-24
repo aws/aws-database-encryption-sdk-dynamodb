@@ -577,7 +577,7 @@ module DynamoToStruct {
     Success(len + val)
   }
   // String Set or Number Set to Bytes
-  function method {:tailrecursion} CollectString(
+  function method {:tailrecursion} {:opaque} CollectString(
     setToSerialize : StringSetAttributeValue,
     serialized : seq<uint8> := []) 
     : Result<seq<uint8>, string>
