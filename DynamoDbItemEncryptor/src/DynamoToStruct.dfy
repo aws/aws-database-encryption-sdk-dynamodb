@@ -12,7 +12,7 @@ module DynamoToStruct {
   import opened StandardLibrary.UInt
   import AwsCryptographyDynamoDbItemEncryptorTypes
   import UTF8
-  import Sets
+  import SortedSets
   import Seq
   import SE = StructuredEncryptionUtil
 
@@ -504,7 +504,7 @@ module DynamoToStruct {
         //# and MAY hold values of different types.
         var bytes := map kv <- m.Items | true :: kv.0 := AttrToBytes(kv.1, true);
         var bytes :- SimplifyMapValue(bytes);
-        var keys := Sets.ComputeSetToOrderedSequence2(bytes.Keys, CharLess);
+        var keys := SortedSets.ComputeSetToOrderedSequence2(bytes.Keys, CharLess);
         var count :- U32ToBigEndian(|m|);
         var body :- CollectMap(keys, bytes);
         Success(count + body)
