@@ -334,7 +334,7 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
-    //# Binary SortedSets MUST NOT contain duplicate entries.
+    //# Binary Sets MUST NOT contain duplicate entries.
     ensures a.BS? && ret.Success? ==> Seq.HasNoDuplicates(a.BS)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set
@@ -371,8 +371,8 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
-    //# String SortedSets MUST NOT contain duplicate entries.
-    // Other implications for Binary SortedSets apply here too
+    //# String Sets MUST NOT contain duplicate entries.
+    // Other implications for Binary Sets apply here too
     ensures a.SS? && ret.Success? ==> Seq.HasNoDuplicates(a.SS)
 
     ensures a.SS? && ret.Success? && !prefix ==>
@@ -388,8 +388,8 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
-    //# Number SortedSets MUST NOT contain duplicate entries.
-    // Other implications for Binary SortedSets apply here too
+    //# Number Sets MUST NOT contain duplicate entries.
+    // Other implications for Binary Sets apply here too
     ensures a.NS? && ret.Success? ==> Seq.HasNoDuplicates(a.NS)
 
     ensures a.NS? && ret.Success? && !prefix ==>
@@ -564,7 +564,7 @@ module DynamoToStruct {
 
   function method EncodeString(s : string) : (ret : Result<seq<uint8>, string>)
     // The Duvet implications set-entries and set-entry-length mentioned in SerializeBinaryValue
-    // are also implied here for String SortedSets and Number SortedSets
+    // are also implied here for String Sets and Number Sets
     ensures ret.Success? ==>
       && UTF8.Encode(s).Success?
       && U32ToBigEndian(|UTF8.Encode(s).value|).Success?
