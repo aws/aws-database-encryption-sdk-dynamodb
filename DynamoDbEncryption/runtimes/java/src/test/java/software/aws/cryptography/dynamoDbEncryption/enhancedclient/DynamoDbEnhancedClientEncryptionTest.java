@@ -20,7 +20,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.TEST_TABLE_NAME;
-import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createStaticKeyring;
+import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createKmsKeyring;
 
 public class DynamoDbEnhancedClientEncryptionTest {
     @Test
@@ -30,13 +30,13 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put("SimpleClassTestTable",
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
                         .build());
         tableConfigs.put("SignOnlyClassTestTable",
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .tableSchema(signOnlySchema)
                         .build());
         DynamoDbEncryptionInterceptor interceptor =
@@ -72,7 +72,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
                         .legacyConfig(
@@ -103,7 +103,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
                         .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
@@ -123,7 +123,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
@@ -143,7 +143,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());
         Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
@@ -158,7 +158,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs2 = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing", "partition_key"))
                         .tableSchema(tableSchema)
                         .build());
@@ -177,7 +177,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
@@ -195,7 +195,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {

@@ -110,13 +110,13 @@ module TestFixtures {
     ensures fresh(cmm.Modifies); 
   {
     var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
-    var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMrkMultiKeyringInput(
+    var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMultiKeyringInput(
       generator := Some(PUBLIC_US_WEST_2_KMS_TEST_KEY),
       kmsKeyIds := None(),
       clientSupplier := None(),
       grantTokens := None()
     );
-    var keyring :- expect matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
+    var keyring :- expect matProv.CreateAwsKmsMultiKeyring(keyringInput);
     var cmmInput := AwsCryptographyMaterialProvidersTypes.CreateDefaultCryptographicMaterialsManagerInput(
       keyring := keyring
     );

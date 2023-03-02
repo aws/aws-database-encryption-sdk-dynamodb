@@ -70,7 +70,7 @@ public class DynamoDbItemConversionIntegrationTests {
         item.put("Mattr", AttributeValue.fromM(mValue));
         item.put("Mattr-empty", AttributeValue.fromM(Collections.EMPTY_MAP));
 
-        DynamoDbEncryptionInterceptor interceptor = createInterceptor(actions, Arrays.asList(TEST_ATTR2_NAME), createStaticKeyring());
+        DynamoDbEncryptionInterceptor interceptor = createInterceptor(actions, Arrays.asList(TEST_ATTR2_NAME), createKmsKeyring());
         DynamoDbClient ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()

@@ -11,6 +11,24 @@ module TestFixtures {
   import Types = AwsCryptographyDynamoDbItemEncryptorTypes
   import DynamoDbItemEncryptor
   import CTypes = AwsCryptographyStructuredEncryptionTypes
+  
+  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+
+  method GetKmsKeyring()
+      returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
+    ensures keyring.ValidState()
+    ensures fresh(keyring)
+    ensures fresh(keyring.Modifies)
+  {
+    var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
+    var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMultiKeyringInput(
+      generator := Some(PUBLIC_US_WEST_2_KMS_TEST_KEY),
+      kmsKeyIds := None(),
+      clientSupplier := None(),
+      grantTokens := None()
+    );
+    keyring :- expect matProv.CreateAwsKmsMultiKeyring(keyringInput);
+  }
 
   method GetStaticKeyring()
       returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
@@ -34,7 +52,7 @@ module TestFixtures {
   }
 
   method GetEncryptorConfig() returns (output : Types.DynamoDbItemEncryptorConfig) {
-    var keyring := GetStaticKeyring();
+    var keyring := GetKmsKeyring();
     output := Types.DynamoDbItemEncryptorConfig(
       tableName := "foo",
       partitionKeyName := "bar",
@@ -54,7 +72,7 @@ module TestFixtures {
     ensures fresh(encryptor)
     ensures fresh(encryptor.Modifies)
   {
-    var keyring := GetStaticKeyring();
+    var keyring := GetKmsKeyring();
     var encryptorConfig := Types.DynamoDbItemEncryptorConfig(
       tableName := config.tableName,
       partitionKeyName := config.partitionKeyName,
