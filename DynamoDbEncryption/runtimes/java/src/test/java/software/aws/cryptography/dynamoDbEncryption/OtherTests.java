@@ -73,6 +73,8 @@ public class OtherTests {
         assertEquals(1, out.versionCreated());
     }
 
+    // TODO reintroduce once the branch key supplier is added back to the Hierarchical Keyring
+    /*
     @Test
     public void TestBuildHierarchyKeyringInvalidConfig() {
         MaterialProviders matProv = MaterialProviders.builder()
@@ -88,10 +90,10 @@ public class OtherTests {
                     .kmsClient(AWSKMSClientBuilder.defaultClient())
                     .kmsKeyId(KMS_TEST_KEY_ID)
                     .branchKeyId("foo")
-                    .branchKeySupplier(branchKeySupplier)
-                    .branchKeysTableName("branch-keys-table")
+                    //.branchKeySupplier(branchKeySupplier)
+                    .branchKeyStoreArn("branch-keys-table")
                     .ddbClient(DynamoDbClient.create())
-                    .ttlMilliseconds(6000l)
+                    .ttlSeconds(6000l)
                     .maxCacheSize(100)
                     .build();
         });
@@ -101,9 +103,9 @@ public class OtherTests {
             CreateAwsKmsHierarchicalKeyringInput.builder()
                     .kmsClient(AWSKMSClientBuilder.defaultClient())
                     .kmsKeyId(KMS_TEST_KEY_ID)
-                    .branchKeysTableName("branch-keys-table")
+                    .branchKeyStoreArn("branch-keys-table")
                     .ddbClient(DynamoDbClient.create())
-                    .ttlMilliseconds(6000l)
+                    .ttlSeconds(6000l)
                     .maxCacheSize(100)
                     .build();
         });
@@ -115,23 +117,24 @@ public class OtherTests {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
-        BranchKeySupplier branchKeySupplier = matProv.CreateDynamoDbEncryptionBranchKeySupplier(
-                CreateDynamoDbEncryptionBranchKeySupplierInput.builder()
-                        .branchKeyFromItemSupplier(new TestSupplier())
-                        .build());
+        // BranchKeySupplier branchKeySupplier = matProv.CreateDynamoDbEncryptionBranchKeySupplier(
+        //         CreateDynamoDbEncryptionBranchKeySupplierInput.builder()
+        //                 .branchKeyFromItemSupplier(new TestSupplier())
+        //                 .build());
 
         CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
                 .kmsClient(AWSKMSClientBuilder.defaultClient())
                 .kmsKeyId(KMS_TEST_KEY_ID)
-                .branchKeySupplier(branchKeySupplier)
-                .branchKeysTableName("branch-keys-table")
+                //.branchKeySupplier(branchKeySupplier)
+                .branchKeyStoreArn("branch-keys-table")
                 .ddbClient(DynamoDbClient.create())
-                .ttlMilliseconds(6000l)
+                .ttlSeconds(6000l)
                 .maxCacheSize(100)
                 .build();
         Keyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
         assertNotNull(keyring);
     }
+     */
 
     @Test
     public void TestBuildEncryptDecryptAwsKmsRsaKeyring() {

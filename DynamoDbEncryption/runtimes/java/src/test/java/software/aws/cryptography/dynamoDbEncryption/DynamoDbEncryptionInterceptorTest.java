@@ -25,7 +25,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @BeforeAll
     public static void setup() {
-        interceptor = createInterceptor(createStaticKeyring());
+        interceptor = createInterceptor(createKmsKeyring());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class DynamoDbEncryptionInterceptorTest {
                 .partitionKeyName(TEST_PARTITION_NAME)
                 .sortKeyName(TEST_SORT_NAME)
                 .attributeActions(actions)
-                .keyring(createStaticKeyring())
+                .keyring(createKmsKeyring())
                 .legacyConfig(
                     LegacyConfig.builder()
                         .legacyEncryptor(LegacyDynamoDbItemEncryptor.builder()
@@ -401,7 +401,7 @@ public class DynamoDbEncryptionInterceptorTest {
         List<String> allowedUnauth = Arrays.asList(TEST_ATTR_NAME);
 
         Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
-            createInterceptor(actions, allowedUnauth, createStaticKeyring());
+            createInterceptor(actions, allowedUnauth, createKmsKeyring());
         });
         assertTrue(exception.getMessage().contains("Partition key attribute action MUST be SIGN_ONLY"));
     }
@@ -415,7 +415,7 @@ public class DynamoDbEncryptionInterceptorTest {
         List<String> allowedUnauth = Arrays.asList(TEST_ATTR_NAME);
 
         Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
-            createInterceptor(actions, allowedUnauth, createStaticKeyring());
+            createInterceptor(actions, allowedUnauth, createKmsKeyring());
         });
         assertTrue(exception.getMessage().contains("Sort key attribute action MUST be SIGN_ONLY"));
     }
@@ -429,14 +429,14 @@ public class DynamoDbEncryptionInterceptorTest {
         List<String> allowedUnauth = Arrays.asList();
 
         Exception exception = assertThrows(DynamoDbItemEncryptorException.class, () -> {
-            createInterceptor(actions, allowedUnauth, createStaticKeyring());
+            createInterceptor(actions, allowedUnauth, createKmsKeyring());
         });
         assertTrue(exception.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_ATTR_NAME)));
 
         List<String> allowedUnauth2 = Arrays.asList(TEST_ATTR_NAME, TEST_SORT_NAME);
 
         Exception exception2 = assertThrows(DynamoDbItemEncryptorException.class, () -> {
-            createInterceptor(actions, allowedUnauth2, createStaticKeyring());
+            createInterceptor(actions, allowedUnauth2, createKmsKeyring());
         });
         assertTrue(exception2.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_SORT_NAME)));
     }

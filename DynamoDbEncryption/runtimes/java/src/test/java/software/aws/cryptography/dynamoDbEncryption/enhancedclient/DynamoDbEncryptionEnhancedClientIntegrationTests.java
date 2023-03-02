@@ -25,7 +25,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .keyring(createStaticKeyring())
+                        .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(tableSchema)
                         .build());

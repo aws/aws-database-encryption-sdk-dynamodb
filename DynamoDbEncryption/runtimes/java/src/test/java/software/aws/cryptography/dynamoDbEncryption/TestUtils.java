@@ -1,5 +1,6 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
+import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -39,6 +40,17 @@ public class TestUtils {
         return matProv.CreateRawAesKeyring(keyringInput);
     }
 
+    public static IKeyring createKmsKeyring() {
+        MaterialProviders matProv = MaterialProviders.builder()
+                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+                .build();
+        CreateAwsKmsKeyringInput keyringInput = CreateAwsKmsKeyringInput.builder()
+                .kmsKeyId(KMS_TEST_KEY_ID)
+                .kmsClient(AWSKMSClientBuilder.defaultClient())
+                .build();
+        return matProv.CreateAwsKmsKeyring(keyringInput);
+    }
+
     public static IKeyring createHierarchicalKeyring() {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
@@ -49,9 +61,9 @@ public class TestUtils {
                 .kmsClient(AWSKMSClientBuilder.defaultClient())
                 .kmsKeyId(KMS_TEST_KEY_ID)
                 .branchKeyId("guid")
-                .branchKeysTableName("branch-keys-table")
+                .branchKeyStoreArn("branch-keys-table")
                 .ddbClient(DynamoDbClient.create())
-                .ttlMilliseconds(6000l)
+                .ttlSeconds(6000l)
                 .maxCacheSize(100)
                 .build();
         return matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
