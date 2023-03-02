@@ -31,6 +31,7 @@ module StructuredEncryptionFooter {
   import Prim = AwsCryptographyPrimitivesTypes
   import UTF8
   import Digest
+  import StandardLibrary.String
 
   const RecipientTagSize := 48
   //const SignatureSize := 96
@@ -324,7 +325,7 @@ module StructuredEncryptionFooter {
       var sigR := client.ECDSASign(verInput);
       var sig :- sigR.MapFailure(e => AwsCryptographyPrimitives(e));
       //assert |sig| == SignatureSize;
-      :- Need(|sig| == SignatureSize, E("Signature is the wrong size."));
+      :- Need(|sig| == SignatureSize, E("Signature is " + String.Base10Int2String(|sig|) + " bytes, should have been " + String.Base10Int2String(SignatureSize) + " bytes."));
       return Success(Footer(tags, Some(sig)));
     } else {
       return Success(Footer(tags, None));
