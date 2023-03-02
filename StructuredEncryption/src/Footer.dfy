@@ -35,7 +35,7 @@ module StructuredEncryptionFooter {
 
   const RecipientTagSize := 48
   //const SignatureSize := 96
-  const SignatureSize := 48
+  const SignatureSize := 103
   type RecipientTag = x : Bytes | |x| == RecipientTagSize witness *
   type Signature = x : Bytes | |x| == SignatureSize witness *
 
@@ -45,7 +45,7 @@ module StructuredEncryptionFooter {
   // | Field | Length (bytes) | Interpreted as |
   // | ----- | -------------- | -------------- |
   // | [Recipient Tags](#recipient-tags) | Variable. 48 bytes per Encrypted Data Key in the header | Bytes |
-  // | [Signature](#signature) | 0 or 48 | Signature, if signatures are enabled |
+  // | [Signature](#signature) | 0 or 103 | Signature, if signatures are enabled |
   datatype Footer = Footer (
     tags : seq<RecipientTag>,
     sig : Option<Signature>
@@ -363,11 +363,12 @@ module StructuredEncryptionFooter {
   function method DeserializeFooter(data : Bytes, hasSig : bool)
    : Result<Footer, Error>
   {
-    :- Need(|data| % RecipientTagSize == 0, E("Mangled footer has strange size"));
     if hasSig then
+      :- Need((|data| - SignatureSize)  % RecipientTagSize == 0, E("Mangled signed footer has strange size"));
       :- Need(|data| >= RecipientTagSize + SignatureSize, E("Footer too short."));
       Success(Footer(GatherTags(data[..|data|-SignatureSize]), Some(data[|data|-SignatureSize..])))
     else
+      :- Need(|data| % RecipientTagSize == 0, E("Mangled unsigned footer has strange size"));
       :- Need(|data| >= RecipientTagSize, E("Footer too short."));
       Success(Footer(GatherTags(data), None))
   }
