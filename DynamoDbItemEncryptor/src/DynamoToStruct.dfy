@@ -12,7 +12,7 @@ module DynamoToStruct {
   import opened StandardLibrary.UInt
   import AwsCryptographyDynamoDbItemEncryptorTypes
   import UTF8
-  import Sets
+  import SortedSets
   import Seq
   import SE = StructuredEncryptionUtil
 
@@ -334,7 +334,7 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
-    //# Binary Sets MUST NOT contain duplicate entries.
+    //# Binary SortedSets MUST NOT contain duplicate entries.
     ensures a.BS? && ret.Success? ==> Seq.HasNoDuplicates(a.BS)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set
@@ -371,8 +371,8 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
-    //# String Sets MUST NOT contain duplicate entries.
-    // Other implications for Binary Sets apply here too
+    //# String SortedSets MUST NOT contain duplicate entries.
+    // Other implications for Binary SortedSets apply here too
     ensures a.SS? && ret.Success? ==> Seq.HasNoDuplicates(a.SS)
 
     ensures a.SS? && ret.Success? && !prefix ==>
@@ -388,8 +388,8 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
-    //# Number Sets MUST NOT contain duplicate entries.
-    // Other implications for Binary Sets apply here too
+    //# Number SortedSets MUST NOT contain duplicate entries.
+    // Other implications for Binary SortedSets apply here too
     ensures a.NS? && ret.Success? ==> Seq.HasNoDuplicates(a.NS)
 
     ensures a.NS? && ret.Success? && !prefix ==>
@@ -504,7 +504,7 @@ module DynamoToStruct {
         //# and MAY hold values of different types.
         var bytes := map kv <- m.Items | true :: kv.0 := AttrToBytes(kv.1, true);
         var bytes :- SimplifyMapValue(bytes);
-        var keys := Sets.ComputeSetToOrderedSequence2(bytes.Keys, CharLess);
+        var keys := SortedSets.ComputeSetToOrderedSequence2(bytes.Keys, CharLess);
         var count :- U32ToBigEndian(|m|);
         var body :- CollectMap(keys, bytes);
         Success(count + body)
@@ -564,7 +564,7 @@ module DynamoToStruct {
 
   function method EncodeString(s : string) : (ret : Result<seq<uint8>, string>)
     // The Duvet implications set-entries and set-entry-length mentioned in SerializeBinaryValue
-    // are also implied here for String Sets and Number Sets
+    // are also implied here for String SortedSets and Number SortedSets
     ensures ret.Success? ==>
       && UTF8.Encode(s).Success?
       && U32ToBigEndian(|UTF8.Encode(s).value|).Success?
