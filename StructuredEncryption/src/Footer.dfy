@@ -252,7 +252,6 @@ module StructuredEncryptionFooter {
   }
 
   // return the footer value for the StructuredData
-  // TODO - signatures et al
   method CreateFooter(
     client: Primitives.AtomicPrimitivesClient,
     mat : CMP.EncryptionMaterials,

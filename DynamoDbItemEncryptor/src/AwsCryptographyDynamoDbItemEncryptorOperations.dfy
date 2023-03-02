@@ -108,16 +108,16 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context
     //= type=implication
     //# The DynamoDB Item Base Context MUST contain:
-    //# - the key `TODO:aws-crypto-table-name` with a value equal to the DynamoDB Table Name of the DynamoDB Table
+    //# - the key `aws-crypto-table-name` with a value equal to the DynamoDB Table Name of the DynamoDB Table
     //#   this item is stored in (or will be stored in).
-    //# - the key `TODO:aws-crypto-partition-name` with a value equal to the name of the Partition Key on this item.
-    //# - the key `TODO:aws-crypto-partition-value` with a value equal to this item's partition attribute,
+    //# - the key `aws-crypto-partition-name` with a value equal to the name of the Partition Key on this item.
+    //# - the key `aws-crypto-partition-value` with a value equal to this item's partition attribute,
     //#   serialized according to [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
     //#   and [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
     //# - If this item has a sort key attribute,
-    //#   the key `TODO:aws-crypto-sort-name` with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+    //#   the key `aws-crypto-sort-name` with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
     //# - If this item has a sort key attribute,
-    //#   the key `TODO:aws-crypto-sort-value` with a value equal to this item's sort attribute,
+    //#   the key `aws-crypto-sort-value` with a value equal to this item's sort attribute,
     //#   serialized according to [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
     //#   and [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
     ensures ret.Success? ==>
@@ -134,8 +134,8 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= type=implication
     //# If this item does not have a sort key attribute,
     //# the DynamoDB Item Context MUST NOT contain the keys
-    //# `TODO:aws-crypto-sort-name` or
-    //# `TODO:aws-crypto-sort-value`.
+    //# `aws-crypto-sort-name` or
+    //# `aws-crypto-sort-value`.
     ensures ret.Success? && config.sortKeyName.None? ==>
       && SORT_NAME !in ret.value
       && SORT_VALUE !in ret.value

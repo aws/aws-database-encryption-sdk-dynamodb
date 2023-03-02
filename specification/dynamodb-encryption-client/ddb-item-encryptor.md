@@ -25,7 +25,7 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 This document describes the behavior for the
 DynamoDB Item Encryptor.
 It is responsible for
-the encryption and decryption of [DynamoDB Items](#TODO-link-to-docs)
+the encryption and decryption of [DynamoDB Items](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithItems.html)
 for a particular DynamoDB Table.
 The DynamoDB Item Encryptor is publicly exposed and
 is used to directly encrypt or decrypt
@@ -112,9 +112,9 @@ that are not authenticated during decryption.
 
 ### Algorithm Suite
 
-The [algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md) that SHOULD be used for encryption.
+The [algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
 
-This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](#TODO-mpl-alg-suites).
+This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md).
 
 ## Operation
 
