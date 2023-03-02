@@ -14,6 +14,24 @@ module TestFixtures {
   import MaterialProviders
   import CSE = AwsCryptographyStructuredEncryptionTypes
 
+  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+
+  method GetKmsKeyring()
+      returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
+    ensures keyring.ValidState()
+    ensures fresh(keyring)
+    ensures fresh(keyring.Modifies)
+  {
+    var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
+    var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMultiKeyringInput(
+      generator := Some(PUBLIC_US_WEST_2_KMS_TEST_KEY),
+      kmsKeyIds := None(),
+      clientSupplier := None(),
+      grantTokens := None()
+    );
+    keyring :- expect matProv.CreateAwsKmsMultiKeyring(keyringInput);
+  }
+
   method GetStaticKeyring()
       returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
     ensures keyring.ValidState()
@@ -37,7 +55,7 @@ module TestFixtures {
     ensures fresh(encryption)
     ensures fresh(encryption.Modifies)
   {
-    var keyring := GetStaticKeyring();
+    var keyring := GetKmsKeyring();
     encryption :- expect DynamoDbEncryption.DynamoDbEncryption(
       DynamoDbEncryptionConfig(
         tableEncryptionConfigs := map[
