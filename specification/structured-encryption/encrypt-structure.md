@@ -31,6 +31,7 @@ and confidentiality is ensured over a (possibly empty) subset of that Terminal D
 
 The following inputs to this behavior are REQUIRED:
 
+- [Table Name](#table-name)
 - [Structured Data](#structured-data)
 - [Crypto Schema](#crypto-schema)
 - [Cryptographic Materials Manager (CMM)](#cmm)
@@ -39,6 +40,10 @@ The following inputs to this behavior MUST be OPTIONAL:
 
 - [Algorithm Suite](#algorithm-suite)
 - [Encryption Context](#encryption-context)
+
+### Table Name
+
+The name of the table to hold the encrypted record
 
 ### Structured Data
 
@@ -65,14 +70,14 @@ otherwise, this operation MUST yield an error.
 
 ### CMM
 
-A CMM that implements the [CMM interface](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md).
+A CMM that implements the [CMM interface](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md).
 
 ### Algorithm Suite
 
-The [algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md) that SHOULD be used for encryption.
+The [algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
 
 This algorithm suite MUST be a
-[supported suite for Database Encryption (DBE)](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum);
+[supported suite for Database Encryption (DBE)](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum);
 otherwise, this operation MUST yield an error.
 
 ### Encryption Context
@@ -80,7 +85,7 @@ otherwise, this operation MUST yield an error.
 See [encryption context](./structures.md#encryption-context).
 
 The prefix `aws-crypto-` is reserved for internal use by the AWS Encryption SDK; see the
-[the Default CMM spec](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/default-cmm.md)
+[the Default CMM spec](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/default-cmm.md)
 for one such use.
 
 If the input encryption context contains any entries with a key beginning with this prefix,
@@ -113,17 +118,17 @@ If any of these steps fails, this operation MUST halt and indicate a failure to 
 ### Retrieve Encryption Materials
 
 This operation MUST obtain a set of encryption materials by calling
-[Get Encryption Materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md#get-encryption-materials)
+[Get Encryption Materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
 on the input [CMM](#cmm).
 
 The call to Get Encryption Materials is constructed as follows:
 - Encryption Context: If provided, this MUST be the [input encryption context](#encryption-context);
   otherwise, this is an empty encryption context.
 - Commitment Policy: This MUST be
-  [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
+  [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
 - Algorithm Suite: If provided, this is the [input algorithm suite](#algorithm-suite);
   otherwise, this field MUST be the algorithm suite corresponding to the enum 
-  [DBE.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum).
+  [DBE.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 - Max Plaintext Length: This field MUST be the result of the calculation `encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize`
   - `encryptedTerminalDataNum` is the number of [Terminal Data](./structures.md#terminal-data)
     in the [input Structured Data](#structured-data) being encrypted,
@@ -131,14 +136,14 @@ The call to Get Encryption Materials is constructed as follows:
   - `totalEncryptedTerminalValuesSize` is the sum of the length of all [Terminal Values](./structures.md#terminal-value)
     in the [input Structured Data](#structured-data) being encrypted,
     as defined by the [input Crypto Schema](#crypto-schema).
-
+../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md
 The algorithm suite used in all aspects of this operation MUST be
 the algorithm suite in the
-[encryption materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/structures.md#encryption-materials)
+[encryption materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md#encryption-materials)
 returned from the Get Encryption Materials call.
 Note that the algorithm suite in the retrieved encryption materials MAY be different from the input algorithm suite.
 If this algorithm suite is not a
-[supported suite for Database Encryption (DBE)](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum),
+[supported suite for Database Encryption (DBE)](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum),
 this operation MUST yield an error.
 
 ### Calculate Intermediate Encrypted Structured Data
@@ -152,53 +157,61 @@ The calculations below REQUIRE generating a unique [Message ID](./header.md#mess
 The process used to generate this identifier MUST use a good source of randomness
 to make the chance of duplicate identifiers negligible.
 
-The calculations below also REQUIRE a [Field Root Key](#TODO-truss-key-wraping)
-that MUST be derived with the following specifics:
-- the KDF used to calculate the Field Root Key MUST be the 
-  [Encryption Key KDF](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
-  indicated by the algorithm suite.
-- the key input to the KDF MUST be the plaintext data key in the encryption materials.
-- the Message ID used in this calculation MUST be the Message ID generated for this Encrypted Structured Data
-- the calculated Field Root Key MUST have length equal to the
-  [algorithm suite's encryption key length](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
+The Intermediate Encryption Structured Data has the following specifics:
 
-The calculations below also REQUIRE a [Commitment Key](#TODO-truss-key-wraping)
-that MUST be derived with the following specifics:
-- the KDF used to calculate the Commitment Key MUST be the
-  [Commit Key KDF](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
-  indicated by the algorithm suite.
-- the key input to the KDF MUST be the plaintext data key in the encryption materials.
-- the Message ID used in the Commitment Key derivation MUST be the Message ID generated for this Encrypted Structured Data
-- the calculated Commitment Key MUST have length equal to the
-  [algorithm suite's encryption key length](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
+For every [input Terminal Data](./structures.md#terminal-data)
+in the [input Structured Data](#structured-data),
+a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
+in Intermediate Encrypted Structured Data,
+if the [Crypto Schema](#crypto-schema)
+indicates a [Crypto Action](./structures.md#crypto-action)
+other than [DO_NOTHING](./structures.md#DO_NOTHING).
 
-The Intermediate Encryption Structured Data MUST be calculated with the following specifics:
-- for every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data),
-  a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in Intermediate Encrypted Structured Data.
-  Each of these Terminal Data in the Intermediate Encrypted Structured Data MUST:
-  - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
-    of [SIGN_ONLY](./structures.md#signonly) or [DO_NOTHING](./structures.md#DO_NOTHING) for this Terminal Data,
-    this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
-    [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
-  - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
-    of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) for this Terminal Data,
-    this Terminal Data MUST be the [encryption](#terminal-data-encryption) of the input's Terminal Data.
-    of the input Terminal Data.
-- for every [Terminal Data](./structures.md#terminal-data) in the Intermediate Encrypted Structured Data
-  (except for the [header](./header.md)),
-  a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the [input Structured Data](#structured-data),
-- a [Terminal Data](./structures.md#terminal-data) with [Terminal Type ID](./structures.md#terminal-type-id) `0xFFFF` and
-  with [Terminal Value](./structures.md#terminal-value) equal to the [serialized header](./header.md)
-  MUST exist on the Intermediate Encrypted Structured Data, indexed at the top level by "aws_dbe_head".
-  The values of this header have the following requirements:
-  - Message Format Version MUST be `0x01`
-  - Message Format Flavor MUST [correspond to the algorithm suite](./header.md#format-flavor) used in this encryption.
-  - Message ID: MUST be the Message ID generated for this Encrypted Structured Data.
-  - Encrypt Legend: MUST be the [encrypt legend](./header.md#encrypt-legend) that corresponds to the [input Crypto Schema](#crypto-schema).
-  - Encryption Context: MUST be the [encryption context](./structures.md#encryption-context) in the encryption materials.
-  - Encrypted Data Keys: MUST be the [serialization of the encrypted data keys](./header.md#encrypted-data-keys)
-    in the encryption materials.
-  - Header Commitment: MUST be the [calculated](./header.md#header-commitment) using the commitment key calculated above.
+For each of these Terminal Data in the Intermediate Encrypted Structured Data:
+
+If the [Crypto Schema](#crypto-schema)
+indicates a [Crypto Action](./structures.md#crypto-action)
+of [SIGN_ONLY](./structures.md#signonly) for this Terminal Data,
+this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+and [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
+
+If the [Crypto Schema](#crypto-schema)
+indicates a [Crypto Action](./structures.md#crypto-action)
+of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) for this Terminal Data,
+this Terminal Data MUST be the [encryption](#terminal-data-encryption)
+of the input's Terminal Data.
+
+For every [Terminal Data](./structures.md#terminal-data)
+in the Intermediate Encrypted Structured Data
+a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
+in the [input Structured Data](#structured-data).
+
+### Calculate Cipherkey and Nonce
+
+The KDF used to calculate the Field Root Key MUST be the 
+[Encryption Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
+indicated by the algorithm suite, using a provided plaintext data key,
+no salt, and an info of "AWS_DBE_DERIVE_KEY" concatenated with a provided message id.
+
+The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
+and the Message ID generated for this Encrypted Structured Data
+
+The calculated Field Root MUST have length equal to the
+  [algorithm suite's encryption key length](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
+
+
+The `FieldKeyNonce` for a given offset MUST be 16 bytes comprised of
+ - the ASCII encoding of "AwsDbeField"
+ - the byte 0x2c (aka 44, the length of the eventual FieldKey)
+ - the offset as a 4-byte integer
+
+The `FieldKey` for a given key and offset MUST be the first 44 bytes
+of the aes256ctr_stream
+of the given key and the `FieldKeyNonce` of three times the given offset
+
+The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
+
+The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
 
 #### Terminal Data Encryption
 
@@ -222,13 +235,12 @@ Terminal Type Id MUST equal the input Terminal Data's Terminal Type Id.
 
 ##### Encrypted Terminal Value
 
-The Encrypted Terminal Value MUST derived according to the following encryption:
+The Encrypted Terminal Value MUST be derived according to the following encryption:
 - The encryption algorithm used is the
-  [encryption algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
+  [encryption algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.
-- The AAD is the [canonical path](./header.md#canoncial-path) for this Terminal Data
-- The Nonce is [derived according to the field encryption key derivation scheme](#TODO), using the FieldRootKey as input.
-- The Cipherkey is [derived according to the field encryption key derivation scheme](#TODO), using the FieldRootKey as input.
+- The AAD is the [canonical path](./header.md#canonical-path) for this Terminal Data
+- The [Cipherkey and Nonce](#calculate-cipherkey-and-nonce) are as calculated above.
 - The plaintext is the [Terminal Value](./structures.md#terminal-value) for this Terminal Data.
 
 ### Construct Encrypted Structured Data
@@ -237,43 +249,30 @@ Given an Intermediate Encrypted Structured Data,
 the signatures over this Structured Data may be calculated,
 and the final Encrypted Structured Data outputted.
 
-The calculations below REQUIRE determining a [canonical hash](#TODO-truss-signature-canonicalization)
-of the [Structured Data](#structured-data), with the following specifics:
-- The header bytes are the [Terminal Value](./structures.md#terminal-value) of the
-  [Terminal Data](./structures.md#terminal-data), located at the [header index](./header.md#header-index) in the
-  [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data).
-- The fields are the set of [Terminal Data](./structures.md#terminal-data)
-  on the [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data)
-  that the [Crypto Schema](#crypto-schema) indicates is
-  [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) or [SIGN_ONLY](./structures.md#signonly).
-- The AAD is the [serialization of the Encryption Context](./header.md#encryption-context)
-  in the encryption materials.
+#### Header Field
 
-The Encrypted Structured Data outputted by this operation MUST be a Structured Data such that:
+The Header Field name MUST be `aws_dbe_head`
+
+The Header Field TypeID MUST be 0xFFFF
+
+The Header Field Value MUST be the full serialized [header](header.md) with commitment.
+
+#### Footer Field
+
+The Footer Field name MUST be `aws_dbe_foot`
+
+The Footer Field TypeID MUST be 0xFFFF
+
+The Footer Field Value MUST be the serialized [footer](footer.md).
+
+#### Encrypted Structured Data
+The Encrypted Structured Data created by this operation MUST be a Structured Data such that:
 - for every [Terminal Data](./structures.md#terminal-data) in the
   [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
-  a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the final Encrypted Structured Data.
+  a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the final Encrypted Structured Data.
 - for every [Terminal Data](./structures.md#terminal-data) in the final Encrypted Structured Data
-  (except for the [footer](./footer.md)),
-  a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the
+  (except for the [header](#header-field) and [footer](#footer-field)),
+  a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the
   [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
-- a [Terminal Data](./structures.md#terminal-data) with [Terminal Type ID](./structures.md#terminal-type-id) `0xFFFF` and
-  with [Terminal Value](./structures.md#terminal-value) equal to the [serialized footer](./header.md)
-  MUST exist on the Encrypted Structured Data, indexed at the top level by `aws:truss-footer`.
-  The values of this footer have the following requirements:
-  - the HMACs MUST be calculated using the
-    [symmetric signature algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-signature-settings)
-    indicated in the algorithm suite.
-  - the HMAC values MUST be calculated over the [canonical hash](#TODO-truss-signature-canonicalization),
-    using the
-    [symmetric signing keys](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/structures.md#symmetric-signing-keys)
-    in the encryption materials.
-  - the HMAC values MUST have the same order as the
-    [symmetric signing keys](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/structures.md#symmetric-signing-keys)
-    used to calculate them.
-  - the footer MUST contain an asymmetric signature if the algorithm suite includes asymmetric signing
-  - the asymmetric signature, if it exists, MUST be calculated over the canonical hash,
-    using the asymmetric signing key in the encryption materials.
-  - the asymmetric signature, if it exists, MUST be calculated using the
-    [asymmetric signature algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-signature-settings)
-    indicated by the algorithm suite.
+- The [Header Field](#header-field) MUST exist in the Encrypted Structured Data
+- The [Footer Field](#footer-field) MUST exist in the Encrypted Structured Data

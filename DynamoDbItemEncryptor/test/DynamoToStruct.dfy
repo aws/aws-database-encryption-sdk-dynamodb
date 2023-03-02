@@ -72,6 +72,10 @@ module DynamoToStructTest {
   }
 
   method {:test} {:vcs_split_on_every_assert} TestBadDupKeys() {
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
+    //= type=test
+    //# This sequence MUST NOT contain duplicate [Map Keys](#map-key).
+
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
     //= type=test
     //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys

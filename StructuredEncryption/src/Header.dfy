@@ -16,8 +16,8 @@ module StructuredEncryptionHeader {
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
-  import Sets
   import SortedSets
+  import Sets
   import UTF8
   import Paths = StructuredEncryptionPaths
   import Random
@@ -55,6 +55,14 @@ module StructuredEncryptionHeader {
     x == 1
   }
 
+  //= specification/structured-encryption/header.md#format-flavor
+  //= type=implication
+  //# The algorithm suite indicated by the flavor MUST be a
+  //# [DBE supported algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
+  // | Value | Algorithm Suite ID | Algorithm Suite Enum |
+  // |---|---|---|
+  // | 0x01 | 0x67 0x01 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 |
+  // | 0x00 | 0x67 0x00 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
   predicate method ValidFlavor(x : uint8) {
     x in [0, 1]
   }
@@ -127,15 +135,14 @@ module StructuredEncryptionHeader {
 
       requires client.ValidState()
       ensures client.ValidState()
-      //= specification/structured-encryption/header.md#header-commitment
-      //= type=implication
-      //# When reading or deserializing a Header, the implementation MUST recalculate the commitment,
-      //# and fail if the calculated commitment does not match the stored commitment.
       ensures ret.Success? ==>
         && COMMITMENT_LEN < |data|
         && var storedCommitment := data[|data|-COMMITMENT_LEN..];
         && CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]).Success?
         && var calcCommitment := CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]).value;
+        //= specification/structured-encryption/header.md#commitment-verification
+        //= type=implication
+        //# Header commitment comparisons MUST be constant time operations.
         && ConstantTimeEquals(storedCommitment, calcCommitment)
     {
       :- Need(COMMITMENT_LEN < |data|, E("Serialized header too short"));
@@ -162,17 +169,19 @@ module StructuredEncryptionHeader {
     : (ret : Result<Bytes, Error>)
     requires ValidSuite(alg)
 
-    //= specification/structured-encryption/header.md#header-value
-    //= type=implication
-    //# The [Terminal Value](./structures.md#terminal-value) of the header MUST be
-    // | Length (bytes) | Meaning |
-    // |---|---|
-    // | Variable | [Partial Header](#partial-header) |
-    // | 32 | [Header Commitment](#header-commitment) |
     ensures ret.Success? ==>
       && PREFIX_LEN <= |ret.value|
       && CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).Success?
       && ret.value[|ret.value|-COMMITMENT_LEN..] == CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).value
+
+      //= specification/structured-encryption/header.md#header-value-1
+      //= type=implication
+      //# The value of the header MUST be
+      // | Length (bytes) | Meaning |
+      // |---|---|
+      // | Variable | [Partial Header](#partial-header) |
+      // | 32 | [Header Commitment](#header-commitment) |
+      && ret.value == PartialHeader.serialize() + CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).value
 
     requires client.ValidState()
     ensures client.ValidState()
@@ -273,8 +282,20 @@ module StructuredEncryptionHeader {
     data: Bytes
   ) : (ret : Result<Bytes, Error>)
     requires ValidSuite(alg)
-    ensures ret.Success? ==> |ret.value| == COMMITMENT_LEN
-
+    ensures ret.Success? ==>
+      && |ret.value| == COMMITMENT_LEN
+      //= specification/structured-encryption/header.md#commitment-calculation
+      //= type=implication
+      //# The Header Commitment MUST be calculated as a the first 32 bytes of an HmacSha384,
+      //# with the serialized partial header as the message, and the Commit Key as the key.
+      && var input := Prim.HMacInput(
+          digestAlgorithm := alg.commitment.HKDF.hmac,
+          key := commitKey,
+          message := data
+         );
+      && client.HMac(input).Success?
+      && |client.HMac(input).value| >= 32
+      && ret.value == client.HMac(input).value[0..32]
     requires client.ValidState()
     ensures client.ValidState()
   {
@@ -451,23 +472,23 @@ module StructuredEncryptionHeader {
       && SerializeOneKVPair(ret.value.0, ret.value.1) == data[..ret.value.2]
     ensures (
       && 2 <= |data|
-      && var keylen := SeqToUInt16(data[0..2]) as nat;
-      && keylen + 4 <= |data|
-      && UTF8.ValidUTF8Seq(data[2..keylen+2])
-      && var valueLen := SeqToUInt16(data[keylen+2..keylen+4]) as nat;
-      && keylen + valueLen + 4 <= |data|
-      && UTF8.ValidUTF8Seq(data[keylen+4..keylen + valueLen + 4])
+      && var keyLen := SeqToUInt16(data[0..2]) as nat;
+      && keyLen + 4 <= |data|
+      && UTF8.ValidUTF8Seq(data[2..keyLen+2])
+      && var valueLen := SeqToUInt16(data[keyLen+2..keyLen+4]) as nat;
+      && keyLen + valueLen + 4 <= |data|
+      && UTF8.ValidUTF8Seq(data[keyLen+4..keyLen + valueLen + 4])
     ) <==> ret.Success? && SerializeOneKVPair(ret.value.0, ret.value.1) == data[..ret.value.2]
   {
     :- Need(2 <= |data|, E("Unexpected end of header data."));
-    var keylen := SeqToUInt16(data[0..2]) as nat;
-    :- Need(keylen + 4 <= |data|, E("Unexpected end of header data."));
-    var key := data[2..keylen+2];
+    var keyLen := SeqToUInt16(data[0..2]) as nat;
+    :- Need(keyLen + 4 <= |data|, E("Unexpected end of header data."));
+    var key := data[2..keyLen+2];
     :- Need(UTF8.ValidUTF8Seq(key), E("Invalid UTF8 found in header."));
-    var valuelen := SeqToUInt16(data[keylen+2..keylen+4]) as nat;
-    var kvLen := 2 + keylen + 2 + valuelen;
+    var valueLen := SeqToUInt16(data[keyLen+2..keyLen+4]) as nat;
+    var kvLen := 2 + keyLen + 2 + valueLen;
     :- Need(kvLen <= |data|, E("Unexpected end of header data."));
-    var value := data[keylen+4..kvLen];
+    var value := data[keyLen+4..kvLen];
     :- Need(UTF8.ValidUTF8Seq(value), E("Invalid UTF8 found in header."));
     Success((key, value, kvLen))
   }
@@ -744,14 +765,14 @@ module StructuredEncryptionHeader {
   {
     var data := SerializeOneKVPair(key, value);
     assert 2 <= |data|;
-    var keylen := SeqToUInt16(data[0..2]) as nat;
-    assert keylen + 4 <= |data|;
-    assert data[2..keylen+2] == key;
-    assert UTF8.ValidUTF8Seq(data[2..keylen+2]);
-    var valueLen := SeqToUInt16(data[keylen+2..keylen+4]) as nat;
-    assert keylen + valueLen + 4 <= |data|;
-    assert data[keylen+4..keylen + valueLen + 4] == value;
-    assert UTF8.ValidUTF8Seq(data[keylen+4..keylen + valueLen + 4]);
+    var keyLen := SeqToUInt16(data[0..2]) as nat;
+    assert keyLen + 4 <= |data|;
+    assert data[2..keyLen+2] == key;
+    assert UTF8.ValidUTF8Seq(data[2..keyLen+2]);
+    var valueLen := SeqToUInt16(data[keyLen+2..keyLen+4]) as nat;
+    assert keyLen + valueLen + 4 <= |data|;
+    assert data[keyLen+4..keyLen + valueLen + 4] == value;
+    assert UTF8.ValidUTF8Seq(data[keyLen+4..keyLen + valueLen + 4]);
   }
   
   // GetOneKVPair ==> SerializeOneKVPair
@@ -796,16 +817,16 @@ module StructuredEncryptionHeader {
       && GetOneKVPair(x).value == GetOneKVPair(y).value
     {
       assert 2 <= |y|;
-      var keylen := SeqToUInt16(y[0..2]) as nat;
-      assert(keylen + 4 <= |y|);
-      var key := y[2..keylen+2];
-      assert x[2..keylen+2] == y[2..keylen+2];
+      var keyLen := SeqToUInt16(y[0..2]) as nat;
+      assert(keyLen + 4 <= |y|);
+      var key := y[2..keyLen+2];
+      assert x[2..keyLen+2] == y[2..keyLen+2];
       assert(UTF8.ValidUTF8Seq(key));
-      var valuelen := SeqToUInt16(y[keylen+2..keylen+4]) as nat;
-      var kvLen := 2 + keylen + 2 + valuelen;
+      var valueLen := SeqToUInt16(y[keyLen+2..keyLen+4]) as nat;
+      var kvLen := 2 + keyLen + 2 + valueLen;
       assert kvLen <= |y|;
-      var value := y[keylen+4..kvLen];
-      assert x[keylen+4..kvLen] == y[keylen+4..kvLen];
+      var value := y[keyLen+4..kvLen];
+      assert x[keyLen+4..kvLen] == y[keyLen+4..kvLen];
       assert UTF8.ValidUTF8Seq(value);
     }
 }

@@ -47,6 +47,17 @@ module
       && res.value.config.allowedUnauthenticatedAttributes == config.allowedUnauthenticatedAttributes
       && res.value.config.allowedUnauthenticatedAttributePrefix == config.allowedUnauthenticatedAttributePrefix
       && res.value.config.algorithmSuiteId == config.algorithmSuiteId
+
+      //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions
+      //= type=implication
+      //# The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
+      //# MUST be configured to the partition attribute and, if present, sort attribute.
+      && config.partitionKeyName in config.attributeActions
+      && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY
+      && (config.sortKeyName.Some? ==>
+          && config.sortKeyName.value in config.attributeActions
+          && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY)
+
     // TODO expected CMM/Keyring behavior
   {
     // TODO validation of config input

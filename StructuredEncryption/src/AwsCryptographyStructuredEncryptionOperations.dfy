@@ -3,6 +3,7 @@
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 
 include "Header.dfy"
+include "Footer.dfy"
 include "Paths.dfy"
 include "Crypt.dfy"
 include "Util.dfy"
@@ -17,6 +18,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   import Random
   import Aws.Cryptography.Primitives
   import Header = StructuredEncryptionHeader
+  import Footer = StructuredEncryptionFooter
   import MaterialProviders
   import Materials
   import Crypt = StructuredEncryptionCrypt
@@ -66,7 +68,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   }
 
   // Fail unless the field exists, and is a binary terminal
-  function method NeedBinary(data : StructuredDataMap, field : string): (result: Outcome<Error>)
+  function method {:opaque} NeedBinary(data : StructuredDataMap, field : string): (result: Outcome<Error>)
   {
     if field !in data then
       Fail(E("The field name " + field + " is required."))
@@ -78,56 +80,10 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       Pass
   }
 
-  // Given a StructuredDataTerminal, return the canonical value for the type, for use in the footer checksum calculations
-  function method GetCanonicalType(value : StructuredDataTerminal, isEncrypted : bool)
-    : Result<Bytes, Error>
-  {
-    if isEncrypted then
-      :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
-      Success(UInt64ToSeq((|value.value| - 2) as uint64) + EncodeAscii("ENCRYPTED"))
-    else
-      :- Need(|value.value| < UINT64_LIMIT, E("Bad length."));
-      Success(UInt64ToSeq((|value.value|) as uint64) + EncodeAscii("PLAINTEXT") + value.typeId)
-  }
-
-  // Given a key value pair, return the canonical value for use in the footer checksum calculations
-  function method GetCanonicalItem(fieldName : CanonicalPath, value : StructuredData, isEncrypted : bool)
-    : Result<Bytes, Error>
-    requires value.content.Terminal?
-  {
-    var middle :- GetCanonicalType(value.content.Terminal, isEncrypted);
-    Success(fieldName + middle + GetValue(value))
-  }
-
-  // return the canonical representation of the StructuredData
-  // TODO - implement for real, once we have a spec; but this should still mostly fail at the right times.
-  // when looking for the data for a particular key, check encData first
-  // if it's not there, fall back to allData
-  function method CanonContent (
-    fields : seq<CanonicalPath>,      // remaining fields to be canonized
-    encFields : seq<CanonicalPath>,   // fields that are encrypted
-    encData : StructuredDataCanon,
-    allData : StructuredDataCanon,
-    canonized : Bytes := []   // output
-  ) : Result<Bytes, Error>
-    requires forall k <- fields :: k in allData
-    requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
-  {
-    if |fields| == 0 then
-      Success(canonized)
-    else
-      var data := if fields[0] in encData then encData[fields[0]] else allData[fields[0]];
-      var newPart :- GetCanonicalItem(fields[0], data, fields[0] in encFields);
-      CanonContent(fields[1..], encFields, encData, allData, canonized + newPart)
-  }
-
   // Return the sum of the sizes of the given fields
-  function method SumValueSize(fields : seq<CanonicalPath>, data : StructuredDataCanon)
+  function method {:opaque} SumValueSize(fields : seq<CanonicalPath>, data : StructuredDataCanon)
     : nat
     requires forall k <- fields :: k in data
-    requires forall k <- data :: data[k].content.Terminal?
   {
     if |fields| == 0 then
       0
@@ -135,48 +91,21 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       |data[fields[0]].content.Terminal.value| + SumValueSize(fields[1..], data)
   }
 
-  // return the footer value for the StructuredData
-  // TODO - signatures et al
-  method GetFooter(
-    client: Primitives.AtomicPrimitivesClient,
-    key : Key,
-    edks : CMP.EncryptedDataKeyList,
-    alg : CMP.AlgorithmSuiteInfo,
-    signedFields : seq<CanonicalPath>,
-    encFields : seq<CanonicalPath>,
-    encData : StructuredDataCanon,
-    allData : StructuredDataCanon,
-    header : Bytes)
-    returns (ret : Result<Bytes, Error>)
-    requires ValidSuite(alg)
-    requires forall k <- signedFields :: k in allData
-    requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
+  function method {:opaque} GetAlgorithmSuiteId(alg : Option<CMP.DBEAlgorithmSuiteId>)
+    : (ret : CMP.AlgorithmSuiteId)
+    //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+    //= type=implication
+    //# - Algorithm Suite: If provided, this is the [input algorithm suite](#algorithm-suite);
+    //# otherwise, this field MUST be the algorithm suite corresponding to the enum
+    //# [DBE.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
+    ensures
+      && (alg.Some? ==> ret == CMP.AlgorithmSuiteId.DBE(alg.value))
+      && (alg.None? ==> ret == CMP.AlgorithmSuiteId.DBE(CMP.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384))
   {
-    var canon :- CanonContent(signedFields, encFields, encData, allData);
-    var data := header /* + AAD */ + canon; // TODO - is there an AAD?
-    var resultR := Digest.Digest(Prim.DigestInput(digestAlgorithm := Prim.SHA_384, message := data));
-    var canonicalHash :- resultR.MapFailure(e => AwsCryptographyPrimitives(e));
-    var result : Bytes := [];
-    for i := 0 to |edks| {
-      var input := Prim.HMacInput (
-        digestAlgorithm := alg.symmetricSignature.HMAC,
-        key := key, // TODO - mat.symmetricSigningKeys[i]
-        message := canonicalHash
-      );
-      var hashR := client.HMac(input);
-      var hash :- hashR.MapFailure(e => AwsCryptographyPrimitives(e));
-      :- Need(|hash| == 48, E("Bad hash length"));
-      result := result + hash;
-    }
-    if alg.signature.ECDSA? {
-      // TODO - once newer private-dafny is merged
-      // and also signatures are implemented
-      // then calculate real sig
-      result := result + canonicalHash + canonicalHash; // 96 bytes
-    }
-    return Success(result);
+    if alg.Some? then
+      CMP.AlgorithmSuiteId.DBE(alg.value)
+    else
+      CMP.AlgorithmSuiteId.DBE(CMP.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384)
   }
 
   // return the appropriate EncryptionMaterials
@@ -196,7 +125,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
       //= type=implication
       //# This operation MUST obtain a set of encryption materials by calling
-      //# [Get Encryption Materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md#get-encryption-materials)
+      //# [Get Encryption Materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
       //# on the input [CMM](#cmm).
       && (|cmm.History.GetEncryptionMaterials| == |old(cmm.History.GetEncryptionMaterials)| + 1)
       && Seq.Last(cmm.History.GetEncryptionMaterials).output.Success?
@@ -211,7 +140,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
       //= type=implication
       //# - Commitment Policy: This MUST be
-      //# [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
+      //# [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
       && getEncIn.commitmentPolicy == DBE_COMMITMENT_POLICY
 
       //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
@@ -234,16 +163,13 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var maxLength :=  encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize;
     :- Need(maxLength < INT64_MAX_LIMIT, E("Encrypted Size too long."));
 
-    var algorithmSuiteId := if algorithmSuiteId.Some? then
-      Some(CMP.AlgorithmSuiteId.DBE(algorithmSuiteId.value))
-    else
-      None;
+    var algId := GetAlgorithmSuiteId(algorithmSuiteId);
 
     var matR := cmm.GetEncryptionMaterials(
       CMP.GetEncryptionMaterialsInput(
         encryptionContext := encryptionContext.UnwrapOr(map[]),
         commitmentPolicy := DBE_COMMITMENT_POLICY,
-        algorithmSuiteId := algorithmSuiteId,
+        algorithmSuiteId := Some(algId),
         maxPlaintextLength := Some(maxLength as int64)
       )
     );
@@ -252,6 +178,10 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var mat := matOutput.encryptionMaterials;
     :- Need(Materials.EncryptionMaterialsHasPlaintextDataKey(mat), E("Encryption material has no key"));
     var alg := mat.algorithmSuite;
+    //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+    //# If this algorithm suite is not a
+    //# [supported suite for Database Encryption (DBE)](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum),
+    //# this operation MUST yield an error.
     :- Need(ValidSuite(alg), E("Invalid Algorithm Suite"));
     var key : Key := mat.plaintextDataKey.value;
     return Success(mat);
@@ -270,8 +200,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     data_c : StructuredDataCanon        // all signed fields with canonized paths
   )
 
-  // return the subset of "fields" which are ENCRYPT_AND_SIGN 
-  function method {:tailrecursion} FilterEncrypt(fields : seq<CanonicalPath>, fieldMap : CanonMap, schema : CryptoSchemaPlain)
+  // return the subset of "fields" which are ENCRYPT_AND_SIGN
+  function method {:tailrecursion} {:opaque} FilterEncrypt(fields : seq<CanonicalPath>, fieldMap : CanonMap, schema : CryptoSchemaPlain)
     : (ret : seq<CanonicalPath>)
     requires forall k <- fields :: k in fieldMap
     requires forall k <- fieldMap :: fieldMap[k] in schema
@@ -287,6 +217,15 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         FilterEncrypt(fields[1..], fieldMap, schema)
   }
 
+  function method GetFieldMap(tableName : GoodString, data : StructuredDataPlain, schema : CryptoSchemaPlain)
+    : (ret : map<Bytes,GoodString>)
+    requires schema.Keys == data.Keys
+    ensures forall k <- data :: schema[k].content.Action == DO_NOTHING || Paths.SimpleCanon(tableName, k) in ret
+  {
+    Paths.SimpleCanonUnique(tableName);
+    map k <- data.Keys | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k
+  }
+
   // construct the EncryptCanon
   function method {:opaque} CanonizeForEncrypt(tableName : GoodString, data : StructuredDataPlain, schema : CryptoSchemaPlain)
     : (ret : Result<EncryptCanon, Error>)
@@ -296,9 +235,27 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && (forall k <- r.encFields_c :: k in r.data_c)
       && (forall k <- r.signedFields_c :: k in r.data_c)
       && (forall k <- r.encFields_c :: k in r.signedFields_c)
+
+      //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
+      //= type=implication
+      //# For every [input Terminal Data](./structures.md#terminal-data)
+      //# in the [input Structured Data](#structured-data),
+      //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
+      //# in Intermediate Encrypted Structured Data,
+      //# if the [Crypto Schema](#crypto-schema)
+      //# indicates a [Crypto Action](./structures.md#crypto-action)
+      //# other than [DO_NOTHING](./structures.md#DO_NOTHING).
+      && (forall k <- data :: schema[k].content.Action == DO_NOTHING || Paths.SimpleCanon(tableName, k) in ret.value.data_c)
+
+      //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
+      //= type=implication
+      //# For every [Terminal Data](./structures.md#terminal-data)
+      //# in the Intermediate Encrypted Structured Data
+      //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
+      //# in the [input Structured Data](#structured-data).
+      && (forall k <- ret.value.data_c :: (exists x :: x in data && k == Paths.SimpleCanon(tableName, x)))
   {
-    Paths.SimpleCanonUnique(tableName);
-    var fieldMap := map k <- data.Keys | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k;
+    var fieldMap := GetFieldMap(tableName, data, schema);
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
     var encFields_c := FilterEncrypt(signedFields_c, fieldMap, schema);
@@ -318,6 +275,13 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && var r := ret.value;
       && (forall k <- r.signedFields_c :: k in r.data_c)
   {
+    //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
+    //# The `signed field list` MUST be all fields for which
+    //# the [Authenticate Schema](#authenticate-schema)
+    //# indicates an [Authenticate Action](./structures.md#authenticate-action)
+    //# of [SIGN](./structures.md#SIGN) for that field,
+    //# sorted by the [Canonical Path](header.md.#canonical-path)
+
     Paths.SimpleCanonUnique(tableName);
     var fieldMap := map k <- data.Keys | schema[k].content.Action == SIGN :: Paths.SimpleCanon(tableName, k) := k;
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
@@ -357,13 +321,34 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && var cryptoSchema := input.cryptoSchema.content.SchemaMap;
       && CryptoSchemaMapIsFlat(cryptoSchema)
       && plainRecord.Keys == cryptoSchema.Keys
+
+      //= specification/structured-encryption/encrypt-structure.md#crypto-schema
+      //= type=implication
+      //# The Crypto Schema MUST include at least one [ENCRYPT_AND_SIGN Crypto Action](./structures.md#encryptandsign) or
+      //# [SIGN_ONLY Crypto Action](./structures.md#signonly);
+      //# otherwise, this operation MUST yield an error.
+      && (exists k <- cryptoSchema :: cryptoSchema[k].content.Action == ENCRYPT_AND_SIGN)
+
+      //= specification/structured-encryption/encrypt-structure.md#encryption-context
+      //= type=implication
+      //# If the input encryption context contains any entries with a key beginning with this prefix,
+      //# the encryption operation MUST yield an error.
+      && (
+        || input.encryptionContext.None?
+        || !exists k <- input.encryptionContext.value :: ReservedCryptoContextPrefixUTF8 <= input.encryptionContext.value[k]
+      )
   {
     :- Need(input.plaintextStructure.content.DataMap?, E("Input structure must be a DataMap"));
     :- Need(input.cryptoSchema.content.SchemaMap?, E("Input Crypto Schema must be a SchemaMap"));
+    :- Need(
+      || input.encryptionContext.None?
+      || !exists k <- input.encryptionContext.value :: ReservedCryptoContextPrefixUTF8 <= input.encryptionContext.value[k],
+      E("Encryption Context must not contain members beginning with " + ReservedCryptoContextPrefixString));
 
     var cryptoSchema := input.cryptoSchema.content.SchemaMap;
     :- Need(CryptoSchemaMapIsFlat(cryptoSchema), E("Schema must be flat."));
     :- Need(forall k <- cryptoSchema :: ValidString(k), E("Schema has bad field name."));
+    :- Need(exists k <- cryptoSchema :: cryptoSchema[k].content.Action == ENCRYPT_AND_SIGN, E("Schema has bad field name."));
 
     var plainRecord := input.plaintextStructure.content.DataMap;
     :- Need(DataMapIsFlat(plainRecord), E("Input DataMap must be flat."));
@@ -383,6 +368,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
     var key : Key := mat.plaintextDataKey.value;
     var alg := mat.algorithmSuite;
+    :- Need(Header.ValidEncryptionContext(mat.encryptionContext), E("Bad encryption context"));
 
     //= specification/structured-encryption/header.md#message-id
     //# Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
@@ -390,8 +376,17 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
     var head :- Header.Create(input.tableName, input.cryptoSchema, msgID, mat);
 
+    //= specification/structured-encryption/header.md#commit-key
+    //# The commit key MUST be generated with the record's plaintext data key and the header's
+    //# message id.
     var commitKey := Crypt.GetCommitKey(alg, key, head.msgID);
     var headerSerialized :- Header.Serialize(config.primitives, alg, commitKey, head);
+
+    //= specification/structured-encryption/encrypt-structure.md#header-field
+    //# The Header Field TypeID MUST be 0xFFFF
+
+    //= specification/structured-encryption/encrypt-structure.md#header-field
+    //# The Header Field Value MUST be the full serialized [header](header.md) with commitment.
     var headerAttribute := ValueToData(headerSerialized, BYTES_TYPE_ID);
 
     :- Need(|canonData.encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields"));
@@ -404,11 +399,45 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       else
         plainRecord[k];
 
-    var footer :- GetFooter(config.primitives, key, mat.encryptedDataKeys, alg,
-                  canonData.signedFields_c, canonData.encFields_c, encryptedItems, canonData.data_c, headerSerialized);
-    var footerAttribute := ValueToData(footer, BYTES_TYPE_ID);
+    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+    //= type=implication
+    //# The Encrypted Structured Data created by this operation MUST be a Structured Data such that:
 
+    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+    //= type=implication
+    //# - for every [Terminal Data](./structures.md#terminal-data) in the
+    //# [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
+    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the final Encrypted Structured Data.
+
+    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+    //= type=implication
+    //# - for every [Terminal Data](./structures.md#terminal-data) in the final Encrypted Structured Data
+    //# (except for the [header](#header-field) and [footer](#footer-field)),
+    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the
+    //# [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
+
+
+    var footer :- Footer.CreateFooter(config.primitives, mat, canonData.signedFields_c,
+                canonData.encFields_c, encryptedItems, canonData.data_c, headerSerialized);
+    var footerAttribute := footer.makeTerminal();
+
+    //= specification/structured-encryption/encrypt-structure.md#header-field
+    //# The Header Field name MUST be `aws_dbe_head`
+
+    //= specification/structured-encryption/encrypt-structure.md#footer-field
+    //# The Footer Field name MUST be `aws_dbe_foot`
+
+    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+    //# - The [Header Field](#header-field) MUST exist in the Encrypted Structured Data
+
+    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+    //# - The [Footer Field](#footer-field) MUST exist in the Encrypted Structured Data
     result := result + map[HeaderField := headerAttribute, FooterField := footerAttribute];
+
+    // these would let us turn the above into implications, but they're too expensive
+    // assert result.Keys == input.plaintextStructure.content.DataMap.Keys;
+    // assert HeaderField in result;
+    // assert FooterField in result;
 
     var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
       content := StructuredDataContent.DataMap(
@@ -433,23 +462,112 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     FooterField := DoNotSign
   ]
 
+  function method SafeDecode(data : CMP.Utf8Bytes) : string
+  {
+    var x := UTF8.Decode(data);
+    if x.Success? then
+      x.value
+    else
+      "[corrupt value]"
+  }
+
+  function method {:tailrecursion} DescribeMismatch(inputFields : seq<Bytes>, inputContext : CMP.EncryptionContext, headContext : Header.CMP.EncryptionContext)
+    : string
+    requires forall k <- inputFields :: k in inputContext
+  {
+    if |inputFields| == 0 then
+      ""
+    else
+      var key := inputFields[0];
+      if key in headContext && headContext[key] != inputContext[key] then
+        var keyStr := SafeDecode(key);
+        var headStr := SafeDecode(headContext[key]);
+        var inputStr := SafeDecode(inputContext[key]);
+        var msg := "input context for " + keyStr + " was " + inputStr + " but stored context had " + headStr + "\n";
+        msg + DescribeMismatch(inputFields[1..], inputContext, headContext)
+      else
+        DescribeMismatch(inputFields[1..], inputContext, headContext)
+  }
+
+  function method DetectMismatch(inputContext : CMP.EncryptionContext, headContext : CMP.EncryptionContext)
+    : Outcome<Error>
+  {
+    var inputFields := SortedSets.ComputeSetToOrderedSequence2(inputContext.Keys, ByteLess);
+    var str := DescribeMismatch(inputFields, inputContext, headContext);
+    if |str| == 0 then
+      Pass
+    else
+      Fail(E("Encryption Context Mismatch\n" + str))
+  }
+
   method DecryptStructure(config: InternalConfig, input: DecryptStructureInput)
+    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= type=implication
+    //# This operation MUST output a [Structured Data](#structured-data) with the following specifics:
     returns (output: Result<DecryptStructureOutput, Error>)
     ensures output.Success? ==>
       && input.encryptedStructure.content.DataMap?
+      && DataMapIsFlat(input.encryptedStructure.content.DataMap)
       && var encRecord := input.encryptedStructure.content.DataMap;
 
-      //= specification/structured-encryption/header.md#header-index
+      //= specification/structured-encryption/decrypt-structure.md#parse-the-header
       //= type=implication
-      //# The header MUST exist at string index "aws_dbe_head" for
-      //# encrypted [Structured Data](./structures.md#structured-data).
+      //# Given the [input Structured Data](#structured-data),
+      //# this operation MUST access the [Terminal Data](./structures.md#terminal-data)
+      //# at the "aws_dbe_head"
+
+      //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+      //= type=implication
+      //# The [Terminal Type Id](./structures.md#terminal-type-id) on this Terminal Data MUST be `0xFFFF`.
       && NeedBinary(encRecord, HeaderField).Pass?
 
-      //= specification/structured-encryption/footer.md#footer-index
+      //= specification/structured-encryption/decrypt-structure.md#verify-signatures
       //= type=implication
-      //# The header MUST exist at string index "aws_dbe_foot" for
-      //# encrypted [Structured Data](./structures.md#structured-data).
+      //# A footer field MUST exist with the name `aws_dbe_foot`
+
+      //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+      //= type=implication
+      //# The footer field TypeID MUST be 0xFFFF
       && NeedBinary(encRecord, FooterField).Pass?
+
+      //= specification/structured-encryption/decrypt-structure.md#authenticate-schema
+      //= type=implication
+      //# The Authenticate Schema MUST explicitly configure a [Authenticate Action](./structures.md#authenticate-action) for every
+      //# [Terminal Data](./structures.md#terminal-data) that exists on the [input Structured Data](#structured-data),
+      //# and MUST NOT describe Authenticate Actions for locations within the input Structured Data that either
+      //# do not exist, or contain non-Terminal Data structures;
+      //# otherwise, this operation operation MUST yield an error.
+      && input.authenticateSchema.content.SchemaMap?
+      && input.authenticateSchema.content.SchemaMap.Keys + ReservedAuthMap.Keys == input.encryptedStructure.content.DataMap.Keys
+
+      //= specification/structured-encryption/decrypt-structure.md#authenticate-schema
+      //= type=implication
+      //# The Authenticate Schema MUST include at least one [SIGN Authenticate Action](./structures.md#sign);
+      //# otherwise, this operation MUST yield an error.
+      && AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap)
+      && (exists x :: (x in input.authenticateSchema.content.SchemaMap && input.authenticateSchema.content.SchemaMap[x].content.Action == SIGN))
+
+      //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+      //= type=implication
+      //# Given the [input Structured Data](#structured-data),
+      //# this operation MUST access the [Terminal Data](./structures.md#terminal-data)
+      //# at the "aws_dbe_head"
+      && var headerSerialized := encRecord[HeaderField].content.Terminal.value;
+      //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+      //= type=implication
+      //# This operation MUST deserialize the header bytes
+      //# according to the [header format](./header.md).
+      && Header.PartialDeserialize(headerSerialized).Success?
+      && var head := Header.PartialDeserialize(headerSerialized).value;
+      && var inputContext := input.encryptionContext.UnwrapOr(map[]);
+      //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+      //= type=implication
+      //# If the parsed [Encryption Context](./header.md#encryption-context) contains fields that exist in the
+      //# [input Encryption Context](#encryption-context),
+      //# and the corresponding values do not match,
+      //# this operation MUST yield an error.
+      && DetectMismatch(inputContext, head.encContext).Pass?
+
   {
     :- Need(input.authenticateSchema.content.SchemaMap?, E("Authenticate Schema must be a SchemaMap"));
     :- Need(AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap), E("Schema must be flat."));
@@ -462,28 +580,64 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var encRecord : StructuredDataPlain := input.encryptedStructure.content.DataMap;
     :- NeedBinary(encRecord, HeaderField);
     :- NeedBinary(encRecord, FooterField);
+    :- Need(exists x :: (x in input.authenticateSchema.content.SchemaMap && input.authenticateSchema.content.SchemaMap[x].content.Action == SIGN), E("At least one Authenticate Action must be SIGN"));
 
     var headerSerialized := encRecord[HeaderField].content.Terminal.value;
     var footerSerialized := encRecord[FooterField].content.Terminal.value;
+    //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+    //# This operation MUST deserialize the header bytes
+    //# according to the [header format](./header.md).
     var head :- Header.PartialDeserialize(headerSerialized);
     var algorithmSuite :- head.GetAlgorithmSuite();
+    var inputContext := input.encryptionContext.UnwrapOr(map[]);
+    :- DetectMismatch(inputContext, head.encContext);
+
+    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //# This operation MUST obtain a set of decryption materials by calling
+    //# [Decrypt Materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
+    //# on the [input CMM](#cmm).
+
+    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //# The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
+    // - Encryption Context: The encryption context containing exactly the union of
+    //   key-value pairs in the [input Encryption Context](#encryption-context)
+    //   and the key-value pairs in the [Encryption Context parsed from the header](./header.md#encryption-context).
+    // - Algorithm Suite ID: The algorithm suite [indicated by the Message Format Flavor](./header.md#format-flavor)
+    //   parsed in the header.
+    // - Encrypted Data Keys: The [Encrypted Data Keys parsed from the header](./header.md#encrypted-data-keys).
 
     var matR := input.cmm.DecryptMaterials(
       CMP.DecryptMaterialsInput (
         algorithmSuiteId := algorithmSuite.id,
         commitmentPolicy := DBE_COMMITMENT_POLICY,
         encryptedDataKeys := head.dataKeys,
-        encryptionContext := head.encContext
+        encryptionContext := inputContext + head.encContext
       )
     );
     var matOutput :- matR.MapFailure(e => AwsCryptographyMaterialProviders(e));
     var mat := matOutput.decryptionMaterials;
-
+    :- Need(Header.ValidEncryptionContext(mat.encryptionContext), E("Bad encryption context"));
     :- Need(Materials.DecryptionMaterialsWithPlaintextDataKey(mat), E("Encryption material has no key"));
+
+    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //# The algorithm suite used in all further aspects of this operation MUST be
+    //# the algorithm suite in the
+    //# [decryption materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md#decryption-materials)
+    //# returned from the Decrypt Materials call.
+
+    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //# Note that the algorithm suite in the retrieved decryption materials MAY be different from the input algorithm suite.
+
+    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //# If this algorithm suite is not a
+    //# [supported suite for DBE](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum)
+    //# this operation MUST yield an error.
     :- Need(ValidSuite(mat.algorithmSuite), E("Invalid Algorithm Suite"));
     var alg := mat.algorithmSuite;
     var key : Key := mat.plaintextDataKey.value;
     var commitKey := Crypt.GetCommitKey(alg, key, head.msgID);
+    //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+    //# The header field value MUST be be [verified](header.md#Commitment Verification)
     var ok :- head.verifyCommitment(config.primitives, alg, commitKey, headerSerialized);
 
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
@@ -495,17 +649,41 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     if |head.legend| > |canonData.signedFields_c| {
       return Failure(E("Schema changed : something that was signed is now unsigned."));
     }
+    //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
+    //= type=implication
+    //# Decryption MUST fail if the length of this list does not equal the
+    //# length of the header's [Encrypt Legend](header.md.#encrypt-legend)
     assert |head.legend| == |canonData.signedFields_c|;
 
-    var encryptedFields := FilterEncrypted(canonData.signedFields_c, head.legend);
+    //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
+    //# The `encrypted field list` MUST be all fields in the `signed field list`
+    //# for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
+    //# is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes).
+    var encryptedFields : seq<CanonicalPath> := FilterEncrypted(canonData.signedFields_c, head.legend);
     :- Need(|encryptedFields| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
 
-    var footer :- GetFooter(config.primitives, key, head.dataKeys, alg,
+    //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+    //# This operation MUST deserialize the bytes in [Terminal Value](./structures.md#terminal-value)
+    //# according to the [footer format](./footer.md).
+    var footer :- Footer.DeserializeFooter(footerSerialized, alg.signature.ECDSA?);
+
+    //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+    //# The footer field value MUST be be [verified](footer.md#footer-verification)
+
+    //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+    //# If either verification fails, this operation MUST NOT continue
+    //# and MUST yield an error.
+    var _ :- footer.validate(config.primitives, mat, head.dataKeys,
                             canonData.signedFields_c, encryptedFields, map[], canonData.data_c, headerSerialized);
-    // TODO - footer checking is more complex than this
-    :- Need(footer == footerSerialized, E("Footer mismatch."));
     var decryptedItems :- Crypt.Decrypt(config.primitives, alg, key, head, encryptedFields, canonData.data_c);
 
+    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //# - For each Terminal Data in the output Structured Data,
+    //# if the field name is not in the [Encrypted Field Lists](#calculate-signed-and-encrypted-field-lists)
+    //# this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
+    //# [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's,
+    //# otherwise this Terminal Data MUST be the [decryption](#terminal-data-decryption) of
+    //# the input Terminal Data.
     var result : map<string, StructuredData> := map k | k in encRecord.Keys :: k :=
       var c := Paths.SimpleCanon(input.tableName, k);
       if c in decryptedItems then
@@ -513,13 +691,31 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       else
         encRecord[k];
 
+    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= type=implication
+    //# - For every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
+    //# (aside from the header and footer),
+    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the output Structured Data.
+    assert forall k <- encRecord.Keys :: k in result.Keys;
+    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= type=implication
+    //# - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
+    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
+    assert forall k <- result.Keys :: k in encRecord.Keys;
+    //assert encRecord.Keys == result.Keys;
+
     var decryptOutput := DecryptStructureOutput(plaintextStructure := StructuredData(
       content := StructuredDataContent.DataMap(
         DataMap := result - {HeaderField, FooterField}
       ),
       attributes := None
     ));
-
+    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= type=implication
+    //# - [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
+    //# or "aws_dbe_foot".
+    assert HeaderField !in decryptOutput.plaintextStructure.content.DataMap;
+    assert FooterField !in decryptOutput.plaintextStructure.content.DataMap;
     output := Success(decryptOutput);
   }
 }

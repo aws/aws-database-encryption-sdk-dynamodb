@@ -31,7 +31,15 @@ operation DecryptStructure {
     output: DecryptStructureOutput,
 }
 
+
 structure EncryptStructureInput {
+    //= specification/structured-encryption/encrypt-structure.md#input
+    //= type=implication
+    //# The following inputs to this behavior are REQUIRED:
+    // - [Table Name](#table-name)
+    // - [Structured Data](#structured-data)
+    // - [Crypto Schema](#crypto-schema)
+    // - [Cryptographic Materials Manager (CMM)](#cmm)
     @required
     tableName: String,
     @required
@@ -41,6 +49,17 @@ structure EncryptStructureInput {
     @required
     cmm: CryptographicMaterialsManagerReference,
 
+    //= specification/structured-encryption/encrypt-structure.md#input
+    //= type=implication
+    //# The following inputs to this behavior MUST be OPTIONAL:
+    // - [Algorithm Suite](#algorithm-suite)
+    // - [Encryption Context](#encryption-context)
+
+    //= specification/structured-encryption/encrypt-structure.md#algorithm-suite
+    //= type=implication
+    //# This algorithm suite MUST be a
+    //# [supported suite for Database Encryption (DBE)](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum);
+    //# otherwise, this operation MUST yield an error.
     algorithmSuiteId: DBEAlgorithmSuiteId,
     encryptionContext: EncryptionContext
 }
@@ -51,6 +70,13 @@ structure EncryptStructureOutput {
 }
 
 structure DecryptStructureInput {
+    //= specification/structured-encryption/decrypt-structure.md#input
+    //= type=implication
+    //# The following inputs to this behavior are REQUIRED:
+    // - [Table Name](#table-name)
+    // - [Authenticate Schema](#authenticate-schema)
+    // - [Cryptographic Materials Manager (CMM)](#cmm)
+    // - [Encrypted Structured Data](#encrypted-structured-data)
     @required
     tableName: String,
     @required
@@ -60,6 +86,10 @@ structure DecryptStructureInput {
     @required
     cmm: CryptographicMaterialsManagerReference,
 
+    //= specification/structured-encryption/decrypt-structure.md#input
+    //= type=implication
+    //# The following inputs to this behavior MUST be OPTIONAL:
+    //- [Encryption Context](#encryption-context)
     encryptionContext: EncryptionContext,
 }
 
@@ -68,16 +98,32 @@ structure DecryptStructureOutput {
     plaintextStructure: StructuredData
 }
 
+
 structure StructuredData {
     // Each "node" in our structured data holds either
     // a map of more data, a list of more data, or a terminal value
+    //= specification/structured-encryption/structures.md#structured-data
+    //= type=implication
+    //# A Structured Data MUST consist of:
+    // - a [Structured Data Content](#structured-data-content)
     @required
     content: StructuredDataContent,
+
     // Each "node" in our structured data may additionally
     // have a flat map to express something akin to XML attributes
+    //= specification/structured-encryption/structures.md#structured-data
+    //= type=implication
+    //# - an OPTIONAL map of [Attributes](#structured-data-attributes)
     attributes: StructuredDataAttributes
 }
 
+//= specification/structured-encryption/structures.md#structured-data-content
+//= type=implication
+//# Structured Data Content is a union of one of three separate structures;
+//# Structured Data Content MUST be one of:
+// - [Structured Data Terminal](#structured-data-terminal)
+// - [Structured Data Map](#structured-data-map)
+// - [Structured Data List](#structured-data-list)
 union StructuredDataContent {
     Terminal: StructuredDataTerminal,
     DataList: StructuredDataList,
@@ -85,7 +131,7 @@ union StructuredDataContent {
 }
 
 // Only handles bytes.
-// It is the reponsibility of the caller to
+// It is the responsibility of the caller to
 // serialize and deserialize the data they
 // encrypt/decrypt with this Library.
 structure StructuredDataTerminal {
@@ -100,20 +146,41 @@ structure StructuredDataTerminal {
     typeId: TerminalTypeId
 }
 
+//= specification/structured-encryption/structures.md#terminal-value
+//= type=implication
+//# Terminal Value MUST be a sequence of bytes, and MAY be empty (zero-length).
 blob TerminalValue
 
+//= specification/structured-encryption/structures.md#terminal-type-id
+//= type=implication
+//# A Terminal Type ID MUST be a 2 byte value that is used to identify how callers interpret [Terminal Value](#terminal-value).
 @length(min: 2, max: 2)
 blob TerminalTypeId
 
+//= specification/structured-encryption/structures.md#structured-data-map
+//= type=implication
+//# A Structured Data Map MUST consist of:
+// - A map strings to [Structured Data](#structured-data)
+
+//= specification/structured-encryption/structures.md#structured-data-map
+//= type=implication
+//# - This map MUST NOT allow duplicate key values
 map StructuredDataMap {
     key: String,
     value: StructuredData
 }
 
+//= specification/structured-encryption/structures.md#structured-data-list
+//= type=implication
+//# A Structured Data List MUST consist of:
+// - A numerical-indexed array of [Structured Data](#structured-data).
 list StructuredDataList {
     member: StructuredData
 }
 
+//= specification/structured-encryption/structures.md#structured-data-attributes
+//= type=implication
+//# Structured Data Attributes MUST be map of strings to [Terminal Data](#terminal-data).
 map StructuredDataAttributes {
     key: String,
     value: StructuredDataTerminal

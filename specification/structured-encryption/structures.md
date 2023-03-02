@@ -55,7 +55,7 @@ is or is not authenticated during the Encrypt Structure and Decrypt Structure op
 ##### SIGN
 
 During [Encrypt Structure](./encrypt-structure.md),
-SIGN signifies that the [Terminal Data](#terminal-data) MUST be included in the signature calcuations
+SIGN signifies that the [Terminal Data](#terminal-data) MUST be included in the signature calculations
 on the footer.
 
 During [Decrypt Structure](./decrypt-structure.md),
@@ -65,7 +65,7 @@ and thus be included in the verification of the signatures on the footer.
 ##### DO_NOT_SIGN
 
 During [Encrypt Structure](./encrypt-structure.md),
-DO_NOT_SIGN signifies that the [Terminal Data](#terminal-data) MUST NOT be included in the signature calcuations
+DO_NOT_SIGN signifies that the [Terminal Data](#terminal-data) MUST NOT be included in the signature calculations
 on the footer.
 
 During [Decrypt Structure](./decrypt-structure.md),
@@ -139,29 +139,28 @@ No encryption or decryption is performed on the Terminal Data.
 
 TODO: Link directly to the MPL definition once it is more generalized.
 
-### Structured Data
+### Structured Data Content
 
-Structured Data is a recursively defined structure that is intended to support
+Structured Data Content is a recursively defined structure that is intended to support
 the expression of most [JSON](https://datatracker.ietf.org/doc/html/rfc7159) and [XML](https://www.w3.org/TR/xml/) data.
 
-Structured Data is a union of one of three separate structures;
-Structured Data MUST be one of:
+Structured Data Content is a union of one of three separate structures;
+Structured Data Content MUST be one of:
 - [Structured Data Terminal](#structured-data-terminal)
 - [Structured Data Map](#structured-data-map)
 - [Structured Data List](#structured-data-list)
 
-#### Structured Data Terminal
+#### Structured Data
 
-A Structured Data Terminal MUST consist of:
-- a [Terminal Data](#terminal-data)
+A Structured Data MUST consist of:
+- a [Structured Data Content](#structured-data-content)
 - an OPTIONAL map of [Attributes](#structured-data-attributes)
 
 #### Structured Data Map
 
 A Structured Data Map MUST consist of:
-- A map of UTF8-encoded strings to [Structured Data](#structured-data)
+- A map strings to [Structured Data](#structured-data)
   - This map MUST NOT allow duplicate key values 
-- an OPTIONAL map of [Attributes](#structured-data-attributes)
 
 #### Structured Data List
 
@@ -169,11 +168,10 @@ A Structured Data List MUST consist of:
 
 - A numerical-indexed array of [Structured Data](#structured-data).
   - The max length of this list MUST be 2^64 - 1
-- an OPTIONAL map of [Attributes](#structured-data-attributes)
 
 ### Structured Data Attributes
 
-Structured Data Attributes MUST be map of UTF8-encoded strings to [Terminal Data](#terminal-data).
+Structured Data Attributes MUST be map of strings to [Terminal Data](#terminal-data).
 This data is intended to be an equivalent to XML-like attributes.
 
 ### Terminal Data
@@ -185,13 +183,13 @@ Terminal Data is a structure that contains:
 
 #### Terminal Type ID
 
-A 2 byte value that is used to identify what type callers MUST interpret [Terminal Value](#terminal-value) as.
+A Terminal Type ID MUST be a 2 byte value that is used to identify how callers interpret [Terminal Value](#terminal-value).
 
 If [Terminal Value](#terminal-value) is to be interpreted as raw bytes,
 the Terminal Type ID MUST be 0xFFFF.
 Any other value prefixed by 0xFF is reserved and MUST NOT be used.
 
-It is the responsiblity of the caller to define and maintain a mapping of Terminal Type IDs (including 0xFFFF) to specific types
+It is the responsibility of the caller to define and maintain a mapping of Terminal Type IDs (including 0xFFFF) to specific types
 and how those types should be serialized and deserialized.
 
 #### Terminal Value

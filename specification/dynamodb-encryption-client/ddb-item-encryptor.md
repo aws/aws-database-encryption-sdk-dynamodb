@@ -55,27 +55,27 @@ The name of the DynamoDB Table where the
 DynamoDB Items to be decrypted or encrypted
 are stored or intended to be stored.
 
-This name MUST be a UTF-8 encoded string.
+This Table Name MUST be a valid DynamoDB Table Name.
 
 ### DynamoDB Partition Key Name
 
-The DynamoDB Partition Key Name is the attribute name of the partiton key of the DynamoDB Table
+The DynamoDB Partition Key Name is the attribute name of the partition key of the DynamoDB Table
 identified by the [input DynamoDB Table Name](#dynamodb-table-name).
 
-This name MUST be a UTF-8 encoded string.
+This Partition Key Name MUST be a valid DynamoDB Key Schema Attribute Name
 
 ### DynamoDB Sort Key Name
 
 The DynamoDB Sort Key Name is the attribute name of the sort key
 of the DynamoDB Table identified by the [input DynamoDB Table Name](#dynamodb-table-name).
 
-This name MUST be a UTF-8 encoded string.
+This Sort Key Name MUST be a valid DynamoDB Key Schema Attribute Name
 
 ### Attribute Actions
 
 Attribute Actions is a map of attribute names to
 [Crypto Actions](../structured-encryption/structures.md#crypto-action)
-that describes what Crypto Action MUST apply to a particular attribute 
+that describes what Crypto Action applies to a particular attribute
 (if it exists) during encryption.
 
 The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
@@ -98,7 +98,7 @@ A Keyring that implements the [keyring interface](https://github.com/awslabs/aws
 
 ### Unauthenticated Attributes
 
-Unauthenticated Attributes MUST be a set of Attribute Names.
+Unauthenticated Attributes MUST be a list of Attribute Names.
 With [Unauthenticated Attribute Prefix](#unauthenticated-attribute-prefix),
 This identifies Attributes within this table
 that are not authenticated during decryption.
