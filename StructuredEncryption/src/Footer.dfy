@@ -33,7 +33,8 @@ module StructuredEncryptionFooter {
   import Digest
 
   const RecipientTagSize := 48
-  const SignatureSize := 96
+  //const SignatureSize := 96
+  const SignatureSize := 48
   type RecipientTag = x : Bytes | |x| == RecipientTagSize witness *
   type Signature = x : Bytes | |x| == SignatureSize witness *
 
@@ -43,7 +44,7 @@ module StructuredEncryptionFooter {
   // | Field | Length (bytes) | Interpreted as |
   // | ----- | -------------- | -------------- |
   // | [Recipient Tags](#recipient-tags) | Variable. 48 bytes per Encrypted Data Key in the header | Bytes |
-  // | [Signature](#signature) | 0 or 96 | Signature, if signatures are enabled |
+  // | [Signature](#signature) | 0 or 48 | Signature, if signatures are enabled |
   datatype Footer = Footer (
     tags : seq<RecipientTag>,
     sig : Option<Signature>

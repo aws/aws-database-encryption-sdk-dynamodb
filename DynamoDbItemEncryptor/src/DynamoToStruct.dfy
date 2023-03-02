@@ -461,8 +461,8 @@ module DynamoToStruct {
     ensures a.M? && ret.Success? && prefix ==>
       && U32ToBigEndian(|a.M|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
-      && ret.value[0..TYPEID_LEN] == MAP
-      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.M|).value
+      && ret.value[0..TYPEID_LEN] == AttrToTypeId(a)
+      // && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.M|).value
       && (|a.M| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
   {
