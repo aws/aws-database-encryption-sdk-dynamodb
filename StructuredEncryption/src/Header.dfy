@@ -15,7 +15,7 @@ module StructuredEncryptionHeader {
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
-  import Sets
+  import SortedSets
   import UTF8
   import Paths = StructuredEncryptionPaths
   import Random
@@ -332,7 +332,7 @@ module StructuredEncryptionHeader {
     MapKeepsCount(authSchema, k => Paths.SimpleCanon(tableName, k));
     var canonSchema := MyMap(fn, authSchema);
     assert |authSchema| == |canonSchema|;
-    var attrs := Sets.ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);
+    var attrs := SortedSets.ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);
     MakeLegend2(attrs, canonSchema)
   }
 
@@ -519,7 +519,7 @@ module StructuredEncryptionHeader {
     : (ret : Bytes)
     ensures
       && |ret| >= 2
-      && var keys := Sets.ComputeSetToOrderedSequence2(x.Keys, ByteLess);
+      && var keys := SortedSets.ComputeSetToOrderedSequence2(x.Keys, ByteLess);
       //= specification/structured-encryption/header.md#encryption-context
       //= type=implication
       //# The Encryption Context MUST be serialized as follows
@@ -532,7 +532,7 @@ module StructuredEncryptionHeader {
     //= specification/structured-encryption/header.md#key-value-pair-entries
     //# These entries MUST have entries sorted, by key,
     //# in ascending order according to the UTF-8 encoded binary value.
-    var keys := Sets.ComputeSetToOrderedSequence2(x.Keys, ByteLess);
+    var keys := SortedSets.ComputeSetToOrderedSequence2(x.Keys, ByteLess);
     UInt16ToSeq(|x| as uint16) + SerializeContext2(keys, x)
   }
 
@@ -709,7 +709,7 @@ module StructuredEncryptionHeader {
 
 // End code, begin proofs
 
-  // copy pasted from libraries/Sets.dfy, because I already include StandardLibrary/Sets.dfy
+  // copy pasted from libraries/SortedSets.dfy, because I already include StandardLibrary/SortedSets.dfy
   /* If an injective function is applied to each element of a set to construct
   another set, the two sets have the same size.  */
   lemma MyLemmaMapSize<X(!new), Y>(xs: set<X>, ys: set<Y>, f: X-->Y)

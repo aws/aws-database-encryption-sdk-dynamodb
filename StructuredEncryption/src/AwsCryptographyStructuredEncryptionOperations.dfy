@@ -21,7 +21,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   import Materials
   import Crypt = StructuredEncryptionCrypt
   import Paths = StructuredEncryptionPaths
-  import Sets
+  import SortedSets
   import Seq
   import Digest
   import Defaults
@@ -300,7 +300,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     Paths.SimpleCanonUnique(tableName);
     var fieldMap := map k <- data.Keys | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k;
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
-    var signedFields_c := Sets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
+    var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
     var encFields_c := FilterEncrypt(signedFields_c, fieldMap, schema);
 
     Success(EncryptCanon(
@@ -321,7 +321,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     Paths.SimpleCanonUnique(tableName);
     var fieldMap := map k <- data.Keys | schema[k].content.Action == SIGN :: Paths.SimpleCanon(tableName, k) := k;
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
-    var signedFields_c := Sets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
+    var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
 
     Success(DecryptCanon(
       signedFields_c,
