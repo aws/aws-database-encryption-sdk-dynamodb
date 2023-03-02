@@ -5,6 +5,7 @@ include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Paths.dfy"
 include "Util.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Functions.dfy"
+include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Collections/Sets/Sets.dfy"
 
 module StructuredEncryptionHeader {
   import opened Wrappers
@@ -15,6 +16,7 @@ module StructuredEncryptionHeader {
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
+  import Sets
   import SortedSets
   import UTF8
   import Paths = StructuredEncryptionPaths
@@ -709,24 +711,6 @@ module StructuredEncryptionHeader {
 
 // End code, begin proofs
 
-  // copy pasted from libraries/SortedSets.dfy, because I already include StandardLibrary/SortedSets.dfy
-  /* If an injective function is applied to each element of a set to construct
-  another set, the two sets have the same size.  */
-  lemma MyLemmaMapSize<X(!new), Y>(xs: set<X>, ys: set<Y>, f: X-->Y)
-    requires forall x {:trigger f.requires(x)} :: f.requires(x)
-    requires Functions.Injective(f)
-    requires forall x {:trigger f(x)} :: x in xs <==> f(x) in ys
-    requires forall y {:trigger y in ys} :: y in ys ==> exists x :: x in xs && y == f(x)
-    ensures |xs| == |ys|
-  {
-    if xs != {} {
-      var x :| x in xs;
-      var xs' := xs - {x};
-      var ys' := ys - {f(x)};
-      MyLemmaMapSize(xs', ys', f);
-    }
-  }
-
   // mapping with no filter does not change map size
   lemma MapKeepsCount<Y,Z>(m : map<GoodString,Y>, f : (GoodString) -> Z)
     requires forall a : GoodString, b : GoodString :: a != b ==> f(a) != f(b)
@@ -734,7 +718,7 @@ module StructuredEncryptionHeader {
     ensures |m.Keys| == |MyMap(f, m).Keys|
     ensures |m| == |MyMap(f, m)|
   {
-    MyLemmaMapSize(m.Keys, MyMap(f, m).Keys, f);
+    Sets.LemmaMapSize(m.Keys, MyMap(f, m).Keys, f);
   }
 
   // SerializeLegend ==> GetLegend
