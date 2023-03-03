@@ -61,24 +61,10 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static DecryptItemOutput DecryptItemOutput(
-      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemOutput dafnyValue) {
-    DecryptItemOutput.Builder nativeBuilder = DecryptItemOutput.builder();
+  public static EncryptItemInput EncryptItemInput(
+      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemInput dafnyValue) {
+    EncryptItemInput.Builder nativeBuilder = EncryptItemInput.builder();
     nativeBuilder.plaintextItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_plaintextItem()));
-    return nativeBuilder.build();
-  }
-
-  public static DecryptItemInput DecryptItemInput(
-      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemInput dafnyValue) {
-    DecryptItemInput.Builder nativeBuilder = DecryptItemInput.builder();
-    nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
-    return nativeBuilder.build();
-  }
-
-  public static EncryptItemOutput EncryptItemOutput(
-      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemOutput dafnyValue) {
-    EncryptItemOutput.Builder nativeBuilder = EncryptItemOutput.builder();
-    nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
     return nativeBuilder.build();
   }
 
@@ -101,18 +87,32 @@ public class ToNative {
       nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialProviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId().dtor_value()));
     }
     if (dafnyValue.dtor_keyring().is_Some()) {
-      nativeBuilder.keyring((dafnyValue.dtor_keyring().dtor_value()));
+      nativeBuilder.keyring(software.amazon.cryptography.materialProviders.ToNative.Keyring(dafnyValue.dtor_keyring().dtor_value()));
     }
     if (dafnyValue.dtor_cmm().is_Some()) {
-      nativeBuilder.cmm((dafnyValue.dtor_cmm().dtor_value()));
+      nativeBuilder.cmm(software.amazon.cryptography.materialProviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm().dtor_value()));
     }
     return nativeBuilder.build();
   }
 
-  public static EncryptItemInput EncryptItemInput(
-      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemInput dafnyValue) {
-    EncryptItemInput.Builder nativeBuilder = EncryptItemInput.builder();
+  public static DecryptItemInput DecryptItemInput(
+      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemInput dafnyValue) {
+    DecryptItemInput.Builder nativeBuilder = DecryptItemInput.builder();
+    nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
+    return nativeBuilder.build();
+  }
+
+  public static DecryptItemOutput DecryptItemOutput(
+      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemOutput dafnyValue) {
+    DecryptItemOutput.Builder nativeBuilder = DecryptItemOutput.builder();
     nativeBuilder.plaintextItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_plaintextItem()));
+    return nativeBuilder.build();
+  }
+
+  public static EncryptItemOutput EncryptItemOutput(
+      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemOutput dafnyValue) {
+    EncryptItemOutput.Builder nativeBuilder = EncryptItemOutput.builder();
+    nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
     return nativeBuilder.build();
   }
 

@@ -3,11 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbItemEncryptor.model;
 
-// TODO manually updated the below DDB import to point to the right place
-// TODO manually updated native type name, i.e. Input->Request Output->Result
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class EncryptItemInput {
   private final Map<String, AttributeValue> plaintextItem;
