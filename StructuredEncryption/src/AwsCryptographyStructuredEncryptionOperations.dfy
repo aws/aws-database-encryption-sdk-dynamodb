@@ -511,7 +511,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       Fail(E("Encryption Context Mismatch\n" + str))
   }
 
-  method DecryptStructure {:vcs_split_on_every_assert} (config: InternalConfig, input: DecryptStructureInput)
+  method {:vcs_split_on_every_assert} DecryptStructure (config: InternalConfig, input: DecryptStructureInput)
     //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
     //= type=implication
     //# This operation MUST output a [Structured Data](#structured-data) with the following specifics:
