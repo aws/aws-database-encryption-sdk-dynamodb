@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
 import java.util.Objects;
+import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
 
 public class ExecuteTransactionInputTransformInput {
-  private final ExecuteTransactionRequest sdkInput ;
+  private final ExecuteTransactionRequest sdkInput;
 
   protected ExecuteTransactionInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
-  public ExecuteTransactionRequest sdkInput () {
+  public ExecuteTransactionRequest sdkInput() {
     return this.sdkInput;
   }
 
@@ -26,15 +26,15 @@ public class ExecuteTransactionInputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkInput(ExecuteTransactionRequest sdkInput );
+    Builder sdkInput(ExecuteTransactionRequest sdkInput);
 
-    ExecuteTransactionRequest sdkInput ();
+    ExecuteTransactionRequest sdkInput();
 
     ExecuteTransactionInputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteTransactionRequest sdkInput ;
+    protected ExecuteTransactionRequest sdkInput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class ExecuteTransactionInputTransformInput {
       this.sdkInput = model.sdkInput();
     }
 
-    public Builder sdkInput(ExecuteTransactionRequest sdkInput ) {
+    public Builder sdkInput(ExecuteTransactionRequest sdkInput) {
       this.sdkInput = sdkInput;
       return this;
     }
 
-    public ExecuteTransactionRequest sdkInput () {
+    public ExecuteTransactionRequest sdkInput() {
       return this.sdkInput;
     }
 

@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementRequest;
 import java.util.Objects;
+import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementRequest;
 
 public class BatchExecuteStatementInputTransformOutput {
-  private final BatchExecuteStatementRequest transformedInput ;
+  private final BatchExecuteStatementRequest transformedInput;
 
   protected BatchExecuteStatementInputTransformOutput(BuilderImpl builder) {
     this.transformedInput = builder.transformedInput();
   }
 
-  public BatchExecuteStatementRequest transformedInput () {
+  public BatchExecuteStatementRequest transformedInput() {
     return this.transformedInput;
   }
 
@@ -26,15 +26,15 @@ public class BatchExecuteStatementInputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedInput(BatchExecuteStatementRequest transformedInput );
+    Builder transformedInput(BatchExecuteStatementRequest transformedInput);
 
-    BatchExecuteStatementRequest transformedInput ();
+    BatchExecuteStatementRequest transformedInput();
 
     BatchExecuteStatementInputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchExecuteStatementRequest transformedInput ;
+    protected BatchExecuteStatementRequest transformedInput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class BatchExecuteStatementInputTransformOutput {
       this.transformedInput = model.transformedInput();
     }
 
-    public Builder transformedInput(BatchExecuteStatementRequest transformedInput ) {
+    public Builder transformedInput(BatchExecuteStatementRequest transformedInput) {
       this.transformedInput = transformedInput;
       return this;
     }
 
-    public BatchExecuteStatementRequest transformedInput () {
+    public BatchExecuteStatementRequest transformedInput() {
       return this.transformedInput;
     }
 

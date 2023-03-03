@@ -3,12 +3,12 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
+import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
 import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionResponse;
-import java.util.Objects;
 
 public class ExecuteTransactionOutputTransformInput {
-  private final ExecuteTransactionResponse sdkOutput ;
+  private final ExecuteTransactionResponse sdkOutput;
 
   private final ExecuteTransactionRequest originalInput;
 
@@ -17,7 +17,7 @@ public class ExecuteTransactionOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public ExecuteTransactionResponse sdkOutput () {
+  public ExecuteTransactionResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -34,9 +34,9 @@ public class ExecuteTransactionOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(ExecuteTransactionResponse sdkOutput );
+    Builder sdkOutput(ExecuteTransactionResponse sdkOutput);
 
-    ExecuteTransactionResponse sdkOutput ();
+    ExecuteTransactionResponse sdkOutput();
 
     Builder originalInput(ExecuteTransactionRequest originalInput);
 
@@ -46,7 +46,7 @@ public class ExecuteTransactionOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteTransactionResponse sdkOutput ;
+    protected ExecuteTransactionResponse sdkOutput;
 
     protected ExecuteTransactionRequest originalInput;
 
@@ -58,12 +58,12 @@ public class ExecuteTransactionOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(ExecuteTransactionResponse sdkOutput ) {
+    public Builder sdkOutput(ExecuteTransactionResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public ExecuteTransactionResponse sdkOutput () {
+    public ExecuteTransactionResponse sdkOutput() {
       return this.sdkOutput;
     }
 
