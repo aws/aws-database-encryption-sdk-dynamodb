@@ -187,17 +187,22 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     return Success(mat);
   }
 
-  // for encryption, various canonized things
+  // for Encrypt, the data necessary to construct the Intermediate Encrypted Structured Data
   datatype EncryptCanon = EncryptCanon (
-    encFields_c : seq<CanonicalPath>,   // these fields should be encrypted
+    encFields_c : seq<CanonicalPath>,   // these fields should be encrypted, sorted
+                                        // i.e. a Crypto Action of ENCRYPT_AND_SIGN
     signedFields_c : seq<CanonicalPath>,// these fields should be signed, sorted
+                                        // i.e. a Crypto Action other than DO_NOTHING
     data_c : StructuredDataCanon        // all signed fields with canonized paths
+                                        // i.e. the Intermediate Encrypted Structured Data, but unencrypted
   )
 
-  // for decryption, data fields and schema, both plain field names and canonical path
+  // for Decrypt, the data necessary to construct the Intermediate Encrypted Structured Data
   datatype DecryptCanon = DecryptCanon (
     signedFields_c : seq<CanonicalPath>,// these fields were signed, sorted
+                                        // i.e. an Authenticate Action of SIGN
     data_c : StructuredDataCanon        // all signed fields with canonized paths
+                                        // i.e. the Intermediate Encrypted Structured Data, properly encrypted
   )
 
   // return the subset of "fields" which are ENCRYPT_AND_SIGN
@@ -280,7 +285,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# the [Authenticate Schema](#authenticate-schema)
     //# indicates an [Authenticate Action](./structures.md#authenticate-action)
     //# of [SIGN](./structures.md#SIGN) for that field,
-    //# sorted by the [Canonical Path](header.md.#canonical-path)
+    //# sorted by the [Canonical Path](header.md.#canonical-path).
 
     Paths.SimpleCanonUnique(tableName);
     var fieldMap := map k <- data.Keys | schema[k].content.Action == SIGN :: Paths.SimpleCanon(tableName, k) := k;
@@ -327,7 +332,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //# The Crypto Schema MUST include at least one [ENCRYPT_AND_SIGN Crypto Action](./structures.md#encryptandsign) or
       //# [SIGN_ONLY Crypto Action](./structures.md#signonly);
       //# otherwise, this operation MUST yield an error.
-      && (exists k <- cryptoSchema :: cryptoSchema[k].content.Action == ENCRYPT_AND_SIGN)
+      && (exists k <- cryptoSchema :: cryptoSchema[k].content.Action != DO_NOTHING)
 
       //= specification/structured-encryption/encrypt-structure.md#encryption-context
       //= type=implication
@@ -337,6 +342,17 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         || input.encryptionContext.None?
         || !exists k <- input.encryptionContext.value :: ReservedCryptoContextPrefixUTF8 <= input.encryptionContext.value[k]
       )
+
+      //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+      //= type=implication
+      //# - The [Header Field](#header-field) MUST exist in the Encrypted Structured Data
+      && HeaderField in output.value.encryptedStructure.content.DataMap
+
+      //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+      //= type=implication
+      //# - The [Footer Field](#footer-field) MUST exist in the Encrypted Structured Data
+      && FooterField in output.value.encryptedStructure.content.DataMap
+
   {
     :- Need(input.plaintextStructure.content.DataMap?, E("Input structure must be a DataMap"));
     :- Need(input.cryptoSchema.content.SchemaMap?, E("Input Crypto Schema must be a SchemaMap"));
@@ -372,14 +388,17 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
     //= specification/structured-encryption/header.md#message-id
     //# Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
+
+    //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
+    //# The process used to generate this identifier MUST use a good source of randomness
+    //# to make the chance of duplicate identifiers negligible.
     var randBytes := Random.GenerateBytes(MSGID_LEN as int32);
     var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
     var head :- Header.Create(input.tableName, input.cryptoSchema, msgID, mat);
-
     //= specification/structured-encryption/header.md#commit-key
-    //# The commit key MUST be generated with the record's plaintext data key and the header's
-    //# message id.
-    var commitKey := Crypt.GetCommitKey(alg, key, head.msgID);
+    //# The commit key calculation described above MUST be performed with the record's plaintext data key
+    //# and the header's message id.
+    var commitKey :- Crypt.GetCommitKey(config.primitives, alg, key, head.msgID);
     var headerSerialized :- Header.Serialize(config.primitives, alg, commitKey, head);
 
     //= specification/structured-encryption/encrypt-structure.md#header-field
@@ -408,36 +427,28 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# - for every [Terminal Data](./structures.md#terminal-data) in the
     //# [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
     //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the final Encrypted Structured Data.
+    // this assert can be an implication, because it is explicitly ensuring an intermediate state.
+    assert forall k <- canonData.data_c :: (exists m :: k == Paths.SimpleCanon(input.tableName, m) && m in result.Keys);
 
     //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
     //= type=implication
     //# - for every [Terminal Data](./structures.md#terminal-data) in the final Encrypted Structured Data
-    //# (except for the [header](#header-field) and [footer](#footer-field)),
+    //# if the [Crypto Schema](#crypto-schema)
+    //# indicates a [Crypto Action](./structures.md#crypto-action)
+    //# other than [DO_NOTHING](./structures.md#DO_NOTHING),
     //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the
-    //# [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
-
+    //# [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data).
+    // this assert can be an implication, because it is explicitly ensuring an intermediate state.
+    assert forall k <- result.Keys :: cryptoSchema[k].content.Action == DO_NOTHING || Paths.SimpleCanon(input.tableName, k) in canonData.data_c;
 
     var footer :- Footer.CreateFooter(config.primitives, mat, canonData.signedFields_c,
                 canonData.encFields_c, encryptedItems, canonData.data_c, headerSerialized);
     var footerAttribute := footer.makeTerminal();
 
-    //= specification/structured-encryption/encrypt-structure.md#header-field
-    //# The Header Field name MUST be `aws_dbe_head`
-
-    //= specification/structured-encryption/encrypt-structure.md#footer-field
-    //# The Footer Field name MUST be `aws_dbe_foot`
-
-    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
-    //# - The [Header Field](#header-field) MUST exist in the Encrypted Structured Data
-
-    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
-    //# - The [Footer Field](#footer-field) MUST exist in the Encrypted Structured Data
-    result := result + map[HeaderField := headerAttribute, FooterField := footerAttribute];
-
-    // these would let us turn the above into implications, but they're too expensive
-    // assert result.Keys == input.plaintextStructure.content.DataMap.Keys;
-    // assert HeaderField in result;
-    // assert FooterField in result;
+    result := result[HeaderField := headerAttribute];
+    result := result[FooterField := footerAttribute];
+    assert HeaderField in result;
+    assert FooterField in result;
 
     var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
       content := StructuredDataContent.DataMap(
@@ -547,11 +558,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap)
       && (exists x :: (x in input.authenticateSchema.content.SchemaMap && input.authenticateSchema.content.SchemaMap[x].content.Action == SIGN))
 
-      //= specification/structured-encryption/decrypt-structure.md#parse-the-header
-      //= type=implication
-      //# Given the [input Structured Data](#structured-data),
-      //# this operation MUST access the [Terminal Data](./structures.md#terminal-data)
-      //# at the "aws_dbe_head"
       && var headerSerialized := encRecord[HeaderField].content.Terminal.value;
       //= specification/structured-encryption/decrypt-structure.md#parse-the-header
       //= type=implication
@@ -567,6 +573,19 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //# and the corresponding values do not match,
       //# this operation MUST yield an error.
       && DetectMismatch(inputContext, head.encContext).Pass?
+
+      //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+      //= type=implication
+      //# - [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
+      //# or "aws_dbe_foot".
+      && HeaderField !in output.value.plaintextStructure.content.DataMap
+      && FooterField !in output.value.plaintextStructure.content.DataMap
+
+      //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+      //= type=implication
+      //# - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
+      //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
+      && forall k <- output.value.plaintextStructure.content.DataMap :: k in encRecord
 
   {
     :- Need(input.authenticateSchema.content.SchemaMap?, E("Authenticate Schema must be a SchemaMap"));
@@ -635,9 +654,9 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     :- Need(ValidSuite(mat.algorithmSuite), E("Invalid Algorithm Suite"));
     var alg := mat.algorithmSuite;
     var key : Key := mat.plaintextDataKey.value;
-    var commitKey := Crypt.GetCommitKey(alg, key, head.msgID);
+    var commitKey :- Crypt.GetCommitKey(config.primitives, alg, key, head.msgID);
     //= specification/structured-encryption/decrypt-structure.md#parse-the-header
-    //# The header field value MUST be be [verified](header.md#Commitment Verification)
+    //# The header field value MUST be [verified](header.md#commitment-verification)
     var ok :- head.verifyCommitment(config.primitives, alg, commitKey, headerSerialized);
 
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
@@ -652,13 +671,15 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //= type=implication
     //# Decryption MUST fail if the length of this list does not equal the
-    //# length of the header's [Encrypt Legend](header.md.#encrypt-legend)
+    //# length of the header's [Encrypt Legend](header.md.#encrypt-legend).
+    // this assert can be an implication, because it is explicitly ensuring an intermediate state.
     assert |head.legend| == |canonData.signedFields_c|;
 
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //# The `encrypted field list` MUST be all fields in the `signed field list`
     //# for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
-    //# is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes).
+    //# is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes),
+    //# sorted by the field's [canonical path](./header.md#canonical-path).
     var encryptedFields : seq<CanonicalPath> := FilterEncrypted(canonData.signedFields_c, head.legend);
     :- Need(|encryptedFields| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
 
@@ -668,22 +689,14 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var footer :- Footer.DeserializeFooter(footerSerialized, alg.signature.ECDSA?);
 
     //= specification/structured-encryption/decrypt-structure.md#verify-signatures
-    //# The footer field value MUST be be [verified](footer.md#footer-verification)
+    //# The footer field value MUST be [verified](footer.md#footer-verification).
 
     //= specification/structured-encryption/decrypt-structure.md#verify-signatures
-    //# If either verification fails, this operation MUST NOT continue
-    //# and MUST yield an error.
+    //# Decryption MUST fail immediately if verification fails.
     var _ :- footer.validate(config.primitives, mat, head.dataKeys,
                             canonData.signedFields_c, encryptedFields, map[], canonData.data_c, headerSerialized);
     var decryptedItems :- Crypt.Decrypt(config.primitives, alg, key, head, encryptedFields, canonData.data_c);
 
-    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
-    //# - For each Terminal Data in the output Structured Data,
-    //# if the field name is not in the [Encrypted Field Lists](#calculate-signed-and-encrypted-field-lists)
-    //# this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
-    //# [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's,
-    //# otherwise this Terminal Data MUST be the [decryption](#terminal-data-decryption) of
-    //# the input Terminal Data.
     var result : map<string, StructuredData> := map k | k in encRecord.Keys :: k :=
       var c := Paths.SimpleCanon(input.tableName, k);
       if c in decryptedItems then
@@ -692,30 +705,25 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         encRecord[k];
 
     //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
-    //= type=implication
     //# - For every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
     //# (aside from the header and footer),
     //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the output Structured Data.
-    assert forall k <- encRecord.Keys :: k in result.Keys;
-    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
-    //= type=implication
-    //# - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
-    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
-    assert forall k <- result.Keys :: k in encRecord.Keys;
-    //assert encRecord.Keys == result.Keys;
+    // at this point both result and encRecord have header and footer
+    assert forall k <- encRecord :: k in result;
+    assert forall k <- result :: k in encRecord;
+
+    var smallResult := result - {HeaderField, FooterField};
+    // If I could prove this, I could move the above to an ensures clause
+    //assert forall k <- encRecord :: (k == HeaderField || k == FooterField || k in smallResult);
 
     var decryptOutput := DecryptStructureOutput(plaintextStructure := StructuredData(
       content := StructuredDataContent.DataMap(
-        DataMap := result - {HeaderField, FooterField}
+        DataMap := smallResult
       ),
       attributes := None
     ));
-    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
-    //= type=implication
-    //# - [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
-    //# or "aws_dbe_foot".
-    assert HeaderField !in decryptOutput.plaintextStructure.content.DataMap;
-    assert FooterField !in decryptOutput.plaintextStructure.content.DataMap;
+    assert forall k <- decryptOutput.plaintextStructure.content.DataMap :: k in encRecord;
+
     output := Success(decryptOutput);
   }
 }

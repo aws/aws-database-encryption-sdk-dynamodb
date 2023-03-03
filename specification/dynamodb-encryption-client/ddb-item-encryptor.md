@@ -98,7 +98,7 @@ A Keyring that implements the [keyring interface](https://github.com/awslabs/aws
 
 ### Unauthenticated Attributes
 
-Unauthenticated Attributes MUST be a list of Attribute Names.
+Unauthenticated Attributes MUST be a set of Attribute Names.
 With [Unauthenticated Attribute Prefix](#unauthenticated-attribute-prefix),
 This identifies Attributes within this table
 that are not authenticated during decryption.

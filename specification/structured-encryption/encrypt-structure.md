@@ -127,7 +127,7 @@ The call to Get Encryption Materials is constructed as follows:
 - Commitment Policy: This MUST be
   [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
 - Algorithm Suite: If provided, this is the [input algorithm suite](#algorithm-suite);
-  otherwise, this field MUST be the algorithm suite corresponding to the enum 
+  otherwise, this field MUST be the algorithm suite corresponding to the enum
   [DBE.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 - Max Plaintext Length: This field MUST be the result of the calculation `encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize`
   - `encryptedTerminalDataNum` is the number of [Terminal Data](./structures.md#terminal-data)
@@ -178,7 +178,9 @@ and [Terminal Value](./structures.md#terminal-value) equal to the input Terminal
 If the [Crypto Schema](#crypto-schema)
 indicates a [Crypto Action](./structures.md#crypto-action)
 of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) for this Terminal Data,
-this Terminal Data MUST be the [encryption](#terminal-data-encryption)
+this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+equal to 0xff and the value MUST be
+the [encryption](#terminal-data-encryption)
 of the input's Terminal Data.
 
 For every [Terminal Data](./structures.md#terminal-data)
@@ -186,28 +188,42 @@ in the Intermediate Encrypted Structured Data
 a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
 in the [input Structured Data](#structured-data).
 
+
+### Calculate Info
+
+The `info` used for the HKDF function MUST be
+| Field                | Length   |
+| -------------------- | -------- |
+| "AWS_DBE_DERIVE_KEY" | 18       |
+| Message ID           | 32       |
+
 ### Calculate Cipherkey and Nonce
 
-The KDF used to calculate the Field Root Key MUST be the 
+The HKDF algorithm used to calculate the Field Root Key MUST be the
 [Encryption Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
 indicated by the algorithm suite, using a provided plaintext data key,
-no salt, and an info of "AWS_DBE_DERIVE_KEY" concatenated with a provided message id.
+and an info as calculated [above](#calculate-info)
 
 The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
-and the Message ID generated for this Encrypted Structured Data
+and the Message ID generated for this Encrypted Structured Data.
+The `FieldRootKey` is combined with the ordinal position of a field within a record
+to generate a unique `FieldKey` for encrypting that field.
 
 The calculated Field Root MUST have length equal to the
   [algorithm suite's encryption key length](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
 
 The `FieldKeyNonce` for a given offset MUST be 16 bytes comprised of
- - the ASCII encoding of "AwsDbeField"
- - the byte 0x2c (aka 44, the length of the eventual FieldKey)
- - the offset as a 4-byte integer
+| Field         | Length   | Interpretation |
+| ------------- | -------- | -------------- |
+| "AwsDbeField" | 11       | Literal Ascii String |
+| 0x2c          | 1        | 44, the length of the eventual FieldKey |
+| offset        | 4        | 32 bit integer representation of offset |
 
 The `FieldKey` for a given key and offset MUST be the first 44 bytes
 of the aes256ctr_stream
-of the given key and the `FieldKeyNonce` of three times the given offset
+of the `FieldRootKey` and the `FieldKeyNonce` of three times the given offset.
+The `FieldKey` is used to derive a specific Cipherkey for each specific TerminalData to be encrypted, and the nonces that are used for that encryption"
 
 The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
 
@@ -239,7 +255,7 @@ The Encrypted Terminal Value MUST be derived according to the following encrypti
 - The encryption algorithm used is the
   [encryption algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.
-- The AAD is the [canonical path](./header.md#canonical-path) for this Terminal Data
+- The AAD is the [canonical path](./header.md#canonical-path) for this Terminal Data.
 - The [Cipherkey and Nonce](#calculate-cipherkey-and-nonce) are as calculated above.
 - The plaintext is the [Terminal Value](./structures.md#terminal-value) for this Terminal Data.
 
@@ -271,8 +287,10 @@ The Encrypted Structured Data created by this operation MUST be a Structured Dat
   [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
   a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the final Encrypted Structured Data.
 - for every [Terminal Data](./structures.md#terminal-data) in the final Encrypted Structured Data
-  (except for the [header](#header-field) and [footer](#footer-field)),
+  if the [Crypto Schema](#crypto-schema)
+  indicates a [Crypto Action](./structures.md#crypto-action)
+  other than [DO_NOTHING](./structures.md#DO_NOTHING),
   a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the
-  [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
+  [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data).
 - The [Header Field](#header-field) MUST exist in the Encrypted Structured Data
 - The [Footer Field](#footer-field) MUST exist in the Encrypted Structured Data

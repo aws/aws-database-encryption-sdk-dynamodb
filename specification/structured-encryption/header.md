@@ -201,15 +201,23 @@ It is the data key encrypted by the key provider.
 
 #### Commit Key
 
-The KDF used to calculate the Commitment Key MUST be the
+The HKDF used to calculate the Commitment Key MUST be the
 [Commit Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
 indicated by the algorithm suite.
 
 The calculated Commitment Key MUST have length equal to the
 [algorithm suite's encryption key length](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
-The commit key MUST be generated with the record's plaintext data key and the header's
-message id.
+The `info` used for the HKDF function MUST be
+| Field                | Length   |
+| -------------------- | -------- |
+| "AWS_DBE_COMMIT_KEY" | 18       |
+| Message ID           | 32       |
+
+The HKDF calculation MUST use a supplied key, and an `info` as described above.
+
+The commit key calculation described above MUST be performed with the record's plaintext data key
+and the header's message id.
 
 #### Commitment Calculation
 

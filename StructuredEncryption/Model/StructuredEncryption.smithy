@@ -121,7 +121,7 @@ structure StructuredData {
 //= type=implication
 //# Structured Data Content is a union of one of three separate structures;
 //# Structured Data Content MUST be one of:
-// - [Structured Data Terminal](#structured-data-terminal)
+// - [Terminal Data](#terminal-data)
 // - [Structured Data Map](#structured-data-map)
 // - [Structured Data List](#structured-data-list)
 union StructuredDataContent {

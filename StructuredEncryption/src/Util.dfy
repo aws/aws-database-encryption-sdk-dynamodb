@@ -15,10 +15,23 @@ module StructuredEncryptionUtil {
 
   // all attributes with this prefix reserved for the implementation
   const ReservedPrefix := "aws_dbe_"
+
   const HeaderField := ReservedPrefix + "head"
   const FooterField := ReservedPrefix + "foot"
   const ReservedCryptoContextPrefixString := "aws-crypto-"
   const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii("aws-crypto-")
+
+  //= specification/structured-encryption/encrypt-structure.md#header-field
+  //= type=implication
+  //# The Header Field name MUST be `aws_dbe_head`
+
+  //= specification/structured-encryption/encrypt-structure.md#footer-field
+  //= type=implication
+  //# The Footer Field name MUST be `aws_dbe_foot`
+  lemma CheckNames()
+    ensures HeaderField == "aws_dbe_head"
+    ensures FooterField == "aws_dbe_foot"
+  {}
 
   const TYPEID_LEN := 2
   const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF]

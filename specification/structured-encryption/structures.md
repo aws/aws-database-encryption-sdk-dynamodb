@@ -146,7 +146,7 @@ the expression of most [JSON](https://datatracker.ietf.org/doc/html/rfc7159) and
 
 Structured Data Content is a union of one of three separate structures;
 Structured Data Content MUST be one of:
-- [Structured Data Terminal](#structured-data-terminal)
+- [Terminal Data](#terminal-data)
 - [Structured Data Map](#structured-data-map)
 - [Structured Data List](#structured-data-list)
 

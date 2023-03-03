@@ -67,7 +67,7 @@ structure DynamoDbItemEncryptorConfig {
 
     //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes
     //= type=implication
-    //# Unauthenticated Attributes MUST be a list of Attribute Names.
+    //# Unauthenticated Attributes MUST be a set of Attribute Names.
     allowedUnauthenticatedAttributes: AttributeNameList,
 
     //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix

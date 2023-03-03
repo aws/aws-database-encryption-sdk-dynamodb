@@ -21,18 +21,22 @@ module StructuredEncryptionCrypt {
   import Header = StructuredEncryptionHeader
   import HKDF
   import AesKdfCtr
+  import Seq
 
 
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Result<Bytes, Error>)
     requires |HKDFOutput| == KeySize
     requires offset as nat * 3 < UINT32_LIMIT
-    ensures ret.Success? ==> |ret.value| == KeySize+NonceSize
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
-    //= type=implication
-    //# The `FieldKey` for a given key and offset MUST be the first 44 bytes
-    //# of the aes256ctr_stream
-    //# of the given key and the `FieldKeyNonce` of three times the given offset
+    ensures ret.Success? ==>
+      && |ret.value| == KeySize+NonceSize
+      //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+      //= type=implication
+      //# The `FieldKey` for a given key and offset MUST be the first 44 bytes
+      //# of the aes256ctr_stream
+      //# of the `FieldRootKey` and the `FieldKeyNonce` of three times the given offset.
+      && AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).Success?
+      && ret.value == AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).value
   {
     var keyR := AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32);
     keyR.MapFailure(e => AwsCryptographyPrimitives(e))
@@ -44,9 +48,11 @@ module StructuredEncryptionCrypt {
     //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
     //= type=implication
     //# The `FieldKeyNonce` for a given offset MUST be 16 bytes comprised of
-    //  - the ASCII encoding of "AwsDbeField"
-    //  - the byte 0x2c (aka 44, the length of the eventual FieldKey)
-    //  - the offset as a 4-byte integer
+    //# | Field         | Length   | Interpretation |
+    //# | ------------- | -------- | -------------- |
+    //# | "AwsDbeField" | 11       | Literal Ascii String |
+    //# | 0x2c          | 1        | 44, the length of the eventual FieldKey |
+    //# | offset        | 4        | 32 bit integer representation of offset |
     ensures ret ==
       UTF8.EncodeAscii("AwsDbeField")
       + [(KeySize+NonceSize) as uint8]
@@ -61,26 +67,58 @@ module StructuredEncryptionCrypt {
   const LABEL_ENCRYPTION_KEY := UTF8.EncodeAscii("AWS_DBE_DERIVE_KEY")
   
   // suitable for header field
-  method GetCommitKey(alg : CMP.AlgorithmSuiteInfo, key : Key, msgID : MessageID)
-    returns (ret : Key)
+  method GetCommitKey(
+    client: Primitives.AtomicPrimitivesClient,
+    alg : CMP.AlgorithmSuiteInfo,
+    key : Key,
+    msgID : MessageID
+  )
+    returns (ret : Result<Key, Error>)
     requires ValidSuite(alg)
-    //= specification/structured-encryption/header.md#commit-key
-    //= type=implication
-    //# The calculated Commitment Key MUST have length equal to the
-    //# [algorithm suite's encryption key length](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
-    ensures |ret| == AlgorithmSuites.GetEncryptKeyLength(alg) as int
+    ensures ret.Success? ==>
+      //= specification/structured-encryption/header.md#commit-key
+      //= type=implication
+      //# The calculated Commitment Key MUST have length equal to the
+      //# [algorithm suite's encryption key length](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
+      && |ret.value| == AlgorithmSuites.GetEncryptKeyLength(alg) as int
+
+      //= specification/structured-encryption/header.md#commit-key
+      //= type=implication
+      //# The HKDF used to calculate the Commitment Key MUST be the
+      //# [Commit Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
+      //# indicated by the algorithm suite.
+      && var history := client.History.HkdfExpand;
+      && 0 < |history|
+      && var expandInput := Seq.Last(history).input;
+      && expandInput.digestAlgorithm == alg.commitment.HKDF.hmac
+
+      //= specification/structured-encryption/header.md#commit-key
+      //= type=implication
+      //# The `info` used for the HKDF function MUST be
+      //# | Field                | Length   |
+      //# | -------------------- | -------- |
+      //# | "AWS_DBE_COMMIT_KEY" | 18       |
+      //# | Message ID           | 32       |
+      && expandInput.info == LABEL_COMMITMENT_KEY + msgID
+
+      //= specification/structured-encryption/header.md#commit-key
+      //= type=implication
+      //# The HKDF calculation MUST use a supplied key, and an `info` as described above.
+      && expandInput.prk == key
+
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
   {
-    //= specification/structured-encryption/header.md#commit-key
-    //# The KDF used to calculate the Commitment Key MUST be the
-    //# [Commit Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
-    //# indicated by the algorithm suite.
-    ret := HKDF.Hkdf(
-      alg.commitment.HKDF.hmac,
-      None, // salt
-      key, // ikm
-      LABEL_COMMITMENT_KEY + msgID, // info
-      alg.commitment.HKDF.outputKeyLength as int // length
+    var commitKey := client.HkdfExpand(
+      Prim.HkdfExpandInput(
+        digestAlgorithm := alg.commitment.HKDF.hmac,
+        prk := key,
+        info := LABEL_COMMITMENT_KEY + msgID,
+        expectedLength := alg.commitment.HKDF.outputKeyLength
+      )
     );
+    return commitKey.MapFailure(e => AwsCryptographyPrimitives(e));
   }
 
   datatype EncryptionSelector = DoEncrypt | DoDecrypt
@@ -140,26 +178,41 @@ module StructuredEncryptionCrypt {
     requires |fieldNames| < (UINT32_LIMIT / 3)
     requires ValidSuite(alg)
 
+    ensures ret.Success? ==>
+      //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+      //= type=implication
+      //# The HKDF algorithm used to calculate the Field Root Key MUST be the
+      //# [Encryption Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
+      //# indicated by the algorithm suite, using a provided plaintext data key,
+      //# and an info as calculated [above](#calculate-info)
+      && var history := client.History.HkdfExpand;
+      && 0 < |history|
+      && var expandInput := Seq.Last(history).input;
+      && expandInput.digestAlgorithm == alg.kdf.HKDF.hmac
+      && expandInput.info == LABEL_ENCRYPTION_KEY + head.msgID
+      //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+      //= type=implication
+      //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
+      //# and the Message ID generated for this Encrypted Structured Data.
+      && expandInput.prk == key
+
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
     //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
-    //# The KDF used to calculate the Field Root Key MUST be the
-    //# [Encryption Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
-    //# indicated by the algorithm suite, using a provided plaintext data key,
-    //# no salt, and an info of "AWS_DBE_DERIVE_KEY" concatenated with a provided message id.
-
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
     //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
-    //# and the Message ID generated for this Encrypted Structured Data
-    var fieldRootKey := HKDF.Hkdf(
-      alg.kdf.HKDF.hmac,
-      None, // salt
-      key, // ikm
-      LABEL_ENCRYPTION_KEY + head.msgID, // info
-      alg.kdf.HKDF.outputKeyLength as int // length
+    //# and the Message ID generated for this Encrypted Structured Data.
+    var fieldRootKeyR := client.HkdfExpand(
+      Prim.HkdfExpandInput(
+        digestAlgorithm := alg.kdf.HKDF.hmac,
+        prk := key,
+        info := LABEL_ENCRYPTION_KEY + head.msgID,
+        expectedLength := alg.kdf.HKDF.outputKeyLength
+      )
     );
+
+    var fieldRootKey :- fieldRootKeyR.MapFailure(e => AwsCryptographyPrimitives(e));
     //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
     //= type=implication
     //# The calculated Field Root MUST have length equal to the
@@ -185,7 +238,7 @@ module StructuredEncryptionCrypt {
     requires (|fieldNames| + offset as nat) * 3 < UINT32_LIMIT
     decreases |fieldNames|
 
-    modifies client.Modifies
+    modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
     ensures client.ValidState()
   {
@@ -236,8 +289,22 @@ module StructuredEncryptionCrypt {
       //# Terminal Type Id MUST equal the input Terminal Data's Terminal Type Id.
       && |ret.value.content.Terminal.value| >= 2
       && ret.value.content.Terminal.value[..2] == data.typeId
+      && var history := client.History.AESEncrypt;
+      && 0 < |history|
+      && var encryptInput := Seq.Last(history).input;
+      && encryptInput.encAlg == alg.encrypt.AES_GCM
+      && FieldKey(fieldRootKey, offset).Success?
+      && var fieldKey := FieldKey(fieldRootKey, offset).value;
+      //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+      //= type=implication
+      //# The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
+      && encryptInput.key == fieldKey[0..KeySize]
+      //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+      //= type=implication
+      //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
+      && encryptInput.iv == fieldKey[KeySize..]
 
-    modifies client.Modifies
+    modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
     ensures client.ValidState()
   {
@@ -293,7 +360,7 @@ module StructuredEncryptionCrypt {
       //# equal to the deserialized Terminal Type Id.
       && ret.value.content.Terminal.typeId == data.value[0..TYPEID_LEN]
 
-    modifies client.Modifies
+    modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
     ensures client.ValidState()
   {

@@ -119,7 +119,7 @@ on this Terminal Data as the header bytes.
 This operation MUST deserialize the header bytes
 according to the [header format](./header.md).
 
-The header field value MUST be be [verified](header.md#Commitment Verification)
+The header field value MUST be [verified](header.md#commitment-verification)
 
 The below calculations REQUIRE a [Crypto Schema](./structures.md#crypto-schema),
 which is determined based on the input [Authentication Schema](#authenticate-schema) and the
@@ -169,7 +169,9 @@ A footer field MUST exist with the name `aws_dbe_foot`
 
 The footer field TypeID MUST be 0xFFFF
 
-The footer field value MUST be be [verified](footer.md#footer-verification)
+The footer field value MUST be [verified](footer.md#footer-verification).
+
+Decryption MUST fail immediately if verification fails.
 
 This operation MUST deserialize the bytes in [Terminal Value](./structures.md#terminal-value)
 according to the [footer format](./footer.md).
@@ -177,12 +179,9 @@ according to the [footer format](./footer.md).
 The number of [HMACs in the footer](./footer.md#hmacs) 
 MUST be the number of [Encrypted Data Keys in the header](./header.md#encrypted-data-keys).
 
-If either verification fails, this operation MUST NOT continue
-and MUST yield an error.
-
 ### Calculate Cipherkey and Nonce
 
-The Cipherkey and Nonce must be calculated as for [encryption](encrypt-structure.md#calculate-cipherkey-and-nonce)
+The Cipherkey and Nonce must be calculated for [encryption](encrypt-structure.md#calculate-cipherkey-and-nonce).
 
 ### Calculate Signed and Encrypted Field Lists
 
@@ -190,14 +189,15 @@ The `signed field list` MUST be all fields for which
 the [Authenticate Schema](#authenticate-schema)
 indicates an [Authenticate Action](./structures.md#authenticate-action)
 of [SIGN](./structures.md#SIGN) for that field,
-sorted by the [Canonical Path](header.md.#canonical-path)
+sorted by the [Canonical Path](header.md.#canonical-path).
 
 Decryption MUST fail if the length of this list does not equal the 
-length of the header's [Encrypt Legend](header.md.#encrypt-legend)
+length of the header's [Encrypt Legend](header.md.#encrypt-legend).
 
 The `encrypted field list` MUST be all fields in the `signed field list`
 for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
-is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes).
+is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes),
+sorted by the field's [canonical path](./header.md#canonical-path).
 
 ### Construct Decrypted Structured Data
 
@@ -214,8 +214,9 @@ This operation MUST output a [Structured Data](#structured-data) with the follow
 if the field name is not in the [Encrypted Field Lists](#calculate-signed-and-encrypted-field-lists)
 this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
 [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's,
-otherwise this Terminal Data MUST be the [decryption](#terminal-data-decryption) of
-the input Terminal Data.
+otherwise this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+equal to the first two bytes of the input Terminal Data's value,
+and a value equal to the [decryption](#terminal-data-decryption) of the input Terminal Data's value.
 
 - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
   a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
@@ -241,6 +242,6 @@ equal to the following decryption:
 - The decryption algorithm used is the
   [encryption algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.
-- The AAD is the [canonical path](./header.md#canonical-path) for this Terminal Data
+- The AAD is the [canonical path](./header.md#canonical-path) for this Terminal Data.
 - The Cipherkey and Nonce are as calculate [above](#calculate-cipherkey-and-nonce).
 - The ciphertext is the deserialized Encrypted Terminal Value.

@@ -32,6 +32,7 @@ module StructuredEncryptionFooter {
   import UTF8
   import Digest
   import StandardLibrary.String
+  import Seq
 
   const RecipientTagSize := 48
   //const SignatureSize := 96
@@ -114,7 +115,9 @@ module StructuredEncryptionFooter {
 
       var foundTag := false;
       for i := 0 to |tags| {
-        if hash == tags[i] {
+        //= specification/structured-encryption/footer.md#recipient-tag-verification
+        //# Recipient Tag comparisons MUST be constant time operations.
+        if ConstantTimeEquals(hash, tags[i]) {
           foundTag := true;
           break;
         }
@@ -157,26 +160,75 @@ module StructuredEncryptionFooter {
       Success(UInt64ToSeq((|value.value|) as uint64) + UTF8.EncodeAscii("PLAINTEXT") + value.typeId)
   }
 
+  function method GetCanonicalEncryptedField(fieldName : CanonicalPath, value : StructuredDataTerminal)
+    : (ret : Result<Bytes, Error>)
+    ensures ret.Success? ==>
+      //= specification/structured-encryption/footer.md#canonical-encrypted-field
+      //= type=implication
+      //# The canonical form of an encrypted field MUST be
+      //# | Field | Length (bytes) | Interpreted as |
+      //# | ----- | -------------- | -------------- |
+      //# | The [canonical path](./header.md#canonical-path) of the field name | Variable | Bytes |
+      //# | encrypted data length - 2 | 8 | 64-bit integer |
+      //# | "ENCRYPTED" | 9 | Literal Ascii text |
+      //# | TypeID | 2 | the type ID of the unencrypted Terminal |
+      //# | value | Variable | the encrypted Terminal value |
+      && 2 <= |value.value| < UINT64_LIMIT
+      && ret.value ==
+          fieldName
+        + UInt64ToSeq((|value.value| - 2) as uint64)
+        + UTF8.EncodeAscii("ENCRYPTED")
+        + value.value
+  {
+    :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
+    Success(
+        fieldName
+      + UInt64ToSeq((|value.value| - 2) as uint64)
+      + UTF8.EncodeAscii("ENCRYPTED")
+      + value.value // this is 2 bytes of unencrypted type, followed by encrypted value
+    )
+  }
+
+  function method GetCanonicalPlaintextField(fieldName : CanonicalPath, value : StructuredDataTerminal)
+    : (ret : Result<Bytes, Error>)
+    ensures ret.Success? ==>
+      //= specification/structured-encryption/footer.md#canonical-plaintext-field
+      //= type=implication
+      //# The canonical form of a plaintext field MUST be
+      //# | Field | Length (bytes) | Interpreted as |
+      //# | ----- | -------------- | -------------- |
+      //# | The [canonical path](./header.md#canonical-path) of the field name | Variable | Bytes |
+      //# | data length | 8 | 64-bit integer |
+      //# | "PLAINTEXT" | 9 | Literal Ascii text |
+      //# | TypeID | 2 | the type ID of the Terminal |
+      //# | value | Variable | the Terminal value |
+      && |value.value| < UINT64_LIMIT
+      && ret.value ==
+          fieldName
+        + UInt64ToSeq((|value.value|) as uint64)
+        + UTF8.EncodeAscii("PLAINTEXT")
+        + value.typeId
+        + value.value
+  {
+    :- Need(|value.value| < UINT64_LIMIT, E("Bad length."));
+    Success(
+        fieldName
+      + UInt64ToSeq((|value.value|) as uint64)
+      + UTF8.EncodeAscii("PLAINTEXT")
+      + value.typeId
+      + value.value
+    )
+  }
+
   // Given a key value pair, return the canonical value for use in the footer checksum calculations
   function method GetCanonicalItem(fieldName : CanonicalPath, value : StructuredData, isEncrypted : bool)
     : (ret : Result<Bytes, Error>)
     requires value.content.Terminal?
-    ensures ret.Success? ==>
-      //= specification/structured-encryption/footer.md#canonical-field
-      //= type=implication
-      //# The canonical form of a field MUST be the concatenation of
-      // - the canonical path of the field
-      // - if the field is encrypted, the original data length as an 8-byte integer, followed by the literal "ENCRYPTED"
-      // - otherwise, the data length as an 8-byte integer, followed by the literal "PLAINTEXT", followed by the 2-byte data type
-      // - the value of the field
-      && GetCanonicalType(value.content.Terminal, isEncrypted).Success?
-      && ret.value ==
-          fieldName
-        + GetCanonicalType(value.content.Terminal, isEncrypted).value
-        + GetValue(value)
   {
-    var middle :- GetCanonicalType(value.content.Terminal, isEncrypted);
-    Success(fieldName + middle + GetValue(value))
+    if isEncrypted then
+      GetCanonicalEncryptedField(fieldName, value.content.Terminal)
+    else
+      GetCanonicalPlaintextField(fieldName, value.content.Terminal)
   }
 
   function method CanonContent (
@@ -212,20 +264,32 @@ module StructuredEncryptionFooter {
     requires forall k <- encData :: encData[k].content.Terminal?
     requires forall k <- allData :: allData[k].content.Terminal?
 
-    //= specification/structured-encryption/footer.md#canonical-record
-    //= type=implication
-    //# The canonical form of a record MUST be the concatenation of
-    //  - the full header with commitment
-    //  - the 8-byte length of the AAD followed by the AAD value, or just a zero length if no AAD is used. The AAD value is the serialization of the Encryption Context from the Encryption MAterials.
-    //  - for each [signed field](#signed-fields), ordered lexicographically by canonical path, the canonical field
     ensures ret.Success? ==>
+      //= specification/structured-encryption/footer.md#canonical-record
+      //= type=implication
+      //# The canonical form of a record MUST be
+      //# | Field | Length (bytes) | Interpreted as |
+      //# | ----- | -------------- | -------------- |
+      //# | header | Variable | The full serialized header with commitment |
+      //# | AAD Length | 8 | 64-bit integer, the length of the following AAD data |
+      //# | AAD | Variable | The serialization of the Encryption Context from the Encryption Materials |
+      //# | Field Data | Variable | For each [signed field](#signed-fields), ordered lexicographically by [canonical path](./header.md#canonical-path), the [canonical field](#canonical-field).
       && CanonContent(signedFields, encFields, encData, allData).Success?
+      && var canon := CanonContent(signedFields, encFields, encData, allData).value;
       && var AAD := Header.SerializeContext(enc);
-      && ret.value == header + AAD + CanonContent(signedFields, encFields, encData, allData).value
+      && |AAD| < UINT64_LIMIT
+      && var len := UInt64ToSeq(|AAD| as uint64);
+      && ret.value ==
+          header
+        + len
+        + AAD
+        + canon
   {
     var canon :- CanonContent(signedFields, encFields, encData, allData);
     var AAD := Header.SerializeContext(enc);
-    Success(header + AAD + canon)
+    :- Need(|AAD| < UINT64_LIMIT, E("AAD too long."));
+    var len := UInt64ToSeq(|AAD| as uint64);
+    Success(header + len + AAD + canon)
   }
 
   method CanonHash (
@@ -269,6 +333,18 @@ module StructuredEncryptionFooter {
     requires forall k <- encData :: encData[k].content.Terminal?
     requires forall k <- allData :: allData[k].content.Terminal?
 
+    ensures (ret.Success? && mat.algorithmSuite.signature.ECDSA?) ==>
+      //= specification/structured-encryption/footer.md#signature
+      //= type=implication
+      //# The `signature`, if it exists, MUST be calculated using the
+      //# [asymmetric signature algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings)
+      //# indicated by the algorithm suite.
+      && var history := client.History.ECDSASign;
+      && 0 < |history|
+      && var signInput := Seq.Last(history).input;
+      && signInput.signatureAlgorithm == mat.algorithmSuite.signature.ECDSA.curve
+      //  Can't do signInput.message == cHash, because SHA is a method, not a function
+
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
@@ -310,12 +386,6 @@ module StructuredEncryptionFooter {
       //= specification/structured-encryption/footer.md#signature
       //# The `signature`, if it exists, MUST be calculated over the [Canonical Hash](#canonical-hash),
       //# using the asymmetric signing key in the encryption materials.
-
-      //= specification/structured-encryption/footer.md#signature
-      //# The `signature`, if it exists, MUST be calculated using the
-      //# [asymmetric signature algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings)
-      //# indicated by the algorithm suite.
-
       var verInput := Prim.ECDSASignInput(
           signatureAlgorithm := mat.algorithmSuite.signature.ECDSA.curve,
           signingKey := mat.signingKey.value,

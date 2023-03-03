@@ -462,7 +462,6 @@ module DynamoToStruct {
       && U32ToBigEndian(|a.M|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
       && ret.value[0..TYPEID_LEN] == AttrToTypeId(a)
-      // && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.M|).value
       && (|a.M| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
   {
@@ -916,7 +915,7 @@ module DynamoToStruct {
 
       //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
       //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
-      :- Need(key !in resultMap.val.M, "");
+      :- Need(key !in resultMap.val.M, "Duplicate key in map.");
       var nattr := AttributeValue.M(resultMap.val.M[key := nval.val]);
       DeserializeMap(serialized[nval.len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultMap.len + nval.len + 8 + len))
   }
