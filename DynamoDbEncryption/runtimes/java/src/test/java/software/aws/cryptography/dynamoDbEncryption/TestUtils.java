@@ -1,9 +1,9 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.kms.KmsClientBuilder;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -46,7 +46,7 @@ public class TestUtils {
                 .build();
         CreateAwsKmsKeyringInput keyringInput = CreateAwsKmsKeyringInput.builder()
                 .kmsKeyId(KMS_TEST_KEY_ID)
-                .kmsClient(AWSKMSClientBuilder.defaultClient())
+                .kmsClient(KmsClient.create())
                 .build();
         return matProv.CreateAwsKmsKeyring(keyringInput);
     }
@@ -58,7 +58,7 @@ public class TestUtils {
         // TODO for now these inputs are just to pass initial validation,
         // no actual hierarchical logic is exercised.
         CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-                .kmsClient(AWSKMSClientBuilder.defaultClient())
+                .kmsClient(KmsClient.create())
                 .kmsKeyId(KMS_TEST_KEY_ID)
                 .branchKeyId("guid")
                 .branchKeyStoreArn("branch-keys-table")
