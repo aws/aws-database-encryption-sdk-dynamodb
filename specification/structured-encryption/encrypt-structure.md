@@ -201,7 +201,7 @@ The `info` used for the HKDF function MUST be
 
 The HKDF algorithm used to calculate the Field Root Key MUST be the
 [Encryption Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
-indicated by the algorithm suite, using a provided plaintext data key,
+indicated by the algorithm suite, using a provided plaintext data key, no salt,
 and an info as calculated [above](#calculate-info)
 
 The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials

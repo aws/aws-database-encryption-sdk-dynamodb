@@ -214,7 +214,7 @@ The `info` used for the HKDF function MUST be
 | "AWS_DBE_COMMIT_KEY" | 18       |
 | Message ID           | 32       |
 
-The HKDF calculation MUST use a supplied key, and an `info` as described above.
+The HKDF calculation MUST use a supplied key, no salt, and an `info` as described above.
 
 The commit key calculation described above MUST be performed with the record's plaintext data key
 and the header's message id.

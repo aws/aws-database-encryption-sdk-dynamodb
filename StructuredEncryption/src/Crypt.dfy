@@ -87,10 +87,10 @@ module StructuredEncryptionCrypt {
       //# The HKDF used to calculate the Commitment Key MUST be the
       //# [Commit Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
       //# indicated by the algorithm suite.
-      && var history := client.History.HkdfExpand;
+      && var history := client.History.Hkdf;
       && 0 < |history|
-      && var expandInput := Seq.Last(history).input;
-      && expandInput.digestAlgorithm == alg.commitment.HKDF.hmac
+      && var hkdfInput := Seq.Last(history).input;
+      && hkdfInput.digestAlgorithm == alg.commitment.HKDF.hmac
 
       //= specification/structured-encryption/header.md#commit-key
       //= type=implication
@@ -99,21 +99,23 @@ module StructuredEncryptionCrypt {
       //# | -------------------- | -------- |
       //# | "AWS_DBE_COMMIT_KEY" | 18       |
       //# | Message ID           | 32       |
-      && expandInput.info == LABEL_COMMITMENT_KEY + msgID
+      && hkdfInput.info == LABEL_COMMITMENT_KEY + msgID
 
       //= specification/structured-encryption/header.md#commit-key
       //= type=implication
-      //# The HKDF calculation MUST use a supplied key, and an `info` as described above.
-      && expandInput.prk == key
+      //# The HKDF calculation MUST use a supplied key, no salt, and an `info` as described above.
+      && hkdfInput.ikm == key
+      && hkdfInput.salt == None
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    var commitKey := client.HkdfExpand(
-      Prim.HkdfExpandInput(
+    var commitKey := client.Hkdf(
+      Prim.HkdfInput(
         digestAlgorithm := alg.commitment.HKDF.hmac,
-        prk := key,
+        salt := None,
+        ikm := key,
         info := LABEL_COMMITMENT_KEY + msgID,
         expectedLength := alg.commitment.HKDF.outputKeyLength
       )
@@ -183,18 +185,18 @@ module StructuredEncryptionCrypt {
       //= type=implication
       //# The HKDF algorithm used to calculate the Field Root Key MUST be the
       //# [Encryption Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
-      //# indicated by the algorithm suite, using a provided plaintext data key,
+      //# indicated by the algorithm suite, using a provided plaintext data key, no salt,
       //# and an info as calculated [above](#calculate-info)
-      && var history := client.History.HkdfExpand;
+      && var history := client.History.Hkdf;
       && 0 < |history|
-      && var expandInput := Seq.Last(history).input;
-      && expandInput.digestAlgorithm == alg.kdf.HKDF.hmac
-      && expandInput.info == LABEL_ENCRYPTION_KEY + head.msgID
+      && var hkdfInput := Seq.Last(history).input;
+      && hkdfInput.digestAlgorithm == alg.kdf.HKDF.hmac
+      && hkdfInput.info == LABEL_ENCRYPTION_KEY + head.msgID
       //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
       //= type=implication
       //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
       //# and the Message ID generated for this Encrypted Structured Data.
-      && expandInput.prk == key
+      && hkdfInput.ikm == key
 
     modifies client.Modifies
     requires client.ValidState()
@@ -203,10 +205,11 @@ module StructuredEncryptionCrypt {
     //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
     //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
     //# and the Message ID generated for this Encrypted Structured Data.
-    var fieldRootKeyR := client.HkdfExpand(
-      Prim.HkdfExpandInput(
+    var fieldRootKeyR := client.Hkdf(
+      Prim.HkdfInput(
         digestAlgorithm := alg.kdf.HKDF.hmac,
-        prk := key,
+        salt := None,
+        ikm := key,
         info := LABEL_ENCRYPTION_KEY + head.msgID,
         expectedLength := alg.kdf.HKDF.outputKeyLength
       )

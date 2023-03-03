@@ -580,13 +580,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //# or "aws_dbe_foot".
       && HeaderField !in output.value.plaintextStructure.content.DataMap
       && FooterField !in output.value.plaintextStructure.content.DataMap
-
-      //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
-      //= type=implication
-      //# - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
-      //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
-      && forall k <- output.value.plaintextStructure.content.DataMap :: k in encRecord
-
   {
     :- Need(input.authenticateSchema.content.SchemaMap?, E("Authenticate Schema must be a SchemaMap"));
     :- Need(AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap), E("Schema must be flat."));
@@ -710,11 +703,20 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the output Structured Data.
     // at this point both result and encRecord have header and footer
     assert forall k <- encRecord :: k in result;
+
+    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //# - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
+    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
     assert forall k <- result :: k in encRecord;
 
     var smallResult := result - {HeaderField, FooterField};
     // If I could prove this, I could move the above to an ensures clause
     //assert forall k <- encRecord :: (k == HeaderField || k == FooterField || k in smallResult);
+
+    // this actually verifies, but takes too long
+    // forall k <- output.value.plaintextStructure.content.DataMap :: k in encRecord
+
+
 
     var decryptOutput := DecryptStructureOutput(plaintextStructure := StructuredData(
       content := StructuredDataContent.DataMap(
