@@ -3,9 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.structuredEncryption.model;
 
-import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 
 public class EncryptStructureInput {
@@ -15,7 +15,7 @@ public class EncryptStructureInput {
 
   private final CryptoSchema cryptoSchema;
 
-  private final ICryptographicMaterialsManager cmm;
+  private final CryptographicMaterialsManager cmm;
 
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -42,7 +42,7 @@ public class EncryptStructureInput {
     return this.cryptoSchema;
   }
 
-  public ICryptographicMaterialsManager cmm() {
+  public CryptographicMaterialsManager cmm() {
     return this.cmm;
   }
 
@@ -75,9 +75,9 @@ public class EncryptStructureInput {
 
     CryptoSchema cryptoSchema();
 
-    Builder cmm(ICryptographicMaterialsManager cmm);
+    Builder cmm(CryptographicMaterialsManager cmm);
 
-    ICryptographicMaterialsManager cmm();
+    CryptographicMaterialsManager cmm();
 
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
@@ -97,7 +97,7 @@ public class EncryptStructureInput {
 
     protected CryptoSchema cryptoSchema;
 
-    protected ICryptographicMaterialsManager cmm;
+    protected CryptographicMaterialsManager cmm;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -142,12 +142,12 @@ public class EncryptStructureInput {
       return this.cryptoSchema;
     }
 
-    public Builder cmm(ICryptographicMaterialsManager cmm) {
+    public Builder cmm(CryptographicMaterialsManager cmm) {
       this.cmm = cmm;
       return this;
     }
 
-    public ICryptographicMaterialsManager cmm() {
+    public CryptographicMaterialsManager cmm() {
       return this.cmm;
     }
 

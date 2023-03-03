@@ -3,9 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.structuredEncryption.model;
 
-import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
 
 public class DecryptStructureInput {
   private final String tableName;
@@ -14,7 +14,7 @@ public class DecryptStructureInput {
 
   private final AuthenticateSchema authenticateSchema;
 
-  private final ICryptographicMaterialsManager cmm;
+  private final CryptographicMaterialsManager cmm;
 
   private final Map<String, String> encryptionContext;
 
@@ -38,7 +38,7 @@ public class DecryptStructureInput {
     return this.authenticateSchema;
   }
 
-  public ICryptographicMaterialsManager cmm() {
+  public CryptographicMaterialsManager cmm() {
     return this.cmm;
   }
 
@@ -67,9 +67,9 @@ public class DecryptStructureInput {
 
     AuthenticateSchema authenticateSchema();
 
-    Builder cmm(ICryptographicMaterialsManager cmm);
+    Builder cmm(CryptographicMaterialsManager cmm);
 
-    ICryptographicMaterialsManager cmm();
+    CryptographicMaterialsManager cmm();
 
     Builder encryptionContext(Map<String, String> encryptionContext);
 
@@ -85,7 +85,7 @@ public class DecryptStructureInput {
 
     protected AuthenticateSchema authenticateSchema;
 
-    protected ICryptographicMaterialsManager cmm;
+    protected CryptographicMaterialsManager cmm;
 
     protected Map<String, String> encryptionContext;
 
@@ -127,12 +127,12 @@ public class DecryptStructureInput {
       return this.authenticateSchema;
     }
 
-    public Builder cmm(ICryptographicMaterialsManager cmm) {
+    public Builder cmm(CryptographicMaterialsManager cmm) {
       this.cmm = cmm;
       return this;
     }
 
-    public ICryptographicMaterialsManager cmm() {
+    public CryptographicMaterialsManager cmm() {
       return this.cmm;
     }
 
