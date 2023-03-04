@@ -3,64 +3,64 @@
 include "../src/Index.dfy"
 include "TestFixtures.dfy"
 
-module PutItemTransformTest {
+module DeleteItemTransformTest {
   import opened Wrappers
   import opened DynamoDbEncryption
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
   import AwsCryptographyDynamoDbEncryptionTypes
 
-  method {:test} TestPutItemInputPassthrough() {
+  method {:test} TestDeleteItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
-    var input := DDB.PutItemInput(
+    var input := DDB.DeleteItemInput(
       TableName := "no_such_table",
-      Item := map[],
+      Key := map[],
       Expected := None(),
+      ConditionalOperator := None(),
       ReturnValues := None(),
       ReturnConsumedCapacity := None(),
       ReturnItemCollectionMetrics := None(),
-      ConditionalOperator := None(),
       ConditionExpression := None(),
       ExpressionAttributeNames := None(),
       ExpressionAttributeValues := None()
     );
-    var transformed := middlewareUnderTest.PutItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.PutItemInputTransformInput(
+    var transformed := middlewareUnderTest.DeleteItemInputTransform(
+      AwsCryptographyDynamoDbEncryptionTypes.DeleteItemInputTransformInput(
         sdkInput := input
       )
     );
 
-    expect_ok("PutItemInput", transformed);
-    expect_equal("PutItemInput", transformed.value.transformedInput, input);
+    expect_ok("DeleteItemInput", transformed);
+    expect_equal("DeleteItemInput", transformed.value.transformedInput, input);
   }
 
-  method {:test} TestPutItemOutputPassthrough() {
+  method {:test} TestDeleteItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
-    var output := DDB.PutItemOutput(
+    var output := DDB.DeleteItemOutput(
       Attributes := None(),
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
     );
-    var input := DDB.PutItemInput(
+    var input := DDB.DeleteItemInput(
       TableName := "no_such_table",
-      Item := map[],
+      Key := map[],
       Expected := None(),
+      ConditionalOperator := None(),
       ReturnValues := None(),
       ReturnConsumedCapacity := None(),
       ReturnItemCollectionMetrics := None(),
-      ConditionalOperator := None(),
       ConditionExpression := None(),
       ExpressionAttributeNames := None(),
       ExpressionAttributeValues := None()
     );
-    var transformed := middlewareUnderTest.PutItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.PutItemOutputTransformInput(
+    var transformed := middlewareUnderTest.DeleteItemOutputTransform(
+      AwsCryptographyDynamoDbEncryptionTypes.DeleteItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )
     );
 
-    expect_ok("PutItemOutput", transformed);
-    expect_equal("PutItemOutput", transformed.value.transformedOutput, output);
+    expect_ok("DeleteItemOutput", transformed);
+    expect_equal("DeleteItemOutput", transformed.value.transformedOutput, output);
   }
 }
