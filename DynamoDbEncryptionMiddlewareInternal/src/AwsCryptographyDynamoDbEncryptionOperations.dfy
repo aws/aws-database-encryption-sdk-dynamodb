@@ -5,11 +5,14 @@ include "../../private-aws-encryption-sdk-dafny-staging/libraries/src/Collection
 include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 include "../../StructuredEncryption/Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
-include "../../DynamoDbItemEncryptor/src/DynamoToStruct.dfy"
+//include "../../DynamoDbItemEncryptor/src/DynamoToStruct.dfy"
 include "DdbStatement.dfy"
+include "DdbMiddlewareConfig.dfy"
+include "PutItemTransform.dfy"
 
 // TODO break this into multiple files
 module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptographyDynamoDbEncryptionOperations {
+  import opened DdbMiddlewareConfig
   import DDB = ComAmazonawsDynamodbTypes
   import AwsCryptographyDynamoDbItemEncryptorTypes
   import DynamoDbItemEncryptor
@@ -19,129 +22,27 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
   import AwsCryptographyStructuredEncryptionTypes
   import Seq
   import DdbStatement
-
-  datatype TableConfig = TableConfig(
-    partitionKeyName: string,
-    sortKeyName: Option<string>,
-    itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient
-    // TODO beacon config
-  )
-
-  predicate ValidTableConfig?(config: TableConfig) {
-    var encryptorConfig := config.itemEncryptor.config;
-    && config.partitionKeyName == encryptorConfig.partitionKeyName
-    && config.sortKeyName == encryptorConfig.sortKeyName
-  }
-
-  type ValidTableConfig = c: TableConfig | ValidTableConfig?(c) witness *
-
-  datatype Config = Config(
-    tableEncryptionConfigs: map<string, ValidTableConfig>
-    // TODO allowed passthrough tables
-  )
+  import PutItemTransform
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {
-    && (forall tableName <- config.tableEncryptionConfigs ::
-        config.tableEncryptionConfigs[tableName].itemEncryptor.config.tableName == tableName)
-    && (forall t :: t in config.tableEncryptionConfigs.Keys ==>
-        config.tableEncryptionConfigs[t].itemEncryptor.ValidState())
+    ValidConfig?(config)
   }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
   {
-    set t <- config.tableEncryptionConfigs.Keys, o <- config.tableEncryptionConfigs[t].itemEncryptor.Modifies :: o
+    ModifiesConfig(config)
   }
 
   type InternalConfig = Config
-
-  function method MapError<T>(r : Result<T, EncTypes.Error>) : Result<T, Error> {
-    r.MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
-  }
-
-  function method MapString<T>(r : Result<T, string>) : Result<T, Error> {
-    r.MapFailure(e => Error.DynamoDbEncryptionException(message := e))
-  }
-
-  function method MakeError<X>(s : string) : Result<X, Error>
-  {
-    Failure(Error.DynamoDbEncryptionException(message := s))
-  }
-
-  predicate SameOption<X>(x : Option<X>, y : Option<X>)
-  {
-    (x.Some? && y.Some?) || (x.None? && y.None?)
-  }
 
   predicate PutItemInputTransformEnsuresPublicly(input: PutItemInputTransformInput, output: Result<PutItemInputTransformOutput, Error>)
   {true}
 
   method PutItemInputTransform(config: InternalConfig, input: PutItemInputTransformInput)
     returns (output: Result<PutItemInputTransformOutput, Error>)
-
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-    //= type=implication
-    //# If there exists an Item Encryptor specified within the
-    //# [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-    //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-    //# equal to `TableName` in the request,
-    //# this PutItem request MUST NOT contain a `ConditionExpression`.
-
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-    //= type=implication
-    //# If the above validation fails,
-    //# the client MUST NOT make a network call to DynamoDB,
-    //# and PutItem MUST yield an error.
-    ensures
-      && input.sdkInput.TableName in config.tableEncryptionConfigs
-      && (input.sdkInput.ConditionExpression.Some? || input.sdkInput.ConditionalOperator.Some?)
-      ==> output.Failure?
-
-    ensures output.Success? && input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
-            output.value.transformedInput == input.sdkInput
-
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-    //= type=implication
-    //# If the request is validated,
-    //# it MUST be modified before a network call is made to DynamoDB
-    //# if there exists an Item Encryptor specified within the
-    //# [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-    //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-    //# equal to `TableName` in the request.
-    ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
-      var oldHistory := old(config.tableEncryptionConfigs[input.sdkInput.TableName].itemEncryptor.History.EncryptItem);
-      var newHistory := config.tableEncryptionConfigs[input.sdkInput.TableName].itemEncryptor.History.EncryptItem;
-      && |newHistory| == |oldHistory|+1
-      && Seq.Last(newHistory).output.Success?
-
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-      //= type=implication
-      //# This [Item Encryptor](./ddb-item-encryptor.md) MUST perform
-      //# [Encrypt Item](./encrypt-item.md),
-      //# where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-      //# is the `Item` field in the original request.
-      && Seq.Last(newHistory).input.plaintextItem == input.sdkInput.Item
-
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-      //= type=implication
-      //# The PutItem request's `Item` field MUST be replaced
-      //# with a value that is equivalent to
-      //# the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
-      //# calculated above.
-      && Seq.Last(newHistory).output.value.encryptedItem == output.value.transformedInput.Item
   {
-    if input.sdkInput.TableName !in config.tableEncryptionConfigs {
-      return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput));
-    }
-    if input.sdkInput.ConditionExpression.Some? || input.sdkInput.ConditionalOperator.Some? {
-      return MakeError("Condition Expressions not supported in PutItem with Encryption.");
-    }
-    var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
-    var encryptRes := tableConfig.itemEncryptor.EncryptItem(
-      EncTypes.EncryptItemInput(plaintextItem:=input.sdkInput.Item)
-    );
-    var encrypted :- MapError(encryptRes);
-    return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem)));
+    output := PutItemTransform.Input(config, input);
   }
 
   predicate PutItemOutputTransformEnsuresPublicly(input: PutItemOutputTransformInput, output: Result<PutItemOutputTransformOutput, Error>)
@@ -149,9 +50,8 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
 
   method PutItemOutputTransform(config: InternalConfig, input: PutItemOutputTransformInput)
     returns (output: Result<PutItemOutputTransformOutput, Error>)
-    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
-    return Success(PutItemOutputTransformOutput(transformedOutput := input.sdkOutput));
+    output := PutItemTransform.Output(config, input);
   }
 
   predicate GetItemInputTransformEnsuresPublicly(input: GetItemInputTransformInput, output: Result<GetItemInputTransformOutput, Error>)
