@@ -19,7 +19,7 @@ module BatchGetItemTransform {
     return Success(BatchGetItemInputTransformOutput(transformedInput := input.sdkInput));
   }
 
-  method Output(config: Config, input: BatchGetItemOutputTransformInput)
+  method {:vcs_split_on_every_assert} Output(config: Config, input: BatchGetItemOutputTransformInput)
     returns (output: Result<BatchGetItemOutputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
