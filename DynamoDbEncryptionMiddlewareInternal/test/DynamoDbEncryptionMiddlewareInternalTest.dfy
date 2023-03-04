@@ -1,10 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/StandardLibrary.dfy"
 include "../src/Index.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 include "TestFixtures.dfy"
-include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 
 // TODO We will want to break this into multiple files
 module DynamoDbEncryptionTest {
@@ -12,40 +9,8 @@ module DynamoDbEncryptionTest {
   import opened StandardLibrary.UInt
   import opened DynamoDbEncryption
   import DDB = ComAmazonawsDynamodbTypes
-  import TestFixtures
+  import opened TestFixtures
   import AwsCryptographyDynamoDbEncryptionTypes
-
-  method expect_ok<X>(tag : string, actual : Result<X, AwsCryptographyDynamoDbEncryptionTypes.Error>)
-    ensures actual.Success?
-  {
-    if actual.Failure? {
-      print tag, "\t", actual;
-    }
-    expect actual.Success?;
-  }
-  method expect_equal<X(==)>(tag : string, actual : X, expected : X)
-  {
-    if actual != expected {
-      print tag, "\texpected\n", expected, "\ngot\n", actual, "\n";
-    }
-    expect actual == expected;
-  }
-
-  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionTypes.Error>, s : string)
-  {
-    if !ret.Failure? {
-      print "Got Success when expected failure ", s, "\n";
-    }
-    expect ret.Failure?;
-    if !ret.error.DynamoDbEncryptionException? {
-      print "Error type not DynamoDbEncryptionException : ", ret, "\n";
-    }
-    expect ret.error.DynamoDbEncryptionException?;
-    if ret.error.message != s {
-      print "Expected error message '", s, "' got message '", ret.error.message, "'\n";
-    }
-    expect ret.error.message == s;
-  }
 
   method {:test} TestGetItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
@@ -91,60 +56,6 @@ module DynamoDbEncryptionTest {
 
     expect_ok("GetItemOutput", transformed);
     expect_equal("GetItemOutput", transformed.value.transformedOutput, output);
-  }
-
-  method {:test} TestPutItemInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
-    var input := DDB.PutItemInput(
-      TableName := "no_such_table",
-      Item := map[],
-      Expected := None(),
-      ReturnValues := None(),
-      ReturnConsumedCapacity := None(),
-      ReturnItemCollectionMetrics := None(),
-      ConditionalOperator := None(),
-      ConditionExpression := None(),
-      ExpressionAttributeNames := None(),
-      ExpressionAttributeValues := None()
-    );
-    var transformed := middlewareUnderTest.PutItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.PutItemInputTransformInput(
-        sdkInput := input
-      )
-    );
-
-    expect_ok("PutItemInput", transformed);
-    expect_equal("PutItemInput", transformed.value.transformedInput, input);
-  }
-
-  method {:test} TestPutItemOutputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
-    var output := DDB.PutItemOutput(
-      Attributes := None(),
-      ConsumedCapacity := None(),
-      ItemCollectionMetrics := None()
-    );
-    var input := DDB.PutItemInput(
-      TableName := "no_such_table",
-      Item := map[],
-      Expected := None(),
-      ReturnValues := None(),
-      ReturnConsumedCapacity := None(),
-      ReturnItemCollectionMetrics := None(),
-      ConditionalOperator := None(),
-      ConditionExpression := None(),
-      ExpressionAttributeNames := None(),
-      ExpressionAttributeValues := None()
-    );
-    var transformed := middlewareUnderTest.PutItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.PutItemOutputTransformInput(
-        sdkOutput := output,
-        originalInput := input
-      )
-    );
-
-    expect_ok("PutItemOutput", transformed);
-    expect_equal("PutItemOutput", transformed.value.transformedOutput, output);
   }
 
   method {:test} TestBatchWriteItemInputTransform() {
