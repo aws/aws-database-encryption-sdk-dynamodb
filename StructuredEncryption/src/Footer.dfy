@@ -178,14 +178,14 @@ module StructuredEncryptionFooter {
           fieldName
         + UInt64ToSeq((|value.value| - 2) as uint64)
         + UTF8.EncodeAscii("ENCRYPTED")
-        + value.value
+        + value.value // this is 2 bytes of unencrypted type, followed by encrypted value
   {
     :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
     Success(
         fieldName
       + UInt64ToSeq((|value.value| - 2) as uint64)
       + UTF8.EncodeAscii("ENCRYPTED")
-      + value.value // this is 2 bytes of unencrypted type, followed by encrypted value
+      + value.value
     )
   }
 

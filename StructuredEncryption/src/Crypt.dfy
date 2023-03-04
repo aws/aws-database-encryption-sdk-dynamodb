@@ -29,12 +29,13 @@ module StructuredEncryptionCrypt {
     requires |HKDFOutput| == KeySize
     requires offset as nat * 3 < UINT32_LIMIT
     ensures ret.Success? ==>
-      && |ret.value| == KeySize+NonceSize
       //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
       //= type=implication
       //# The `FieldKey` for a given key and offset MUST be the first 44 bytes
       //# of the aes256ctr_stream
       //# of the `FieldRootKey` and the `FieldKeyNonce` of three times the given offset.
+      && |ret.value| == KeySize+NonceSize
+      && |ret.value| == 44
       && AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).Success?
       && ret.value == AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).value
   {
@@ -187,15 +188,17 @@ module StructuredEncryptionCrypt {
       //# [Encryption Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
       //# indicated by the algorithm suite, using a provided plaintext data key, no salt,
       //# and an info as calculated [above](#calculate-info)
+
+      //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+      //= type=implication
+      //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
+      //# and the Message ID generated for this Encrypted Structured Data.
       && var history := client.History.Hkdf;
       && 0 < |history|
       && var hkdfInput := Seq.Last(history).input;
       && hkdfInput.digestAlgorithm == alg.kdf.HKDF.hmac
       && hkdfInput.info == LABEL_ENCRYPTION_KEY + head.msgID
-      //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
-      //= type=implication
-      //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
-      //# and the Message ID generated for this Encrypted Structured Data.
+      && hkdfInput.salt == None
       && hkdfInput.ikm == key
 
     modifies client.Modifies
@@ -301,10 +304,13 @@ module StructuredEncryptionCrypt {
       //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
       //= type=implication
       //# The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
+      && KeySize == 32
       && encryptInput.key == fieldKey[0..KeySize]
       //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
       //= type=implication
       //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
+      && NonceSize == 12
+      && |fieldKey| - KeySize == 12
       && encryptInput.iv == fieldKey[KeySize..]
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
