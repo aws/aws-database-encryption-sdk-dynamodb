@@ -84,10 +84,10 @@ module TestBaseBeacon {
     split := split.(inner := None, splitLens := [1,2,3]);
     b := b.(split := Some(split), length := 1);
 
-    expect b.HashLength(3) == 3;
-    expect b.HashLength(2) == 3;
-    expect b.HashLength(1) == 2;
-    expect b.HashLength(0) == 1;
+    expect b.hashLength(3) == 3;
+    expect b.hashLength(2) == 3;
+    expect b.hashLength(1) == 2;
+    expect b.hashLength(0) == 1;
 
     TestCompound(b, "abluted", ".1.");
     TestCompound(b, "abluted.abluted", ".1.3.");
