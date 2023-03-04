@@ -29,15 +29,15 @@ module StructuredEncryptionPaths {
       : (ret : CanonicalPath)
       requires 0 < |parts|
       ensures ret ==
-          //= specification/structured-encryption/header.md#canoncial-path
+          //= specification/structured-encryption/header.md#canonical-path
           //= type=implication
-          //# The canoncial path MUST start with the UTF8 encoded table name.
+          //# The canonical path MUST start with the UTF8 encoded table name.
           UTF8.Encode(table).value
-          //= specification/structured-encryption/header.md#canoncial-path
+          //= specification/structured-encryption/header.md#canonical-path
           //= type=implication
           //# This MUST be followed by the depth of the Terminal within Structured Data.
         + UInt64ToSeq(|parts| as uint64)
-          //= specification/structured-encryption/header.md#canoncial-path
+          //= specification/structured-encryption/header.md#canonical-path
           //= type=implication
           //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
         + MakeCanonicalPath(parts)
@@ -61,12 +61,12 @@ module StructuredEncryptionPaths {
   // get the Canonical Path fragment for this Selector
   function method CanonicalPart(s : Selector)
     : (ret : Bytes)
-    //= specification/structured-encryption/header.md#canoncial-path
+    //= specification/structured-encryption/header.md#canonical-path
     //= type=implication
     //# For Structured Data in Structured Data Maps, this MUST be a 0x24 byte ($ in UTF-8),
     //# followed by the length of the key, followed by the key as a UTF8 string.
     ensures s.Map? ==> ret == [MAP_TAG] + UInt64ToSeq(|s.key| as uint64) + UTF8.Encode(s.key).value
-    //= specification/structured-encryption/header.md#canoncial-path
+    //= specification/structured-encryption/header.md#canonical-path
     //= type=implication
     //# For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
     ensures s.List? ==> ret == [ARRAY_TAG] + UInt64ToSeq(s.pos as uint64)

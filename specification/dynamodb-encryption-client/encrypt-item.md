@@ -92,26 +92,21 @@ into the [Encrypted DynamoDB Item](#encrypted-dynamodb-item).
 A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 The DynamoDB Item Base Context MUST contain:
-  - the key `TODO:aws-crypto-table-name` with a value equal to the DynamoDB Table Name of the DynamoDB Table
+  - the key `aws-crypto-table-name` with a value equal to the DynamoDB Table Name of the DynamoDB Table
     this item is stored in (or will be stored in).
-  - the key `TODO:aws-crypto-partition-name` with a value equal to the name of the Partition Key on this item.
-  - the key `TODO:aws-crypto-partition-value` with a value equal to this item's partition attribute,
+  - the key `aws-crypto-partition-name` with a value equal to the name of the Partition Key on this item.
+  - the key `aws-crypto-partition-value` with a value equal to this item's partition attribute,
     serialized according to [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
     and [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
   - If this item has a sort key attribute,
-    the key `TODO:aws-crypto-sort-name` with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+    the key `aws-crypto-sort-name` with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
   - If this item has a sort key attribute,
-    the key `TODO:aws-crypto-sort-value` with a value equal to this item's sort attribute,
+    the key `aws-crypto-sort-value` with a value equal to this item's sort attribute,
     serialized according to [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
     and [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
   - TODO: Instead of DDB Table Name, do we want an option to use the Table ARN in the EC?
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the keys
-`TODO:aws-crypto-sort-name` or
-`TODO:aws-crypto-sort-value`.
-
-
-TODO - deal with encryption header and footer.
-- ensure that they don't exist in the EncryptItem input,
-- ensure that they exist in the EncryptItem output,
+`aws-crypto-sort-name` or
+`aws-crypto-sort-value`.

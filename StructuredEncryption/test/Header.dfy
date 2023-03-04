@@ -148,9 +148,7 @@ module TestHeader {
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:
-    // 1. Order every authenticated attribute in the item lexicographically by the attribute name.
-    // TODO - we must sort by the Canoncial Path, which is slightly different, even for just plain
-    // attribute names in a single table.
+    // 1. Order every authenticated attribute in the item by the [Canonical Path](#canonical-path)
     // 2. For each authenticated terminal, in order,
     // append one of the byte values specified above to indicate whether
     // that field should be encrypted.
@@ -172,9 +170,7 @@ module TestHeader {
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:
-    // 1. Order every authenticated attribute in the item lexicographically by the attribute name.
-    // TODO - we must sort by the Canoncial Path, which is slightly different, even for just plain
-    // attribute names in a single table.
+    // 1. Order every authenticated attribute in the item by the [Canonical Path](#canonical-path)
     // 2. For each authenticated terminal, in order,
     // append one of the byte values specified above to indicate whether
     // that field should be encrypted.

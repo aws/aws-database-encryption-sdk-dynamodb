@@ -68,7 +68,7 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
     //= type=implication
-    //# - The [Terminal Value](../structured-encryption/structures.md#termin-value) for each attribute MUST
+    //# - The [Terminal Value](../structured-encryption/structures.md#terminal-value) for each attribute MUST
     //# be the [Value](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
     ensures ret.Success? ==> forall kv <- ret.value.Items ::
       && TopLevelAttributeToBytes(item[kv.0]).Success?
@@ -461,8 +461,7 @@ module DynamoToStruct {
     ensures a.M? && ret.Success? && prefix ==>
       && U32ToBigEndian(|a.M|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
-      && ret.value[0..TYPEID_LEN] == MAP
-      && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.M|).value
+      && ret.value[0..TYPEID_LEN] == AttrToTypeId(a)
       && (|a.M| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
   {
@@ -553,7 +552,7 @@ module DynamoToStruct {
   function method BigEndianToU32(x : seq<uint8>) : (ret : Result<nat, string>)
   {
     if |x| < LENGTH_LEN then
-      Failure("Lenght of 4-byte integer was less than 4")
+      Failure("Length of 4-byte integer was less than 4")
     else
       Success(SeqToUInt32(x[..LENGTH_LEN]) as nat)
   }
@@ -911,9 +910,12 @@ module DynamoToStruct {
       // get value and construct result
       var nval :- BytesToAttr(serialized, TerminalTypeId_value, true);
 
+      //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
+      //# This sequence MUST NOT contain duplicate [Map Keys](#map-key).
+
       //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
       //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
-      :- Need(key !in resultMap.val.M, "");
+      :- Need(key !in resultMap.val.M, "Duplicate key in map.");
       var nattr := AttributeValue.M(resultMap.val.M[key := nval.val]);
       DeserializeMap(serialized[nval.len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultMap.len + nval.len + 8 + len))
   }
@@ -1021,7 +1023,7 @@ module DynamoToStruct {
     set k <- m.Values | k.Failure? :: k.error
   }
 
-  lemma OneBadReult<X,Y>(m : map<X, Result<Y,string>>)
+  lemma OneBadResult<X,Y>(m : map<X, Result<Y,string>>)
     requires ! forall v <- m.Values :: v.Success?
     ensures exists v <- m.Values :: v.Failure?
     ensures |FlattenErrors(m)| > 0
@@ -1066,7 +1068,7 @@ module DynamoToStruct {
       MapKeysMatchItems(m);
       Success(result)
     else
-      OneBadReult(m);
+      OneBadResult(m);
       var badValues := FlattenErrors(m);
       assert(|badValues| > 0);
       var badValueSeq := SetToOrderedSequence(badValues, CharLess);

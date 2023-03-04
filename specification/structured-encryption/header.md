@@ -7,12 +7,7 @@ The header is a special [Terminal Data](./structures.md#terminal-data)
 that exists on encrypted [Structured Data](./structures.md#structured-data)
 in order to store metadata on its encryption.
 
-## Header Index
-
-The header MUST exist at string index "aws_dbe_head" for
-encrypted [Structured Data](./structures.md#structured-data).
-
-## Header Format
+## Header Value
 
 ### Partial Header
 
@@ -29,7 +24,7 @@ The Partial Header MUST be
 
 ### Header Value
 
-The [Terminal Value](./structures.md#terminal-value) of the header MUST be
+The value of the header MUST be
 
 | Length (bytes) | Meaning |
 |---|---|
@@ -46,10 +41,12 @@ The Version MUST be `0x01`.
 ### Format Flavor
 
 The flavor dictates the
-[algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md)
+[algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md)
 this message is written under.
+Specifically, the flavor is stored as a single byte, representing the second byte of the
+Algorithm Suite ID; with the first byte assumed to be 0x67.
 The algorithm suite indicated by the flavor MUST be a
-[DBE supported algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum).
+[DBE supported algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 
 | Value | Algorithm Suite ID | Algorithm Suite Enum |
 |---|---|---|
@@ -87,7 +84,7 @@ Each Crypto Action MUST be encoded as follows
 
 The Encrypt Legend Bytes MUST be serialized as follows:
 
-1. Order every authenticated attribute in the item by the [Canoncial Path](#canonical-path)
+1. Order every authenticated attribute in the item by the [Canonical Path](#canonical-path)
 2. For each authenticated terminal, in order,
 append one of the byte values specified above to indicate whether
 that field should be encrypted.
@@ -95,13 +92,13 @@ that field should be encrypted.
 The length of this serialized value (in bytes) MUST equal the number of authenticated fields indicated
 by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
 
-#### Canoncial Path
+#### Canonical Path
 
-The canoncial path is a unique byte sequence indicating a Terminal within Structured Data.
+The canonical path is a unique byte sequence indicating a Terminal within Structured Data.
 
 All numbers are encoded as a big endian 8 byte values.
 
-The canoncial path MUST start with the UTF8 encoded table name.
+The canonical path MUST start with the UTF8 encoded table name.
 
 This MUST be followed by the depth of the Terminal within Structured Data.
 
@@ -202,10 +199,31 @@ It is the data key encrypted by the key provider.
 
 ### Header Commitment
 
-The Header Commitment MUST be calculated as a 256-bit HmacSha384,
-with all preceding header bytes as the message
-and a commitment key of "AWS_DBE_COMMIT_KEY"
-TODO - use real commitment key
+#### Commit Key
+
+The HKDF used to calculate the Commitment Key MUST be the
+[Commit Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
+indicated by the algorithm suite.
+
+The calculated Commitment Key MUST have length equal to the
+[algorithm suite's encryption key length](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
+
+The `info` used for the HKDF function MUST be
+| Field                | Length   |
+| -------------------- | -------- |
+| "AWS_DBE_COMMIT_KEY" | 18       |
+| Message ID           | 32       |
+
+The HKDF calculation MUST use a supplied key, no salt, and an `info` as described above.
+
+The commit key calculation described above MUST be performed with the record's plaintext data key
+and the header's message id.
+
+#### Commitment Calculation
+
+The Header Commitment MUST be calculated as a the first 32 bytes of an HmacSha384,
+with the serialized partial header as the message, and the Commit Key as the key.
+For example
 
 ```
 def GetHeaderCommitment(Header, CommitKey):
@@ -218,12 +236,18 @@ def CheckHeaderCommitment(Header, CommitKey):
     return ConstantTimeEquals(Commitment, GetHeaderCommitment(Preceding, CommitKey)    
 ```
 
+#### Commitment Verification
+
+To verify a header, recalculate the [Header Commitment](#header-commitment) and
+compare it to the stored [Header Commitment](#header-commitment).
+
 Header commitment comparisons MUST be constant time operations.
 
-It's important to note that, while the Header Commitment does
+## Notes 
+
+While the Header Commitment does
 produce a distinct 256-bit hash output per header and commitment key,
 it does not provide any integrity guarantees over the encrypted attributes.
-Integrity over the encrypted attributes is ensured by the signatures in the footer.
+Integrity over the encrypted attributes is ensured by the signatures in the
+[footer](#footer.md).
 
-When reading or deserializing a Header, the implementation MUST recalculate the commitment,
-and fail if the calculated commitment does not match the stored commitment.

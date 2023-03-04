@@ -5,6 +5,8 @@ include "TestFixtures.dfy"
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
 
+// TODO -- add a test with only signed attributes, no encrypted attributes.
+
 module HappyCaseTests {
   import opened Wrappers
   import opened StandardLibrary.UInt

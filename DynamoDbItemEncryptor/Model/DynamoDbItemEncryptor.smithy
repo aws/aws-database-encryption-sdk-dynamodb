@@ -25,16 +25,54 @@ service DynamoDbItemEncryptor {
     errors: [DynamoDbItemEncryptorException],
 }
 
+//= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
+//= type=implication
+//# On initialization of the DynamoDB Item Encryptor, the caller MUST provide:
+// - [DynamoDB Table Name](#dynamodb-table-name)
+// - [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
+// - [Attribute Actions](#attribute-actions)
+// - A [CMM](#cmm) or [Keyring](#keyring)
+
+//= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
+//= type=implication
+//# On initialization, the caller MAY provide:
+// - [DynamoDB Sort Key Name](#dynamodb-sort-key-name)
+// - [Unauthenticated Attributes](#unauthenticated-attributes)
+// - [Unauthenticated Attribute Name Prefix](#unauthenticated-attribute-prefix)
+// - [Algorithm Suite](#algorithm-suite)
+// - TODO legacy behavior
+// - TODO allow plaintext behavior
+
+
 structure DynamoDbItemEncryptorConfig {
+    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#dynamodb-table-name
+    //= type=implication
+    //# This Table Name MUST be a valid DynamoDB Table Name.
     @required
     tableName: TableName,
+
+    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#dynamodb-partition-key-name
+    //= type=implication
+    //# This Partition Key Name MUST be a valid DynamoDB Key Schema Attribute Name
     @required
     partitionKeyName: KeySchemaAttributeName,
+
+    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#dynamodb-sort-key-name
+    //= type=implication
+    //# This Sort Key Name MUST be a valid DynamoDB Key Schema Attribute Name
     sortKeyName: KeySchemaAttributeName,
 
     @required
     attributeActions: AttributeActions,
+
+    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes
+    //= type=implication
+    //# Unauthenticated Attributes MUST be a set of Attribute Names.
     allowedUnauthenticatedAttributes: AttributeNameList,
+
+    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix
+    //= type=implication
+    //# Unauthenticated Attribute Prefix MUST be a string.
     allowedUnauthenticatedAttributePrefix: String,
 
     algorithmSuiteId: DBEAlgorithmSuiteId,

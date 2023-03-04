@@ -28,9 +28,9 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
   )
 
   predicate ValidTableConfig?(config: TableConfig) {
-    var encryptoConfig := config.itemEncryptor.config;
-    && config.partitionKeyName == encryptoConfig.partitionKeyName
-    && config.sortKeyName == encryptoConfig.sortKeyName
+    var encryptorConfig := config.itemEncryptor.config;
+    && config.partitionKeyName == encryptorConfig.partitionKeyName
+    && config.sortKeyName == encryptorConfig.sortKeyName
   }
 
   type ValidTableConfig = c: TableConfig | ValidTableConfig?(c) witness *

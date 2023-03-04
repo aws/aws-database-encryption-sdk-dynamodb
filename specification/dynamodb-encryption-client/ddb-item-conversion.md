@@ -42,7 +42,7 @@ converted from a DynamoDB Item has the following requirements:
 
 - The [Terminal Type ID](../structured-encryption/structures.md#terminal-type-id) for each attribute MUST
   be the [Type ID](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
-- The [Terminal Value](../structured-encryption/structures.md#termin-value) for each attribute MUST
+- The [Terminal Value](../structured-encryption/structures.md#terminal-value) for each attribute MUST
   be the [Value](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
 - The Structured Data Terminal MUST be located at the top level of the Structured Data,
   string indexed by the Attribute Name.

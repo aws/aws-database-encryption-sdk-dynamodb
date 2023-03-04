@@ -25,7 +25,7 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 This document describes the behavior for the
 DynamoDB Item Encryptor.
 It is responsible for
-the encryption and decryption of [DynamoDB Items](#TODO-link-to-docs)
+the encryption and decryption of [DynamoDB Items](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithItems.html)
 for a particular DynamoDB Table.
 The DynamoDB Item Encryptor is publicly exposed and
 is used to directly encrypt or decrypt
@@ -55,27 +55,27 @@ The name of the DynamoDB Table where the
 DynamoDB Items to be decrypted or encrypted
 are stored or intended to be stored.
 
-This name MUST be a UTF-8 encoded string.
+This Table Name MUST be a valid DynamoDB Table Name.
 
 ### DynamoDB Partition Key Name
 
-The DynamoDB Partition Key Name is the attribute name of the partiton key of the DynamoDB Table
+The DynamoDB Partition Key Name is the attribute name of the partition key of the DynamoDB Table
 identified by the [input DynamoDB Table Name](#dynamodb-table-name).
 
-This name MUST be a UTF-8 encoded string.
+This Partition Key Name MUST be a valid DynamoDB Key Schema Attribute Name
 
 ### DynamoDB Sort Key Name
 
 The DynamoDB Sort Key Name is the attribute name of the sort key
 of the DynamoDB Table identified by the [input DynamoDB Table Name](#dynamodb-table-name).
 
-This name MUST be a UTF-8 encoded string.
+This Sort Key Name MUST be a valid DynamoDB Key Schema Attribute Name
 
 ### Attribute Actions
 
 Attribute Actions is a map of attribute names to
 [Crypto Actions](../structured-encryption/structures.md#crypto-action)
-that describes what Crypto Action MUST apply to a particular attribute 
+that describes what Crypto Action applies to a particular attribute
 (if it exists) during encryption.
 
 The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
@@ -112,9 +112,9 @@ that are not authenticated during decryption.
 
 ### Algorithm Suite
 
-The [algorithm suite](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md) that SHOULD be used for encryption.
+The [algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
 
-This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](#TODO-mpl-alg-suites).
+This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md).
 
 ## Operation
 

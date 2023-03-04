@@ -32,6 +32,7 @@ and ensure integrity and authenticity is ensured over a set of [Terminal Data](.
 
 The following inputs to this behavior are REQUIRED:
 
+- [Table Name](#table-name)
 - [Authenticate Schema](#authenticate-schema)
 - [Cryptographic Materials Manager (CMM)](#cmm)
 - [Encrypted Structured Data](#encrypted-structured-data)
@@ -39,6 +40,10 @@ The following inputs to this behavior are REQUIRED:
 The following inputs to this behavior MUST be OPTIONAL:
 
 - [Encryption Context](#encryption-context)
+
+### Table Name
+
+The name of the table to hold the encrypted record
 
 ### Authenticate Schema
 
@@ -58,7 +63,7 @@ otherwise, this operation MUST yield an error.
 
 ### CMM
 
-A CMM that implements the [CMM interface](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md).
+A CMM that implements the [CMM interface](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md).
 
 ### Encrypted Structured Data
 
@@ -105,7 +110,7 @@ If any of these steps fails, this operation MUST halt and indicate a failure to 
 
 Given the [input Structured Data](#structured-data),
 this operation MUST access the [Terminal Data](./structures.md#terminal-data)
-at the [header index](./header.md#header-index).
+at the "aws_dbe_head"
 
 The [Terminal Type Id](./structures.md#terminal-type-id) on this Terminal Data MUST be `0xFFFF`.
 We refer to the [Terminal Value](./structures.md#terminal-value)
@@ -114,11 +119,13 @@ on this Terminal Data as the header bytes.
 This operation MUST deserialize the header bytes
 according to the [header format](./header.md).
 
+The header field value MUST be [verified](header.md#commitment-verification)
+
 The below calculations REQUIRE a [Crypto Schema](./structures.md#crypto-schema),
 which is determined based on the input [Authentication Schema](#authenticate-schema) and the
 parsed [Encrypt Legend](./header.md#encrypt-legend) in the header,
 such that for each [Terminal Data](./structures.md#terminal-data)
-in the [input Structed Data](#structured-data):
+in the [input Structured Data](#structured-data):
 - The Crypto Action is [DO_NOTHING](./structures.md#DO_NOTHING) if
   the Authentication Schema indicates [DO_NOT_SIGN](./structures.md#donotsign) for this Terminal Data.
 - The Crypto Action is [SIGN_ONLY](./structures.md#signonly) if
@@ -136,7 +143,7 @@ this operation MUST yield an error.
 ### Retrieve Decryption Materials
 
 This operation MUST obtain a set of decryption materials by calling
-[Decrypt Materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/cmm-interface.md#decrypt-materials)
+[Decrypt Materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
 on the [input CMM](#cmm).
 
 The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
@@ -149,42 +156,22 @@ The call to the CMM's Decrypt Materials operation MUST be constructed as follows
 
 The algorithm suite used in all further aspects of this operation MUST be
 the algorithm suite in the
-[decryption materials](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/structures.md#decryption-materials)
+[decryption materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md#decryption-materials)
 returned from the Decrypt Materials call.
 Note that the algorithm suite in the retrieved decryption materials MAY be different from the input algorithm suite.
 If this algorithm suite is not a
-[supported suite for DBE](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#supported-algorithm-suites-enum)
+[supported suite for DBE](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum)
 this operation MUST yield an error.
-
-This operation MUST derive a [Commitment Key](#TODO-truss-key-wrapping)
-with the following specifics:
-- the KDF used to calculate the Commitment Key MUST be the
-  [Commit Key KDF](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
-  indicated by the algorithm suite.
-- the key input to the KDF MUST be the plaintext data key in the decryption materials.
-- the Message ID used in the Commitment Key derivation MUST be the [Message ID parsed from the header](./header.md#message-id).
-- the calculated Commitment Key MUST have length equal to the
-  [algorithm suite's encryption key length](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
-
-The parsed [Header Commitment MUST be checked](./header.md#header-commitment)
-using this Commitment Key and the header.
 
 ### Verify Signatures
 
-The calculations below REQUIRE determining a [canonical hash](#TODO-truss-signature-canonicalization)
-of the [Structured Data](#structured-data), with the following specifics:
-- The header bytes are the [header bytes determined above](#parse-the-header).
-- The fields are the set of [Terminal Data](./structures.md#terminal-data)
-  on the [Structured Data](#structured-data) that the [Authenticate Schema](#authenticate-schema)
-  configues as [SIGN](./structures.md#sign).
-- The AAD is the [serialization of the Encryption Context](./header.md#encryption-context)
-  in the decryption materials.
+A footer field MUST exist with the name `aws_dbe_foot`
 
-Given the [input Structured Data](#structured-data),
-this operation MUST access the [Terminal Data](./structures.md#terminal-data)
-at the [footer index](./footer.md#footer-index).
+The footer field TypeID MUST be 0xFFFF
 
-The [Terminal Type Id](./structures.md#terminal-type-id) MUST be `0xFFFF`.
+The footer field value MUST be [verified](footer.md#footer-verification).
+
+Decryption MUST fail immediately if verification fails.
 
 This operation MUST deserialize the bytes in [Terminal Value](./structures.md#terminal-value)
 according to the [footer format](./footer.md).
@@ -192,65 +179,47 @@ according to the [footer format](./footer.md).
 The number of [HMACs in the footer](./footer.md#hmacs) 
 MUST be the number of [Encrypted Data Keys in the header](./header.md#encrypted-data-keys).
 
-This operations MUST generate a new symmetric signature over the encrypted structure,
-with the following specifics:
-- this HMAC MUST be calculated using the
-  [symmetric signature algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-signature-settings)
-  indicated in the algorithm suite.
-- this HMAC MUST be calculated over the [canonical hash](#TODO-truss-signature-canonicalization),
-  using the
-  [symmetric signing key](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/structures.md#symmetric-signing-keys)
-  in the decryption materials.
+### Calculate Cipherkey and Nonce
 
-This operation MUST verify that one of the [footer HMACs](./footer.md#hmacs)
-equals the HMAC generated above, in a constant time operation.
-TODO: tie the signature key more strongly to a particular HMAC/EDK,
-that way we aren't forced to just try verifying each HMAC in the list.
+The Cipherkey and Nonce must be calculated for [encryption](encrypt-structure.md#calculate-cipherkey-and-nonce).
 
-If this algorithm suite includes signing,
-this operation MUST [verify](#TODO-truss-signature-canonicalization)
-the [asymmetric signature](./footer.md#signature)
-with the following specifics:
-- The key is the asymmetric signing key in the decryption materials.
-- The canonical hash is as calculated above.
-- the asymmetric signature is calculated using the
-  [asymmetric signature algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-signature-settings)
-  indicated by the algorithm suite.
+### Calculate Signed and Encrypted Field Lists
 
-If either verification fails, this operation MUST NOT continue
-and MUST yield an error.
+The `signed field list` MUST be all fields for which 
+the [Authenticate Schema](#authenticate-schema)
+indicates an [Authenticate Action](./structures.md#authenticate-action)
+of [SIGN](./structures.md#SIGN) for that field,
+sorted by the [Canonical Path](header.md.#canonical-path).
+
+Decryption MUST fail if the length of this list does not equal the 
+length of the header's [Encrypt Legend](header.md.#encrypt-legend).
+
+The `encrypted field list` MUST be all fields in the `signed field list`
+for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
+is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes),
+sorted by the field's [canonical path](./header.md#canonical-path).
 
 ### Construct Decrypted Structured Data
 
-The calculations below REQUIRE a [Field Root Key](#TODO-truss-key-wraping)
-that MUST be derived with the following specifics:
-- the KDF used to calculate the Field Root Key MUST be the 
-  [Encryption Key KDF](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
-  indicated by the algorithm suite.
-- the key input to the KDF MUST be the plaintext data key in the decryption materials.
-- the Message ID used in this calculation MUST be the Message ID parsed from the header.
-- the calculated Field Root Key MUST have length equal to the
-  [algorithm suite's encryption key length](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
-
 This operation MUST output a [Structured Data](#structured-data) with the following specifics:
-- [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the [header index](./header.md#header-index)
-  or [footer index](./footer.md#footer-index).
-- for every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
+- [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
+  or "aws_dbe_foot".
+- For every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
   (aside from the header and footer),
-  a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the output Structured Data.
-  Put plainly, the output Structured Data does not drop any Terminal Data during decryption, other than
-  the header or footer.
-  Each of these Terminal Data in the output Structured Data MUST:
-  - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
-    of [SIGN_ONLY](./structures.md#signonly) or [DO_NOTHING](./structures.md#DO_NOTHING) for this Terminal Data,
-    this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
-    [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
-  - if the [Crypto Schema](#crypto-schema) indicates a [Crypto Action](./structures.md#crypto-action)
-    of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) for this Terminal Data,
-    this Terminal Data is the [decryption](#terminal-data-decryption) of
-    the input Terminal Data.
+  a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the output Structured Data.
+  Put plainly, the output Structured Data does not drop any Terminal Data during decryption,
+  other than the header and footer.
+
+ - For each Terminal Data in the output Structured Data,
+if the field name is not in the [Encrypted Field Lists](#calculate-signed-and-encrypted-field-lists)
+this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
+[Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's,
+otherwise this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+equal to the first two bytes of the input Terminal Data's value,
+and a value equal to the [decryption](#terminal-data-decryption) of the input Terminal Data's value.
+
 - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
-  a Terminal Data MUST exist with the same [canonical path](./header.md#canoncial-path) in the [input Structured Data](#structured-data).
+  a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
   Put plainly, the output Structured Data does not add any extra Structured Data during decryption.
 
 #### Terminal Data Decryption
@@ -271,11 +240,8 @@ equal to the deserialized Terminal Type Id.
 The output Terminal Data MUST have a [Terminal Value](./structures.md#terminal-type-id)
 equal to the following decryption:
 - The decryption algorithm used is the
-  [encryption algorithm](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
+  [encryption algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.
-- The AAD is the [canonical path](./header.md#canoncial-path) for this Terminal Data
-- The Nonce is [derived according to the field encryption key derivation scheme](#TODO-truss-key-derivation),
-  using the FieldRootKey as input.
-- The Cipherkey is [derived according to the field encryption key derivation scheme](#TODO-truss-key-derivation),
-  using the FieldRootKey as input.
+- The AAD is the [canonical path](./header.md#canonical-path) for this Terminal Data.
+- The Cipherkey and Nonce are as calculate [above](#calculate-cipherkey-and-nonce).
 - The ciphertext is the deserialized Encrypted Terminal Value.

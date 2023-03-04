@@ -15,8 +15,23 @@ module StructuredEncryptionUtil {
 
   // all attributes with this prefix reserved for the implementation
   const ReservedPrefix := "aws_dbe_"
+
   const HeaderField := ReservedPrefix + "head"
   const FooterField := ReservedPrefix + "foot"
+  const ReservedCryptoContextPrefixString := "aws-crypto-"
+  const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii("aws-crypto-")
+
+  //= specification/structured-encryption/encrypt-structure.md#header-field
+  //= type=implication
+  //# The Header Field name MUST be `aws_dbe_head`
+
+  //= specification/structured-encryption/encrypt-structure.md#footer-field
+  //= type=implication
+  //# The Footer Field name MUST be `aws_dbe_foot`
+  lemma CheckNames()
+    ensures HeaderField == "aws_dbe_head"
+    ensures FooterField == "aws_dbe_foot"
+  {}
 
   const TYPEID_LEN := 2
   const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF]
@@ -59,12 +74,17 @@ module StructuredEncryptionUtil {
   type CanonicalPath = seq<uint8>
   type GoodString = x : string | ValidString(x)
 
-  type StructuredDataPlain = x : map<GoodString, StructuredData> | (forall k <- x :: x[k].content.Terminal?)
-  type StructuredDataCanon = x : map<CanonicalPath, StructuredData> | (forall k <- x :: x[k].content.Terminal?)
-  type CryptoSchemaPlain = x : map<GoodString, CryptoSchema> | (forall k <- x :: x[k].content.Action?)
-  type CryptoSchemaCanon = x : map<CanonicalPath, CryptoSchema> | (forall k <- x :: x[k].content.Action?)
-  type AuthSchemaPlain = x : map<GoodString, AuthenticateSchema> | (forall k <- x :: x[k].content.Action?)
-  type AuthSchemaCanon = x : map<CanonicalPath, AuthenticateSchema> | (forall k <- x :: x[k].content.Action?)
+  type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
+  type CryptoSchemaActionType = x : CryptoSchema | x.content.Action? witness *
+  type AuthSchemaActionType = x : AuthenticateSchema | x.content.Action? witness *
+
+  type StructuredDataXXX = x : map<GoodString, StructuredData> | forall k <- x :: x[k].content.Terminal?
+  type StructuredDataPlain = map<GoodString, StructuredDataTerminalType>
+  type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminalType>
+  type CryptoSchemaPlain = map<GoodString, CryptoSchemaActionType>
+  type CryptoSchemaCanon = map<CanonicalPath, CryptoSchemaActionType>
+  type AuthSchemaPlain = map<GoodString, AuthSchemaActionType>
+  type AuthSchemaCanon = map<CanonicalPath, AuthSchemaActionType>
   type CanonMap = map<CanonicalPath, GoodString>
 
   // Within the context of the StructuredEncryptionClient, certain things must be true of any Algorithm Suite
