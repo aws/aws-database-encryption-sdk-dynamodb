@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
@@ -115,11 +117,11 @@ public class DynamoDbItemEncryptorConfig {
 
     DBEAlgorithmSuiteId algorithmSuiteId();
 
-    Builder keyring(Keyring keyring);
+    Builder keyring(IKeyring keyring);
 
     Keyring keyring();
 
-    Builder cmm(CryptographicMaterialsManager cmm);
+    Builder cmm(ICryptographicMaterialsManager cmm);
 
     CryptographicMaterialsManager cmm();
 
@@ -224,8 +226,8 @@ public class DynamoDbItemEncryptorConfig {
       return this.algorithmSuiteId;
     }
 
-    public Builder keyring(Keyring keyring) {
-      this.keyring = keyring;
+    public Builder keyring(IKeyring keyring) {
+      this.keyring = Keyring.wrap(keyring);
       return this;
     }
 
@@ -233,8 +235,8 @@ public class DynamoDbItemEncryptorConfig {
       return this.keyring;
     }
 
-    public Builder cmm(CryptographicMaterialsManager cmm) {
-      this.cmm = cmm;
+    public Builder cmm(ICryptographicMaterialsManager cmm) {
+      this.cmm = CryptographicMaterialsManager.wrap(cmm);
       return this;
     }
 
