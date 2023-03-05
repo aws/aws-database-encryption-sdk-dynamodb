@@ -80,14 +80,14 @@ public class DynamoDbEncryptionInterceptorTest {
                 .sortKeyName(TEST_SORT_NAME)
                 .attributeActions(actions)
                 .keyring(createKmsKeyring())
-                .legacyConfig(
+                /*.legacyConfig(
                     LegacyConfig.builder()
                         .legacyEncryptor(LegacyDynamoDbItemEncryptor.builder()
                                 .encryptor(oldEncryptor)
                                 .attributeFlags(oldActions)
                                 .build())
                         .legacyPolicy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
-                        .build())
+                        .build())*/
                 .build();
         tableConfigs.put(TEST_TABLE_NAME, config);
 
