@@ -6,6 +6,7 @@ package software.amazon.cryptography.structuredEncryption.model;
 import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 
 public class EncryptStructureInput {
@@ -75,7 +76,7 @@ public class EncryptStructureInput {
 
     CryptoSchema cryptoSchema();
 
-    Builder cmm(CryptographicMaterialsManager cmm);
+    Builder cmm(ICryptographicMaterialsManager cmm);
 
     CryptographicMaterialsManager cmm();
 
@@ -142,8 +143,8 @@ public class EncryptStructureInput {
       return this.cryptoSchema;
     }
 
-    public Builder cmm(CryptographicMaterialsManager cmm) {
-      this.cmm = cmm;
+    public Builder cmm(ICryptographicMaterialsManager cmm) {
+      this.cmm = CryptographicMaterialsManager.wrap(cmm);
       return this;
     }
 

@@ -6,6 +6,7 @@ package software.amazon.cryptography.structuredEncryption.model;
 import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
 
 public class DecryptStructureInput {
   private final String tableName;
@@ -67,7 +68,7 @@ public class DecryptStructureInput {
 
     AuthenticateSchema authenticateSchema();
 
-    Builder cmm(CryptographicMaterialsManager cmm);
+    Builder cmm(ICryptographicMaterialsManager cmm);
 
     CryptographicMaterialsManager cmm();
 
@@ -127,8 +128,8 @@ public class DecryptStructureInput {
       return this.authenticateSchema;
     }
 
-    public Builder cmm(CryptographicMaterialsManager cmm) {
-      this.cmm = cmm;
+    public Builder cmm(ICryptographicMaterialsManager cmm) {
+      this.cmm = CryptographicMaterialsManager.wrap(cmm);
       return this;
     }
 
