@@ -134,7 +134,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         }
 
         public <I extends IKeyring> Builder keyring(I keyring) {
-            this.keyring = Keyring.create(keyring);
+            this.keyring = Keyring.wrap(keyring);
             return this;
         }
 
@@ -143,7 +143,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         }
 
         public <I extends ICryptographicMaterialsManager> Builder cmm(I cmm) {
-            this.cmm = CryptographicMaterialsManager.create(cmm);
+            this.cmm = CryptographicMaterialsManager.wrap(cmm);
             return this;
         }
 
