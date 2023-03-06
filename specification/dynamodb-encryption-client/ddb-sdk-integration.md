@@ -77,11 +77,42 @@ where each DynamoDB Item Encryptor contains the desired encryption configuration
 There MUST NOT be two Item Encryptors in this list with the same
 [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name).
 
+### Encrypted Table
+
+If there exists an Item Encryptor specified within the
+[DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+equal to a given `TableName`, that table is said to be an `Encrypted Table`.
+
 ## DynamoDB Encryption Client
 
 The DynamoDB Encryption Client is an AWS SDK client for DynamoDB,
 such that client-side encryption and decryption happens transparently during
 AWS SDK API calls to DynamoDB.
+
+### General Modification Behavior
+
+If no Item Encryptor is specified for the table, the call to DynamoDB is unmodified.
+Otherwise
+
+No legacy parameters can be specified
+
+Any Condition Expression must be Checked
+Any Update Expression must be Checked
+
+If data is to be written
+ - the input data must validated
+ - beacons must be added
+ - the input data must be encrypted
+
+If data is being read
+ - the output data must be decrypted
+ - beacons must be removed
+
+For Query and Scan, more complex processing must be invoked for both input (before encryption),
+and output (after decryption).
+
+### API modification
 
 DynamoDB API calls
 MUST have the following modified behavior:
@@ -113,26 +144,26 @@ is not supported with DynamoDB client-side encryption.
 Before the [PutItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html)
 call is made to DynamoDB :
 
-If there exists an Item Encryptor specified within the
-[DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-equal to `TableName` in the request,
-this PutItem request MUST NOT contain a `ConditionExpression`.
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the PutItem request MUST be unchanged.
 
-TODO: Is there any additional validation we can bring into P0 scope which would allow some condition checks?
+Otherwise,
+
+The PutItem request MUST NOT refer to any legacy parameters,
+specifically Expected and ConditionalOperator MUST be `None`.
+
+The Item MUST be [writable](ddb-support.md#writable).
+
+The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
+
+Beacons MUST be [added](ddb-support.md#addbeacons).
 
 If the above validation fails,
 the client MUST NOT make a network call to DynamoDB,
 and PutItem MUST yield an error.
 
 If the request is validated,
-it MUST be modified before a network call is made to DynamoDB
-if there exists an Item Encryptor specified within the
-[DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-equal to `TableName` in the request.
-
-This [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [Encrypt Item](./encrypt-item.md),
 where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
 is the `Item` field in the original request.
