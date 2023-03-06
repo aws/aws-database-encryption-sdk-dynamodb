@@ -1,18 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+include "DdbMiddlewareConfig.dfy"
 include "AwsCryptographyDynamoDbEncryptionOperations.dfy"
-include "DdbStatement.dfy"
-include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 
 module
   {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption" }
   DynamoDbEncryption refines AbstractAwsCryptographyDynamoDbEncryptionService
 {
+  import opened DdbMiddlewareConfig
   import AwsCryptographyDynamoDbItemEncryptorTypes
   import Operations = AwsCryptographyDynamoDbEncryptionOperations
   import DynamoDbItemEncryptor
-  import DdbStatement
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
@@ -28,17 +27,17 @@ module
     returns (res: Result<DynamoDbEncryptionMiddlewareInternalClient, Error>)
   {
     // TODO validate input
-    var internalConfigs: map<string, Operations.TableConfig> := map[];
+    var internalConfigs: map<string, DdbMiddlewareConfig.TableConfig> := map[];
 
     var m' := config.tableEncryptionConfigs;
     while m'.Keys != {}
         invariant m'.Keys <= config.tableEncryptionConfigs.Keys
         invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
-        invariant forall tableName <- internalConfigs, tableConfig :: tableConfig == internalConfigs[tableName]
+        invariant forall tableName <- internalConfigs, tableConfig :: (tableConfig == internalConfigs[tableName]
           ==>
             && tableConfig.itemEncryptor.config.tableName == tableName
             && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
-            && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
+            && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName)
         invariant forall t :: t in internalConfigs.Keys ==> internalConfigs[t].itemEncryptor.ValidState()
 
         invariant fresh((set t <- internalConfigs.Keys, o <- internalConfigs[t].itemEncryptor.Modifies :: o) -
@@ -70,7 +69,7 @@ module
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e));
 
-        var internalConfig := Operations.TableConfig(
+        var internalConfig := DdbMiddlewareConfig.TableConfig(
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
           itemEncryptor := itemEncryptor
@@ -84,7 +83,7 @@ module
     }
 
     var client := new DynamoDbEncryptionMiddlewareInternalClient(
-      Operations.Config(
+      DdbMiddlewareConfig.Config(
         tableEncryptionConfigs := internalConfigs
       )
     );

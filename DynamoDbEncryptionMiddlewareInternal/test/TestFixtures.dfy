@@ -16,6 +16,38 @@ module TestFixtures {
 
   const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
+  method expect_ok<X>(tag : string, actual : Result<X, AwsCryptographyDynamoDbEncryptionTypes.Error>)
+    ensures actual.Success?
+  {
+    if actual.Failure? {
+      print tag, "\t", actual;
+    }
+    expect actual.Success?;
+  }
+  method expect_equal<X(==)>(tag : string, actual : X, expected : X)
+  {
+    if actual != expected {
+      print tag, "\texpected\n", expected, "\ngot\n", actual, "\n";
+    }
+    expect actual == expected;
+  }
+
+  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionTypes.Error>, s : string)
+  {
+    if !ret.Failure? {
+      print "Got Success when expected failure ", s, "\n";
+    }
+    expect ret.Failure?;
+    if !ret.error.DynamoDbEncryptionException? {
+      print "Error type not DynamoDbEncryptionException : ", ret, "\n";
+    }
+    expect ret.error.DynamoDbEncryptionException?;
+    if ret.error.message != s {
+      print "Expected error message '", s, "' got message '", ret.error.message, "'\n";
+    }
+    expect ret.error.message == s;
+  }
+
   method GetKmsKeyring()
       returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
     ensures keyring.ValidState()
