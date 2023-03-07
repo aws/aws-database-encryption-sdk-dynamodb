@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import com.amazonaws.dynamodb.model.TransactWriteItemsOutput;
+import com.amazonaws.dynamodb.model.CreateTableOutput;
 import java.util.Objects;
 
-public class TransactWriteItemsOutputTransformOutput {
-  private final TransactWriteItemsOutput transformedOutput;
+public class CreateTableOutputTransformOutput {
+  private final CreateTableOutput transformedOutput;
 
-  protected TransactWriteItemsOutputTransformOutput(BuilderImpl builder) {
+  protected CreateTableOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public TransactWriteItemsOutput transformedOutput() {
+  public CreateTableOutput transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -26,37 +26,37 @@ public class TransactWriteItemsOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(TransactWriteItemsOutput transformedOutput);
+    Builder transformedOutput(CreateTableOutput transformedOutput);
 
-    TransactWriteItemsOutput transformedOutput();
+    CreateTableOutput transformedOutput();
 
-    TransactWriteItemsOutputTransformOutput build();
+    CreateTableOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected TransactWriteItemsOutput transformedOutput;
+    protected CreateTableOutput transformedOutput;
 
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(TransactWriteItemsOutputTransformOutput model) {
+    protected BuilderImpl(CreateTableOutputTransformOutput model) {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(TransactWriteItemsOutput transformedOutput) {
+    public Builder transformedOutput(CreateTableOutput transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public TransactWriteItemsOutput transformedOutput() {
+    public CreateTableOutput transformedOutput() {
       return this.transformedOutput;
     }
 
-    public TransactWriteItemsOutputTransformOutput build() {
+    public CreateTableOutputTransformOutput build() {
       if (Objects.isNull(this.transformedOutput()))  {
         throw new IllegalArgumentException("Missing value for required field `transformedOutput`");
       }
-      return new TransactWriteItemsOutputTransformOutput(this);
+      return new CreateTableOutputTransformOutput(this);
     }
   }
 }

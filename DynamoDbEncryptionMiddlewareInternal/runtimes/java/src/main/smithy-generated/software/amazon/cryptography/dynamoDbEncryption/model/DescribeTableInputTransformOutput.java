@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import com.amazonaws.dynamodb.model.TransactGetItemsInput;
+import com.amazonaws.dynamodb.model.DescribeTableInput;
 import java.util.Objects;
 
-public class TransactGetItemsInputTransformOutput {
-  private final TransactGetItemsInput transformedInput;
+public class DescribeTableInputTransformOutput {
+  private final DescribeTableInput transformedInput;
 
-  protected TransactGetItemsInputTransformOutput(BuilderImpl builder) {
+  protected DescribeTableInputTransformOutput(BuilderImpl builder) {
     this.transformedInput = builder.transformedInput();
   }
 
-  public TransactGetItemsInput transformedInput() {
+  public DescribeTableInput transformedInput() {
     return this.transformedInput;
   }
 
@@ -26,37 +26,37 @@ public class TransactGetItemsInputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedInput(TransactGetItemsInput transformedInput);
+    Builder transformedInput(DescribeTableInput transformedInput);
 
-    TransactGetItemsInput transformedInput();
+    DescribeTableInput transformedInput();
 
-    TransactGetItemsInputTransformOutput build();
+    DescribeTableInputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected TransactGetItemsInput transformedInput;
+    protected DescribeTableInput transformedInput;
 
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(TransactGetItemsInputTransformOutput model) {
+    protected BuilderImpl(DescribeTableInputTransformOutput model) {
       this.transformedInput = model.transformedInput();
     }
 
-    public Builder transformedInput(TransactGetItemsInput transformedInput) {
+    public Builder transformedInput(DescribeTableInput transformedInput) {
       this.transformedInput = transformedInput;
       return this;
     }
 
-    public TransactGetItemsInput transformedInput() {
+    public DescribeTableInput transformedInput() {
       return this.transformedInput;
     }
 
-    public TransactGetItemsInputTransformOutput build() {
+    public DescribeTableInputTransformOutput build() {
       if (Objects.isNull(this.transformedInput()))  {
         throw new IllegalArgumentException("Missing value for required field `transformedInput`");
       }
-      return new TransactGetItemsInputTransformOutput(this);
+      return new DescribeTableInputTransformOutput(this);
     }
   }
 }

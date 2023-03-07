@@ -3,15 +3,11 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-// TODO manually updated to include LegacyConfig. This needs to be added to smithy model.
-
+import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
-import software.amazon.cryptography.materialProviders.Keyring;
-import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
-import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
@@ -26,13 +22,11 @@ public class DynamoDbTableEncryptionConfig {
 
   private final String allowedUnauthenticatedAttributePrefix;
 
-  private final Keyring keyring;
-
-  private final CryptographicMaterialsManager cmm;
-
-  private final LegacyConfig legacyConfig;
-  
   private final DBEAlgorithmSuiteId algorithmSuiteId;
+
+  private final IKeyring keyring;
+
+  private final ICryptographicMaterialsManager cmm;
 
   protected DynamoDbTableEncryptionConfig(BuilderImpl builder) {
     this.partitionKeyName = builder.partitionKeyName();
@@ -43,7 +37,6 @@ public class DynamoDbTableEncryptionConfig {
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
-    this.legacyConfig = builder.legacyConfig();
   }
 
   public String partitionKeyName() {
@@ -66,20 +59,16 @@ public class DynamoDbTableEncryptionConfig {
     return this.allowedUnauthenticatedAttributePrefix;
   }
 
-  public Keyring keyring() {
+  public DBEAlgorithmSuiteId algorithmSuiteId() {
+    return this.algorithmSuiteId;
+  }
+
+  public IKeyring keyring() {
     return this.keyring;
   }
 
-  public CryptographicMaterialsManager cmm() {
+  public ICryptographicMaterialsManager cmm() {
     return this.cmm;
-  }
-
-  public LegacyConfig legacyConfig() {
-    return this.legacyConfig;
-  }
-  
-  public DBEAlgorithmSuiteId algorithmSuiteId() {
-    return this.algorithmSuiteId;
   }
 
   public Builder toBuilder() {
@@ -111,21 +100,17 @@ public class DynamoDbTableEncryptionConfig {
 
     String allowedUnauthenticatedAttributePrefix();
 
-    <I extends IKeyring> Builder keyring(I keyring);
-
-    Keyring keyring();
-
-    <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
-
-    CryptographicMaterialsManager cmm();
-
-    Builder legacyConfig(LegacyConfig legacyConfig);
-
-    LegacyConfig legacyConfig();
-    
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
     DBEAlgorithmSuiteId algorithmSuiteId();
+
+    Builder keyring(IKeyring keyring);
+
+    IKeyring keyring();
+
+    Builder cmm(ICryptographicMaterialsManager cmm);
+
+    ICryptographicMaterialsManager cmm();
 
     DynamoDbTableEncryptionConfig build();
   }
@@ -141,13 +126,11 @@ public class DynamoDbTableEncryptionConfig {
 
     protected String allowedUnauthenticatedAttributePrefix;
 
-    protected Keyring keyring;
-
-    protected CryptographicMaterialsManager cmm;
-
-    protected LegacyConfig legacyConfig;
-
     protected DBEAlgorithmSuiteId algorithmSuiteId;
+
+    protected IKeyring keyring;
+
+    protected ICryptographicMaterialsManager cmm;
 
     protected BuilderImpl() {
     }
@@ -161,7 +144,6 @@ public class DynamoDbTableEncryptionConfig {
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.keyring = model.keyring();
       this.cmm = model.cmm();
-      this.legacyConfig = model.legacyConfig();
     }
 
     public Builder partitionKeyName(String partitionKeyName) {
@@ -210,33 +192,6 @@ public class DynamoDbTableEncryptionConfig {
       return this.allowedUnauthenticatedAttributePrefix;
     }
 
-    public <I extends IKeyring> Builder keyring(I keyring) {
-      this.keyring = Keyring.create(keyring);
-      return this;
-    }
-
-    public Keyring keyring() {
-      return this.keyring;
-    }
-
-    public <I extends ICryptographicMaterialsManager> Builder cmm(I cmm) {
-      this.cmm = CryptographicMaterialsManager.create(cmm);
-      return this;
-    }
-
-    public CryptographicMaterialsManager cmm() {
-      return this.cmm;
-    }
-
-    public Builder legacyConfig(LegacyConfig legacyConfig) {
-      this.legacyConfig = legacyConfig;
-      return this;
-    }
-
-    public LegacyConfig legacyConfig() {
-      return this.legacyConfig;
-    }
-    
     public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
       this.algorithmSuiteId = algorithmSuiteId;
       return this;
@@ -245,7 +200,25 @@ public class DynamoDbTableEncryptionConfig {
     public DBEAlgorithmSuiteId algorithmSuiteId() {
       return this.algorithmSuiteId;
     }
-    
+
+    public Builder keyring(IKeyring keyring) {
+      this.keyring = keyring;
+      return this;
+    }
+
+    public IKeyring keyring() {
+      return this.keyring;
+    }
+
+    public Builder cmm(ICryptographicMaterialsManager cmm) {
+      this.cmm = cmm;
+      return this;
+    }
+
+    public ICryptographicMaterialsManager cmm() {
+      return this.cmm;
+    }
+
     public DynamoDbTableEncryptionConfig build() {
       if (Objects.isNull(this.partitionKeyName()))  {
         throw new IllegalArgumentException("Missing value for required field `partitionKeyName`");

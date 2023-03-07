@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
-import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
+import com.amazonaws.dynamodb.model.QueryInput;
+import com.amazonaws.dynamodb.model.QueryOutput;
 import java.util.Objects;
 
 public class QueryOutputTransformInput {
-  private final QueryResponse sdkOutput ;
+  private final QueryOutput sdkOutput;
 
-  private final QueryRequest originalInput;
+  private final QueryInput originalInput;
 
   protected QueryOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public QueryResponse sdkOutput () {
+  public QueryOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public QueryRequest originalInput() {
+  public QueryInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class QueryOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(QueryResponse sdkOutput );
+    Builder sdkOutput(QueryOutput sdkOutput);
 
-    QueryResponse sdkOutput ();
+    QueryOutput sdkOutput();
 
-    Builder originalInput(QueryRequest originalInput);
+    Builder originalInput(QueryInput originalInput);
 
-    QueryRequest originalInput();
+    QueryInput originalInput();
 
     QueryOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected QueryResponse sdkOutput ;
+    protected QueryOutput sdkOutput;
 
-    protected QueryRequest originalInput;
+    protected QueryInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class QueryOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(QueryResponse sdkOutput ) {
+    public Builder sdkOutput(QueryOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public QueryResponse sdkOutput () {
+    public QueryOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(QueryRequest originalInput) {
+    public Builder originalInput(QueryInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public QueryRequest originalInput() {
+    public QueryInput originalInput() {
       return this.originalInput;
     }
 

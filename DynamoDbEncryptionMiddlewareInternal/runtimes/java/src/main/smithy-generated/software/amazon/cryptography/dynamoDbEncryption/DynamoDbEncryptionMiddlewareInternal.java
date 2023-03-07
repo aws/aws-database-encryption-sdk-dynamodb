@@ -70,7 +70,7 @@ public class DynamoDbEncryptionMiddlewareInternal {
   protected DynamoDbEncryptionMiddlewareInternal(BuilderImpl builder) {
     DynamoDbEncryptionConfig nativeValue = builder.DynamoDbEncryptionConfig();
     Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbEncryptionConfig dafnyValue = ToDafny.DynamoDbEncryptionConfig(nativeValue);
-    Result<DynamoDbEncryptionMiddlewareInternalClient, Error> result = __default.DynamoDbEncryption(dafnyValue);
+    Result<DynamoDbEncryptionMiddlewareInternalClient, Error> result = __default.DynamoDbEncryptionMiddlewareInternal(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }

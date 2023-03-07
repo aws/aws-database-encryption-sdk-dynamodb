@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import com.amazonaws.dynamodb.model.GetItemInput;
+import com.amazonaws.dynamodb.model.GetItemOutput;
 import java.util.Objects;
 
 public class GetItemOutputTransformInput {
-  private final GetItemResponse sdkOutput ;
+  private final GetItemOutput sdkOutput;
 
-  private final GetItemRequest originalInput;
+  private final GetItemInput originalInput;
 
   protected GetItemOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public GetItemResponse sdkOutput () {
+  public GetItemOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public GetItemRequest originalInput() {
+  public GetItemInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class GetItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(GetItemResponse sdkOutput );
+    Builder sdkOutput(GetItemOutput sdkOutput);
 
-    GetItemResponse sdkOutput ();
+    GetItemOutput sdkOutput();
 
-    Builder originalInput(GetItemRequest originalInput);
+    Builder originalInput(GetItemInput originalInput);
 
-    GetItemRequest originalInput();
+    GetItemInput originalInput();
 
     GetItemOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected GetItemResponse sdkOutput ;
+    protected GetItemOutput sdkOutput;
 
-    protected GetItemRequest originalInput;
+    protected GetItemInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class GetItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(GetItemResponse sdkOutput ) {
+    public Builder sdkOutput(GetItemOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public GetItemResponse sdkOutput () {
+    public GetItemOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(GetItemRequest originalInput) {
+    public Builder originalInput(GetItemInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public GetItemRequest originalInput() {
+    public GetItemInput originalInput() {
       return this.originalInput;
     }
 

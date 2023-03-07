@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import com.amazonaws.dynamodb.model.QueryInput;
+import com.amazonaws.dynamodb.model.UpdateTableInput;
 import java.util.Objects;
 
-public class QueryInputTransformInput {
-  private final QueryInput sdkInput;
+public class UpdateTableInputTransformInput {
+  private final UpdateTableInput sdkInput;
 
-  protected QueryInputTransformInput(BuilderImpl builder) {
+  protected UpdateTableInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
-  public QueryInput sdkInput() {
+  public UpdateTableInput sdkInput() {
     return this.sdkInput;
   }
 
@@ -26,37 +26,37 @@ public class QueryInputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkInput(QueryInput sdkInput);
+    Builder sdkInput(UpdateTableInput sdkInput);
 
-    QueryInput sdkInput();
+    UpdateTableInput sdkInput();
 
-    QueryInputTransformInput build();
+    UpdateTableInputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected QueryInput sdkInput;
+    protected UpdateTableInput sdkInput;
 
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(QueryInputTransformInput model) {
+    protected BuilderImpl(UpdateTableInputTransformInput model) {
       this.sdkInput = model.sdkInput();
     }
 
-    public Builder sdkInput(QueryInput sdkInput) {
+    public Builder sdkInput(UpdateTableInput sdkInput) {
       this.sdkInput = sdkInput;
       return this;
     }
 
-    public QueryInput sdkInput() {
+    public UpdateTableInput sdkInput() {
       return this.sdkInput;
     }
 
-    public QueryInputTransformInput build() {
+    public UpdateTableInputTransformInput build() {
       if (Objects.isNull(this.sdkInput()))  {
         throw new IllegalArgumentException("Missing value for required field `sdkInput`");
       }
-      return new QueryInputTransformInput(this);
+      return new UpdateTableInputTransformInput(this);
     }
   }
 }

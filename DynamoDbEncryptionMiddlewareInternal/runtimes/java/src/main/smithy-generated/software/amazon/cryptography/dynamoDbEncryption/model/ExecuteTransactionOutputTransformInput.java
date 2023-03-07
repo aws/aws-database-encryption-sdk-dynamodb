@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionResponse;
+import com.amazonaws.dynamodb.model.ExecuteTransactionInput;
+import com.amazonaws.dynamodb.model.ExecuteTransactionOutput;
 import java.util.Objects;
 
 public class ExecuteTransactionOutputTransformInput {
-  private final ExecuteTransactionResponse sdkOutput ;
+  private final ExecuteTransactionOutput sdkOutput;
 
-  private final ExecuteTransactionRequest originalInput;
+  private final ExecuteTransactionInput originalInput;
 
   protected ExecuteTransactionOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public ExecuteTransactionResponse sdkOutput () {
+  public ExecuteTransactionOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public ExecuteTransactionRequest originalInput() {
+  public ExecuteTransactionInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class ExecuteTransactionOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(ExecuteTransactionResponse sdkOutput );
+    Builder sdkOutput(ExecuteTransactionOutput sdkOutput);
 
-    ExecuteTransactionResponse sdkOutput ();
+    ExecuteTransactionOutput sdkOutput();
 
-    Builder originalInput(ExecuteTransactionRequest originalInput);
+    Builder originalInput(ExecuteTransactionInput originalInput);
 
-    ExecuteTransactionRequest originalInput();
+    ExecuteTransactionInput originalInput();
 
     ExecuteTransactionOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteTransactionResponse sdkOutput ;
+    protected ExecuteTransactionOutput sdkOutput;
 
-    protected ExecuteTransactionRequest originalInput;
+    protected ExecuteTransactionInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class ExecuteTransactionOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(ExecuteTransactionResponse sdkOutput ) {
+    public Builder sdkOutput(ExecuteTransactionOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public ExecuteTransactionResponse sdkOutput () {
+    public ExecuteTransactionOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(ExecuteTransactionRequest originalInput) {
+    public Builder originalInput(ExecuteTransactionInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public ExecuteTransactionRequest originalInput() {
+    public ExecuteTransactionInput originalInput() {
       return this.originalInput;
     }
 

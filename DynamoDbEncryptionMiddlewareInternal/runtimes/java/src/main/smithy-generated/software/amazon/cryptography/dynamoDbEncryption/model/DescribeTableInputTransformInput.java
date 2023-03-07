@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import com.amazonaws.dynamodb.model.QueryInput;
+import com.amazonaws.dynamodb.model.DescribeTableInput;
 import java.util.Objects;
 
-public class QueryInputTransformInput {
-  private final QueryInput sdkInput;
+public class DescribeTableInputTransformInput {
+  private final DescribeTableInput sdkInput;
 
-  protected QueryInputTransformInput(BuilderImpl builder) {
+  protected DescribeTableInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
-  public QueryInput sdkInput() {
+  public DescribeTableInput sdkInput() {
     return this.sdkInput;
   }
 
@@ -26,37 +26,37 @@ public class QueryInputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkInput(QueryInput sdkInput);
+    Builder sdkInput(DescribeTableInput sdkInput);
 
-    QueryInput sdkInput();
+    DescribeTableInput sdkInput();
 
-    QueryInputTransformInput build();
+    DescribeTableInputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected QueryInput sdkInput;
+    protected DescribeTableInput sdkInput;
 
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(QueryInputTransformInput model) {
+    protected BuilderImpl(DescribeTableInputTransformInput model) {
       this.sdkInput = model.sdkInput();
     }
 
-    public Builder sdkInput(QueryInput sdkInput) {
+    public Builder sdkInput(DescribeTableInput sdkInput) {
       this.sdkInput = sdkInput;
       return this;
     }
 
-    public QueryInput sdkInput() {
+    public DescribeTableInput sdkInput() {
       return this.sdkInput;
     }
 
-    public QueryInputTransformInput build() {
+    public DescribeTableInputTransformInput build() {
       if (Objects.isNull(this.sdkInput()))  {
         throw new IllegalArgumentException("Missing value for required field `sdkInput`");
       }
-      return new QueryInputTransformInput(this);
+      return new DescribeTableInputTransformInput(this);
     }
   }
 }

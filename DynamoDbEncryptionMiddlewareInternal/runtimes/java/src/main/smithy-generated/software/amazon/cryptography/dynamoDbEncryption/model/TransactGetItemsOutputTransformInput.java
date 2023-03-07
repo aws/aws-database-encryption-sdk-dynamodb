@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsRequest;
-import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsResponse;
+import com.amazonaws.dynamodb.model.TransactGetItemsInput;
+import com.amazonaws.dynamodb.model.TransactGetItemsOutput;
 import java.util.Objects;
 
 public class TransactGetItemsOutputTransformInput {
-  private final TransactGetItemsResponse sdkOutput ;
+  private final TransactGetItemsOutput sdkOutput;
 
-  private final TransactGetItemsRequest originalInput;
+  private final TransactGetItemsInput originalInput;
 
   protected TransactGetItemsOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public TransactGetItemsResponse sdkOutput () {
+  public TransactGetItemsOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public TransactGetItemsRequest originalInput() {
+  public TransactGetItemsInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class TransactGetItemsOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(TransactGetItemsResponse sdkOutput );
+    Builder sdkOutput(TransactGetItemsOutput sdkOutput);
 
-    TransactGetItemsResponse sdkOutput ();
+    TransactGetItemsOutput sdkOutput();
 
-    Builder originalInput(TransactGetItemsRequest originalInput);
+    Builder originalInput(TransactGetItemsInput originalInput);
 
-    TransactGetItemsRequest originalInput();
+    TransactGetItemsInput originalInput();
 
     TransactGetItemsOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected TransactGetItemsResponse sdkOutput ;
+    protected TransactGetItemsOutput sdkOutput;
 
-    protected TransactGetItemsRequest originalInput;
+    protected TransactGetItemsInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class TransactGetItemsOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(TransactGetItemsResponse sdkOutput ) {
+    public Builder sdkOutput(TransactGetItemsOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public TransactGetItemsResponse sdkOutput () {
+    public TransactGetItemsOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(TransactGetItemsRequest originalInput) {
+    public Builder originalInput(TransactGetItemsInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public TransactGetItemsRequest originalInput() {
+    public TransactGetItemsInput originalInput() {
       return this.originalInput;
     }
 

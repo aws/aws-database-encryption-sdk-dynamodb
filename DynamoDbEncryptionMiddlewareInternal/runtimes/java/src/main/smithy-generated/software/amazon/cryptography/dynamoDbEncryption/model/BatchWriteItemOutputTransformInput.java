@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
+import com.amazonaws.dynamodb.model.BatchWriteItemInput;
+import com.amazonaws.dynamodb.model.BatchWriteItemOutput;
 import java.util.Objects;
 
 public class BatchWriteItemOutputTransformInput {
-  private final BatchWriteItemResponse sdkOutput ;
+  private final BatchWriteItemOutput sdkOutput;
 
-  private final BatchWriteItemRequest originalInput;
+  private final BatchWriteItemInput originalInput;
 
   protected BatchWriteItemOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public BatchWriteItemResponse sdkOutput () {
+  public BatchWriteItemOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public BatchWriteItemRequest originalInput() {
+  public BatchWriteItemInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class BatchWriteItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(BatchWriteItemResponse sdkOutput );
+    Builder sdkOutput(BatchWriteItemOutput sdkOutput);
 
-    BatchWriteItemResponse sdkOutput ();
+    BatchWriteItemOutput sdkOutput();
 
-    Builder originalInput(BatchWriteItemRequest originalInput);
+    Builder originalInput(BatchWriteItemInput originalInput);
 
-    BatchWriteItemRequest originalInput();
+    BatchWriteItemInput originalInput();
 
     BatchWriteItemOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchWriteItemResponse sdkOutput ;
+    protected BatchWriteItemOutput sdkOutput;
 
-    protected BatchWriteItemRequest originalInput;
+    protected BatchWriteItemInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class BatchWriteItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(BatchWriteItemResponse sdkOutput ) {
+    public Builder sdkOutput(BatchWriteItemOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public BatchWriteItemResponse sdkOutput () {
+    public BatchWriteItemOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(BatchWriteItemRequest originalInput) {
+    public Builder originalInput(BatchWriteItemInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public BatchWriteItemRequest originalInput() {
+    public BatchWriteItemInput originalInput() {
       return this.originalInput;
     }
 

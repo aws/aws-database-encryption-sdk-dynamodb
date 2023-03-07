@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import com.amazonaws.dynamodb.model.PutItemInput;
 import java.util.Objects;
 
 public class PutItemInputTransformInput {
-  private final PutItemRequest sdkInput ;
+  private final PutItemInput sdkInput;
 
   protected PutItemInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
-  public PutItemRequest sdkInput () {
+  public PutItemInput sdkInput() {
     return this.sdkInput;
   }
 
@@ -26,15 +26,15 @@ public class PutItemInputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkInput(PutItemRequest sdkInput );
+    Builder sdkInput(PutItemInput sdkInput);
 
-    PutItemRequest sdkInput ();
+    PutItemInput sdkInput();
 
     PutItemInputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected PutItemRequest sdkInput ;
+    protected PutItemInput sdkInput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class PutItemInputTransformInput {
       this.sdkInput = model.sdkInput();
     }
 
-    public Builder sdkInput(PutItemRequest sdkInput ) {
+    public Builder sdkInput(PutItemInput sdkInput) {
       this.sdkInput = sdkInput;
       return this;
     }
 
-    public PutItemRequest sdkInput () {
+    public PutItemInput sdkInput() {
       return this.sdkInput;
     }
 

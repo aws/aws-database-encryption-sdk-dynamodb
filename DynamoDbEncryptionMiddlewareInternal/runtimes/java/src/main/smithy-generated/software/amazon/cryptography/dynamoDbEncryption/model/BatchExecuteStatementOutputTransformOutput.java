@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementResponse;
+import com.amazonaws.dynamodb.model.BatchExecuteStatementOutput;
 import java.util.Objects;
 
 public class BatchExecuteStatementOutputTransformOutput {
-  private final BatchExecuteStatementResponse transformedOutput;
+  private final BatchExecuteStatementOutput transformedOutput;
 
   protected BatchExecuteStatementOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public BatchExecuteStatementResponse transformedOutput() {
+  public BatchExecuteStatementOutput transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -26,15 +26,15 @@ public class BatchExecuteStatementOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(BatchExecuteStatementResponse transformedOutput);
+    Builder transformedOutput(BatchExecuteStatementOutput transformedOutput);
 
-    BatchExecuteStatementResponse transformedOutput();
+    BatchExecuteStatementOutput transformedOutput();
 
     BatchExecuteStatementOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchExecuteStatementResponse transformedOutput;
+    protected BatchExecuteStatementOutput transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class BatchExecuteStatementOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(BatchExecuteStatementResponse transformedOutput) {
+    public Builder transformedOutput(BatchExecuteStatementOutput transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public BatchExecuteStatementResponse transformedOutput() {
+    public BatchExecuteStatementOutput transformedOutput() {
       return this.transformedOutput;
     }
 

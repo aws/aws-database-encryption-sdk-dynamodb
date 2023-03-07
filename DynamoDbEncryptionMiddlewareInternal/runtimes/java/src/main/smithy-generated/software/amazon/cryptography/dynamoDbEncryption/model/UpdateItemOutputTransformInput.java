@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
+import com.amazonaws.dynamodb.model.UpdateItemInput;
+import com.amazonaws.dynamodb.model.UpdateItemOutput;
 import java.util.Objects;
 
 public class UpdateItemOutputTransformInput {
-  private final UpdateItemResponse sdkOutput ;
+  private final UpdateItemOutput sdkOutput;
 
-  private final UpdateItemRequest originalInput;
+  private final UpdateItemInput originalInput;
 
   protected UpdateItemOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public UpdateItemResponse sdkOutput () {
+  public UpdateItemOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public UpdateItemRequest originalInput() {
+  public UpdateItemInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class UpdateItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(UpdateItemResponse sdkOutput );
+    Builder sdkOutput(UpdateItemOutput sdkOutput);
 
-    UpdateItemResponse sdkOutput ();
+    UpdateItemOutput sdkOutput();
 
-    Builder originalInput(UpdateItemRequest originalInput);
+    Builder originalInput(UpdateItemInput originalInput);
 
-    UpdateItemRequest originalInput();
+    UpdateItemInput originalInput();
 
     UpdateItemOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected UpdateItemResponse sdkOutput ;
+    protected UpdateItemOutput sdkOutput;
 
-    protected UpdateItemRequest originalInput;
+    protected UpdateItemInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class UpdateItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(UpdateItemResponse sdkOutput ) {
+    public Builder sdkOutput(UpdateItemOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public UpdateItemResponse sdkOutput () {
+    public UpdateItemOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(UpdateItemRequest originalInput) {
+    public Builder originalInput(UpdateItemInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public UpdateItemRequest originalInput() {
+    public UpdateItemInput originalInput() {
       return this.originalInput;
     }
 

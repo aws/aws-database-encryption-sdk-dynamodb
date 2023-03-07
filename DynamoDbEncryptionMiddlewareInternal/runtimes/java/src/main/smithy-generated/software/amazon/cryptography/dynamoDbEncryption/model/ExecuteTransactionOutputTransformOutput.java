@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionResponse;
+import com.amazonaws.dynamodb.model.ExecuteTransactionOutput;
 import java.util.Objects;
 
 public class ExecuteTransactionOutputTransformOutput {
-  private final ExecuteTransactionResponse transformedOutput;
+  private final ExecuteTransactionOutput transformedOutput;
 
   protected ExecuteTransactionOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public ExecuteTransactionResponse transformedOutput() {
+  public ExecuteTransactionOutput transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -26,15 +26,15 @@ public class ExecuteTransactionOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(ExecuteTransactionResponse transformedOutput);
+    Builder transformedOutput(ExecuteTransactionOutput transformedOutput);
 
-    ExecuteTransactionResponse transformedOutput();
+    ExecuteTransactionOutput transformedOutput();
 
     ExecuteTransactionOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteTransactionResponse transformedOutput;
+    protected ExecuteTransactionOutput transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class ExecuteTransactionOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(ExecuteTransactionResponse transformedOutput) {
+    public Builder transformedOutput(ExecuteTransactionOutput transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public ExecuteTransactionResponse transformedOutput() {
+    public ExecuteTransactionOutput transformedOutput() {
       return this.transformedOutput;
     }
 

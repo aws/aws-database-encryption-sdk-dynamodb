@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementRequest;
+import com.amazonaws.dynamodb.model.ExecuteStatementInput;
 import java.util.Objects;
 
 public class ExecuteStatementInputTransformInput {
-  private final ExecuteStatementRequest sdkInput ;
+  private final ExecuteStatementInput sdkInput;
 
   protected ExecuteStatementInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
-  public ExecuteStatementRequest sdkInput () {
+  public ExecuteStatementInput sdkInput() {
     return this.sdkInput;
   }
 
@@ -26,15 +26,15 @@ public class ExecuteStatementInputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkInput(ExecuteStatementRequest sdkInput );
+    Builder sdkInput(ExecuteStatementInput sdkInput);
 
-    ExecuteStatementRequest sdkInput ();
+    ExecuteStatementInput sdkInput();
 
     ExecuteStatementInputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteStatementRequest sdkInput ;
+    protected ExecuteStatementInput sdkInput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class ExecuteStatementInputTransformInput {
       this.sdkInput = model.sdkInput();
     }
 
-    public Builder sdkInput(ExecuteStatementRequest sdkInput ) {
+    public Builder sdkInput(ExecuteStatementInput sdkInput) {
       this.sdkInput = sdkInput;
       return this;
     }
 
-    public ExecuteStatementRequest sdkInput () {
+    public ExecuteStatementInput sdkInput() {
       return this.sdkInput;
     }
 

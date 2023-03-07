@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
+import com.amazonaws.dynamodb.model.DeleteItemInput;
+import com.amazonaws.dynamodb.model.DeleteItemOutput;
 import java.util.Objects;
 
 public class DeleteItemOutputTransformInput {
-  private final DeleteItemResponse sdkOutput ;
+  private final DeleteItemOutput sdkOutput;
 
-  private final DeleteItemRequest originalInput;
+  private final DeleteItemInput originalInput;
 
   protected DeleteItemOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public DeleteItemResponse sdkOutput () {
+  public DeleteItemOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public DeleteItemRequest originalInput() {
+  public DeleteItemInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class DeleteItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(DeleteItemResponse sdkOutput );
+    Builder sdkOutput(DeleteItemOutput sdkOutput);
 
-    DeleteItemResponse sdkOutput ();
+    DeleteItemOutput sdkOutput();
 
-    Builder originalInput(DeleteItemRequest originalInput);
+    Builder originalInput(DeleteItemInput originalInput);
 
-    DeleteItemRequest originalInput();
+    DeleteItemInput originalInput();
 
     DeleteItemOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected DeleteItemResponse sdkOutput ;
+    protected DeleteItemOutput sdkOutput;
 
-    protected DeleteItemRequest originalInput;
+    protected DeleteItemInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class DeleteItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(DeleteItemResponse sdkOutput ) {
+    public Builder sdkOutput(DeleteItemOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public DeleteItemResponse sdkOutput () {
+    public DeleteItemOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(DeleteItemRequest originalInput) {
+    public Builder originalInput(DeleteItemInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public DeleteItemRequest originalInput() {
+    public DeleteItemInput originalInput() {
       return this.originalInput;
     }
 

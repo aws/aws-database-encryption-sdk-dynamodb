@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import com.amazonaws.dynamodb.model.GetItemOutput;
 import java.util.Objects;
 
 public class GetItemOutputTransformOutput {
-  private final GetItemResponse transformedOutput;
+  private final GetItemOutput transformedOutput;
 
   protected GetItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public GetItemResponse transformedOutput() {
+  public GetItemOutput transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -26,15 +26,15 @@ public class GetItemOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(GetItemResponse transformedOutput);
+    Builder transformedOutput(GetItemOutput transformedOutput);
 
-    GetItemResponse transformedOutput();
+    GetItemOutput transformedOutput();
 
     GetItemOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected GetItemResponse transformedOutput;
+    protected GetItemOutput transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class GetItemOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(GetItemResponse transformedOutput) {
+    public Builder transformedOutput(GetItemOutput transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public GetItemResponse transformedOutput() {
+    public GetItemOutput transformedOutput() {
       return this.transformedOutput;
     }
 

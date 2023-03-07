@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
+import com.amazonaws.dynamodb.model.BatchWriteItemOutput;
 import java.util.Objects;
 
 public class BatchWriteItemOutputTransformOutput {
-  private final BatchWriteItemResponse transformedOutput;
+  private final BatchWriteItemOutput transformedOutput;
 
   protected BatchWriteItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public BatchWriteItemResponse transformedOutput() {
+  public BatchWriteItemOutput transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -26,15 +26,15 @@ public class BatchWriteItemOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(BatchWriteItemResponse transformedOutput);
+    Builder transformedOutput(BatchWriteItemOutput transformedOutput);
 
-    BatchWriteItemResponse transformedOutput();
+    BatchWriteItemOutput transformedOutput();
 
     BatchWriteItemOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchWriteItemResponse transformedOutput;
+    protected BatchWriteItemOutput transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class BatchWriteItemOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(BatchWriteItemResponse transformedOutput) {
+    public Builder transformedOutput(BatchWriteItemOutput transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public BatchWriteItemResponse transformedOutput() {
+    public BatchWriteItemOutput transformedOutput() {
       return this.transformedOutput;
     }
 

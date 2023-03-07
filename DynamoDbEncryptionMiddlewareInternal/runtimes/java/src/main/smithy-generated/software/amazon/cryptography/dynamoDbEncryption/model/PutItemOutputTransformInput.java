@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+import com.amazonaws.dynamodb.model.PutItemInput;
+import com.amazonaws.dynamodb.model.PutItemOutput;
 import java.util.Objects;
 
 public class PutItemOutputTransformInput {
-  private final PutItemResponse sdkOutput ;
+  private final PutItemOutput sdkOutput;
 
-  private final PutItemRequest originalInput;
+  private final PutItemInput originalInput;
 
   protected PutItemOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public PutItemResponse sdkOutput () {
+  public PutItemOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public PutItemRequest originalInput() {
+  public PutItemInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class PutItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(PutItemResponse sdkOutput );
+    Builder sdkOutput(PutItemOutput sdkOutput);
 
-    PutItemResponse sdkOutput ();
+    PutItemOutput sdkOutput();
 
-    Builder originalInput(PutItemRequest originalInput);
+    Builder originalInput(PutItemInput originalInput);
 
-    PutItemRequest originalInput();
+    PutItemInput originalInput();
 
     PutItemOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected PutItemResponse sdkOutput ;
+    protected PutItemOutput sdkOutput;
 
-    protected PutItemRequest originalInput;
+    protected PutItemInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class PutItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(PutItemResponse sdkOutput ) {
+    public Builder sdkOutput(PutItemOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public PutItemResponse sdkOutput () {
+    public PutItemOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(PutItemRequest originalInput) {
+    public Builder originalInput(PutItemInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public PutItemRequest originalInput() {
+    public PutItemInput originalInput() {
       return this.originalInput;
     }
 

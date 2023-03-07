@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest;
-import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsResponse;
+import com.amazonaws.dynamodb.model.TransactWriteItemsInput;
+import com.amazonaws.dynamodb.model.TransactWriteItemsOutput;
 import java.util.Objects;
 
 public class TransactWriteItemsOutputTransformInput {
-  private final TransactWriteItemsResponse sdkOutput ;
+  private final TransactWriteItemsOutput sdkOutput;
 
-  private final TransactWriteItemsRequest originalInput;
+  private final TransactWriteItemsInput originalInput;
 
   protected TransactWriteItemsOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public TransactWriteItemsResponse sdkOutput () {
+  public TransactWriteItemsOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public TransactWriteItemsRequest originalInput() {
+  public TransactWriteItemsInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class TransactWriteItemsOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(TransactWriteItemsResponse sdkOutput );
+    Builder sdkOutput(TransactWriteItemsOutput sdkOutput);
 
-    TransactWriteItemsResponse sdkOutput ();
+    TransactWriteItemsOutput sdkOutput();
 
-    Builder originalInput(TransactWriteItemsRequest originalInput);
+    Builder originalInput(TransactWriteItemsInput originalInput);
 
-    TransactWriteItemsRequest originalInput();
+    TransactWriteItemsInput originalInput();
 
     TransactWriteItemsOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected TransactWriteItemsResponse sdkOutput ;
+    protected TransactWriteItemsOutput sdkOutput;
 
-    protected TransactWriteItemsRequest originalInput;
+    protected TransactWriteItemsInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class TransactWriteItemsOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(TransactWriteItemsResponse sdkOutput ) {
+    public Builder sdkOutput(TransactWriteItemsOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public TransactWriteItemsResponse sdkOutput () {
+    public TransactWriteItemsOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(TransactWriteItemsRequest originalInput) {
+    public Builder originalInput(TransactWriteItemsInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public TransactWriteItemsRequest originalInput() {
+    public TransactWriteItemsInput originalInput() {
       return this.originalInput;
     }
 

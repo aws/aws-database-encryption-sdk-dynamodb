@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
-import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
+import com.amazonaws.dynamodb.model.ScanInput;
+import com.amazonaws.dynamodb.model.ScanOutput;
 import java.util.Objects;
 
 public class ScanOutputTransformInput {
-  private final ScanResponse sdkOutput ;
+  private final ScanOutput sdkOutput;
 
-  private final ScanRequest originalInput;
+  private final ScanInput originalInput;
 
   protected ScanOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public ScanResponse sdkOutput () {
+  public ScanOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public ScanRequest originalInput() {
+  public ScanInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class ScanOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(ScanResponse sdkOutput );
+    Builder sdkOutput(ScanOutput sdkOutput);
 
-    ScanResponse sdkOutput ();
+    ScanOutput sdkOutput();
 
-    Builder originalInput(ScanRequest originalInput);
+    Builder originalInput(ScanInput originalInput);
 
-    ScanRequest originalInput();
+    ScanInput originalInput();
 
     ScanOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ScanResponse sdkOutput ;
+    protected ScanOutput sdkOutput;
 
-    protected ScanRequest originalInput;
+    protected ScanInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class ScanOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(ScanResponse sdkOutput ) {
+    public Builder sdkOutput(ScanOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public ScanResponse sdkOutput () {
+    public ScanOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(ScanRequest originalInput) {
+    public Builder originalInput(ScanInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public ScanRequest originalInput() {
+    public ScanInput originalInput() {
       return this.originalInput;
     }
 

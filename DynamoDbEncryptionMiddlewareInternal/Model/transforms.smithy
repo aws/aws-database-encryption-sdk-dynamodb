@@ -28,6 +28,12 @@ use com.amazonaws.dynamodb#BatchExecuteStatementInput
 use com.amazonaws.dynamodb#BatchExecuteStatementOutput
 use com.amazonaws.dynamodb#ExecuteTransactionInput
 use com.amazonaws.dynamodb#ExecuteTransactionOutput
+use com.amazonaws.dynamodb#DescribeTableInput
+use com.amazonaws.dynamodb#DescribeTableOutput
+use com.amazonaws.dynamodb#CreateTableInput
+use com.amazonaws.dynamodb#CreateTableOutput
+use com.amazonaws.dynamodb#UpdateTableInput
+use com.amazonaws.dynamodb#UpdateTableOutput
 
 // TODO: Model passthrough APIs
 // TODO: Do we model an "unknown operation" somewhere, that just spits out an error?
@@ -446,4 +452,101 @@ structure ExecuteTransactionOutputTransformInput {
 structure ExecuteTransactionOutputTransformOutput {
     @required
     transformedOutput: ExecuteTransactionOutput,
+}
+
+operation CreateTableInputTransform {
+    input: CreateTableInputTransformInput,
+    output: CreateTableInputTransformOutput,
+}
+
+structure CreateTableInputTransformInput {
+    @required
+    sdkInput: CreateTableInput,
+}
+
+structure CreateTableInputTransformOutput {
+    @required
+    transformedInput: CreateTableInput,
+}
+
+operation CreateTableOutputTransform {
+    input: CreateTableOutputTransformInput,
+    output: CreateTableOutputTransformOutput,
+}
+
+structure CreateTableOutputTransformInput {
+    @required
+    sdkOutput: CreateTableOutput,
+    @required
+    originalInput: CreateTableInput,
+}
+
+structure CreateTableOutputTransformOutput {
+    @required
+    transformedOutput: CreateTableOutput,
+}
+
+
+operation UpdateTableInputTransform {
+    input: UpdateTableInputTransformInput,
+    output: UpdateTableInputTransformOutput,
+}
+
+structure UpdateTableInputTransformInput {
+    @required
+    sdkInput: UpdateTableInput,
+}
+
+structure UpdateTableInputTransformOutput {
+    @required
+    transformedInput: UpdateTableInput,
+}
+
+operation UpdateTableOutputTransform {
+    input: UpdateTableOutputTransformInput,
+    output: UpdateTableOutputTransformOutput,
+}
+
+structure UpdateTableOutputTransformInput {
+    @required
+    sdkOutput: UpdateTableOutput,
+    @required
+    originalInput: UpdateTableInput,
+}
+
+structure UpdateTableOutputTransformOutput {
+    @required
+    transformedOutput: UpdateTableOutput,
+}
+
+operation DescribeTableInputTransform {
+    input: DescribeTableInputTransformInput,
+    output: DescribeTableInputTransformOutput,
+}
+
+structure DescribeTableInputTransformInput {
+    @required
+    sdkInput: DescribeTableInput,
+}
+
+structure DescribeTableInputTransformOutput {
+    @required
+    transformedInput: DescribeTableInput,
+}
+
+operation DescribeTableOutputTransform {
+    input: DescribeTableOutputTransformInput,
+    output: DescribeTableOutputTransformOutput,
+}
+
+structure DescribeTableOutputTransformInput {
+    @required
+    sdkOutput: DescribeTableOutput,
+    @required
+    originalInput: DescribeTableInput,
+}
+
+structure DescribeTableOutputTransformOutput {
+    @required
+    transformedOutput: DescribeTableOutput,
 }

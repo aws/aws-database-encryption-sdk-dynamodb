@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchGetItemResponse;
+import com.amazonaws.dynamodb.model.BatchGetItemInput;
+import com.amazonaws.dynamodb.model.BatchGetItemOutput;
 import java.util.Objects;
 
 public class BatchGetItemOutputTransformInput {
-  private final BatchGetItemResponse sdkOutput ;
+  private final BatchGetItemOutput sdkOutput;
 
-  private final BatchGetItemRequest originalInput;
+  private final BatchGetItemInput originalInput;
 
   protected BatchGetItemOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public BatchGetItemResponse sdkOutput () {
+  public BatchGetItemOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public BatchGetItemRequest originalInput() {
+  public BatchGetItemInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,21 +34,21 @@ public class BatchGetItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(BatchGetItemResponse sdkOutput );
+    Builder sdkOutput(BatchGetItemOutput sdkOutput);
 
-    BatchGetItemResponse sdkOutput ();
+    BatchGetItemOutput sdkOutput();
 
-    Builder originalInput(BatchGetItemRequest originalInput);
+    Builder originalInput(BatchGetItemInput originalInput);
 
-    BatchGetItemRequest originalInput();
+    BatchGetItemInput originalInput();
 
     BatchGetItemOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchGetItemResponse sdkOutput ;
+    protected BatchGetItemOutput sdkOutput;
 
-    protected BatchGetItemRequest originalInput;
+    protected BatchGetItemInput originalInput;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class BatchGetItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(BatchGetItemResponse sdkOutput ) {
+    public Builder sdkOutput(BatchGetItemOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public BatchGetItemResponse sdkOutput () {
+    public BatchGetItemOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(BatchGetItemRequest originalInput) {
+    public Builder originalInput(BatchGetItemInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public BatchGetItemRequest originalInput() {
+    public BatchGetItemInput originalInput() {
       return this.originalInput;
     }
 

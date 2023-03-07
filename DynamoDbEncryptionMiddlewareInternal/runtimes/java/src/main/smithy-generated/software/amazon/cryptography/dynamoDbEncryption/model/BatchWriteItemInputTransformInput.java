@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
+import com.amazonaws.dynamodb.model.BatchWriteItemInput;
 import java.util.Objects;
 
 public class BatchWriteItemInputTransformInput {
-  private final BatchWriteItemRequest sdkInput ;
+  private final BatchWriteItemInput sdkInput;
 
   protected BatchWriteItemInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
-  public BatchWriteItemRequest sdkInput () {
+  public BatchWriteItemInput sdkInput() {
     return this.sdkInput;
   }
 
@@ -26,15 +26,15 @@ public class BatchWriteItemInputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkInput(BatchWriteItemRequest sdkInput );
+    Builder sdkInput(BatchWriteItemInput sdkInput);
 
-    BatchWriteItemRequest sdkInput ();
+    BatchWriteItemInput sdkInput();
 
     BatchWriteItemInputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchWriteItemRequest sdkInput ;
+    protected BatchWriteItemInput sdkInput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class BatchWriteItemInputTransformInput {
       this.sdkInput = model.sdkInput();
     }
 
-    public Builder sdkInput(BatchWriteItemRequest sdkInput ) {
+    public Builder sdkInput(BatchWriteItemInput sdkInput) {
       this.sdkInput = sdkInput;
       return this;
     }
 
-    public BatchWriteItemRequest sdkInput () {
+    public BatchWriteItemInput sdkInput() {
       return this.sdkInput;
     }
 

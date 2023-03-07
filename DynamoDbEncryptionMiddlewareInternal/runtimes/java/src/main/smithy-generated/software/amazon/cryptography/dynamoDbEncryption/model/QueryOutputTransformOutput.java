@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
+import com.amazonaws.dynamodb.model.QueryOutput;
 import java.util.Objects;
 
 public class QueryOutputTransformOutput {
-  private final QueryResponse transformedOutput;
+  private final QueryOutput transformedOutput;
 
   protected QueryOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
-  public QueryResponse transformedOutput() {
+  public QueryOutput transformedOutput() {
     return this.transformedOutput;
   }
 
@@ -26,15 +26,15 @@ public class QueryOutputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedOutput(QueryResponse transformedOutput);
+    Builder transformedOutput(QueryOutput transformedOutput);
 
-    QueryResponse transformedOutput();
+    QueryOutput transformedOutput();
 
     QueryOutputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected QueryResponse transformedOutput;
+    protected QueryOutput transformedOutput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class QueryOutputTransformOutput {
       this.transformedOutput = model.transformedOutput();
     }
 
-    public Builder transformedOutput(QueryResponse transformedOutput) {
+    public Builder transformedOutput(QueryOutput transformedOutput) {
       this.transformedOutput = transformedOutput;
       return this;
     }
 
-    public QueryResponse transformedOutput() {
+    public QueryOutput transformedOutput() {
       return this.transformedOutput;
     }
 

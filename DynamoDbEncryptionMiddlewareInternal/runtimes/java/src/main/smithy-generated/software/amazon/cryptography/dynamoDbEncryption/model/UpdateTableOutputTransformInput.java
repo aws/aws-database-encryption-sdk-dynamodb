@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import com.amazonaws.dynamodb.model.ExecuteStatementInput;
-import com.amazonaws.dynamodb.model.ExecuteStatementOutput;
+import com.amazonaws.dynamodb.model.UpdateTableInput;
+import com.amazonaws.dynamodb.model.UpdateTableOutput;
 import java.util.Objects;
 
-public class ExecuteStatementOutputTransformInput {
-  private final ExecuteStatementOutput sdkOutput;
+public class UpdateTableOutputTransformInput {
+  private final UpdateTableOutput sdkOutput;
 
-  private final ExecuteStatementInput originalInput;
+  private final UpdateTableInput originalInput;
 
-  protected ExecuteStatementOutputTransformInput(BuilderImpl builder) {
+  protected UpdateTableOutputTransformInput(BuilderImpl builder) {
     this.sdkOutput = builder.sdkOutput();
     this.originalInput = builder.originalInput();
   }
 
-  public ExecuteStatementOutput sdkOutput() {
+  public UpdateTableOutput sdkOutput() {
     return this.sdkOutput;
   }
 
-  public ExecuteStatementInput originalInput() {
+  public UpdateTableInput originalInput() {
     return this.originalInput;
   }
 
@@ -34,56 +34,56 @@ public class ExecuteStatementOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(ExecuteStatementOutput sdkOutput);
+    Builder sdkOutput(UpdateTableOutput sdkOutput);
 
-    ExecuteStatementOutput sdkOutput();
+    UpdateTableOutput sdkOutput();
 
-    Builder originalInput(ExecuteStatementInput originalInput);
+    Builder originalInput(UpdateTableInput originalInput);
 
-    ExecuteStatementInput originalInput();
+    UpdateTableInput originalInput();
 
-    ExecuteStatementOutputTransformInput build();
+    UpdateTableOutputTransformInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ExecuteStatementOutput sdkOutput;
+    protected UpdateTableOutput sdkOutput;
 
-    protected ExecuteStatementInput originalInput;
+    protected UpdateTableInput originalInput;
 
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(ExecuteStatementOutputTransformInput model) {
+    protected BuilderImpl(UpdateTableOutputTransformInput model) {
       this.sdkOutput = model.sdkOutput();
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(ExecuteStatementOutput sdkOutput) {
+    public Builder sdkOutput(UpdateTableOutput sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public ExecuteStatementOutput sdkOutput() {
+    public UpdateTableOutput sdkOutput() {
       return this.sdkOutput;
     }
 
-    public Builder originalInput(ExecuteStatementInput originalInput) {
+    public Builder originalInput(UpdateTableInput originalInput) {
       this.originalInput = originalInput;
       return this;
     }
 
-    public ExecuteStatementInput originalInput() {
+    public UpdateTableInput originalInput() {
       return this.originalInput;
     }
 
-    public ExecuteStatementOutputTransformInput build() {
+    public UpdateTableOutputTransformInput build() {
       if (Objects.isNull(this.sdkOutput()))  {
         throw new IllegalArgumentException("Missing value for required field `sdkOutput`");
       }
       if (Objects.isNull(this.originalInput()))  {
         throw new IllegalArgumentException("Missing value for required field `originalInput`");
       }
-      return new ExecuteStatementOutputTransformInput(this);
+      return new UpdateTableOutputTransformInput(this);
     }
   }
 }
