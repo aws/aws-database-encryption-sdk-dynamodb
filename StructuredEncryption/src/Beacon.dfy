@@ -20,6 +20,7 @@ module BaseBeacon {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.String
   import opened AwsCryptographyStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
 
@@ -347,7 +348,7 @@ module BaseBeacon {
       else if split.None? || |split.value.splitLens| == 0 then
         Success(length)
       else if pos as int >= |split.value.splitLens| then
-        Failure(E(""))
+        Failure(E("Beacon " + name + " configured for " + Base10Int2String(|split.value.splitLens|) + " parts, but looking for part " + Base10Int2String(pos)))
       else
         Success(split.value.splitLens[pos])
     }
@@ -491,7 +492,8 @@ module BaseBeacon {
         case None => standardHashStr(val, 0)
         case Some(sp) =>
           var parts := Split(val, sp.split);
-          :- Need(|split.value.splitLens| == 0 || |parts| == |split.value.splitLens|, E(""));
+          :- Need(|split.value.splitLens| == 0 || |parts| == |split.value.splitLens|,
+          E("Beacon " + name + " configured for " + Base10Int2String(|split.value.splitLens|) + " parts, but '" + val + "' has " + Base10Int2String(|parts|) + " parts."));
           var str :- assemble(parts, sp.split, 0, val);
           Success(str + [sp.split])
     }

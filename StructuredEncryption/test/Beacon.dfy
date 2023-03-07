@@ -92,11 +92,11 @@ module TestBaseBeacon {
     expect b.hashLength(1).Success? && b.hashLength(1).value == 2;
     expect b.hashLength(0).Success? && b.hashLength(0).value == 1;
 
-    TestCompound(b, "abluted", ".1.");
-    TestCompound(b, "abluted.abluted", ".1.3.");
+    TestFail(b, "abluted");
+    TestFail(b, "abluted.abluted");
     TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
-    TestCompound(b, "abluted.abluted.abluted.abluted", ".1.3.7.7.");
-    TestCompound(b, "abluted.abluted.abluted.abluted.abluted", ".1.3.7.7.7.");
+    TestFail(b, "abluted.abluted.abluted.abluted");
+    TestFail(b, "abluted.abluted.abluted.abluted.abluted");
     TestCompound(b, "_.abluted.abluted", ".3.7.");
     TestFail(b, "abluted._.abluted");
     TestCompound(b, "abluted.abluted._", ".1.3.");
