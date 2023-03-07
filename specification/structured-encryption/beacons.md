@@ -33,13 +33,14 @@ such that `2^N < X/2` to guarantee collisions.
 On the other side of the spectrum, if the beacon length is too short,
 then there are too many collisions and query performance begins to 
 approach a simple scan of all the data. A reasonable lower bound is
-ensure that `2^N` is greater than the square root of X.
+ensure that `2^N` is greater than the square root of `X`.
 
 For example, a well distributed 5-digit zip code has 100,000 distinct values.
 To properly anonymize this, one would use a beacon length between 9 and 15 bits.
 
-A beacon length MUST be an integer between 1 and 63 inclusive.
-
+A beacon length MUST be an integer between 1 and 63 inclusive,
+indicating the number of bits in the resulting beacon. 
+The beacon string will be 1/4 this length.
 
 ### Standard Beacon
 
@@ -62,7 +63,7 @@ and customers need to be able to switch from standard to compound beacons easily
 
 Compound Beacons are computed from strings,
 and consist of [standard beacons](#standard-beacon)
-interleaved with plain text.
+interleaved with plaintext.
 The following are the different kinds of compound beacons,
 with examples of why customers need this functionality.
 
@@ -106,19 +107,15 @@ If [split lengths](#split-lengths) are used, then the first length must be equal
 to the [beacon length](#beacon-length) of the beacon, so that
 there is no difference between a list of length one and no list.
 
-If there are more items in the split list than in the [split lengths](#split-lengths),
-the final entry in [split lengths](#split-lengths) is used for all following items.
-
-Flags are provided, to force a failure if the number of items
-in the input string is less or greater than then number of
-entries in [split lengths](#split-lengths)
+If a list of split lengths is configured,
+then every split beacon must have the same number of parts as there are lengths in this list.
 
 ### Inner Prefix
 
 Imagine a field consisting of building/floor/room, e.g. `SEA17:14:905`
-with a split character of `:` this might become a beacon of `.86.99.86.`
+with a split character of `:` this might become a beacon of `:86:99:86:`
 because sometimes collisions occur. Thus a search for contains("SEA17")
-and a search for contains("905") would both search for contains(".86.")
+and a search for contains("905") would both search for contains(":86:")
 and so would return the same records.
 
 So we introduce the `inner` character, which acts like a 
@@ -126,7 +123,7 @@ So we introduce the `inner` character, which acts like a
 
 If the field value is `B-SEA17:F-14:R-905` with a [split character](#split-beacon)
 of `:` and an inner character of `-`, then the beacon might become
-`.B-86.F-99.R-86.` making it possible to distinguish `building=SEA17` (B-86)
+`:B-86:F-99:R-86:` making it possible to distinguish `building=SEA17` (B-86)
 from `Room=905` (R-86)
 
 ### Combined Beacon
@@ -148,6 +145,17 @@ For example, in our `Combined Beacon` example, to refer to anything
 on the 14th floor, one could use an ignore character of `_` and
 specify `contains(_:_.F-14)` to search `contains(F-99)`
 
+If no [split lengths](#split-lengths) are configured, this can be simplified to 
+`contains(_:F-14)`
+
+TODO - An attribute value without `prefix:` is an error.
+This is why we require _: in the query.
+Should we have a different way of parsing beacons for querying,
+that would allow the above to be simply `contains(F-14)`?
+One downside is that if there is a `:` character in the data,
+requiring the leading `_:` makes that possible; otherwise
+the `:` in the data unexpectedly delimits a prefix.
+
 ## Definitions
 
 ### Conventions used in this document
@@ -162,14 +170,14 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 The following inputs to this configuration are REQUIRED:
  * A name -- a sequence of characters
- * A plain text HMAC key -- a sequence of bytes
+ * A plaintext HMAC key -- a sequence of bytes
  * A `length` -- a [beacon length](#beacon-length)
 
 The following inputs to this configuration MUST be OPTIONAL:
 
  * A `prefix` character, defining a [prefix beacon](#prefix-beacon)
  * A [Split Record](#split-record) defining a [split beacon](#split-beacon)
- * A `ignore` character, defining the [ignore character](#ignore-character)
+ * An `ignore` character, defining the [ignore character](#ignore-character)
 
 ### Split Record
 
@@ -178,8 +186,6 @@ The following inputs to this configuration are REQUIRED:
  * A `split` character, to designate a [split beacon](#split-beacon)
  * [split lengths](#split-lengths), a sequence of [beacon length](#beacon-length),
 for use with a [split beacon](#split-beacon)
- * A boolean fail_if_short -- if true, fail if the input string has fewer parts than [split lengths](#split-lengths)
- * A boolean fail_if_long -- if true, fail if the input string has more parts than [split lengths](#split-lengths).
 
 The following inputs to this configuration MUST be OPTIONAL:
 
@@ -192,6 +198,9 @@ and it specifies a non-empty [split lengths](#split-lengths),
 and the first element of [split lengths](#split-lengths) is not equal to
 the `length` in the beacon record.
 
+Construction MUST fail if any two of the `prefix`, `ignore`, `split` and `inner`
+characters are configured and equal to each other.
+
 ## Beacon Operations
 
 The three Operations available on a Beacon Record are defined in terms of functionality
@@ -202,9 +211,9 @@ in the following section, [Beacon Helpers](#beacon-helpers).
  * standardHash MUST take a sequence of bytes and an unsigned integer `position` as input.
  * standardHash MUST produce a non-empty string as output.
  * standardHash MUST calculate a hash length by calling [hashLength](#hashlength) with the supplied `position`.
- * standardHash MUST calculate the first 8 bytes of the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-of the input bytes and the configured key.
- * standardHash MUST return the rightmost `hash length` bits as a hexadecimal string.
+ * standardHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+of the input bytes and the configured key, and keep the first 8 bytes.
+ * standardHash MUST return the rightmost `hash length` bits of these 8 bytes as a hexadecimal string.
  * the length of the returned string MUST be (`hash length`/4) rounded up.
 
 ### isCompound
@@ -247,11 +256,9 @@ stdHash MUST provide standardHash with the guarantees it requires.
  * If the [Beacon Record](#beacon-record) does not specify a [Split Record](#split-record) 
 splitHash MUST return the [stdHash](#stdhash) of the input string and zero.
  * splitHash MUST split the input string into pieces based on the [split](#split-beacon) character.
- * splitHash MUST fail if `fail_if_short` in the [Split Record](#split-record) is `true`
-and the number of pieces in the input string is less than the number of lengths in `split-lengths`.
- * splitHash MUST fail if `fail_if_long` in the [Split Record](#split-record) is `true`
-and `split-lengths` is not empty
-and the number of pieces in the input string is greater than the number of lengths in `split-lengths`.
+ * splitHash MUST fail if `split-lengths` is not empty and 
+the number of pieces in the input string
+is not equal to the number of lengths in `split-lengths`.
  * splitHash MUST calculate the concatenation of,
 for each part that is not the [ignore](#ignore-character) character,
 the split character followed by the [innerHash](#innerhash) of the part and its position.
@@ -274,10 +281,11 @@ first occurrence on the [inner](#inner-prefix) character, returning the concaten
  * * the [stdHash](#standardhash) of the second part of the string and the supplied position.
 
 ### hashLength
- * hashLength MUST take an unsigned integer `position` as input and return a [beacon length](#beacon-length)
+ * hashLength MUST take an unsigned integer `position` as input and return a [beacon length](#beacon-length).
+ This position corresponds to the position of a part of a [split hash](#splithash).
  * If the input is position is zero, hashLength MUST return the beacons's `length`.
  * If `split-lengths` is empty or absent, hashLength MUST return the beacons's `length`.
  * If the input position is less than the number of values in `split-lengths`,
 hashLength MUST return the (zero-based) Nth number in the list.
  * If the input position is greater than or equal to the number of values in `split-lengths`,
-hashLength MUST return the last number in `split-lengths`.
+hashLength MUST fail.

@@ -30,22 +30,19 @@ module BaseBeacon {
 
   //= specification/structured-encryption/beacons.md#beacon-length
   //= type=implication
-  //# A beacon length MUST be an integer between 1 and 63 inclusive.
+  //# A beacon length MUST be an integer between 1 and 63 inclusive,
+  //# indicating the number of bits in the resulting beacon.
   newtype BitLength = x | 1 <= x <= 63 witness 1
 
   datatype SplitRec = SplitRec (
     //= specification/structured-encryption/beacons.md#split-record
     //= type=implication
     //# The following inputs to this configuration are REQUIRED:
-    // * A `split` character, to designate a [split beacon](#split-beacon)
-    // * [split lengths](#split-lengths), a sequence of [beacon length](#beacon-length),
-    // for use with a [split beacon](#split-beacon)
-    // * A boolean fail_if_short -- if true, fail if the input string has fewer parts than [split lengths](#split-lengths)
-    // * A boolean fail_if_long -- if true, fail if the input string has more parts than [split lengths](#split-lengths).
+    //# * A `split` character, to designate a [split beacon](#split-beacon)
+    //# * [split lengths](#split-lengths), a sequence of [beacon length](#beacon-length),
+    //# for use with a [split beacon](#split-beacon)
     nameonly split: char,
     nameonly splitLens : seq<BitLength> := [],
-    nameonly failIfShort: bool := false,
-    nameonly failIfLong: bool := false,
 
     //= specification/structured-encryption/beacons.md#split-record
     //= type=implication
@@ -74,6 +71,11 @@ module BaseBeacon {
     nameonly prefix: Option<char> := None,
     nameonly split: Option<SplitRec> := None,
     nameonly ignore: Option<char> := None,
+
+    // for internal use only
+    // If test is non-zero, then the hmac calculation becomes simply
+    // `test` times the length of the input sequence.
+    // This way, tests can know the HMAC value of the input data.
     nameonly test: uint64 := 0
   ) {
 
@@ -93,14 +95,13 @@ module BaseBeacon {
         //= specification/structured-encryption/beacons.md#standardhash
         //= type=implication
         //# * standardHash MUST calculate a hash length by calling [hashLength](#hashLength) with the supplied `position`.
-        && var hashLength := hashLength(pos);
+        && hashLength(pos).Success?
+        && var hashLength := hashLength(pos).value;
 
-        //= specification/structured-encryption/beacons.md#standardhash
-        //= type=implication
-        //# * standardHash MUST return the rightmost `hash length` bits as a hexadecimal string.
         && getHmacBytes(val).Success?
         && var hash := getHmacBytes(val).value;
         && ret.value == BytesToHex(hash, hashLength)
+        && |ret.value| == (((hashLength as uint8) + 3) / 4) as nat
       
       //= specification/structured-encryption/beacons.md#standardhash
       //= type=implication
@@ -168,16 +169,21 @@ module BaseBeacon {
         && ((ignore.Some? && [ignore.value] != parts.0 && [ignore.value] == parts.1)
           ==> res.value == parts.0 + [ch])
 
-        //= specification/structured-encryption/beacons.md#compoundhash
-        //= type=implication
-        //# * If both pieces are the [ignore character](#ignore-character),
-        //# or one piece is the [ignore character](#ignore-character) and the other piece
-        //# is the empty string, compoundHash MUST fail.
-        && (ignore.Some? && (
-            || ([ignore.value] == parts.0 && [ignore.value] == parts.1)
-            || (0 != |parts.0| && [ignore.value] == parts.1)
-            || ([ignore.value] == parts.0 && 0 == |parts.1|))
-          ==> res.value == parts.0 + [ch])
+      //= specification/structured-encryption/beacons.md#compoundhash
+      //= type=implication
+      //# * If both pieces are the [ignore character](#ignore-character),
+      //# or one piece is the [ignore character](#ignore-character) and the other piece
+      //# is the empty string, compoundHash MUST fail.
+      ensures (
+        && ignore.Some?
+        && prefix.Some?
+        && var ch := prefix.value;
+        && ch in val
+        && var parts := SplitOnce(val, ch);
+        && (|| ([ignore.value] == parts.0 && [ignore.value] == parts.1)
+            || (0 == |parts.0| && [ignore.value] == parts.1)
+            || ([ignore.value] == parts.0 && 0 == |parts.1|)))
+          ==> res.Failure?
     {
       match prefix
         case None => splitHash(val)
@@ -220,13 +226,36 @@ module BaseBeacon {
       //# and it specifies a non-empty [split lengths](#split-lengths),
       //# and the first element of [split lengths](#split-lengths) is not equal to
       //# the `length` in the beacon record.
-      ensures (split.Some? && 0 < |split.value.splitLens| && split.value.splitLens[0] != length)
-        <==> !isValid()
+      ensures (split.Some? && 0 < |split.value.splitLens| && split.value.splitLens[0] != length) ==> !isValid()
+
+      //= specification/structured-encryption/beacons.md#split-record
+      //= type=implication
+      //# Construction MUST fail if any two of the `prefix`, `ignore`, `split` and `inner`
+      //# characters are configured and equal to each other.
+      ensures !CharsUnique() ==> !isValid()
     {
-      !(split.Some? && 0 < |split.value.splitLens| && split.value.splitLens[0] != length)
+      && !(split.Some? && 0 < |split.value.splitLens| && split.value.splitLens[0] != length)
+      && CharsUnique()
     }
 
     // the rest is implementation
+
+    predicate method CharsUnique()
+    {
+      var chars :=
+          (if prefix.Some? then [prefix.value] else [])
+        + (if ignore.Some? then [ignore.value] else [])
+        + (if split.Some? then [split.value.split] else [])
+        + (if split.Some? && split.value.inner.Some? then [split.value.inner.value] else []);
+      HasNoDuplicates(chars)
+    }
+
+    /* Is true if there are no duplicate values in the sequence. */
+    predicate method {:opaque} HasNoDuplicates<T(==)>(xs: seq<T>)
+    {
+      forall i, j :: 0 <= i < |xs| && 0 <= j < |xs| && i != j ==> xs[i] != xs[j]
+    }
+
 
     // standardHash, but callable from compound hashes
     function method {:opaque} stdHash(val : Bytes, pos : nat := 0)
@@ -236,13 +265,17 @@ module BaseBeacon {
       //# stdHash MUST provide standardHash with the guarantees it requires.
       ensures ret.Success? ==> 
         && |ret.value| > 0
-        && var hashLength := hashLength(pos);
+        && hashLength(pos).Success?
+        && var hashLength := hashLength(pos).value;
         && getHmacBytes(val).Success?
         && var hash := getHmacBytes(val).value;
         && ret.value == BytesToHex(hash, hashLength)
+        && |ret.value| == (((hashLength as uint8) + 3) / 4) as nat
+
     {
       var hash :- getHmacBytes(val);
-      Success(BytesToHex(hash, hashLength(pos)))
+      var len :- hashLength(pos);
+      Success(BytesToHex(hash, len))
     }
 
     // calculate the HMAC for some bytes
@@ -261,8 +294,8 @@ module BaseBeacon {
 
       //= specification/structured-encryption/beacons.md#standardhash
       //= type=implication
-      //# * standardHash MUST calculate the first 8 bytes of the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-      //# of the input bytes and the configured key.
+      //# * standardHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+      //# of the input bytes and the configured key, and keep the first 8 bytes.
       ensures (ret.Success? && (test == 0)) ==>
         && getHmac(data).Success?
         && ret.value == getHmac(data).value[..8]
@@ -282,41 +315,41 @@ module BaseBeacon {
     // Get the hash length for this part of a split
     //= specification/structured-encryption/beacons.md#hashlength
     //= type=implication
-    //# * hashLength MUST take an unsigned integer `position` as input and return a [beacon length](#beacon-length)
+    //# * hashLength MUST take an unsigned integer `position` as input and return a [beacon length](#beacon-length).
     function method hashLength(pos : nat)
-      : (ret : BitLength)
+      : (ret : Result<BitLength, Error>)
+      ensures ret.Success? ==>
+        //= specification/structured-encryption/beacons.md#hashlength
+        //= type=implication
+        //# * If the input is position is zero, hashLength MUST return the beacons's `length`.
+        && ((pos == 0) ==> ret.value == length)
 
-      //= specification/structured-encryption/beacons.md#hashlength
-      //= type=implication
-      //# * If the input is position is zero, hashLength MUST return the beacons's `length`.
-      ensures (pos == 0) ==> ret == length
+        //= specification/structured-encryption/beacons.md#hashlength
+        //= type=implication
+        //# * If `split-lengths` is empty or absent, hashLength MUST return the beacons's `length`.
+        && ((split.None? || |split.value.splitLens| == 0) ==> ret.value == length)
 
-      //= specification/structured-encryption/beacons.md#hashlength
-      //= type=implication
-      //# * If `split-lengths` is empty or absent, hashLength MUST return the beacons's `length`.
-      ensures (split.None? || |split.value.splitLens| == 0) ==> ret == length
-
-      ensures 0 < pos && split.Some? && 0 < |split.value.splitLens| ==>
         //= specification/structured-encryption/beacons.md#hashlength
         //= type=implication
         //# * If the input position is less than the number of values in `split-lengths`,
         //# hashLength MUST return the (zero-based) Nth number in the list.
-        && (pos < |split.value.splitLens| ==> ret == split.value.splitLens[pos])
+        && (0 < pos && split.Some? && 0 < |split.value.splitLens| ==>
+           (pos < |split.value.splitLens| && ret.value == split.value.splitLens[pos]))
 
-        //= specification/structured-encryption/beacons.md#hashlength
-        //= type=implication
-        //# * If the input position is greater than or equal to the number of values in `split-lengths`,
-        //# hashLength MUST return the last number in `split-lengths`.
-        && (pos >= |split.value.splitLens| ==> ret == Seq.Last(split.value.splitLens))
+      //= specification/structured-encryption/beacons.md#hashlength
+      //= type=implication
+      //# * If the input position is greater than or equal to the number of values in `split-lengths`,
+      //# hashLength MUST fail.
+      ensures split.Some? && 0 < |split.value.splitLens| && |split.value.splitLens| <= pos ==> ret.Failure?
     {
       if pos == 0 then
-        length
+        Success(length)
       else if split.None? || |split.value.splitLens| == 0 then
-        length
+        Success(length)
       else if pos as int >= |split.value.splitLens| then
-        Seq.Last(split.value.splitLens)
+        Failure(E(""))
       else
-        split.value.splitLens[pos]
+        Success(split.value.splitLens[pos])
     }
 
     // Get the standard hash for the UTF8 encoded representation of this string.
@@ -402,23 +435,11 @@ module BaseBeacon {
     }
 
     // ensure that splitting a string wth these parts is ok
-    function method {:opaque} CheckSplit(orig : string, parts : seq<string>) : (ret : Outcome<Error>)
+    predicate method {:opaque} OKSplit(orig : string, parts : seq<string>)
       requires split.Some?
-      ensures ret.Pass? ==>
-        || var split := split.value;
-        || |split.splitLens| == 0
-        ||  ( && (split.failIfShort ==> |split.splitLens| <= |parts|)
-              && (split.failIfLong ==> |parts| <= |split.splitLens|))
     {
       var split := split.value;
-      if |split.splitLens| == 0 then
-        Pass
-      else if split.failIfShort && |parts| < |split.splitLens| then
-        Fail(E("Split for value " + orig  + " of beacon " + name + " had too few pieces"))
-      else if split.failIfLong && |parts| > |split.splitLens| then
-        Fail(E("Split for value " + orig  + " of beacon " + name + " had too many pieces"))
-      else
-        Pass
+      |split.splitLens| == 0 || |parts| == |split.splitLens|
     }
 
     // Split the value, if necessary, and make a hash of each part
@@ -446,19 +467,6 @@ module BaseBeacon {
         //= type=implication
         //# * splitHash MUST split the input string into pieces based on the [split](#split-beacon) character.
         && var parts := Split(val, sp.split);
-        && CheckSplit(val, parts).Pass?
-        //= specification/structured-encryption/beacons.md#splithash
-        //= type=implication
-        //# * splitHash MUST fail if `fail_if_short` in the [Split Record](#split-record) is `true`
-        //# and the number of pieces in the input string is less than the number of lengths in `split-lengths`.
-        && (sp.failIfShort ==> |sp.splitLens| <= |parts|)
-
-        //= specification/structured-encryption/beacons.md#splithash
-        //= type=implication
-        //# * splitHash MUST fail if `fail_if_long` in the [Split Record](#split-record) is `true`
-        //# and `split-lengths` is not empty
-        //# and the number of pieces in the input string is greater than the number of lengths in `split-lengths`.
-        && (sp.failIfLong ==> (|sp.splitLens| == 0) || (|parts| <= |sp.splitLens|))
 
         //= specification/structured-encryption/beacons.md#splithash
         //# * splitHash MUST calculate the concatenation of,
@@ -470,12 +478,20 @@ module BaseBeacon {
         //= type=implication
         //# * splitHash MUST return the above calculation, followed by the split character.
         && res.value == assemble(parts, sp.split, 0, val).value + [sp.split]
+
+      //= specification/structured-encryption/beacons.md#splithash
+      //= type=implication
+      //# * splitHash MUST fail if `split-lengths` is not empty and
+      //# the number of pieces in the input string
+      //# is not equal to the number of lengths in `split-lengths`.
+      ensures split.Some? && 0 < |split.value.splitLens| && |Split(val, split.value.split)| != |split.value.splitLens|
+        ==> res.Failure?
     {
       match split
         case None => standardHashStr(val, 0)
         case Some(sp) =>
           var parts := Split(val, sp.split);
-          :- CheckSplit(val, parts);
+          :- Need(|split.value.splitLens| == 0 || |parts| == |split.value.splitLens|, E(""));
           var str :- assemble(parts, sp.split, 0, val);
           Success(str + [sp.split])
     }
@@ -555,6 +571,10 @@ module BaseBeacon {
       var numBytes := BytesFromBitLength(bits);
       var numChars := CharsFromBitLength(bits);
       var topBits := TopBits(bits);
+      //= specification/structured-encryption/beacons.md#standardhash
+      //= type=implication
+      //# * standardHash MUST return the rightmost `hash length` bits of these 8 bytes as a hexadecimal string.
+      // This can be an implication, because nothing is gained by duplicating all of this code above in an ensures.
       var bytes := bytes[8-numBytes..];
       if numChars == 2 * numBytes then
         var topNibble := bytes[0] / 16;
@@ -577,8 +597,6 @@ module BaseBeacon {
         && BytesToHex(bytes, 8) == "b7"
         && BytesToHex(bytes, 9) == "1b7"
         && BytesToHex(bytes, 10) == "3b7"
-        && BytesToHex(bytes, 11) == "7b7"
-        && BytesToHex(bytes, 12) == "7b7"
     {}
   }
 
