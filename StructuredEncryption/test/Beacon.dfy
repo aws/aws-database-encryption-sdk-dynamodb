@@ -87,10 +87,10 @@ module TestBaseBeacon {
     split := split.(inner := None, splitLens := [1,2,3]);
     b := b.(split := Some(split), length := 1);
 
-    expect b.hashLength(3) == 3;
-    expect b.hashLength(2) == 3;
-    expect b.hashLength(1) == 2;
-    expect b.hashLength(0) == 1;
+    expect b.hashLength(3).Failure?;
+    expect b.hashLength(2).Success? && b.hashLength(2).value == 3;
+    expect b.hashLength(1).Success? && b.hashLength(1).value == 2;
+    expect b.hashLength(0).Success? && b.hashLength(0).value == 1;
 
     TestCompound(b, "abluted", ".1.");
     TestCompound(b, "abluted.abluted", ".1.3.");
@@ -105,47 +105,12 @@ module TestBaseBeacon {
     TestCompound(b, "_._.abluted", ".7.");
     TestFail(b, "_._._");
 
-    split := split.(failIfShort := true, failIfLong := true);
     b := b.(split := Some(split));
     TestFail(b, "abluted");
     TestFail(b, "abluted.abluted");
     TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
     TestFail(b, "abluted.abluted.abluted.abluted");
     TestFail(b, "abluted.abluted.abluted.abluted.abluted");
-
-    TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
-    TestCompound(b, "_.abluted.abluted", ".3.7.");
-    TestFail(b, "abluted._.abluted");
-    TestCompound(b, "abluted.abluted._", ".1.3.");
-    TestCompound(b, "abluted._._", ".1.");
-    TestCompound(b, "_.abluted._", ".3.");
-    TestCompound(b, "_._.abluted", ".7.");
-    TestFail(b, "_._._");
-
-    split := split.(failIfShort := false, failIfLong := true);
-    b := b.(split := Some(split));
-    TestCompound(b, "abluted", ".1.");
-    TestCompound(b, "abluted.abluted", ".1.3.");
-    TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
-    TestFail(b, "abluted.abluted.abluted.abluted");
-    TestFail(b, "abluted.abluted.abluted.abluted.abluted");
-
-    TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
-    TestCompound(b, "_.abluted.abluted", ".3.7.");
-    TestFail(b, "abluted._.abluted");
-    TestCompound(b, "abluted.abluted._", ".1.3.");
-    TestCompound(b, "abluted._._", ".1.");
-    TestCompound(b, "_.abluted._", ".3.");
-    TestCompound(b, "_._.abluted", ".7.");
-    TestFail(b, "_._._");
-
-    split := split.(failIfShort := true, failIfLong := false);
-    b := b.(split := Some(split));
-    TestFail(b, "abluted");
-    TestFail(b, "abluted.abluted");
-    TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
-    TestCompound(b, "abluted.abluted.abluted.abluted", ".1.3.7.7.");
-    TestCompound(b, "abluted.abluted.abluted.abluted.abluted", ".1.3.7.7.7.");
 
     TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
     TestCompound(b, "_.abluted.abluted", ".3.7.");
