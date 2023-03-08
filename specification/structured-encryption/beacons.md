@@ -13,6 +13,19 @@
 
 Beacons use stable hashes of the plaintext values of encrypted fields to allow searches on client-side encrypted records and using truncation to provide some basic privacy protections.
 
+### Definitions
+
+A `virtual field` is a string computed from parts of a record.
+
+A `virtual database field` is a string computed from fields and virtual fields,
+from which a [compound beacon](#compound-beacon) is constructed.
+
+A `source field` is a field in a record used to construct a `virtual field` or
+a `virtual database field`.
+
+Neither virtual fields nor virtual database fields are ever stored anywhere,
+encrypted or plaintext.
+
 ### Beacon Length
 
 The `Beacon Length` is the number of bits of the hash value that is kept.
@@ -55,6 +68,7 @@ The beacon string will be 1/4 this length.
 ### Standard Beacon
 
 The simplest form of beacon is a standard beacon.
+
 To produce a standard beacon from a sequence of bytes :
 1. Compute the HMAC
 1. Truncate the HMAC, to the [beacon length](#beacon-length)
@@ -71,102 +85,111 @@ and customers need to be able to switch from standard to compound beacons.
 
 ### Compound Beacon
 
-Compound beacons are computed from strings,
-and consist of [standard beacons](#standard-beacon)
-interleaved with plaintext.
+A compound beacon is assembled from parts of a record,
+combining literal plaintext strings and [standard beacons](#standard-beacon)
+into a complex string, suitable for complex database operations.
 
-The following are the different kinds of compound beacons,
-with examples of why customers need this functionality.
+Configuration starts with a name.
+This name is used in queries and index creation, as if it were a regular field.
+"MyField" in examples below. It is an error if this name is the same as a configured
+[virtual field](virtual.md), or to attempt to write a field of this name.
 
-### Prefix Beacon
+Configuration continues with a `join string` which separates the parts of a compound beacon.
+In the examples below, we assume "`.`".
 
-One way to define a compound beacon is with a prefix character.
-The text before the first occurrence of the prefix character is unchanged,
-and a standard beacon is computed for the rest.
+Then there is a list of sensitive parts, each part having a field name,
+a prefix and a [beacon length](#beacon-length).
+The field name can refer directly to a field in the record,
+or to a [virtual field](virtual.md). For example :
 
-For example, with a prefix character of `:`, the beacon for `2022-11-07:banana` might be `2022-11-07:4f`
-
-Prefix Beacons allow comparisons such as `less than`, `begins with` and `between`
-on the nonsensitive prefix.
-
-When using a prefix beacon, the prefix character must always appear in the string.
-When writing data, the prefix string must not be empty.
-
-### List Beacon
-
-Another way to define a compound beacon is as a list, by defining a split character.
-
-A string is split on this character, into a list of items,
-and a separate standard beacon is generated for each item.
-
-A list beacon is used when all the items in the list have the same semantics.
-
-For example, with a split character of `.`, the beacon for `apple.banana.pear` might be `.a9.4f.42.`
-
-The delimiter is included at the start and end so that you can search for `.4f.` as a substring, no matter its position in the list.
-
-For example, a customer query of `contains("banana")` would be translated into `contains(".4f.")`.
-
-Unlike unencrypted searches, one can only query on whole items,
-so `contains("anana")` and `begins_with("app")` would not return any results.
-
-Like unencrypted searches, one can search on multiple items, so
- - `contains("banana.pear")` would return the above item
- - `contains("banana.apple")` would NOT return the above item
- - `contains("banana") AND contains("apple")` would return the above item
- - `begins_with("apple.banana")` would return the above item
-
-Comparison operations like `less than` or `between` make no sense for list beacons.
-
-All the items in the list share the same [beacon length](#beacon-length).
-
-#### List Beacon With Prefix
-
-A list beacon can define a prefix character, and so also be a [prefix beacon](#prefix-beacon).
-In this case, the prefix character must always be supplied in the query string, e.g.
-
-`contains(":banana")` would be translated into `contains(".4f.")`, matching "banana" in
-the sensitive part.
-
-`contains("banana:")` would be translated into `contains("banana")`, matching "banana" in
-the non-sensitive prefix.
-
-
-#### Map Beacons
-
-A map beacon is similarly a list of parts separated by a split character; however,
-each item in the list is semantically distinct.
-
-To configure a map beacon, one configures a list of prefixes, each with its own [beacon length](#beacon-length). Each prefix is also given a name, but this name does not affect the operation.
-Each item in the list must begin with one of these prefixes.
-The prefixes are treated as non-sensitive data.
-
-For example, one might configure
-
-| Name | Prefix | Length |
+| Field Name | Prefix | Length |
 |---|---|---|
 | social | S- | 23 |
 | phone | P- | 25 |
 | zipcode | Z- | 15 |
+| address | A- | 11 |
 
-and then write a value of `S-123456789.P-4125551212.Z-98765` which might be stored as
-`S-ad651d76.F-123456789.R-beef`.
+Next comes a list of non-sensitive parts. 
+This is a similar list, but there is no `length` column, because
+these fields appear as plain text in the beacon value. For example :
 
-Then a query of `contains("Z-98765")` would be translated into `contains(".Z-beef.")`.
+| Field Name | Prefix |
+|---|---|
+| timestamp | T- |
 
-#### Map Beacons With Prefix
+It is an error for the configuration of a non-sensitive part to refer to
+an encrypted field in any way.
 
-Map beacons do NOT support a prefix character; however,
-one can specify a [beacon length](#beacon-length) of zero, 
-which indicates that the part is not sensitive data and should be stored as plaintext. 
-Thus one could add to the configuration
+Prefixes can be an valid string, but no prefix string can be a prefix to another prefix string.
 
-| prefix | X- | 0 |
+ That is, you can have both "A-" and AB-" as prefixes,
+ but you can't have both "AB" and "AB-".
 
-and then write a value of `X-20221225.S-123456789.P-4125551212.Z-98765` which might be stored as
-`X-20221225.S-ad651d76.F-123456789.R-beef`.
+#### Writing Compound Beacons
 
-With this addition, a query of `starts_with("X-2022")` would successfully find the record.
+To write a compound beacon, one constructs the `virtual database field`,
+and then turns the sensitive parts into [standard beacons](#standard-beacon).
+
+For writing, one can configure a list of constructors. 
+
+A single constructor is an ordered list of parts, possibly interleaved with literal text. For example :
+
+ - timestamp ":" social zipcode
+ - "E:" address zipcode
+
+If the list of constructors is omitted, the `virtual database field` is
+the concatenation of the non-sensitive parts, in the order configured,
+followed by the sensitive parts, in the order configured,
+skipping any parts for which any `source field` is unavailable.
+
+It is an error to configure a constructor with a field name containing whitespace or double quotes.
+
+A constructor `succeeds` if all of the fields from which it is created exist in the record.
+
+Each constructor is tried, in the order configured, until one succeeds.
+
+If no constructor succeeds, the record cannot be written.
+
+The default constructor succeeds if at least one sensitive part is included.
+
+Once a constructor is selected, a `virtual database field` is constructed.
+For each part, we combine the prefix with the [standard beacon](#standard-beacon)
+(for sensitive parts) or plaintext value (for non-sensitive parts) of the field.
+
+These parts are then joined together, in the order given in the constructor,
+with parts separated by the `split character`.
+
+For example, the above configuration might result in virtual fields that look like this :
+
+ - T-20221225:S-123-45-6789.Z-12345
+ - E:A-1234 Main Street.Z-23456
+
+These virtual fields are never written to the database, or even fully assembled.
+But this is what the customer must imagine.
+
+Sensitive values are then replaced with the appropriate beacon. For example
+
+ - 20221225:S-abcdef.Z-7abc
+ - E:A-3ab.Z-3456
+
+Which is then stored in the database, with a field name of aws_dbe_b_MyField
+
+#### Querying Compound Beacons
+
+At query time, the customer uses MyField in a query as if it were the full virtual field, for example :
+
+MyField starts_with("E:")
+MyField contains("Z-12345")
+
+The onus is on the customer to properly re-create the results of all of the above configuration.
+
+We might provide an API to construct a [virtual field](virtual.md) from a record,
+to ease this burden.
+
+#### Indexing Compound Beacons
+
+"MyField" can be used in the definition of an index (other than the primary index),
+as if it were any other field.
 
 ## Definitions
 
@@ -174,7 +197,6 @@ With this addition, a query of `starts_with("X-2022")` would successfully find t
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
 in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
-
 
 ## Beacon Configuration
 
