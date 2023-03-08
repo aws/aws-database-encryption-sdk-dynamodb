@@ -25,7 +25,7 @@ module BaseBeacon {
   import opened StructuredEncryptionUtil
 
   import Prim = AwsCryptographyPrimitivesTypes
-  import HMAC
+  import Aws.Cryptography.Primitives
   import UTF8
   import Seq
 
@@ -53,6 +53,7 @@ module BaseBeacon {
   )
 
   datatype Beacon = Beacon(
+    nameonly client: Primitives.AtomicPrimitivesClient,
     //= specification/structured-encryption/beacons.md#beacon-record
     //= type=implication
     //# The following inputs to this configuration are REQUIRED:
@@ -71,13 +72,7 @@ module BaseBeacon {
     // * A `ignore` character, defining the [ignore character](#ignore-character)
     nameonly prefix: Option<char> := None,
     nameonly split: Option<SplitRec> := None,
-    nameonly ignore: Option<char> := None,
-
-    // for internal use only
-    // If test is non-zero, then the hmac calculation becomes simply
-    // `test` times the length of the input sequence.
-    // This way, tests can know the HMAC value of the input data.
-    nameonly test: uint64 := 0
+    nameonly ignore: Option<char> := None
   ) {
 
     // Only three public facing functions
@@ -283,10 +278,17 @@ module BaseBeacon {
     function method getHmac(data  : Bytes) : (res : Result<Bytes, Error>)
       ensures res.Success? ==> |res.value| == 48
     {
-      HMAC.Digest(Prim.HMacInput(
+      var input := Prim.HMacInput (
         digestAlgorithm := Prim.SHA_384,
         key := key,
-        message := data)).MapFailure(e => AwsCryptographyPrimitives(e))
+        message := data
+      );
+      var outputR := client.HMac(input);
+      var output :- outputR.MapFailure(e => AwsCryptographyPrimitives(e));
+      if |output| != 48 then
+        Failure(E("HMAC_384 did not produce 48 bits"))
+      else
+        Success(output)
     }
 
     function method getHmacBytes(data : Bytes)
@@ -297,20 +299,12 @@ module BaseBeacon {
       //= type=implication
       //# * standardHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
       //# of the input bytes and the configured key, and keep the first 8 bytes.
-      ensures (ret.Success? && (test == 0)) ==>
+      ensures ret.Success? ==>
         && getHmac(data).Success?
         && ret.value == getHmac(data).value[..8]
     {
-      if test > 0 then
-        var value := test as nat * |data|;
-        var value2 : uint64 := if value >= UINT64_LIMIT then
-          (UINT64_LIMIT-1) as uint64
-        else
-          value as uint64;
-        Success(UInt64ToSeq(value2))
-      else
-        var hmac :- getHmac(data);
-        Success(hmac[..8])
+      var hmac :- getHmac(data);
+      Success(hmac[..8])
     }
 
     // Get the hash length for this part of a split

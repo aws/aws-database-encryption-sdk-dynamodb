@@ -11,7 +11,7 @@
 
 ## Overview
 
-Beacons use stable hashes of the plaintext values of encrypted fields to allow searches on client-side encrypted records.
+Beacons use stable hashes of the plaintext values of encrypted fields to allow searches on client-side encrypted records and using truncation to provide some basic privacy protections.
 
 ### Beacon Length
 
