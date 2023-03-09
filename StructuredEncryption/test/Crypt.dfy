@@ -308,6 +308,7 @@ module TestStructuredEncryptionCrypt {
 
   method {:test} TestFieldKey() {
     for i := 0 to |FieldKeyTestVector| {
+      expect IsHexString(FieldKeyTestVector[i].input);
       var input := FromHexString(FieldKeyTestVector[i].input);
       expect ToHexString(input) == FieldKeyTestVector[i].input;
       expect |input| == KeySize;
