@@ -82,11 +82,6 @@ module TestBaseBeacon {
     // TestCompound(b, "stuff", ".5.");
     // TestCompound(b, "stuff.junk", ".5.4.");
     // TestCompound(b, "stuff.junk.eponymous", ".5.4.9.");
-    //= specification/structured-encryption/beacons.md#splithash
-    //= type=test
-    //# * splitHash MUST calculate the concatenation of,
-    //# for each part that is not the [ignore](#ignore-character) character,
-    //# the split character followed by the [innerHash](#innerHash) of the part and its position.
     // TestCompound(b, "_.junk.eponymous", ".4.9.");
     // TestCompound(b, "stuff.junk._", ".5.4.");
     TestFail(b, "stuff._.eponymous");
