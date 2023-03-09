@@ -33,135 +33,145 @@ module BaseBeacon {
   //= type=implication
   //# A beacon length MUST be an integer between 1 and 63 inclusive,
   //# indicating the number of bits in the resulting beacon.
-  newtype BitLength = x | 1 <= x <= 63 witness 1
+  newtype BeaconLength = x | 1 <= x <= 63 witness 1
+  type FieldName = string
+  type Prefix = string
 
-  datatype SplitRec = SplitRec (
-    nameonly split: char,
-    nameonly splitLens : seq<BitLength> := [],
-
-    nameonly inner: Option<char> := None
+  datatype SensitivePart = SensitivePart(
+    //= specification/structured-encryption/beacons.md#sensitive-part
+    //= type=implication
+    //# A sensitive part config MUST have the following inputs:
+    //# * A field name -- a string
+    //# * A Prefix -- a string
+    //# * A `length` -- a [beacon length](#beacon-length)
+    fieldName : FieldName,
+    prefix : Prefix,
+    length : BeaconLength
   )
+
+  datatype NonSensitivePart = NonSensitivePart(
+    //= specification/structured-encryption/beacons.md#non-sensitive-part
+    //= type=implication
+    //# A non-sensitive part config MUST have the following inputs:
+    //# * A field name -- a string
+    //# * A Prefix -- a string
+    fieldName : FieldName,
+    prefix : Prefix
+  )
+
+  datatype Constructor = Constructor(
+    //= specification/structured-encryption/beacons.md#constructor
+    //= type=implication
+    //# A Constructor MUST be a list of field names, each corresponding to a field name in a [part](#part).
+    parts : seq<FieldName>
+  )
+
+  datatype CompoundBeacon = CompoundBeacon(
+    //= specification/structured-encryption/beacons.md#compound-beacon-config
+    //= type=implication
+    //# A compound beacon config MUST have the following inputs:
+    //# * A join string
+    //# * A list of sensitive parts
+    join : string,
+    sensitive : seq<SensitivePart>,
+
+    //= specification/structured-encryption/beacons.md#compound-beacon-config
+    //= type=implication
+    //# The following inputs to a compound beacon config MUST be OPTIONAL:
+    //#  * A list of non-sensitive parts
+    //#  * A list of constructors
+    nonSensitive : seq<NonSensitivePart>,
+    construct : seq<Constructor>
+  )
+
+  datatype BeaconType = 
+    //= specification/structured-encryption/beacons.md#standard-beacon-config
+    //= type=implication
+    //# A standard beacon config MUST have
+    //# * A `length` -- a [beacon length](#beacon-length)
+    | StandardBeacon(length: BeaconLength)
+    | CompoundBeacon(data : CompoundBeacon)
 
   datatype Beacon = Beacon(
     nameonly client: Primitives.AtomicPrimitivesClient,
 
+    //= specification/structured-encryption/beacons.md#beacon-configuration
+    //= type=implication
+    //# The following inputs to this configuration are REQUIRED:
+    //# * A name -- a sequence of characters
+    //# * A plaintext HMAC key -- a sequence of bytes
+    //# * A [standard beacon config](#standard-beaconconfig)
+    //# or a [compound beacon config](#compound-beacon-config).
     nameonly name: string,
     nameonly key: Bytes,
-    nameonly length: BitLength,
-
-    nameonly prefix: Option<char> := None,
-    nameonly split: Option<SplitRec> := None,
-    nameonly ignore: Option<char> := None
+    nameonly config: BeaconType
   ) {
 
     // Only three public facing functions
 
-    function method {:opaque} standardHash(val : Bytes, pos : nat := 0)
+    //= specification/structured-encryption/beacons.md#standardhash
+    //= type=implication
+    //# * standardHash MUST take a sequence of bytes as input.
+    function method {:opaque} standardHash(val : Bytes)
       : (ret : Result<string, Error>)
-      ensures ret.Success? ==> 
+      ensures ret.Success? ==>
+        && config.StandardBeacon?
+        //= specification/structured-encryption/beacons.md#standardhash
+        //= type=implication
+        //# * standardHash MUST produce a non-empty string as output.
         && |ret.value| > 0
 
-        && hashLength(pos).Success?
-        && var hashLength := hashLength(pos).value;
+        //= specification/structured-encryption/beacons.md#standardhash
+        //= type=implication
+        //# * standardHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+        //# of the input bytes and the configured key, and keep the first 8 bytes.
+        && getHmac(val).Success?
+        && var hash := getHmac(val).value;
 
-        && getHmacBytes(val).Success?
-        && var hash := getHmacBytes(val).value;
-        && ret.value == BytesToHex(hash, hashLength)
-        && |ret.value| == (((hashLength as uint8) + 3) / 4) as nat
+        //= specification/structured-encryption/beacons.md#standardhash
+        //= type=implication
+        //# * standardHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
+        && ret.value == BytesToHex(hash, config.length)
+
+        //= specification/structured-encryption/beacons.md#standardhash
+        //= type=implication
+        //# * the length of the returned string MUST be (`hash length`/4) rounded up.
+        && |ret.value| == (((config.length as uint8) + 3) / 4) as nat
       
+      //= specification/structured-encryption/beacons.md#standardhash
+      //= type=implication
+      //# * standardHash MUST fail if called on a beacon configured as a [compound beacon](#compound-beacon).
       ensures isCompound() ==> ret.Failure?
     {
       if isCompound() then
         Failure(E("standardHash must not be used with a compound beacon."))
       else
-        stdHash(val, pos)
+        stdHash(val, config.length)
     }
 
     function method compoundHash(val : string) : (res : Result<string, Error>)
       ensures res.Success? ==> |res.value| > 0
 
-      ensures res.Success? && prefix.None? ==>
-        && splitHash(val).Success?
-        && res.value == splitHash(val).value 
-
-      ensures prefix.Some? && prefix.value !in val ==> res.Failure?
-
-      ensures (res.Success? && prefix.Some? && prefix.value in val) ==>
-        && var ch := prefix.value;
-        && var parts := SplitOnce(val, ch);
-        && splitHash(parts.1).Success?
-        && var hash := splitHash(parts.1).value;
-
-        && ((ignore.None? || ([ignore.value] != parts.0 && [ignore.value] != parts.1))
-          ==> (res.value == parts.0 + [ch] + hash))
-
-        && ((ignore.Some? && [ignore.value] == parts.0 && [ignore.value] != parts.1)
-          ==> res.value == hash)
-
-        && ((ignore.Some? && [ignore.value] != parts.0 && [ignore.value] == parts.1)
-          ==> res.value == parts.0 + [ch])
-
-      ensures (
-        && ignore.Some?
-        && prefix.Some?
-        && var ch := prefix.value;
-        && ch in val
-        && var parts := SplitOnce(val, ch);
-        && (|| ([ignore.value] == parts.0 && [ignore.value] == parts.1)
-            || (0 == |parts.0| && [ignore.value] == parts.1)
-            || ([ignore.value] == parts.0 && 0 == |parts.1|)))
-          ==> res.Failure?
     {
-      match prefix
-        case None => splitHash(val)
-        case Some(ch) =>
-          if ch in val then
-            var parts := SplitOnce(val, ch);
-            var hash :- splitHash(parts.1);
-            if ignore.None? || ([ignore.value] != parts.0 && [ignore.value] != parts.1) then
-              Success(parts.0 + [ch] + hash)
-            else if
-              || ([ignore.value] == parts.0 && [ignore.value] == parts.1) 
-              || ([ignore.value] == parts.0 && 0 == |parts.1|) 
-              || (0 == |parts.0| && [ignore.value] == parts.1) then
-              Failure(E("Beacon for value " + val + " for field " + name + " would be empty"))
-            else if [ignore.value] == parts.0 then
-              Success(hash)
-            else
-              Success(parts.0 + [ch])
-          else
-            Failure(E("Tried to compute beacon " + name + " with prefix on " + val + " but prefix character '" + [ch] + "' not found in string"))
+      Success(" ")
     }
 
     // is this a standard hash? (as opposed to a compound hash)
-    function method isCompound()
-      : bool
-
-      ensures isCompound() <==> prefix.Some? || split.Some?
+    predicate method isCompound()
+      ensures isCompound() <==> config.CompoundBeacon?
     {
-      prefix.Some? || split.Some?
+      config.CompoundBeacon?
     }
 
     predicate method isValid()
-      ensures (split.Some? && 0 < |split.value.splitLens| && split.value.splitLens[0] != length) ==> !isValid()
-
-      ensures !CharsUnique() ==> !isValid()
     {
-      && !(split.Some? && 0 < |split.value.splitLens| && split.value.splitLens[0] != length)
-      && CharsUnique()
+      // TODO -- make list of all prefixes, test for substring
+      // TODO -- make list of all names, test for duplicates
+      // TODO -- needs list of configured fields, virtual fields
+      true
     }
 
     // the rest is implementation
-
-    predicate method CharsUnique()
-    {
-      var chars :=
-          (if prefix.Some? then [prefix.value] else [])
-        + (if ignore.Some? then [ignore.value] else [])
-        + (if split.Some? then [split.value.split] else [])
-        + (if split.Some? && split.value.inner.Some? then [split.value.inner.value] else []);
-      HasNoDuplicates(chars)
-    }
 
     /* Is true if there are no duplicate values in the sequence. */
     predicate method {:opaque} HasNoDuplicates<T(==)>(xs: seq<T>)
@@ -171,26 +181,23 @@ module BaseBeacon {
 
 
     // standardHash, but callable from compound hashes
-    function method {:opaque} stdHash(val : Bytes, pos : nat := 0)
+    function method {:opaque} stdHash(val : Bytes, length : BeaconLength)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> 
         && |ret.value| > 0
-        && hashLength(pos).Success?
-        && var hashLength := hashLength(pos).value;
-        && getHmacBytes(val).Success?
-        && var hash := getHmacBytes(val).value;
-        && ret.value == BytesToHex(hash, hashLength)
-        && |ret.value| == (((hashLength as uint8) + 3) / 4) as nat
+        && getHmac(val).Success?
+        && var hash := getHmac(val).value;
+        && ret.value == BytesToHex(hash, length)
+        && |ret.value| == (((length as uint8) + 3) / 4) as nat
 
     {
-      var hash :- getHmacBytes(val);
-      var len :- hashLength(pos);
-      Success(BytesToHex(hash, len))
+      var hash :- getHmac(val);
+      Success(BytesToHex(hash, length))
     }
 
     // calculate the HMAC for some bytes
     function method getHmac(data  : Bytes) : (res : Result<Bytes, Error>)
-      ensures res.Success? ==> |res.value| == 48
+      ensures res.Success? ==> |res.value| == 8
     {
       var input := Prim.HMacInput (
         digestAlgorithm := Prim.SHA_384,
@@ -202,139 +209,18 @@ module BaseBeacon {
       if |output| != 48 then
         Failure(E("HMAC_384 did not produce 48 bits"))
       else
-        Success(output)
-    }
-
-    function method getHmacBytes(data : Bytes)
-      : (ret : Result<Bytes, Error>)
-      ensures ret.Success? ==> |ret.value| == 8
-
-      ensures ret.Success? ==>
-        && getHmac(data).Success?
-        && ret.value == getHmac(data).value[..8]
-    {
-      var hmac :- getHmac(data);
-      Success(hmac[..8])
-    }
-
-    function method hashLength(pos : nat)
-      : (ret : Result<BitLength, Error>)
-      ensures ret.Success? ==>
-        && ((pos == 0) ==> ret.value == length)
-
-        && ((split.None? || |split.value.splitLens| == 0) ==> ret.value == length)
-
-        && (0 < pos && split.Some? && 0 < |split.value.splitLens| ==>
-           (pos < |split.value.splitLens| && ret.value == split.value.splitLens[pos]))
-
-      ensures split.Some? && 0 < |split.value.splitLens| && |split.value.splitLens| <= pos ==> ret.Failure?
-    {
-      if pos == 0 then
-        Success(length)
-      else if split.None? || |split.value.splitLens| == 0 then
-        Success(length)
-      else if pos as int >= |split.value.splitLens| then
-        Failure(E("Beacon " + name + " configured for " + Base10Int2String(|split.value.splitLens|) + " parts, but looking for part " + Base10Int2String(pos)))
-      else
-        Success(split.value.splitLens[pos])
+        Success(output[..8])
     }
 
     // Get the standard hash for the UTF8 encoded representation of this string.
-    function method standardHashStr(val : string, pos : nat := 0) : (res : Result<string, Error>)
+    function method standardHashStr(val : string, length : BeaconLength) : (res : Result<string, Error>)
       ensures res.Success? ==> |res.value| > 0
     {
       var str := UTF8.Encode(val);
       if str.Failure? then
         Failure(E(str.error))
       else
-        stdHash(str.value, pos)
-    }
-
-    function method innerHash(val : string, pos : nat) : (res : Result<string, Error>)
-      ensures res.Success? ==> |res.value| > 0
-      
-      ensures res.Success? && (split.None? || split.value.inner.None?) ==>
-        && standardHashStr(val, pos).Success?
-        && res.value == standardHashStr(val, pos).value
-
-      ensures res.Success? && split.Some? && split.value.inner.Some? ==>
-        && var ch := split.value.inner.value;
-        && ch in val
-        && var parts := SplitOnce(val, ch);
-        && standardHashStr(parts.1, pos).Success?
-        && res.value == parts.0 + [ch] + standardHashStr(parts.1, pos).value
-
-      ensures split.Some? && split.value.inner.Some? && split.value.inner.value !in val ==>
-        res.Failure?
-    {
-      if split.None? || split.value.inner.None? then
-        standardHashStr(val, pos)
-      else
-        var ch := split.value.inner.value;
-        if ch in val then
-          var parts := SplitOnce(val, ch);
-          var hash :- standardHashStr(parts.1, pos);
-          Success(parts.0 + [ch] + hash)
-        else
-          Failure(E("Tried to compute beacon " + name + " with inner prefix on " + val + " but inner character '" + [ch] + "' not found in string"))
-    }
-
-    // Split the value into pieces, hash each piece, then reassemble
-    // with each piece preceded by the delimiter
-    function method {:tailrecursion} assemble(val : seq<string>, delim : char, pos : nat, orig : string, mode : SplitMode := Start, acc : string := [])
-      : (res : Result<string, Error>) {
-      if |val| == 0 then
-        if mode == Start then
-          Failure(E("Value " + orig + " for field " + name + " has all ignored values"))
-        else
-          Success(acc)
-      else
-        if ignore.Some? && val[0] == [ignore.value] then
-          var newMode := if mode == Start then Start else End;
-          assemble(val[1..], delim, pos+1, orig, newMode, acc)
-        else
-          if mode == End then
-            Failure(E("Value " + orig + " for field " + name + " has discontinuous values"))
-          else
-            var h :- innerHash(val[0], pos);
-            assemble(val[1..], delim, pos+1, orig, SawReal, acc + [delim] + h)
-    }
-
-    // ensure that splitting a string wth these parts is ok
-    predicate method {:opaque} OKSplit(orig : string, parts : seq<string>)
-      requires split.Some?
-    {
-      var split := split.value;
-      |split.splitLens| == 0 || |parts| == |split.splitLens|
-    }
-
-    function method splitHash(val : string) : (res : Result<string, Error>)
-      ensures res.Success? ==> |res.value| > 0
-
-      ensures res.Success? && split.None? ==>
-        && standardHashStr(val, 0).Success?
-        && res.value == standardHashStr(val, 0).value
-
-      ensures res.Success? && split.Some? ==>
-        && var sp := split.value;
-
-        && var parts := Split(val, sp.split);
-
-        && assemble(parts, sp.split, 0, val).Success?
-
-        && res.value == assemble(parts, sp.split, 0, val).value + [sp.split]
-
-      ensures split.Some? && 0 < |split.value.splitLens| && |Split(val, split.value.split)| != |split.value.splitLens|
-        ==> res.Failure?
-    {
-      match split
-        case None => standardHashStr(val, 0)
-        case Some(sp) =>
-          var parts := Split(val, sp.split);
-          :- Need(|split.value.splitLens| == 0 || |parts| == |split.value.splitLens|,
-          E("Beacon " + name + " configured for " + Base10Int2String(|split.value.splitLens|) + " parts, but '" + val + "' has " + Base10Int2String(|parts|) + " parts."));
-          var str :- assemble(parts, sp.split, 0, val);
-          Success(str + [sp.split])
+        stdHash(str.value, length)
     }
 
     // return the hex character for this hex value
@@ -356,8 +242,7 @@ module BaseBeacon {
         var res := ['0', HexVal(x)];
         res
       else
-        var y := x as bv8;
-        var res := [HexVal((y >> 4) as uint8), HexVal((y & 0xf) as uint8)];
+        var res := [HexVal((x / 16) as uint8), HexVal((x % 16) as uint8)];
         res
     }
 
@@ -371,20 +256,20 @@ module BaseBeacon {
         HexStr(val[0]) + HexFmt(val[1..])
     }
 
-    static function method CharsFromBitLength(bits : BitLength) : (ret : nat)
+    static function method CharsFromBeaconLength(bits : BeaconLength) : (ret : nat)
       ensures 0 < ret <= 16
     {
       (((bits as uint8) + 3) / 4) as nat
     }
 
-    static function method TopBits(bits : BitLength) : (ret : uint8)
+    static function method TopBits(bits : BeaconLength) : (ret : uint8)
       ensures 1 <= ret <= 4
     {
       var x := bits as uint8 % 4;
       if x == 0 then 4 else x
     }
 
-    static function method BytesFromBitLength(bits : BitLength) : (ret : nat)
+    static function method BytesFromBeaconLength(bits : BeaconLength) : (ret : nat)
       ensures 0 < ret <= 8
     {
       (((bits as uint8) + 7) / 8) as nat
@@ -401,13 +286,13 @@ module BaseBeacon {
     }
 
     // turn 8-byte sequence into properly formatted bits-length hex string.
-    static function method BytesToHex(bytes : Bytes, bits : BitLength) : (ret : string)
+    static function method BytesToHex(bytes : Bytes, bits : BeaconLength) : (ret : string)
       requires |bytes| == 8
 
       ensures |ret| == (((bits as uint8) + 3) / 4) as nat
     {
-      var numBytes := BytesFromBitLength(bits);
-      var numChars := CharsFromBitLength(bits);
+      var numBytes := BytesFromBeaconLength(bits);
+      var numChars := CharsFromBeaconLength(bits);
       var topBits := TopBits(bits);
 
       var bytes := bytes[8-numBytes..];
@@ -434,15 +319,4 @@ module BaseBeacon {
         && BytesToHex(bytes, 10) == "3b7"
     {}
   }
-
-  // When a split has ignore, you must have only a single run of non-ignored values
-  // Start : the leading ignores
-  // SawReal : the first run of non-ignores
-  // End : the second run of ignores
-  // if a non-ignore appears after that, it's an error
-  // This declaration is at the bottom, because it is an implementation detail
-  // and the only other choice is prominently at the top
-  datatype SplitMode = Start | SawReal | End
-
-
 }

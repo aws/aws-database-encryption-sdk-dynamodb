@@ -277,16 +277,14 @@ A non-sensitive part config MUST have the following inputs:
  * A field name -- a string
  * A Prefix -- a string
 
-#### Constructor
-
-  A Constructor MUST be a list of field names.
-  Each field name MUST correspond to a field name in a [sensitive part](#sensitive-part)
-  or [non-sensitive part](#non-sensitive-part).
-
 #### Part
 
 `Part` is defined as a [sensitive part](#sensitive-part)
   or a [non-sensitive-part](#non-sensitive-part).
+
+#### Constructor
+
+  A Constructor MUST be a list of field names, each corresponding to a field name in a [part](#part).
 
 ---
 
@@ -315,8 +313,8 @@ isCompound MUST return `true` if the beacon is a [compound beacon](#compound-bea
 and false if the beacon is a [standard beacon](#standard-beacon).
 
 ### standardHash
- * standardHash MUST fail if called on a beacon for which [isCompound](#iscompound) returns true.
- * standardHash MUST take a sequence of bytes and a [beacon length](#beacon-length) as input.
+ * standardHash MUST fail if called on a beacon configured as a [compound beacon](#compound-beacon).
+ * standardHash MUST take a sequence of bytes as input.
  * standardHash MUST produce a non-empty string as output.
  * standardHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
 of the input bytes and the configured key, and keep the first 8 bytes.
