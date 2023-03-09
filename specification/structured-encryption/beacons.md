@@ -15,16 +15,23 @@ Beacons use stable hashes of the plaintext values of encrypted fields to allow s
 
 ### Definitions
 
-A `virtual field` is a string computed from parts of a record.
+#### virtual field
+A [virtual field](virtual.md) is a string computed from parts of a record.
 
+#### virtual database field
 A `virtual database field` is a string computed from fields and virtual fields,
 from which a [compound beacon](#compound-beacon) is constructed.
 
-A `source field` is a field in a record used to construct a `virtual field` or
-a `virtual database field`.
+#### Real Field
+A `real field` is a field that was placed in the record by the customer,
+rather than being generated.
+
+#### Source Field
+A `source field` is a [real field](#real-field) used to construct
+a [virtual field](#virtual-field) or [virtual database field](#virtual-database-field).
 
 Neither virtual fields nor virtual database fields are ever stored anywhere,
-encrypted or plaintext.
+neither encrypted nor in plaintext.
 
 ### Beacon Length
 
@@ -37,7 +44,8 @@ An extreme example of this would be a boolean field representing
 "this person is over 7 feet tall". The resulting beacon would have value
 `X` 99.9% of the time and value `Y` 0.1% of the time, making it trivial
 to determine which value maps to which plaintext. With something this
-extreme, there's no way to make a safe beacon.
+extreme, there's no way to make a safe beacon; but it can be combined
+with something else in a [virtual field](#virtual-field).
 
 To avoid this, we truncate the hash to ensure some collisions.
 
@@ -90,8 +98,6 @@ and customers need to be able to switch from standard to compound beacons.
 
 ### Compound Beacon
 
-(See also [Definitions](#definitions))
-
 A compound beacon is assembled from parts of a record,
 combining literal plaintext strings and [standard beacons](#standard-beacon)
 into a complex string, suitable for complex database operations.
@@ -104,18 +110,19 @@ To configure a single compound beacon, you need to provide
  1. An optional list of non-sensitive parts
  1. An optional list of constructors
 
-Configuration starts with a name.
-This name is used in queries and index creation, as if it were a regular field.
+The `name` is used in queries and index creation as if it were a regular field.
 "MyField" in examples below. It is an error if this name is the same as a configured
 [virtual field](virtual.md), or to attempt to write a field of this name.
 
-Configuration continues with a `join string` which separates the parts of a compound beacon.
+The `join string` separates the parts of a compound beacon.
 In the examples below, we assume "`.`".
 
-Then there is a list of sensitive parts, each part having a field name,
+Each [sensitive part](#sensitive-part) has a field name,
 a prefix and a [beacon length](#beacon-length).
 The field name can refer directly to a field in the record,
-or to a [virtual field](virtual.md). For example :
+or to a [virtual field](virtual.md).
+The values of these fields are stored a hashes, not plaintext.
+For example :
 
 | Field Name | Prefix | Length |
 |---|---|---|
@@ -127,9 +134,8 @@ or to a [virtual field](virtual.md). For example :
 The first row should be interpreted as a literal `S-` followed by the 23-bit beacon
 of the "social" field.
 
-Next comes a list of non-sensitive parts. 
-This is a similar list, but there is no `length` column, because
-these fields appear as plain text in the beacon value. For example :
+Each [nonsensitive part](#non-sensitive-part) has a field name and a prefix.
+The values of these fields are stored in plaintext.
 
 | Field Name | Prefix |
 |---|---|
@@ -141,6 +147,17 @@ of the "timestamp" field.
 It is an error for the configuration of a non-sensitive part to refer to
 an encrypted field in any way.
 
+NOTE - the way this is set up, you can't have two different parts built from the same field.
+That is, you can't say
+
+| Field Name | Prefix | Length |
+|---|---|---|
+| phone | T- | 25 |
+| phone | P- | 25 |
+
+I think that's ok, since one could always make a [virtual field](#virtual.md)
+with the same content but a different name.
+
 Prefixes can be any valid string, but no prefix string can be a prefix of another prefix string.
 
 That is, you can have both "A-" and AB-" as prefixes,
@@ -148,10 +165,10 @@ but you can't have both "AB" and "AB-".
 
 #### Writing Compound Beacons
 
-To write a compound beacon, one constructs the `virtual database field`,
+To write a compound beacon, one constructs the [virtual database field](#virtual-database-field),
 and then turns the sensitive parts into [standard beacons](#standard-beacon).
 
-For writing, one can configure a list of constructors. 
+For writing, one can configure a list of [constructors](#constructor).
 
 A single constructor is an ordered list of parts.
 An example list of constructors might be :
@@ -159,53 +176,54 @@ An example list of constructors might be :
  - timestamp social zipcode
  - address zipcode
 
-A constructor `succeeds` if all of the fields from which it is created exist in the record.
+A constructor `succeeds` if all its [source fields](#source-field) exist in the record.
 
 Each constructor is tried, in the order configured, until one succeeds.
 
 If no constructor succeeds, the record cannot be written.
 
-If the list of constructors is omitted, a default constructor is used.
-The default constructor creates a `virtual database field` which is
+If no constructors are configured, a default constructor is generated.
+The default constructor creates a [virtual database field](#virtual-database-field) which is
 the concatenation of the non-sensitive parts, in the order configured,
 followed by the sensitive parts, in the order configured,
-skipping any parts for which any `source field` is unavailable.
+skipping any parts for which any [source fields](#source-field) is unavailable.
 
 The default constructor succeeds if at least one sensitive part is included.
 
-Once a constructor is selected, a `virtual database field` is constructed.
+Once a constructor is selected, a [virtual database field](#virtual-database-field) is constructed.
 For each part, we combine the prefix with the [standard beacon](#standard-beacon)
 (for sensitive parts) or plaintext value (for non-sensitive parts) of the field.
 
 These parts are then joined together, in the order given in the constructor,
-with parts separated by the `split character`.
+with parts separated by the `join string`.
 
-For example, the above configuration might result in virtual fields that look like this :
+For example, the above configuration might result in [virtual database fields](#virtual-database-field) that look like this :
 
  - T-20221225.S-123-45-6789.Z-12345
  - A-1234 Main Street.Z-23456
 
-These virtual database fields are never written to the database, or even fully assembled.
+These [virtual database field](#virtual-database-field) are never written to the database, or even fully assembled.
 But this is what the customer must imagine.
 
 Sensitive values are then replaced with the appropriate beacon. For example
 
- - 20221225.S-abcdef.Z-7abc
+ - T-20221225.S-abcdef.Z-7abc
  - A-3ab.Z-3456
 
 Which is then stored in the database, with a field name of `aws_dbe_b_MyField`.
 
 #### Querying Compound Beacons
 
-At query time, the customer uses MyField in a query as if it were the full virtual field, for example :
+At query time, the customer uses MyField in a query as if it were the full
+[virtual database field](#virtual-database-field), for example :
 
-MyField starts_with("A-")
-MyField contains("Z-12345")
+ * MyField starts_with("A-")
+ * MyField contains("Z-12345")
 
 The onus is on the customer to properly re-create the results of all of the above configuration.
 
 We might provide an API to construct a [virtual field](virtual.md) from a record,
-to ease this burden. Perhaps another to construct the full `virtual database field`.
+to ease this burden. Perhaps another to construct the full [virtual database field](#virtual-database-field).
 
 #### Indexing Compound Beacons
 
@@ -221,126 +239,124 @@ in this document are to be interpreted as described in [RFC 2119](https://tools.
 
 ## Beacon Configuration
 
-### Beacon Record 
-
 The following inputs to this configuration are REQUIRED:
  * A name -- a sequence of characters
  * A plaintext HMAC key -- a sequence of bytes
+ * A [standard beacon config](#standard-beaconconfig)
+or a [compound beacon config](#compound-beacon-config).
+
+### Standard Beacon Config
+
+A standard beacon config MUST have
  * A `length` -- a [beacon length](#beacon-length)
 
-The following inputs to this configuration MUST be OPTIONAL:
+### Compound Beacon Config
 
- * A `prefix` character, defining a [prefix beacon](#prefix-beacon)
- * A [Split Record](#split-record) defining a [split beacon](#split-beacon)
- * An `ignore` character, defining the [ignore character](#ignore-character)
+A compound beacon config MUST have the following inputs:
 
-### Split Record
+ * A join string
+ * A list of sensitive parts
 
-The following inputs to this configuration are REQUIRED:
+The following inputs to a compound beacon config MUST be OPTIONAL:
 
- * A `split` character, to designate a [split beacon](#split-beacon)
- * [split lengths](#split-lengths), a sequence of [beacon length](#beacon-length),
-for use with a [split beacon](#split-beacon)
+ * A list of non-sensitive parts
+ * A list of constructors
 
-The following inputs to this configuration MUST be OPTIONAL:
+#### Sensitive Part
 
-  * An `inner` character to designate an [inner prefix](#inner-prefix)
+A sensitive part config MUST have the following inputs:
+
+ * A field name -- a string
+ * A Prefix -- a string
+ * A `length` -- a [beacon length](#beacon-length)
+
+#### Non-Sensitive Part
+
+A non-sensitive part config MUST have the following inputs:
+
+ * A field name -- a string
+ * A Prefix -- a string
+
+#### Constructor
+
+  A Constructor MUST be a list of field names.
+  Each field name MUST correspond to a field name in a [sensitive part](#sensitive-part)
+  or [non-sensitive part](#non-sensitive-part).
+
+#### Part
+
+`Part` is defined as a [sensitive part](#sensitive-part)
+  or a [non-sensitive-part](#non-sensitive-part).
 
 ---
 
-Construction MUST fail if a [Split Record](#split-record) is specified,
-and it specifies a non-empty [split lengths](#split-lengths),
-and the first element of [split lengths](#split-lengths) is not equal to
-the `length` in the beacon record.
+Construction MUST fail if any beacon's name matches the name of a [virtual field](virtual.md),
+any other beacon's name, or the name of a configured [real field](#real-field).
 
-Construction MUST fail if any two of the `prefix`, `ignore`, `split` and `inner`
-characters are configured and equal to each other.
+Construction MUST fail if any `prefix` in any [part](#part) is a prefix of
+the `prefix` of any other [part](#part).
+
+Construction MUST fail if any [part](#part) has the same name as any other [part](#part).
+
+Construction MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
+any part of an encrypted field.
 
 ## Beacon Operations
 
-The three Operations available on a Beacon Record are defined in terms of functionality
-in the following section, [Beacon Helpers](#beacon-helpers).
+There are three beacon operations available.
 
-### standardHash
- * standardHash MUST fail if called on a beacon for which [isCompound](#iscompound) returns true.
- * standardHash MUST take a sequence of bytes and an unsigned integer `position` as input.
- * standardHash MUST produce a non-empty string as output.
- * standardHash MUST calculate a hash length by calling [hashLength](#hashlength) with the supplied `position`.
- * standardHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-of the input bytes and the configured key, and keep the first 8 bytes.
- * standardHash MUST return the rightmost `hash length` bits of these 8 bytes as a hexadecimal string.
- * the length of the returned string MUST be (`hash length`/4) rounded up.
+ * [isCompound](#iscompound)
+ * [standardHash](#standardhash)
+ * [compoundHash](#compoundhash)
 
 ### isCompound
 
-isCompound MUST return `true` if a [prefix character](#prefix-beacon) or
-[Split Record](#split-record) is configured; and false otherwise.
+isCompound MUST return `true` if the beacon is a [compound beacon](#compound-beacon),
+and false if the beacon is a [standard beacon](#standard-beacon).
+
+### standardHash
+ * standardHash MUST fail if called on a beacon for which [isCompound](#iscompound) returns true.
+ * standardHash MUST take a sequence of bytes and a [beacon length](#beacon-length) as input.
+ * standardHash MUST produce a non-empty string as output.
+ * standardHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+of the input bytes and the configured key, and keep the first 8 bytes.
+ * standardHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
+ * the length of the returned string MUST be (`hash length`/4) rounded up.
 
 ### compoundHash
 
- * compoundHash MUST take a string as input, and produce a string.
+ * compoundHash MUST fail if called on a beacon for which [isCompound](#iscompound) returns false.
+ * compoundHash MUST take a record as input, and produce a string.
  * The returned string MUST NOT be empty.
- * If the [Beacon Record](#beacon-record) does not contain a [prefix character](#prefix-beacon),
-compoundHash MUST return the [splitHash](#splitHash) of the input string.
- * compoundHash MUST fail if the input string does not contain the prefix character.
- * compoundHash MUST split the input string into two pieces,
-based on the first occurrence of the prefix character in the input string.
- * If neither part is the ignore character, including when no ignore character is configured,
-compoundHash MUST return the concatenation of the first piece, the prefix character,
-and the [splitHash](#splitHash) of the second piece.
- * If both pieces are the [ignore character](#ignore-character),
-or one piece is the [ignore character](#ignore-character) and the other piece
-is the empty string, compoundHash MUST fail.
- * If the first piece is the [ignore character](#ignore-character),
-compoundHash MUST return the [splitHash](#splitHash) of the second piece.
- * If the second piece is the [ignore character](#ignore-character),
-compoundHash MUST return the concatenation of the first piece and the prefix character.
+ * A constructor must be [selected](#constructor-selection).
+ * compoundHash MUST return the concatenation of the [value](#part-value)
+of each part in the constructor,
+in the same order as they exist in the constructor.
+ * The parts MUST be delimited by the join string.
 
-## Beacon Helpers
+### Constructor Selection
 
-### stdHash
+If no constructors are configured, a [default constructor](#default-constructor)
+MUST be generated.
 
-stdHash is exactly standardHash, except that is can be called on a compound beacon.
-It is expected that standardHash will be implemented in terms of stdHash.
-stdHash MUST provide standardHash with the guarantees it requires.
+Otherwise, the first configured constructor for which all [source fields](#source-field) are available
+will be selected.
 
-### splitHash
+### Default Constructor
 
- * splitHash MUST take a string as input and produce a string.
- * The returned string MUST NOT be empty.
- * If the [Beacon Record](#beacon-record) does not specify a [Split Record](#split-record) 
-splitHash MUST return the [stdHash](#stdhash) of the input string and zero.
- * splitHash MUST split the input string into pieces based on the [split](#split-beacon) character.
- * splitHash MUST fail if `split-lengths` is not empty and 
-the number of pieces in the input string
-is not equal to the number of lengths in `split-lengths`.
- * splitHash MUST calculate the concatenation of,
-for each part that is not the [ignore](#ignore-character) character,
-the split character followed by the [innerHash](#innerhash) of the part and its position.
- * splitHash MUST return the above calculation, followed by the split character.
+The default constructor MUST be generated by iterating through all the
+[non-sensitive-parts](#non-sensitive-part) followed by the [sensitive-parts](#sensitive-part),
+in the order of their configuration, discarding those for which any [source field](#source-field)
+is unavailable.
 
-If the input string does not contain the split character,
-splitting the string results in a single piece.
-This is not, in and of itself, an error.
+This operation MUST fail if the resulting constructor does not contain at least one
+[sensitive-part](#sensitive-part).
 
-### innerHash
- * innerHash MUST take a string and an unsigned integer, `position`, as input and produce a string.
- * The returned string MUST NOT be empty.
- * If the configuration does not specify an [inner](#inner-prefix) character,
-innerHash MUST return the [stdHash](#stdhash) of the input string and the supplied position.
- * innerHash MUST fail if the input string does not contain the [inner](#inner-prefix) character.
- * innerHash MUST split the input string into two pieces, on the
-first occurrence on the [inner](#inner-prefix) character, returning the concatenation of
- * * the first part of the input string
- * * the inner character
- * * the [stdHash](#standardhash) of the second part of the string and the supplied position.
+### Part Value
 
-### hashLength
- * hashLength MUST take an unsigned integer `position` as input and return a [beacon length](#beacon-length).
- This position corresponds to the position of a part of a [split hash](#splithash).
- * If the input is position is zero, hashLength MUST return the beacons's `length`.
- * If `split-lengths` is empty or absent, hashLength MUST return the beacons's `length`.
- * If the input position is less than the number of values in `split-lengths`,
-hashLength MUST return the (zero-based) Nth number in the list.
- * If the input position is greater than or equal to the number of values in `split-lengths`,
-hashLength MUST fail.
+For a [sensitive part](#sensitive-part), the part value MUST be the concatenation
+of the prefix and the [standardHash](#standardhash) of the field value and the
+configured [beacon length](#beacon-length).
+
+For a [non-sensitive part](#non-sensitive-part), the part value MUST be the concatenation
+of the prefix and the field value.
