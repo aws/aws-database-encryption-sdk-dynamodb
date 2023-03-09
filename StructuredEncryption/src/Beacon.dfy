@@ -150,15 +150,31 @@ module BaseBeacon {
     }
 
     function method compoundHash(val : string) : (res : Result<string, Error>)
-      ensures res.Success? ==> |res.value| > 0
+      ensures res.Success? ==> 
+        //= specification/structured-encryption/beacons.md#compoundhash
+        //= type=implication
+        //# * The returned string MUST NOT be empty.
+        && |res.value| > 0
 
+        //= specification/structured-encryption/beacons.md#compoundhash
+        //= type=implication
+        //# * compoundHash MUST fail if called on a beacon configured as a [standard beacon](#standard-beacon).
+        && isCompound() 
     {
-      Success(" ")
+      if !isCompound() then
+        Failure(E("compoundHash must not be used with a standard beacon."))
+      else
+        Success(" ")
     }
 
     // is this a standard hash? (as opposed to a compound hash)
     predicate method isCompound()
+      //= specification/structured-encryption/beacons.md#iscompound
+      //= type=implication
+      //# isCompound MUST return `true` if the beacon is a [compound beacon](#compound-beacon),
+      //# and false if the beacon is a [standard beacon](#standard-beacon).
       ensures isCompound() <==> config.CompoundBeacon?
+      ensures !isCompound() <==> config.StandardBeacon?
     {
       config.CompoundBeacon?
     }

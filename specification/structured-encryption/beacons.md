@@ -306,6 +306,7 @@ There are three beacon operations available.
  * [isCompound](#iscompound)
  * [standardHash](#standardhash)
  * [compoundHash](#compoundhash)
+ * [getPart](#getpart)
 
 ### isCompound
 
@@ -323,14 +324,28 @@ of the input bytes and the configured key, and keep the first 8 bytes.
 
 ### compoundHash
 
- * compoundHash MUST fail if called on a beacon for which [isCompound](#iscompound) returns false.
+compoundHash is used when writing a record, to calculate the beacon to write.
+
+ * compoundHash MUST fail if called on a beacon configured as a [standard beacon](#standard-beacon).
  * compoundHash MUST take a record as input, and produce a string.
  * The returned string MUST NOT be empty.
- * A constructor must be [selected](#constructor-selection).
+ * A constructor MUST be [selected](#constructor-selection).
  * compoundHash MUST return the concatenation of the [value](#part-value)
 of each part in the constructor,
 in the same order as they exist in the constructor.
  * The parts MUST be delimited by the join string.
+
+### getPart
+
+getPart is used when querying a database, to calculate the part value to query.
+
+ * getPart MUST fail if called on a beacon configured as a [standard beacon](#standard-beacon).
+ * getPart MUST take a string as input and returns a string as output.
+ * The returned string MUST NOT be empty.
+ * The [part](#part) must be identified by matching the prefix of a [part](#part)
+to the beginning of the input string.
+ * If no such part exists, this operation MUST fail.
+ * The value returned MUST be the [Part Value From String and Prefix](#part-value-calculation) of the input string, and the prefix and length from the discovered part. 
 
 ### Constructor Selection
 
@@ -352,9 +367,19 @@ This operation MUST fail if the resulting constructor does not contain at least 
 
 ### Part Value
 
-For a [sensitive part](#sensitive-part), the part value MUST be the concatenation
-of the prefix and the [standardHash](#standardhash) of the field value and the
-configured [beacon length](#beacon-length).
+Calculate the `plain string` :
+the concatenation of the prefix and the field value.
 
-For a [non-sensitive part](#non-sensitive-part), the part value MUST be the concatenation
-of the prefix and the field value.
+The `Part Value` is the [Part Value From String and Prefix](#part-value-calculation) of the `plain string`, the part's prefix, and the [beacon length](#beacon-length), if any.
+
+### Part Value Calculation
+
+The Part Value Calculation does NOT use any of the beacon's configuration information.
+
+Given a `plain string`, a prefix and an optional [beacon length](#beacon-length) : 
+
+If the [beacon length](#beacon-length) is provided, 
+the part value MUST be the concatenation
+of the prefix and the [standardHash](#standardhash) of the `plain string` with the configured [beacon length](#beacon-length).
+
+Otherwise, the part value MUST be the `plain string`.
