@@ -273,8 +273,7 @@ module TestStructuredEncryptionCrypt {
         var res := ['0', HexChar(x)];
         res
       else
-        var y := x as bv8;
-        var res := [HexChar((y >> 4) as uint8), HexChar((y & 0xf) as uint8)];
+        var res := [HexChar((x / 16) as uint8), HexChar((x % 16) as uint8)];
         res
     }
 
@@ -287,7 +286,7 @@ module TestStructuredEncryptionCrypt {
     }
 
     // return the hex string for these bytes, keeping any leading zero
-    function method {:tailrecursion} ToHexString(val : seq<uint8>) : (ret : string)
+    function method {:tailrecursion} ToHexString(val : seq<uint8>) : (ret : HexString)
       ensures |ret| == 2 * |val|
     {
       if |val| == 0 then
