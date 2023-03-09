@@ -75,8 +75,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         List<String> allowedUnauthenticatedAttributes();
         Builder allowedUnauthenticatedAttributePrefix(String allowedUnauthenticatedAttributePrefix);
         String allowedUnauthenticatedAttributePrefix();
-        <I extends IKeyring> Builder keyring(I keyring);
-        <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
+        Builder keyring(IKeyring keyring);
+        Builder cmm(ICryptographicMaterialsManager cmm);
         Builder legacyConfig(LegacyConfig legacyConfig);
         LegacyConfig legacyConfig();
         Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
@@ -133,8 +133,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
             return this.allowedUnauthenticatedAttributePrefix;
         }
 
-        public <I extends IKeyring> Builder keyring(I keyring) {
-            this.keyring = Keyring.create(keyring);
+        public Builder keyring(IKeyring keyring) {
+            this.keyring = Keyring.wrap(keyring);
             return this;
         }
 
@@ -142,8 +142,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
             return this.keyring;
         }
 
-        public <I extends ICryptographicMaterialsManager> Builder cmm(I cmm) {
-            this.cmm = CryptographicMaterialsManager.create(cmm);
+        public Builder cmm(ICryptographicMaterialsManager cmm) {
+            this.cmm = CryptographicMaterialsManager.wrap(cmm);
             return this;
         }
 

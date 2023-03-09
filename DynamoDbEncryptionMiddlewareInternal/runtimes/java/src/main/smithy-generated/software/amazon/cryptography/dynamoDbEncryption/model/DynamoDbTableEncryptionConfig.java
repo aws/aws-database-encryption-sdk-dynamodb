@@ -111,11 +111,11 @@ public class DynamoDbTableEncryptionConfig {
 
     String allowedUnauthenticatedAttributePrefix();
 
-    <I extends IKeyring> Builder keyring(I keyring);
+    Builder keyring(IKeyring keyring);
 
     Keyring keyring();
 
-    <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
+    Builder cmm(ICryptographicMaterialsManager cmm);
 
     CryptographicMaterialsManager cmm();
 
@@ -210,8 +210,8 @@ public class DynamoDbTableEncryptionConfig {
       return this.allowedUnauthenticatedAttributePrefix;
     }
 
-    public <I extends IKeyring> Builder keyring(I keyring) {
-      this.keyring = Keyring.create(keyring);
+    public Builder keyring(IKeyring keyring) {
+      this.keyring = Keyring.wrap(keyring);
       return this;
     }
 
@@ -219,8 +219,8 @@ public class DynamoDbTableEncryptionConfig {
       return this.keyring;
     }
 
-    public <I extends ICryptographicMaterialsManager> Builder cmm(I cmm) {
-      this.cmm = CryptographicMaterialsManager.create(cmm);
+    public Builder cmm(ICryptographicMaterialsManager cmm) {
+      this.cmm = CryptographicMaterialsManager.wrap(cmm);
       return this;
     }
 
