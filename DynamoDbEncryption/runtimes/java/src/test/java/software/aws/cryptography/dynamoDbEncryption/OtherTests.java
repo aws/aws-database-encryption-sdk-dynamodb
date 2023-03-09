@@ -1,18 +1,17 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.TableDescription;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.materialProviders.Keyring;
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
 
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.amazonaws.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
+import static software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.KMS_TEST_KEY_ID;
 
 // Here we are testing some manually generated interfaces that don't technically belong to this package,
@@ -20,6 +19,8 @@ import static software.aws.cryptography.dynamoDbEncryption.TestUtils.KMS_TEST_KE
 // TODO these should be moved appropriately when they are properly being generated.
 public class OtherTests {
 
+    // TODO reintroduce after CreateBranchKeyStore is added to MPL
+    /*
     @Test
     public void TestCreateBranchKeyStore() {
         MaterialProviders materialProviders = MaterialProviders.builder()
@@ -35,7 +36,10 @@ public class OtherTests {
         TableDescription desc = out.tableDescription();
         assertNotNull(desc);
     }
+    */
 
+    // TODO reintroduce after CreateBranchKey API is added to MPL
+    /*
     @Test
     public void TestCreateBranchKey() {
         MaterialProviders materialProviders = MaterialProviders.builder()
@@ -53,7 +57,10 @@ public class OtherTests {
 
         assertEquals("a89b547a-7062-4048-b455-d850e32ef808", out.branchKeyId());
     }
+    */
 
+    // TODO reintroduce after VersionBranchKey API is added to MPL
+    /*
     @Test
     public void TestVersionBranchKey() {
         MaterialProviders materialProviders = MaterialProviders.builder()
@@ -72,6 +79,7 @@ public class OtherTests {
 
         assertEquals(1, out.versionCreated());
     }
+    */
 
     // TODO reintroduce once the branch key supplier is added back to the Hierarchical Keyring
     /*
@@ -145,12 +153,12 @@ public class OtherTests {
         ByteBuffer key = ByteBuffer.wrap(new byte[32]);
 
         CreateAwsKmsRsaKeyringInput input = CreateAwsKmsRsaKeyringInput.builder()
-                .kmsClient(AWSKMSClientBuilder.defaultClient())
+                .kmsClient(KmsClient.builder().build())
                 .kmsKeyId(KMS_TEST_KEY_ID)
                 .encryptionAlgorithm(RSAES_OAEP_SHA_1)
                 .publicKey(key)
                 .build();
-        Keyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
+        IKeyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
         assertNotNull(keyring);
     }
 
