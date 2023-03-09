@@ -69,6 +69,11 @@ The beacon string will be 1/4 this length.
 
 The simplest form of beacon is a standard beacon.
 
+To configure a single standard beacon, you need to provide
+
+ 1. A name
+ 1. A [beacon length](#beacon-length)
+
 To produce a standard beacon from a sequence of bytes :
 1. Compute the HMAC
 1. Truncate the HMAC, to the [beacon length](#beacon-length)
@@ -93,11 +98,11 @@ into a complex string, suitable for complex database operations.
 
 To configure a single compound beacon, you need to provide
 
- 1 A name
- 1 A join string
- 1 A list of sensitive parts
- 1 An optional list of non-sensitive parts
- 1 An optional list of constructors
+ 1. A name
+ 1. A join string
+ 1. A list of sensitive parts
+ 1. An optional list of non-sensitive parts
+ 1. An optional list of constructors
 
 Configuration starts with a name.
 This name is used in queries and index creation, as if it were a regular field.
@@ -200,7 +205,7 @@ MyField contains("Z-12345")
 The onus is on the customer to properly re-create the results of all of the above configuration.
 
 We might provide an API to construct a [virtual field](virtual.md) from a record,
-to ease this burden.
+to ease this burden. Perhaps another to construct the full `virtual database field`.
 
 #### Indexing Compound Beacons
 
