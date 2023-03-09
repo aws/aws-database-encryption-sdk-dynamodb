@@ -85,9 +85,19 @@ and customers need to be able to switch from standard to compound beacons.
 
 ### Compound Beacon
 
+(See also [Definitions](#definitions))
+
 A compound beacon is assembled from parts of a record,
 combining literal plaintext strings and [standard beacons](#standard-beacon)
 into a complex string, suitable for complex database operations.
+
+To configure a single compound beacon, you need to provide
+
+ 1 A name
+ 1 A join string
+ 1 A list of sensitive parts
+ 1 An optional list of non-sensitive parts
+ 1 An optional list of constructors
 
 Configuration starts with a name.
 This name is used in queries and index creation, as if it were a regular field.
@@ -109,6 +119,9 @@ or to a [virtual field](virtual.md). For example :
 | zipcode | Z- | 15 |
 | address | A- | 11 |
 
+The first row should be interpreted as a literal `S-` followed by the 23-bit beacon
+of the "social" field.
+
 Next comes a list of non-sensitive parts. 
 This is a similar list, but there is no `length` column, because
 these fields appear as plain text in the beacon value. For example :
@@ -117,13 +130,16 @@ these fields appear as plain text in the beacon value. For example :
 |---|---|
 | timestamp | T- |
 
+The first row should be interpreted as a literal `T-` followed by the plaintext
+of the "timestamp" field.
+
 It is an error for the configuration of a non-sensitive part to refer to
 an encrypted field in any way.
 
-Prefixes can be an valid string, but no prefix string can be a prefix to another prefix string.
+Prefixes can be any valid string, but no prefix string can be a prefix of another prefix string.
 
- That is, you can have both "A-" and AB-" as prefixes,
- but you can't have both "AB" and "AB-".
+That is, you can have both "A-" and AB-" as prefixes,
+but you can't have both "AB" and "AB-".
 
 #### Writing Compound Beacons
 
@@ -132,23 +148,23 @@ and then turns the sensitive parts into [standard beacons](#standard-beacon).
 
 For writing, one can configure a list of constructors. 
 
-A single constructor is an ordered list of parts, possibly interleaved with literal text. For example :
+A single constructor is an ordered list of parts.
+An example list of constructors might be :
 
- - timestamp ":" social zipcode
- - "E:" address zipcode
-
-If the list of constructors is omitted, the `virtual database field` is
-the concatenation of the non-sensitive parts, in the order configured,
-followed by the sensitive parts, in the order configured,
-skipping any parts for which any `source field` is unavailable.
-
-It is an error to configure a constructor with a field name containing whitespace or double quotes.
+ - timestamp social zipcode
+ - address zipcode
 
 A constructor `succeeds` if all of the fields from which it is created exist in the record.
 
 Each constructor is tried, in the order configured, until one succeeds.
 
 If no constructor succeeds, the record cannot be written.
+
+If the list of constructors is omitted, a default constructor is used.
+The default constructor creates a `virtual database field` which is
+the concatenation of the non-sensitive parts, in the order configured,
+followed by the sensitive parts, in the order configured,
+skipping any parts for which any `source field` is unavailable.
 
 The default constructor succeeds if at least one sensitive part is included.
 
@@ -161,24 +177,24 @@ with parts separated by the `split character`.
 
 For example, the above configuration might result in virtual fields that look like this :
 
- - T-20221225:S-123-45-6789.Z-12345
- - E:A-1234 Main Street.Z-23456
+ - T-20221225.S-123-45-6789.Z-12345
+ - A-1234 Main Street.Z-23456
 
-These virtual fields are never written to the database, or even fully assembled.
+These virtual database fields are never written to the database, or even fully assembled.
 But this is what the customer must imagine.
 
 Sensitive values are then replaced with the appropriate beacon. For example
 
- - 20221225:S-abcdef.Z-7abc
- - E:A-3ab.Z-3456
+ - 20221225.S-abcdef.Z-7abc
+ - A-3ab.Z-3456
 
-Which is then stored in the database, with a field name of aws_dbe_b_MyField
+Which is then stored in the database, with a field name of `aws_dbe_b_MyField`.
 
 #### Querying Compound Beacons
 
 At query time, the customer uses MyField in a query as if it were the full virtual field, for example :
 
-MyField starts_with("E:")
+MyField starts_with("A-")
 MyField contains("Z-12345")
 
 The onus is on the customer to properly re-create the results of all of the above configuration.
