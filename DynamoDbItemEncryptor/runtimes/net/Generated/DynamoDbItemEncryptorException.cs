@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 using System;
- using AWS.Cryptography.DynamoDbItemEncryptor; namespace AWS.Cryptography.DynamoDbItemEncryptor {
- public class DynamoDbItemEncryptorException : Exception {
- public DynamoDbItemEncryptorException(string message) : base(message) {}
-}
+using AWS.Cryptography.DynamoDbItemEncryptor;
+namespace AWS.Cryptography.DynamoDbItemEncryptor
+{
+  public class DynamoDbItemEncryptorException : Exception
+  {
+    public DynamoDbItemEncryptorException(string message) : base(message) { }
+  }
 }
