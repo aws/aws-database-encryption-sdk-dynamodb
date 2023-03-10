@@ -15,6 +15,7 @@
 
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Util.dfy"
+include "Paths.dfy"
 
 module BaseBeacon {
   import opened Wrappers
@@ -23,11 +24,13 @@ module BaseBeacon {
   import opened StandardLibrary.String
   import opened AwsCryptographyStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
+  import opened StructuredEncryptionPaths
 
   import Prim = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
   import UTF8
   import Seq
+  import SortedSets
 
   //= specification/structured-encryption/beacons.md#beacon-length
   //= type=implication
@@ -35,52 +38,26 @@ module BaseBeacon {
   //# indicating the number of bits in the resulting beacon.
   newtype BeaconLength = x | 1 <= x <= 63 witness 1
   type FieldName = string
-  type Prefix = string
+  type Prefix = x : string | |x| > 0 witness *
+  type ConstructorList = x : seq<FieldName> | |x| > 0 witness *
 
-  datatype SensitivePart = SensitivePart(
-    //= specification/structured-encryption/beacons.md#sensitive-part
-    //= type=implication
-    //# A sensitive part config MUST have the following inputs:
-    //# * A field name -- a string
-    //# * A Prefix -- a string
-    //# * A `length` -- a [beacon length](#beacon-length)
+  // if length is null, this is a non-sensitive part
+  datatype Part = Part (
     fieldName : FieldName,
     prefix : Prefix,
-    length : BeaconLength
-  )
-
-  datatype NonSensitivePart = NonSensitivePart(
-    //= specification/structured-encryption/beacons.md#non-sensitive-part
-    //= type=implication
-    //# A non-sensitive part config MUST have the following inputs:
-    //# * A field name -- a string
-    //# * A Prefix -- a string
-    fieldName : FieldName,
-    prefix : Prefix
+    length : Option<BeaconLength>
   )
 
   datatype Constructor = Constructor(
     //= specification/structured-encryption/beacons.md#constructor
     //= type=implication
     //# A Constructor MUST be a list of field names, each corresponding to a field name in a [part](#part).
-    parts : seq<FieldName>
+    parts : ConstructorList
   )
 
   datatype CompoundBeacon = CompoundBeacon(
-    //= specification/structured-encryption/beacons.md#compound-beacon-config
-    //= type=implication
-    //# A compound beacon config MUST have the following inputs:
-    //# * A join string
-    //# * A list of sensitive parts
-    join : string,
-    sensitive : seq<SensitivePart>,
-
-    //= specification/structured-encryption/beacons.md#compound-beacon-config
-    //= type=implication
-    //# The following inputs to a compound beacon config MUST be OPTIONAL:
-    //#  * A list of non-sensitive parts
-    //#  * A list of constructors
-    nonSensitive : seq<NonSensitivePart>,
+    split : char,
+    parts : seq<Part>, // all Non-Sensitive followed by all Sensitive
     construct : seq<Constructor>
   )
 
@@ -89,8 +66,10 @@ module BaseBeacon {
     //= type=implication
     //# A standard beacon config MUST have
     //# * A `length` -- a [beacon length](#beacon-length)
-    | StandardBeacon(length: BeaconLength)
-    | CompoundBeacon(data : CompoundBeacon)
+    | Standard(length: BeaconLength)
+    | Compound(data : CompoundBeacon)
+
+  type Stringify = (TerminalLocation) -> Result<string,string>
 
   datatype Beacon = Beacon(
     nameonly client: Primitives.AtomicPrimitivesClient,
@@ -114,8 +93,11 @@ module BaseBeacon {
     //# * standardHash MUST take a sequence of bytes as input.
     function method {:opaque} standardHash(val : Bytes)
       : (ret : Result<string, Error>)
+      //= specification/structured-encryption/beacons.md#standardhash
+      //= type=implication
+      //# * standardHash MUST be used with a beacon configured as a [standard beacon](#standard-beacon).
+      requires !isCompound()
       ensures ret.Success? ==>
-        && config.StandardBeacon?
         //= specification/structured-encryption/beacons.md#standardhash
         //= type=implication
         //# * standardHash MUST produce a non-empty string as output.
@@ -137,34 +119,92 @@ module BaseBeacon {
         //= type=implication
         //# * the length of the returned string MUST be (`hash length`/4) rounded up.
         && |ret.value| == (((config.length as uint8) + 3) / 4) as nat
-      
-      //= specification/structured-encryption/beacons.md#standardhash
-      //= type=implication
-      //# * standardHash MUST fail if called on a beacon configured as a [compound beacon](#compound-beacon).
-      ensures isCompound() ==> ret.Failure?
     {
-      if isCompound() then
-        Failure(E("standardHash must not be used with a compound beacon."))
-      else
-        stdHash(val, config.length)
+      stdHash(val, config.length)
     }
 
-    function method compoundHash(val : string) : (res : Result<string, Error>)
+    function method {:opaque} BuildDefault(parts : seq<Part>, fields : map<string, string>, acc : string := [], haveSens : bool := false)
+      : (ret : Result<string, Error>)
+      requires isCompound()
+      requires haveSens ==> |acc| > 0
+      ensures haveSens ==> |acc| > 0
+      ensures ret.Success? ==> |ret.value| > 0
+    {
+      if |parts| == 0 then
+        if haveSens then
+          Success(acc)
+        else
+          Failure(E("Default constructor for " + name + " could not find a sensitive part."))
+      else if parts[0].fieldName in fields then
+        var val :- PartValueCalc(parts[0].prefix + fields[parts[0].fieldName], parts[0].prefix, parts[0].length);
+        if |acc| == 0 then
+          BuildDefault(parts[1..], fields, val, parts[0].length.Some?)
+        else
+          BuildDefault(parts[1..], fields, acc + [config.data.split] + val, parts[0].length.Some?)
+      else
+        BuildDefault(parts[1..], fields, acc, haveSens)
+    }
+
+    function method FindPartByName(name : string) : Result<Part, Error>
+      requires isCompound()
+    {
+      // TODO - prove and keep track, so this can't fail
+      var part := Seq.Filter((x : Part) => (x.fieldName == name), config.data.parts);
+      :- Need(|part| == 1, E("Internal error, constructor named non-existent part"));
+      Success(part[0])
+    }
+
+    function method {:opaque} TryConstructor(consFields : seq<FieldName>, fields : map<string, string>, acc : string := "")
+      : (ret : Result<string, Error>)
+      requires isCompound()
+      requires |consFields| > 0 || |acc| > 0
+      ensures ret.Success? ==> |ret.value| > 0
+    {
+      if |consFields| == 0 then
+        Success(acc)
+      else
+        :- Need(consFields[0] in fields, E("")); // this error message never propagated
+        var part :- FindPartByName(consFields[0]);
+        var val :- PartValueCalc(part.prefix + fields[part.fieldName], part.prefix, part.length);
+        if |acc| == 0 then
+          TryConstructor(consFields[1..], fields, val)
+        else
+          TryConstructor(consFields[1..], fields, acc + [config.data.split] + val)
+    }
+
+    function method {:opaque} TryConstructors(construct : seq<Constructor>, fields : map<string, string>)
+      : (ret : Result<string, Error>)
+      requires isCompound()
+      ensures ret.Success? ==> |ret.value| > 0
+    {
+      if |construct| == 0 then
+        Failure(E("No constructor for " + name + " could be satisfied."))
+      else
+        var x := TryConstructor(construct[0].parts, fields);
+        if x.Success? then
+          x
+        else
+          TryConstructors(construct[1..], fields)
+    }
+
+    //= specification/structured-encryption/beacons.md#compoundhash
+    //= type=implication
+    //# * compoundHash MUST take a record as input, and produce a string.
+    function method {:opaque} compoundHash(fields : map<string, string>) : (res : Result<string, Error>)
+      //= specification/structured-encryption/beacons.md#compoundhash
+      //= type=implication
+      //# * compoundHash MUST be used with a beacon configured as a [compound beacon](#compound-beacon).
+      requires isCompound()
       ensures res.Success? ==> 
         //= specification/structured-encryption/beacons.md#compoundhash
         //= type=implication
         //# * The returned string MUST NOT be empty.
         && |res.value| > 0
-
-        //= specification/structured-encryption/beacons.md#compoundhash
-        //= type=implication
-        //# * compoundHash MUST fail if called on a beacon configured as a [standard beacon](#standard-beacon).
-        && isCompound() 
     {
-      if !isCompound() then
-        Failure(E("compoundHash must not be used with a standard beacon."))
+      if |config.data.construct| == 0 then
+        BuildDefault(config.data.parts, fields)
       else
-        Success(" ")
+        TryConstructors(config.data.construct, fields)
     }
 
     // is this a standard hash? (as opposed to a compound hash)
@@ -173,18 +213,176 @@ module BaseBeacon {
       //= type=implication
       //# isCompound MUST return `true` if the beacon is a [compound beacon](#compound-beacon),
       //# and false if the beacon is a [standard beacon](#standard-beacon).
-      ensures isCompound() <==> config.CompoundBeacon?
-      ensures !isCompound() <==> config.StandardBeacon?
+      ensures isCompound() <==> config.Compound?
+      ensures !isCompound() <==> config.Standard?
     {
-      config.CompoundBeacon?
+      config.Compound?
     }
 
-    predicate method isValid()
+    function method {:opaque} findPart(val : string)
+      : (ret : Result<Part, Error>)
+      requires isCompound()
+      ensures |Seq.Filter((x : Part) => (x.prefix <= val), config.data.parts)| == 0 ==> ret.Failure?
+      ensures ret.Success? ==>
+        ret.value.prefix <= val
     {
-      // TODO -- make list of all prefixes, test for substring
-      // TODO -- make list of all names, test for duplicates
-      // TODO -- needs list of configured fields, virtual fields
-      true
+      var thePart : seq<Part> := Seq.Filter((x : Part) => (x.prefix <= val), config.data.parts);
+      if |thePart| == 0 then
+        Failure(E("No part found in beacon " + name + " match prefix " + val))
+      else if |thePart| > 1 then
+        Failure(E("Internal error. Multiple parts for beacon " + name + " matched prefix of " + val))
+      else
+        assert |thePart| == 1;
+        Success(thePart[0])
+    }
+
+    //= specification/structured-encryption/beacons.md#getpart
+    //= type=implication
+    //# * getPart MUST take a string as input and returns a string as output.
+    function method {:opaque} getPart(val : string)
+      : (ret : Result<string, Error>)
+      requires 0 < |val|
+
+      //= specification/structured-encryption/beacons.md#getpart
+      //= type=implication
+      //# * The returned string MUST NOT be empty.
+      ensures ret.Success? ==> 
+        && |ret.value| > 0
+      
+      //= specification/structured-encryption/beacons.md#getpart
+      //= type=implication
+      //# * If called on a beacon configured as a [standard beacon](#standard-beacon),
+      //# getPart MUST return the [standardHash](#standardhash) of the input string
+      //# and the configured [beacon length](#beacon-length).
+      ensures ret.Success? && !isCompound() ==>
+        && standardHashStr(val, config.length).Success?
+        && ret.value == standardHashStr(val, config.length).value
+    {
+      if isCompound() then
+        var pieces := Split(val, config.data.split);
+        calcParts(pieces)
+      else
+        standardHashStr(val, config.length)
+    }
+
+    function method calcPart(piece : string)
+      : (ret : Result<string, Error>)
+      requires isCompound()
+
+      ensures ret.Success? ==>
+        //= specification/structured-encryption/beacons.md#getpart
+        //= type=implication
+        //# * For each piece, a [part](#part) MUST be identified by matching the prefix of a [part](#part)
+        //# to the beginning of the piece.
+        && findPart(piece).Success?
+        && |ret.value| > 0
+
+      //= specification/structured-encryption/beacons.md#getpart
+      //= type=implication
+      //# * If no such part exists, this operation MUST fail.
+      ensures findPart(piece).Failure? ==> ret.Failure?
+    {
+      var thePart :- findPart(piece);
+      PartValueCalc(piece, thePart.prefix, thePart.length)
+    }
+
+    function method calcParts(pieces : seq<string>, acc : string := [])
+      : (ret : Result<string, Error>)
+      requires isCompound()
+      requires |pieces| > 0 || |acc| > 0
+      ensures ret.Success? ==> |ret.value| > 0
+    {
+      if |pieces| == 0 then
+        Success(acc)
+      else
+        var theBeacon :- calcPart(pieces[0]);
+        if |acc| == 0 then
+          calcParts(pieces[1..], theBeacon)
+        else
+          calcParts(pieces[1..], acc + [config.data.split] + theBeacon)
+    }
+
+    predicate method ValidPrefixSet()
+      requires isCompound()
+    {
+      forall x : nat, y : nat
+        | 0 <= x <= |config.data.parts| && x < y <= |config.data.parts|
+        :: !(config.data.parts[x].prefix <= config.data.parts[x].prefix)
+    }
+
+    static predicate method IsEncrypted(schema : CryptoSchemaPlain, fieldName : FieldName)
+    {
+      && fieldName in schema
+      && schema[fieldName].content.Action == ENCRYPT_AND_SIGN
+    }
+
+    //= specification/structured-encryption/beacons.md#constructor
+    //# Construction MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
+    //# any part of an encrypted field, or any [sensitive-part](#sensitive-part) does not contain
+    //# any part of an encrypted field.
+    predicate method ValidNonSensitive(schema : CryptoSchemaPlain)
+      requires isCompound()
+    {
+      && |Seq.Filter((x : Part) => x.length.None? &&  IsEncrypted(schema, x.fieldName), config.data.parts)| == 0
+      && |Seq.Filter((x : Part) => x.length.Some? && !IsEncrypted(schema, x.fieldName), config.data.parts)| == 0
+    }
+
+    //= specification/structured-encryption/beacons.md#constructor
+    //# Construction MUST fail if any [constructor](#constructor) is configured with a field name
+    //# that is not a defined [part](#part).
+    predicate method ValidPart(f : FieldName)
+      requires isCompound()
+    {
+      |Seq.Filter((x : Part) => x.fieldName == f, config.data.parts)| == 1
+    }
+
+    predicate method ValidConstructor(con : seq<FieldName>)
+      requires isCompound()
+    {
+      if |con| == 0 then
+        true
+      else
+        && ValidPart(con[0])
+        && ValidConstructor(con[1..])
+    }
+
+    predicate method ValidConstructors(con : seq<Constructor>)
+      requires isCompound()
+    {
+      if |con| == 0 then
+        true
+      else
+        ValidConstructor(con[0].parts) && ValidConstructors(con[1..])
+    }
+
+    function method isValid(schema : CryptoSchemaPlain, virtualFields : map<string,string>, unauthPrefix : string)
+      : (ret : bool)
+      ensures ret && isCompound() ==>
+        //= specification/structured-encryption/beacons.md#constructor
+        //= type=implication
+        //# Construction MUST fail if any `prefix` in any [part](#part) is a prefix of
+        //# the `prefix` of any other [part](#part).
+        && ValidPrefixSet()
+
+        //= specification/structured-encryption/beacons.md#constructor
+        //= type=implication
+        //# Construction MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
+        //# any part of an encrypted field, or any [sensitive-part](#sensitive-part) does not contain
+        //# any part of an encrypted field.
+        && ValidNonSensitive(schema)
+
+        //= specification/structured-encryption/beacons.md#constructor
+        //= type=implication
+        //# Construction MUST fail if any [constructor](#constructor) is configured with a field name
+        //# that is not a defined [part](#part).
+        && ValidConstructors(config.data.construct)
+    {
+      var result := name !in schema && name !in virtualFields && !(unauthPrefix <= name);
+
+      if isCompound() then
+        result && ValidPrefixSet() && ValidNonSensitive(schema) && ValidConstructors(config.data.construct)
+      else
+        result
     }
 
     // the rest is implementation
@@ -195,6 +393,41 @@ module BaseBeacon {
       forall i, j :: 0 <= i < |xs| && 0 <= j < |xs| && i != j ==> xs[i] != xs[j]
     }
 
+    //= specification/structured-encryption/beacons.md#part-value-calculation
+    //= type=implication
+    //# Part Value Calculation MUST take a string, a prefix, and an optional [beacon length](#beacon-length) as input, and return a string as output.
+    function method {:opaque} PartValueCalc(data : string, prefix : string, length : Option<BeaconLength>)
+      : (ret : Result<string, Error>)
+      //= specification/structured-encryption/beacons.md#part-value-calculation
+      //= type=implication
+      //# The input string MUST begin with the provided prefix.
+      requires prefix <= data
+      requires 0 < |prefix|
+
+      //= specification/structured-encryption/beacons.md#part-value-calculation
+      //= type=implication
+      //# If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.
+      ensures length.None? ==>
+        && ret.Success?
+        && ret.value == data
+        && 0 < |ret.value|
+
+      //= specification/structured-encryption/beacons.md#part-value-calculation
+      //= type=implication
+      //# If the [beacon length](#beacon-length) is provided,
+      //# the part value MUST be the concatenation
+      //# of the prefix and the [standardHash](#standardhash) of the input string with the configured [beacon length](#beacon-length).
+      ensures ret.Success? && length.Some? ==>
+        && 0 < |ret.value|
+        && standardHashStr(data, length.value).Success?
+        && ret.value == prefix + standardHashStr(data, length.value).value
+    {
+      if length.None? then
+        Success(data)
+      else
+        var hash :- standardHashStr(data, length.value);
+        Success(prefix + hash)
+    }
 
     // standardHash, but callable from compound hashes
     function method {:opaque} stdHash(val : Bytes, length : BeaconLength)
@@ -212,7 +445,7 @@ module BaseBeacon {
     }
 
     // calculate the HMAC for some bytes
-    function method getHmac(data  : Bytes) : (res : Result<Bytes, Error>)
+    function method {:opaque} getHmac(data  : Bytes) : (res : Result<Bytes, Error>)
       ensures res.Success? ==> |res.value| == 8
     {
       var input := Prim.HMacInput (
@@ -223,13 +456,13 @@ module BaseBeacon {
       var outputR := client.HMac(input);
       var output :- outputR.MapFailure(e => AwsCryptographyPrimitives(e));
       if |output| != 48 then
-        Failure(E("HMAC_384 did not produce 48 bits"))
+        Failure(E("HMAC_384 did not produce 384 bits"))
       else
         Success(output[..8])
     }
 
     // Get the standard hash for the UTF8 encoded representation of this string.
-    function method standardHashStr(val : string, length : BeaconLength) : (res : Result<string, Error>)
+    function method {:opaque} standardHashStr(val : string, length : BeaconLength) : (res : Result<string, Error>)
       ensures res.Success? ==> |res.value| > 0
     {
       var str := UTF8.Encode(val);
@@ -260,16 +493,6 @@ module BaseBeacon {
       else
         var res := [HexVal((x / 16) as uint8), HexVal((x % 16) as uint8)];
         res
-    }
-
-    // return the hex string for these bytes, keeping any leading zero
-    static function method {:tailrecursion} HexFmt(val : Bytes) : (ret : string)
-      ensures |ret| == 2 * |val|
-    {
-      if |val| == 0 then
-        []
-      else
-        HexStr(val[0]) + HexFmt(val[1..])
     }
 
     static function method CharsFromBeaconLength(bits : BeaconLength) : (ret : nat)
@@ -335,4 +558,14 @@ module BaseBeacon {
         && BytesToHex(bytes, 10) == "3b7"
     {}
   }
+      // return the hex string for these bytes, keeping any leading zero
+     function method {:tailrecursion} HexFmt(val : Bytes) : (ret : string)
+      ensures |ret| == 2 * |val|
+    {
+      if |val| == 0 then
+        []
+      else
+        Beacon.HexStr(val[0]) + HexFmt(val[1..])
+    }
+
 }

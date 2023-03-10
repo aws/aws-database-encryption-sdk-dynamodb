@@ -6,7 +6,7 @@ include "../src/Beacon.dfy"
 module TestBaseBeacon {
   import opened BaseBeacon
   import opened Wrappers
-
+/*
   method TestFail(b : Beacon, s : string)
   {
     var str := b.compoundHash(s);
@@ -30,11 +30,30 @@ module TestBaseBeacon {
     }
     expect str.value == exp;
   }
+*/
+  const Timestamp := Part("timestamp", "T-", None);
+  const Secret := Part("secret", "S-", Some(4));
+
+  method {:test} TestCompoundBeacon() {
+    var primitives :- expect Primitives.AtomicPrimitives();
+
+    var b1 := CompoundBeacon('.', [Timestamp, Secret], []);
+    var b := Beacon(client := primitives, name := "foo", key := [1,2], config := Compound(b1));
+    var data := map["timestamp" := "1234", "secret" := "abcd"];
+    var bytes :- expect b.getHmac(UTF8.EncodeAscii("S-abcd"));
+    expect bytes[7] == 0x42;
+
+    var str :- expect b.compoundHash(data);
+    expect str == "T-1234.S-2";
+
+    var query :-  expect b.getPart("T-1234.S-abcd");
+    expect query == "T-1234.S-2";
+  }
 
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
-    var b := Beacon(client := primitives, name := "foo", key := [1,2], config := StandardBeacon(8));
+    var b := Beacon(client := primitives, name := "foo", key := [1,2], config := Standard(8));
     var bytes :- expect b.getHmac([1,2,3]);
     expect bytes == [0x27, 0x93, 0x93, 0x8b, 0x26, 0xe9, 0x52, 0x7e];
     var str :- expect b.standardHash([1,2,3]);
@@ -45,88 +64,6 @@ module TestBaseBeacon {
     expect str == "80";
     bytes :- expect b.getHmac(UTF8.EncodeAscii("123"));
     expect bytes[7] == 0x61;
-    /*
-    TestCompound(b, "123", "61");
-    TestCompound(b, "", "80");
-
-    b := Beacon(client := primitives, name := "foo", key := [1,2], length := 4, prefix := Some('-'));
-    bytes :- expect b.getHmacBytes(UTF8.EncodeAscii("junk"));
-    expect bytes[7] == 0x43;
-    bytes :- expect b.getHmacBytes(UTF8.EncodeAscii("junk-foo"));
-    expect bytes[7] == 0xb9;
-
-    TestCompound(b, "stuff-junk", "stuff-3");
-    TestCompound(b, "stuff-junk-foo", "stuff-9");
-    TestCompound(b, "-junk", "-3");
-    TestCompound(b, "_-junk", "_-3");
-   // TestCompound(b, "stuff-_", "stuff-1");
-   // TestCompound(b, "-", "-0");
-    TestFail(b, "stuff");
-
-    b := b.(ignore := Some('_'));
-    /*
-    TestCompound(b, "stuff-junk", "stuff-4");
-    TestCompound(b, "stuff-junk-foo", "stuff-8");
-    TestCompound(b, "-junk", "-4");
-    TestCompound(b, "_-junk", "4");
-    TestCompound(b, "stuff-_", "stuff-");
-    TestCompound(b, "-", "-0");
-    */
-    TestFail(b, "stuff");
-    TestFail(b, "_-");
-    TestFail(b, "_-_");
-    TestFail(b, "-_");
-
-    var split := SplitRec(split := '.');
-    b := b.(split := Some(split), prefix := None);
-    // TestCompound(b, "stuff", ".5.");
-    // TestCompound(b, "stuff.junk", ".5.4.");
-    // TestCompound(b, "stuff.junk.eponymous", ".5.4.9.");
-    // TestCompound(b, "_.junk.eponymous", ".4.9.");
-    // TestCompound(b, "stuff.junk._", ".5.4.");
-    TestFail(b, "stuff._.eponymous");
-
-    split := split.(inner := Some(':'));
-    b := b.(split := Some(split));
-    // TestCompound(b, "A:stuff", ".A:5.");
-    // TestCompound(b, "A:stuff.BB:junk", ".A:5.BB:4.");
-    // TestCompound(b, "A:stuff.BB:junk.CCC:eponymous", ".A:5.BB:4.CCC:9.");
-    // TestCompound(b, "_.BB:junk.CCC:eponymous", ".BB:4.CCC:9.");
-    // TestCompound(b, "A:stuff.BB:junk._", ".A:5.BB:4.");
-    TestFail(b, "A:stuff._.BB:eponymous");
-
-    split := split.(inner := None, splitLens := [1,2,3]);
-    b := b.(split := Some(split), length := 1);
-
-    TestFail(b, "abluted");
-    TestFail(b, "abluted.abluted");
-    // TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
-    TestFail(b, "abluted.abluted.abluted.abluted");
-    TestFail(b, "abluted.abluted.abluted.abluted.abluted");
-    // TestCompound(b, "_.abluted.abluted", ".3.7.");
-    TestFail(b, "abluted._.abluted");
-    // TestCompound(b, "abluted.abluted._", ".1.3.");
-    // TestCompound(b, "abluted._._", ".1.");
-    // TestCompound(b, "_.abluted._", ".3.");
-    // TestCompound(b, "_._.abluted", ".7.");
-    TestFail(b, "_._._");
-
-    b := b.(split := Some(split));
-    TestFail(b, "abluted");
-    TestFail(b, "abluted.abluted");
-    // TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
-    TestFail(b, "abluted.abluted.abluted.abluted");
-    TestFail(b, "abluted.abluted.abluted.abluted.abluted");
-
-    // TestCompound(b, "abluted.abluted.abluted", ".1.3.7.");
-    // TestCompound(b, "_.abluted.abluted", ".3.7.");
-    TestFail(b, "abluted._.abluted");
-    // TestCompound(b, "abluted.abluted._", ".1.3.");
-    // TestCompound(b, "abluted._._", ".1.");
-    // TestCompound(b, "_.abluted._", ".3.");
-    // TestCompound(b, "_._.abluted", ".7.");
-    TestFail(b, "_._._");
-    */
   }
 
 }
