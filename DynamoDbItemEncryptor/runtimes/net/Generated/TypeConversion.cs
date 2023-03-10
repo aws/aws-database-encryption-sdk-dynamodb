@@ -653,18 +653,22 @@ namespace AWS.Cryptography.DynamoDbItemEncryptor
     {
       switch (value)
       {
-        case Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_AwsCryptographyStructuredEncryption dafnyVal:
-          return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_CommonError(
-            dafnyVal._AwsCryptographyStructuredEncryption
-          );
         case Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
           return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyMaterialProviders
           );
-        case Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_ComAmazonawsDynamodb dafnyVal:
+        case Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_AwsCryptographyStructuredEncryption dafnyVal:
+          return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_CommonError(
+            dafnyVal._AwsCryptographyStructuredEncryption
+          );
+        ////// BEGIN MANUAL EDIT
+        // TODO: Polymorph does not generate the FromDafny conversion method for AWS-SDK .NET
+        // https://sim.amazon.com/issues/CrypTool-5105
+        /*case Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_ComAmazonawsDynamodb dafnyVal:
           return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
             dafnyVal._ComAmazonawsDynamodb
-          );
+          );*/
+        ////// END MANUAL EDIT
         case Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_DynamoDbItemEncryptorException dafnyVal:
           return FromDafny_N3_aws__N12_cryptography__N21_dynamoDbItemEncryptor__S30_DynamoDbItemEncryptorException(dafnyVal);
         case Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error_CollectionOfErrors dafnyVal:
@@ -688,10 +692,19 @@ namespace AWS.Cryptography.DynamoDbItemEncryptor
           return Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error.create_AwsCryptographyMaterialProviders(
             AWS.Cryptography.MaterialProviders.TypeConversion.ToDafny_CommonError(value)
           );
-        case "Com.Amazonaws.Dynamodb":
+        ////// BEGIN MANUAL EDIT
+        // TODO: Polymorph generates ToDafny conversion method in the Shim, not the TypeConverter,
+        // And the ToDafny method is not named the same as the non-aws-sdk Error converters
+        // https://sim.amazon.com/issues/CrypTool-5105
+        /*case "Com.Amazonaws.Dynamodb":
           return Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error.create_ComAmazonawsDynamodb(
             Com.Amazonaws.Dynamodb.TypeConversion.ToDafny_CommonError(value)
+          );*/
+        case "Com.Amazonaws.Dynamodb":
+          return Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error.create_ComAmazonawsDynamodb(
+            Com.Amazonaws.Dynamodb.DynamoDBv2Shim.ConvertError((Amazon.DynamoDBv2.AmazonDynamoDBException) value)
           );
+        ////// END MANUAL EDIT
       }
       switch (value)
       {
