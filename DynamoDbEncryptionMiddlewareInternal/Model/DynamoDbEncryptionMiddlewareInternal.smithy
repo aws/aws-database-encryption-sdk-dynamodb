@@ -31,7 +31,7 @@ use com.amazonaws.dynamodb#KeySchemaAttributeName
 //     name: "DynamoDbEncryptionMiddlewareInternal"
 // )
 @localService(
-  sdkId: "DynamoDbEncryptionMiddlewareInternal",
+  sdkId: "DynamoDbEncryption",
   config: DynamoDbEncryptionConfig,
 )
 service DynamoDbEncryptionMiddlewareInternal {

@@ -171,6 +171,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         commitmentPolicy := DBE_COMMITMENT_POLICY,
         algorithmSuiteId := Some(algId),
         maxPlaintextLength := Some(maxLength as int64)
+        requiredEncryptionContextKeys := None() // TODO handle EC correctly
       )
     );
 
@@ -623,7 +624,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         algorithmSuiteId := algorithmSuite.id,
         commitmentPolicy := DBE_COMMITMENT_POLICY,
         encryptedDataKeys := head.dataKeys,
-        encryptionContext := inputContext + head.encContext
+        encryptionContext := inputContext + head.encContext,
+        reproducedEncryptionContext := None() // TODO handle EC correctly
       )
     );
     var matOutput :- matR.MapFailure(e => AwsCryptographyMaterialProviders(e));

@@ -15,3 +15,4 @@ test/**/Output/*
 # Duvet output
 specification_compliance_report.html
 /compliance
+/.smithy.lsp.log
