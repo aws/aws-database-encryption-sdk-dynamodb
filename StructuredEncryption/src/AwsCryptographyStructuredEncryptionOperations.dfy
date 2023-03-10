@@ -170,7 +170,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         encryptionContext := encryptionContext.UnwrapOr(map[]),
         commitmentPolicy := DBE_COMMITMENT_POLICY,
         algorithmSuiteId := Some(algId),
-        maxPlaintextLength := Some(maxLength as int64)
+        maxPlaintextLength := Some(maxLength as int64),
         requiredEncryptionContextKeys := None() // TODO handle EC correctly
       )
     );
