@@ -18,3 +18,6 @@ LIBRARIES := \
 	ComAmazonawsDynamodb \
 	AwsCryptographicMaterialProviders \
 	../StructuredEncryption
+
+format_net:
+	pushd runtimes/net && dotnet format && popd
