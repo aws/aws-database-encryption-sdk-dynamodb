@@ -53,25 +53,11 @@ public class ToDafny {
     return Error.create_CollectionOfErrors(list);
   }
 
-  public static DecryptItemOutput DecryptItemOutput(
-      software.amazon.cryptography.dynamoDbItemEncryptor.model.DecryptItemOutput nativeValue) {
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> plaintextItem;
-    plaintextItem = Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeMap(nativeValue.plaintextItem());
-    return new DecryptItemOutput(plaintextItem);
-  }
-
   public static EncryptItemInput EncryptItemInput(
       software.amazon.cryptography.dynamoDbItemEncryptor.model.EncryptItemInput nativeValue) {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> plaintextItem;
     plaintextItem = Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeMap(nativeValue.plaintextItem());
     return new EncryptItemInput(plaintextItem);
-  }
-
-  public static DecryptItemInput DecryptItemInput(
-      software.amazon.cryptography.dynamoDbItemEncryptor.model.DecryptItemInput nativeValue) {
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> encryptedItem;
-    encryptedItem = Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeMap(nativeValue.encryptedItem());
-    return new DecryptItemInput(encryptedItem);
   }
 
   public static DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig(
@@ -87,7 +73,7 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActions;
     attributeActions = ToDafny.AttributeActions(nativeValue.attributeActions());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> allowedUnauthenticatedAttributes;
-    allowedUnauthenticatedAttributes = Objects.nonNull(nativeValue.allowedUnauthenticatedAttributes()) ?
+    allowedUnauthenticatedAttributes = (Objects.nonNull(nativeValue.allowedUnauthenticatedAttributes()) && nativeValue.allowedUnauthenticatedAttributes().size() > 0) ?
         Option.create_Some(Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeNameList(nativeValue.allowedUnauthenticatedAttributes()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> allowedUnauthenticatedAttributePrefix;
@@ -107,6 +93,20 @@ public class ToDafny {
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.CryptographicMaterialsManager(nativeValue.cmm()))
         : Option.create_None();
     return new DynamoDbItemEncryptorConfig(tableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm);
+  }
+
+  public static DecryptItemInput DecryptItemInput(
+      software.amazon.cryptography.dynamoDbItemEncryptor.model.DecryptItemInput nativeValue) {
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> encryptedItem;
+    encryptedItem = Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeMap(nativeValue.encryptedItem());
+    return new DecryptItemInput(encryptedItem);
+  }
+
+  public static DecryptItemOutput DecryptItemOutput(
+      software.amazon.cryptography.dynamoDbItemEncryptor.model.DecryptItemOutput nativeValue) {
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> plaintextItem;
+    plaintextItem = Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeMap(nativeValue.plaintextItem());
+    return new DecryptItemOutput(plaintextItem);
   }
 
   public static EncryptItemOutput EncryptItemOutput(
