@@ -1,10 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DdbMiddlewareConfig.dfy"
+include "DDBSupport.dfy"
 
 module TransactGetItemsTransform {
   import opened DdbMiddlewareConfig
+  import opened DynamoDBMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes
@@ -59,7 +60,7 @@ module TransactGetItemsTransform {
           //# equal to the key,
           //# the Item Encryptor that corresponds to the key in the request
           //# MUST perform [Decrypt Item](./decrypt-item.md) where the input
-          //# [DynamoDB Item](./decrypt-item.md#dynamodb-item) is the `Item` in the original response
+          //# [DynamoDB Item](./decrypt-item.md#dynamodb-item) is the `Item` in the original response.
           var decryptRes := tableConfig.itemEncryptor.DecryptItem(EncTypes.DecryptItemInput(encryptedItem:=encryptedItems[x].Item.value));
 
           //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-transactgetitems
@@ -68,10 +69,14 @@ module TransactGetItemsTransform {
           var decrypted :- MapError(decryptRes);
 
           //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-transactgetitems
-          //# Each of these items on the original repsonse MUST be replaced
+          //# Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+          var item :- RemoveBeacons(tableConfig, decrypted.plaintextItem);
+
+          //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-transactgetitems
+          //# Each of these items on the original response MUST be replaced
           //# with a value that is equivalent to
-          //# the result [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
-          decryptedItems := decryptedItems + [DDB.ItemResponse(Item := Some(decrypted.plaintextItem))];
+          //# the resulting item.
+          decryptedItems := decryptedItems + [DDB.ItemResponse(Item := Some(item))];
         }
       }
     }
