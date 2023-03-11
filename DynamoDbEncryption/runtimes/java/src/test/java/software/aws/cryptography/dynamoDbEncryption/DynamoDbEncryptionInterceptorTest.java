@@ -117,7 +117,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions not supported in PutItem with Encryption."));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
     }
 
     @Test
@@ -184,7 +184,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition expressions not allowed on encrypted tables (TransactWriteItems ConditionCheck)"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
     }
 
     @Test
@@ -210,7 +210,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition expressions not allowed on encrypted tables (TransactWriteItems Put)"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
     }
 
     @Test
@@ -236,7 +236,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition checks not allowed on encrypted tables (TransactWriteItems Delete)"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
     }
 
     @Test
@@ -261,7 +261,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Updates not allowed on encrypted tables (TransactWriteItems Update)"));
+        assertTrue(exception.getMessage().contains("Update Expressions forbidden on encrypted tables"));
     }
 
     @Test
@@ -282,7 +282,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions not supported in DeleteItem with Encryption."));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
     }
 
     @Test
