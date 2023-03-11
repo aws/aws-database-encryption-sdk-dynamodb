@@ -75,14 +75,14 @@ public class DynamoDbEnhancedClientEncryptionTest {
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
-                        .legacyConfig(
+                        /*.legacyConfig(
                                 LegacyConfig.builder()
                                         .legacyEncryptor(LegacyDynamoDbItemEncryptor.builder()
                                                 .encryptor(oldEncryptor)
                                                 .attributeFlags(oldActions)
                                                 .build())
                                         .legacyPolicy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
-                                        .build())
+                                        .build())*/
                         .build());
         DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
