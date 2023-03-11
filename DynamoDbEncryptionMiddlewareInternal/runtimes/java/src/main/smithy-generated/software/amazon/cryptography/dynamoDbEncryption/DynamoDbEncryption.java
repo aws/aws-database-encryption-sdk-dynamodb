@@ -3,7 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption;
 
-import Dafny.Aws.Cryptography.DynamoDbEncryption.DynamoDbEncryptionClient;
+///// BEGIN MANUAL FIX
+import Dafny.Aws.Cryptography.DynamoDbEncryption.DynamoDbEncryptionMiddlewareInternalClient;
+///// END MANUAL FIX
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbEncryptionMiddlewareInternalClient;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.__default;
@@ -70,7 +72,9 @@ public class DynamoDbEncryption {
   protected DynamoDbEncryption(BuilderImpl builder) {
     DynamoDbEncryptionConfig nativeValue = builder.DynamoDbEncryptionConfig();
     Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbEncryptionConfig dafnyValue = ToDafny.DynamoDbEncryptionConfig(nativeValue);
-    Result<DynamoDbEncryptionClient, Error> result = __default.DynamoDbEncryption(dafnyValue);
+    ///// BEGIN MANUAL FIX
+    Result<DynamoDbEncryptionMiddlewareInternalClient, Error> result = __default.DynamoDbEncryption(dafnyValue);
+    ///// END MANUAL FIX
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
