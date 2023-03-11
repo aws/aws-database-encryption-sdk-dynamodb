@@ -127,217 +127,6 @@ public class ToDafny {
     return Error.create_CollectionOfErrors(list);
   }
 
-  public static UpdateItemInputTransformOutput UpdateItemInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemInputTransformOutput nativeValue) {
-    UpdateItemInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemInput(nativeValue.transformedInput());
-    return new UpdateItemInputTransformOutput(transformedInput);
-  }
-
-  public static ExecuteStatementOutputTransformOutput ExecuteStatementOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteStatementOutputTransformOutput nativeValue) {
-    ExecuteStatementOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteStatementOutput(nativeValue.transformedOutput());
-    return new ExecuteStatementOutputTransformOutput(transformedOutput);
-  }
-
-  public static TransactGetItemsInputTransformInput TransactGetItemsInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsInputTransformInput nativeValue) {
-    TransactGetItemsInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactGetItemsInput(nativeValue.sdkInput());
-    return new TransactGetItemsInputTransformInput(sdkInput);
-  }
-
-  public static ExecuteTransactionOutputTransformOutput ExecuteTransactionOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteTransactionOutputTransformOutput nativeValue) {
-    ExecuteTransactionOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteTransactionOutput(nativeValue.transformedOutput());
-    return new ExecuteTransactionOutputTransformOutput(transformedOutput);
-  }
-
-  public static BatchExecuteStatementInputTransformOutput BatchExecuteStatementInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementInputTransformOutput nativeValue) {
-    BatchExecuteStatementInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchExecuteStatementInput(nativeValue.transformedInput());
-    return new BatchExecuteStatementInputTransformOutput(transformedInput);
-  }
-
-  public static BatchExecuteStatementOutputTransformOutput BatchExecuteStatementOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementOutputTransformOutput nativeValue) {
-    BatchExecuteStatementOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchExecuteStatementOutput(nativeValue.transformedOutput());
-    return new BatchExecuteStatementOutputTransformOutput(transformedOutput);
-  }
-
-  public static DynamoDbEncryptionConfig DynamoDbEncryptionConfig(
-      software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig nativeValue) {
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends DynamoDbTableEncryptionConfig> tableEncryptionConfigs;
-    tableEncryptionConfigs = ToDafny.DynamoDbTableEncryptionConfigs(nativeValue.tableEncryptionConfigs());
-    return new DynamoDbEncryptionConfig(tableEncryptionConfigs);
-  }
-
-  public static QueryInputTransformInput QueryInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.QueryInputTransformInput nativeValue) {
-    QueryInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryInput(nativeValue.sdkInput());
-    return new QueryInputTransformInput(sdkInput);
-  }
-
-  public static BatchWriteItemInputTransformOutput BatchWriteItemInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchWriteItemInputTransformOutput nativeValue) {
-    BatchWriteItemInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemInput(nativeValue.transformedInput());
-    return new BatchWriteItemInputTransformOutput(transformedInput);
-  }
-
-  public static TransactWriteItemsInputTransformInput TransactWriteItemsInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.TransactWriteItemsInputTransformInput nativeValue) {
-    TransactWriteItemsInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactWriteItemsInput(nativeValue.sdkInput());
-    return new TransactWriteItemsInputTransformInput(sdkInput);
-  }
-
-  public static BatchGetItemInputTransformInput BatchGetItemInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchGetItemInputTransformInput nativeValue) {
-    BatchGetItemInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemInput(nativeValue.sdkInput());
-    return new BatchGetItemInputTransformInput(sdkInput);
-  }
-
-  public static PutItemOutputTransformOutput PutItemOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.PutItemOutputTransformOutput nativeValue) {
-    PutItemOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.PutItemOutput(nativeValue.transformedOutput());
-    return new PutItemOutputTransformOutput(transformedOutput);
-  }
-
-  public static ScanOutputTransformOutput ScanOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ScanOutputTransformOutput nativeValue) {
-    ScanOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanOutput(nativeValue.transformedOutput());
-    return new ScanOutputTransformOutput(transformedOutput);
-  }
-
-  public static UpdateItemInputTransformInput UpdateItemInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemInputTransformInput nativeValue) {
-    UpdateItemInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemInput(nativeValue.sdkInput());
-    return new UpdateItemInputTransformInput(sdkInput);
-  }
-
-  public static ScanInputTransformInput ScanInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ScanInputTransformInput nativeValue) {
-    ScanInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanInput(nativeValue.sdkInput());
-    return new ScanInputTransformInput(sdkInput);
-  }
-
-  public static GetItemOutputTransformInput GetItemOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformInput nativeValue) {
-    GetItemOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemOutput(nativeValue.sdkOutput());
-    GetItemInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemInput(nativeValue.originalInput());
-    return new GetItemOutputTransformInput(sdkOutput, originalInput);
-  }
-
-  public static TransactWriteItemsInputTransformOutput TransactWriteItemsInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.TransactWriteItemsInputTransformOutput nativeValue) {
-    TransactWriteItemsInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactWriteItemsInput(nativeValue.transformedInput());
-    return new TransactWriteItemsInputTransformOutput(transformedInput);
-  }
-
-  public static BatchGetItemOutputTransformInput BatchGetItemOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchGetItemOutputTransformInput nativeValue) {
-    BatchGetItemOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemOutput(nativeValue.sdkOutput());
-    BatchGetItemInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemInput(nativeValue.originalInput());
-    return new BatchGetItemOutputTransformInput(sdkOutput, originalInput);
-  }
-
-  public static DeleteItemInputTransformOutput DeleteItemInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.DeleteItemInputTransformOutput nativeValue) {
-    DeleteItemInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemInput(nativeValue.transformedInput());
-    return new DeleteItemInputTransformOutput(transformedInput);
-  }
-
-  public static BatchWriteItemOutputTransformOutput BatchWriteItemOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchWriteItemOutputTransformOutput nativeValue) {
-    BatchWriteItemOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemOutput(nativeValue.transformedOutput());
-    return new BatchWriteItemOutputTransformOutput(transformedOutput);
-  }
-
-  public static BatchGetItemInputTransformOutput BatchGetItemInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchGetItemInputTransformOutput nativeValue) {
-    BatchGetItemInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemInput(nativeValue.transformedInput());
-    return new BatchGetItemInputTransformOutput(transformedInput);
-  }
-
-  public static BatchExecuteStatementOutputTransformInput BatchExecuteStatementOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementOutputTransformInput nativeValue) {
-    BatchExecuteStatementOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchExecuteStatementOutput(nativeValue.sdkOutput());
-    BatchExecuteStatementInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchExecuteStatementInput(nativeValue.originalInput());
-    return new BatchExecuteStatementOutputTransformInput(sdkOutput, originalInput);
-  }
-
-  public static UpdateItemOutputTransformOutput UpdateItemOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformOutput nativeValue) {
-    UpdateItemOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemOutput(nativeValue.transformedOutput());
-    return new UpdateItemOutputTransformOutput(transformedOutput);
-  }
-
-  public static DeleteItemOutputTransformInput DeleteItemOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.DeleteItemOutputTransformInput nativeValue) {
-    DeleteItemOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemOutput(nativeValue.sdkOutput());
-    DeleteItemInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemInput(nativeValue.originalInput());
-    return new DeleteItemOutputTransformInput(sdkOutput, originalInput);
-  }
-
-  public static QueryInputTransformOutput QueryInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.QueryInputTransformOutput nativeValue) {
-    QueryInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryInput(nativeValue.transformedInput());
-    return new QueryInputTransformOutput(transformedInput);
-  }
-
-  public static DeleteItemOutputTransformOutput DeleteItemOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.DeleteItemOutputTransformOutput nativeValue) {
-    DeleteItemOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemOutput(nativeValue.transformedOutput());
-    return new DeleteItemOutputTransformOutput(transformedOutput);
-  }
-
-  public static GetItemInputTransformOutput GetItemInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetItemInputTransformOutput nativeValue) {
-    GetItemInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemInput(nativeValue.transformedInput());
-    return new GetItemInputTransformOutput(transformedInput);
-  }
-
-  public static QueryOutputTransformOutput QueryOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.QueryOutputTransformOutput nativeValue) {
-    QueryOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryOutput(nativeValue.transformedOutput());
-    return new QueryOutputTransformOutput(transformedOutput);
-  }
-
-  public static TransactGetItemsInputTransformOutput TransactGetItemsInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsInputTransformOutput nativeValue) {
-    TransactGetItemsInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactGetItemsInput(nativeValue.transformedInput());
-    return new TransactGetItemsInputTransformOutput(transformedInput);
-  }
-
   public static DynamoDbTableEncryptionConfig DynamoDbTableEncryptionConfig(
       software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig nativeValue) {
     DafnySequence<? extends Character> partitionKeyName;
@@ -349,7 +138,7 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActions;
     attributeActions = software.amazon.cryptography.dynamoDbItemEncryptor.ToDafny.AttributeActions(nativeValue.attributeActions());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> allowedUnauthenticatedAttributes;
-    allowedUnauthenticatedAttributes = Objects.nonNull(nativeValue.allowedUnauthenticatedAttributes()) ?
+    allowedUnauthenticatedAttributes = (Objects.nonNull(nativeValue.allowedUnauthenticatedAttributes()) && nativeValue.allowedUnauthenticatedAttributes().size() > 0) ?
         Option.create_Some(Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeNameList(nativeValue.allowedUnauthenticatedAttributes()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> allowedUnauthenticatedAttributePrefix;
@@ -371,34 +160,11 @@ public class ToDafny {
     return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm);
   }
 
-  public static GetItemOutputTransformOutput GetItemOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformOutput nativeValue) {
-    GetItemOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemOutput(nativeValue.transformedOutput());
-    return new GetItemOutputTransformOutput(transformedOutput);
-  }
-
-  public static DeleteItemInputTransformInput DeleteItemInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.DeleteItemInputTransformInput nativeValue) {
-    DeleteItemInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemInput(nativeValue.sdkInput());
-    return new DeleteItemInputTransformInput(sdkInput);
-  }
-
   public static PutItemInputTransformInput PutItemInputTransformInput(
       software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformInput nativeValue) {
     PutItemInput sdkInput;
     sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.PutItemInput(nativeValue.sdkInput());
     return new PutItemInputTransformInput(sdkInput);
-  }
-
-  public static ScanOutputTransformInput ScanOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ScanOutputTransformInput nativeValue) {
-    ScanOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanOutput(nativeValue.sdkOutput());
-    ScanInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanInput(nativeValue.originalInput());
-    return new ScanOutputTransformInput(sdkOutput, originalInput);
   }
 
   public static TransactWriteItemsOutputTransformInput TransactWriteItemsOutputTransformInput(
@@ -410,20 +176,22 @@ public class ToDafny {
     return new TransactWriteItemsOutputTransformInput(sdkOutput, originalInput);
   }
 
-  public static QueryOutputTransformInput QueryOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.QueryOutputTransformInput nativeValue) {
-    QueryOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryOutput(nativeValue.sdkOutput());
-    QueryInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryInput(nativeValue.originalInput());
-    return new QueryOutputTransformInput(sdkOutput, originalInput);
+  public static ScanOutputTransformInput ScanOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ScanOutputTransformInput nativeValue) {
+    ScanOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanOutput(nativeValue.sdkOutput());
+    ScanInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanInput(nativeValue.originalInput());
+    return new ScanOutputTransformInput(sdkOutput, originalInput);
   }
 
-  public static ExecuteStatementInputTransformOutput ExecuteStatementInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteStatementInputTransformOutput nativeValue) {
-    ExecuteStatementInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteStatementInput(nativeValue.transformedInput());
-    return new ExecuteStatementInputTransformOutput(transformedInput);
+  public static DeleteItemOutputTransformInput DeleteItemOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.DeleteItemOutputTransformInput nativeValue) {
+    DeleteItemOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemOutput(nativeValue.sdkOutput());
+    DeleteItemInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemInput(nativeValue.originalInput());
+    return new DeleteItemOutputTransformInput(sdkOutput, originalInput);
   }
 
   public static BatchExecuteStatementInputTransformInput BatchExecuteStatementInputTransformInput(
@@ -433,25 +201,46 @@ public class ToDafny {
     return new BatchExecuteStatementInputTransformInput(sdkInput);
   }
 
-  public static GetItemInputTransformInput GetItemInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetItemInputTransformInput nativeValue) {
-    GetItemInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemInput(nativeValue.sdkInput());
-    return new GetItemInputTransformInput(sdkInput);
+  public static ExecuteStatementInputTransformOutput ExecuteStatementInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteStatementInputTransformOutput nativeValue) {
+    ExecuteStatementInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteStatementInput(nativeValue.transformedInput());
+    return new ExecuteStatementInputTransformOutput(transformedInput);
   }
 
-  public static TransactGetItemsOutputTransformOutput TransactGetItemsOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsOutputTransformOutput nativeValue) {
-    TransactGetItemsOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactGetItemsOutput(nativeValue.transformedOutput());
-    return new TransactGetItemsOutputTransformOutput(transformedOutput);
+  public static GetItemOutputTransformOutput GetItemOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformOutput nativeValue) {
+    GetItemOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemOutput(nativeValue.transformedOutput());
+    return new GetItemOutputTransformOutput(transformedOutput);
   }
 
-  public static PutItemInputTransformOutput PutItemInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformOutput nativeValue) {
-    PutItemInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.PutItemInput(nativeValue.transformedInput());
-    return new PutItemInputTransformOutput(transformedInput);
+  public static BatchGetItemOutputTransformOutput BatchGetItemOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchGetItemOutputTransformOutput nativeValue) {
+    BatchGetItemOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemOutput(nativeValue.transformedOutput());
+    return new BatchGetItemOutputTransformOutput(transformedOutput);
+  }
+
+  public static DeleteItemOutputTransformOutput DeleteItemOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.DeleteItemOutputTransformOutput nativeValue) {
+    DeleteItemOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemOutput(nativeValue.transformedOutput());
+    return new DeleteItemOutputTransformOutput(transformedOutput);
+  }
+
+  public static DeleteItemInputTransformOutput DeleteItemInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.DeleteItemInputTransformOutput nativeValue) {
+    DeleteItemInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemInput(nativeValue.transformedInput());
+    return new DeleteItemInputTransformOutput(transformedInput);
+  }
+
+  public static UpdateItemOutputTransformOutput UpdateItemOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformOutput nativeValue) {
+    UpdateItemOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemOutput(nativeValue.transformedOutput());
+    return new UpdateItemOutputTransformOutput(transformedOutput);
   }
 
   public static PutItemOutputTransformInput PutItemOutputTransformInput(
@@ -463,36 +252,145 @@ public class ToDafny {
     return new PutItemOutputTransformInput(sdkOutput, originalInput);
   }
 
-  public static ScanInputTransformOutput ScanInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ScanInputTransformOutput nativeValue) {
-    ScanInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanInput(nativeValue.transformedInput());
-    return new ScanInputTransformOutput(transformedInput);
+  public static BatchGetItemInputTransformOutput BatchGetItemInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchGetItemInputTransformOutput nativeValue) {
+    BatchGetItemInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemInput(nativeValue.transformedInput());
+    return new BatchGetItemInputTransformOutput(transformedInput);
   }
 
-  public static BatchWriteItemInputTransformInput BatchWriteItemInputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchWriteItemInputTransformInput nativeValue) {
-    BatchWriteItemInput sdkInput;
-    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemInput(nativeValue.sdkInput());
-    return new BatchWriteItemInputTransformInput(sdkInput);
+  public static BatchExecuteStatementOutputTransformInput BatchExecuteStatementOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementOutputTransformInput nativeValue) {
+    BatchExecuteStatementOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchExecuteStatementOutput(nativeValue.sdkOutput());
+    BatchExecuteStatementInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchExecuteStatementInput(nativeValue.originalInput());
+    return new BatchExecuteStatementOutputTransformInput(sdkOutput, originalInput);
   }
 
-  public static ExecuteTransactionOutputTransformInput ExecuteTransactionOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteTransactionOutputTransformInput nativeValue) {
-    ExecuteTransactionOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteTransactionOutput(nativeValue.sdkOutput());
-    ExecuteTransactionInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteTransactionInput(nativeValue.originalInput());
-    return new ExecuteTransactionOutputTransformInput(sdkOutput, originalInput);
+  public static PutItemInputTransformOutput PutItemInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformOutput nativeValue) {
+    PutItemInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.PutItemInput(nativeValue.transformedInput());
+    return new PutItemInputTransformOutput(transformedInput);
   }
 
-  public static BatchWriteItemOutputTransformInput BatchWriteItemOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchWriteItemOutputTransformInput nativeValue) {
-    BatchWriteItemOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemOutput(nativeValue.sdkOutput());
-    BatchWriteItemInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemInput(nativeValue.originalInput());
-    return new BatchWriteItemOutputTransformInput(sdkOutput, originalInput);
+  public static BatchGetItemOutputTransformInput BatchGetItemOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchGetItemOutputTransformInput nativeValue) {
+    BatchGetItemOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemOutput(nativeValue.sdkOutput());
+    BatchGetItemInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemInput(nativeValue.originalInput());
+    return new BatchGetItemOutputTransformInput(sdkOutput, originalInput);
+  }
+
+  public static QueryOutputTransformInput QueryOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.QueryOutputTransformInput nativeValue) {
+    QueryOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryOutput(nativeValue.sdkOutput());
+    QueryInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryInput(nativeValue.originalInput());
+    return new QueryOutputTransformInput(sdkOutput, originalInput);
+  }
+
+  public static DeleteItemInputTransformInput DeleteItemInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.DeleteItemInputTransformInput nativeValue) {
+    DeleteItemInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemInput(nativeValue.sdkInput());
+    return new DeleteItemInputTransformInput(sdkInput);
+  }
+
+  public static TransactWriteItemsInputTransformOutput TransactWriteItemsInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.TransactWriteItemsInputTransformOutput nativeValue) {
+    TransactWriteItemsInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactWriteItemsInput(nativeValue.transformedInput());
+    return new TransactWriteItemsInputTransformOutput(transformedInput);
+  }
+
+  public static GetItemInputTransformOutput GetItemInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetItemInputTransformOutput nativeValue) {
+    GetItemInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemInput(nativeValue.transformedInput());
+    return new GetItemInputTransformOutput(transformedInput);
+  }
+
+  public static GetItemInputTransformInput GetItemInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetItemInputTransformInput nativeValue) {
+    GetItemInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemInput(nativeValue.sdkInput());
+    return new GetItemInputTransformInput(sdkInput);
+  }
+
+  public static QueryInputTransformOutput QueryInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.QueryInputTransformOutput nativeValue) {
+    QueryInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryInput(nativeValue.transformedInput());
+    return new QueryInputTransformOutput(transformedInput);
+  }
+
+  public static BatchWriteItemOutputTransformOutput BatchWriteItemOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchWriteItemOutputTransformOutput nativeValue) {
+    BatchWriteItemOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemOutput(nativeValue.transformedOutput());
+    return new BatchWriteItemOutputTransformOutput(transformedOutput);
+  }
+
+  public static GetItemOutputTransformInput GetItemOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformInput nativeValue) {
+    GetItemOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemOutput(nativeValue.sdkOutput());
+    GetItemInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemInput(nativeValue.originalInput());
+    return new GetItemOutputTransformInput(sdkOutput, originalInput);
+  }
+
+  public static PutItemOutputTransformOutput PutItemOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.PutItemOutputTransformOutput nativeValue) {
+    PutItemOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.PutItemOutput(nativeValue.transformedOutput());
+    return new PutItemOutputTransformOutput(transformedOutput);
+  }
+
+  public static ExecuteTransactionOutputTransformOutput ExecuteTransactionOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteTransactionOutputTransformOutput nativeValue) {
+    ExecuteTransactionOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteTransactionOutput(nativeValue.transformedOutput());
+    return new ExecuteTransactionOutputTransformOutput(transformedOutput);
+  }
+
+  public static ExecuteStatementOutputTransformOutput ExecuteStatementOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteStatementOutputTransformOutput nativeValue) {
+    ExecuteStatementOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteStatementOutput(nativeValue.transformedOutput());
+    return new ExecuteStatementOutputTransformOutput(transformedOutput);
+  }
+
+  public static QueryOutputTransformOutput QueryOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.QueryOutputTransformOutput nativeValue) {
+    QueryOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryOutput(nativeValue.transformedOutput());
+    return new QueryOutputTransformOutput(transformedOutput);
+  }
+
+  public static BatchExecuteStatementInputTransformOutput BatchExecuteStatementInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementInputTransformOutput nativeValue) {
+    BatchExecuteStatementInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchExecuteStatementInput(nativeValue.transformedInput());
+    return new BatchExecuteStatementInputTransformOutput(transformedInput);
+  }
+
+  public static TransactWriteItemsInputTransformInput TransactWriteItemsInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.TransactWriteItemsInputTransformInput nativeValue) {
+    TransactWriteItemsInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactWriteItemsInput(nativeValue.sdkInput());
+    return new TransactWriteItemsInputTransformInput(sdkInput);
+  }
+
+  public static BatchGetItemInputTransformInput BatchGetItemInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchGetItemInputTransformInput nativeValue) {
+    BatchGetItemInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemInput(nativeValue.sdkInput());
+    return new BatchGetItemInputTransformInput(sdkInput);
   }
 
   public static ExecuteStatementOutputTransformInput ExecuteStatementOutputTransformInput(
@@ -504,11 +402,25 @@ public class ToDafny {
     return new ExecuteStatementOutputTransformInput(sdkOutput, originalInput);
   }
 
-  public static BatchGetItemOutputTransformOutput BatchGetItemOutputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.BatchGetItemOutputTransformOutput nativeValue) {
-    BatchGetItemOutput transformedOutput;
-    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemOutput(nativeValue.transformedOutput());
-    return new BatchGetItemOutputTransformOutput(transformedOutput);
+  public static ScanOutputTransformOutput ScanOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ScanOutputTransformOutput nativeValue) {
+    ScanOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanOutput(nativeValue.transformedOutput());
+    return new ScanOutputTransformOutput(transformedOutput);
+  }
+
+  public static UpdateItemInputTransformInput UpdateItemInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemInputTransformInput nativeValue) {
+    UpdateItemInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemInput(nativeValue.sdkInput());
+    return new UpdateItemInputTransformInput(sdkInput);
+  }
+
+  public static BatchWriteItemInputTransformOutput BatchWriteItemInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchWriteItemInputTransformOutput nativeValue) {
+    BatchWriteItemInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemInput(nativeValue.transformedInput());
+    return new BatchWriteItemInputTransformOutput(transformedInput);
   }
 
   public static TransactWriteItemsOutputTransformOutput TransactWriteItemsOutputTransformOutput(
@@ -518,13 +430,25 @@ public class ToDafny {
     return new TransactWriteItemsOutputTransformOutput(transformedOutput);
   }
 
-  public static UpdateItemOutputTransformInput UpdateItemOutputTransformInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformInput nativeValue) {
-    UpdateItemOutput sdkOutput;
-    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemOutput(nativeValue.sdkOutput());
-    UpdateItemInput originalInput;
-    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemInput(nativeValue.originalInput());
-    return new UpdateItemOutputTransformInput(sdkOutput, originalInput);
+  public static TransactGetItemsInputTransformInput TransactGetItemsInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsInputTransformInput nativeValue) {
+    TransactGetItemsInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactGetItemsInput(nativeValue.sdkInput());
+    return new TransactGetItemsInputTransformInput(sdkInput);
+  }
+
+  public static DynamoDbEncryptionConfig DynamoDbEncryptionConfig(
+      software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig nativeValue) {
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends DynamoDbTableEncryptionConfig> tableEncryptionConfigs;
+    tableEncryptionConfigs = ToDafny.DynamoDbTableEncryptionConfigs(nativeValue.tableEncryptionConfigs());
+    return new DynamoDbEncryptionConfig(tableEncryptionConfigs);
+  }
+
+  public static BatchExecuteStatementOutputTransformOutput BatchExecuteStatementOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementOutputTransformOutput nativeValue) {
+    BatchExecuteStatementOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchExecuteStatementOutput(nativeValue.transformedOutput());
+    return new BatchExecuteStatementOutputTransformOutput(transformedOutput);
   }
 
   public static ExecuteTransactionInputTransformInput ExecuteTransactionInputTransformInput(
@@ -543,11 +467,57 @@ public class ToDafny {
     return new TransactGetItemsOutputTransformInput(sdkOutput, originalInput);
   }
 
-  public static ExecuteTransactionInputTransformOutput ExecuteTransactionInputTransformOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteTransactionInputTransformOutput nativeValue) {
-    ExecuteTransactionInput transformedInput;
-    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteTransactionInput(nativeValue.transformedInput());
-    return new ExecuteTransactionInputTransformOutput(transformedInput);
+  public static UpdateItemOutputTransformInput UpdateItemOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformInput nativeValue) {
+    UpdateItemOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemOutput(nativeValue.sdkOutput());
+    UpdateItemInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemInput(nativeValue.originalInput());
+    return new UpdateItemOutputTransformInput(sdkOutput, originalInput);
+  }
+
+  public static BatchWriteItemInputTransformInput BatchWriteItemInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchWriteItemInputTransformInput nativeValue) {
+    BatchWriteItemInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemInput(nativeValue.sdkInput());
+    return new BatchWriteItemInputTransformInput(sdkInput);
+  }
+
+  public static ScanInputTransformInput ScanInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ScanInputTransformInput nativeValue) {
+    ScanInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanInput(nativeValue.sdkInput());
+    return new ScanInputTransformInput(sdkInput);
+  }
+
+  public static BatchWriteItemOutputTransformInput BatchWriteItemOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.BatchWriteItemOutputTransformInput nativeValue) {
+    BatchWriteItemOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemOutput(nativeValue.sdkOutput());
+    BatchWriteItemInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchWriteItemInput(nativeValue.originalInput());
+    return new BatchWriteItemOutputTransformInput(sdkOutput, originalInput);
+  }
+
+  public static QueryInputTransformInput QueryInputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.QueryInputTransformInput nativeValue) {
+    QueryInput sdkInput;
+    sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.QueryInput(nativeValue.sdkInput());
+    return new QueryInputTransformInput(sdkInput);
+  }
+
+  public static TransactGetItemsInputTransformOutput TransactGetItemsInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsInputTransformOutput nativeValue) {
+    TransactGetItemsInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactGetItemsInput(nativeValue.transformedInput());
+    return new TransactGetItemsInputTransformOutput(transformedInput);
+  }
+
+  public static TransactGetItemsOutputTransformOutput TransactGetItemsOutputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsOutputTransformOutput nativeValue) {
+    TransactGetItemsOutput transformedOutput;
+    transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactGetItemsOutput(nativeValue.transformedOutput());
+    return new TransactGetItemsOutputTransformOutput(transformedOutput);
   }
 
   public static ExecuteStatementInputTransformInput ExecuteStatementInputTransformInput(
@@ -555,6 +525,36 @@ public class ToDafny {
     ExecuteStatementInput sdkInput;
     sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteStatementInput(nativeValue.sdkInput());
     return new ExecuteStatementInputTransformInput(sdkInput);
+  }
+
+  public static ExecuteTransactionInputTransformOutput ExecuteTransactionInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteTransactionInputTransformOutput nativeValue) {
+    ExecuteTransactionInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteTransactionInput(nativeValue.transformedInput());
+    return new ExecuteTransactionInputTransformOutput(transformedInput);
+  }
+
+  public static UpdateItemInputTransformOutput UpdateItemInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemInputTransformOutput nativeValue) {
+    UpdateItemInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateItemInput(nativeValue.transformedInput());
+    return new UpdateItemInputTransformOutput(transformedInput);
+  }
+
+  public static ExecuteTransactionOutputTransformInput ExecuteTransactionOutputTransformInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ExecuteTransactionOutputTransformInput nativeValue) {
+    ExecuteTransactionOutput sdkOutput;
+    sdkOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteTransactionOutput(nativeValue.sdkOutput());
+    ExecuteTransactionInput originalInput;
+    originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ExecuteTransactionInput(nativeValue.originalInput());
+    return new ExecuteTransactionOutputTransformInput(sdkOutput, originalInput);
+  }
+
+  public static ScanInputTransformOutput ScanInputTransformOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.ScanInputTransformOutput nativeValue) {
+    ScanInput transformedInput;
+    transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.ScanInput(nativeValue.transformedInput());
+    return new ScanInputTransformOutput(transformedInput);
   }
 
   public static Error Error(DynamoDbEncryptionException nativeValue) {
