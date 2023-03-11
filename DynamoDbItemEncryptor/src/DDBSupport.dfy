@@ -43,7 +43,10 @@ module DynamoDBBeaconSupport {
   )
     : Result<bool, Error>
   {
-    Failure(E("Condition Expressions forbidden on encrypted tables"))
+    if expr.Some? then
+      Failure(E("Condition Expressions forbidden on encrypted tables"))
+    else
+      Success(true)
   }
 
   // TestUpdateExpression fails if an update expression is not suitable for the
@@ -57,7 +60,10 @@ module DynamoDBBeaconSupport {
   )
     : Result<bool, Error>
   {
-    Failure(E("Update Expressions forbidden on encrypted tables"))
+    if expr.Some? then
+      Failure(E("Update Expressions forbidden on encrypted tables"))
+    else
+      Success(true)
   }
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
