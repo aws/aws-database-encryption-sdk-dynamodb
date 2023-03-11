@@ -8,6 +8,7 @@ build/*
 test/**/Output/*
 /package-lock.json
 /node_modules
+**/Folder.DotSettings.user
 
 # VS Code local history
 /.history
@@ -15,4 +16,3 @@ test/**/Output/*
 # Duvet output
 specification_compliance_report.html
 /compliance
-/.smithy.lsp.log
