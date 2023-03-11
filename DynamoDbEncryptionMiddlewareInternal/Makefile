@@ -19,3 +19,6 @@ LIBRARIES := \
 	AwsCryptographicMaterialProviders \
 	../StructuredEncryption \
 	../DynamoDbItemEncryptor
+
+format_net:
+	pushd runtimes/net && dotnet format && popd
