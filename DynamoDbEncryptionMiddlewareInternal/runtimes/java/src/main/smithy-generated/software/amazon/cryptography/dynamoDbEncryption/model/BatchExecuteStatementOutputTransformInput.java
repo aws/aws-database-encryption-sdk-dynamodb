@@ -3,12 +3,12 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
+import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementRequest;
 import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementResponse;
-import java.util.Objects;
 
 public class BatchExecuteStatementOutputTransformInput {
-  private final BatchExecuteStatementResponse sdkOutput ;
+  private final BatchExecuteStatementResponse sdkOutput;
 
   private final BatchExecuteStatementRequest originalInput;
 
@@ -17,7 +17,7 @@ public class BatchExecuteStatementOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public BatchExecuteStatementResponse sdkOutput () {
+  public BatchExecuteStatementResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -34,9 +34,9 @@ public class BatchExecuteStatementOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(BatchExecuteStatementResponse sdkOutput );
+    Builder sdkOutput(BatchExecuteStatementResponse sdkOutput);
 
-    BatchExecuteStatementResponse sdkOutput ();
+    BatchExecuteStatementResponse sdkOutput();
 
     Builder originalInput(BatchExecuteStatementRequest originalInput);
 
@@ -46,7 +46,7 @@ public class BatchExecuteStatementOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected BatchExecuteStatementResponse sdkOutput ;
+    protected BatchExecuteStatementResponse sdkOutput;
 
     protected BatchExecuteStatementRequest originalInput;
 
@@ -58,12 +58,12 @@ public class BatchExecuteStatementOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(BatchExecuteStatementResponse sdkOutput ) {
+    public Builder sdkOutput(BatchExecuteStatementResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public BatchExecuteStatementResponse sdkOutput () {
+    public BatchExecuteStatementResponse sdkOutput() {
       return this.sdkOutput;
     }
 

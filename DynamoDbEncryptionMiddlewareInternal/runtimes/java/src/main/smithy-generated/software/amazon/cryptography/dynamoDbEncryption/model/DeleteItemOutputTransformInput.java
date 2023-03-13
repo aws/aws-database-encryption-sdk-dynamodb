@@ -3,12 +3,12 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
+import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
-import java.util.Objects;
 
 public class DeleteItemOutputTransformInput {
-  private final DeleteItemResponse sdkOutput ;
+  private final DeleteItemResponse sdkOutput;
 
   private final DeleteItemRequest originalInput;
 
@@ -17,7 +17,7 @@ public class DeleteItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public DeleteItemResponse sdkOutput () {
+  public DeleteItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -34,9 +34,9 @@ public class DeleteItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(DeleteItemResponse sdkOutput );
+    Builder sdkOutput(DeleteItemResponse sdkOutput);
 
-    DeleteItemResponse sdkOutput ();
+    DeleteItemResponse sdkOutput();
 
     Builder originalInput(DeleteItemRequest originalInput);
 
@@ -46,7 +46,7 @@ public class DeleteItemOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected DeleteItemResponse sdkOutput ;
+    protected DeleteItemResponse sdkOutput;
 
     protected DeleteItemRequest originalInput;
 
@@ -58,12 +58,12 @@ public class DeleteItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(DeleteItemResponse sdkOutput ) {
+    public Builder sdkOutput(DeleteItemResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public DeleteItemResponse sdkOutput () {
+    public DeleteItemResponse sdkOutput() {
       return this.sdkOutput;
     }
 

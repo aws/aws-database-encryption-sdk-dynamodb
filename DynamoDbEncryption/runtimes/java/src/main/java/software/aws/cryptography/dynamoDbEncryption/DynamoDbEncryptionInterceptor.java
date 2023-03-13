@@ -7,7 +7,7 @@ import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.SdkResponse;
 
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryptionMiddlewareInternal;
+import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
 
 import java.util.Objects;
@@ -22,14 +22,14 @@ import static software.aws.cryptography.dynamoDbEncryption.SupportedOperations.S
 public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
     private final DynamoDbEncryptionConfig config;
-    private DynamoDbEncryptionMiddlewareInternal transformer;
+    private DynamoDbEncryption transformer;
 
     // TODO find where in sdk we can pull this string from
     static final String DDB_NAME = "DynamoDb";
 
     protected DynamoDbEncryptionInterceptor(BuilderImpl builder) {
         this.config = builder.config();
-        this.transformer = DynamoDbEncryptionMiddlewareInternal.builder()
+        this.transformer = DynamoDbEncryption.builder()
                 .DynamoDbEncryptionConfig(config)
                 .build();
     }

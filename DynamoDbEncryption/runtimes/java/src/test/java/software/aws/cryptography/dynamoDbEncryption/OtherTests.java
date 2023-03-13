@@ -1,18 +1,17 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.TableDescription;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.materialProviders.Keyring;
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
 
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.amazonaws.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
+import static software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.KMS_TEST_KEY_ID;
 
 // Here we are testing some manually generated interfaces that don't technically belong to this package,
@@ -145,12 +144,12 @@ public class OtherTests {
         ByteBuffer key = ByteBuffer.wrap(new byte[32]);
 
         CreateAwsKmsRsaKeyringInput input = CreateAwsKmsRsaKeyringInput.builder()
-                .kmsClient(AWSKMSClientBuilder.defaultClient())
+                .kmsClient(KmsClient.create())
                 .kmsKeyId(KMS_TEST_KEY_ID)
                 .encryptionAlgorithm(RSAES_OAEP_SHA_1)
                 .publicKey(key)
                 .build();
-        Keyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
+        IKeyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
         assertNotNull(keyring);
     }
 

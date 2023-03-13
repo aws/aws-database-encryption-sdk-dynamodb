@@ -7,7 +7,7 @@ pushd .
 
 export CURRENT_DIR=`pwd`
 export DEPS_ROOT=$CURRENT_DIR/../private-aws-encryption-sdk-dafny-staging
-export POLYMORPH_ROOT=$CURRENT_DIR/../polymorph/smithy-polymorph
+export CODEGEN_CLI_ROOT=$CURRENT_DIR/../polymorph/codegen/smithy-dafny-codegen-cli
 
 export MaterialProviders_ROOT=$DEPS_ROOT/AwsCryptographicMaterialProviders
 export AwsCryptographyPrimitives_ROOT=$DEPS_ROOT/AwsCryptographyPrimitives
@@ -17,7 +17,7 @@ export StructuredEncryption_ROOT=$CURRENT_DIR/../StructuredEncryption
 export StandardLibrary_ROOT=$DEPS_ROOT/StandardLibrary
 export DynamoDbItemEncryptor_ROOT=$CURRENT_DIR
 
-cd "$POLYMORPH_ROOT"
+cd "$CODEGEN_CLI_ROOT"
 
 # Generate code from DynamoDbItemEncryptor smithy model
 ./gradlew run --args="\

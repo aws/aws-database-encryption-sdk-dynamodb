@@ -3,8 +3,8 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import java.util.Objects;
+import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 
 public class PutItemOutputTransformOutput {
   private final PutItemResponse transformedOutput;

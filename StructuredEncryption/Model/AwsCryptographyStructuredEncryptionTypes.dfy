@@ -214,6 +214,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  && fresh(res.value.Modifies)
  && fresh(res.value.History)
  && res.value.ValidState()
+
  class StructuredEncryptionClient extends IStructuredEncryptionClient
  {
  constructor(config: Operations.InternalConfig)
