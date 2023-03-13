@@ -159,54 +159,37 @@ public class DynamoDbItemConversionIntegrationTests {
         assertEquals(sValue, newItem.get("Sattr").s());
         assertEquals(nValue, newItem.get("Nattr").n());
         assertEquals(bValue, newItem.get("Battr").b());
-        // TODO: New Java-Dafny conversion bug!
-        // https://sim.amazon.com/issues/CrypTool-5098
-        // `newItem.get("BOOLattr-true").bool()` SHOULD BE True, not Null
-        assertNull(newItem.get("BOOLattr-true").bool());
-        // TODO: New Java-Dafny conversion bug!
-        // https://sim.amazon.com/issues/CrypTool-5098
-        // `newItem.get("BOOLattr-false").bool()` SHOULD BE False, not Null
-        assertNull(newItem.get("BOOLattr-false").bool());
-        // TODO: New Java-Dafny conversion bug!
-        // https://sim.amazon.com/issues/CrypTool-5098
-        // `newItem.get("NULattr").nul()` SHOULD BE True, not Null
-        assertNull(newItem.get("NULattr").nul());
+        assertTrue(newItem.get("BOOLattr-true").bool());
+        assertFalse(newItem.get("BOOLattr-false").bool());
+        assertTrue(newItem.get("NULattr").nul());
 
         // Check Sets
         List<String> ss = newItem.get("SSattr").ss();
         assertTrue(ss.containsAll(Arrays.asList(sValue, sValue2)));
         List<String> ns = newItem.get("NSattr").ns();
-        // TODO: New Java-Dafny conversion bug!
-        // https://sim.amazon.com/issues/CrypTool-5098
-        /*assertTrue(ns.size() > 0);
+        assertTrue(ns.size() > 0);
         List<Double> nsConverted = ns.stream().map(val -> Double.parseDouble(val)).collect(Collectors.toList());
         assertTrue(nsConverted.contains(Double.parseDouble(nValue2)));
         assertTrue(nsConverted.contains(Double.parseDouble(nValue3)));
         assertTrue(nsConverted.contains(Double.parseDouble(nValue4)));
-        assertTrue(nsConverted.contains(Double.parseDouble(nValue5)));*/
+        assertTrue(nsConverted.contains(Double.parseDouble(nValue5)));
         List<SdkBytes> bs = newItem.get("BSattr").bs();
-        // TODO: New Java-Dafny conversion bug!
-        // https://sim.amazon.com/issues/CrypTool-5098
-        /*assertTrue(bs.size() > 0);
-        assertTrue(bs.containsAll(Arrays.asList(bValue, bValue2)));*/
+        assertTrue(bs.size() > 0);
+        assertTrue(bs.containsAll(Arrays.asList(bValue, bValue2)));
 
         // Check List
-        // TODO: New Java-Dafny conversion bug!
-        // https://sim.amazon.com/issues/CrypTool-5098
-        /*List<AttributeValue> l = newItem.get("Lattr").l();
+        List<AttributeValue> l = newItem.get("Lattr").l();
         assertEquals(3, l.size());
         assertEquals(bValue, l.get(0).b());
         assertEquals(sValue, l.get(1).s());
-        assertEquals(nValue, l.get(2).n());*/
+        assertEquals(nValue, l.get(2).n());
 
         // Check Map
-        // TODO: New Java-Dafny conversion bug!
-        // https://sim.amazon.com/issues/CrypTool-5098
-        /*Map<String, AttributeValue> m = newItem.get("Mattr").m();
+        Map<String, AttributeValue> m = newItem.get("Mattr").m();
         assertEquals(3, m.size());
         assertEquals(sValue2, m.get("M:Sattr").s());
         assertEquals(Double.parseDouble(nValue2), Double.parseDouble(m.get("M:Nattr").n()));
-        assertEquals(bValue2, m.get("M:Battr").b());*/
+        assertEquals(bValue2, m.get("M:Battr").b());
 
         // Check empty structures
         assertEquals(0, newItem.get("Lattr-empty").l().size());
