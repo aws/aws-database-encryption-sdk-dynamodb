@@ -47,6 +47,9 @@ to determine which value maps to which plaintext. With something this
 extreme, there's no way to make a safe beacon; but it can be combined
 with something else in a [virtual field](#virtual-field).
 
+With more evenly distributed values, such as zip code,
+a unique hash can still reveal that two records have the same zip code as each other,
+even if the exact zip code is still a mystery.
 To avoid this, we truncate the hash to ensure some collisions.
 
 For a field with `X` distinct values, you should choose a beacon length `N`
@@ -112,15 +115,15 @@ To configure a single compound beacon, you need to provide
 
 The `name` is used in queries and index creation as if it were a regular field.
 "MyField" in examples below. It is an error if this name is the same as a configured
-[virtual field](virtual.md), or to attempt to write a field of this name.
+field, or [virtual field](virtual.md), or to attempt to write a field of this name.
 
 The `split character` separates the parts of a compound beacon.
 In the examples below, we assume "`.`".
 
 Each [sensitive part](#sensitive-part) has a field name,
 a prefix and a [beacon length](#beacon-length).
-The field name can refer directly to a field in the record,
-or to a [virtual field](virtual.md).
+The field name must refer directly to a configured field,
+or [virtual field](virtual.md).
 The values of these fields are stored a hashes, not plaintext.
 For example :
 
@@ -147,39 +150,41 @@ of the "timestamp" field.
 It is an error for the configuration of a non-sensitive part to refer to
 an encrypted field in any way.
 
+It is an error if the configuration of a sensitive part does not refer to
+an encrypted field in some way.
+
 Prefixes can be any valid string, but no prefix string can be a prefix of another prefix string.
 
 That is, you can have both "A-" and AB-" as prefixes,
-but you can't have both "AB" and "AB-".
+but you can't have both "A-" and "A--".
 
 #### Writing Compound Beacons
 
-To write a compound beacon, one constructs the [virtual database field](#virtual-database-field),
+To write a compound beacon, one generates the [virtual database field](#virtual-database-field),
+via a `constructor`,
 and then turns the sensitive parts into [standard beacons](#standard-beacon).
 
-For writing, one can configure a list of [constructors](#constructor).
+A single constructor has a name and an ordered list of parts.
+Each part can be required or optional.
+Every constructor must contain at least on required sensitive field.
 
-A single constructor is an ordered list of parts.
 An example list of constructors might be :
 
- - timestamp social zipcode
- - address zipcode
+ - Person : timestamp(required) social(optional) zipcode(required)
+ - Location : address(required) zipcode(required)
 
-A constructor `succeeds` if all its [source fields](#source-field) exist in the record.
+A constructor `succeeds` if all its required [source fields](#source-field) exist in the record.
 
 Each constructor is tried, in the order configured, until one succeeds.
 
 If no constructor succeeds, the record cannot be written.
 
-If no constructors are configured, a default constructor is generated.
-The default constructor creates a [virtual database field](#virtual-database-field) which is
-the concatenation of the non-sensitive parts, in the order configured,
-followed by the sensitive parts, in the order configured,
-skipping any parts for which any [source fields](#source-field) is unavailable.
+If no constructors are configured, a default constructor is generated,
+which is all of the configured parts, in their configured order,
+non-sensitive parts followed by sensitive parts, all parts required.
 
-The default constructor succeeds if at least one sensitive part is included.
-
-Once a constructor is selected, a [virtual database field](#virtual-database-field) is constructed.
+From the first constructor that succeeds,
+a [virtual database field](#virtual-database-field) is constructed.
 For each part, we combine the prefix with the [standard beacon](#standard-beacon)
 (for sensitive parts) or plaintext value (for non-sensitive parts) of the field.
 
@@ -197,7 +202,7 @@ But this is what the customer must imagine.
 Sensitive values are then replaced with the appropriate beacon. For example
 
  - T-20221225.S-abcdef.Z-7abc
- - A-3ab.Z-3456
+ - A-3ab.Z-edc3
 
 Which is then stored in the database, with a field name of `aws_dbe_b_MyField`.
 
@@ -226,23 +231,23 @@ as if it were any other field.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
 in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
-## Beacon Configuration
+## Base Beacon Configuration
 
 The following inputs to this configuration are REQUIRED:
  * A name -- a sequence of characters
  * A plaintext HMAC key -- a sequence of bytes
- * A [standard beacon config](#standard-beaconconfig)
-or a [compound beacon config](#compound-beacon-config).
 
 ### Standard Beacon Config
 
 A standard beacon config MUST have
+ * A Base Beacon
  * A `length` -- a [beacon length](#beacon-length)
 
 ### Compound Beacon Config
 
 A compound beacon config MUST have the following inputs:
 
+ * A Base Beacon
  * A split character
  * A list of sensitive parts
 
@@ -271,9 +276,24 @@ A non-sensitive part config MUST have the following inputs:
 `Part` is defined as a [sensitive part](#sensitive-part)
   or a [non-sensitive-part](#non-sensitive-part).
 
+#### Constructor Part
+
+A constructor part config MUST have the following inputs:
+
+ * A field name -- a string
+ * Required -- a boolean
+
+
 #### Constructor
 
-  A Constructor MUST be a list of field names, each corresponding to a field name in a [part](#part).
+  A Constructor MUST be a list of [constructor parts](#constructor-part)],
+  each corresponding to a field name in a [part](#part).
+
+### Default Construction
+
+* If no constructors are configured, a default constructor MUST be generated.
+* This default constructor MUST be all of the non-sensitive parts, followed by all the
+sensitive part, all parts being required.
 
 ---
 
@@ -281,69 +301,47 @@ Construction MUST fail if any `prefix` in any [part](#part) is a prefix of
 the `prefix` of any other [part](#part).
 
 Construction MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
-any part of an encrypted field, or any [sensitive-part](#sensitive-part) does not contain
-any part of an encrypted field.
+any part of an encrypted field, or any [sensitive-part](#sensitive-part) fails to contain
+some part of an encrypted field.
 
 Construction MUST fail if any [constructor](#constructor) is configured with a field name
 that is not a defined [part](#part).
 
-
 ## Beacon Operations
 
-There are three beacon operations available.
+Both standard and compound beacons define two operations
+ * [hash](#hash) - turn a plaintext record into a beacon
+ * [getPart](#getpart) - turn a plaintext query string into a beacon
 
- * [isCompound](#iscompound)
- * [standardHash](#standardhash)
- * [compoundHash](#compoundhash)
- * [getPart](#getpart)
-
-### isCompound
-
-isCompound MUST return `true` if the beacon is a [compound beacon](#compound-beacon),
-and false if the beacon is a [standard beacon](#standard-beacon).
-
-### standardHash
- * standardHash MUST be used with a beacon configured as a [standard beacon](#standard-beacon).
- * standardHash MUST take a sequence of bytes as input.
- * standardHash MUST produce a non-empty string as output.
- * standardHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+### basicHash
+ * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.
+ * basicHash MUST produce a non-empty string as output.
+ * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
 of the input bytes and the configured key, and keep the first 8 bytes.
- * standardHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
- * the length of the returned string MUST be (`hash length`/4) rounded up.
+ * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
+ * the length of the returned string MUST be (`beacon length`/4) rounded up.
 
-### compoundHash
+### hash for a standard beacon
+ * hash MUST take a sequence of bytes as input and produce a string.
+ * hash MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
 
-compoundHash is used when writing a record, to calculate the beacon to write.
+### hash for a compound beacon
 
- * compoundHash MUST be used with a beacon configured as a [compound beacon](#compound-beacon).
- * compoundHash MUST take a record as input, and produce a string.
+ * hash MUST take a record as input, and produce a string.
  * The returned string MUST NOT be empty.
- * If no constructor is configured, the compoundHash MUST use [default construction](#default-construction).
- * If any constructors are configured, the compoundHash try to use
-each [constructor](#configured-construction) in turn until one succeeds.
+ * has MUST iterate through all constructors, in order, using the first that succeeds.
+ * For that constructor, hash MUST join the [part value](#part-value) for each part on the `split character`,
+excluding parts that are not required and with a source field that is not available.
 
-### Default Construction
+### getPart for a standard beacon
 
-Default construction MUST iterate through all of the parts configure for the beacon,
-[non-sensitive parts](#non-sensitive-part) first,
-in the order of configuration, and combine all the parts for which the [source fields](#source-field) exist,
-joining on the `split character`.
+ * getPart MUST take a sequence of bytes as input, and produce a string.
+ * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
 
-### Configured Construction
+### getPart for a compound beacon
 
-Configured construction MUST iterate through all of the parts configured for that constructor,
-in the order of configuration, and, combine all the parts, joining on the `split character`.
-Construction MUST fail if any [source fields](#source-field) does not exist.
-
-### getPart
-
-getPart is used when querying a database, to calculate the part value to query.
-
- * getPart MUST take a string as input and returns a string as output.
+ * getPart MUST take a string as input and produce a string.
  * The returned string MUST NOT be empty.
- * If called on a beacon configured as a [standard beacon](#standard-beacon),
-getPart MUST return the [standardHash](#standardhash) of the input string
-and the configured [beacon length](#beacon-length). Otherwise,
  * The string MUST be split on the `split character` into pieces.
  * For each piece, a [part](#part) MUST be identified by matching the prefix of a [part](#part)
 to the beginning of the piece.
@@ -352,34 +350,14 @@ to the beginning of the piece.
 using the prefix and length from the discovered part.
  * The value returned MUST be these part values, joined with the `split character`.
 
-### Constructor Selection
-
-If no constructors are configured, a [default constructor](#default-constructor)
-MUST be generated.
-
-Otherwise, the first configured constructor for which all [source fields](#source-field) are available
-will be selected.
-
-### Default Constructor
-
-The default constructor MUST be generated by iterating through all the
-[non-sensitive-parts](#non-sensitive-part) followed by the [sensitive-parts](#sensitive-part),
-in the order of their configuration, discarding those for which any [source field](#source-field)
-is unavailable.
-
-This operation MUST fail if the resulting constructor does not contain at least one
-[sensitive-part](#sensitive-part).
-
 ### Part Value
 
 Calculate the `plain string` :
 the concatenation of the prefix and the field value.
 
-The `Part Value` is the [Part Value From String and Prefix](#part-value-calculation) of the `plain string`, the part's prefix, and the [beacon length](#beacon-length), if any.
+The `Part Value` is the [part value calculation](#part-value-calculation) of the `plain string`, the part's prefix, and the [beacon length](#beacon-length), if any.
 
 ### Part Value Calculation
-
-The Part Value Calculation does NOT need any of the beacon's configuration information.
 
 Part Value Calculation MUST take a string, a prefix, and an optional [beacon length](#beacon-length) as input, and return a string as output.
 
@@ -387,6 +365,6 @@ The input string MUST begin with the provided prefix.
 
 If the [beacon length](#beacon-length) is provided, 
 the part value MUST be the concatenation
-of the prefix and the [standardHash](#standardhash) of the input string with the configured [beacon length](#beacon-length).
+of the prefix and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
 
 If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.

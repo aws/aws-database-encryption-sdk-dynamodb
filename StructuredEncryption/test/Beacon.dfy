@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../src/Beacon.dfy"
+include "../src/CompoundBeacon.dfy"
 
 module TestBaseBeacon {
   import opened BaseBeacon
+  import opened CompoundBeacon
   import opened Wrappers
 /*
   method TestFail(b : Beacon, s : string)
@@ -31,38 +33,41 @@ module TestBaseBeacon {
     expect str.value == exp;
   }
 */
-  const Timestamp := Part("timestamp", "T-", None);
-  const Secret := Part("secret", "S-", Some(4));
+  const Timestamp := BeaconPart("timestamp", "T-", None);
+  const Secret := BeaconPart("secret", "S-", Some(4));
 
   method {:test} TestCompoundBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
-    var b1 := CompoundBeacon('.', [Timestamp, Secret], []);
-    var b := Beacon(client := primitives, name := "foo", key := [1,2], config := Compound(b1));
+    var b := BeaconBase(client := primitives, name := "foo", key := [1,2]);
+    var parts := [Timestamp, Secret];
+    var cons := MakeDefaultConstructor(parts);
+    var b1 := CompoundBeacon(b, '.', parts, [cons]);
     var data := map["timestamp" := "1234", "secret" := "abcd"];
     var bytes :- expect b.getHmac(UTF8.EncodeAscii("S-abcd"));
     expect bytes[7] == 0x42;
 
-    var str :- expect b.compoundHash(data);
+    var str :- expect b1.hash(data);
     expect str == "T-1234.S-2";
 
-    var query :-  expect b.getPart("T-1234.S-abcd");
+    var query :-  expect b1.getPart("T-1234.S-abcd");
     expect query == "T-1234.S-2";
   }
 
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
-    var b := Beacon(client := primitives, name := "foo", key := [1,2], config := Standard(8));
-    var bytes :- expect b.getHmac([1,2,3]);
+    var bb := BeaconBase(client := primitives, name := "foo", key := [1,2]);
+    var b := StandardBeacon(bb, 8);
+    var bytes :- expect bb.getHmac([1,2,3]);
     expect bytes == [0x27, 0x93, 0x93, 0x8b, 0x26, 0xe9, 0x52, 0x7e];
-    var str :- expect b.standardHash([1,2,3]);
+    var str :- expect b.hash([1,2,3]);
     expect str == "7e";
-    bytes :- expect b.getHmac([]);
+    bytes :- expect bb.getHmac([]);
     expect bytes[7] == 0x80;
-    str :- expect b.standardHash([]);
+    str :- expect b.hash([]);
     expect str == "80";
-    bytes :- expect b.getHmac(UTF8.EncodeAscii("123"));
+    bytes :- expect bb.getHmac(UTF8.EncodeAscii("123"));
     expect bytes[7] == 0x61;
   }
 
