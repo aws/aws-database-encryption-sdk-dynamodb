@@ -16,7 +16,7 @@ module DynamoDBMiddlewareSupport {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened BS = DynamoDBBeaconSupport
+  import opened BS = DynamoDBSupport
   import opened DdbMiddlewareConfig
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
