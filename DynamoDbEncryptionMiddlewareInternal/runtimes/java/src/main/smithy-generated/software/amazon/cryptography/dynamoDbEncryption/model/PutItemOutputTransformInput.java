@@ -3,12 +3,12 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
+import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
-import java.util.Objects;
 
 public class PutItemOutputTransformInput {
-  private final PutItemResponse sdkOutput ;
+  private final PutItemResponse sdkOutput;
 
   private final PutItemRequest originalInput;
 
@@ -17,7 +17,7 @@ public class PutItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public PutItemResponse sdkOutput () {
+  public PutItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -34,9 +34,9 @@ public class PutItemOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(PutItemResponse sdkOutput );
+    Builder sdkOutput(PutItemResponse sdkOutput);
 
-    PutItemResponse sdkOutput ();
+    PutItemResponse sdkOutput();
 
     Builder originalInput(PutItemRequest originalInput);
 
@@ -46,7 +46,7 @@ public class PutItemOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected PutItemResponse sdkOutput ;
+    protected PutItemResponse sdkOutput;
 
     protected PutItemRequest originalInput;
 
@@ -58,12 +58,12 @@ public class PutItemOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(PutItemResponse sdkOutput ) {
+    public Builder sdkOutput(PutItemResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public PutItemResponse sdkOutput () {
+    public PutItemResponse sdkOutput() {
       return this.sdkOutput;
     }
 

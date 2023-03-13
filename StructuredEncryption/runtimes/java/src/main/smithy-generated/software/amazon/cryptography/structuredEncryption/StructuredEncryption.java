@@ -33,10 +33,6 @@ public class StructuredEncryption {
     return new BuilderImpl();
   }
 
-  protected IStructuredEncryptionClient impl() {
-    return this._impl;
-  }
-
   public EncryptStructureOutput EncryptStructure(EncryptStructureInput nativeValue) {
     Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureInput dafnyValue = ToDafny.EncryptStructureInput(nativeValue);
     Result<Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureOutput, Error> result = this._impl.EncryptStructure(dafnyValue);
@@ -53,6 +49,10 @@ public class StructuredEncryption {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.DecryptStructureOutput(result.dtor_value());
+  }
+
+  protected IStructuredEncryptionClient impl() {
+    return this._impl;
   }
 
   public interface Builder {

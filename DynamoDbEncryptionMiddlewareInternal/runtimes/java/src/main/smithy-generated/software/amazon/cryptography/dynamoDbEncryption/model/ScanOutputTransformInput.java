@@ -3,12 +3,12 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
+import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
-import java.util.Objects;
 
 public class ScanOutputTransformInput {
-  private final ScanResponse sdkOutput ;
+  private final ScanResponse sdkOutput;
 
   private final ScanRequest originalInput;
 
@@ -17,7 +17,7 @@ public class ScanOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
-  public ScanResponse sdkOutput () {
+  public ScanResponse sdkOutput() {
     return this.sdkOutput;
   }
 
@@ -34,9 +34,9 @@ public class ScanOutputTransformInput {
   }
 
   public interface Builder {
-    Builder sdkOutput(ScanResponse sdkOutput );
+    Builder sdkOutput(ScanResponse sdkOutput);
 
-    ScanResponse sdkOutput ();
+    ScanResponse sdkOutput();
 
     Builder originalInput(ScanRequest originalInput);
 
@@ -46,7 +46,7 @@ public class ScanOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected ScanResponse sdkOutput ;
+    protected ScanResponse sdkOutput;
 
     protected ScanRequest originalInput;
 
@@ -58,12 +58,12 @@ public class ScanOutputTransformInput {
       this.originalInput = model.originalInput();
     }
 
-    public Builder sdkOutput(ScanResponse sdkOutput ) {
+    public Builder sdkOutput(ScanResponse sdkOutput) {
       this.sdkOutput = sdkOutput;
       return this;
     }
 
-    public ScanResponse sdkOutput () {
+    public ScanResponse sdkOutput() {
       return this.sdkOutput;
     }
 

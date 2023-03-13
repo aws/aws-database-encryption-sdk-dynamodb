@@ -3,11 +3,13 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbItemEncryptor.model;
 
-import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
-import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
+import software.amazon.cryptography.materialProviders.IKeyring;
+import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
@@ -26,9 +28,9 @@ public class DynamoDbItemEncryptorConfig {
 
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
-  private final IKeyring keyring;
+  private final Keyring keyring;
 
-  private final ICryptographicMaterialsManager cmm;
+  private final CryptographicMaterialsManager cmm;
 
   protected DynamoDbItemEncryptorConfig(BuilderImpl builder) {
     this.tableName = builder.tableName();
@@ -70,11 +72,11 @@ public class DynamoDbItemEncryptorConfig {
     return this.algorithmSuiteId;
   }
 
-  public IKeyring keyring() {
+  public Keyring keyring() {
     return this.keyring;
   }
 
-  public ICryptographicMaterialsManager cmm() {
+  public CryptographicMaterialsManager cmm() {
     return this.cmm;
   }
 
@@ -117,11 +119,11 @@ public class DynamoDbItemEncryptorConfig {
 
     Builder keyring(IKeyring keyring);
 
-    IKeyring keyring();
+    Keyring keyring();
 
     Builder cmm(ICryptographicMaterialsManager cmm);
 
-    ICryptographicMaterialsManager cmm();
+    CryptographicMaterialsManager cmm();
 
     DynamoDbItemEncryptorConfig build();
   }
@@ -141,9 +143,9 @@ public class DynamoDbItemEncryptorConfig {
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
-    protected IKeyring keyring;
+    protected Keyring keyring;
 
-    protected ICryptographicMaterialsManager cmm;
+    protected CryptographicMaterialsManager cmm;
 
     protected BuilderImpl() {
     }
@@ -225,20 +227,20 @@ public class DynamoDbItemEncryptorConfig {
     }
 
     public Builder keyring(IKeyring keyring) {
-      this.keyring = keyring;
+      this.keyring = Keyring.wrap(keyring);
       return this;
     }
 
-    public IKeyring keyring() {
+    public Keyring keyring() {
       return this.keyring;
     }
 
     public Builder cmm(ICryptographicMaterialsManager cmm) {
-      this.cmm = cmm;
+      this.cmm = CryptographicMaterialsManager.wrap(cmm);
       return this;
     }
 
-    public ICryptographicMaterialsManager cmm() {
+    public CryptographicMaterialsManager cmm() {
       return this.cmm;
     }
 
