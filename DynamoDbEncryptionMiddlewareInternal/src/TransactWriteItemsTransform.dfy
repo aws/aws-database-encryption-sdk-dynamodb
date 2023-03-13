@@ -23,7 +23,7 @@ module TransactWriteItemsTransform {
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
     //= type=implication
     //# To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
-    //# the client MUST fail if the `Update`, `ConditionCheck`, `Delete` and `Put` fields are all `None`.
+    //# the client MUST fail if none of the `Update`, `ConditionCheck`, `Delete` and `Put` fields are set.
     ensures output.Success? ==>
       forall item <- input.sdkInput.TransactItems ::
         && (item.Put.Some? || item.Update.Some? || item.Delete.Some? || item.ConditionCheck.Some?)

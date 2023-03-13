@@ -4,13 +4,15 @@
 /*
   Modified DDB calls share a lot of infrastructure.
   This file captures that commonality, implementing the things in ddb-support.md
+
+  TODO - specify and implement these functions
 */
 
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
 include "Util.dfy"
 
-module DynamoDBBeaconSupport { 
+module DynamoDBSupport { 
 
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbItemEncryptorTypes

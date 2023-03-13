@@ -11,10 +11,14 @@ these operations.
 The specific behavior of these operations will change over time,
 as more searchable encryption functionality is implemented.
 
-## IsWritable
+TODO - fully specify and implement these functions.
 
-IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
-Generally this means that no attribute names starts with "aws_dbe_"
+## Writable
+
+Writable examines an AttributeMap and ensures that all attribute names are suitable for writing.
+Generally this means that no attribute names starts with "aws_dbe_",
+and that the name isn't already reserved as a [compound beacon](beacons.md#compound-beacon)
+or [virtual field](virtual.md).
 
 ## TestConditionExpression
 

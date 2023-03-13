@@ -27,7 +27,7 @@ module ScanTransform {
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-scan
     //= type=implication
     //# The Scan request MUST NOT refer to any legacy parameters,
-    //# specifically AttributesToGet, ScanFilter and ConditionalOperator MUST be `None`.
+    //# specifically AttributesToGet, ScanFilter and ConditionalOperator MUST NOT be set.
     ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
       && input.sdkInput.AttributesToGet.None?
       && input.sdkInput.ScanFilter.None?

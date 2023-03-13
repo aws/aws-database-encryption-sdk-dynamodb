@@ -22,7 +22,7 @@ module UpdateItemTransform {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-updateitem
       //= type=implication
       //# The UpdateItem request MUST NOT refer to any legacy parameters,
-      //# specifically Expected, AttributeUpdates and ConditionalOperator MUST be `None`.
+      //# specifically Expected, AttributeUpdates and ConditionalOperator MUST NOT be set.
       && input.sdkInput.Expected.None?
       && input.sdkInput.AttributeUpdates.None?
       && input.sdkInput.ConditionalOperator.None?

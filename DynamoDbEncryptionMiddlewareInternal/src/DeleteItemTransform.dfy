@@ -24,7 +24,7 @@ module DeleteItemTransform {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-deleteitem
       //= type=implication
       //# The DeleteItem request MUST NOT refer to any legacy parameters,
-      //# specifically Expected and ConditionalOperator MUST be `None`.
+      //# specifically Expected and ConditionalOperator MUST NOT be set.
       && input.sdkInput.Expected.None?
       && input.sdkInput.ConditionalOperator.None?
 

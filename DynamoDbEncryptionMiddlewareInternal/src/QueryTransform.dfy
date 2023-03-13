@@ -18,7 +18,7 @@ module QueryTransform {
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
     //= type=implication
     //# If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
-    //# the Scan request MUST be unchanged.
+    //# the Query request MUST be unchanged.
     ensures input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
       && output.Success?
       && output.value.transformedInput == input.sdkInput
@@ -27,7 +27,7 @@ module QueryTransform {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
       //= type=implication
       //# The Query request MUST NOT refer to any legacy parameters,
-      //# specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST be `None`.
+      //# specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST NOT be set.
       && input.sdkInput.AttributesToGet.None?
       && input.sdkInput.KeyConditions.None?
       && input.sdkInput.QueryFilter.None?
@@ -129,7 +129,7 @@ module QueryTransform {
     }
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
-    //# The resulting decrypted response MUST be [filtered](ddb-support.md#scanoutputforbeacons) from the result.
+    //# The resulting decrypted response MUST be [filtered](ddb-support.md#queryoutputforbeacons) from the result.
     var decryptedOutput := input.sdkOutput.(Items := Some(decryptedItems));
     var finalResult :- QueryOutputForBeacons(tableConfig, input.originalInput, decryptedOutput);
     return Success(QueryOutputTransformOutput(transformedOutput := finalResult));

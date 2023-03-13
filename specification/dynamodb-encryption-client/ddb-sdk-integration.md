@@ -93,12 +93,12 @@ AWS SDK API calls to DynamoDB.
 ### General Modification Behavior
 
 If no Item Encryptor is specified for the table, the call to DynamoDB is unmodified.
-Otherwise
+Otherwise:
 
-No legacy parameters can be specified
+No DDB API legacy parameters (such as `AttributesToGet`) can be specified.
 
-Any Condition Expression must be Checked
-Any Update Expression must be Checked
+Any Condition Expression must be checked for [validity](ddb-support.md#testconditionexpression).
+Any Update Expression must be checked for [validity](ddb-support.md#testupdateexpression)
 
 If data is to be written
  - the input data must validated
@@ -155,7 +155,7 @@ the PutItem request MUST be unchanged.
 Otherwise,
 
 The PutItem request MUST NOT refer to any legacy parameters,
-specifically Expected and ConditionalOperator MUST be `None`.
+specifically Expected and ConditionalOperator MUST NOT be set.
 
 The Item MUST be [writable](ddb-support.md#writable).
 
@@ -183,14 +183,14 @@ calculated above.
 Before the [BatchWriteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html)
 call is made to DynamoDB :
 
-For each item in `RequestItems`
+For each table name in `RequestItems`
 
-If the `TableName` in the item does not refer to an [encrypted-table](#encrypted-table),
-the item MUST be unchanged.
+If the table name does not refer to an [encrypted-table](#encrypted-table),
+the list of operations MUST be unchanged.
 
 Otherwise,
 
-For each `WriteRequest` in the item, if there is a PutRequest :
+For each operation associated with the table name, if there is a PutRequest:
 
 The Item MUST be [writable](ddb-support.md#writable).
 
@@ -217,10 +217,9 @@ Before the [TransactWriteItems](https://docs.aws.amazon.com/amazondynamodb/lates
 call is made to DynamoDB, for every entry under `TransactItems`:
 
 To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
-the client MUST fail if the `Update`, `ConditionCheck`, `Delete` and `Put` fields are all `None`.
+the client MUST fail if none of the `Update`, `ConditionCheck`, `Delete` and `Put` fields are set.
 
-
-Any actions other than `Put, MUST be unchanged.
+Any actions other than `Put`, MUST be unchanged.
 
 Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
 MUST be unchanged.
@@ -344,7 +343,7 @@ with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 If any [Decrypt Item](./decrypt-item.md) fails,
 Query MUST yield an error.
 
-The resulting decrypted response MUST be [filtered](ddb-support.md#scanoutputforbeacons) from the result.
+The resulting decrypted response MUST be [filtered](ddb-support.md#queryoutputforbeacons) from the result.
 
 TODO: Is there a way we can return a partial result?
 
@@ -383,7 +382,7 @@ the UpdateItem request MUST be unchanged.
 Otherwise,
 
 The UpdateItem request MUST NOT refer to any legacy parameters,
-specifically Expected, AttributeUpdates and ConditionalOperator MUST be `None`.
+specifically Expected, AttributeUpdates and ConditionalOperator MUST NOT be set.
 
 The UpdateExpression MUST be [valid](ddb-support.md#testupdateexpression).
 
@@ -400,7 +399,7 @@ the DeleteItem request MUST be unchanged.
 Otherwise,
 
 The DeleteItem request MUST NOT refer to any legacy parameters,
-specifically Expected and ConditionalOperator MUST be `None`.
+specifically Expected and ConditionalOperator MUST NOT be set.
 
 The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
 
@@ -463,7 +462,7 @@ the Scan request MUST be unchanged.
 Otherwise
 
 The Scan request MUST NOT refer to any legacy parameters,
-specifically AttributesToGet, ScanFilter and ConditionalOperator MUST be `None`.
+specifically AttributesToGet, ScanFilter and ConditionalOperator MUST NOT be set.
 
 The request MUST be [altered](#scaninputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
@@ -474,12 +473,12 @@ Before the [Query](https://docs.aws.amazon.com/amazondynamodb/latest/APIReferenc
 call is made to DynamoDB :
 
 If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
-the Scan request MUST be unchanged.
+the Query request MUST be unchanged.
 
 Otherwise
 
 The Query request MUST NOT refer to any legacy parameters,
-specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST be `None`.
+specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST NOT be set.
 
 The request MUST be [altered](#queryinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.

@@ -30,7 +30,7 @@ module PutItemTransform {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
       //= type=implication
       //# The PutItem request MUST NOT refer to any legacy parameters,
-      //# specifically Expected and ConditionalOperator MUST be `None`.
+      //# specifically Expected and ConditionalOperator MUST NOT be set.
       && input.sdkInput.Expected.None? && input.sdkInput.ConditionalOperator.None?
 
       && var oldHistory := old(tableConfig.itemEncryptor.History.EncryptItem);
