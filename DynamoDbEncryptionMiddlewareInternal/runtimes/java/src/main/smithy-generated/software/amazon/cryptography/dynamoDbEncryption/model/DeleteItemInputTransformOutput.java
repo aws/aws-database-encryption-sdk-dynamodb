@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import java.util.Objects;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 
 public class DeleteItemInputTransformOutput {
-  private final DeleteItemRequest transformedInput ;
+  private final DeleteItemRequest transformedInput;
 
   protected DeleteItemInputTransformOutput(BuilderImpl builder) {
     this.transformedInput = builder.transformedInput();
   }
 
-  public DeleteItemRequest transformedInput () {
+  public DeleteItemRequest transformedInput() {
     return this.transformedInput;
   }
 
@@ -26,15 +26,15 @@ public class DeleteItemInputTransformOutput {
   }
 
   public interface Builder {
-    Builder transformedInput(DeleteItemRequest transformedInput );
+    Builder transformedInput(DeleteItemRequest transformedInput);
 
-    DeleteItemRequest transformedInput ();
+    DeleteItemRequest transformedInput();
 
     DeleteItemInputTransformOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected DeleteItemRequest transformedInput ;
+    protected DeleteItemRequest transformedInput;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class DeleteItemInputTransformOutput {
       this.transformedInput = model.transformedInput();
     }
 
-    public Builder transformedInput(DeleteItemRequest transformedInput ) {
+    public Builder transformedInput(DeleteItemRequest transformedInput) {
       this.transformedInput = transformedInput;
       return this;
     }
 
-    public DeleteItemRequest transformedInput () {
+    public DeleteItemRequest transformedInput() {
       return this.transformedInput;
     }
 

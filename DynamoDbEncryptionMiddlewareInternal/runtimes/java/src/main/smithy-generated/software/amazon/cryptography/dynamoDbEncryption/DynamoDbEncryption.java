@@ -3,7 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption;
 
+///// BEGIN MANUAL FIX
 import Dafny.Aws.Cryptography.DynamoDbEncryption.DynamoDbEncryptionMiddlewareInternalClient;
+///// END MANUAL FIX
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbEncryptionMiddlewareInternalClient;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.__default;
@@ -64,13 +66,15 @@ import software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemInputTran
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformOutput;
 
-public class DynamoDbEncryptionMiddlewareInternal {
+public class DynamoDbEncryption {
   private final IDynamoDbEncryptionMiddlewareInternalClient _impl;
 
-  protected DynamoDbEncryptionMiddlewareInternal(BuilderImpl builder) {
+  protected DynamoDbEncryption(BuilderImpl builder) {
     DynamoDbEncryptionConfig nativeValue = builder.DynamoDbEncryptionConfig();
     Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbEncryptionConfig dafnyValue = ToDafny.DynamoDbEncryptionConfig(nativeValue);
+    ///// BEGIN MANUAL FIX
     Result<DynamoDbEncryptionMiddlewareInternalClient, Error> result = __default.DynamoDbEncryption(dafnyValue);
+    ///// END MANUAL FIX
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -79,10 +83,6 @@ public class DynamoDbEncryptionMiddlewareInternal {
 
   public static Builder builder() {
     return new BuilderImpl();
-  }
-
-  protected IDynamoDbEncryptionMiddlewareInternalClient impl() {
-    return this._impl;
   }
 
   public PutItemInputTransformOutput PutItemInputTransform(PutItemInputTransformInput nativeValue) {
@@ -339,12 +339,16 @@ public class DynamoDbEncryptionMiddlewareInternal {
     return ToNative.ExecuteTransactionOutputTransformOutput(result.dtor_value());
   }
 
+  protected IDynamoDbEncryptionMiddlewareInternalClient impl() {
+    return this._impl;
+  }
+
   public interface Builder {
     Builder DynamoDbEncryptionConfig(DynamoDbEncryptionConfig DynamoDbEncryptionConfig);
 
     DynamoDbEncryptionConfig DynamoDbEncryptionConfig();
 
-    DynamoDbEncryptionMiddlewareInternal build();
+    DynamoDbEncryption build();
   }
 
   static class BuilderImpl implements Builder {
@@ -362,11 +366,11 @@ public class DynamoDbEncryptionMiddlewareInternal {
       return this.DynamoDbEncryptionConfig;
     }
 
-    public DynamoDbEncryptionMiddlewareInternal build() {
+    public DynamoDbEncryption build() {
       if (Objects.isNull(this.DynamoDbEncryptionConfig()))  {
         throw new IllegalArgumentException("Missing value for required field `DynamoDbEncryptionConfig`");
       }
-      return new DynamoDbEncryptionMiddlewareInternal(this);
+      return new DynamoDbEncryption(this);
     }
   }
 }

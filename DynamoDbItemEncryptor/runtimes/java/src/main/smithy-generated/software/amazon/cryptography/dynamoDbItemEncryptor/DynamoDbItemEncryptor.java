@@ -33,10 +33,6 @@ public class DynamoDbItemEncryptor {
     return new BuilderImpl();
   }
 
-  protected IDynamoDbItemEncryptorClient impl() {
-    return this._impl;
-  }
-
   public EncryptItemOutput EncryptItem(EncryptItemInput nativeValue) {
     Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemInput dafnyValue = ToDafny.EncryptItemInput(nativeValue);
     Result<Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemOutput, Error> result = this._impl.EncryptItem(dafnyValue);
@@ -53,6 +49,10 @@ public class DynamoDbItemEncryptor {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.DecryptItemOutput(result.dtor_value());
+  }
+
+  protected IDynamoDbItemEncryptorClient impl() {
+    return this._impl;
   }
 
   public interface Builder {
