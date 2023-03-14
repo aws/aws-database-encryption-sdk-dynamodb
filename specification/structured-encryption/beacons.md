@@ -50,7 +50,7 @@ with something else in a [virtual field](#virtual-field).
 With more evenly distributed values, such as zip code,
 a unique hash can still reveal that two records have the same zip code as each other,
 even if the exact zip code is still a mystery.
-To avoid this, we truncate the hash to ensure some collisions.
+To avoid being able to distinguish unique values, we truncate the hash to ensure some collisions.
 
 For a field with `X` distinct values, you should choose a beacon length `N`
 such that `2^N < X/2` to guarantee collisions.
@@ -286,7 +286,7 @@ A constructor part config MUST have the following inputs:
 
 #### Constructor
 
-  A Constructor MUST be a list of [constructor parts](#constructor-part)],
+  A Constructor MUST be a list of [constructor parts](#constructor-part),
   each corresponding to a field name in a [part](#part).
 
 ### Default Construction
@@ -306,6 +306,9 @@ some part of an encrypted field.
 
 Construction MUST fail if any [constructor](#constructor) is configured with a field name
 that is not a defined [part](#part).
+
+TODO - It might be a good idea to fail if it's possible for more than one
+constructor to succeed. More thought is necessary.
 
 ## Beacon Operations
 

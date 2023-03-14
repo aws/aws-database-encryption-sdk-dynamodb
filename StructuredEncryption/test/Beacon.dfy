@@ -8,31 +8,7 @@ module TestBaseBeacon {
   import opened BaseBeacon
   import opened CompoundBeacon
   import opened Wrappers
-/*
-  method TestFail(b : Beacon, s : string)
-  {
-    var str := b.compoundHash(s);
-    if !str.Failure? {
-      print "Expected failure, got " + str.value + ", from ", s, "\n";
-    }
-    expect str.Failure?;
-  }
 
-  method TestCompound(b : Beacon, s : string, exp : string)
-  {
-    var str := b.compoundHash(s);
-    if !str.Success? {
-      print "Expected Success, got failure, from ", s, "\n", str, "\n";
-    }
-
-    expect str.Success?;
-
-    if (str.value != exp) {
-      print "Expected ", exp, " got ", str.value, " from ", s, "\n";
-    }
-    expect str.value == exp;
-  }
-*/
   const Timestamp := BeaconPart("timestamp", "T-", None);
   const Secret := BeaconPart("secret", "S-", Some(4));
 

@@ -88,12 +88,8 @@ module BaseBeacon {
         key := key,
         message := data
       );
-      var outputR := client.HMac(input);
-      var output :- outputR.MapFailure(e => AwsCryptographyPrimitives(e));
-      if |output| != 48 then
-        Failure(E("HMAC_384 did not produce 384 bits"))
-      else
-        Success(output[..8])
+      var output :- client.HMac(input).MapFailure(e => AwsCryptographyPrimitives(e));
+      Success(output[..8])
     }
   }
   
@@ -238,5 +234,4 @@ module BaseBeacon {
     else
       HexStr(val[0]) + HexFmt(val[1..])
   }
-
 }
