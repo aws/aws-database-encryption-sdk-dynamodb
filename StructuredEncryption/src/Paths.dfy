@@ -18,10 +18,17 @@ module StructuredEncryptionPaths {
     | Map(key : GoodString)
 
   type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
+  type TerminalSelector = x : seq<Selector> | ValidTerminalSelector(x) witness *
+
+  predicate method ValidTerminalSelector(s : seq<Selector>)
+  {
+    && 0 < |s| < UINT64_LIMIT
+    && s[0].Map?
+  }
 
   // a specific part of a structure
   datatype TerminalLocation = TerminalLocation (
-    parts : SelectorList
+    parts : TerminalSelector
   )
   {
     // Return the Canonical Path for this part of an item in this table
