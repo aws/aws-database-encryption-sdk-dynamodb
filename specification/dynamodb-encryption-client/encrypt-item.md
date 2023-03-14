@@ -63,6 +63,20 @@ in the input DynamoDB Item).
 This behavior REQUIRES a [Structured Data](../structured-encryption/structures.md#structured-data)
 which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#dynamodb-item).
 
+This operation MUST create a
+[Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+with the following inputs:
+- Either this item encryptor's [CMM](./ddb-item-encryptor.md#cmm) or [Keyring](./ddb-item-encryptor.md#keyring)
+  as the underlying CMM or Keyring.
+- The following required encryption context keys:
+  - "aws-crypto-table-name"
+  - "aws-crypto-partition-name"
+  - "aws-crypto-sort-name"
+  - For every attribute on the [input DynamoDb Item](#dynamodb-item),
+    the following concatenation,
+    where `attributeName` is the name of the attribute:
+      "aws-crypto-attr." + `attributeName`
+
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
 this operation MUST delegate encryption of this data to
 Structured Encryption Client's [Encrypt Structure](../structured-encryption/encrypt-structure.md),
@@ -80,8 +94,7 @@ with the following inputs:
   [Algorithm Suite configured on this Item Encryptor](./ddb-item-encryptor.md#algorithm-suite).
   If not configured on the Item Encryptor, Algorithm Suite MUST NOT be specified.
 - Encryption Context MUST be this input Item's [DynamoDB Item Base Context](#dynamodb-item-base-context).
-- TODO: CMM depends on MPL changes that should be spec'd out first
-  (specifically configuring EC keys that are required on Decrypt)
+- The CMM MUST be the CMM created above.
 
 The output to this behavior is the [conversion](./ddb-item-conversion.md)
 of the Encrypted Structured Data determined above
@@ -92,19 +105,18 @@ into the [Encrypted DynamoDB Item](#encrypted-dynamodb-item).
 A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 The DynamoDB Item Base Context MUST contain:
-  - the key `aws-crypto-table-name` with a value equal to the DynamoDB Table Name of the DynamoDB Table
+  - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
     this item is stored in (or will be stored in).
-  - the key `aws-crypto-partition-name` with a value equal to the name of the Partition Key on this item.
-  - the key `aws-crypto-partition-value` with a value equal to this item's partition attribute,
-    serialized according to [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
-    and [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
+  - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
   - If this item has a sort key attribute,
-    the key `aws-crypto-sort-name` with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-  - If this item has a sort key attribute,
-    the key `aws-crypto-sort-value` with a value equal to this item's sort attribute,
-    serialized according to [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
-    and [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
-  - TODO: Instead of DDB Table Name, do we want an option to use the Table ARN in the EC?
+    the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+  - For every attribute on the item, the following key-value pair:
+    - the key is the following concatenation,
+      where `attributeName` is the name of the attribute:
+        "aws-crypto-attr." + `attributeName`
+    - the value is the attribute's value serialized according to
+      [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
+      and then [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the keys

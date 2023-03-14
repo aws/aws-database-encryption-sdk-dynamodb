@@ -56,6 +56,20 @@ The DynamoDB Item is the decryption of the [input DynamoBD Item](#dynamodb-item)
 This behavior REQUIRES a [Structured Data](../structured-encryption/structures.md#structured-data)
 which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#dynamodb-item).
 
+This operation MUST create a
+[Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+with the following inputs:
+- Either this item encryptor's [CMM](./ddb-item-encryptor.md#cmm) or [Keyring](./ddb-item-encryptor.md#keyring)
+  as the underlying CMM or Keyring.
+- The following required encryption context keys:
+  - "aws-crypto-table-name"
+  - "aws-crypto-partition-name"
+  - "aws-crypto-sort-name"
+  - For every attribute on the [input DynamoDb Item](#dynamodb-item),
+    the following concatenation,
+    where `attributeName` is the name of the attribute:
+      "aws-crypto-attr." + `attributeName`
+
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
 this operation MUST delegate decryption of this data to
 Structured Encryption Client's [Decrypt Structure](../structured-encryption/encrypt-structure.md),
@@ -76,7 +90,7 @@ with the following inputs:
   - The number of Authenticate Actions in the Authenticate Schema
     MUST EQUAL the number of Attributes on the [input DynamoDB Item](#dynamodb-item).
 - Encryption Context MUST be the input Item's [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
-- CMM MUST be the [CMM configured on this Item Encryptor](./ddb-item-encryptor.md#cmm).
+- CMM MUST be the CMM constructed above.
 
 The output to this behavior is the [conversion](./ddb-item-conversion.md)
 of the decrypted Structured Data determined above
