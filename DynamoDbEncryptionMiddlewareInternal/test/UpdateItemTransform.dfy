@@ -36,6 +36,31 @@ module UpdateItemTransformTest {
     expect_equal("UpdateItemInput", transformed.value.transformedInput, input);
   }
 
+    method {:test} TestUpdateItemInputUpdateExpression() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var input := DDB.UpdateItemInput(
+      TableName := "foo",
+      Key := map[],
+      AttributeUpdates := None(),
+      Expected := None(),
+      ConditionalOperator := None(),
+      ReturnValues := None(),
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      UpdateExpression := Some("foo"),
+      ConditionExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None()
+    );
+    var transformed := middlewareUnderTest.UpdateItemInputTransform(
+      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+
+    ExpectFailure(transformed, "Update Expressions forbidden on encrypted tables");
+  }
+
   method {:test} TestUpdateItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
     var output := DDB.UpdateItemOutput(

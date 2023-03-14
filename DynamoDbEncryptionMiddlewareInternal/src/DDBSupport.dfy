@@ -25,7 +25,7 @@ module DynamoDBMiddlewareSupport {
     : Result<bool, Error>
   {
     BS.IsWriteable(config.itemEncryptor.config, item)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // TestConditionExpression fails if a condition expression is not suitable for the
@@ -40,7 +40,7 @@ module DynamoDBMiddlewareSupport {
     : Result<bool, Error>
   {
     BS.TestConditionExpression(config.itemEncryptor.config, expr, attrNames, attrValues)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // TestUpdateExpression fails if an update expression is not suitable for the
@@ -55,7 +55,7 @@ module DynamoDBMiddlewareSupport {
     : Result<bool, Error>
   {
     BS.TestUpdateExpression(config.itemEncryptor.config, expr, attrNames, attrValues)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
@@ -64,7 +64,7 @@ module DynamoDBMiddlewareSupport {
     : Result<DDB.AttributeMap, Error>
   {
     BS.AddBeacons(config.itemEncryptor.config, item)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
@@ -73,7 +73,7 @@ module DynamoDBMiddlewareSupport {
     : Result<DDB.AttributeMap, Error>
   {
     BS.RemoveBeacons(config.itemEncryptor.config, item)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a CreateTableInput object for searchable encryption.
@@ -81,7 +81,7 @@ module DynamoDBMiddlewareSupport {
     : Result<DDB.CreateTableInput, Error>
   {
     BS.CreateTableInputForBeacons(config.itemEncryptor.config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a UpdateTableInput object for searchable encryption.
@@ -89,7 +89,7 @@ module DynamoDBMiddlewareSupport {
     : Result<DDB.UpdateTableInput, Error>
   {
     BS.UpdateTableInputForBeacons(config.itemEncryptor.config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a QueryInput object for searchable encryption.
@@ -97,7 +97,7 @@ module DynamoDBMiddlewareSupport {
     : Result<DDB.QueryInput, Error>
   {
     BS.QueryInputForBeacons(config.itemEncryptor.config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a QueryOutput object for searchable encryption.
@@ -109,7 +109,7 @@ module DynamoDBMiddlewareSupport {
       && |ret.value.Items.value| == |resp.Items.value|
   {
     BS.QueryOutputForBeacons(config.itemEncryptor.config, req, resp)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a ScanInput object for searchable encryption.
@@ -117,7 +117,7 @@ module DynamoDBMiddlewareSupport {
     : Result<DDB.ScanInput, Error>
   {
     BS.ScanInputForBeacons(config.itemEncryptor.config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a ScanOutput object for searchable encryption.
@@ -129,6 +129,6 @@ module DynamoDBMiddlewareSupport {
       && |ret.value.Items.value| == |resp.Items.value|
   {
     BS.ScanOutputForBeacons(config.itemEncryptor.config, req, resp)
-      .MapFailure(e => AwsCryptographyDynamoDbItemEncryptor(e))
+      .MapFailure(e => E(e))
   }
 }

@@ -29,7 +29,7 @@ module DynamoDBSupport {
   // Generally this means that no attribute names starts with "aws_dbe_"
   // an no field has the same name as a virtual field or virtual database field.
   function method IsWriteable(config : Config, item : DDB.AttributeMap)
-    : Result<bool, Error>
+    : Result<bool, string>
   {
     Success(true)
   }
@@ -43,10 +43,10 @@ module DynamoDBSupport {
     attrNames: Option<DDB.ExpressionAttributeNameMap>,
     attrValues: Option<DDB.ExpressionAttributeValueMap>
   )
-    : Result<bool, Error>
+    : Result<bool, string>
   {
     if expr.Some? then
-      Failure(E("Condition Expressions forbidden on encrypted tables"))
+      Failure("Condition Expressions forbidden on encrypted tables")
     else
       Success(true)
   }
@@ -60,10 +60,10 @@ module DynamoDBSupport {
     attrNames: Option<DDB.ExpressionAttributeNameMap>,
     attrValues: Option<DDB.ExpressionAttributeValueMap>
   )
-    : Result<bool, Error>
+    : Result<bool, string>
   {
     if expr.Some? then
-      Failure(E("Update Expressions forbidden on encrypted tables"))
+      Failure("Update Expressions forbidden on encrypted tables")
     else
       Success(true)
   }
@@ -71,7 +71,7 @@ module DynamoDBSupport {
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
   function method AddBeacons(config : Config, item : DDB.AttributeMap)
-    : Result<DDB.AttributeMap, Error>
+    : Result<DDB.AttributeMap, string>
   {
     Success(item)
   }
@@ -79,35 +79,35 @@ module DynamoDBSupport {
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
   // returning a replacement AttributeMap.
   function method RemoveBeacons(config : Config, item : DDB.AttributeMap)
-    : Result<DDB.AttributeMap, Error>
+    : Result<DDB.AttributeMap, string>
   {
     Success(item)
   }
 
   // Transform a CreateTableInput object for searchable encryption.
   function method CreateTableInputForBeacons(config : Config, req : DDB.CreateTableInput)
-    : Result<DDB.CreateTableInput, Error>
+    : Result<DDB.CreateTableInput, string>
   {
     Success(req)
   }
 
   // Transform a UpdateTableInput object for searchable encryption.
   function method UpdateTableInputForBeacons(config : Config, req : DDB.UpdateTableInput)
-    : Result<DDB.UpdateTableInput, Error>
+    : Result<DDB.UpdateTableInput, string>
   {
     Success(req)
   }
 
   // Transform a QueryInput object for searchable encryption.
   function method QueryInputForBeacons(config : Config, req : DDB.QueryInput)
-    : Result<DDB.QueryInput, Error>
+    : Result<DDB.QueryInput, string>
   {
     Success(req)
   }
 
   // Transform a QueryOutput object for searchable encryption.
   function method QueryOutputForBeacons(config : Config, req : DDB.QueryInput, resp : DDB.QueryOutput)
-    : (ret : Result<DDB.QueryOutput, Error>)
+    : (ret : Result<DDB.QueryOutput, string>)
     requires resp.Items.Some?
     ensures ret.Success? ==>
       && ret.value.Items.Some?
@@ -118,14 +118,14 @@ module DynamoDBSupport {
 
   // Transform a ScanInput object for searchable encryption.
   function method ScanInputForBeacons(config : Config, req : DDB.ScanInput)
-    : Result<DDB.ScanInput, Error>
+    : Result<DDB.ScanInput, string>
   {
     Success(req)
   }
 
   // Transform a ScanOutput object for searchable encryption.
   function method ScanOutputForBeacons(config : Config, req : DDB.ScanInput, resp : DDB.ScanOutput)
-    : (ret : Result<DDB.ScanOutput, Error>)
+    : (ret : Result<DDB.ScanOutput, string>)
     requires resp.Items.Some?
     ensures ret.Success? ==>
       && ret.value.Items.Some?

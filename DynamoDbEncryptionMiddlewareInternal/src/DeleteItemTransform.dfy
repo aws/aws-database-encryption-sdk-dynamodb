@@ -56,11 +56,10 @@ module DeleteItemTransform {
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
 
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
-      var flag :- TestConditionExpression(tableConfig,
+      var _ :- TestConditionExpression(tableConfig,
         input.sdkInput.ConditionExpression,
         input.sdkInput.ExpressionAttributeNames,
         input.sdkInput.ExpressionAttributeValues);
-      :- Need(flag, E("spoo"));
     }
     return Success(DeleteItemInputTransformOutput(transformedInput := input.sdkInput));
   }
