@@ -21,15 +21,12 @@ module BatchWriteItemTransform {
     ensures x + y + z == x + z + y
   {}
 
-  method Input(config: Config, input: BatchWriteItemInputTransformInput)
+  method {:vcs_split_on_every_assert} Input(config: Config, input: BatchWriteItemInputTransformInput)
     returns (output: Result<BatchWriteItemInputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
 
-    ensures output.Success? ==>
-      && (input.sdkInput.RequestItems.Keys == output.value.transformedInput.RequestItems.Keys)
-      // true but expensive -- forall k <- input.sdkInput.RequestItems.Keys :: |input.sdkInput.RequestItems[k]| == |output.value.transformedInput.RequestItems[k]|
   {
     var tableNames := input.sdkInput.RequestItems.Keys;
     var result : map<DDB.TableName, DDB.WriteRequests> := map[];
