@@ -193,6 +193,14 @@ module StructuredEncryptionCrypt {
       //= type=implication
       //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
       //# and the Message ID generated for this Encrypted Structured Data.
+
+      //= specification/structured-encryption/encrypt-structure.md#calculate-info
+      //= type=implication
+      //# The `info` used for the HKDF function MUST be
+      //# | Field                | Length   |
+      //# | -------------------- | -------- |
+      //# | "AWS_DBE_DERIVE_KEY" | 18       |
+      //# | Message ID           | 32       |
       && var history := client.History.Hkdf;
       && 0 < |history|
       && var hkdfInput := Seq.Last(history).input;

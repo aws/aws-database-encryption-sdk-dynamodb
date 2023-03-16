@@ -61,14 +61,7 @@ This operation MUST create a
 with the following inputs:
 - Either this item encryptor's [CMM](./ddb-item-encryptor.md#cmm) or [Keyring](./ddb-item-encryptor.md#keyring)
   as the underlying CMM or Keyring.
-- The following required encryption context keys:
-  - "aws-crypto-table-name"
-  - "aws-crypto-partition-name"
-  - "aws-crypto-sort-name"
-  - For every attribute on the [input DynamoDb Item](#dynamodb-item),
-    the following concatenation,
-    where `attributeName` is the name of the attribute:
-      "aws-crypto-attr." + `attributeName`
+- The keys from the [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
 
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
 this operation MUST delegate decryption of this data to

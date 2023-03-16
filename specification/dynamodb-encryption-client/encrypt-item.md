@@ -68,14 +68,7 @@ This operation MUST create a
 with the following inputs:
 - Either this item encryptor's [CMM](./ddb-item-encryptor.md#cmm) or [Keyring](./ddb-item-encryptor.md#keyring)
   as the underlying CMM or Keyring.
-- The following required encryption context keys:
-  - "aws-crypto-table-name"
-  - "aws-crypto-partition-name"
-  - "aws-crypto-sort-name"
-  - For every attribute on the [input DynamoDb Item](#dynamodb-item),
-    the following concatenation,
-    where `attributeName` is the name of the attribute:
-      "aws-crypto-attr." + `attributeName`
+- The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context)
 
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
 this operation MUST delegate encryption of this data to
@@ -110,7 +103,7 @@ The DynamoDB Item Base Context MUST contain:
   - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
   - If this item has a sort key attribute,
     the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-  - For every attribute on the item, the following key-value pair:
+  - For every SIGN_ONLY attribute on the item, the following key-value pair:
     - the key is the following concatenation,
       where `attributeName` is the name of the attribute:
         "aws-crypto-attr." + `attributeName`
@@ -119,6 +112,4 @@ The DynamoDB Item Base Context MUST contain:
       and then [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
 
 If this item does not have a sort key attribute,
-the DynamoDB Item Context MUST NOT contain the keys
-`aws-crypto-sort-name` or
-`aws-crypto-sort-value`.
+the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
