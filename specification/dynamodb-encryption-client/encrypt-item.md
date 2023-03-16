@@ -66,8 +66,7 @@ which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#d
 This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
-- Either this item encryptor's [CMM](./ddb-item-encryptor.md#cmm) or [Keyring](./ddb-item-encryptor.md#keyring)
-  as the underlying CMM or Keyring.
+- This item encryptor's [CMM](./ddb-item-encryptor.md#cmm) as the underlying CMM.
 - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context)
 
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
@@ -103,7 +102,8 @@ The DynamoDB Item Base Context MUST contain:
   - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
   - If this item has a sort key attribute,
     the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-  - For every SIGN_ONLY attribute on the item, the following key-value pair:
+  - For every [SIGN_ONLY](../structured-encryption/structures.md#signonly) attribute on the item,
+    the following key-value pair:
     - the key is the following concatenation,
       where `attributeName` is the name of the attribute:
         "aws-crypto-attr." + `attributeName`
