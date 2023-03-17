@@ -99,7 +99,8 @@ module TestFixtures {
             allowedUnauthenticatedAttributePrefix := None(),
             algorithmSuiteId := None(),
             keyring := Some(keyring),
-            cmm := None()
+            cmm := None(),
+            beacons := None
           )
         ]
       )
