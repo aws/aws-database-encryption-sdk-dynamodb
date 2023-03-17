@@ -50,6 +50,11 @@ module DdbMiddlewareConfig {
     r.MapFailure(e => Error.DynamoDbEncryptionException(message := e))
   }
 
+  // string to Error
+  function method E(s : string) : Error {
+    DynamoDbEncryptionException(message := s)
+  }
+
   function method MakeError<X>(s : string) : Result<X, Error>
   {
     Failure(Error.DynamoDbEncryptionException(message := s))

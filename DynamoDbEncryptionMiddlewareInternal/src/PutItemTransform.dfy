@@ -1,10 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DdbMiddlewareConfig.dfy"
+include "DDBSupport.dfy"
 
 module PutItemTransform {
   import opened DdbMiddlewareConfig
+  import opened DynamoDBMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes
@@ -19,46 +20,25 @@ module PutItemTransform {
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
     //= type=implication
-    //# If there exists an Item Encryptor specified within the
-    //# [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-    //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-    //# equal to `TableName` in the request,
-    //# this PutItem request MUST NOT contain a `ConditionExpression`.
-
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-    //= type=implication
-    //# If the above validation fails,
-    //# the client MUST NOT make a network call to DynamoDB,
-    //# and PutItem MUST yield an error.
-    ensures
-      && input.sdkInput.TableName in config.tableEncryptionConfigs
-      && (input.sdkInput.ConditionExpression.Some? || input.sdkInput.ConditionalOperator.Some?)
-      ==> output.Failure?
-
+    //# If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+    //# the PutItem request MUST be unchanged.
     ensures output.Success? && input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
             output.value.transformedInput == input.sdkInput
 
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-    //= type=implication
-    //# If the request is validated,
-    //# it MUST be modified before a network call is made to DynamoDB
-    //# if there exists an Item Encryptor specified within the
-    //# [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-    //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-    //# equal to `TableName` in the request.
     ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
-      var oldHistory := old(config.tableEncryptionConfigs[input.sdkInput.TableName].itemEncryptor.History.EncryptItem);
-      var newHistory := config.tableEncryptionConfigs[input.sdkInput.TableName].itemEncryptor.History.EncryptItem;
-      && |newHistory| == |oldHistory|+1
-      && Seq.Last(newHistory).output.Success?
-
+      && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
       //= type=implication
-      //# This [Item Encryptor](./ddb-item-encryptor.md) MUST perform
-      //# [Encrypt Item](./encrypt-item.md),
-      //# where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-      //# is the `Item` field in the original request.
-      && Seq.Last(newHistory).input.plaintextItem == input.sdkInput.Item
+      //# The PutItem request MUST NOT refer to any legacy parameters,
+      //# specifically Expected and ConditionalOperator MUST NOT be set.
+      && input.sdkInput.Expected.None? && input.sdkInput.ConditionalOperator.None?
+
+      && var oldHistory := old(tableConfig.itemEncryptor.History.EncryptItem);
+      && var newHistory := tableConfig.itemEncryptor.History.EncryptItem;
+      && |newHistory| == |oldHistory|+1
+      && Seq.Last(newHistory).output.Success?
+      && var encryptInput := Seq.Last(newHistory).input;
+      && var encryptOutput := Seq.Last(newHistory).output.value;
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
       //= type=implication
@@ -66,17 +46,55 @@ module PutItemTransform {
       //# with a value that is equivalent to
       //# the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
       //# calculated above.
-      && Seq.Last(newHistory).output.value.encryptedItem == output.value.transformedInput.Item
+      && encryptOutput.encryptedItem == output.value.transformedInput.Item
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
+      //= type=implication
+      //# The Item MUST be [writable](ddb-support.md#writable).
+      && IsWriteable(tableConfig, input.sdkInput.Item).Success?
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
+      //= type=implication
+      //# The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
+      && TestConditionExpression(tableConfig,
+          input.sdkInput.ConditionExpression,
+          input.sdkInput.ExpressionAttributeNames,
+          input.sdkInput.ExpressionAttributeValues).Success?
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
+      //= type=implication
+      //# Beacons MUST be [added](ddb-support.md#addbeacons).
+      && AddBeacons(tableConfig, input.sdkInput.Item).Success?
+      && var item := AddBeacons(tableConfig, input.sdkInput.Item).value;
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
+      //= type=implication
+      //# If the request is validated,
+      //# the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+      //# [Encrypt Item](./encrypt-item.md),
+      //# where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
+      //# is output of the [add beacons](ddb-support.md#addbeacons) operation.
+      && encryptInput.plaintextItem == item
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput));
     }
-    if input.sdkInput.ConditionExpression.Some? || input.sdkInput.ConditionalOperator.Some? {
-      return MakeError("Condition Expressions not supported in PutItem with Encryption.");
-    }
     var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+
+    if input.sdkInput.Expected.Some? {
+      return MakeError("Legacy parameter 'Expected' not supported in PutItem with Encryption.");
+    }
+    if input.sdkInput.ConditionalOperator.Some? {
+      return MakeError("Legacy parameter 'ConditionalOperator' not supported in PutItem with Encryption.");
+    }
+    var _ :- IsWriteable(tableConfig, input.sdkInput.Item);
+    var _ :- TestConditionExpression(tableConfig,
+      input.sdkInput.ConditionExpression,
+      input.sdkInput.ExpressionAttributeNames,
+      input.sdkInput.ExpressionAttributeValues);
+    var item :- AddBeacons(tableConfig, input.sdkInput.Item);
     var encryptRes := tableConfig.itemEncryptor.EncryptItem(
-      EncTypes.EncryptItemInput(plaintextItem:=input.sdkInput.Item)
+      EncTypes.EncryptItemInput(plaintextItem:=item)
     );
     var encrypted :- MapError(encryptRes);
     return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem)));
