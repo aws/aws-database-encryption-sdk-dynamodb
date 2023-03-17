@@ -34,7 +34,7 @@ use com.amazonaws.dynamodb#KeySchemaAttributeName
   sdkId: "DynamoDbEncryption",
   config: DynamoDbEncryptionConfig,
 )
-service DynamoDbEncryptionMiddlewareInternal {
+service DynamoDbEncryption {
     version: "2022-11-21",
     operations: [
       PutItemInputTransform,

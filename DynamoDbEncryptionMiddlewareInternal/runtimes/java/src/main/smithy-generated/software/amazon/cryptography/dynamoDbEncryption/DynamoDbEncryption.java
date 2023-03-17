@@ -5,7 +5,7 @@ package software.amazon.cryptography.dynamoDbEncryption;
 
 import Dafny.Aws.Cryptography.DynamoDbEncryption.DynamoDbEncryptionClient;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbEncryptionMiddlewareInternalClient;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbEncryptionClient;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.__default;
 import Wrappers_Compile.Result;
 import java.lang.IllegalArgumentException;
@@ -77,7 +77,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.UpdateTableOutputTr
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateTableOutputTransformOutput;
 
 public class DynamoDbEncryption {
-  private final IDynamoDbEncryptionMiddlewareInternalClient _impl;
+  private final IDynamoDbEncryptionClient _impl;
 
   protected DynamoDbEncryption(BuilderImpl builder) {
     DynamoDbEncryptionConfig nativeValue = builder.DynamoDbEncryptionConfig();
@@ -407,7 +407,7 @@ public class DynamoDbEncryption {
     return ToNative.DescribeTableOutputTransformOutput(result.dtor_value());
   }
 
-  protected IDynamoDbEncryptionMiddlewareInternalClient impl() {
+  protected IDynamoDbEncryptionClient impl() {
     return this._impl;
   }
 
