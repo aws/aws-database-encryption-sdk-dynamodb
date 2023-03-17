@@ -57,6 +57,52 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype BatchWriteItemOutputTransformOutput = | BatchWriteItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.BatchWriteItemOutput
  )
+ datatype BeaconVersion = | BeaconVersion (
+ nameonly version: VersionNumber ,
+ nameonly keyring: AwsCryptographyMaterialProvidersTypes.IKeyring ,
+ nameonly standardBeacons: Option<StandardBeaconList> ,
+ nameonly compoundBeacons: Option<CompoundBeaconList> ,
+ nameonly virtualFields: Option<VirtualFieldList>
+ )
+ type BeaconVersionList = seq<BeaconVersion>
+ type BitLength = x: int32 | IsValid_BitLength(x) witness *
+ predicate method IsValid_BitLength(x: int32) {
+ ( 1 <= x <= 63 )
+}
+ type Char = x: string | IsValid_Char(x) witness *
+ predicate method IsValid_Char(x: string) {
+ ( 1 <= |x| <= 1 )
+}
+ datatype CompoundBeacon = | CompoundBeacon (
+ nameonly name: string ,
+ nameonly split: Char ,
+ nameonly sensitive: SensitivePartsList ,
+ nameonly nonSensitive: Option<NonSensitivePartsList> ,
+ nameonly constructors: Option<ConstructorList>
+ )
+ type CompoundBeaconList = seq<CompoundBeacon>
+ datatype Constructor = | Constructor (
+ nameonly parts: ConstructorPartList
+ )
+ type ConstructorList = seq<Constructor>
+ datatype ConstructorPart = | ConstructorPart (
+ nameonly name: string ,
+ nameonly required: bool
+ )
+ type ConstructorPartList = seq<ConstructorPart>
+ datatype CreateTableInputTransformInput = | CreateTableInputTransformInput (
+ nameonly sdkInput: ComAmazonawsDynamodbTypes.CreateTableInput
+ )
+ datatype CreateTableInputTransformOutput = | CreateTableInputTransformOutput (
+ nameonly transformedInput: ComAmazonawsDynamodbTypes.CreateTableInput
+ )
+ datatype CreateTableOutputTransformInput = | CreateTableOutputTransformInput (
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.CreateTableOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.CreateTableInput
+ )
+ datatype CreateTableOutputTransformOutput = | CreateTableOutputTransformOutput (
+ nameonly transformedOutput: ComAmazonawsDynamodbTypes.CreateTableOutput
+ )
  datatype DeleteItemInputTransformInput = | DeleteItemInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.DeleteItemInput
  )
@@ -70,10 +116,23 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype DeleteItemOutputTransformOutput = | DeleteItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.DeleteItemOutput
  )
+ datatype DescribeTableInputTransformInput = | DescribeTableInputTransformInput (
+ nameonly sdkInput: ComAmazonawsDynamodbTypes.DescribeTableInput
+ )
+ datatype DescribeTableInputTransformOutput = | DescribeTableInputTransformOutput (
+ nameonly transformedInput: ComAmazonawsDynamodbTypes.DescribeTableInput
+ )
+ datatype DescribeTableOutputTransformInput = | DescribeTableOutputTransformInput (
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.DescribeTableOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.DescribeTableInput
+ )
+ datatype DescribeTableOutputTransformOutput = | DescribeTableOutputTransformOutput (
+ nameonly transformedOutput: ComAmazonawsDynamodbTypes.DescribeTableOutput
+ )
  datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
  nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
  )
- class IDynamoDbEncryptionMiddlewareInternalClientCallHistory {
+ class IDynamoDbEncryptionClientCallHistory {
  ghost constructor() {
  PutItemInputTransform := [];
  PutItemOutputTransform := [];
@@ -101,6 +160,12 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  BatchExecuteStatementOutputTransform := [];
  ExecuteTransactionInputTransform := [];
  ExecuteTransactionOutputTransform := [];
+ CreateTableInputTransform := [];
+ CreateTableOutputTransform := [];
+ UpdateTableInputTransform := [];
+ UpdateTableOutputTransform := [];
+ DescribeTableInputTransform := [];
+ DescribeTableOutputTransform := [];
 }
  ghost var PutItemInputTransform: seq<DafnyCallEvent<PutItemInputTransformInput, Result<PutItemInputTransformOutput, Error>>>
  ghost var PutItemOutputTransform: seq<DafnyCallEvent<PutItemOutputTransformInput, Result<PutItemOutputTransformOutput, Error>>>
@@ -128,8 +193,14 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ghost var BatchExecuteStatementOutputTransform: seq<DafnyCallEvent<BatchExecuteStatementOutputTransformInput, Result<BatchExecuteStatementOutputTransformOutput, Error>>>
  ghost var ExecuteTransactionInputTransform: seq<DafnyCallEvent<ExecuteTransactionInputTransformInput, Result<ExecuteTransactionInputTransformOutput, Error>>>
  ghost var ExecuteTransactionOutputTransform: seq<DafnyCallEvent<ExecuteTransactionOutputTransformInput, Result<ExecuteTransactionOutputTransformOutput, Error>>>
+ ghost var CreateTableInputTransform: seq<DafnyCallEvent<CreateTableInputTransformInput, Result<CreateTableInputTransformOutput, Error>>>
+ ghost var CreateTableOutputTransform: seq<DafnyCallEvent<CreateTableOutputTransformInput, Result<CreateTableOutputTransformOutput, Error>>>
+ ghost var UpdateTableInputTransform: seq<DafnyCallEvent<UpdateTableInputTransformInput, Result<UpdateTableInputTransformOutput, Error>>>
+ ghost var UpdateTableOutputTransform: seq<DafnyCallEvent<UpdateTableOutputTransformInput, Result<UpdateTableOutputTransformOutput, Error>>>
+ ghost var DescribeTableInputTransform: seq<DafnyCallEvent<DescribeTableInputTransformInput, Result<DescribeTableInputTransformOutput, Error>>>
+ ghost var DescribeTableOutputTransform: seq<DafnyCallEvent<DescribeTableOutputTransformInput, Result<DescribeTableOutputTransformOutput, Error>>>
 }
- trait {:termination false} IDynamoDbEncryptionMiddlewareInternalClient
+ trait {:termination false} IDynamoDbEncryptionClient
  {
  // Helper to define any additional modifies/reads clauses.
  // If your operations need to mutate state,
@@ -155,7 +226,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
-  ghost const History: IDynamoDbEncryptionMiddlewareInternalClientCallHistory
+  ghost const History: IDynamoDbEncryptionClientCallHistory
  predicate PutItemInputTransformEnsuresPublicly(input: PutItemInputTransformInput , output: Result<PutItemInputTransformOutput, Error>)
  // The public method to be called by library consumers
  method PutItemInputTransform ( input: PutItemInputTransformInput )
@@ -546,10 +617,101 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures ExecuteTransactionOutputTransformEnsuresPublicly(input, output)
  ensures History.ExecuteTransactionOutputTransform == old(History.ExecuteTransactionOutputTransform) + [DafnyCallEvent(input, output)]
  
+ predicate CreateTableInputTransformEnsuresPublicly(input: CreateTableInputTransformInput , output: Result<CreateTableInputTransformOutput, Error>)
+ // The public method to be called by library consumers
+ method CreateTableInputTransform ( input: CreateTableInputTransformInput )
+ returns (output: Result<CreateTableInputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`CreateTableInputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures CreateTableInputTransformEnsuresPublicly(input, output)
+ ensures History.CreateTableInputTransform == old(History.CreateTableInputTransform) + [DafnyCallEvent(input, output)]
+ 
+ predicate CreateTableOutputTransformEnsuresPublicly(input: CreateTableOutputTransformInput , output: Result<CreateTableOutputTransformOutput, Error>)
+ // The public method to be called by library consumers
+ method CreateTableOutputTransform ( input: CreateTableOutputTransformInput )
+ returns (output: Result<CreateTableOutputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`CreateTableOutputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures CreateTableOutputTransformEnsuresPublicly(input, output)
+ ensures History.CreateTableOutputTransform == old(History.CreateTableOutputTransform) + [DafnyCallEvent(input, output)]
+ 
+ predicate UpdateTableInputTransformEnsuresPublicly(input: UpdateTableInputTransformInput , output: Result<UpdateTableInputTransformOutput, Error>)
+ // The public method to be called by library consumers
+ method UpdateTableInputTransform ( input: UpdateTableInputTransformInput )
+ returns (output: Result<UpdateTableInputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`UpdateTableInputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures UpdateTableInputTransformEnsuresPublicly(input, output)
+ ensures History.UpdateTableInputTransform == old(History.UpdateTableInputTransform) + [DafnyCallEvent(input, output)]
+ 
+ predicate UpdateTableOutputTransformEnsuresPublicly(input: UpdateTableOutputTransformInput , output: Result<UpdateTableOutputTransformOutput, Error>)
+ // The public method to be called by library consumers
+ method UpdateTableOutputTransform ( input: UpdateTableOutputTransformInput )
+ returns (output: Result<UpdateTableOutputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`UpdateTableOutputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures UpdateTableOutputTransformEnsuresPublicly(input, output)
+ ensures History.UpdateTableOutputTransform == old(History.UpdateTableOutputTransform) + [DafnyCallEvent(input, output)]
+ 
+ predicate DescribeTableInputTransformEnsuresPublicly(input: DescribeTableInputTransformInput , output: Result<DescribeTableInputTransformOutput, Error>)
+ // The public method to be called by library consumers
+ method DescribeTableInputTransform ( input: DescribeTableInputTransformInput )
+ returns (output: Result<DescribeTableInputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`DescribeTableInputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures DescribeTableInputTransformEnsuresPublicly(input, output)
+ ensures History.DescribeTableInputTransform == old(History.DescribeTableInputTransform) + [DafnyCallEvent(input, output)]
+ 
+ predicate DescribeTableOutputTransformEnsuresPublicly(input: DescribeTableOutputTransformInput , output: Result<DescribeTableOutputTransformOutput, Error>)
+ // The public method to be called by library consumers
+ method DescribeTableOutputTransform ( input: DescribeTableOutputTransformInput )
+ returns (output: Result<DescribeTableOutputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`DescribeTableOutputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures DescribeTableOutputTransformEnsuresPublicly(input, output)
+ ensures History.DescribeTableOutputTransform == old(History.DescribeTableOutputTransform) + [DafnyCallEvent(input, output)]
+ 
 }
  datatype DynamoDbTableEncryptionConfig = | DynamoDbTableEncryptionConfig (
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
+ nameonly beacons: Option<SearchConfig> ,
  nameonly attributeActions: AwsCryptographyDynamoDbItemEncryptorTypes.AttributeActions ,
  nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
  nameonly allowedUnauthenticatedAttributePrefix: Option<string> ,
@@ -597,6 +759,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype GetItemOutputTransformOutput = | GetItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.GetItemOutput
  )
+ datatype NonSensitivePart = | NonSensitivePart (
+ nameonly name: string ,
+ nameonly loc: TerminalLocation
+ )
+ type NonSensitivePartsList = seq<NonSensitivePart>
  datatype PutItemInputTransformInput = | PutItemInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.PutItemInput
  )
@@ -636,6 +803,26 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype ScanOutputTransformOutput = | ScanOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.ScanOutput
  )
+ datatype SearchConfig = | SearchConfig (
+ nameonly versions: BeaconVersionList ,
+ nameonly writeVersion: VersionNumber
+ )
+ datatype SensitivePart = | SensitivePart (
+ nameonly name: string ,
+ nameonly length: BitLength ,
+ nameonly loc: TerminalLocation
+ )
+ type SensitivePartsList = seq<SensitivePart>
+ datatype StandardBeacon = | StandardBeacon (
+ nameonly name: string ,
+ nameonly length: BitLength ,
+ nameonly loc: TerminalLocation
+ )
+ type StandardBeaconList = seq<StandardBeacon>
+ type TerminalLocation = x: string | IsValid_TerminalLocation(x) witness *
+ predicate method IsValid_TerminalLocation(x: string) {
+ ( 1 <= |x|  )
+}
  datatype TransactGetItemsInputTransformInput = | TransactGetItemsInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.TransactGetItemsInput
  )
@@ -675,6 +862,28 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype UpdateItemOutputTransformOutput = | UpdateItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.UpdateItemOutput
  )
+ datatype UpdateTableInputTransformInput = | UpdateTableInputTransformInput (
+ nameonly sdkInput: ComAmazonawsDynamodbTypes.UpdateTableInput
+ )
+ datatype UpdateTableInputTransformOutput = | UpdateTableInputTransformOutput (
+ nameonly transformedInput: ComAmazonawsDynamodbTypes.UpdateTableInput
+ )
+ datatype UpdateTableOutputTransformInput = | UpdateTableOutputTransformInput (
+ nameonly sdkOutput: ComAmazonawsDynamodbTypes.UpdateTableOutput ,
+ nameonly originalInput: ComAmazonawsDynamodbTypes.UpdateTableInput
+ )
+ datatype UpdateTableOutputTransformOutput = | UpdateTableOutputTransformOutput (
+ nameonly transformedOutput: ComAmazonawsDynamodbTypes.UpdateTableOutput
+ )
+ type VersionNumber = x: int32 | IsValid_VersionNumber(x) witness *
+ predicate method IsValid_VersionNumber(x: int32) {
+ ( 1 <= x  )
+}
+ datatype VirtualField = | VirtualField (
+ nameonly name: string ,
+ nameonly config: string
+ )
+ type VirtualFieldList = seq<VirtualField>
  datatype Error =
  // Local Error structures are listed here
  | DynamoDbEncryptionException (
@@ -719,41 +928,41 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  import opened UTF8
  import opened Types = AwsCryptographyDynamoDbEncryptionTypes
  import Operations : AbstractAwsCryptographyDynamoDbEncryptionOperations
-
  function method DefaultDynamoDbEncryptionConfig(): DynamoDbEncryptionConfig
  method DynamoDbEncryption(config: DynamoDbEncryptionConfig := DefaultDynamoDbEncryptionConfig())
- returns (res: Result<DynamoDbEncryptionMiddlewareInternalClient, Error>)
- // TODO smithy->Dafny needs to generate the following
- ///// MANUAL UPDATE STARTS HERE
- requires
- var cmms := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.cmm.Some? :: cfg.cmm.value;
- forall cmm :: cmm in cmms ==> cmm.ValidState()
- requires
- var keyrings := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.keyring.Some? :: cfg.keyring.value;
- forall keyring :: keyring in keyrings ==> keyring.ValidState()
- modifies
-   var cmms := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.cmm.Some? :: cfg.cmm.value;
-   var cmmModifiesSet: set<set<object>> := set cmm | cmm in cmms :: cmm.Modifies;
-   // Flatten the set<cmm.Modifies>
-   (set cmmModifyEntry, cmmModifies | cmmModifies in cmmModifiesSet && cmmModifyEntry in cmmModifies :: cmmModifyEntry)
- modifies
-   var keyrings := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.keyring.Some? :: cfg.keyring.value;
-   var keyringModifiesSet: set<set<object>> := set keyring | keyring in keyrings :: keyring.Modifies;
-   // Flatten the set<keyring.Modifies>
-   (set keyringModifyEntry, keyringModifies | keyringModifies in keyringModifiesSet && keyringModifyEntry in keyringModifies :: keyringModifyEntry)
+ returns (res: Result<DynamoDbEncryptionClient, Error>)
+// TODO smithy->Dafny needs to generate the following
+///// MANUAL UPDATE STARTS HERE
+requires
+var cmms := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.cmm.Some? :: cfg.cmm.value;
+forall cmm :: cmm in cmms ==> cmm.ValidState()
+requires
+var keyrings := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.keyring.Some? :: cfg.keyring.value;
+forall keyring :: keyring in keyrings ==> keyring.ValidState()
+modifies
+  var cmms := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.cmm.Some? :: cfg.cmm.value;
+  var cmmModifiesSet: set<set<object>> := set cmm | cmm in cmms :: cmm.Modifies;
+  // Flatten the set<cmm.Modifies>
+  (set cmmModifyEntry, cmmModifies | cmmModifies in cmmModifiesSet && cmmModifyEntry in cmmModifies :: cmmModifyEntry)
+modifies
+  var keyrings := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.keyring.Some? :: cfg.keyring.value;
+  var keyringModifiesSet: set<set<object>> := set keyring | keyring in keyrings :: keyring.Modifies;
+  // Flatten the set<keyring.Modifies>
+  (set keyringModifyEntry, keyringModifies | keyringModifies in keyringModifiesSet && keyringModifyEntry in keyringModifies :: keyringModifyEntry)
 
- ensures res.Success? ==>
+ ensures res.Success? ==> 
  && fresh(res.value)
  && fresh(res.value.Modifies -
-      set t <- config.tableEncryptionConfigs.Keys, o <- (
-        (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
-      + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
-  ) :: o)
+     set t <- config.tableEncryptionConfigs.Keys, o <- (
+       (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
+     + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
+ ) :: o)
+
  && fresh(res.value.History)
  && res.value.ValidState()
- ///// MANUAL UPDATE ENDS HERE
+///// MANUAL UPDATE ENDS HERE
 
- class DynamoDbEncryptionMiddlewareInternalClient extends IDynamoDbEncryptionMiddlewareInternalClient
+ class DynamoDbEncryptionClient extends IDynamoDbEncryptionClient
  {
  constructor(config: Operations.InternalConfig)
  requires Operations.ValidInternalConfig?(config)
@@ -1287,6 +1496,126 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  History.ExecuteTransactionOutputTransform := History.ExecuteTransactionOutputTransform + [DafnyCallEvent(input, output)];
 }
  
+ predicate CreateTableInputTransformEnsuresPublicly(input: CreateTableInputTransformInput , output: Result<CreateTableInputTransformOutput, Error>)
+ {Operations.CreateTableInputTransformEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method CreateTableInputTransform ( input: CreateTableInputTransformInput )
+ returns (output: Result<CreateTableInputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`CreateTableInputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures CreateTableInputTransformEnsuresPublicly(input, output)
+ ensures History.CreateTableInputTransform == old(History.CreateTableInputTransform) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.CreateTableInputTransform(config, input);
+ History.CreateTableInputTransform := History.CreateTableInputTransform + [DafnyCallEvent(input, output)];
+}
+ 
+ predicate CreateTableOutputTransformEnsuresPublicly(input: CreateTableOutputTransformInput , output: Result<CreateTableOutputTransformOutput, Error>)
+ {Operations.CreateTableOutputTransformEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method CreateTableOutputTransform ( input: CreateTableOutputTransformInput )
+ returns (output: Result<CreateTableOutputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`CreateTableOutputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures CreateTableOutputTransformEnsuresPublicly(input, output)
+ ensures History.CreateTableOutputTransform == old(History.CreateTableOutputTransform) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.CreateTableOutputTransform(config, input);
+ History.CreateTableOutputTransform := History.CreateTableOutputTransform + [DafnyCallEvent(input, output)];
+}
+ 
+ predicate UpdateTableInputTransformEnsuresPublicly(input: UpdateTableInputTransformInput , output: Result<UpdateTableInputTransformOutput, Error>)
+ {Operations.UpdateTableInputTransformEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method UpdateTableInputTransform ( input: UpdateTableInputTransformInput )
+ returns (output: Result<UpdateTableInputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`UpdateTableInputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures UpdateTableInputTransformEnsuresPublicly(input, output)
+ ensures History.UpdateTableInputTransform == old(History.UpdateTableInputTransform) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.UpdateTableInputTransform(config, input);
+ History.UpdateTableInputTransform := History.UpdateTableInputTransform + [DafnyCallEvent(input, output)];
+}
+ 
+ predicate UpdateTableOutputTransformEnsuresPublicly(input: UpdateTableOutputTransformInput , output: Result<UpdateTableOutputTransformOutput, Error>)
+ {Operations.UpdateTableOutputTransformEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method UpdateTableOutputTransform ( input: UpdateTableOutputTransformInput )
+ returns (output: Result<UpdateTableOutputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`UpdateTableOutputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures UpdateTableOutputTransformEnsuresPublicly(input, output)
+ ensures History.UpdateTableOutputTransform == old(History.UpdateTableOutputTransform) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.UpdateTableOutputTransform(config, input);
+ History.UpdateTableOutputTransform := History.UpdateTableOutputTransform + [DafnyCallEvent(input, output)];
+}
+ 
+ predicate DescribeTableInputTransformEnsuresPublicly(input: DescribeTableInputTransformInput , output: Result<DescribeTableInputTransformOutput, Error>)
+ {Operations.DescribeTableInputTransformEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method DescribeTableInputTransform ( input: DescribeTableInputTransformInput )
+ returns (output: Result<DescribeTableInputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`DescribeTableInputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures DescribeTableInputTransformEnsuresPublicly(input, output)
+ ensures History.DescribeTableInputTransform == old(History.DescribeTableInputTransform) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.DescribeTableInputTransform(config, input);
+ History.DescribeTableInputTransform := History.DescribeTableInputTransform + [DafnyCallEvent(input, output)];
+}
+ 
+ predicate DescribeTableOutputTransformEnsuresPublicly(input: DescribeTableOutputTransformInput , output: Result<DescribeTableOutputTransformOutput, Error>)
+ {Operations.DescribeTableOutputTransformEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method DescribeTableOutputTransform ( input: DescribeTableOutputTransformInput )
+ returns (output: Result<DescribeTableOutputTransformOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`DescribeTableOutputTransform
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures DescribeTableOutputTransformEnsuresPublicly(input, output)
+ ensures History.DescribeTableOutputTransform == old(History.DescribeTableOutputTransform) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.DescribeTableOutputTransform(config, input);
+ History.DescribeTableOutputTransform := History.DescribeTableOutputTransform + [DafnyCallEvent(input, output)];
+}
+ 
 }
 }
  abstract module AbstractAwsCryptographyDynamoDbEncryptionOperations {
@@ -1711,4 +2040,100 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures
  && ValidInternalConfig?(config)
  ensures ExecuteTransactionOutputTransformEnsuresPublicly(input, output)
+
+
+ predicate CreateTableInputTransformEnsuresPublicly(input: CreateTableInputTransformInput , output: Result<CreateTableInputTransformOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateTableInputTransform ( config: InternalConfig , input: CreateTableInputTransformInput )
+ returns (output: Result<CreateTableInputTransformOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures CreateTableInputTransformEnsuresPublicly(input, output)
+
+
+ predicate CreateTableOutputTransformEnsuresPublicly(input: CreateTableOutputTransformInput , output: Result<CreateTableOutputTransformOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateTableOutputTransform ( config: InternalConfig , input: CreateTableOutputTransformInput )
+ returns (output: Result<CreateTableOutputTransformOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures CreateTableOutputTransformEnsuresPublicly(input, output)
+
+
+ predicate UpdateTableInputTransformEnsuresPublicly(input: UpdateTableInputTransformInput , output: Result<UpdateTableInputTransformOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateTableInputTransform ( config: InternalConfig , input: UpdateTableInputTransformInput )
+ returns (output: Result<UpdateTableInputTransformOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateTableInputTransformEnsuresPublicly(input, output)
+
+
+ predicate UpdateTableOutputTransformEnsuresPublicly(input: UpdateTableOutputTransformInput , output: Result<UpdateTableOutputTransformOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateTableOutputTransform ( config: InternalConfig , input: UpdateTableOutputTransformInput )
+ returns (output: Result<UpdateTableOutputTransformOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateTableOutputTransformEnsuresPublicly(input, output)
+
+
+ predicate DescribeTableInputTransformEnsuresPublicly(input: DescribeTableInputTransformInput , output: Result<DescribeTableInputTransformOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeTableInputTransform ( config: InternalConfig , input: DescribeTableInputTransformInput )
+ returns (output: Result<DescribeTableInputTransformOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeTableInputTransformEnsuresPublicly(input, output)
+
+
+ predicate DescribeTableOutputTransformEnsuresPublicly(input: DescribeTableOutputTransformInput , output: Result<DescribeTableOutputTransformOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeTableOutputTransform ( config: InternalConfig , input: DescribeTableOutputTransformInput )
+ returns (output: Result<DescribeTableOutputTransformOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeTableOutputTransformEnsuresPublicly(input, output)
 }

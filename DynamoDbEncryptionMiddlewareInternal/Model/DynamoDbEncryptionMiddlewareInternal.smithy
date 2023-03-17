@@ -63,6 +63,12 @@ service DynamoDbEncryptionMiddlewareInternal {
       BatchExecuteStatementOutputTransform,
       ExecuteTransactionInputTransform,
       ExecuteTransactionOutputTransform,
+      CreateTableInputTransform,
+      CreateTableOutputTransform,
+      UpdateTableInputTransform,
+      UpdateTableOutputTransform,
+      DescribeTableInputTransform,
+      DescribeTableOutputTransform,
     ],
     errors: [ DynamoDbEncryptionException ]
 }
@@ -82,8 +88,7 @@ structure DynamoDbTableEncryptionConfig {
     @required
     partitionKeyName: KeySchemaAttributeName,
     sortKeyName: KeySchemaAttributeName,
-
-    // TODO scan beacon config
+    beacons: SearchConfig,
     
     @required
     attributeActions: AttributeActions,
@@ -97,6 +102,122 @@ structure DynamoDbTableEncryptionConfig {
 
     // TODO legacy encryptor
     // TODO legacy schema
+}
+
+@range(min: 1, max: 63)
+integer BitLength
+
+@range(min: 1)
+integer VersionNumber
+
+@length(min: 1, max: 1)
+string Char
+
+@length(min: 1)
+string TerminalLocation
+
+list BeaconVersionList {
+  member: BeaconVersion
+}
+
+list StandardBeaconList {
+  member: StandardBeacon
+}
+
+list CompoundBeaconList {
+  member: CompoundBeacon
+}
+
+list VirtualFieldList {
+  member: VirtualField
+}
+
+list SensitivePartsList {
+  member: SensitivePart
+}
+
+list NonSensitivePartsList {
+  member: NonSensitivePart
+}
+
+list ConstructorList {
+  member: Constructor
+}
+
+list ConstructorPartList {
+  member: ConstructorPart
+}
+
+structure SensitivePart {
+  @required
+  name : String,
+  @required
+  length : BitLength,
+  @required
+  loc : TerminalLocation
+}
+
+structure NonSensitivePart {
+  @required
+  name : String,
+  @required
+  loc : TerminalLocation
+}
+
+structure Constructor {
+  @required
+  parts : ConstructorPartList
+}
+
+structure ConstructorPart {
+  @required
+  name : String,
+  @required
+  required : Boolean,
+}
+
+structure StandardBeacon {
+  @required
+  name : String,
+  @required
+  length : BitLength,
+  @required
+  loc : TerminalLocation
+}
+
+structure CompoundBeacon {
+  @required
+  name : String,
+  @required
+  split : Char,
+  @required
+  sensitive : SensitivePartsList,
+  nonSensitive : NonSensitivePartsList,
+  constructors : ConstructorList
+}
+
+structure VirtualField {
+  @required
+  name : String,
+  @required
+  config : String,
+}
+
+structure BeaconVersion {
+  @required
+  version : VersionNumber,
+  @required
+  keyring: KeyringReference, // Must be Hierarchy Keyring
+  standardBeacons : StandardBeaconList,
+  compoundBeacons : CompoundBeaconList,
+  virtualFields : VirtualFieldList,
+}
+
+structure SearchConfig {
+  @required
+  versions: BeaconVersionList,
+  @required
+  writeVersion: VersionNumber
 }
 
 /////////////

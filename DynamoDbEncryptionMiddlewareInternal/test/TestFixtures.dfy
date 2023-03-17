@@ -82,7 +82,7 @@ module TestFixtures {
   }
 
   method GetDynamoDbEncryption()
-      returns (encryption: DynamoDbEncryption.DynamoDbEncryptionMiddlewareInternalClient)
+      returns (encryption: DynamoDbEncryption.DynamoDbEncryptionClient)
     ensures encryption.ValidState()
     ensures fresh(encryption)
     ensures fresh(encryption.Modifies)

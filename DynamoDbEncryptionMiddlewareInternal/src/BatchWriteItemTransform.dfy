@@ -12,17 +12,7 @@ module BatchWriteItemTransform {
   import EncTypes = AwsCryptographyDynamoDbItemEncryptorTypes
   import Seq
 
-
-  lemma MapAdds<X,Y>(m : map<X,Y>, x : X, y : Y)
-    ensures
-      && var newMap := m[x := y];
-      && newMap.Keys == m.Keys + {x}
-    {}
-  lemma AddThree<X>(x : set<X>, y : set<X>, z : set<X>)
-    ensures x + y + z == x + z + y
-  {}
-
-  method {:vcs_split_on_every_assert} Input(config: Config, input: BatchWriteItemInputTransformInput)
+  method Input(config: Config, input: BatchWriteItemInputTransformInput)
     returns (output: Result<BatchWriteItemInputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
@@ -34,17 +24,9 @@ module BatchWriteItemTransform {
     while tableNames != {}
       decreases |tableNames|
       invariant tableNames <= input.sdkInput.RequestItems.Keys
-      invariant result.Keys + tableNames == input.sdkInput.RequestItems.Keys
-      // true but expensive -- invariant forall k <- result.Keys :: |input.sdkInput.RequestItems[k]| == |result[k]|
     {
       var tableName :| tableName in tableNames;
-      assert tableNames <= input.sdkInput.RequestItems.Keys;
-      ghost var oldTableNames := tableNames;
       tableNames := tableNames - { tableName };
-      assert oldTableNames == tableNames + { tableName };
-      assert tableNames < input.sdkInput.RequestItems.Keys;
-      assert result.Keys + oldTableNames == input.sdkInput.RequestItems.Keys;
-      assert result.Keys + tableNames + { tableName } == input.sdkInput.RequestItems.Keys;
 
       var writeRequests : DDB.WriteRequests := input.sdkInput.RequestItems[tableName];
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
@@ -86,24 +68,11 @@ module BatchWriteItemTransform {
             encryptedItems := encryptedItems + [req.(PutRequest := Some(DDB.PutRequest(Item := encrypted.encryptedItem)))];
           }
         }
-        assert |writeRequests| == |encryptedItems|;
         writeRequests := encryptedItems;
       }
-
-      ghost var oldResult := result;
-      assert result.Keys + tableNames + { tableName } == input.sdkInput.RequestItems.Keys;
-      assert oldResult.Keys + tableNames + { tableName } == input.sdkInput.RequestItems.Keys;
-      AddThree(oldResult.Keys, tableNames, { tableName } );
-      assert oldResult.Keys + { tableName } + tableNames == input.sdkInput.RequestItems.Keys;
-      MapAdds(result, tableName, writeRequests);
-      MapAdds(oldResult, tableName, writeRequests);
-
       result := result[tableName := writeRequests];
-
-      assert oldResult[tableName := writeRequests].Keys == oldResult.Keys + {tableName};
-      assert oldResult[tableName := writeRequests] == result;
-      assert oldResult[tableName := writeRequests].Keys == result.Keys;
     }
+    :- Need(|result| ==  |input.sdkInput.RequestItems|, E("Internal Error")); // Dafny gets too confused
     return Success(BatchWriteItemInputTransformOutput(transformedInput := input.sdkInput.(RequestItems := result)));
   }
 
