@@ -77,18 +77,49 @@ where each DynamoDB Item Encryptor contains the desired encryption configuration
 There MUST NOT be two Item Encryptors in this list with the same
 [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name).
 
+### Encrypted Table
+
+If there exists an Item Encryptor specified within the
+[DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+equal to a given `TableName`, that table is said to be an `Encrypted Table`.
+
 ## DynamoDB Encryption Client
 
 The DynamoDB Encryption Client is an AWS SDK client for DynamoDB,
 such that client-side encryption and decryption happens transparently during
 AWS SDK API calls to DynamoDB.
 
+### General Modification Behavior
+
+If no Item Encryptor is specified for the table, the call to DynamoDB is unmodified.
+Otherwise:
+
+No DDB API legacy parameters (such as `AttributesToGet`) can be specified.
+
+Any Condition Expression must be checked for [validity](ddb-support.md#testconditionexpression).
+Any Update Expression must be checked for [validity](ddb-support.md#testupdateexpression)
+
+If data is to be written
+ - the input data must validated
+ - beacons must be added
+ - the input data must be encrypted
+
+If data is being read
+ - the output data must be decrypted
+ - beacons must be removed
+
+For Query and Scan, more complex processing must be invoked for both input (before encryption),
+and output (after decryption).
+
+### API modification
+
 DynamoDB API calls
 MUST have the following modified behavior:
 
 - [Encrypt before PutItem](#encrypt-before-putitem)
 - [Encrypt before BatchWriteItem](#encrypt-before-batchwriteitem)
-- [Encrypt before TransactWriteItems](#encrypt-before-TransactWriteItems)
+- [Encrypt before TransactWriteItems](#encrypt-before-transactwriteitems)
 - [Decrypt after GetItem](#decrypt-after-getitem)
 - [Decrypt after BatchGetItem](#decrypt-after-batchgetitem)
 - [Decrypt after Scan](#decrypt-after-scan)
@@ -99,6 +130,11 @@ MUST have the following modified behavior:
 - [Validate before ExecuteStatement](#validate-before-executestatement)
 - [Validate before BatchExecuteStatement](#validate-before-batchexecutestatement)
 - [Validate before ExecuteTransaction](#validate-before-executetransaction)
+- [Modify before Scan](#modify-before-scan)
+- [Modify before Query](#modify-before-query)
+- [Modify before CreateTable](#modify-before-createtable)
+- [Modify before UpdateTable](#modify-before-updatetable)
+- [Modify after DescribeTable](#modify-after-describetable)
 
 The [Allowed Passthrough DynmanoDB APIs](#allowed-passthrough-dynamodb-apis)
 MUST NOT be modified.
@@ -113,29 +149,29 @@ is not supported with DynamoDB client-side encryption.
 Before the [PutItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html)
 call is made to DynamoDB :
 
-If there exists an Item Encryptor specified within the
-[DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-equal to `TableName` in the request,
-this PutItem request MUST NOT contain a `ConditionExpression`.
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the PutItem request MUST be unchanged.
 
-TODO: Is there any additional validation we can bring into P0 scope which would allow some condition checks?
+Otherwise,
 
-If the above validation fails,
-the client MUST NOT make a network call to DynamoDB,
-and PutItem MUST yield an error.
+The PutItem request MUST NOT refer to any legacy parameters,
+specifically Expected and ConditionalOperator MUST NOT be set.
+
+The Item MUST be [writable](ddb-support.md#writable).
+
+The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
+
+Beacons MUST be [added](ddb-support.md#addbeacons).
 
 If the request is validated,
-it MUST be modified before a network call is made to DynamoDB
-if there exists an Item Encryptor specified within the
-[DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-equal to `TableName` in the request.
-
-This [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [Encrypt Item](./encrypt-item.md),
 where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-is the `Item` field in the original request.
+is output of the [add beacons](ddb-support.md#addbeacons) operation.
+
+If any of the above fails,
+the client MUST NOT make a network call to DynamoDB,
+and PutItem MUST yield an error.
 
 The PutItem request's `Item` field MUST be replaced
 with a value that is equivalent to
@@ -147,64 +183,77 @@ calculated above.
 Before the [BatchWriteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html)
 call is made to DynamoDB :
 
-For each `PutRequest` under each key in `RequestItems`,
-if there is an Item Encryptor with [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name) equal to the key,
-that Item Encryptor MUST perform [Encrypt Item](./encrypt-item.md) where the input
-[DynamoDB Item](./encrypt-item.md#dynamodb-item) is the `Item` field in this `PutRequest`
+For each table name in `RequestItems`
 
-The `Item` field in this `PutRequest` MUST be replaced
-with a value that is equivalent to
-the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item).
+If the table name does not refer to an [encrypted-table](#encrypted-table),
+the list of operations MUST be unchanged.
 
-If any [Encrypt Item](./encrypt-item.md) fails,
+Otherwise,
+
+For each operation associated with the table name, if there is a PutRequest:
+
+The Item MUST be [writable](ddb-support.md#writable).
+
+Beacons MUST be [added](ddb-support.md#addbeacons).
+
+If the request is validated,
+the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Encrypt Item](./encrypt-item.md),
+where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
+is output of the [add beacons](ddb-support.md#addbeacons) operation.
+
+If any of the above fails,
 the client MUST NOT make a network call to DynamoDB,
 and BatchWriteItem MUST yield an error.
+
+The PutRequest request's `Item` field MUST be replaced
+with a value that is equivalent to
+the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
+calculated above.
 
 ### Encrypt before TransactWriteItems
 
 Before the [TransactWriteItems](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_TransactWriteItems.html)
 call is made to DynamoDB, for every entry under `TransactItems`:
 
-- To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
-the client MUST fail if the `Update`, `ConditionCheck`, `Delete` and `Put` fields are all `None`.
+To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
+the client MUST fail if none of the `Update`, `ConditionCheck`, `Delete` and `Put` fields are set.
 
-- The client MUST fail if in the `Update` field has a `TableName` which matches
-  the [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-  of any Item Encryptor specified within the
-  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+Any actions other than `Put`, MUST be unchanged.
 
-- The client MUST fail if in the `ConditionCheck` field has a `TableName` which matches
-  the [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-  of any Item Encryptor specified within the
-  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
+MUST be unchanged.
 
-- The client MUST fail if in the `Delete` field has a `TableName` which matches
-  the [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-  of any Item Encryptor specified within the
-  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-  and also has a `ConditionExpression`
+If there is an `Update` that refers to a `TableName` that refers to an [encrypted-table](#encrypted-table)
 
-- The client MUST fail if in the `Put` field has a `TableName` which matches
-  the [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-  of any Item Encryptor specified within the
-  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-  and also has a `ConditionExpression`
+ - The UpdateExpression of the `Update` MUST be [valid](ddb-support.md#testupdateexpression).
+ - The ConditionExpression of the `Update` MUST be [valid](ddb-support.md#testconditionexpression).
 
-TODO: Is there any additional validation we can bring into P0 scope which would allow some condition checks?
+If there is a `ConditionCheck` that refers to a `TableName` that refers to an [encrypted-table](#encrypted-table)
 
-If the request is valid, for each `Put` in `TransactItems` in the request,
-if a corresponding Item Encryptor exists,
-it MUST perform [Encrypt Item](./encrypt-item.md) where the input
-[DynamoDB Item](./encrypt-item.md#dynamodb-item) is
-the `Item` field in this `Put`
+ - The ConditionExpression of the `ConditionCheck` MUST be [valid](ddb-support.md#testconditionexpression).
 
-The `Item` field in this `Put` MUST be replaced
+If there is a `Delete` that refers to a `TableName` that refers to an [encrypted-table](#encrypted-table)
+
+ - The ConditionExpression of the `Delete` MUST be [valid](ddb-support.md#testconditionexpression).
+
+If there is a `Put` that refers to a `TableName` that refers to an [encrypted-table](#encrypted-table)
+
+ - The Item MUST be [writable](ddb-support.md#writable).
+ - The ConditionExpression `Put` MUST be [valid](ddb-support.md#testconditionexpression).
+ - Beacons MUST be [added](ddb-support.md#addbeacons).
+ - If the request is validated,
+the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Encrypt Item](./encrypt-item.md),
+where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
+is output of the [add beacons](ddb-support.md#addbeacons) operation.
+ - If any of the above fails,
+the client MUST NOT make a network call to DynamoDB,
+and PutItem MUST yield an error.
+ - The PutItem request's `Item` field MUST be replaced
 with a value that is equivalent to
-the resulting [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item).
-
-If any of the above validation fails, or any [Encrypt Item](./encrypt-item.md) fails,
-the client MUST NOT make a network call to DynamoDB and
-TransactWriteItems MUST yield an error.
+the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
+calculated above.
 
 ### Decrypt after GetItem
 
@@ -221,11 +270,11 @@ The [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [DynamoDB Item](./decrypt-item.md#dynamodb-item)
 is the `Item` field in the original response
 
-The GetItem request's `Item` field MUST be replaced
-with a value that is equivalent to
-the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
+Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
 
-TODO: Should we strip the header and footer? (and other genreated fields, such as beacons)
+The GetItem response's `Item` field MUST be replaced
+with a value that is equivalent to
+the resulting item.
 
 ### Decrypt after BatchGetItem
 
@@ -238,9 +287,11 @@ that Item Encryptor MUST perform [Decrypt Item](./decrypt-item.md) where the inp
 [DynamoDB Item](./decrypt-item.md#dynamodb-item)
 is the `Item` field in the original response.
 
-Each of these items on the original repsonse MUST be replaced
+Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+
+Each of these items on the original response MUST be replaced
 with a value that is equivalent to
-the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
+this result.
 
 If any [Decrypt Item](./decrypt-item.md) operation fails,
 BatchGetItem MUST yield an error.
@@ -261,12 +312,14 @@ the corresponding Item Encryptor MUST perform [Decrypt Item](./decrypt-item.md)
 where the input [DynamoDB Item](./decrypt-item.md#dynamodb-item)
 is this list entry.
 
-Each of these entries on the original repsonse MUST be replaced
+Each of these entries on the original response MUST be replaced
 with the resulting decrypted
 [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) operation fails,
 Scan MUST yield an error.
+
+The resulting decrypted response MUST be [filtered](ddb-support.md#scanoutputforbeacons) from the result.
 
 TODO: Is there a way we can return a partial result?
 
@@ -284,11 +337,13 @@ the corresponding Item Encryptor MUST perform [Decrypt Item](./decrypt-item.md)
 where the input [DynamoDB Item](./decrypt-item.md#dynamodb-item)
 is this list entry.
 
-Each of these entries on the original repsonse MUST be replaced
+Each of these entries on the original response MUST be replaced
 with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
 
 If any [Decrypt Item](./decrypt-item.md) fails,
 Query MUST yield an error.
+
+The resulting decrypted response MUST be [filtered](ddb-support.md#queryoutputforbeacons) from the result.
 
 TODO: Is there a way we can return a partial result?
 
@@ -304,11 +359,12 @@ with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
 equal to the key,
 the Item Encryptor that corresponds to the key in the request
 MUST perform [Decrypt Item](./decrypt-item.md) where the input
-[DynamoDB Item](./decrypt-item.md#dynamodb-item) is the `Item` in the original response
+[DynamoDB Item](./decrypt-item.md#dynamodb-item) is the `Item` in the original response.
 
-Each of these items on the original repsonse MUST be replaced
-with a value that is equivalent to
-the result [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
+Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+
+Each of these items on the original response MUST be replaced
+with a value that is equivalent to the resulting item.
 
 If any [Decrypt Item](./decrypt-item.md) fails,
 TransactGetItems MUST yield an error.
@@ -317,35 +373,37 @@ TODO: Is there a way to return a partial result?
 
 ### Validate Before UpdateItem
 
-Before a [UpdateItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html)
+Before an [UpdateItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html)
 call is made to DynamoDB,
-the request MUST fail, and the client make no network call to DynamoDB,
-if there exists an Item Encryptor
-specified within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-equal to `TableName` in the request.
 
-If no such Item Encryptor exists,
-there MUST NOT be any modification
-to the UpdateItem request.
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the UpdateItem request MUST be unchanged.
 
-TODO: Can we do further validation to allow safe updates on configured tables? We may be able to get this for free with the work being done for scan beacons.
+Otherwise,
+
+The UpdateItem request MUST NOT refer to any legacy parameters,
+specifically Expected, AttributeUpdates and ConditionalOperator MUST NOT be set.
+
+The UpdateExpression MUST be [valid](ddb-support.md#testupdateexpression).
+
+If all of the above validation succeeds, the UpdateItem request MUST be unchanged.
 
 ### Validate Before DeleteItem
 
 Before a [DeleteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html)
 call is made to DynamoDB,
-the request MUST fail, and the client make no network call to DynamoDB,
-if the request specifies a `ConditionExpression`,
-and there exists an Item Encryptor specified
-within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-equal to `TableName` in the request.
 
-Otherwise, there MUST NOT be any modification
-to the UpdateItem request.
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the DeleteItem request MUST be unchanged.
 
-TODO: Is there validation we can do on the ConditionCheck to allow for some checks on non-encrypted items?
+Otherwise,
+
+The DeleteItem request MUST NOT refer to any legacy parameters,
+specifically Expected and ConditionalOperator MUST NOT be set.
+
+The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
+
+If all of the above validation succeeds, the DeleteItem request MUST be unchanged.
 
 ### Validate Before ExecuteStatement
 
@@ -393,12 +451,75 @@ If no such Item Encryptor exists,
 there MUST NOT be any modification
 to the ExecuteTransaction request.
 
+### Modify before Scan
+
+Before the [Scan](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html)
+call is made to DynamoDB :
+
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the Scan request MUST be unchanged.
+
+Otherwise
+
+The Scan request MUST NOT refer to any legacy parameters,
+specifically AttributesToGet, ScanFilter and ConditionalOperator MUST NOT be set.
+
+The request MUST be [altered](#scaninputforbeacons)
+to transform any references to encrypted attributes into references to beacons.
+
+### Modify before Query
+
+Before the [Query](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html)
+call is made to DynamoDB :
+
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the Query request MUST be unchanged.
+
+Otherwise
+
+The Query request MUST NOT refer to any legacy parameters,
+specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST NOT be set.
+
+The request MUST be [altered](#queryinputforbeacons)
+to transform any references to encrypted attributes into references to beacons.
+
+### Modify before CreateTable
+
+Before the [CreateTable](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_CreateTable.html)
+call is made to DynamoDB :
+
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the CreateTable request MUST be unchanged.
+
+Otherwise, the response MUST be [altered](#createtableinputforbeacons)
+to transform any references to encrypted attributes into references to beacons.
+
+### Modify before UpdateTable
+
+Before the [UpdateTable](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateTable.html)
+call is made to DynamoDB :
+
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the UpdateTable request MUST be unchanged.
+
+Otherwise, the response MUST be [altered](#updatetableinputforbeacons)
+to transform any references to encrypted attributes into references to beacons.
+
+### Modify after DescribeTable
+
+After the [DescribeTable](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DescribeTable.html)
+call is made to DynamoDB :
+
+If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+the DescribeTable response MUST be unchanged.
+
+Otherwise, the response MUST be [altered](#describetableoutputforbeacons)
+to transform references to beacons back into references to encrypted attributes.
 
 ## Allowed Passthrough DynamoDB APIs
 
 - CreateBackup
 - CreateGlobalTable
-- CreateTable
 - DeleteBackup
 - DeleteTable
 - DescribeBackup
@@ -411,7 +532,6 @@ to the ExecuteTransaction request.
 - DescribeImport
 - DescribeKinesisStreamingDestination
 - DescribeLimits
-- DescribeTable
 - DescribeTableReplicaAutoScaling
 - DescribeTimeToLive
 - DisableKinesisStreamingDestination
@@ -433,6 +553,5 @@ to the ExecuteTransaction request.
 - UpdateContributorInsights
 - UpdateGlobalTable
 - UpdateGlobalTableSettings
-- UpdateTable
 - UpdateTableReplicaAutoScaling
 - UpdateTimeToLive

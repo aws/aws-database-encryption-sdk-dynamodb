@@ -11,12 +11,16 @@ module DynamoToStruct {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import AwsCryptographyDynamoDbItemEncryptorTypes
+  import Util = StructuredEncryptionUtil
   import UTF8
   import SortedSets
   import Seq
   import SE = StructuredEncryptionUtil
 
   type Error = AwsCryptographyDynamoDbItemEncryptorTypes.Error
+
+  type TerminalDataMap = map<AttributeName, Util.StructuredDataTerminalType>
+
 
 /* TODO - prove the following
   StructuredToItem(ItemToStructured(itemMap)) == itemMap
@@ -41,7 +45,7 @@ module DynamoToStruct {
   //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
   //= type=implication
   //# - MUST be a [Structured Data Map](../structured-encryption/structures.md#structured-data-map).
-  function method {:opaque} ItemToStructured(item : AttributeMap) : (ret : Result<StructuredDataMap, Error>)
+  function method {:opaque} ItemToStructured(item : AttributeMap) : (ret : Result<TerminalDataMap, Error>)
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
     //= type=implication
@@ -483,8 +487,8 @@ module DynamoToStruct {
         Success(count + body)
       case BS(bs) =>
         :- Need(|Seq.ToSet(bs)| == |bs|, "String Set had duplicate values");
-         Seq.LemmaNoDuplicatesCardinalityOfSet(bs);
-       var count :- U32ToBigEndian(|bs|);
+        Seq.LemmaNoDuplicatesCardinalityOfSet(bs);
+        var count :- U32ToBigEndian(|bs|);
         var body :- CollectBinary(bs);
         Success(count + body)
       case M(m) =>

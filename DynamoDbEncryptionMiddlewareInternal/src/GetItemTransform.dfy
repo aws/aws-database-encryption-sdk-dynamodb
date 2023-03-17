@@ -1,16 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DdbMiddlewareConfig.dfy"
+include "DDBSupport.dfy"
 
 module GetItemTransform {
   import opened DdbMiddlewareConfig
+  import opened DynamoDBMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes
   import EncTypes = AwsCryptographyDynamoDbItemEncryptorTypes
   import Seq
-
 
   method Input(config: Config, input: GetItemInputTransformInput)
     returns (output: Result<GetItemInputTransformOutput, Error>)
@@ -34,8 +34,9 @@ module GetItemTransform {
     ensures output.Success? && input.originalInput.TableName !in config.tableEncryptionConfigs ==> output.value.transformedOutput == input.sdkOutput
     ensures output.Success? && input.sdkOutput.Item.None? ==> output.value.transformedOutput.Item.None?
     ensures output.Success? && input.originalInput.TableName in config.tableEncryptionConfigs && input.sdkOutput.Item.Some? ==>
-      var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
-      var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
+      var tableConfig := config.tableEncryptionConfigs[input.originalInput.TableName];
+      var oldHistory := old(tableConfig.itemEncryptor.History.DecryptItem);
+      var newHistory := tableConfig.itemEncryptor.History.DecryptItem;
 
       && |newHistory| == |oldHistory|+1
       && Seq.Last(newHistory).output.Success?
@@ -50,11 +51,17 @@ module GetItemTransform {
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
       //= type=implication
-      //# The GetItem request's `Item` field MUST be replaced
+      //# Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+      && RemoveBeacons(tableConfig, Seq.Last(newHistory).output.value.plaintextItem).Success?
+      && var item := RemoveBeacons(tableConfig, Seq.Last(newHistory).output.value.plaintextItem).value;
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
+      //= type=implication
+      //# The GetItem response's `Item` field MUST be replaced
       //# with a value that is equivalent to
-      //# the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
+      //# the resulting item.
       && output.value.transformedOutput.Item.Some?
-      && (Seq.Last(newHistory).output.value.plaintextItem == output.value.transformedOutput.Item.value)
+      && (item == output.value.transformedOutput.Item.value)
 
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
@@ -69,8 +76,7 @@ module GetItemTransform {
       EncTypes.DecryptItemInput(encryptedItem:=input.sdkOutput.Item.value)
     );
     var decrypted :- MapError(decryptRes);
-    return Success(GetItemOutputTransformOutput(transformedOutput := input.sdkOutput.(Item := Some(decrypted.plaintextItem))));
+    var item :- RemoveBeacons(tableConfig, decrypted.plaintextItem);
+    return Success(GetItemOutputTransformOutput(transformedOutput := input.sdkOutput.(Item := Some(item))));
   }
-
-
 }

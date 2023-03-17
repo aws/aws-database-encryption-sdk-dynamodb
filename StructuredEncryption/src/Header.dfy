@@ -211,12 +211,21 @@ module StructuredEncryptionHeader {
     :- Need(mat.algorithmSuite.binaryId[0] == DbeAlgorithmFamily, E("Algorithm Suite not suitable for structured encryption."));
     :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algorithm Suite has unexpected flavor."));
     var legend :- MakeLegend(tableName, schema);
+
+    //= specification/structured-encryption/encrypt-structure.md#header-field
+    //# The encryption context field serialized in the header MUST contain all key-value
+    //# pairs of the encryption context in the [encryption materials](#retrieve-encryption-materials)
+    //# that are not included in the
+    //# [required encryption context keys](../framework/structures.md#required-encryption-context-keys) list.
+    var storedEC := map k <- mat.encryptionContext | k !in mat.requiredEncryptionContextKeys :: k := mat.encryptionContext[k];
+    // TODO - should be able to prove ValidEncryptionContext
+    :- Need(ValidEncryptionContext(storedEC), E("Invalid Encryption Context"));
     Success(PartialHeader(
       version := 1,
       flavor := mat.algorithmSuite.binaryId[1],
       msgID := msgID,
       legend := legend,
-      encContext := mat.encryptionContext,
+      encContext := storedEC,
       dataKeys := mat.encryptedDataKeys
     ))
   }

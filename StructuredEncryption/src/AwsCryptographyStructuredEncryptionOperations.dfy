@@ -171,7 +171,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         commitmentPolicy := DBE_COMMITMENT_POLICY,
         algorithmSuiteId := Some(algId),
         maxPlaintextLength := Some(maxLength as int64),
-        requiredEncryptionContextKeys := None() // TODO handle EC correctly
+        requiredEncryptionContextKeys := None
       )
     );
 
@@ -334,15 +334,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //# [SIGN_ONLY Crypto Action](./structures.md#signonly);
       //# otherwise, this operation MUST yield an error.
       && (exists k <- cryptoSchema :: cryptoSchema[k].content.Action != DO_NOTHING)
-
-      //= specification/structured-encryption/encrypt-structure.md#encryption-context
-      //= type=implication
-      //# If the input encryption context contains any entries with a key beginning with this prefix,
-      //# the encryption operation MUST yield an error.
-      && (
-        || input.encryptionContext.None?
-        || !exists k <- input.encryptionContext.value :: ReservedCryptoContextPrefixUTF8 <= input.encryptionContext.value[k]
-      )
 
       //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
       //= type=implication
@@ -566,14 +557,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //# according to the [header format](./header.md).
       && Header.PartialDeserialize(headerSerialized).Success?
       && var head := Header.PartialDeserialize(headerSerialized).value;
-      && var inputContext := input.encryptionContext.UnwrapOr(map[]);
-      //= specification/structured-encryption/decrypt-structure.md#parse-the-header
-      //= type=implication
-      //# If the parsed [Encryption Context](./header.md#encryption-context) contains fields that exist in the
-      //# [input Encryption Context](#encryption-context),
-      //# and the corresponding values do not match,
-      //# this operation MUST yield an error.
-      && DetectMismatch(inputContext, head.encContext).Pass?
 
       //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
       //= type=implication
@@ -602,8 +585,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# according to the [header format](./header.md).
     var head :- Header.PartialDeserialize(headerSerialized);
     var algorithmSuite :- head.GetAlgorithmSuite();
-    var inputContext := input.encryptionContext.UnwrapOr(map[]);
-    :- DetectMismatch(inputContext, head.encContext);
 
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
     //# This operation MUST obtain a set of decryption materials by calling
@@ -624,8 +605,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         algorithmSuiteId := algorithmSuite.id,
         commitmentPolicy := DBE_COMMITMENT_POLICY,
         encryptedDataKeys := head.dataKeys,
-        encryptionContext := inputContext + head.encContext,
-        reproducedEncryptionContext := None() // TODO handle EC correctly
+        encryptionContext := head.encContext,
+        reproducedEncryptionContext := input.encryptionContext
       )
     );
     var matOutput :- matR.MapFailure(e => AwsCryptographyMaterialProviders(e));
