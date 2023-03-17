@@ -12,7 +12,7 @@ module TransactWriteItemsTransform {
   import EncTypes = AwsCryptographyDynamoDbItemEncryptorTypes
   import Seq
 
-  method Input(config: Config, input: TransactWriteItemsInputTransformInput)
+  method {:vcs_split_on_every_assert} Input(config: Config, input: TransactWriteItemsInputTransformInput)
     returns (output: Result<TransactWriteItemsInputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
