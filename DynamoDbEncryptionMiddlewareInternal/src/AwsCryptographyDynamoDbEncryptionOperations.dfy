@@ -16,6 +16,9 @@ include "DeleteItemTransform.dfy"
 include "ExecuteStatementTransform.dfy"
 include "BatchExecuteStatementTransform.dfy"
 include "ExecuteTransactionTransform.dfy"
+include "CreateTableTransform.dfy"
+include "UpdateTableTransform.dfy"
+include "DescribeTableTransform.dfy"
 
 module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptographyDynamoDbEncryptionOperations {
   import opened DdbMiddlewareConfig
@@ -41,6 +44,9 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
   import ExecuteStatementTransform
   import BatchExecuteStatementTransform
   import ExecuteTransactionTransform
+  import CreateTableTransform
+  import UpdateTableTransform
+  import DescribeTableTransform
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {
@@ -288,4 +294,62 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
   {
     output := ExecuteTransactionTransform.Output(config, input);
   }
+
+  predicate CreateTableInputTransformEnsuresPublicly(input: CreateTableInputTransformInput, output: Result<CreateTableInputTransformOutput, Error>)
+  {true}
+
+  method CreateTableInputTransform(config: InternalConfig, input: CreateTableInputTransformInput)
+    returns (output: Result<CreateTableInputTransformOutput, Error>)
+  {
+    output := CreateTableTransform.Input(config, input);
+  }
+
+  predicate CreateTableOutputTransformEnsuresPublicly(input: CreateTableOutputTransformInput, output: Result<CreateTableOutputTransformOutput, Error>)
+  {true}
+
+  method CreateTableOutputTransform(config: InternalConfig, input: CreateTableOutputTransformInput)
+    returns (output: Result<CreateTableOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
+  {
+    output := CreateTableTransform.Output(config, input);
+  }
+
+  predicate UpdateTableInputTransformEnsuresPublicly(input: UpdateTableInputTransformInput, output: Result<UpdateTableInputTransformOutput, Error>)
+  {true}
+
+  method UpdateTableInputTransform(config: InternalConfig, input: UpdateTableInputTransformInput)
+    returns (output: Result<UpdateTableInputTransformOutput, Error>)
+  {
+    output := UpdateTableTransform.Input(config, input);
+  }
+
+  predicate UpdateTableOutputTransformEnsuresPublicly(input: UpdateTableOutputTransformInput, output: Result<UpdateTableOutputTransformOutput, Error>)
+  {true}
+
+  method UpdateTableOutputTransform(config: InternalConfig, input: UpdateTableOutputTransformInput)
+    returns (output: Result<UpdateTableOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
+  {
+    output := UpdateTableTransform.Output(config, input);
+  }
+
+  predicate DescribeTableInputTransformEnsuresPublicly(input: DescribeTableInputTransformInput, output: Result<DescribeTableInputTransformOutput, Error>)
+  {true}
+
+  method DescribeTableInputTransform(config: InternalConfig, input: DescribeTableInputTransformInput)
+    returns (output: Result<DescribeTableInputTransformOutput, Error>)
+  {
+    output := DescribeTableTransform.Input(config, input);
+  }
+
+  predicate DescribeTableOutputTransformEnsuresPublicly(input: DescribeTableOutputTransformInput, output: Result<DescribeTableOutputTransformOutput, Error>)
+  {true}
+
+  method DescribeTableOutputTransform(config: InternalConfig, input: DescribeTableOutputTransformInput)
+    returns (output: Result<DescribeTableOutputTransformOutput, Error>)
+    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
+  {
+    output := DescribeTableTransform.Output(config, input);
+  }
+
 }
