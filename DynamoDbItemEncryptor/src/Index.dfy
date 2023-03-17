@@ -171,7 +171,11 @@ module
       cmm :- maybeCmm.MapFailure(e => AwsCryptographyMaterialProviders(e));
     }
 
+    var maybeCmpClient := MaterialProviders.MaterialProviders();
+    var cmpClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
+
     var internalConfig := Operations.Config(
+      cmpClient := cmpClient,
       tableName := config.tableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,

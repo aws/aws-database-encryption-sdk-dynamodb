@@ -88,9 +88,6 @@ The prefix `aws-crypto-` is reserved for internal use by the AWS Encryption SDK;
 [the Default CMM spec](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/default-cmm.md)
 for one such use.
 
-If the input encryption context contains any entries with a key beginning with this prefix,
-the encryption operation MUST yield an error.
-
 ## Outputs
 
 ### Encrypted Structured Data
@@ -272,6 +269,11 @@ The Header Field name MUST be `aws_dbe_head`
 The Header Field TypeID MUST be 0xFFFF
 
 The Header Field Value MUST be the full serialized [header](header.md) with commitment.
+
+The encryption context field serialized in the header MUST contain all key-value
+pairs of the encryption context in the [encryption materials](#retrieve-encryption-materials)
+that are not included in the
+[required encryption context keys](../framework/structures.md#required-encryption-context-keys) list.
 
 #### Footer Field
 

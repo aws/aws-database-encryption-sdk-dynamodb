@@ -135,11 +135,6 @@ in the [input Structured Data](#structured-data):
   the Authentication Schema indicates [SIGN](./structures.md#sign) for this Terminal Data
   and the Encrypt Legend byte corresponding to this Terminal Data is `0x65`.
 
-If the parsed [Encryption Context](./header.md#encryption-context) contains fields that exist in the
-[input Encryption Context](#encryption-context),
-and the corresponding values do not match,
-this operation MUST yield an error.
-
 ### Retrieve Decryption Materials
 
 This operation MUST obtain a set of decryption materials by calling
@@ -147,12 +142,11 @@ This operation MUST obtain a set of decryption materials by calling
 on the [input CMM](#cmm).
 
 The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
-- Encryption Context: The encryption context containing exactly the union of
-  key-value pairs in the [input Encryption Context](#encryption-context)
-  and the key-value pairs in the [Encryption Context parsed from the header](./header.md#encryption-context).
+- Encryption Context: The [Encryption Context parsed from the header](./header.md#encryption-context).
 - Algorithm Suite ID: The algorithm suite [indicated by the Message Format Flavor](./header.md#format-flavor)
   parsed in the header.
 - Encrypted Data Keys: The [Encrypted Data Keys parsed from the header](./header.md#encrypted-data-keys).
+- Reproduced Encryption Context: This is the [input](#input) encryption context.
 
 The algorithm suite used in all further aspects of this operation MUST be
 the algorithm suite in the

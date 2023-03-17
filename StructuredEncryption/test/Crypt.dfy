@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../src/Crypt.dfy"
+include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/HexStrings.dfy"
 
 module TestStructuredEncryptionCrypt {
   import opened StructuredEncryptionCrypt
@@ -9,19 +10,13 @@ module TestStructuredEncryptionCrypt {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened StructuredEncryptionUtil
+  import opened HexStrings
 
   datatype FieldKeyTestItem = FieldKeyTestItem(
     nameonly input : string,
     nameonly offset : uint32,
     nameonly output : string
   )
-  /*
-      FieldKeyTestItem (
-        input := "0000000000000000000000000000000000000000000000000000000000000000",
-        offset := 0,
-        output := "8236977e5c9f3dd24caf87076d6383f39f0acf75df62d737afa3611c3f41c91944ef7d8127e2e71c4ea36d8c"
-    ),
-*/
   const FieldKeyTestVector : seq<FieldKeyTestItem> := [
     FieldKeyTestItem(
         input := "0000000000000000000000000000000000000000000000000000000000000000",
@@ -224,87 +219,6 @@ module TestStructuredEncryptionCrypt {
         output := "20847d5de204cb578f3012940fa9876ddb3386ae9719cf9adcbdd611385011b2e7d5375fb6d3fd5ea77ba461"
     )
   ]
-
-    // return the hex character for this hex value
-    function method HexChar(x : uint8) : (res : char)
-      requires x < 16
-      ensures '0' <= res <= '9' || 'a' <= res <= 'f'
-      ensures IsHexChar(res)
-    {
-      if x < 10 then
-        '0' + x as char
-      else
-        'a' + (x - 10) as char
-    }
-
-    predicate method IsHexChar(ch : char)
-    {
-      || '0' <= ch <= '9'
-      || 'a' <= ch <= 'f'
-      || 'A' <= ch <= 'F'
-    }
-
-    predicate method IsHexString(s : string)
-    {
-      forall ch <- s :: IsHexChar(ch)
-    }
-
-    type HexString = x : string | IsHexString(x)
-
-    // return the hex value for this hex character
-    function method HexVal(ch : char) : (res : uint8)
-      requires IsHexChar(ch)
-      ensures 0 <= res < 16
-    {
-      if '0' <= ch <= '9' then
-        ch as uint8 - '0' as uint8
-      else if 'a' <= ch <= 'f' then
-        ch as uint8 - 'a' as uint8 + 10
-      else
-        assert 'A' <= ch <= 'F';
-        ch as uint8 - 'A' as uint8 + 10
-    }
-
-    // return the hex string for this byte
-    function method HexStr(x : uint8) : (ret : string)
-      ensures |ret| == 2
-    {
-      if x < 16 then
-        var res := ['0', HexChar(x)];
-        res
-      else
-        var res := [HexChar((x / 16) as uint8), HexChar((x % 16) as uint8)];
-        res
-    }
-
-    // return the hex string for this byte
-    function method HexValue(x : string) : (ret : uint8)
-      requires |x| == 2
-      requires IsHexChar(x[0]) && IsHexChar(x[1])
-    {
-      HexVal(x[0]) * 16 + HexVal(x[1])
-    }
-
-    // return the hex string for these bytes, keeping any leading zero
-    function method {:tailrecursion} ToHexString(val : seq<uint8>) : (ret : HexString)
-      ensures |ret| == 2 * |val|
-    {
-      if |val| == 0 then
-        []
-      else
-        HexStr(val[0]) + ToHexString(val[1..])
-    }
-
-  function method FromHexString(data : HexString) : (ret : seq<uint8>)
-    ensures |ret| == (|data| + 1) / 2
-  {
-    if |data| == 0 then
-      []
-    else if |data| % 2 == 1 then
-      [HexVal(data[0])] + FromHexString(data[1..])
-    else
-      [HexVal(data[0]) * 16 + HexVal(data[1])] + FromHexString(data[2..])
-  }
 
   method {:test} TestFieldKey() {
     for i := 0 to |FieldKeyTestVector| {
