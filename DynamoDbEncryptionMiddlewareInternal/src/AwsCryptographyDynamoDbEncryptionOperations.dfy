@@ -347,7 +347,6 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
 
   method DescribeTableOutputTransform(config: InternalConfig, input: DescribeTableOutputTransformInput)
     returns (output: Result<DescribeTableOutputTransformOutput, Error>)
-    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     output := DescribeTableTransform.Output(config, input);
   }
