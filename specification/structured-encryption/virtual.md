@@ -1,16 +1,129 @@
+[//]: # "Copyright Amazon.com Inc. or its affiliates. All Rights Reserved."
+[//]: # "SPDX-License-Identifier: CC-BY-SA-4.0"
+
 # Virtual Fields
 
-A virtual field combines fields from a record, or parts of fields, with some literal text,
-optionally performing some simple transformations on the field values,
-to produce a string, which is used as if it were just another field in the record. 
+## Version
 
-For example
+1.0.0
 
-`FirstName | Lower | Prefix 1 + Literal _ + FullName.Last[0] | Lower`
+### Changelog
 
-It is an error to write a record with a field with a name equal to a configured
-virtual field name.
+## Overview
 
-It should be possible to define a virtual field in terms of other virtual fields.
+A virtual field is a field constructed from parts of other fields, but never stored.
 
-An actual spec will be part of another PR.
+A virtual field can be used in the construction of a [compound beacon](./compound-beacons.md)
+which can be stored in the database and can be used to search.
+
+For example a virtual NameTag field, which is constructed from the first letter of the FirstName
+field followed by the LastName field, all in lowercase.
+
+When querying, the customer must construct the virtual field value, and use it like
+any other search term, e.g. `NameTag=jsmith`. Other than this, and the initial configuration,
+the user experience is the same as if there were no virtual beacons, e.g. results never
+contain virtual field values.
+
+One of the primary customer benefits is that this allows a beacon on a sub-part
+of a structured value.
+
+### Terminal Location
+
+A Terminal Location is a Path to a part of a piece of structured data.
+
+A Terminal Location specification MUST be a field name followed by zero or more [Segments](#segments)
+
+#### Segments
+
+A Segment MUST be one of
+
+ - A literal "." followed by a field name, indicating a lookup into a Structured Data Map.
+ - A literal "[" followed by a decimal integer followed by a literal "]",
+indicating an index into a  Structured Data List.
+
+### Stringify
+
+A virtual field is always a string, and so all [source paths](#source-path)
+must be converted to strings before being used to construct a virtual field.
+
+Stringify MUST be a a callback function that takes a Terminal Location and returns a string.
+
+This callback is NOT accessible to the customer, but is simply a bridge between the
+structured encryption layer and the database layer.
+
+For example, a DynamoDB callback might resolve a Path on an ItemMap and produce
+a string based on the type of the Terminal.
+
+### Examiner
+
+It can be important to know if a virtual field has a certain quality,
+defined as any of its parts having the quality.
+
+Examiner MUST be a a callback function that takes a Terminal Location and returns a boolean.
+
+For example, an DynamoDB callback might check to see if the top level 
+field is encrypted or signed.
+
+### Field Modifications
+
+The following functions MUST be provided to modify strings
+
+* "Prefix" N - the first N characters (not bytes). The unmodified string if N > length.
+* "Suffix" N - the last N characters (not bytes). The unmodified string if N > length.
+* "Lower" - any ascii letters replaced with their lowercase equivalent.
+* "Upper" - any ascii letters replaced with their uppercase equivalent.
+* "Parts" Char Low High - Split the string on Char, keep only the parts Low..High inclusive.
+Both Low and High reduced to total parts. High is optional, and defaults to Low.
+
+### Virtual Segment
+
+A virtual segment MUST be one of
+ - a [literal value](#literal-value)
+ - a [path calculation](#path-calculation)
+
+#### Literal Value
+
+A literal value must be the string "Literal" followed by whitespace followed by
+a string that contains no whitespace.
+
+#### Value Calculation
+
+A value calculation MUST be a [Terminal Location](#terminal-location) followed by zero or more
+" | " delimited Field Modifications.
+
+For example, `FirstName | Lower | Prefix 1`
+
+ 1 Stringifys the FirstName field
+ 1 Converts it to lowercase
+ 1 Discards all but the first character
+
+### Virtual Field Definition
+
+A virtual value is " + " delimited list of [virtual segments](#virtual-segement).
+
+For example the NameTag example above might be specified as
+
+`FirstName | Lower | Prefix 1 + LastName | Lower`
+
+Or the same thing, with an underscore between the parts
+
+`FirstName | Lower | Prefix 1 + Literal _ + LastName | Lower`
+
+### Virtual Field Initialization
+
+On initialization of a Virtual Field, the caller MUST provide:
+
+ * A name -- a string
+ * A [Virtual Field Definition](#virtual-field-definition) -- a string
+
+[Beacons](beacons.md) can be defined in terms of virtual fields or regular record fields.
+
+A [Virtual Field Definition](#virtual-field-definition) MAY refer to other virtual fields,
+but only to ones earlier in the [search configuration](search-config.md) list.
+
+### Limitations
+
+Because of the syntax above
+
+* The ` + ` and ` | ` that delimit pieces must be surrounded by whitespace
+* Literal Values and field names cannot contain whitespace.

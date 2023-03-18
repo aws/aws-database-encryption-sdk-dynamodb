@@ -76,6 +76,10 @@ A beacon length MUST be an integer between 1 and 63 inclusive,
 indicating the number of bits in the resulting beacon. 
 The beacon string will be 1/4 this length.
 
+### Terminal Location
+
+A terminal location designates a portion of a structured value. Defined [here](virtual.md#terminal-location)
+
 ### Standard Beacon
 
 The simplest form of beacon is a standard beacon.
@@ -83,7 +87,11 @@ The simplest form of beacon is a standard beacon.
 To configure a single standard beacon, you need to provide
 
  1. A name
+ 1. A [terminal location](virtual.md#terminal-location)
  1. A [beacon length](#beacon-length)
+
+A hash is made from th value at the terminal location, and stored at aws_dbe_b_name,
+and the name is used as a field name in queries.
 
 To produce a standard beacon from a sequence of bytes :
 1. Compute the HMAC
@@ -110,8 +118,8 @@ To configure a single compound beacon, you need to provide
  1. A name
  1. A split character
  1. A list of sensitive parts
- 1. An optional list of non-sensitive parts
- 1. An optional list of constructors
+ 1. A list of non-sensitive parts
+ 1. A list of constructors
 
 The `name` is used in queries and index creation as if it were a regular field.
 "MyField" in examples below. It is an error if this name is the same as a configured
@@ -120,29 +128,29 @@ field, or [virtual field](virtual.md), or to attempt to write a field of this na
 The `split character` separates the parts of a compound beacon.
 In the examples below, we assume "`.`".
 
-Each [sensitive part](#sensitive-part) has a field name,
+Each [sensitive part](#sensitive-part) has a field name, 
+a [terminal location](virtual.md#terminal-location),
 a prefix and a [beacon length](#beacon-length).
 The field name must refer directly to a configured field,
 or [virtual field](virtual.md).
 The values of these fields are stored a hashes, not plaintext.
 For example :
 
-| Field Name | Prefix | Length |
+| Field Name | Location | Prefix | Length |
 |---|---|---|
-| social | S- | 23 |
-| phone | P- | 25 |
-| zipcode | Z- | 15 |
-| address | A- | 11 |
+| social | social | S- | 23 |
+| phone | phone| P- | 25 |
+| zipcode | address.zipcode | Z- | 15 |
 
 The first row should be interpreted as a literal `S-` followed by the 23-bit beacon
 of the "social" field.
 
-Each [nonsensitive part](#non-sensitive-part) has a field name and a prefix.
+Each [nonsensitive part](#non-sensitive-part) has a field name, a [terminal location](virtual.md#terminal-location) and a prefix.
 The values of these fields are stored in plaintext.
 
-| Field Name | Prefix |
+| Field Name | Location | Prefix |
 |---|---|
-| timestamp | T- |
+| timestamp | timestamp | T- |
 
 The first row should be interpreted as a literal `T-` followed by the plaintext
 of the "timestamp" field.
@@ -231,63 +239,73 @@ as if it were any other field.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
 in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
-## Base Beacon Configuration
 
-The following inputs to this configuration are REQUIRED:
- * A name -- a sequence of characters
- * A plaintext HMAC key -- a sequence of bytes
+### Standard Beacon Initialization
 
-### Standard Beacon Config
+On initialization of a Standard Beacon, the caller MUST provide:
 
-A standard beacon config MUST have
- * A Base Beacon
+ * A name -- a string
  * A `length` -- a [beacon length](#beacon-length)
 
-### Compound Beacon Config
+ On initialization of a Standard Beacon, the caller MAY provide:
 
-A compound beacon config MUST have the following inputs:
+ * a [terminal location](virtual.md#terminal-location) -- a string
 
- * A Base Beacon
- * A split character
- * A list of sensitive parts
+If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
-The following inputs to a compound beacon config MUST be OPTIONAL:
 
- * A list of non-sensitive parts
+### Compound Beacon Initialization
+
+On initialization of a Compound Beacon, the caller MUST provide:
+
+ * A name -- a string
+ * A split character -- a character
+ * A list of [sensitive parts](#sensitive-part)
+
+ On initialization of a Compound Beacon, the caller MAY provide:
+
+ * A list of [non-sensitive parts](#non-sensitive-part)
  * A list of constructors
 
-#### Sensitive Part
+#### Non Sensitive Part Initialization
 
-A sensitive part config MUST have the following inputs:
+On initialization of a [non-sensitive part](#non-sensitive-part), the caller MUST provide:
 
- * A field name -- a string
- * A Prefix -- a string
+ * A name -- a string
+
+On initialization of a [non-sensitive parts](#non-sensitive-part), the caller MAY provide:
+
+ * A [terminal location](virtual.md#terminal-location) -- a string
+
+If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
+
+#### Sensitive Part Initialization
+
+On initialization of a [sensitive part](#sensitive-part), the caller MUST provide:
+
+ * A name -- a string
  * A `length` -- a [beacon length](#beacon-length)
 
-#### Non-Sensitive Part
+On initialization of a [sensitive parts](#non-sensitive-part), the caller MAY provide:
 
-A non-sensitive part config MUST have the following inputs:
+ * A [terminal location](virtual.md#terminal-location) -- a string
 
- * A field name -- a string
- * A Prefix -- a string
+If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
-#### Part
+#### Constructor Initialization
 
-`Part` is defined as a [sensitive part](#sensitive-part)
-  or a [non-sensitive-part](#non-sensitive-part).
+On initialization of a constructor, the caller MUST provide:
 
-#### Constructor Part
+ * A list of [Constructor parts](#constructor-part-initialization)
 
-A constructor part config MUST have the following inputs:
+#### Constructor Part Initialization
 
- * A field name -- a string
- * Required -- a boolean
+On initialization of a constructor part, the caller MUST provide:
 
+ * A name -- a string
+ * A required flag -- a boolean
 
-#### Constructor
-
-  A Constructor MUST be a list of [constructor parts](#constructor-part),
-  each corresponding to a field name in a [part](#part).
+This name MUST match the name of one of the [sensitive](#sensitive-part) or [non-sensitive](#sensitive-part) parts.
 
 ### Default Construction
 
@@ -295,7 +313,11 @@ A constructor part config MUST have the following inputs:
 * This default constructor MUST be all of the non-sensitive parts, followed by all the
 sensitive part, all parts being required.
 
----
+### Part
+
+The word `part` is used to refer to any [sensitive](#sensitive-part) or [non-sensitive](#sensitive-part) part.
+
+### Initialization Failure
 
 Construction MUST fail if any `prefix` in any [part](#part) is a prefix of
 the `prefix` of any other [part](#part).

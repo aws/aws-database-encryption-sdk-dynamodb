@@ -153,14 +153,12 @@ structure SensitivePart {
   name : String,
   @required
   length : BitLength,
-  @required
   loc : TerminalLocation
 }
 
 structure NonSensitivePart {
   @required
   name : String,
-  @required
   loc : TerminalLocation
 }
 
@@ -181,7 +179,6 @@ structure StandardBeacon {
   name : String,
   @required
   length : BitLength,
-  @required
   loc : TerminalLocation
 }
 
