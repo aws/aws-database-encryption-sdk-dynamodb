@@ -170,6 +170,7 @@ public class DynamoDbEncryptionInterceptorTest {
                                         .build())
                                 .conditionCheck(ConditionCheck.builder()
                                         .tableName(TEST_TABLE_NAME)
+                                        .conditionExpression("foo")
                                         .build())
                                 .build())
                 .build();
