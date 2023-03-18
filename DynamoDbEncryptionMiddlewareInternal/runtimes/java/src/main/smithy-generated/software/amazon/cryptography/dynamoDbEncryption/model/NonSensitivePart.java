@@ -78,9 +78,6 @@ public class NonSensitivePart {
       if (Objects.isNull(this.name()))  {
         throw new IllegalArgumentException("Missing value for required field `name`");
       }
-      if (Objects.isNull(this.loc()))  {
-        throw new IllegalArgumentException("Missing value for required field `loc`");
-      }
       if (Objects.nonNull(this.loc()) && this.loc().length() < 1) {
         throw new IllegalArgumentException("The size of `loc` must be greater than or equal to 1");
       }

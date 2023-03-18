@@ -110,9 +110,6 @@ public class StandardBeacon {
       if (Objects.nonNull(this.length()) && this.length() > 63) {
         throw new IllegalArgumentException("`length` must be less than or equal to 63.");
       }
-      if (Objects.isNull(this.loc()))  {
-        throw new IllegalArgumentException("Missing value for required field `loc`");
-      }
       if (Objects.nonNull(this.loc()) && this.loc().length() < 1) {
         throw new IllegalArgumentException("The size of `loc` must be greater than or equal to 1");
       }

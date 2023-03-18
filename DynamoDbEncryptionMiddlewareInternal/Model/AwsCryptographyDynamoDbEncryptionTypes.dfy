@@ -761,7 +761,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  datatype NonSensitivePart = | NonSensitivePart (
  nameonly name: string ,
- nameonly loc: TerminalLocation
+ nameonly loc: Option<TerminalLocation>
  )
  type NonSensitivePartsList = seq<NonSensitivePart>
  datatype PutItemInputTransformInput = | PutItemInputTransformInput (
@@ -810,13 +810,13 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype SensitivePart = | SensitivePart (
  nameonly name: string ,
  nameonly length: BitLength ,
- nameonly loc: TerminalLocation
+ nameonly loc: Option<TerminalLocation>
  )
  type SensitivePartsList = seq<SensitivePart>
  datatype StandardBeacon = | StandardBeacon (
  nameonly name: string ,
  nameonly length: BitLength ,
- nameonly loc: TerminalLocation
+ nameonly loc: Option<TerminalLocation>
  )
  type StandardBeaconList = seq<StandardBeacon>
  type TerminalLocation = x: string | IsValid_TerminalLocation(x) witness *

@@ -199,7 +199,9 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.NonSensitivePart dafnyValue) {
     NonSensitivePart.Builder nativeBuilder = NonSensitivePart.builder();
     nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
-    nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc()));
+    if (dafnyValue.dtor_loc().is_Some()) {
+      nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 
@@ -458,7 +460,9 @@ public class ToNative {
     StandardBeacon.Builder nativeBuilder = StandardBeacon.builder();
     nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
     nativeBuilder.length((dafnyValue.dtor_length()));
-    nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc()));
+    if (dafnyValue.dtor_loc().is_Some()) {
+      nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 
@@ -474,7 +478,9 @@ public class ToNative {
     SensitivePart.Builder nativeBuilder = SensitivePart.builder();
     nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
     nativeBuilder.length((dafnyValue.dtor_length()));
-    nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc()));
+    if (dafnyValue.dtor_loc().is_Some()) {
+      nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 

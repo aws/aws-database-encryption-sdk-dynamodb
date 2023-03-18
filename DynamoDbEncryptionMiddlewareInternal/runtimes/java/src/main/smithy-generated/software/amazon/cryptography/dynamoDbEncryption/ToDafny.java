@@ -235,8 +235,10 @@ public class ToDafny {
       software.amazon.cryptography.dynamoDbEncryption.model.NonSensitivePart nativeValue) {
     DafnySequence<? extends Character> name;
     name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
-    DafnySequence<? extends Character> loc;
-    loc = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc());
+    Option<DafnySequence<? extends Character>> loc;
+    loc = Objects.nonNull(nativeValue.loc()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc()))
+        : Option.create_None();
     return new NonSensitivePart(name, loc);
   }
 
@@ -509,8 +511,10 @@ public class ToDafny {
     name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
     Integer length;
     length = (nativeValue.length());
-    DafnySequence<? extends Character> loc;
-    loc = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc());
+    Option<DafnySequence<? extends Character>> loc;
+    loc = Objects.nonNull(nativeValue.loc()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc()))
+        : Option.create_None();
     return new StandardBeacon(name, length, loc);
   }
 
@@ -527,8 +531,10 @@ public class ToDafny {
     name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
     Integer length;
     length = (nativeValue.length());
-    DafnySequence<? extends Character> loc;
-    loc = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc());
+    Option<DafnySequence<? extends Character>> loc;
+    loc = Objects.nonNull(nativeValue.loc()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc()))
+        : Option.create_None();
     return new SensitivePart(name, length, loc);
   }
 
