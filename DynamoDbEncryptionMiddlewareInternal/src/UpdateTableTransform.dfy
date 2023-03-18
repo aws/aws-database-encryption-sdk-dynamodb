@@ -12,14 +12,18 @@ module UpdateTableTransform {
   import EncTypes = AwsCryptographyDynamoDbItemEncryptorTypes
   import Seq
 
-  // TODO - implement this
   method Input(config: Config, input: UpdateTableInputTransformInput)
     returns (output: Result<UpdateTableInputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
-    modifies ModifiesConfig(config)
   {
-    return Success(UpdateTableInputTransformOutput(transformedInput := input.sdkInput));
+    if input.sdkInput.TableName !in config.tableEncryptionConfigs {
+      return Success(UpdateTableInputTransformOutput(transformedInput := input.sdkInput));
+    } else {
+      var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+      var finalResult :- UpdateTableInputForBeacons(tableConfig, input.sdkInput);
+      return Success(UpdateTableInputTransformOutput(transformedInput := finalResult));
+    }
   }
 
   method Output(config: Config, input: UpdateTableOutputTransformInput)

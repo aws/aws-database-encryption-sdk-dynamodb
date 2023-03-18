@@ -19,13 +19,17 @@ module DescribeTableTransform {
     return Success(DescribeTableInputTransformOutput(transformedInput := input.sdkInput));
   }
 
-  // TODO - implement this
   method Output(config: Config, input: DescribeTableOutputTransformInput)
     returns (output: Result<DescribeTableOutputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
-    modifies ModifiesConfig(config)
   {
-    return Success(DescribeTableOutputTransformOutput(transformedOutput := input.sdkOutput));
+    if input.originalInput.TableName !in config.tableEncryptionConfigs {
+      return Success(DescribeTableOutputTransformOutput(transformedOutput := input.sdkOutput));
+    } else {
+      var tableConfig := config.tableEncryptionConfigs[input.originalInput.TableName];
+      var finalResult :- DescribeTableOutputForBeacons(tableConfig, input.sdkOutput);
+      return Success(DescribeTableOutputTransformOutput(transformedOutput := finalResult));
+    }
   }
 }
