@@ -272,6 +272,7 @@ On initialization of a Compound Beacon, the caller MUST provide:
 On initialization of a [non-sensitive part](#non-sensitive-part), the caller MUST provide:
 
  * A name -- a string
+ * A prefix -- a string
 
 On initialization of a [non-sensitive parts](#non-sensitive-part), the caller MAY provide:
 
@@ -284,6 +285,7 @@ If no [terminal location](virtual.md#terminal-location) is provided, the `name` 
 On initialization of a [sensitive part](#sensitive-part), the caller MUST provide:
 
  * A name -- a string
+ * A prefix -- a string
  * A `length` -- a [beacon length](#beacon-length)
 
 On initialization of a [sensitive parts](#non-sensitive-part), the caller MAY provide:
