@@ -217,6 +217,9 @@ structure SearchConfig {
   writeVersion: VersionNumber
 }
 
+@aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
+structure AtomicPrimitivesReference {}
+
 /////////////
 // Errors
 

@@ -4,6 +4,7 @@
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Index.dfy"
  include "../../DynamoDbItemEncryptor/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
+ include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographyPrimitives/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.Types" } AwsCryptographyDynamoDbEncryptionTypes
  {
@@ -12,6 +13,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  import opened UTF8
  import AwsCryptographyDynamoDbItemEncryptorTypes
  import AwsCryptographyMaterialProvidersTypes
+ import AwsCryptographyPrimitivesTypes
  import ComAmazonawsDynamodbTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
@@ -892,6 +894,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // Any dependent models are listed here
  | AwsCryptographyDynamoDbItemEncryptor(AwsCryptographyDynamoDbItemEncryptor: AwsCryptographyDynamoDbItemEncryptorTypes.Error)
  | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
+ | AwsCryptographyPrimitives(AwsCryptographyPrimitives: AwsCryptographyPrimitivesTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.

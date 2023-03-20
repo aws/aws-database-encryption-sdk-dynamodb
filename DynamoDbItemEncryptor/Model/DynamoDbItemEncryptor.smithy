@@ -128,6 +128,9 @@ map AttributeActions {
     value: CryptoAction,
 }
 
+@aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
+structure AtomicPrimitivesReference {}
+
 /////////////
 // Errors
 
