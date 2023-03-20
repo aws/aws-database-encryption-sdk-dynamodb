@@ -235,11 +235,13 @@ public class ToDafny {
       software.amazon.cryptography.dynamoDbEncryption.model.NonSensitivePart nativeValue) {
     DafnySequence<? extends Character> name;
     name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
+    DafnySequence<? extends Character> prefix;
+    prefix = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.prefix());
     Option<DafnySequence<? extends Character>> loc;
     loc = Objects.nonNull(nativeValue.loc()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc()))
         : Option.create_None();
-    return new NonSensitivePart(name, loc);
+    return new NonSensitivePart(name, prefix, loc);
   }
 
   public static TransactGetItemsInputTransformOutput TransactGetItemsInputTransformOutput(
@@ -529,13 +531,15 @@ public class ToDafny {
       software.amazon.cryptography.dynamoDbEncryption.model.SensitivePart nativeValue) {
     DafnySequence<? extends Character> name;
     name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
+    DafnySequence<? extends Character> prefix;
+    prefix = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.prefix());
     Integer length;
     length = (nativeValue.length());
     Option<DafnySequence<? extends Character>> loc;
     loc = Objects.nonNull(nativeValue.loc()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc()))
         : Option.create_None();
-    return new SensitivePart(name, length, loc);
+    return new SensitivePart(name, prefix, length, loc);
   }
 
   public static Constructor Constructor(

@@ -763,9 +763,14 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  datatype NonSensitivePart = | NonSensitivePart (
  nameonly name: string ,
+ nameonly prefix: Prefix ,
  nameonly loc: Option<TerminalLocation>
  )
  type NonSensitivePartsList = seq<NonSensitivePart>
+ type Prefix = x: string | IsValid_Prefix(x) witness *
+ predicate method IsValid_Prefix(x: string) {
+ ( 1 <= |x|  )
+}
  datatype PutItemInputTransformInput = | PutItemInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.PutItemInput
  )
@@ -811,6 +816,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  datatype SensitivePart = | SensitivePart (
  nameonly name: string ,
+ nameonly prefix: Prefix ,
  nameonly length: BitLength ,
  nameonly loc: Option<TerminalLocation>
  )

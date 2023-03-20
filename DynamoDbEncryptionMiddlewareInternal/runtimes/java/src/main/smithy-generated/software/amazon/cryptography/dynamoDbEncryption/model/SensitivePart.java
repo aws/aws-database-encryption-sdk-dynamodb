@@ -8,18 +8,25 @@ import java.util.Objects;
 public class SensitivePart {
   private final String name;
 
+  private final String prefix;
+
   private final int length;
 
   private final String loc;
 
   protected SensitivePart(BuilderImpl builder) {
     this.name = builder.name();
+    this.prefix = builder.prefix();
     this.length = builder.length();
     this.loc = builder.loc();
   }
 
   public String name() {
     return this.name;
+  }
+
+  public String prefix() {
+    return this.prefix;
   }
 
   public int length() {
@@ -43,6 +50,10 @@ public class SensitivePart {
 
     String name();
 
+    Builder prefix(String prefix);
+
+    String prefix();
+
     Builder length(int length);
 
     int length();
@@ -57,6 +68,8 @@ public class SensitivePart {
   static class BuilderImpl implements Builder {
     protected String name;
 
+    protected String prefix;
+
     protected int length;
 
     protected String loc;
@@ -66,6 +79,7 @@ public class SensitivePart {
 
     protected BuilderImpl(SensitivePart model) {
       this.name = model.name();
+      this.prefix = model.prefix();
       this.length = model.length();
       this.loc = model.loc();
     }
@@ -77,6 +91,15 @@ public class SensitivePart {
 
     public String name() {
       return this.name;
+    }
+
+    public Builder prefix(String prefix) {
+      this.prefix = prefix;
+      return this;
+    }
+
+    public String prefix() {
+      return this.prefix;
     }
 
     public Builder length(int length) {
@@ -100,6 +123,12 @@ public class SensitivePart {
     public SensitivePart build() {
       if (Objects.isNull(this.name()))  {
         throw new IllegalArgumentException("Missing value for required field `name`");
+      }
+      if (Objects.isNull(this.prefix()))  {
+        throw new IllegalArgumentException("Missing value for required field `prefix`");
+      }
+      if (Objects.nonNull(this.prefix()) && this.prefix().length() < 1) {
+        throw new IllegalArgumentException("The size of `prefix` must be greater than or equal to 1");
       }
       if (Objects.isNull(this.length()))  {
         throw new IllegalArgumentException("Missing value for required field `length`");

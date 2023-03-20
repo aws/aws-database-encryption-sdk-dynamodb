@@ -199,6 +199,7 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.NonSensitivePart dafnyValue) {
     NonSensitivePart.Builder nativeBuilder = NonSensitivePart.builder();
     nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.prefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
     if (dafnyValue.dtor_loc().is_Some()) {
       nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
     }
@@ -477,6 +478,7 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.SensitivePart dafnyValue) {
     SensitivePart.Builder nativeBuilder = SensitivePart.builder();
     nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.prefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
     nativeBuilder.length((dafnyValue.dtor_length()));
     if (dafnyValue.dtor_loc().is_Some()) {
       nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));

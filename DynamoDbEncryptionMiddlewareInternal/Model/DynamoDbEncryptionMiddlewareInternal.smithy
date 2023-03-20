@@ -114,6 +114,9 @@ integer VersionNumber
 string Char
 
 @length(min: 1)
+string Prefix
+
+@length(min: 1)
 string TerminalLocation
 
 list BeaconVersionList {
@@ -152,6 +155,8 @@ structure SensitivePart {
   @required
   name : String,
   @required
+  prefix : Prefix,
+  @required
   length : BitLength,
   loc : TerminalLocation
 }
@@ -159,6 +164,8 @@ structure SensitivePart {
 structure NonSensitivePart {
   @required
   name : String,
+  @required
+  prefix : Prefix,
   loc : TerminalLocation
 }
 
