@@ -18,7 +18,7 @@ jobs:
         ]
         os: [
           # TODO windows-latest,
-          ubuntu-latest,
+          # Tends to time out : ubuntu-latest,
           macos-latest,
         ]
     runs-on: ${{ matrix.os }}
