@@ -71,11 +71,6 @@ module VirtualFields {
     }
   }
 
-  //= specification/structured-encryption/virtual-field.md#stringify
-  //= type=implication
-  //# Stringify MUST be a a callback function that takes a Terminal Location and returns a string.
-  type Stringify = (TerminalLocation) -> Result<string,string>
-
   //= specification/structured-encryption/virtual-field.md#examiner
   //= type=implication
   //# Examiner MUST be a a callback function that takes a Terminal Location and returns a boolean.
@@ -262,8 +257,8 @@ module VirtualFields {
       Success(TerminalLocation([m] + selectors))
   }
 
-  function method {:opaque} NeedEmpty(s : string, parts : seq<Selector>)
-    : Result<string, string>
+  function method {:opaque} NeedEmpty<T>(s : T, parts : seq<Selector>)
+    : Result<T, string>
   {
     if |parts| == 0 then
       Success(s)

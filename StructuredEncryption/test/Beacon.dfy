@@ -8,9 +8,10 @@ module TestBaseBeacon {
   import opened BaseBeacon
   import opened CompoundBeacon
   import opened Wrappers
+  import opened StructuredEncryptionPaths
 
-  const Timestamp := BeaconPart("timestamp", "T-", None);
-  const Secret := BeaconPart("secret", "S-", Some(4));
+  const Timestamp := BeaconPart("timestamp", MakeMap("timestamp"), "T-", None);
+  const Secret := BeaconPart("secret", MakeMap("secret"), "S-", Some(4));
 
   method {:test} TestCompoundBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
@@ -23,7 +24,7 @@ module TestBaseBeacon {
     var bytes :- expect b.getHmac(UTF8.EncodeAscii("S-abcd"));
     expect bytes[7] == 0x42;
 
-    var str :- expect b1.hash(data);
+    var str :- expect b1.hash(t => StringifyMap(t, data));
     expect str == "T-1234.S-2";
 
     var query :-  expect b1.getPart("T-1234.S-abcd");
@@ -34,7 +35,7 @@ module TestBaseBeacon {
     var primitives :- expect Primitives.AtomicPrimitives();
 
     var bb := BeaconBase(client := primitives, name := "foo", key := [1,2]);
-    var b := StandardBeacon(bb, 8);
+    var b := StandardBeacon(bb, 8, MakeMap("foo"));
     var bytes :- expect bb.getHmac([1,2,3]);
     expect bytes == [0x27, 0x93, 0x93, 0x8b, 0x26, 0xe9, 0x52, 0x7e];
     var str :- expect b.hash([1,2,3]);

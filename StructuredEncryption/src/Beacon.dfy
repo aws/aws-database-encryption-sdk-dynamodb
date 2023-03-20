@@ -4,6 +4,7 @@
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Util.dfy"
 include "Paths.dfy"
+include "Virtual.dfy"
 
 module BaseBeacon {
   import opened Wrappers
@@ -19,6 +20,7 @@ module BaseBeacon {
   import UTF8
   import Seq
   import SortedSets
+  import VirtualFields
 
   //= specification/structured-encryption/beacons.md#beacon-length
   //= type=implication
@@ -93,9 +95,29 @@ module BaseBeacon {
     }
   }
   
+  function method MakeStandardBeacon(
+    client: Primitives.AtomicPrimitivesClient,
+    name: string,
+    key: Bytes,
+    length : BeaconLength,
+    loc : string
+  ) : Result<StandardBeacon, Error>
+  {
+    var termLoc :- VirtualFields.MakeTerminalLocation(loc).MapFailure(e => E(e));
+    Success(StandardBeacon(
+      BeaconBase (
+        client := client,
+        name := name,
+        key := key
+      ),
+      length,
+      termLoc
+    ))
+  }
   datatype StandardBeacon = StandardBeacon (
     base : BeaconBase,
-    length : BeaconLength
+    length : BeaconLength,
+    loc : TerminalLocation
   ) {
     //= specification/structured-encryption/beacons.md#hash-for-a-standard-beacon
     //= type=implication
@@ -115,6 +137,16 @@ module BaseBeacon {
     {
       base.hash(val, length)
     }
+
+    function method {:opaque} getHash(byteify : Byteify)
+      : (ret : Result<string, Error>)
+      ensures ret.Success? ==>
+        && |ret.value| > 0
+    {
+      var bytes :- byteify(loc).MapFailure(e => E(e));
+      hash(bytes)
+    }
+
 
     //= specification/structured-encryption/beacons.md#getpart-for-a-standard-beacon
     //= type=implication

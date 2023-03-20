@@ -17,6 +17,7 @@
 
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "../../StructuredEncryption/src/Virtual.dfy"
+include "DynamoToStruct.dfy"
 
 module VirtualDDBFields {
   import opened StandardLibrary
@@ -27,6 +28,7 @@ module VirtualDDBFields {
   import opened StructuredEncryptionUtil
   import opened StructuredEncryptionPaths
   import opened VirtualFields
+  import DynamoToStruct
 
   // return true if item does not have the given terminal
   predicate method LacksAttribute(t : TerminalLocation, item : DDB.AttributeMap)
@@ -47,40 +49,69 @@ module VirtualDDBFields {
     if t.parts[0].key !in item then
       Failure("Requested attribute " + t.parts[0].key + " not in item.")
     else
-      AttrValueToString(item[t.parts[0].key], t.parts[1..])
+      var part :- GetTerminal(item[t.parts[0].key], t.parts[1..]);
+      AttrValueToString(part)
+  }
+
+  // return the string value for the given terminal in the given item
+  function method TermToBytes(t : TerminalLocation, item : DDB.AttributeMap)
+    : Result<Bytes,string>
+  {
+    if t.parts[0].key !in item then
+      Failure("Requested attribute " + t.parts[0].key + " not in item.")
+    else
+      var part :- GetTerminal(item[t.parts[0].key], t.parts[1..]);
+      DynamoToStruct.AttrToBytes(part, true)
   }
 
   // return the string value for the given terminal in the given value
-  function method {:tailrecursion} {:opaque} AttrValueToString(v : DDB.AttributeValue, parts : seq<Selector>)
+  function method {:tailrecursion} {:opaque} GetTerminal(v : DDB.AttributeValue, parts : seq<Selector>)
+    : Result<DDB.AttributeValue, string>
+  {
+    if |parts| == 0 then
+      Success(v)
+    else
+      match v {
+        case S(s) => Failure("Found string with parts left over.")
+        case N(s) => Failure("Found number with parts left over.")
+        case B(b) => Failure("Found binary with parts left over.")
+        case SS(s) => Failure("Found string set with parts left over.")
+        case NS(s) => Failure("Found number set with parts left over.")
+        case BS(s) => Failure("Found binary set with parts left over.")
+        case BOOL(b) => Failure("Found boolean with parts left over.")
+        case NULL(n) => Failure("Found null with parts left over.")
+        case L(l) =>
+          if !parts[0].List? then
+            Failure("Tried to access list with key")
+          else if |l| <= parts[0].pos as int then
+            Failure("Tried to access beyond the end of the list")
+          else
+            GetTerminal(l[parts[0].pos], parts[1..])
+        case M(m) =>
+          if !parts[0].Map? then
+            Failure("Tried to access map with index")
+          else if parts[0].key !in m then
+            Failure("Tried to access " + parts[0].key + " which is not in the map.")
+          else
+            GetTerminal(m[parts[0].key], parts[1..])
+      }
+  }
+
+  // return the string value for the given terminal in the given value
+  function method {:opaque} AttrValueToString(v : DDB.AttributeValue)
     : Result<string, string>
   {
     match v {
-      case S(s) => NeedEmpty(s, parts)
-      case N(s) => NeedEmpty(s, parts)
-      case B(b) => NeedEmpty(Base64.Encode(b), parts)
-      case SS(s) => Failure("Can't do sets")
-      case NS(s) => Failure("Can't do sets")
-      case BS(s) => Failure("Can't do sets")
-      case BOOL(b) => NeedEmpty(if b then "true" else "false", parts)
-      case NULL(n) => NeedEmpty("null", parts)
-      case L(l) =>
-        if |parts| == 0 then
-          Failure("Tried to access list without parts.")
-        else if !parts[0].List? then
-          Failure("Tried to access list with key")
-        else if |l| <= parts[0].pos as int then
-          Failure("Tried to access beyond the end of the list")
-        else
-          AttrValueToString(l[parts[0].pos], parts[1..])
-      case M(m) =>
-        if |parts| == 0 then
-          Failure("Tried to access map without parts.")
-        else if !parts[0].Map? then
-          Failure("Tried to access map with index")
-        else if parts[0].key !in m then
-          Failure("Tried to access " + parts[0].key + " which is not in the map.")
-        else
-          AttrValueToString(m[parts[0].key], parts[1..])
+      case S(s) => Success(s)
+      case N(s) => Success(s)
+      case B(b) => Success(Base64.Encode(b))
+      case SS(s) => Failure("Can't convert String Set to string.")
+      case NS(s) => Failure("Can't convert Number Set to string.")
+      case BS(s) => Failure("Can't convert Binary Set to string.")
+      case BOOL(b) => Success(if b then "true" else "false")
+      case NULL(n) => Success("null")
+      case L(l) => Failure("Can't convert List to string.")
+      case M(m) => Failure("Can't convert Map to string.")
     }
   }
 

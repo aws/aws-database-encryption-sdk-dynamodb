@@ -3,6 +3,7 @@
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/CMMs/ExpectedEncryptionContextCMM.dfy"
 include "DynamoToStruct.dfy"
+include "../../StructuredEncryption/src/SearchInfo.dfy"
 
 module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptographyDynamoDbItemEncryptorOperations {
   import opened StructuredEncryptionUtil
@@ -18,6 +19,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   import SE =  StructuredEncryptionUtil
   import MaterialProviders
   import ExpectedEncryptionContextCMM
+  import opened SearchableEncryptionInfo
 
   datatype Config = Config(
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
@@ -29,7 +31,8 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
     nameonly allowedUnauthenticatedAttributePrefix: Option<string>,
     nameonly algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
-    nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient
+    nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient,
+    nameonly beacons : Option<SearchInfo>
     // TODO legacy encryptor
     // TODO legacy schema
   )
@@ -266,6 +269,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     && (forall attribute <- config.attributeActions.Keys ::
           !(SE.ReservedPrefix <= attribute))
 
+    && (config.beacons.Some? ==> config.beacons.value.ValidState())
   }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>

@@ -39,6 +39,7 @@ module CompoundBeacon {
   // if length is null, this is a non-sensitive part
   datatype BeaconPart = BeaconPart (
     fieldName : FieldName,
+    loc : TerminalLocation,
     prefix : Prefix,
     length : Option<BeaconLength>
   )
@@ -55,8 +56,6 @@ module CompoundBeacon {
   )
 
   type ConstructorList = x : seq<Constructor> | 0 < |x| witness *
-
-  type Stringify = (TerminalLocation) -> Result<string,string>
   
   datatype CompoundBeacon = CompoundBeacon(
     base : BeaconBase,
@@ -73,7 +72,7 @@ module CompoundBeacon {
       Success(part[0])
     }
 
-    function method {:opaque} {:tailrecursion} TryConstructor(consFields : seq<ConstructorPart>, fields : map<string, string>, acc : string := "")
+    function method {:opaque} {:tailrecursion} TryConstructor(consFields : seq<ConstructorPart>, stringify : Stringify, acc : string := "")
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> |ret.value| > 0
     {
@@ -86,19 +85,20 @@ module CompoundBeacon {
         //= specification/structured-encryption/beacons.md#hash-for-a-compound-beacon
         //# * For that constructor, hash MUST join the [part value](#part-value) for each part on the `split character`,
         //# excluding parts that are not required and with a source field that is not available.
-        :- Need(!consFields[0].required || consFields[0].fieldName in fields, E("")); // this error message never propagated
-        if consFields[0].fieldName in fields then
-          var part :- FindPartByName(consFields[0].fieldName);
-          var val :- PartValueCalc(part.prefix + fields[part.fieldName], part.prefix, part.length);
+        var part :- FindPartByName(consFields[0].fieldName);
+        var strValue := stringify(part.loc);
+        :- Need(!consFields[0].required || strValue.Success?, E("")); // this error message never propagated
+        if strValue.Success? then
+          var val :- PartValueCalc(part.prefix + strValue.value, part.prefix, part.length);
           if |acc| == 0 then
-            TryConstructor(consFields[1..], fields, val)
+            TryConstructor(consFields[1..], stringify, val)
           else
-            TryConstructor(consFields[1..], fields, acc + [split] + val)
+            TryConstructor(consFields[1..], stringify, acc + [split] + val)
         else
-          TryConstructor(consFields[1..], fields, acc)
+          TryConstructor(consFields[1..], stringify, acc)
     }
 
-    function method {:opaque} {:tailrecursion} TryConstructors(construct : seq<Constructor>, fields : map<string, string>)
+    function method {:opaque} {:tailrecursion} TryConstructors(construct : seq<Constructor>, stringify : Stringify)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> |ret.value| > 0
     {
@@ -107,24 +107,24 @@ module CompoundBeacon {
       else
         //= specification/structured-encryption/beacons.md#hash-for-a-compound-beacon
         //# * has MUST iterate through all constructors, in order, using the first that succeeds.
-        var x := TryConstructor(construct[0].parts, fields);
+        var x := TryConstructor(construct[0].parts, stringify);
         if x.Success? then
           x
         else
-          TryConstructors(construct[1..], fields)
+          TryConstructors(construct[1..], stringify)
     }
 
     //= specification/structured-encryption/beacons.md#hash-for-a-compound-beacon
     //= type=implication
     //# * hash MUST take a record as input, and produce a string.
-    function method {:opaque} hash(fields : map<string, string>) : (res : Result<string, Error>)
+    function method {:opaque} hash(stringify : Stringify) : (res : Result<string, Error>)
       ensures res.Success? ==> 
         //= specification/structured-encryption/beacons.md#hash-for-a-compound-beacon
         //= type=implication
         //# * The returned string MUST NOT be empty.
         && |res.value| > 0
     {
-      TryConstructors(construct, fields)
+      TryConstructors(construct, stringify)
     }
 
     function method {:opaque} findPart(val : string)
