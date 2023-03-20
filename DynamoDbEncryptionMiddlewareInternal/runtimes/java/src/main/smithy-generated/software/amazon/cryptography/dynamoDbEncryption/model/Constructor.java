@@ -56,6 +56,9 @@ public class Constructor {
       if (Objects.isNull(this.parts()))  {
         throw new IllegalArgumentException("Missing value for required field `parts`");
       }
+      if (Objects.nonNull(this.parts()) && this.parts().size() < 1) {
+        throw new IllegalArgumentException("The size of `parts` must be greater than or equal to 1");
+      }
       return new Constructor(this);
     }
   }

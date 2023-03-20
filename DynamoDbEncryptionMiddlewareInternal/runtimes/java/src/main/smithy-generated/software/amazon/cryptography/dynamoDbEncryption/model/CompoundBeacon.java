@@ -160,6 +160,15 @@ public class CompoundBeacon {
       if (Objects.isNull(this.sensitive()))  {
         throw new IllegalArgumentException("Missing value for required field `sensitive`");
       }
+      if (Objects.nonNull(this.sensitive()) && this.sensitive().size() < 1) {
+        throw new IllegalArgumentException("The size of `sensitive` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.nonSensitive()) && this.nonSensitive().size() < 1) {
+        throw new IllegalArgumentException("The size of `nonSensitive` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.constructors()) && this.constructors().size() < 1) {
+        throw new IllegalArgumentException("The size of `constructors` must be greater than or equal to 1");
+      }
       return new CompoundBeacon(this);
     }
   }

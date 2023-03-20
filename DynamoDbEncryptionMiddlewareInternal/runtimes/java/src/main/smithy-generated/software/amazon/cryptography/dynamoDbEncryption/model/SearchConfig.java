@@ -79,6 +79,12 @@ public class SearchConfig {
       if (Objects.isNull(this.versions()))  {
         throw new IllegalArgumentException("Missing value for required field `versions`");
       }
+      if (Objects.nonNull(this.versions()) && this.versions().size() < 1) {
+        throw new IllegalArgumentException("The size of `versions` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.versions()) && this.versions().size() > 1) {
+        throw new IllegalArgumentException("The size of `versions` must be less than or equal to 1");
+      }
       if (Objects.isNull(this.writeVersion()))  {
         throw new IllegalArgumentException("Missing value for required field `writeVersion`");
       }

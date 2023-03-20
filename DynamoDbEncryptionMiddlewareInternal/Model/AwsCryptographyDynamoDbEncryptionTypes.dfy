@@ -66,7 +66,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly compoundBeacons: Option<CompoundBeaconList> ,
  nameonly virtualFields: Option<VirtualFieldList>
  )
- type BeaconVersionList = seq<BeaconVersion>
+ type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
+ predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
+ ( 1 <= |x| <= 1 )
+}
  type BitLength = x: int32 | IsValid_BitLength(x) witness *
  predicate method IsValid_BitLength(x: int32) {
  ( 1 <= x <= 63 )
@@ -82,16 +85,25 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly nonSensitive: Option<NonSensitivePartsList> ,
  nameonly constructors: Option<ConstructorList>
  )
- type CompoundBeaconList = seq<CompoundBeacon>
+ type CompoundBeaconList = x: seq<CompoundBeacon> | IsValid_CompoundBeaconList(x) witness *
+ predicate method IsValid_CompoundBeaconList(x: seq<CompoundBeacon>) {
+ ( 1 <= |x|  )
+}
  datatype Constructor = | Constructor (
  nameonly parts: ConstructorPartList
  )
- type ConstructorList = seq<Constructor>
+ type ConstructorList = x: seq<Constructor> | IsValid_ConstructorList(x) witness *
+ predicate method IsValid_ConstructorList(x: seq<Constructor>) {
+ ( 1 <= |x|  )
+}
  datatype ConstructorPart = | ConstructorPart (
  nameonly name: string ,
  nameonly required: bool
  )
- type ConstructorPartList = seq<ConstructorPart>
+ type ConstructorPartList = x: seq<ConstructorPart> | IsValid_ConstructorPartList(x) witness *
+ predicate method IsValid_ConstructorPartList(x: seq<ConstructorPart>) {
+ ( 1 <= |x|  )
+}
  datatype CreateTableInputTransformInput = | CreateTableInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.CreateTableInput
  )
@@ -130,9 +142,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  datatype DescribeTableOutputTransformOutput = | DescribeTableOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.DescribeTableOutput
- )
- datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
- nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
  )
  class IDynamoDbEncryptionClientCallHistory {
  ghost constructor() {
@@ -710,6 +719,9 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  ensures History.DescribeTableOutputTransform == old(History.DescribeTableOutputTransform) + [DafnyCallEvent(input, output)]
  
 }
+ datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
+ nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
+ )
  datatype DynamoDbTableEncryptionConfig = | DynamoDbTableEncryptionConfig (
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
@@ -766,7 +778,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly prefix: Prefix ,
  nameonly loc: Option<TerminalLocation>
  )
- type NonSensitivePartsList = seq<NonSensitivePart>
+ type NonSensitivePartsList = x: seq<NonSensitivePart> | IsValid_NonSensitivePartsList(x) witness *
+ predicate method IsValid_NonSensitivePartsList(x: seq<NonSensitivePart>) {
+ ( 1 <= |x|  )
+}
  type Prefix = x: string | IsValid_Prefix(x) witness *
  predicate method IsValid_Prefix(x: string) {
  ( 1 <= |x|  )
@@ -820,13 +835,19 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly length: BitLength ,
  nameonly loc: Option<TerminalLocation>
  )
- type SensitivePartsList = seq<SensitivePart>
+ type SensitivePartsList = x: seq<SensitivePart> | IsValid_SensitivePartsList(x) witness *
+ predicate method IsValid_SensitivePartsList(x: seq<SensitivePart>) {
+ ( 1 <= |x|  )
+}
  datatype StandardBeacon = | StandardBeacon (
  nameonly name: string ,
  nameonly length: BitLength ,
  nameonly loc: Option<TerminalLocation>
  )
- type StandardBeaconList = seq<StandardBeacon>
+ type StandardBeaconList = x: seq<StandardBeacon> | IsValid_StandardBeaconList(x) witness *
+ predicate method IsValid_StandardBeaconList(x: seq<StandardBeacon>) {
+ ( 1 <= |x|  )
+}
  type TerminalLocation = x: string | IsValid_TerminalLocation(x) witness *
  predicate method IsValid_TerminalLocation(x: string) {
  ( 1 <= |x|  )
@@ -891,7 +912,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly name: string ,
  nameonly config: string
  )
- type VirtualFieldList = seq<VirtualField>
+ type VirtualFieldList = x: seq<VirtualField> | IsValid_VirtualFieldList(x) witness *
+ predicate method IsValid_VirtualFieldList(x: seq<VirtualField>) {
+ ( 1 <= |x|  )
+}
  datatype Error =
  // Local Error structures are listed here
  | DynamoDbEncryptionException (

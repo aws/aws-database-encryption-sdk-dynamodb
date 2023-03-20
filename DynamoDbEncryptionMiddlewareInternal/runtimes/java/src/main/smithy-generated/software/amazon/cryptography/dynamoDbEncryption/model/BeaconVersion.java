@@ -156,6 +156,15 @@ public class BeaconVersion {
       if (Objects.isNull(this.keyring()))  {
         throw new IllegalArgumentException("Missing value for required field `keyring`");
       }
+      if (Objects.nonNull(this.standardBeacons()) && this.standardBeacons().size() < 1) {
+        throw new IllegalArgumentException("The size of `standardBeacons` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.compoundBeacons()) && this.compoundBeacons().size() < 1) {
+        throw new IllegalArgumentException("The size of `compoundBeacons` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.virtualFields()) && this.virtualFields().size() < 1) {
+        throw new IllegalArgumentException("The size of `virtualFields` must be greater than or equal to 1");
+      }
       return new BeaconVersion(this);
     }
   }

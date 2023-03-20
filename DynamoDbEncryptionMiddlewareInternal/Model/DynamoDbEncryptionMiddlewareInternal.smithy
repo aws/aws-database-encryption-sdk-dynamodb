@@ -119,34 +119,42 @@ string Prefix
 @length(min: 1)
 string TerminalLocation
 
+@length(min: 1, max : 1)
 list BeaconVersionList {
   member: BeaconVersion
 }
 
+@length(min: 1)
 list StandardBeaconList {
   member: StandardBeacon
 }
 
+@length(min: 1)
 list CompoundBeaconList {
   member: CompoundBeacon
 }
 
+@length(min: 1)
 list VirtualFieldList {
   member: VirtualField
 }
 
+@length(min: 1)
 list SensitivePartsList {
   member: SensitivePart
 }
 
+@length(min: 1)
 list NonSensitivePartsList {
   member: NonSensitivePart
 }
 
+@length(min: 1)
 list ConstructorList {
   member: Constructor
 }
 
+@length(min: 1)
 list ConstructorPartList {
   member: ConstructorPart
 }
