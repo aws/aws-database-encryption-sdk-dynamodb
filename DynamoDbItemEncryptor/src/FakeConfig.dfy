@@ -1,6 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+/*
+  This is a place holder until I can merge with https://github.com/awslabs/aws-dynamodb-encryption-dafny/pull/68
+  and all of this will be in AwsCryptographyDynamoDbItemEncryptorTypes
+*/
+
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 
 
@@ -38,6 +43,11 @@ module SearchableEncryptionParseConfig {
  datatype Constructor = | Constructor (
  nameonly parts: ConstructorPartList
  )
+type Prefix = x: string | IsValid_Prefix(x) witness *
+ predicate method IsValid_Prefix(x: string) {
+ ( 1 <= |x|  )
+}
+
  type ConstructorList = seq<Constructor>
  datatype ConstructorPart = | ConstructorPart (
  nameonly name: string ,
@@ -62,6 +72,7 @@ module SearchableEncryptionParseConfig {
  )
  datatype SensitivePart = | SensitivePart (
  nameonly name: string ,
+ nameonly prefix: Prefix ,
  nameonly length: BitLength ,
  nameonly loc: Option<TerminalLocation>
  )
@@ -80,6 +91,7 @@ module SearchableEncryptionParseConfig {
 
  datatype NonSensitivePart = | NonSensitivePart (
  nameonly name: string ,
+ nameonly prefix: Prefix ,
  nameonly loc: Option<TerminalLocation>
  )
  type NonSensitivePartsList = seq<NonSensitivePart>

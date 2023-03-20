@@ -33,19 +33,18 @@ module CompoundBeacon {
   import Seq
   import SortedSets
 
-  type FieldName = string
   type Prefix = x : string | 0 < |x| witness *
 
   // if length is null, this is a non-sensitive part
   datatype BeaconPart = BeaconPart (
-    fieldName : FieldName,
+    name : string,
     loc : TerminalLocation,
     prefix : Prefix,
     length : Option<BeaconLength>
   )
 
   datatype ConstructorPart = ConstructorPart (
-    fieldName : FieldName,
+    name : string,
     required : bool
   )
 
@@ -67,7 +66,7 @@ module CompoundBeacon {
     function method FindPartByName(name : string) : Result<BeaconPart, Error>
     {
       // TODO - prove and keep track, so this can't fail
-      var part := Seq.Filter((x : BeaconPart) => (x.fieldName == name), parts);
+      var part := Seq.Filter((x : BeaconPart) => (x.name == name), parts);
       :- Need(|part| == 1, E("Internal error, constructor named non-existent part"));
       Success(part[0])
     }
@@ -85,7 +84,7 @@ module CompoundBeacon {
         //= specification/structured-encryption/beacons.md#hash-for-a-compound-beacon
         //# * For that constructor, hash MUST join the [part value](#part-value) for each part on the `split character`,
         //# excluding parts that are not required and with a source field that is not available.
-        var part :- FindPartByName(consFields[0].fieldName);
+        var part :- FindPartByName(consFields[0].name);
         var strValue := stringify(part.loc);
         :- Need(!consFields[0].required || strValue.Success?, E("")); // this error message never propagated
         if strValue.Success? then
@@ -221,21 +220,21 @@ module CompoundBeacon {
         :: !(parts[x].prefix <= parts[x].prefix)
     }
 
-    static predicate method IsEncrypted(schema : CryptoSchemaPlain, fieldName : FieldName)
+    static predicate method IsEncrypted(schema : CryptoSchemaPlain, name : string)
     {
-      && fieldName in schema
-      && schema[fieldName].content.Action == ENCRYPT_AND_SIGN
+      && name in schema
+      && schema[name].content.Action == ENCRYPT_AND_SIGN
     }
 
     predicate method ValidNonSensitive(schema : CryptoSchemaPlain)
     {
-      && |Seq.Filter((x : BeaconPart) => x.length.None? &&  IsEncrypted(schema, x.fieldName), parts)| == 0
-      && |Seq.Filter((x : BeaconPart) => x.length.Some? && !IsEncrypted(schema, x.fieldName), parts)| == 0
+      && |Seq.Filter((x : BeaconPart) => x.length.None? &&  IsEncrypted(schema, x.name), parts)| == 0
+      && |Seq.Filter((x : BeaconPart) => x.length.Some? && !IsEncrypted(schema, x.name), parts)| == 0
     }
 
     predicate method ValidPart(f : ConstructorPart)
     {
-      |Seq.Filter((x : BeaconPart) => x.fieldName == f.fieldName, parts)| == 1
+      |Seq.Filter((x : BeaconPart) => x.name == f.name, parts)| == 1
     }
 
     predicate method ValidConstructor(con : seq<ConstructorPart>)
@@ -320,7 +319,7 @@ module CompoundBeacon {
     : Constructor
     requires 0 < |parts|
   {
-    var cons := Seq.Map((x : BeaconPart) => ConstructorPart(x.fieldName, true), parts);
+    var cons := Seq.Map((x : BeaconPart) => ConstructorPart(x.name, true), parts);
     Constructor(cons)
   }
 }

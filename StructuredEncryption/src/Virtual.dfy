@@ -203,7 +203,7 @@ module VirtualFields {
       && (s[0] == '[' ==> ret.value.List?)
   {
     if s[0] == '.' then
-      var m :- MakeMap(s[1..]);
+      var m :- MakeMapSelector(s[1..]);
       Success(m)
     else
       if s[|s|-1] != ']' then
@@ -230,7 +230,7 @@ module VirtualFields {
   }
 
   // make Map from string
-  function method  {:opaque} MakeMap(s : string) : (ret : Result<Selector, string>)
+  function method  {:opaque} MakeMapSelector(s : string) : (ret : Result<Selector, string>)
     ensures ret.Success? ==> ret.value.Map?
   {
     :- Need(ValidString(s), "Key string invalid.");
@@ -245,12 +245,12 @@ module VirtualFields {
     :- Need(0 < |s|, "Path specification must not be empty.");
     var pos := FindStartOfNext(s);
     if pos.None? then
-      var m :- MakeMap(s);
+      var m :- MakeMapSelector(s);
       Success(TerminalLocation([m]))
     else
       var name := s[..pos.value];
       var selectors :- GetSelectors(s[pos.value..]);
-      var m :- MakeMap(name);
+      var m :- MakeMapSelector(name);
       :- Need(|selectors|+1 < UINT64_LIMIT, "Selector Overflow");
       //= specification/structured-encryption/virtual-field.md#terminal-location
       //# A terminal location MUST be a field name followed by zero or more [Segments](#segments)

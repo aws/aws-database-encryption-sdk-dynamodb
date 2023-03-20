@@ -21,16 +21,16 @@ module VirtualFieldsTests {
       if ValidVirtualField(actual.value) != valid {
         print "ValidVirtualField of ", actual.value, " should have been ", valid, " but was ", !valid, "\n";
       }
-      //expect ValidVirtualField(actual.value) == valid;
+      expect ValidVirtualField(actual.value) == valid;
     }
   }
 
   method {:test} TestGetValue() {
     CheckValueParse(VirtualFields.GetVirtualField("name", ""), Failure("Virtual value spec must not be empty."), false);
-    var attr :- expect MakeMap("attr");
+    var attr :- expect MakeMapSelector("attr");
     var attrTerm := TerminalLocation([attr]);
     var attrCalc := Calc(attrTerm, []);
-    var other :- expect MakeMap("other");
+    var other :- expect MakeMapSelector("other");
     var otherTerm := TerminalLocation([other]);
     var otherCalc := Calc(otherTerm, []);
     CheckValueParse(VirtualFields.GetVirtualField("name", "attr"), Success(VirtualField("name", [attrCalc])), false);

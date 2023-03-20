@@ -1,6 +1,18 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+/*
+  Convert from smithy-based SearchConfig configuration to the underlying SearchInfo object
+
+  The only entry point of interest is 
+
+  Convert(outer : DynamoDbItemEncryptorConfig, config : Option<AwsCryptographyDynamoDbEncryptionTypes.SearchConfig>)
+    : Option<SearchableEncryptionInfo.SearchInfo>
+  
+  e.g. client.info :- Convert(config, config.beacons)
+*/
+
+
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "../../StructuredEncryption/src/SearchInfo.dfy"
 include "Util.dfy"
@@ -24,6 +36,7 @@ module SearchConfigToInfo {
   import Prim = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
 
+  // convert configured SearchConfig to internal SearchInfo
   method Convert(outer : DynamoDbItemEncryptorConfig, config : Option<C.SearchConfig>)
     returns (ret : Result<Option<I.SearchInfo>, Error>)
     ensures ret.Success? && ret.value.Some? ==>
@@ -41,12 +54,14 @@ module SearchConfigToInfo {
     }
   }
   
+  // TODO : Placeholder
   function method GetPersistentKey(keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
     : Result<U.Bytes, Error>
   {
     Success([1,2,3,4,5])
   }
 
+  // convert persistent key to the derived key for this beacon
   method GetBeaconKey(client : Primitives.AtomicPrimitivesClient, key : U.Bytes, name : string)
     returns (output : Result<U.Bytes, Error>)
     modifies client.Modifies
@@ -64,6 +79,7 @@ module SearchConfigToInfo {
     return Failure(E(""));
   }
 
+  // convert configured BeaconVersion to internal BeaconVersion
   method ConvertVersion(outer : DynamoDbItemEncryptorConfig, config : C.BeaconVersion)
     returns (output : Result<I.BeaconVersion, Error>)
   {
@@ -85,6 +101,7 @@ module SearchConfigToInfo {
     ));
   }
 
+  // convert configured VirtualFieldList to internal VirtualFieldMap
   function method ConvertVirtualFields(outer : DynamoDbItemEncryptorConfig, vf : Option<C.VirtualFieldList>)
     : Result<I.VirtualFieldMap, Error>
   {
@@ -94,6 +111,7 @@ module SearchConfigToInfo {
       AddVirtualFields(vf.value, outer)
   }
 
+  // is this terminal location signed
   predicate method IsSigned(outer : DynamoDbItemEncryptorConfig, loc : P.TerminalLocation)
   {
     && var name := loc.parts[0].key;
@@ -101,6 +119,7 @@ module SearchConfigToInfo {
     && outer.attributeActions[name] != SE.DO_NOTHING
   }
 
+  // is this terminal location encrypted
   predicate method IsEncrypted(outer : DynamoDbItemEncryptorConfig, loc : P.TerminalLocation)
   {
     && var name := loc.parts[0].key;
@@ -108,6 +127,7 @@ module SearchConfigToInfo {
     && outer.attributeActions[name] != SE.DO_NOTHING
   }
 
+  // is this terminal location encrypted, OR does it refer to an encrypted virtual field
   predicate method IsEncryptedV(outer : DynamoDbItemEncryptorConfig, virtualFields : I.VirtualFieldMap, loc : P.TerminalLocation)
   {
     var name := loc.parts[0].key;
@@ -121,6 +141,19 @@ module SearchConfigToInfo {
       false
   }
 
+
+  // does this name already exists as a configured attribute, or virtual field
+  function method CheckExists2(outer : DynamoDbItemEncryptorConfig, virtualFields : I.VirtualFieldMap, name : string, context : string)
+    : Result<bool, Error>
+  {
+    var _ :- CheckExists(outer, name, context);
+    if name in virtualFields then
+      Failure(E(name + " not allowed as a " + context + " because it already exists as a virtual field."))
+    else
+      Success(true)
+  }
+
+  // does this name already exists as a configured attribute
   function method CheckExists(outer : DynamoDbItemEncryptorConfig, name : string, context : string)
     : Result<bool, Error>
   {
@@ -136,6 +169,7 @@ module SearchConfigToInfo {
       Success(true)
   }
 
+  // convert configured VirtualFields to internal VirtualFields
   function method {:tailrecursion} AddVirtualFields(
       vf : seq<C.VirtualField>,
       outer : DynamoDbItemEncryptorConfig,
@@ -154,6 +188,7 @@ module SearchConfigToInfo {
       AddVirtualFields(vf[1..], outer, converted[vf[0].name := newField])
   }
 
+  // convert configured StandardBeacons to internal Beacons
   method {:tailrecursion} AddStandardBeacons(
       beacons : seq<C.StandardBeacon>,
       outer : DynamoDbItemEncryptorConfig,
@@ -170,7 +205,7 @@ module SearchConfigToInfo {
       return Success(converted);
     }
     :- Need(beacons[0].name !in converted, E("Duplicate StandardBeacon name : " + beacons[0].name));
-    var _ :- CheckExists(outer, beacons[0].name, "StandardBeacon");
+    var _ :- CheckExists2(outer, virtualFields, beacons[0].name, "StandardBeacon");
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
     var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, newKey, beacons[0].length as B.BeaconLength, locString)
@@ -179,63 +214,99 @@ module SearchConfigToInfo {
     output := AddStandardBeacons(beacons[1..], outer, key, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
   }
 
-/*
-C.CompoundBeacon
-  nameonly name: string ,
-  nameonly split: Char ,
-  nameonly sensitive: SensitivePartsList ,
-  nameonly nonSensitive: Option<NonSensitivePartsList> ,
-  nameonly constructors: Option<ConstructorList>
-C.SensitivePart
-  nameonly name: string ,
-  nameonly length: BitLength ,
-  nameonly loc: Option<TerminalLocation>
-C.Constructor
-  parts: ConstructorPartList
-C.ConstructorPart
-  nameonly name: string ,
-  nameonly required: bool
+  // optional location, defaults to name
+  function method GetLoc(name : string, loc : Option<string>)
+    : Result<P.TerminalLocation, Error>
+  {
+    if loc.None? then
+      P.MakeMap?(name).MapFailure(e => AwsCryptographyStructuredEncryption(e))
+    else
+      V.MakeTerminalLocation(loc.value).MapFailure(e => E(e))
+  }
 
-I.CompoundBeacon
-  base : BeaconBase,
-  split : char,
-  parts : seq<BeaconPart>, // Non-Sensitive followed by Sensitive
-  construct : ConstructorList
-I.BeaconPart
-  fieldName : FieldName,
-  loc : TerminalLocation,
-  prefix : Prefix,
-  length : Option<BeaconLength>
-IConstructorPart
-  fieldName : FieldName,
-  required : bool
-*/
-
-  function method AddNonSensitiveParts(parts : seq<C.NonSensitivePart>, converted : seq<CB.BeaconPart> := [])
+  // convert configured NonSensitivePart to internal BeaconPart
+  function method AddNonSensitiveParts(parts : seq<C.NonSensitivePart>, origSize : nat := |parts|, converted : seq<CB.BeaconPart> := [])
     : (ret : Result<seq<CB.BeaconPart>, Error>)
+    requires origSize == |parts| + |converted|
+    ensures ret.Success? ==> |ret.value| == origSize
+  {
+    if |parts| == 0 then
+      Success(converted)
+    else
+      var loc :- GetLoc(parts[0].name, parts[0].loc);
+      var newPart := CB.BeaconPart(parts[0].name, loc, parts[0].prefix, None);
+      AddNonSensitiveParts(parts[1..], origSize, converted + [newPart])
+  }
 
-  function method AddSensitiveParts(parts : seq<C.SensitivePart>, converted : seq<CB.BeaconPart>)
+  // convert configured SensitivePart to internal BeaconPart
+  function method AddSensitiveParts(parts : seq<C.SensitivePart>, origSize : nat, converted : seq<CB.BeaconPart>)
     : (ret : Result<seq<CB.BeaconPart>, Error>)
-    ensures ret.Success? ==> 0 < |ret.value|
+    requires origSize == |parts| + |converted|
+    ensures ret.Success? ==> |ret.value| == origSize
+  {
+    if |parts| == 0 then
+      Success(converted)
+    else
+      var loc :- GetLoc(parts[0].name, parts[0].loc);
+      var newPart := CB.BeaconPart(parts[0].name, loc, parts[0].prefix, Some(parts[0].length as B.BeaconLength));
+      AddSensitiveParts(parts[1..], origSize, converted + [newPart])
+  }
 
+  // create the default constructor, if not constructor is specified
   function method MakeDefaultConstructor(parts : seq<CB.BeaconPart>, converted : seq<CB.ConstructorPart> := [])
-    : Result<seq<CB.Constructor>, Error>
+    : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts| + |converted|
+    ensures ret.Success? ==>
+      && |ret.value| == 1
+      && |ret.value[0].parts| == |parts| + |converted|
   {
     if |parts| == 0 then
       Success([CB.Constructor(converted)])
     else
-      Failure(E(""))
+      MakeDefaultConstructor(parts[1..], converted + [CB.ConstructorPart(parts[0].name, true)])
   }
 
-  function method AddConstructors2(constructors : seq<C.Constructor>, parts : seq<CB.BeaconPart>, converted : seq<CB.Constructor> := [])
-    : Result<seq<CB.Constructor>, Error>
+  // convert configured ConstructorParts to internal ConstructorParts
+  function method MakeConstructor2(c : seq<C.ConstructorPart>, parts : seq<CB.BeaconPart>, origSize : nat, converted : seq<CB.ConstructorPart> := [])
+    : (ret : Result<seq<CB.ConstructorPart>, Error>)
+    requires origSize == |c| + |converted|
+    ensures ret.Success? ==> |ret.value| == origSize
+  {
+    if |c| == 0 then
+      Success(converted)
+    else
+      :- Need(exists p <- parts :: p.name == c[0].name, E("Constructor refers to part name " + c[0].name + " but there is no part by that name."));
+      var newPart := CB.ConstructorPart(c[0].name, c[0].required);
+      MakeConstructor2(c[1..], parts, origSize, converted + [newPart])
+  }
+
+  // convert configured Constructor to internal Constructor
+  function method MakeConstructor(c : C.Constructor, parts : seq<CB.BeaconPart>)
+    : (ret : Result<CB.Constructor, Error>)
+    requires 0 < |c.parts|
+    ensures ret.Success? ==>
+      |ret.value.parts| == |c.parts|
+  {
+    var newParts :- MakeConstructor2(c.parts, parts, |c.parts|);
+    Success(CB.Constructor(newParts))
+  }
+  
+  // convert configured Constructors to internal Constructors
+  function method AddConstructors2(constructors : seq<C.Constructor>, parts : seq<CB.BeaconPart>, origSize : nat, converted : seq<CB.Constructor> := [])
+    : (ret : Result<seq<CB.Constructor>, Error>)
+    requires 0 < origSize
+    requires origSize == |constructors| + |converted|
+    ensures ret.Success? ==> |ret.value| == origSize
   {
     if |constructors| == 0 then
       Success(converted)
     else
-      Failure(E(""))
+      :- Need(0 < |constructors[0].parts|, E("Every constructor must have at least one part."));
+      var c :- MakeConstructor(constructors[0], parts);
+      AddConstructors2(constructors[1..], parts, origSize, converted + [c])
   }
+
+  // convert configured Constructors to internal Constructors
   function method AddConstructors(constructors : Option<C.ConstructorList>, parts : seq<CB.BeaconPart>)
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts|
@@ -247,9 +318,10 @@ IConstructorPart
     if constructors.None? then
       MakeDefaultConstructor(parts)
     else
-      AddConstructors2(constructors.value, parts)
+      AddConstructors2(constructors.value, parts, |constructors.value|)
   }
 
+  // convert configured CompoundBeacons to internal BeaconMap
   method {:tailrecursion} AddCompoundBeacons(
       beacons : seq<C.CompoundBeacon>,
       outer : DynamoDbItemEncryptorConfig,
@@ -270,7 +342,8 @@ IConstructorPart
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
 
     var parts :- AddNonSensitiveParts(beacons[0].nonSensitive.UnwrapOr([]));
-    parts :- AddSensitiveParts(beacons[0].sensitive, parts);
+    :- Need(0 < |beacons[0].sensitive|, E("Beacon " + beacons[0].name + " failed to provide a sensitive part."));
+    parts :- AddSensitiveParts(beacons[0].sensitive, |parts| + |beacons[0].sensitive|, parts);
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
     var constructors :- AddConstructors(beacons[0].constructors, parts);
     var newBeacon := CB.CompoundBeacon(
@@ -286,6 +359,7 @@ IConstructorPart
     output := AddCompoundBeacons(beacons[1..], outer, key, client, virtualFields, converted[beacons[0].name := I.Compound(newBeacon)]);
   }
 
+  // convert configured Beacons to internal BeaconMap
   method ConvertBeacons(
     outer : DynamoDbItemEncryptorConfig,
     key : U.Bytes,
