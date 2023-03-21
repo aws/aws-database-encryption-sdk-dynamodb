@@ -31,7 +31,8 @@ of a structured value.
 
 A Terminal Location is a Path to a part of a piece of structured data.
 
-A Terminal Location specification MUST be a field name followed by zero or more [Segments](#segments)
+A Terminal Location specification MUST be a list of one more [Segments](#segments),
+the first one of which must be a string index.
 
 #### Segments
 
@@ -79,12 +80,14 @@ Both Low and High reduced to total parts. High is optional, and defaults to Low.
 
 A virtual segment MUST be one of
  - a [literal value](#literal-value)
- - a [path calculation](#path-calculation)
+ - a [value calculation](#value-calculation)
 
 #### Literal Value
 
 A literal value must be the string "Literal" followed by whitespace followed by
 a string that contains no whitespace.
+
+For example `Literal _` or `Literal foo`.
 
 #### Value Calculation
 
@@ -117,9 +120,6 @@ On initialization of a Virtual Field, the caller MUST provide:
  * A [Virtual Field Definition](#virtual-field-definition) -- a string
 
 [Beacons](beacons.md) can be defined in terms of virtual fields or regular record fields.
-
-A [Virtual Field Definition](#virtual-field-definition) MAY refer to other virtual fields,
-but only to ones earlier in the [search configuration](search-config.md) list.
 
 ### Limitations
 

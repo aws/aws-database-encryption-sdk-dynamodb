@@ -33,7 +33,7 @@ Initialization MUST fail if the [version number](#version number) is not `1`.
 On initialization of a Beacon Version, the caller MUST provide:
 
  - A [version number](#version number) 
- - A KeyringReference
+ - A [KeyringReference](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/keyring-interface.md)
 
 On initialization of the Beacon Version, the caller MAY provide:
 
@@ -43,8 +43,7 @@ On initialization of the Beacon Version, the caller MAY provide:
 
 Initialization MUST fail if the [version number](#version number) is not `1`.
 
-Initialization MUST fail if the keyring specified does not provide a persistent key;
-i.e. it needs to be a Hierarchy Keyring.
+Initialization MUST fail if the keyring is not a Hierarchy Keyring.
 
 Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon) or
 [compound beacon](beacons.md#compound-beacon) is not provided.
@@ -88,9 +87,9 @@ or is not `signed`.
 
 ### Version Number
 
-A version number MUST be a positive integer.
+A version number MUST be `1`.
 
-It is strongly recommended that the first version is `1`, the next `2` and so on.
+In the future, when versioning is supported, other positive integers will be allowed.
 
 ### Versioning
 

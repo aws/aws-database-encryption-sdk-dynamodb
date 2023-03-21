@@ -90,8 +90,9 @@ To configure a single standard beacon, you need to provide
  1. A [terminal location](virtual.md#terminal-location)
  1. A [beacon length](#beacon-length)
 
-A hash is made from th value at the terminal location, and stored at aws_dbe_b_name,
-and the name is used as a field name in queries.
+A hash is made from the value at the terminal location, and stored at
+at the top level of the structure with the name `aws_dbe_b_` followed by the configured name.
+The configured name is used as a field name in queries.
 
 To produce a standard beacon from a sequence of bytes :
 1. Compute the HMAC
@@ -298,7 +299,7 @@ If no [terminal location](virtual.md#terminal-location) is provided, the `name` 
 
 On initialization of a constructor, the caller MUST provide:
 
- * A list of [Constructor parts](#constructor-part-initialization)
+ * A non-empty list of [Constructor parts](#constructor-part-initialization)
 
 #### Constructor Part Initialization
 
@@ -321,17 +322,22 @@ The word `part` is used to refer to any [sensitive](#sensitive-part) or [non-sen
 
 ### Initialization Failure
 
-Construction MUST fail if any `prefix` in any [part](#part) is a prefix of
+Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
 the `prefix` of any other [part](#part).
 
-Construction MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
+Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
 any part of an encrypted field, or any [sensitive-part](#sensitive-part) fails to contain
 some part of an encrypted field.
 
-Construction MUST fail if any [constructor](#constructor) is configured with a field name
+Initialization MUST fail if any [constructor](#constructor) is configured with a field name
 that is not a defined [part](#part).
 
-TODO - It might be a good idea to fail if it's possible for more than one
+Initialization MUST fail if any [constructor](#constructor) is configured without at least one
+required part.
+
+Construction MUST fail if any plaintext value used in the construction contains the split character.
+
+TODO - It might be a good idea for initialization to fail if it's possible for more than one
 constructor to succeed. More thought is necessary.
 
 ## Beacon Operations
