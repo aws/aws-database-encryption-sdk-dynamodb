@@ -135,11 +135,6 @@ list CompoundBeaconList {
 }
 
 @length(min: 1)
-list VirtualFieldList {
-  member: VirtualField
-}
-
-@length(min: 1)
 list SensitivePartsList {
   member: SensitivePart
 }
@@ -208,13 +203,6 @@ structure CompoundBeacon {
   constructors : ConstructorList
 }
 
-structure VirtualField {
-  @required
-  name : String,
-  @required
-  config : String,
-}
-
 structure BeaconVersion {
   @required
   version : VersionNumber,
@@ -222,7 +210,6 @@ structure BeaconVersion {
   keyring: KeyringReference, // Must be Hierarchy Keyring
   standardBeacons : StandardBeaconList,
   compoundBeacons : CompoundBeaconList,
-  virtualFields : VirtualFieldList,
 }
 
 structure SearchConfig {

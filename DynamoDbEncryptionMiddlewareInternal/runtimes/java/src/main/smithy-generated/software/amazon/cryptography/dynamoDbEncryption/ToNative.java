@@ -91,7 +91,6 @@ import software.amazon.cryptography.dynamoDbEncryption.model.UpdateTableInputTra
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateTableInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateTableOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.UpdateTableOutputTransformOutput;
-import software.amazon.cryptography.dynamoDbEncryption.model.VirtualField;
 
 public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
@@ -263,14 +262,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static VirtualField VirtualField(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualField dafnyValue) {
-    VirtualField.Builder nativeBuilder = VirtualField.builder();
-    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
-    nativeBuilder.config(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_config()));
-    return nativeBuilder.build();
-  }
-
   public static PutItemInputTransformOutput PutItemInputTransformOutput(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PutItemInputTransformOutput dafnyValue) {
     PutItemInputTransformOutput.Builder nativeBuilder = PutItemInputTransformOutput.builder();
@@ -376,9 +367,6 @@ public class ToNative {
     }
     if (dafnyValue.dtor_compoundBeacons().is_Some()) {
       nativeBuilder.compoundBeacons(ToNative.CompoundBeaconList(dafnyValue.dtor_compoundBeacons().dtor_value()));
-    }
-    if (dafnyValue.dtor_virtualFields().is_Some()) {
-      nativeBuilder.virtualFields(ToNative.VirtualFieldList(dafnyValue.dtor_virtualFields().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -725,13 +713,6 @@ public class ToNative {
     TransactWriteItemsOutputTransformOutput.Builder nativeBuilder = TransactWriteItemsOutputTransformOutput.builder();
     nativeBuilder.transformedOutput(Dafny.Com.Amazonaws.Dynamodb.ToNative.TransactWriteItemsOutput(dafnyValue.dtor_transformedOutput()));
     return nativeBuilder.build();
-  }
-
-  public static List<VirtualField> VirtualFieldList(
-      DafnySequence<? extends Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualField> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.cryptography.dynamoDbEncryption.ToNative::VirtualField);
   }
 
   public static List<StandardBeacon> StandardBeaconList(

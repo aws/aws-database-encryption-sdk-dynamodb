@@ -67,8 +67,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly version: VersionNumber ,
  nameonly keyring: AwsCryptographyMaterialProvidersTypes.IKeyring ,
  nameonly standardBeacons: Option<StandardBeaconList> ,
- nameonly compoundBeacons: Option<CompoundBeaconList> ,
- nameonly virtualFields: Option<VirtualFieldList>
+ nameonly compoundBeacons: Option<CompoundBeaconList>
  )
  type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
  predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
@@ -907,14 +906,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  type VersionNumber = x: int32 | IsValid_VersionNumber(x) witness *
  predicate method IsValid_VersionNumber(x: int32) {
  ( 1 <= x  )
-}
- datatype VirtualField = | VirtualField (
- nameonly name: string ,
- nameonly config: string
- )
- type VirtualFieldList = x: seq<VirtualField> | IsValid_VirtualFieldList(x) witness *
- predicate method IsValid_VirtualFieldList(x: seq<VirtualField>) {
- ( 1 <= |x|  )
 }
  datatype Error =
  // Local Error structures are listed here

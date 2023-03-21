@@ -79,7 +79,6 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateTableInputTransform
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateTableInputTransformOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateTableOutputTransformInput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateTableOutputTransformOutput;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualField;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
@@ -302,15 +301,6 @@ public class ToDafny {
     return new SearchConfig(versions, writeVersion);
   }
 
-  public static VirtualField VirtualField(
-      software.amazon.cryptography.dynamoDbEncryption.model.VirtualField nativeValue) {
-    DafnySequence<? extends Character> name;
-    name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
-    DafnySequence<? extends Character> config;
-    config = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.config());
-    return new VirtualField(name, config);
-  }
-
   public static PutItemInputTransformOutput PutItemInputTransformOutput(
       software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformOutput nativeValue) {
     PutItemInput transformedInput;
@@ -424,11 +414,7 @@ public class ToDafny {
     compoundBeacons = (Objects.nonNull(nativeValue.compoundBeacons()) && nativeValue.compoundBeacons().size() > 0) ?
         Option.create_Some(ToDafny.CompoundBeaconList(nativeValue.compoundBeacons()))
         : Option.create_None();
-    Option<DafnySequence<? extends VirtualField>> virtualFields;
-    virtualFields = (Objects.nonNull(nativeValue.virtualFields()) && nativeValue.virtualFields().size() > 0) ?
-        Option.create_Some(ToDafny.VirtualFieldList(nativeValue.virtualFields()))
-        : Option.create_None();
-    return new BeaconVersion(version, keyring, standardBeacons, compoundBeacons, virtualFields);
+    return new BeaconVersion(version, keyring, standardBeacons, compoundBeacons);
   }
 
   public static BatchGetItemInputTransformOutput BatchGetItemInputTransformOutput(
@@ -800,14 +786,6 @@ public class ToDafny {
     DafnySequence<? extends Character> message;
     message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_DynamoDbEncryptionException(message);
-  }
-
-  public static DafnySequence<? extends VirtualField> VirtualFieldList(
-      List<software.amazon.cryptography.dynamoDbEncryption.model.VirtualField> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
-        nativeValue, 
-        software.amazon.cryptography.dynamoDbEncryption.ToDafny::VirtualField, 
-        VirtualField._typeDescriptor());
   }
 
   public static DafnySequence<? extends StandardBeacon> StandardBeaconList(
