@@ -52,7 +52,7 @@ module DynamoDbUpdateExpr {
   }
 
   // Given an update expression, return a list of all the attribute names mentioned
-  function method  {:tailrecursion} ExtractAttrs(s : string) : seq<string>
+  function method  {:tailrecursion} {:opaque} ExtractAttrs(s : string) : seq<string>
   {
     if |s| == 0 then
       []

@@ -72,6 +72,12 @@ module DynamoDBSupport {
     && config.attributeActions[attr] == SET.ENCRYPT_AND_SIGN
   }
 
+  predicate method IsSigned(config : Config, attr : string)
+  {
+    && attr in config.attributeActions
+    && config.attributeActions[attr] != SET.DO_NOTHING
+  }
+
   // TestUpdateExpression fails if an update expression is not suitable for the
   // given encryption schema.
   // Generally this means no signed attribute is referenced.
@@ -89,11 +95,11 @@ module DynamoDBSupport {
     // but requires changing many tests
     /*
       var attrs := Update.ExtractAttributes(expr.value, attrNames);
-      var encryptedAttrs := Seq.Filter(s => IsEncrypted(config, s), attrs);
+      var encryptedAttrs := Seq.Filter(s => IsSigned(config, s), attrs);
       if |encryptedAttrs| == 0 then
         Success(true)
       else
-        Failure("Update Expressions forbidden on encrypted attributes : " + Join(encryptedAttrs, ","))
+        Failure("Update Expressions forbidden on signed attributes : " + Join(encryptedAttrs, ","))
     */
       Failure("Update Expressions forbidden on encrypted tables")
     else
