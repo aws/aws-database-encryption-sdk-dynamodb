@@ -22,11 +22,21 @@ Although [versioning](#versioning) is not yet supported, it exists in the config
 On initialization of the Search Config, the caller MUST provide:
 
  - A list of [beacon versions](#beacon-version-initialization)
- - The [version number](#version number) of the [beacon versions](#beacon-version) to be used or writing.
+ - The [version number](#version-number) of the [beacon versions](#beacon-version) to be used or writing.
 
 Initialization MUST fail if the length of the list of [beacon versions](#beacon-version) is not 1.
 
-Initialization MUST fail if the [version number](#version number) is not `1`.
+Initialization MUST fail if the [version number](#version-number) is not `1`.
+
+### Configured Field
+
+A name refers to a configured field if it appears in the 
+[item encryptor](../dynamodb-encryption-client/ddb-item-encryptor.md#initialization)
+configuration as one of the
+[attribute actions](../dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions) or
+[unauthenticated attributes](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes),
+or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix).
+
 
 ### Beacon Version Initialization
 

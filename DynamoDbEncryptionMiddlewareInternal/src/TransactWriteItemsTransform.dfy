@@ -28,18 +28,11 @@ module TransactWriteItemsTransform {
     ensures output.Success? ==> |output.value.transformedInput.TransactItems| == |input.sdkInput.TransactItems|
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
+    //= type=implication
     //# To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
     //# the client MUST fail if none of the `Update`, `ConditionCheck`, `Delete` and `Put` fields are set.
     ensures output.Success? ==>
       forall item <- input.sdkInput.TransactItems :: IsValid(item)
-
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
-    //# Any actions other than `Put, MUST be unchanged.
-
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
-    //# Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
-    //# MUST be unchanged.
-    // Had a proof, but it has inexplicably become too difficult for Dafny
   {
     :- Need(forall item <- input.sdkInput.TransactItems :: IsValid(item), E("Each item in TransactWriteItems must specify at least one operation"));
     var result : seq<DDB.TransactWriteItem> := [];
@@ -119,6 +112,12 @@ module TransactWriteItemsTransform {
         var put := Some(item.Put.value.(Item := encrypted.encryptedItem));
         result := result + [item.(Put := put)];
       } else {
+        //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
+        //# Any actions other than `Put, MUST be unchanged.
+
+        //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
+        //# Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
+        //# MUST be unchanged.
         result := result + [item];
       }
     }

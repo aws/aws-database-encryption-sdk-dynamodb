@@ -137,8 +137,8 @@ or [virtual field](virtual.md).
 The values of these fields are stored a hashes, not plaintext.
 For example :
 
-| Field Name | Location | Prefix | Length |
-|---|---|---|
+| Beacon Name | Location | Prefix | Length |
+|---|---|---|---|
 | social | social | S- | 23 |
 | phone | phone| P- | 25 |
 | zipcode | address.zipcode | Z- | 15 |
@@ -150,7 +150,7 @@ Each [nonsensitive part](#non-sensitive-part) has a field name, a [terminal loca
 The values of these fields are stored in plaintext.
 
 | Field Name | Location | Prefix |
-|---|---|
+|---|---|---|
 | timestamp | timestamp | T- |
 
 The first row should be interpreted as a literal `T-` followed by the plaintext
@@ -334,6 +334,9 @@ that is not a defined [part](#part).
 
 Initialization MUST fail if any [constructor](#constructor) is configured without at least one
 required part.
+
+Initialization MUST fail if two [constructors](#constructor) are configured
+with the same set of required parts.
 
 Construction MUST fail if any plaintext value used in the construction contains the split character.
 

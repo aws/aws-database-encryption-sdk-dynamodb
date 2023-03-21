@@ -11,6 +11,8 @@
 
 ## Overview
 
+Virtual fields are a work in progress, and not yet part of the database encryption project.
+
 A virtual field is a field constructed from parts of other fields, but never stored.
 
 A virtual field can be used in the construction of a [compound beacon](./compound-beacons.md)
@@ -49,21 +51,8 @@ must be converted to strings before being used to construct a virtual field.
 
 Stringify MUST be a a callback function that takes a Terminal Location and returns a string.
 
-This callback is NOT accessible to the customer, but is simply a bridge between the
-structured encryption layer and the database layer.
-
-For example, a DynamoDB callback might resolve a Path on an ItemMap and produce
+The DynamoDB callback resolves a Path on an ItemMap and produces
 a string based on the type of the Terminal.
-
-### Examiner
-
-It can be important to know if a virtual field has a certain quality,
-defined as any of its parts having the quality.
-
-Examiner MUST be a a callback function that takes a Terminal Location and returns a boolean.
-
-For example, an DynamoDB callback might check to see if the top level 
-field is encrypted or signed.
 
 ### Field Modifications
 
