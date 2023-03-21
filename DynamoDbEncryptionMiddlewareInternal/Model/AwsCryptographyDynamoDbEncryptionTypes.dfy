@@ -59,6 +59,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype BatchWriteItemOutputTransformOutput = | BatchWriteItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.BatchWriteItemOutput
  )
+ type BeaconBitLength = x: int32 | IsValid_BeaconBitLength(x) witness *
+ predicate method IsValid_BeaconBitLength(x: int32) {
+ ( 1 <= x <= 63 )
+}
  datatype BeaconVersion = | BeaconVersion (
  nameonly version: VersionNumber ,
  nameonly keyring: AwsCryptographyMaterialProvidersTypes.IKeyring ,
@@ -69,10 +73,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
  predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
  ( 1 <= |x| <= 1 )
-}
- type BitLength = x: int32 | IsValid_BitLength(x) witness *
- predicate method IsValid_BitLength(x: int32) {
- ( 1 <= x <= 63 )
 }
  type Char = x: string | IsValid_Char(x) witness *
  predicate method IsValid_Char(x: string) {
@@ -725,7 +725,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype DynamoDbTableEncryptionConfig = | DynamoDbTableEncryptionConfig (
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
- nameonly beacons: Option<SearchConfig> ,
+ nameonly search: Option<SearchConfig> ,
  nameonly attributeActions: AwsCryptographyDynamoDbItemEncryptorTypes.AttributeActions ,
  nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
  nameonly allowedUnauthenticatedAttributePrefix: Option<string> ,
@@ -832,7 +832,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype SensitivePart = | SensitivePart (
  nameonly name: string ,
  nameonly prefix: Prefix ,
- nameonly length: BitLength ,
+ nameonly length: BeaconBitLength ,
  nameonly loc: Option<TerminalLocation>
  )
  type SensitivePartsList = x: seq<SensitivePart> | IsValid_SensitivePartsList(x) witness *
@@ -841,7 +841,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
 }
  datatype StandardBeacon = | StandardBeacon (
  nameonly name: string ,
- nameonly length: BitLength ,
+ nameonly length: BeaconBitLength ,
  nameonly loc: Option<TerminalLocation>
  )
  type StandardBeaconList = x: seq<StandardBeacon> | IsValid_StandardBeaconList(x) witness *

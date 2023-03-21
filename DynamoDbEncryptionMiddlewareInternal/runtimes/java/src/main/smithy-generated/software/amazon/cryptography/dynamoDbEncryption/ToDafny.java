@@ -181,9 +181,9 @@ public class ToDafny {
     sortKeyName = Objects.nonNull(nativeValue.sortKeyName()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sortKeyName()))
         : Option.create_None();
-    Option<SearchConfig> beacons;
-    beacons = Objects.nonNull(nativeValue.beacons()) ?
-        Option.create_Some(ToDafny.SearchConfig(nativeValue.beacons()))
+    Option<SearchConfig> search;
+    search = Objects.nonNull(nativeValue.search()) ?
+        Option.create_Some(ToDafny.SearchConfig(nativeValue.search()))
         : Option.create_None();
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActions;
     attributeActions = software.amazon.cryptography.dynamoDbItemEncryptor.ToDafny.AttributeActions(nativeValue.attributeActions());
@@ -207,7 +207,7 @@ public class ToDafny {
     cmm = Objects.nonNull(nativeValue.cmm()) ?
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.CryptographicMaterialsManager(nativeValue.cmm()))
         : Option.create_None();
-    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, beacons, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm);
+    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm);
   }
 
   public static CreateTableOutputTransformOutput CreateTableOutputTransformOutput(

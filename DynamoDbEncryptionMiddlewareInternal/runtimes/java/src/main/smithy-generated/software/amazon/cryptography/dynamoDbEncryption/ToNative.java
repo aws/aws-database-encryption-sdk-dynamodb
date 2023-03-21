@@ -152,8 +152,8 @@ public class ToNative {
     if (dafnyValue.dtor_sortKeyName().is_Some()) {
       nativeBuilder.sortKeyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_sortKeyName().dtor_value()));
     }
-    if (dafnyValue.dtor_beacons().is_Some()) {
-      nativeBuilder.beacons(ToNative.SearchConfig(dafnyValue.dtor_beacons().dtor_value()));
+    if (dafnyValue.dtor_search().is_Some()) {
+      nativeBuilder.search(ToNative.SearchConfig(dafnyValue.dtor_search().dtor_value()));
     }
     nativeBuilder.attributeActions(software.amazon.cryptography.dynamoDbItemEncryptor.ToNative.AttributeActions(dafnyValue.dtor_attributeActions()));
     if (dafnyValue.dtor_allowedUnauthenticatedAttributes().is_Some()) {

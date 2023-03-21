@@ -88,7 +88,7 @@ structure DynamoDbTableEncryptionConfig {
     @required
     partitionKeyName: KeySchemaAttributeName,
     sortKeyName: KeySchemaAttributeName,
-    beacons: SearchConfig,
+    search: SearchConfig,
     
     @required
     attributeActions: AttributeActions,
@@ -105,7 +105,7 @@ structure DynamoDbTableEncryptionConfig {
 }
 
 @range(min: 1, max: 63)
-integer BitLength
+integer BeaconBitLength
 
 @range(min: 1)
 integer VersionNumber
@@ -165,7 +165,7 @@ structure SensitivePart {
   @required
   prefix : Prefix,
   @required
-  length : BitLength,
+  length : BeaconBitLength,
   loc : TerminalLocation
 }
 
@@ -193,7 +193,7 @@ structure StandardBeacon {
   @required
   name : String,
   @required
-  length : BitLength,
+  length : BeaconBitLength,
   loc : TerminalLocation
 }
 
