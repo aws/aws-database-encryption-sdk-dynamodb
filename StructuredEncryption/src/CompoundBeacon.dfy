@@ -259,20 +259,20 @@ module CompoundBeacon {
       ensures ret ==>
         //= specification/structured-encryption/beacons.md#initialization-failure
         //= type=implication
-        //# Construction MUST fail if any `prefix` in any [part](#part) is a prefix of
+        //# Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
         //# the `prefix` of any other [part](#part).
         && ValidPrefixSet()
 
         //= specification/structured-encryption/beacons.md#initialization-failure
         //= type=implication
-        //# Construction MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
+        //# Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
         //# any part of an encrypted field, or any [sensitive-part](#sensitive-part) fails to contain
         //# some part of an encrypted field.
         && ValidNonSensitive(schema)
 
         //= specification/structured-encryption/beacons.md#initialization-failure
         //= type=implication
-        //# Construction MUST fail if any [constructor](#constructor) is configured with a field name
+        //# Initialization MUST fail if any [constructor](#constructor) is configured with a field name
         //# that is not a defined [part](#part).
         && ValidConstructors(construct)
     {
