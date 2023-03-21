@@ -100,7 +100,7 @@ module TestFixtures {
             algorithmSuiteId := None(),
             keyring := Some(keyring),
             cmm := None(),
-            beacons := None
+            search := None
           )
         ]
       )
