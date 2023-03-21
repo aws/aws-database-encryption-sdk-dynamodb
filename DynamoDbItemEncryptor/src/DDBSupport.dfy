@@ -12,6 +12,7 @@ include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
 include "Util.dfy"
 include "VirtualDDB.dfy"
+include "UpdateExpr.dfy"
 
 module DynamoDBSupport { 
 
@@ -27,6 +28,8 @@ module DynamoDBSupport {
   import SortedSets
   import Seq
   import SE = StructuredEncryptionUtil
+  import Update = DynamoDbUpdateExpr
+  import SET = AwsCryptographyStructuredEncryptionTypes
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // At the moment, this means that no attribute names starts with "aws_dbe_",
@@ -63,6 +66,12 @@ module DynamoDBSupport {
       Success(true)
   }
 
+  predicate method IsEncrypted(config : Config, attr : string)
+  {
+    && attr in config.attributeActions
+    && config.attributeActions[attr] == SET.ENCRYPT_AND_SIGN
+  }
+
   // TestUpdateExpression fails if an update expression is not suitable for the
   // given encryption schema.
   // Generally this means no signed attribute is referenced.
@@ -75,7 +84,12 @@ module DynamoDBSupport {
     : Result<bool, string>
   {
     if expr.Some? then
-      Failure("Update Expressions forbidden on encrypted tables")
+      var attrs := Update.ExtractAttributes(expr.value, attrNames);
+      var encryptedAttrs := Seq.Filter(s => IsEncrypted(config, s), attrs);
+      if |encryptedAttrs| == 0 then
+        Success(true)
+      else
+        Failure("Update Expressions forbidden on encrypted attributes : " + Join(encryptedAttrs, ","))
     else
       Success(true)
   }
