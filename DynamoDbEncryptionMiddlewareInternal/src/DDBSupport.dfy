@@ -94,6 +94,14 @@ module DynamoDBMiddlewareSupport {
       .MapFailure(e => E(e))
   }
 
+  // Transform a DescribeTableOutput object for searchable encryption.
+  function method {:opaque} DescribeTableOutputForBeacons(config : ValidTableConfig, req : DDB.DescribeTableOutput)
+    : Result<DDB.DescribeTableOutput, Error>
+  {
+    BS.DescribeTableOutputForBeacons(config.itemEncryptor.config, req)
+      .MapFailure(e => E(e))
+  }
+
   // Transform a QueryInput object for searchable encryption.
   function method {:opaque} QueryInputForBeacons(config : ValidTableConfig, req : DDB.QueryInput)
     : Result<DDB.QueryInput, Error>

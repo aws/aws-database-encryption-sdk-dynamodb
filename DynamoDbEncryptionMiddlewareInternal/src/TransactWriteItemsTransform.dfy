@@ -12,8 +12,11 @@ module TransactWriteItemsTransform {
   import EncTypes = AwsCryptographyDynamoDbItemEncryptorTypes
   import Seq
 
-  predicate method {:opaque} IsValidDDBTransactWrite(item : DDB.TransactWriteItem) {
-    item.Put.Some? || item.Update.Some? || item.Delete.Some? || item.ConditionCheck.Some?
+  predicate method {:opaque} IsValid(item : DDB.TransactWriteItem) {
+    || item.Put.Some?
+    || item.Update.Some?
+    || item.Delete.Some?
+    || item.ConditionCheck.Some?
   }
 
   method {:vcs_split_on_every_assert} Input(config: Config, input: TransactWriteItemsInputTransformInput)
@@ -28,19 +31,12 @@ module TransactWriteItemsTransform {
     //# To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
     //# the client MUST fail if none of the `Update`, `ConditionCheck`, `Delete` and `Put` fields are set.
     ensures output.Success? ==>
-      forall item <- input.sdkInput.TransactItems :: IsValidDDBTransactWrite(item)
+      forall item <- input.sdkInput.TransactItems :: IsValid(item)
   {
-    :- Need(forall item <- input.sdkInput.TransactItems :: IsValidDDBTransactWrite(item), E("Each item in TransactWriteItems must specify at least one supported operation"));
+    :- Need(forall item <- input.sdkInput.TransactItems :: IsValid(item), E("Each item in TransactWriteItems must specify at least one operation"));
     var result : seq<DDB.TransactWriteItem> := [];
     for x := 0 to |input.sdkInput.TransactItems|
       invariant |result| == x
-      // invariant forall i : nat | 0 <= i < |result| ::
-      //   && var item := input.sdkInput.TransactItems[i];
-        // && item.ConditionCheck == result[i].ConditionCheck
-        // && item.Delete == result[i].Delete
-        // && item.Update == result[i].Update
-        // && (item.Put.None? ==> item.Put == result[i].Put)
-        // && (item.Put.Some? && item.Put.value.TableName !in config.tableEncryptionConfigs ==> item.Put == result[i].Put)
     {
       var item := input.sdkInput.TransactItems[x];
 
@@ -116,6 +112,12 @@ module TransactWriteItemsTransform {
         var newItem := item.(Put := put);
         result := result + [newItem];
       } else {
+        //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
+        //# Any actions other than `Put, MUST be unchanged.
+
+        //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
+        //# Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
+        //# MUST be unchanged.
         result := result + [item];
       }
     }

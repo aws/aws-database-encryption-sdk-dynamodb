@@ -146,6 +146,13 @@ module DynamoDBSupport {
     Success(req)
   }
 
+  // Transform a DescribeTableOutput object for searchable encryption.
+  function method DescribeTableOutputForBeacons(config : Config, req : DDB.DescribeTableOutput)
+    : Result<DDB.DescribeTableOutput, string>
+  {
+    Success(req)
+  }
+
   // Transform a QueryInput object for searchable encryption.
   function method QueryInputForBeacons(config : Config, req : DDB.QueryInput)
     : Result<DDB.QueryInput, string>
@@ -181,4 +188,5 @@ module DynamoDBSupport {
   {
     Success(resp)
   }
+
 }

@@ -34,7 +34,7 @@ use com.amazonaws.dynamodb#KeySchemaAttributeName
   sdkId: "DynamoDbEncryption",
   config: DynamoDbEncryptionConfig,
 )
-service DynamoDbEncryptionMiddlewareInternal {
+service DynamoDbEncryption {
     version: "2022-11-21",
     operations: [
       PutItemInputTransform,
@@ -63,6 +63,12 @@ service DynamoDbEncryptionMiddlewareInternal {
       BatchExecuteStatementOutputTransform,
       ExecuteTransactionInputTransform,
       ExecuteTransactionOutputTransform,
+      CreateTableInputTransform,
+      CreateTableOutputTransform,
+      UpdateTableInputTransform,
+      UpdateTableOutputTransform,
+      DescribeTableInputTransform,
+      DescribeTableOutputTransform,
     ],
     errors: [ DynamoDbEncryptionException ]
 }
@@ -82,8 +88,7 @@ structure DynamoDbTableEncryptionConfig {
     @required
     partitionKeyName: KeySchemaAttributeName,
     sortKeyName: KeySchemaAttributeName,
-
-    // TODO scan beacon config
+    search: SearchConfig,
     
     @required
     attributeActions: AttributeActions,
@@ -98,6 +103,124 @@ structure DynamoDbTableEncryptionConfig {
     // TODO legacy encryptor
     // TODO legacy schema
 }
+
+@range(min: 1, max: 63)
+integer BeaconBitLength
+
+@range(min: 1)
+integer VersionNumber
+
+@length(min: 1, max: 1)
+string Char
+
+@length(min: 1)
+string Prefix
+
+@length(min: 1)
+string TerminalLocation
+
+@length(min: 1, max : 1)
+list BeaconVersionList {
+  member: BeaconVersion
+}
+
+@length(min: 1)
+list StandardBeaconList {
+  member: StandardBeacon
+}
+
+@length(min: 1)
+list CompoundBeaconList {
+  member: CompoundBeacon
+}
+
+@length(min: 1)
+list SensitivePartsList {
+  member: SensitivePart
+}
+
+@length(min: 1)
+list NonSensitivePartsList {
+  member: NonSensitivePart
+}
+
+@length(min: 1)
+list ConstructorList {
+  member: Constructor
+}
+
+@length(min: 1)
+list ConstructorPartList {
+  member: ConstructorPart
+}
+
+structure SensitivePart {
+  @required
+  name : String,
+  @required
+  prefix : Prefix,
+  @required
+  length : BeaconBitLength,
+  loc : TerminalLocation
+}
+
+structure NonSensitivePart {
+  @required
+  name : String,
+  @required
+  prefix : Prefix,
+  loc : TerminalLocation
+}
+
+structure Constructor {
+  @required
+  parts : ConstructorPartList
+}
+
+structure ConstructorPart {
+  @required
+  name : String,
+  @required
+  required : Boolean,
+}
+
+structure StandardBeacon {
+  @required
+  name : String,
+  @required
+  length : BeaconBitLength,
+  loc : TerminalLocation
+}
+
+structure CompoundBeacon {
+  @required
+  name : String,
+  @required
+  split : Char,
+  @required
+  sensitive : SensitivePartsList,
+  nonSensitive : NonSensitivePartsList,
+  constructors : ConstructorList
+}
+
+structure BeaconVersion {
+  @required
+  version : VersionNumber,
+  @required
+  keyring: KeyringReference, // Must be Hierarchy Keyring
+  standardBeacons : StandardBeaconList,
+  compoundBeacons : CompoundBeaconList,
+}
+
+structure SearchConfig {
+  @required
+  versions: BeaconVersionList,
+  @required
+  writeVersion: VersionNumber
+}
+
+@aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
+structure AtomicPrimitivesReference {}
 
 /////////////
 // Errors
