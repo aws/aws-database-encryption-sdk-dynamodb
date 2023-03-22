@@ -226,7 +226,7 @@ module SearchConfigToInfo {
     : Result<P.TerminalLocation, Error>
   {
     if loc.None? then
-      P.MakeMap?(name).MapFailure(e => AwsCryptographyStructuredEncryption(e))
+      P.TermLocMap?(name).MapFailure(e => AwsCryptographyStructuredEncryption(e))
     else
       V.MakeTerminalLocation(loc.value).MapFailure(e => E(e))
   }
