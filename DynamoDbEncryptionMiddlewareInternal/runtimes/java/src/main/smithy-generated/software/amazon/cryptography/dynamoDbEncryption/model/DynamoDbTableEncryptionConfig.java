@@ -18,6 +18,8 @@ public class DynamoDbTableEncryptionConfig {
 
   private final String sortKeyName;
 
+  private final SearchConfig search;
+
   private final Map<String, CryptoAction> attributeActions;
 
   private final List<String> allowedUnauthenticatedAttributes;
@@ -33,6 +35,7 @@ public class DynamoDbTableEncryptionConfig {
   protected DynamoDbTableEncryptionConfig(BuilderImpl builder) {
     this.partitionKeyName = builder.partitionKeyName();
     this.sortKeyName = builder.sortKeyName();
+    this.search = builder.search();
     this.attributeActions = builder.attributeActions();
     this.allowedUnauthenticatedAttributes = builder.allowedUnauthenticatedAttributes();
     this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
@@ -47,6 +50,10 @@ public class DynamoDbTableEncryptionConfig {
 
   public String sortKeyName() {
     return this.sortKeyName;
+  }
+
+  public SearchConfig search() {
+    return this.search;
   }
 
   public Map<String, CryptoAction> attributeActions() {
@@ -90,6 +97,10 @@ public class DynamoDbTableEncryptionConfig {
 
     String sortKeyName();
 
+    Builder search(SearchConfig search);
+
+    SearchConfig search();
+
     Builder attributeActions(Map<String, CryptoAction> attributeActions);
 
     Map<String, CryptoAction> attributeActions();
@@ -122,6 +133,8 @@ public class DynamoDbTableEncryptionConfig {
 
     protected String sortKeyName;
 
+    protected SearchConfig search;
+
     protected Map<String, CryptoAction> attributeActions;
 
     protected List<String> allowedUnauthenticatedAttributes;
@@ -140,6 +153,7 @@ public class DynamoDbTableEncryptionConfig {
     protected BuilderImpl(DynamoDbTableEncryptionConfig model) {
       this.partitionKeyName = model.partitionKeyName();
       this.sortKeyName = model.sortKeyName();
+      this.search = model.search();
       this.attributeActions = model.attributeActions();
       this.allowedUnauthenticatedAttributes = model.allowedUnauthenticatedAttributes();
       this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
@@ -164,6 +178,15 @@ public class DynamoDbTableEncryptionConfig {
 
     public String sortKeyName() {
       return this.sortKeyName;
+    }
+
+    public Builder search(SearchConfig search) {
+      this.search = search;
+      return this;
+    }
+
+    public SearchConfig search() {
+      return this.search;
     }
 
     public Builder attributeActions(Map<String, CryptoAction> attributeActions) {

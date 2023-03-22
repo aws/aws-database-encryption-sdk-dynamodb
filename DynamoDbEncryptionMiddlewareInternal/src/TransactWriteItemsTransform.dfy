@@ -12,7 +12,14 @@ module TransactWriteItemsTransform {
   import EncTypes = AwsCryptographyDynamoDbItemEncryptorTypes
   import Seq
 
-  method Input(config: Config, input: TransactWriteItemsInputTransformInput)
+  predicate method {:opaque} IsValid(item : DDB.TransactWriteItem) {
+    || item.Put.Some?
+    || item.Update.Some?
+    || item.Delete.Some?
+    || item.ConditionCheck.Some?
+  }
+
+  method {:vcs_split_on_every_assert} Input(config: Config, input: TransactWriteItemsInputTransformInput)
     returns (output: Result<TransactWriteItemsInputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
@@ -25,50 +32,15 @@ module TransactWriteItemsTransform {
     //# To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
     //# the client MUST fail if none of the `Update`, `ConditionCheck`, `Delete` and `Put` fields are set.
     ensures output.Success? ==>
-      forall item <- input.sdkInput.TransactItems ::
-        && (item.Put.Some? || item.Update.Some? || item.Delete.Some? || item.ConditionCheck.Some?)
-
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
-    //= type=implication
-    //# Any actions other than `Put, MUST be unchanged.
-
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
-    //= type=implication
-    //# Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
-    //# MUST be unchanged.
-    ensures output.Success? ==>
-      && var result := output.value.transformedInput.TransactItems;
-      && forall i : nat | 0 <= i < |result| ::
-        && var item := input.sdkInput.TransactItems[i];
-        && item.ConditionCheck == result[i].ConditionCheck
-        && item.Delete == result[i].Delete
-        && item.Update == result[i].Update
-        && (item.Put.None? ==> item.Put == result[i].Put)
-        && (item.Put.Some? && item.Put.value.TableName !in config.tableEncryptionConfigs ==> item.Put == result[i].Put)
-
+      forall item <- input.sdkInput.TransactItems :: IsValid(item)
   {
+    :- Need(forall item <- input.sdkInput.TransactItems :: IsValid(item), E("Each item in TransactWriteItems must specify at least one operation"));
     var result : seq<DDB.TransactWriteItem> := [];
     for x := 0 to |input.sdkInput.TransactItems|
       invariant |result| == x
-      invariant forall i : nat | 0 <= i < |result| ::
-        && var item := input.sdkInput.TransactItems[i];
-        && (item.Put.Some? || item.Update.Some? || item.Delete.Some? || item.ConditionCheck.Some?)
-
-        && item.ConditionCheck == result[i].ConditionCheck
-        && item.Delete == result[i].Delete
-        && item.Update == result[i].Update
-        && (item.Put.None? ==> item.Put == result[i].Put)
-        && (item.Put.Some? && item.Put.value.TableName !in config.tableEncryptionConfigs ==> item.Put == result[i].Put)
     {
       var item := input.sdkInput.TransactItems[x];
 
-      if && item.ConditionCheck.None?
-         && item.Delete.None?
-         && item.Update.None?
-         && item.Put.None?
-      {
-        return MakeError("Each item in TransactWriteItems must specify at least one operation");
-      }
       if item.ConditionCheck.Some? && item.ConditionCheck.value.TableName in config.tableEncryptionConfigs {
         var tableConfig := config.tableEncryptionConfigs[item.ConditionCheck.value.TableName];
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
@@ -102,6 +74,7 @@ module TransactWriteItemsTransform {
           item.Update.value.ExpressionAttributeNames,
           item.Update.value.ExpressionAttributeValues);
       }
+
       if item.Put.Some? && item.Put.value.TableName in config.tableEncryptionConfigs {
         var tableConfig := config.tableEncryptionConfigs[item.Put.value.TableName];
 
@@ -139,6 +112,12 @@ module TransactWriteItemsTransform {
         var put := Some(item.Put.value.(Item := encrypted.encryptedItem));
         result := result + [item.(Put := put)];
       } else {
+        //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
+        //# Any actions other than `Put, MUST be unchanged.
+
+        //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
+        //# Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
+        //# MUST be unchanged.
         result := result + [item];
       }
     }

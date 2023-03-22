@@ -20,7 +20,7 @@ module BaseBeacon {
   import Seq
   import SortedSets
 
-  //= specification/structured-encryption/beacons.md#beacon-length
+  //= specification/searchable-encryption/beacons.md#beacon-length
   //= type=implication
   //# A beacon length MUST be an integer between 1 and 63 inclusive,
   //# indicating the number of bits in the resulting beacon.
@@ -35,30 +35,30 @@ module BaseBeacon {
     nameonly key: Bytes
   ) {
 
-    //= specification/structured-encryption/beacons.md#basichash
+    //= specification/searchable-encryption/beacons.md#basichash
     //= type=implication
     //# * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.
     function method {:opaque} hash(val : Bytes, length : BeaconLength)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> 
-        //= specification/structured-encryption/beacons.md#basichash
+        //= specification/searchable-encryption/beacons.md#basichash
         //= type=implication
         //# * basicHash MUST produce a non-empty string as output.
         && |ret.value| > 0
 
-        //= specification/structured-encryption/beacons.md#basichash
+        //= specification/searchable-encryption/beacons.md#basichash
         //= type=implication
         //# * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
         //# of the input bytes and the configured key, and keep the first 8 bytes.
         && getHmac(val).Success?
         && var hash := getHmac(val).value;
 
-        //= specification/structured-encryption/beacons.md#basichash
+        //= specification/searchable-encryption/beacons.md#basichash
         //= type=implication
         //# * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
         && ret.value == BytesToHex(hash, length)
 
-        //= specification/structured-encryption/beacons.md#basichash
+        //= specification/searchable-encryption/beacons.md#basichash
         //= type=implication
         //# * the length of the returned string MUST be (`beacon length`/4) rounded up.
         && |ret.value| == (((length as uint8) + 3) / 4) as nat
@@ -97,7 +97,7 @@ module BaseBeacon {
     base : BeaconBase,
     length : BeaconLength
   ) {
-    //= specification/structured-encryption/beacons.md#hash-for-a-standard-beacon
+    //= specification/searchable-encryption/beacons.md#hash-for-a-standard-beacon
     //= type=implication
     //# * hash MUST take a sequence of bytes as input and produce a string.
     function method {:opaque} hash(val : Bytes)
@@ -105,7 +105,7 @@ module BaseBeacon {
       ensures ret.Success? ==>
         && |ret.value| > 0
 
-        //= specification/structured-encryption/beacons.md#hash-for-a-standard-beacon
+        //= specification/searchable-encryption/beacons.md#hash-for-a-standard-beacon
         //= type=implication
         //# * hash MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
         && base.hash(val, length).Success?
@@ -116,7 +116,7 @@ module BaseBeacon {
       base.hash(val, length)
     }
 
-    //= specification/structured-encryption/beacons.md#getpart-for-a-standard-beacon
+    //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
     //= type=implication
     //# * getPart MUST take a sequence of bytes as input, and produce a string.
     function method {:opaque} getPart(val : Bytes)
@@ -127,7 +127,7 @@ module BaseBeacon {
         && |ret.value| > 0
 
       ensures ret.Success? ==>
-        //= specification/structured-encryption/beacons.md#getpart-for-a-standard-beacon
+        //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
         //= type=implication
         //# * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
         && base.hash(val, length).Success?

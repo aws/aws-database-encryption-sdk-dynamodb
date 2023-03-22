@@ -17,8 +17,6 @@ jobs:
           StructuredEncryption, 
         ]
         os: [
-          # TODO windows-latest,
-          ubuntu-latest,
           macos-latest,
         ]
     runs-on: ${{ matrix.os }}

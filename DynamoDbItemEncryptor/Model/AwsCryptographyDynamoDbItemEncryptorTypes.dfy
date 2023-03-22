@@ -4,6 +4,7 @@
 include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Index.dfy"
  include "../../StructuredEncryption/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/Index.dfy"
+ include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographyPrimitives/src/Index.dfy"
  include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types" } AwsCryptographyDynamoDbItemEncryptorTypes
  {
@@ -12,6 +13,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  import opened UTF8
  import AwsCryptographyStructuredEncryptionTypes
  import AwsCryptographyMaterialProvidersTypes
+ import AwsCryptographyPrimitivesTypes
  import ComAmazonawsDynamodbTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
@@ -116,6 +118,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  // Any dependent models are listed here
  | AwsCryptographyStructuredEncryption(AwsCryptographyStructuredEncryption: AwsCryptographyStructuredEncryptionTypes.Error)
  | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
+ | AwsCryptographyPrimitives(AwsCryptographyPrimitives: AwsCryptographyPrimitivesTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.
@@ -155,20 +158,20 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
  returns (res: Result<DynamoDbItemEncryptorClient, Error>)
- requires config.keyring.Some? ==> config.keyring.value.ValidState()
  requires config.cmm.Some? ==> config.cmm.value.ValidState()
- modifies if config.keyring.Some? then config.keyring.value.Modifies else {}
+ requires config.keyring.Some? ==> config.keyring.value.ValidState()
  modifies if config.cmm.Some? then config.cmm.value.Modifies else {}
+ modifies if config.keyring.Some? then config.keyring.value.Modifies else {}
  ensures res.Success? ==> 
  && fresh(res.value)
  && fresh(res.value.Modifies
- - (if config.keyring.Some? then config.keyring.value.Modifies else {})
  - (if config.cmm.Some? then config.cmm.value.Modifies else {})
+ - (if config.keyring.Some? then config.keyring.value.Modifies else {})
  )
  && fresh(res.value.History)
  && res.value.ValidState()
- ensures config.keyring.Some? ==> config.keyring.value.ValidState()
  ensures config.cmm.Some? ==> config.cmm.value.ValidState()
+ ensures config.keyring.Some? ==> config.keyring.value.ValidState()
 
  class DynamoDbItemEncryptorClient extends IDynamoDbItemEncryptorClient
  {
