@@ -82,13 +82,13 @@ module StructuredEncryptionPaths {
     }
   }
 
-  function method MakeMap?(attr : string) : Result<TerminalLocation, Error>
+  function method TermLocMap?(attr : string) : Result<TerminalLocation, Error>
   {
     :- Need(ValidString(attr), E("invalid string : " + attr));
-    Success(MakeMap(attr))
+    Success(TermLocMap(attr))
   }
 
-  function method MakeMap(attr : GoodString) : TerminalLocation
+  function method TermLocMap(attr : GoodString) : TerminalLocation
   {
     TerminalLocation([Map(attr)])
   }
@@ -96,7 +96,7 @@ module StructuredEncryptionPaths {
   function method SimpleCanon(table : GoodString, attr : GoodString)
     : CanonicalPath
   {
-    MakeMap(attr).canonicalPath(table)
+    TermLocMap(attr).canonicalPath(table)
   }
 
   const ARRAY_TAG : uint8 := '#' as uint8

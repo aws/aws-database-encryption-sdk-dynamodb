@@ -16,7 +16,7 @@
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "../../StructuredEncryption/src/SearchInfo.dfy"
 include "Util.dfy"
-include "FakeConfig.dfy"
+include "../../DynamoDbEncryptionMiddlewareInternal/Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 
 module SearchConfigToInfo {
   import opened AwsCryptographyDynamoDbItemEncryptorTypes
@@ -24,8 +24,8 @@ module SearchConfigToInfo {
   import opened Wrappers
   import opened StandardLibrary.UInt
   import opened DynamoDbItemEncryptorUtil
+  import C = AwsCryptographyDynamoDbEncryptionTypes
 
-  import C = SearchableEncryptionParseConfig
   import I = SearchableEncryptionInfo
   import V = VirtualFields
   import U = StructuredEncryptionUtil
@@ -91,9 +91,10 @@ module SearchConfigToInfo {
     // TODO var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
     var primitives :- maybePrimitives.MapFailure(e => E("Bad primitives construction"));
 
-    var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
+    var configVirtualFields: Option<VirtualFieldList> := None;
+    var virtualFields :- ConvertVirtualFields(outer, configVirtualFields);
     var key :- GetPersistentKey(config.keyring);
-    var beacons :- ConvertBeacons(outer, key, primitives, virtualFields, config.standardBeacons.UnwrapOr([]), config.compoundBeacons.UnwrapOr([]));
+    var beacons :- ConvertBeacons(outer, key, primitives, virtualFields, config.standardBeacons, config.compoundBeacons);
     return Success(I.BeaconVersion(
       version := config.version as I.VersionNumber,
       beacons := beacons,
@@ -101,8 +102,14 @@ module SearchConfigToInfo {
     ));
   }
 
+  datatype VirtualField = | VirtualField (
+  nameonly name: string ,
+  nameonly config: string
+  )
+  type VirtualFieldList = seq<VirtualField>
+
   // convert configured VirtualFieldList to internal VirtualFieldMap
-  function method ConvertVirtualFields(outer : DynamoDbItemEncryptorConfig, vf : Option<C.VirtualFieldList>)
+  function method ConvertVirtualFields(outer : DynamoDbItemEncryptorConfig, vf : Option<VirtualFieldList>)
     : Result<I.VirtualFieldMap, Error>
   {
     if vf.None? then
@@ -171,7 +178,7 @@ module SearchConfigToInfo {
 
   // convert configured VirtualFields to internal VirtualFields
   function method {:tailrecursion} AddVirtualFields(
-      vf : seq<C.VirtualField>,
+      vf : seq<VirtualField>,
       outer : DynamoDbItemEncryptorConfig,
       converted : I.VirtualFieldMap := map[])
     : Result<I.VirtualFieldMap, Error>
@@ -225,7 +232,7 @@ module SearchConfigToInfo {
   }
 
   // convert configured NonSensitivePart to internal BeaconPart
-  function method AddNonSensitiveParts(parts : seq<C.NonSensitivePart>, origSize : nat := |parts|, converted : seq<CB.BeaconPart> := [])
+  function method {:tailrecursion} AddNonSensitiveParts(parts : seq<C.NonSensitivePart>, origSize : nat := |parts|, converted : seq<CB.BeaconPart> := [])
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
     ensures ret.Success? ==> |ret.value| == origSize
@@ -341,7 +348,9 @@ module SearchConfigToInfo {
     var _ :- CheckExists(outer, beacons[0].name, "CompoundBeacon");
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
 
-    var parts :- AddNonSensitiveParts(beacons[0].nonSensitive.UnwrapOr([]));
+    // because UnwrapOr doesn't verify when used on a list with a minimum size
+    var parts :- AddNonSensitiveParts(
+      if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else []);
     :- Need(0 < |beacons[0].sensitive|, E("Beacon " + beacons[0].name + " failed to provide a sensitive part."));
     parts :- AddSensitiveParts(beacons[0].sensitive, |parts| + |beacons[0].sensitive|, parts);
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
@@ -365,14 +374,22 @@ module SearchConfigToInfo {
     key : U.Bytes,
     client: Primitives.AtomicPrimitivesClient,
     virtualFields : I.VirtualFieldMap,
-    standard : seq<C.StandardBeacon>,
-    compound : seq<C.CompoundBeacon>)
+    standard : Option<C.StandardBeaconList>,
+    compound : Option<C.CompoundBeaconList>)
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    var std :- AddStandardBeacons(standard, outer, key, client, virtualFields);
-    output := AddCompoundBeacons(compound, outer, key, client, virtualFields, std);
+    if standard.None? && compound.None? {
+      return Failure(E("At least one beacon must be configured."));
+    } else if standard.Some? && compound.Some? {
+      var std :- AddStandardBeacons(standard.value, outer, key, client, virtualFields);
+      output := AddCompoundBeacons(compound.value, outer, key, client, virtualFields, std);
+    } else if standard.Some? {
+      output := AddStandardBeacons(standard.value, outer, key, client, virtualFields);
+    } else {
+      output := AddCompoundBeacons(compound.value, outer, key, client, virtualFields, map[]);
+    }
   }
 }

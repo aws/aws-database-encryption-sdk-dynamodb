@@ -33,7 +33,7 @@ module TransactWriteItemsTransform {
     ensures output.Success? ==>
       forall item <- input.sdkInput.TransactItems :: IsValid(item)
   {
-    :- Need(forall item <- input.sdkInput.TransactItems :: IsValid(item), E("Each item in TransactWriteItems must specify at least one operation"));
+    :- Need(forall item <- input.sdkInput.TransactItems :: IsValid(item), E("Each item in TransactWriteItems must specify at least one supported operation"));
     var result : seq<DDB.TransactWriteItem> := [];
     for x := 0 to |input.sdkInput.TransactItems|
       invariant |result| == x
