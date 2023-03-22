@@ -368,11 +368,16 @@ module StructuredEncryptionHeader {
     MakeLegend2(attrs, canonSchema)
   }
 
+  // because if the parameter below is
+  // serialized : Legend := []
+  // then Dafny take 14 million units to verify it.
+  const EmptyLegend : Legend := []
+
   // Create a Legend for the given attrs of the Schema
   function method {:tailrecursion} MakeLegend2(
       attrs : seq<Bytes>,
       data : map<Bytes, CryptoSchema>,
-      serialized : Legend := []
+      serialized : Legend := EmptyLegend
     )
     : (ret : Result<Legend, Error>)
     requires forall k <- attrs :: k in data

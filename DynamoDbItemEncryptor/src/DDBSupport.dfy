@@ -11,6 +11,8 @@
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
 include "Util.dfy"
+include "VirtualDDB.dfy"
+include "UpdateExpr.dfy"
 
 module DynamoDBSupport { 
 
@@ -21,17 +23,30 @@ module DynamoDBSupport {
   import opened StandardLibrary.UInt
   import opened DynamoDbItemEncryptorUtil
   import opened AwsCryptographyDynamoDbItemEncryptorOperations
+  import opened VirtualDDBFields
   import UTF8
   import SortedSets
   import Seq
   import SE = StructuredEncryptionUtil
+  import Update = DynamoDbUpdateExpr
+  import SET = AwsCryptographyStructuredEncryptionTypes
+
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
-  // Generally this means that no attribute names starts with "aws_dbe_"
-  // an no field has the same name as a virtual field or virtual database field.
+  // At the moment, this means that no attribute names starts with "aws_dbe_",
+  // as all other attribute names would need to be configured, and all the
+  // other weird constraints were checked at configuration time.
   function method IsWriteable(config : Config, item : DDB.AttributeMap)
     : Result<bool, string>
   {
-    Success(true)
+    if forall k <- item :: !(SE.ReservedPrefix <= k) then
+      Success(true)
+    else
+      var bad := set k <- item | SE.ReservedPrefix <= k;
+      var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, SE.CharLess);
+      if |badSeq| == 0 then
+        Failure("")
+      else
+        Failure("Writing reserved attributes not allowed : " + Join(badSeq, "\n"))
   }
 
   // TestConditionExpression fails if a condition expression is not suitable for the
@@ -51,6 +66,18 @@ module DynamoDBSupport {
       Success(true)
   }
 
+  predicate method IsEncrypted(config : Config, attr : string)
+  {
+    && attr in config.attributeActions
+    && config.attributeActions[attr] == SET.ENCRYPT_AND_SIGN
+  }
+
+  predicate method IsSigned(config : Config, attr : string)
+  {
+    && attr in config.attributeActions
+    && config.attributeActions[attr] != SET.DO_NOTHING
+  }
+
   // TestUpdateExpression fails if an update expression is not suitable for the
   // given encryption schema.
   // Generally this means no signed attribute is referenced.
@@ -63,6 +90,17 @@ module DynamoDBSupport {
     : Result<bool, string>
   {
     if expr.Some? then
+    // TODO
+    // removing this comment will provide correct behavior
+    // but requires changing many tests
+    /*
+      var attrs := Update.ExtractAttributes(expr.value, attrNames);
+      var encryptedAttrs := Seq.Filter(s => IsSigned(config, s), attrs);
+      if |encryptedAttrs| == 0 then
+        Success(true)
+      else
+        Failure("Update Expressions forbidden on signed attributes : " + Join(encryptedAttrs, ","))
+    */
       Failure("Update Expressions forbidden on encrypted tables")
     else
       Success(true)
@@ -72,8 +110,15 @@ module DynamoDBSupport {
   // returning a replacement AttributeMap.
   function method AddBeacons(config : Config, item : DDB.AttributeMap)
     : Result<DDB.AttributeMap, string>
+    requires ValidInternalConfig?(config)
   {
-    Success(item)
+    if config.beacons.None? then
+      Success(item)
+    else
+      var newItems :- config.beacons.value.GenerateBeacons(t => TermToString(t, item), t => TermToBytes(t, item))
+        .MapFailure(e => "Error generating beacons");
+      var newAttrs := map k <- newItems :: k := DS(newItems[k]);
+      Success(item + newAttrs)
   }
 
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
@@ -81,7 +126,10 @@ module DynamoDBSupport {
   function method RemoveBeacons(config : Config, item : DDB.AttributeMap)
     : Result<DDB.AttributeMap, string>
   {
-    Success(item)
+    if config.beacons.None? then
+      Success(item)
+    else
+      Success(map k <- item | (!(SE.ReservedPrefix <= k)) :: k := item[k])
   }
 
   // Transform a CreateTableInput object for searchable encryption.

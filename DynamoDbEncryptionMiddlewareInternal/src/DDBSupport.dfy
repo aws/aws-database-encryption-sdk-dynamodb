@@ -18,6 +18,7 @@ module DynamoDBMiddlewareSupport {
   import opened StandardLibrary.UInt
   import opened BS = DynamoDBSupport
   import opened DdbMiddlewareConfig
+  import AwsCryptographyDynamoDbItemEncryptorOperations
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // Generally this means that no attribute names starts with "aws_dbe_"
@@ -62,6 +63,7 @@ module DynamoDBMiddlewareSupport {
   // returning a replacement AttributeMap.
   function method {:opaque} AddBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
     : Result<DDB.AttributeMap, Error>
+    requires AwsCryptographyDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
   {
     BS.AddBeacons(config.itemEncryptor.config, item)
       .MapFailure(e => E(e))

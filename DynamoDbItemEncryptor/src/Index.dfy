@@ -184,7 +184,8 @@ module
       allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
-      structuredEncryption := structuredEncryption
+      structuredEncryption := structuredEncryption,
+      beacons := None
     );
     assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
 

@@ -61,7 +61,7 @@ module TransactWriteItemsTransformTest {
         sdkInput := input
       )
     );
-    ExpectFailure(transformed, "Each item in TransactWriteItems must specify at least one operation");
+    ExpectFailure(transformed, "Each item in TransactWriteItems must specify at least one supported operation");
   }
 
   method {:test} TestTransactWriteItemsOutputTransform() {
