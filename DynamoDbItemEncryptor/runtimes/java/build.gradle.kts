@@ -1,5 +1,7 @@
 import java.net.URI
 import javax.annotation.Nullable
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     `java-library`
@@ -16,9 +18,11 @@ java {
         srcDir("src/main/java")
         srcDir("src/main/dafny-generated")
         srcDir("src/main/smithy-generated")
+        srcDir("src/main/sdkv1")
     }
     sourceSets["test"].java {
         srcDir("src/test/dafny-generated")
+        srcDir("src/test/sdkv1")
     }
 }
 
@@ -37,6 +41,10 @@ if (!caPasswordString.isNullOrBlank()) {
 }
 
 repositories {
+    maven {
+        name = "DynamoDB Local Release Repository - US West (Oregon) Region"
+        url  = URI.create("https://s3-us-west-2.amazonaws.com/dynamodb-local/release")
+    }
     mavenCentral()
     mavenLocal()
     if (caUrl != null && caPassword != null) {
@@ -51,6 +59,10 @@ repositories {
     }
 }
 
+// Configuration to hold SQLLite information.
+// DynamoDB-Local needs to have access to native sqllite4java.
+val dynamodb by configurations.creating
+
 dependencies {
     implementation("dafny.lang:DafnyRuntime:3.10.0")
     implementation("software.amazon.dafny:conversion:1.0-SNAPSHOT")
@@ -62,6 +74,33 @@ dependencies {
     implementation("software.amazon.cryptography:ComAmazonawsKms:1.0-SNAPSHOT")
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")
+
+    //    For the DDB-EC v1
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.409")
+    // https://mvnrepository.com/artifact/org.testng/testng
+    testImplementation("org.testng:testng:7.5")
+    // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
+    testImplementation("com.amazonaws:DynamoDBLocal:1.+")
+    // This is where we gather the SQLLite files to copy over
+    dynamodb("com.amazonaws:DynamoDBLocal:1.+")
+    // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
+    // This checks the dependencies and adds a native library
+    // to support this architecture.
+    if (org.apache.tools.ant.taskdefs.condition.Os.isArch("aarch64")) {
+        testImplementation("io.github.ganadist.sqlite4java:libsqlite4java-osx-aarch64:1.0.392")
+        dynamodb("io.github.ganadist.sqlite4java:libsqlite4java-osx-aarch64:1.0.392")
+    }
+    // https://mvnrepository.com/artifact/org.hamcrest/hamcrest-all
+    testImplementation("org.hamcrest:hamcrest-all:1.3")
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
+    testImplementation("org.bouncycastle:bcprov-jdk15on:1.70")
+    // https://mvnrepository.com/artifact/org.quicktheories/quicktheories
+    testImplementation("org.quicktheories:quicktheories:0.26")
+    // https://mvnrepository.com/artifact/junit/junit
+    testImplementation("junit:junit:4.13.2")
+    // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc
+    testImplementation("edu.umd.cs.mtc:multithreadedtc:1.01")
+
 }
 
 publishing {
@@ -77,9 +116,53 @@ tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
 }
 
-tasks {
-    register("runTests", JavaExec::class.java) {
-        mainClass.set("TestsFromDafny")
-        classpath = sourceSets["test"].runtimeClasspath
+tasks.register<JavaExec>("runTests") {
+    mainClass.set("TestsFromDafny")
+    classpath = sourceSets["test"].runtimeClasspath
+}
+
+tasks.test {
+    useTestNG()
+    dependsOn("CopyDynamoDb")
+    systemProperty("java.library.path", "build/libs")
+
+    testLogging {
+        lifecycle {
+            events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
+            exceptionFormat = TestExceptionFormat.FULL
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+            showStandardStreams = true
+        }
+        info.events = lifecycle.events
+        info.exceptionFormat = lifecycle.exceptionFormat
     }
+
+    // See https://github.com/gradle/kotlin-dsl/issues/836
+    addTestListener(object : TestListener {
+        override fun beforeSuite(suite: TestDescriptor) {}
+        override fun beforeTest(testDescriptor: TestDescriptor) {}
+        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
+
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+            if (suite.parent == null) { // root suite
+                logger.lifecycle("----")
+                logger.lifecycle("Test result: ${result.resultType}")
+                logger.lifecycle("Test summary: ${result.testCount} tests, " +
+                        "${result.successfulTestCount} succeeded, " +
+                        "${result.failedTestCount} failed, " +
+                        "${result.skippedTestCount} skipped")
+            }
+        }
+    })
+}
+
+tasks.register<Copy>("CopyDynamoDb")  {
+    from (dynamodb) {
+        include("*.dll")
+        include("*.dylib")
+        include("*.so")
+    }
+    into("build/libs")
 }
