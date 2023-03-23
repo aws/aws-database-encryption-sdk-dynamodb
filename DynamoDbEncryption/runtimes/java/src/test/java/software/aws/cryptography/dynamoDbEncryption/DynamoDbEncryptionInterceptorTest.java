@@ -263,13 +263,39 @@ public class DynamoDbEncryptionInterceptorTest {
     }
 
     @Test
-    public void TestTransactWriteItemsWithUpdateOnEncryptedTable() {
+    public void TestTransactWriteItemsWithUpdateOnEncryptedTableGood() {
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
                         TransactWriteItem.builder()
                                 .update(Update.builder()
                                         .tableName(TEST_TABLE_NAME)
-                                        .updateExpression("foo")
+                                        .key(Collections.EMPTY_MAP)
+                                        .updateExpression("SET " + TEST_ATTR2_NAME + " = :p")
+                                        .build())
+                                .build())
+                .build();
+
+        Context.ModifyRequest context = InterceptorContext.builder()
+                .request(oldRequest)
+                .build();
+        ExecutionAttributes attributes = ExecutionAttributes.builder()
+                .put(SdkExecutionAttribute.OPERATION_NAME, "TransactWriteItems")
+                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
+                .build();
+
+        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        assertEquals(oldRequest, newRequest);
+    }
+
+    @Test
+    public void TestTransactWriteItemsWithUpdateOnEncryptedTableBad() {
+        TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
+                .transactItems(
+                        TransactWriteItem.builder()
+                                .update(Update.builder()
+                                        .tableName(TEST_TABLE_NAME)
+                                        .key(Collections.EMPTY_MAP)
+					.updateExpression("SET " + TEST_ATTR_NAME + " = :p")
                                         .build())
                                 .build())
                 .build();
@@ -285,7 +311,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Update Expressions forbidden on encrypted tables"));
+	assertTrue(exception.getMessage().contains("Update Expressions forbidden on signed attributes : " + TEST_ATTR_NAME));
     }
 
     @Test
