@@ -121,10 +121,11 @@ public class DynamoDbEncryptionInterceptorTest {
     }
 
     @Test
-    public void TestUpdateItemOnEncryptedTable() {
+    public void TestUpdateItemOnEncryptedTableGood() {
         UpdateItemRequest oldRequest = UpdateItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
-                .updateExpression("foo")
+                .key(Collections.EMPTY_MAP)
+                .updateExpression("SET " + TEST_ATTR2_NAME + " = :p")
                 .build();
 
         Context.ModifyRequest context = InterceptorContext.builder()
@@ -135,10 +136,30 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        assertTrue(exception.getMessage().contains("Update Expressions forbidden on encrypted tables"));
+        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        assertEquals(oldRequest, newRequest);
+    }
+
+    @Test
+    public void TestUpdateItemOnEncryptedTableBad() throws Exception {
+        UpdateItemRequest oldRequest = UpdateItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .key(Collections.EMPTY_MAP)
+                .updateExpression("SET " + TEST_ATTR_NAME + " = :p")
+                .build();
+
+        Context.ModifyRequest context = InterceptorContext.builder()
+                .request(oldRequest)
+                .build();
+        ExecutionAttributes attributes = ExecutionAttributes.builder()
+                .put(SdkExecutionAttribute.OPERATION_NAME, "UpdateItem")
+                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
+                .build();
+
+	Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
+		interceptor.modifyRequest(context, attributes);
+	    });
+	assertTrue(exception.getMessage().contains("Update Expressions forbidden on signed attributes : " + TEST_ATTR_NAME));
     }
 
     @Test

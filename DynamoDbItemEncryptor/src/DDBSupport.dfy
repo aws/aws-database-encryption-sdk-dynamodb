@@ -90,18 +90,12 @@ module DynamoDBSupport {
     : Result<bool, string>
   {
     if expr.Some? then
-    // TODO
-    // removing this comment will provide correct behavior
-    // but requires changing many tests
-    /*
       var attrs := Update.ExtractAttributes(expr.value, attrNames);
       var encryptedAttrs := Seq.Filter(s => IsSigned(config, s), attrs);
       if |encryptedAttrs| == 0 then
         Success(true)
       else
         Failure("Update Expressions forbidden on signed attributes : " + Join(encryptedAttrs, ","))
-    */
-      Failure("Update Expressions forbidden on encrypted tables")
     else
       Success(true)
   }
