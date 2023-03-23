@@ -1,6 +1,5 @@
 .idea/*
 **/.idea/*
-**/*.iml
 .vscode/*
 *.sln?*
 **/.DS_Store
