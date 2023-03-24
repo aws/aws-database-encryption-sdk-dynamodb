@@ -3,7 +3,6 @@
 
 CORES=2
 DEPS_DIR:=private-aws-encryption-sdk-dafny-staging
-POLYMORPH_ROOT=../polymorph/smithy-polymorph/
 
 include ../$(DEPS_DIR)/SharedMakefile.mk
 

@@ -3,11 +3,13 @@
 
 CORES=2
 DEPS_DIR:=private-aws-encryption-sdk-dafny-staging
-POLYMORPH_ROOT=../polymorph/smithy-polymorph/
 
 include ../$(DEPS_DIR)/SharedMakefile.mk
 
 SMITHY_NAMESPACE=aws.cryptography.dynamoDbItemEncryptor
+SMITHY_NAMESPACES := \
+    aws.cryptography.dynamoDbItemEncryptor \
+    aws.cryptography.dynamoDbEncryption.resources
 MAX_RESOURCE_COUNT=10000000
 # Order is important
 # In java they MUST be built
