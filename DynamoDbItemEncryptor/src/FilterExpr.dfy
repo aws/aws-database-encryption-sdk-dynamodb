@@ -1,6 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+/*
+
+Parse a DynamoDB FilterExpression, ConditionExpression or KeyConditionExpression
+
+  // If none of these attributes are encrypted, then you can let DynamoDB
+  // treat this expression normally.
+  ExtractAttributes(s : string, ex : Option<ExpressionAttributeNameMap>) : seq<string>
+
+*/
+
+
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
 include "../../StructuredEncryption/src/SearchInfo.dfy"
@@ -18,16 +29,42 @@ module DynamoDBFilterExpr {
   import FloatCompare
   import Seq
 
+  // extract all the attributes from a filter expression
+  // except for those which do not need the attribute's value
   function method ExtractAttributes(s : string, ex : Option<ExpressionAttributeNameMap>) : seq<string>
   {
     var tokens := ParseExpr(s);
-    var attrs := Seq.Filter((t : token) => t.Attr? && |t.s| > 0 && t.s[0] != ':', tokens);
-    assert forall t <- attrs :: t.Attr?;
-    var attrNames := Seq.Map((t : token) requires t.Attr? => t.s, attrs);
-    Seq.Map((t : string) => GetName(t, ex), attrNames)
+    ExtractAttributes2(tokens, ex, -1)
   }
 
-  datatype token =
+  // Is this one of those special functions that ignores the underlying value?
+  predicate method IsSpecial(t : Token)
+  {
+    || t.AttributeExists?
+    || t.AttributeNotExists?
+    || t.Size?
+  }
+
+  // the recursive inside of ExtractAttributes
+  function method {:tailrecursion} ExtractAttributes2(
+    tokens : seq<Token>,
+    ex : Option<ExpressionAttributeNameMap>,
+    tokensUntilSkip : int)
+    : seq<string>
+  {
+    if |tokens| == 0 then
+      []
+    else if IsSpecial(tokens[0]) then
+      ExtractAttributes2(tokens[1..], ex, 1)
+    else if tokens[0].Attr? && tokensUntilSkip == 0 then
+      ExtractAttributes2(tokens[1..], ex, -1)
+    else if tokens[0].Attr? then
+      [GetName(tokens[0].s, ex)] + ExtractAttributes2(tokens[1..], ex, -1)
+    else
+      ExtractAttributes2(tokens[1..], ex, tokensUntilSkip-1)
+  }
+
+  datatype Token =
     | Attr(s:string)
     | Value(s:string)
     | Eq | Ne | Lt | Gt | Le | Ge
@@ -46,7 +83,7 @@ module DynamoDBFilterExpr {
     | Contains
     | Size
 
-  function method TokenToString(t : token) : string
+  function method TokenToString(t : Token) : string
   {
     match t {
       case Attr(s) => s
@@ -73,7 +110,11 @@ module DynamoDBFilterExpr {
       case Size => "size"
     }
   }
+
   /*
+
+  Please forgive the commented code. I promise it will be either deleted or uncommented by April 17th
+
   function method BeaconValue(beacons : BeaconVersion, name : string, attr : AttributeValue) : Result<AttributeValue, string>
   {
     var b := beacons.GetBeacon(name);
@@ -95,13 +136,7 @@ module DynamoDBFilterExpr {
       Failure("Attribute " + name + " uses compound hash, but is not of type string")
   }
   */
-  /*
-  datatype ParsedContext = ParsedContext (
-    expr : seq<token>, 
-    values: ExpressionAttributeValueMap,
-    names : Option<ExpressionAttributeNameMap>
-  )
-  */
+
   /*
   function method BeaconFromName(b : BeaconVersion, name : string, names : Option<ExpressionAttributeNameMap>) : (ret : Option<Beacon>)
   {
@@ -114,7 +149,7 @@ module DynamoDBFilterExpr {
   }
   */
   /*
-  predicate method TokenHasBeacon(b : BeaconVersion, item : token) : (ret : bool)
+  predicate method TokenHasBeacon(b : BeaconVersion, item : Token) : (ret : bool)
     ensures ret ==> item.Attr?
   {
     if item.Attr? then
@@ -124,7 +159,7 @@ module DynamoDBFilterExpr {
   }
   
   // ATTR IN VAL, VAL, VAL
-  function method {:tailrecursion} GetInPos(b : BeaconVersion, before : seq<token>, acc : Option<nat> := None) : (ret : Option<nat>)
+  function method {:tailrecursion} GetInPos(b : BeaconVersion, before : seq<Token>, acc : Option<nat> := None) : (ret : Option<nat>)
     ensures ret.Some? ==> ret.value >= 2
   {
     if |before| < 2 then
@@ -146,8 +181,8 @@ module DynamoDBFilterExpr {
   function method BeaconFromValue(
     b : BeaconVersion,
     name : string,
-    before : seq<token>,
-    after : seq<token>,
+    before : seq<Token>,
+    after : seq<Token>,
     values: ExpressionAttributeValueMap,
     names : Option<ExpressionAttributeNameMap>)
     : (ret : Option<Beacon>)
@@ -184,10 +219,10 @@ module DynamoDBFilterExpr {
       None
   }
   
-  function method {:tailrecursion} Beaconize2(b : BeaconVersion, expr : seq<token>, 
+  function method {:tailrecursion} Beaconize2(b : BeaconVersion, expr : seq<Token>, 
     values: ExpressionAttributeValueMap,
     names : Option<ExpressionAttributeNameMap>,
-    acc : seq<token> := [])
+    acc : seq<Token> := [])
     : Result<ParsedContext, string>
   {
     if |expr| == 0 then
@@ -215,7 +250,9 @@ module DynamoDBFilterExpr {
     Beaconize2(b, t.expr, t.values, t.names)
   }
   */
-  function method ParsedExprToString(t : seq<token>) : string
+
+  // Convert the tokens back into an expression
+  function method ParsedExprToString(t : seq<Token>) : string
   {
     var x := Seq.Map(x => TokenToString(x), t);
     if |x| == 0 then
@@ -224,56 +261,42 @@ module DynamoDBFilterExpr {
       Join(x, " ")
   }
 
-  predicate method IsUnary(t : token) {
+  // Is this a unary operator?
+  predicate method IsUnary(t : Token) {
     match t
     case Not => true
     case _ => false
   }
 
-  predicate method IsComp(t : token) {
+  // Is this a comparison operator?
+  predicate method IsComp(t : Token) {
     match t
     case Eq | Ne | Lt | Gt | Le | Ge => true
     case _ => false
   }
 
-  predicate method IsBinaryBool(t : token) {
+  // Is this a boolean operator?
+  predicate method IsBinaryBool(t : Token) {
     match t
     case And | Or => true
     case _ => false
   }
 
-  predicate method IsBinary(t : token) {
+  // Is this an binary operator?
+  predicate method IsBinary(t : Token) {
     IsComp(t) || IsBinaryBool(t)
   }
 
-  predicate method IsVar(t : token) {
+  // is this a variable?
+  predicate method IsVar(t : Token) {
     match t
     case Value(s) => true
     case Attr(s) => true
     case _ => false
-  }
-  predicate method IsValue(t : token) {
-    match t
-    case Value(s) => true
-    case _ => false
-  }
-  function method GetValue(t : token) : string {
-    match t
-    case Value(s) => s
-    case _ => []
-  }
-  predicate method IsAttribute(t : token) {
-    match t
-    case Attr(s) => true
-    case _ => false
-  }
-  function method GetAttribute(t : token) : string {
-    match t
-    case Attr(s) => s
-    case _ => []
   }
 
-  predicate method IsFunction(t : token) {
+  // is this a function?
+  predicate method IsFunction(t : Token) {
     match t
     case
       | Between
@@ -287,7 +310,8 @@ module DynamoDBFilterExpr {
     case _ => false
   }
 
-  function method Precedence(t : token) : nat {
+  // return operator precedence
+  function method Precedence(t : Token) : nat {
     match t
     case Open => 11
     case Close => 11
@@ -312,14 +336,14 @@ module DynamoDBFilterExpr {
     case And => 4
     case Or => 3
   }
+
   // convert s to a sequence of tokens
-  function method {:tailrecursion} ParseExpr(s: string): (res: seq<token>)
+  function method {:tailrecursion} ParseExpr(s: string): (res: seq<Token>)
     ensures s == [] ==> res == []
     decreases |s|
   {
     var tup := FindIndexToken(s);
     if 0 < tup.0 then [tup.1] + ParseExpr(s[tup.0..]) else []
-
   }
 
   // convert ch to lower case
@@ -349,6 +373,7 @@ module DynamoDBFilterExpr {
       [CharLower(s[0])] + strLower(s[1..])
   }
 
+  // if s is long, this could be wasteful. Should probably hand roll a loop
   function method PrefixLower(pre : string, s : string): (res : bool)
   {
     strLower(pre) <= strLower(s)
@@ -404,7 +429,7 @@ module DynamoDBFilterExpr {
 
   // return the next token, and the number of characters consumed
   // if zero is returned for the index, then ignore the token and stop looking.
-  function method {:vcs_split_on_every_assert}  FindIndexToken(s: string): (res: (nat, token))
+  function method {:vcs_split_on_every_assert}  FindIndexToken(s: string): (res: (nat, Token))
     ensures res.0 <= |s|
   {
     if 0 == |s| then
@@ -471,7 +496,7 @@ module DynamoDBFilterExpr {
   }
 
   // does it start with "A BETWEEN X AND Y"
-  predicate method IsBetween(input: seq<token>)
+  predicate method IsBetween(input: seq<Token>)
   {
     if |input| < 5 then
       false
@@ -490,7 +515,7 @@ module DynamoDBFilterExpr {
   }
 
   // does it start with "A IN ("
-  predicate method IsIN(input: seq<token>)
+  predicate method IsIN(input: seq<Token>)
   {
     if |input| < 3 then
       false
@@ -506,7 +531,7 @@ module DynamoDBFilterExpr {
 
   // transform A IN(X,Y) to IN(A,X,Y)
   // transform A BETWEEN X AND Y to BETWEEN(A, X, Y)
-  function method ConvertToPrefix(input: seq<token>) : (res : seq<token>)
+  function method ConvertToPrefix(input: seq<Token>) : (res : seq<Token>)
   {
     if |input| < 5 then
       input
@@ -518,21 +543,22 @@ module DynamoDBFilterExpr {
       [input[0]] + ConvertToPrefix(input[1..])
   }
 
-  lemma TestConvertToPrefix3(input: seq<token>)
+  lemma TestConvertToPrefix3(input: seq<Token>)
     requires input == [Attr("A"), In, Open, Attr("B"), Comma, Attr("C"), Close]
     ensures IsIN(input)
     ensures ConvertToPrefix(input) ==  [In, Open, Attr("A"), Comma, Attr("B"), Comma, Attr("C"), Close]
   {}
 
   // convert from parsed order to executable order
-  // must be rejiggered first
-  function method ConvertToRpn(input: seq<token>) : seq<token>
+  // must run ConvertToPrefix first
+  function method ConvertToRpn(input: seq<Token>) : seq<Token>
   {
     var stack := [];
     ConvertToRpn_inner(input, stack)
   }
 
-  function method ConvertToRpn_inner(input: seq<token>, stack : seq<token>) : seq<token>
+  // convert infix to reverse polish
+  function method ConvertToRpn_inner(input: seq<Token>, stack : seq<Token>) : seq<Token>
   {
     if 0 == |input| then
       if 0 == |stack| then
@@ -572,47 +598,58 @@ module DynamoDBFilterExpr {
       case Between | In => ConvertToRpn_inner(input[1..], stack)
   }
 
-  datatype stackval = Bool(b : bool) | Str(s : AttributeValue) | Nada
+  datatype StackValue =
+    | Bool(b : bool)
+    | Str(s : AttributeValue)
+    | DoesNotExist
 
-  function method GetStr(s : stackval) : AttributeValue
+  // returns th string value
+  function method GetStr(s : StackValue) : AttributeValue
   {
     match s
     case Bool(b) => AttributeValue.NULL(true)
     case Str(s) => s
-    case Nada => AttributeValue.NULL(true)
+    case DoesNotExist => AttributeValue.NULL(true)
   }
 
-  function method AsStr(s : string) : stackval
+  // string to DynamoDB string
+  function method AsStr(s : string) : StackValue
   {
     Str(AttributeValue.S(s))
   }
 
-  function method StackvalFromMap(s : string, vals : AttributeMap) : stackval
+  // look up s in map
+  function method StackvalFromMap(s : string, vals : AttributeMap) : StackValue
   {
     if s in vals then
       Str(vals[s])
     else
-      Nada
+      DoesNotExist
   }
-  function method GetParsedExpr(input : string) : Result<seq<token>, string>
+
+  // parse and return in reverse polish notation
+  function method GetParsedExpr(input : string) : Result<seq<Token>, string>
   {
     var seq1 := ParseExpr(input);
     var seq2 := ConvertToPrefix(seq1);
     Success(ConvertToRpn(seq2))
   }
+
+  // parse and evaluate the expression
   function method FinalEval(input : string, vals : AttributeMap) : Result<bool, string>
   {
     var seq3 :- GetParsedExpr(input);
     EvalExpr(seq3, vals)
   }
 
-
-  function method EvalExpr(input : seq<token>, vals : AttributeMap) : Result<bool, string>
+  // evaluate the expression, must be in reverse polish notation
+  function method EvalExpr(input : seq<Token>, vals : AttributeMap) : Result<bool, string>
   {
     InnerEvalExpr(input, [], vals)
   }
 
-  function method NumStrs(input : seq<stackval>) : nat
+  // count the number of strings
+  function method NumStrs(input : seq<StackValue>) : nat
   {
     if |input| == 0 then
       0
@@ -622,6 +659,7 @@ module DynamoDBFilterExpr {
       1 + NumStrs(input[..|input|-1])
   }
 
+  // true if haystack contains needle
   predicate method  {:tailrecursion} seq_contains<T(==)>(haystack : seq<T>, needle : seq<T>)
   {
     if |needle| == 0 then
@@ -636,16 +674,7 @@ module DynamoDBFilterExpr {
       seq_contains(haystack[1..], needle)
   }
 
-  predicate method {:tailrecursion}  AttrInList(list : ListAttributeValue, needle : AttributeValue)
-  {
-    if |list| == 0 then
-      false
-    else if list[0] == needle then
-      true
-    else
-      AttrInList(list[1..], needle)
-  }
-
+  // true if haystack contains needle
   predicate method does_contain(haystack : AttributeValue, needle : AttributeValue)
   {
     match haystack{
@@ -679,11 +708,12 @@ module DynamoDBFilterExpr {
           needle.B in haystack.BS
         else
           false
-      case L(list) => AttrInList(list, needle)
+      case L(list) => needle in list
       case _ => false
     }
   }
 
+  // true if haystack begins with needle
   predicate method begins_with(haystack : AttributeValue, needle : AttributeValue)
   {
     match haystack{
@@ -702,16 +732,27 @@ module DynamoDBFilterExpr {
           needle.B <= haystack.B
         else
           false
+      case L(list) =>
+        if |list| == 0 then
+          false
+        else if list[0] == needle then
+          true
+        else if needle.L? then
+          needle.L <= list
+        else
+          false
       case _ => false
     }
   }
 
+  // true if middle between left and right
   predicate method is_between(middle : AttributeValue, left : AttributeValue, right : AttributeValue)
   {
     AttributeLE(left, middle) && AttributeLE(middle, right)
   }
 
-  predicate method is_in(target : AttributeValue, list : seq<stackval>)
+  // true if target in list
+  predicate method is_in(target : AttributeValue, list : seq<StackValue>)
   {
     if |list| == 0 then
       false
@@ -721,15 +762,17 @@ module DynamoDBFilterExpr {
       is_in(target, list[1..])
   }
 
+  // return string version of attribute
   function method AttrToStr(attr : AttributeValue) : string
   {
     match attr {
       case S(s) => s
       case N(n) => n
-      case _ => "" // FIXME
+      case _ => ""
     }
   }
 
+  // return type of value
   function method AttrTypeToStr(attr : AttributeValue) : string
   {
     match attr {
@@ -746,69 +789,74 @@ module DynamoDBFilterExpr {
     }
   }
 
-  function method IsAttrType(attr : stackval, typestr : stackval) : bool
+  // true if type of attr is typestr
+  function method IsAttrType(attr : StackValue, typestr : StackValue) : bool
   {
     AttrTypeToStr(GetStr(attr)) == AttrToStr(GetStr(typestr))
   }
 
-  function method apply_function(input : token, stack : seq<stackval>, num_args : nat) : Result<stackval, string>
+  // call the function
+  function method apply_function(input : Token, stack : seq<StackValue>, num_args : nat) : Result<StackValue, string>
   {
-    match input
-    case Between =>
-      if |stack| < 3 then
-        Failure("No Stack for Between")
-      else
-      if stack[|stack|-1].Str? && stack[|stack|-2].Str? && stack[|stack|-3].Str? then
-        Success(Bool(is_between(stack[|stack|-3].s, stack[|stack|-2].s, stack[|stack|-1].s)))
-      else
-        Failure("Wrong Types for contains")
+    match input {
+      case Between =>
+        if |stack| < 3 then
+          Failure("No Stack for Between")
+        else
+        if stack[|stack|-1].Str? && stack[|stack|-2].Str? && stack[|stack|-3].Str? then
+          Success(Bool(is_between(stack[|stack|-3].s, stack[|stack|-2].s, stack[|stack|-1].s)))
+        else
+          Failure("Wrong Types for contains")
 
-    case In =>
-      var num := NumStrs(stack);
-      if |stack| < num then
-        Failure("Tautology False")
-      else if num == 0 then
-        Failure("In has no args")
-      else
-        Success(Bool(is_in(GetStr(stack[|stack|-num]), stack[|stack|-num+1..])))
-    case AttributeExists =>
-      if |stack| < 1 then
-        Failure("No Stack for AttributeExists")
-      else
-        Success(Bool(!stack[|stack|-1].Nada?))
+      case In =>
+        var num := NumStrs(stack);
+        if |stack| < num then
+          Failure("Tautology False")
+        else if num == 0 then
+          Failure("In has no args")
+        else
+          Success(Bool(is_in(GetStr(stack[|stack|-num]), stack[|stack|-num+1..])))
+      case AttributeExists =>
+        if |stack| < 1 then
+          Failure("No Stack for AttributeExists")
+        else
+          Success(Bool(!stack[|stack|-1].DoesNotExist?))
 
-    case AttributeNotExists =>
-      if |stack| < 1 then
-        Failure("No Stack for AttributeExists")
-      else
-        Success(Bool(stack[|stack|-1].Nada?))
-    case AttributeType =>
-      if |stack| < 2 then
-        Failure("No Stack for AttributeType")
-      else
-        Success(Bool(IsAttrType(stack[|stack|-2], stack[|stack|-1])))  // What???
-    case BeginsWith =>
-      if |stack| < 2 then
-        Failure("No Stack for BeginsWith")
-      else
-      if stack[|stack|-1].Str? && stack[|stack|-2].Str? then
-        Success(Bool(begins_with(stack[|stack|-2].s, stack[|stack|-1].s)))
-      else
-        Failure("Wrong Types for contains")
+      case AttributeNotExists =>
+        if |stack| < 1 then
+          Failure("No Stack for AttributeExists")
+        else
+          Success(Bool(stack[|stack|-1].DoesNotExist?))
+      case AttributeType =>
+        if |stack| < 2 then
+          Failure("No Stack for AttributeType")
+        else
+          Success(Bool(IsAttrType(stack[|stack|-2], stack[|stack|-1])))  // What???
+      case BeginsWith =>
+        if |stack| < 2 then
+          Failure("No Stack for BeginsWith")
+        else
+        if stack[|stack|-1].Str? && stack[|stack|-2].Str? then
+          Success(Bool(begins_with(stack[|stack|-2].s, stack[|stack|-1].s)))
+        else
+          Failure("Wrong Types for contains")
 
-    case Contains =>
-      if |stack| < 2 then
-        Failure("No Stack for contains")
-      else
-      if stack[|stack|-1].Str? && stack[|stack|-2].Str? then
-        Success(Bool(does_contain(stack[|stack|-2].s, stack[|stack|-1].s)))
-      else
-        Failure("Wrong Types for contains")
+      case Contains =>
+        if |stack| < 2 then
+          Failure("No Stack for contains")
+        else
+        if stack[|stack|-1].Str? && stack[|stack|-2].Str? then
+          Success(Bool(does_contain(stack[|stack|-2].s, stack[|stack|-1].s)))
+        else
+          Failure("Wrong Types for contains")
 
-    case Size => Success(Bool(true)) // What???
-    case _ => Success(Bool(true))
+      case Size => Success(Bool(true)) // What???
+      case _ => Success(Bool(true))
+    }
   }
-  function method apply_unary(input : token, stack : stackval) : Result<stackval, string>
+
+  // call the unary function
+  function method apply_unary(input : Token, stack : StackValue) : Result<StackValue, string>
   {
     if stack.Bool? then
       Success(Bool(!stack.b))
@@ -816,7 +864,8 @@ module DynamoDBFilterExpr {
       Failure("wrong type for Not")
   }
 
-  function method apply_binary_bool(input : token, x : bool, y : bool) : Result<bool, string>
+  // call the binary function
+  function method apply_binary_bool(input : Token, x : bool, y : bool) : Result<bool, string>
   {
     match input
     case And => Success(x && y)
@@ -828,26 +877,28 @@ module DynamoDBFilterExpr {
   {
     !LexicographicLessOrEqual(b, a, less)
   }
+
   predicate method LexicographicGreater<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
   {
     !LexicographicLessOrEqual(a, b, less)
   }
+
   predicate method LexicographicGreaterOrEqual<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
   {
     LexicographicLessOrEqual(b, a, less)
   }
 
-  predicate method charless(a: char, b: char) { a < b }
-  predicate method u8less(a: uint8, b: uint8) { a < b }
+  predicate method CharLess(a: char, b: char) { a < b }
+  predicate method ByteLess(a: uint8, b: uint8) { a < b }
 
   predicate method AttributeLE(a : AttributeValue, b : AttributeValue)
   {
     if a.N? && b.N? then
       FloatCompare.CompareFloat(a.N, b.N) <= 0
     else if a.S? && b.S? then
-      LexicographicLessOrEqual(a.S, b.S, charless)
+      LexicographicLessOrEqual(a.S, b.S, CharLess)
     else if a.B? && b.B? then
-      LexicographicLessOrEqual(a.B, b.B, u8less)
+      LexicographicLessOrEqual(a.B, b.B, ByteLess)
     else
       false // TODO, Are there other well defined < operations?
   }
@@ -864,7 +915,8 @@ module DynamoDBFilterExpr {
     AttributeLE(b,a)
   }
 
-  function method apply_binary_comp(input : token, x : AttributeValue, y : AttributeValue) : Result<bool, string>
+  // apply the comparison function
+  function method apply_binary_comp(input : Token, x : AttributeValue, y : AttributeValue) : Result<bool, string>
   {
     match input
     case Eq => Success(x == y)
@@ -876,7 +928,8 @@ module DynamoDBFilterExpr {
     case _ => Failure("invalid op in apply_binary_bool")
   }
 
-  function method apply_binary(input : token, x : stackval, y : stackval) : Result<stackval, string>
+  // apply the binary function
+  function method apply_binary(input : Token, x : StackValue, y : StackValue) : Result<StackValue, string>
   {
     if IsComp(input) then
       if x.Str? && y.Str? then
@@ -892,7 +945,8 @@ module DynamoDBFilterExpr {
       Failure("wrong types for boolean binary")
   }
 
-  function method NumArgs(t : token, stack : seq<stackval>) : nat
+  // return number of args for the function
+  function method NumArgs(t : Token, stack : seq<StackValue>) : nat
   {
     match t
     case Between => 3
@@ -906,7 +960,8 @@ module DynamoDBFilterExpr {
     case _ => 0
   }
 
-  function method InnerEvalExpr(input : seq<token>, stack : seq<stackval>, vals : AttributeMap) : Result<bool, string>
+  // evaluate the expression
+  function method InnerEvalExpr(input : seq<Token>, stack : seq<StackValue>, vals : AttributeMap) : Result<bool, string>
   {
     if 0 == |input| then
       if 1 == |stack| && stack[0].Bool? then
@@ -915,10 +970,10 @@ module DynamoDBFilterExpr {
         Failure("ended with bad stack")
     else
       var t := input[0];
-      if IsValue(t) then
-        InnerEvalExpr(input[1..], stack + [AsStr(GetValue(t))], vals)
-      else if IsAttribute(t) then
-        InnerEvalExpr(input[1..], stack + [StackvalFromMap(GetAttribute(t), vals)], vals)
+      if t.Value? then
+        InnerEvalExpr(input[1..], stack + [AsStr(t.s)], vals)
+      else if t.Attr? then
+        InnerEvalExpr(input[1..], stack + [StackvalFromMap(t.s, vals)], vals)
       else if IsUnary(t) then
         if 0 == |stack| then
           Failure("Empty stack for unary op")
@@ -943,57 +998,14 @@ module DynamoDBFilterExpr {
         Success(true)
   }
 
-
-  /*
-  lemma test1(s: ustr)
-    requires s == S2U("and")
-    ensures FindIndexToken(s) == (3,And)
-    ensures ParseExpr(s) == [And]
-  {}
-  */
-  /*
-  lemma test2(s: ustr)
-    requires s == "And"
-    ensures FindIndexToken(s) == (3,And)
-    ensures ParseExpr(s) == [And]
-  {}
-  */
-  /*
-  lemma test3(s: ustr)
-    requires s == UTF8.Encode("a").Extract()
-    ensures FindIndexToken(s) == (1,Attribute(S2U("a")))
-  {}
-  */
-  /*
-  lemma test4(s: ustr)
-    requires s == "   a"
-    ensures FindIndexToken(s) == (4,Attribute("a"))
-  {}
-  */
-  lemma test5(s: string)
-    requires s == []
-    ensures FindIndexToken(s) == (0,Close)
-  {}
-  /*
-  lemma test6(s: ustr)
-    requires s == UTF8.Encode(" ").Extract()
-    ensures FindIndexToken(s) == (0,Close)
-  {}
-  */
-  /*
-  lemma test7(s: ustr)
-    requires s == "     "
-    ensures FindIndexToken(s) == (0,Close)
-  {}
-  */
-
-  function method doFilter(parsed : seq<token>, ItemList : ItemList) : Result<ItemList, string>
+  // return the list of items for which the expression is true
+  function method FilterItems(parsed : seq<Token>, ItemList : ItemList) : Result<ItemList, string>
   {
     if |ItemList| == 0 then
       Success([])
     else
       var doesMatch :- EvalExpr(parsed, ItemList[0]);
-      var rest :- doFilter(parsed, ItemList[1..]);
+      var rest :- FilterItems(parsed, ItemList[1..]);
       if doesMatch then
         Success(ItemList[0..0] + rest)
       else
@@ -1001,6 +1013,7 @@ module DynamoDBFilterExpr {
 
   }
 
+  // return the results for which the expression is true
   function method FilterResults(
     ItemList : ItemList,
     FilterExpression : Option<ConditionExpression>,
@@ -1011,10 +1024,10 @@ module DynamoDBFilterExpr {
       Success(ItemList)
     else
       var parsed :- GetParsedExpr(FilterExpression.value);
-      doFilter(parsed, ItemList)
+      FilterItems(parsed, ItemList)
   }
 
-  // Result??
+  // Get the name, possibly looking it up in the map
   function method GetName(s : string, ExpressionAttributeNames : Option<ExpressionAttributeNameMap>) : string
   {
     if |s| == 0 then
@@ -1029,42 +1042,6 @@ module DynamoDBFilterExpr {
       s[1..]
   }
 
-  function method IsEncryptedAttr(table : Config, expr : token, ExpressionAttributeNames : Option<ExpressionAttributeNameMap>) : bool
-  {
-    match expr {
-      case Attr(s) =>
-        var name := GetName(s, ExpressionAttributeNames);
-        if name in table.attributeActions then
-          table.attributeActions[name] == ENCRYPT_AND_SIGN
-        else
-          false
-      case _ => false
-    }
-  }
-
-  function method hasEncrypted(table : Config, expr : seq<token>, ExpressionAttributeNames : Option<ExpressionAttributeNameMap>) : bool
-  {
-    if |expr| == 0 then
-      false
-    else if IsEncryptedAttr(table, expr[0], ExpressionAttributeNames) then
-      true
-    else
-      hasEncrypted(table, expr[1..], ExpressionAttributeNames)
-  }
-
-  function method CheckConditionExpr(table : Config, cond : Option<ConditionExpression>, ExpressionAttributeNames : Option<ExpressionAttributeNameMap>) : Outcome<string>
-  {
-    if cond.None? then
-      Pass
-    else
-      var cond := cond.value;
-      var expr := ParseExpr(cond);
-      if hasEncrypted(table, expr, ExpressionAttributeNames) then
-        Fail("Condition expression has encrypted field")
-      else
-        Pass
-  }
-
   datatype ExprContext = ExprContext (
     expr : Option<ConditionExpression>,
     values: Option<ExpressionAttributeValueMap>,
@@ -1072,10 +1049,11 @@ module DynamoDBFilterExpr {
   )
 
   datatype ParsedContext = ParsedContext (
-    expr : seq<token>,
+    expr : seq<Token>,
     values: ExpressionAttributeValueMap,
     names : Option<ExpressionAttributeNameMap>
   )
+
   /*
   // transform plain expression "A = B" into beacon expression "gZ_b_Z = beacon(B)"
     function method BeaconExpression (beacons : BeaconVersion, cont : ExprContext) : Result<ExprContext, string>

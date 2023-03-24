@@ -68,11 +68,13 @@ module TestDynamoDBFilterExpr {
     expect_equal(ExtractAttributes("contains(A, :b)", Some(attrMap)), ["A"]);
     expect_equal(ExtractAttributes("begins_with(A, :b)", Some(attrMap)), ["A"]);
 
-    // we need to ignore these, because they can work on any attributes
-    // i.e. TODO - these three should return [], not ["A"]
-    expect_equal(ExtractAttributes("attribute_exists(A)", Some(attrMap)), ["A"]);
-    expect_equal(ExtractAttributes("attribute_not_exists(A)", Some(attrMap)), ["A"]);
-    expect_equal(ExtractAttributes("size(A)", Some(attrMap)), ["A"]);
+    // we ignore these, because they can work on any attributes
+    // that is, they ignore the underlying value
+    expect_equal(ExtractAttributes("attribute_exists(A)", Some(attrMap)), []);
+    expect_equal(ExtractAttributes("attribute_not_exists(A)", Some(attrMap)), []);
+    expect_equal(ExtractAttributes("size(A)", Some(attrMap)), []);
 
+    expect_equal(ExtractAttributes("A < B or size(C) or D between E and F",
+      Some(attrMap)), ["A", "B", "D", "E", "F"]);
   }
 }
