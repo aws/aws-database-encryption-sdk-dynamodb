@@ -1,16 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DdbMiddlewareConfig.dfy"
+include "DDBSupport.dfy"
 
 module BatchGetItemTransform {
   import opened DdbMiddlewareConfig
+  import opened DynamoDBMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes
   import EncTypes = AwsCryptographyDynamoDbItemEncryptorTypes
   import Seq
-
 
   method Input(config: Config, input: BatchGetItemInputTransformInput)
     returns (output: Result<BatchGetItemInputTransformOutput, Error>)
@@ -61,10 +61,14 @@ module BatchGetItemTransform {
           var decrypted :- MapError(decryptRes);
 
           //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-batchgetitem
-          //# Each of these items on the original repsonse MUST be replaced
+          //# Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+          var item :- RemoveBeacons(tableConfig, decrypted.plaintextItem);
+
+          //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-batchgetitem
+          //# Each of these items on the original response MUST be replaced
           //# with a value that is equivalent to
-          //# the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
-          decryptedItem := decryptedItem + [decrypted.plaintextItem];
+          //# this result.
+          decryptedItem := decryptedItem + [item];
         }
         result := result + map[tableName := decryptedItem];
       } else {

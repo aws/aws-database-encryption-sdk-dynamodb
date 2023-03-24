@@ -1,10 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DdbMiddlewareConfig.dfy"
+include "DDBSupport.dfy"
 
 module QueryTransform {
   import opened DdbMiddlewareConfig
+  import opened DynamoDBMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes
@@ -13,9 +14,45 @@ module QueryTransform {
 
   method Input(config: Config, input: QueryInputTransformInput)
     returns (output: Result<QueryInputTransformOutput, Error>)
-    ensures output.Success? && output.value.transformedInput == input.sdkInput
+
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
+    //= type=implication
+    //# If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+    //# the Query request MUST be unchanged.
+    ensures input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
+      && output.Success?
+      && output.value.transformedInput == input.sdkInput
+
+    ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
+      //= type=implication
+      //# The Query request MUST NOT refer to any legacy parameters,
+      //# specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST NOT be set.
+      && input.sdkInput.AttributesToGet.None?
+      && input.sdkInput.KeyConditions.None?
+      && input.sdkInput.QueryFilter.None?
+      && input.sdkInput.ConditionalOperator.None?
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
+      //= type=implication
+      //# The request MUST be [altered](#queryinputforbeacons)
+      //# to transform any references to encrypted attributes into references to beacons.
+      && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+      && QueryInputForBeacons(tableConfig, input.sdkInput).Success?
+      && var finalResult := QueryInputForBeacons(tableConfig, input.sdkInput).value;
+      && output.value.transformedInput == finalResult
   {
-    return Success(QueryInputTransformOutput(transformedInput := input.sdkInput));
+    if input.sdkInput.TableName !in config.tableEncryptionConfigs {
+      return Success(QueryInputTransformOutput(transformedInput := input.sdkInput));
+    } else {
+      :- Need(input.sdkInput.AttributesToGet.None?, E("Legacy parameter 'AttributesToGet' not supported in UpdateItem with Encryption"));
+      :- Need(input.sdkInput.KeyConditions.None?, E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
+      :- Need(input.sdkInput.QueryFilter.None?, E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
+      :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
+      var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+      var finalResult :- QueryInputForBeacons(tableConfig, input.sdkInput);
+      return Success(QueryInputTransformOutput(transformedInput := finalResult));
+    }
   }
 
   method Output(config: Config, input: QueryOutputTransformInput)
@@ -60,13 +97,6 @@ module QueryTransform {
             //# where the input [DynamoDB Item](./decrypt-item.md#dynamodb-item)
             //# is this list entry.
             && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[i-|oldHistory|]
-
-            //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
-            //= type=implication
-            //# Each of these entries on the original repsonse MUST be replaced
-            //# with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
-            && newHistory[i].output.value.plaintextItem ==
-               output.value.transformedOutput.Items.value[i-|oldHistory|]
          )
   {
     var tableName := input.originalInput.TableName;
@@ -90,14 +120,19 @@ module QueryTransform {
         && item.input.encryptedItem == input.sdkOutput.Items.value[i-historySize]
         && item.output.value.plaintextItem == decryptedItems[i-historySize])
     {
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
+      //# Each of these entries on the original response MUST be replaced
+      //# with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(EncTypes.DecryptItemInput(encryptedItem:=encryptedItems[x]));
       var decrypted :- MapError(decryptRes);
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
     }
-    var someItems := Some(decryptedItems); // TODO this needs to be done on its own line until we upgrade to Dafny 3.10.0
-    return Success(QueryOutputTransformOutput(transformedOutput := input.sdkOutput.(Items := someItems)));
+
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
+    //# The resulting decrypted response MUST be [filtered](ddb-support.md#queryoutputforbeacons) from the result.
+    var decryptedOutput := input.sdkOutput.(Items := Some(decryptedItems));
+    var finalResult :- QueryOutputForBeacons(tableConfig, input.originalInput, decryptedOutput);
+    return Success(QueryOutputTransformOutput(transformedOutput := finalResult));
   }
-
-
 }
 

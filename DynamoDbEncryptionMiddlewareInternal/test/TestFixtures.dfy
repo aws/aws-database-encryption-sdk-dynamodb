@@ -82,7 +82,7 @@ module TestFixtures {
   }
 
   method GetDynamoDbEncryption()
-      returns (encryption: DynamoDbEncryption.DynamoDbEncryptionMiddlewareInternalClient)
+      returns (encryption: DynamoDbEncryption.DynamoDbEncryptionClient)
     ensures encryption.ValidState()
     ensures fresh(encryption)
     ensures fresh(encryption.Modifies)
@@ -94,12 +94,18 @@ module TestFixtures {
           "foo" := DynamoDbTableEncryptionConfig(
             partitionKeyName := "bar",
             sortKeyName := None(),
-            attributeActions := map["bar" := CSE.SIGN_ONLY],
-            allowedUnauthenticatedAttributes := None(),
+            attributeActions := map[
+              "bar" := CSE.SIGN_ONLY,
+              "sign" := CSE.SIGN_ONLY,
+              "encrypt" := CSE.ENCRYPT_AND_SIGN,
+              "plain" := CSE.DO_NOTHING
+              ],
+            allowedUnauthenticatedAttributes := Some(["plain"]),
             allowedUnauthenticatedAttributePrefix := None(),
             algorithmSuiteId := None(),
             keyring := Some(keyring),
-            cmm := None()
+            cmm := None(),
+            search := None
           )
         ]
       )

@@ -24,7 +24,7 @@ module
   }
 
   method DynamoDbEncryption(config: DynamoDbEncryptionConfig)
-    returns (res: Result<DynamoDbEncryptionMiddlewareInternalClient, Error>)
+    returns (res: Result<DynamoDbEncryptionClient, Error>)
   {
     // TODO validate input
     var internalConfigs: map<string, DdbMiddlewareConfig.TableConfig> := map[];
@@ -82,7 +82,7 @@ module
         m' := map k' | k' in m' && k' != tableName :: m'[k'];
     }
 
-    var client := new DynamoDbEncryptionMiddlewareInternalClient(
+    var client := new DynamoDbEncryptionClient(
       DdbMiddlewareConfig.Config(
         tableEncryptionConfigs := internalConfigs
       )
@@ -91,7 +91,7 @@ module
     return Success(client);
   }
 
-  class DynamoDbEncryptionMiddlewareInternalClient... {
+  class DynamoDbEncryptionClient... {
 
     predicate ValidState()
     {
@@ -103,7 +103,7 @@ module
     constructor(config: Operations.InternalConfig)
     {
       this.config := config;
-      History := new IDynamoDbEncryptionMiddlewareInternalClientCallHistory();
+      History := new IDynamoDbEncryptionClientCallHistory();
       Modifies := Operations.ModifiesInternalConfig(config) + {History};
     }
 

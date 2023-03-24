@@ -36,6 +36,84 @@ module UpdateItemTransformTest {
     expect_equal("UpdateItemInput", transformed.value.transformedInput, input);
   }
 
+    method {:test} TestUpdateItemInputUpdateExpressionSigned() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var input := DDB.UpdateItemInput(
+      TableName := "foo",
+      Key := map[],
+      AttributeUpdates := None(),
+      Expected := None(),
+      ConditionalOperator := None(),
+      ReturnValues := None(),
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      UpdateExpression := Some("SET sign = :p"),
+      ConditionExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None()
+    );
+    var transformed := middlewareUnderTest.UpdateItemInputTransform(
+      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+
+    ExpectFailure(transformed, "Update Expressions forbidden on signed attributes : sign");
+  }
+
+
+    method {:test} TestUpdateItemInputUpdateExpressionEncrypted() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var input := DDB.UpdateItemInput(
+      TableName := "foo",
+      Key := map[],
+      AttributeUpdates := None(),
+      Expected := None(),
+      ConditionalOperator := None(),
+      ReturnValues := None(),
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      UpdateExpression := Some("SET encrypt = :p"),
+      ConditionExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None()
+    );
+    var transformed := middlewareUnderTest.UpdateItemInputTransform(
+      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+
+    ExpectFailure(transformed, "Update Expressions forbidden on signed attributes : encrypt");
+  }
+
+
+    method {:test} TestUpdateItemInputUpdateExpressionPlain() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var input := DDB.UpdateItemInput(
+      TableName := "foo",
+      Key := map[],
+      AttributeUpdates := None(),
+      Expected := None(),
+      ConditionalOperator := None(),
+      ReturnValues := None(),
+      ReturnConsumedCapacity := None(),
+      ReturnItemCollectionMetrics := None(),
+      UpdateExpression := Some("SET plain = :p"),
+      ConditionExpression := None(),
+      ExpressionAttributeNames := None(),
+      ExpressionAttributeValues := None()
+    );
+    var transformed := middlewareUnderTest.UpdateItemInputTransform(
+      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+
+    expect_ok("UpdateItemInput", transformed);
+    expect_equal("UpdateItemInput", transformed.value.transformedInput, input);
+  }
+
   method {:test} TestUpdateItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
     var output := DDB.UpdateItemOutput(

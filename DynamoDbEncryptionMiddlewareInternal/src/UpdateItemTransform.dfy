@@ -1,10 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DdbMiddlewareConfig.dfy"
+include "DDBSupport.dfy"
 
 module UpdateItemTransform {
   import opened DdbMiddlewareConfig
+  import opened DynamoDBMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes
@@ -17,31 +18,49 @@ module UpdateItemTransform {
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
 
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-updateitem
-    //= type=implication
-    //# Before a [UpdateItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html)
-    //# call is made to DynamoDB,
-    //# the request MUST fail, and the client make no network call to DynamoDB,
-    //# if there exists an Item Encryptor
-    //# specified within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-    //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-    //# equal to `TableName` in the request.
-    ensures input.sdkInput.TableName in config.tableEncryptionConfigs ==> output.Failure?
+    ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-updateitem
+      //= type=implication
+      //# The UpdateItem request MUST NOT refer to any legacy parameters,
+      //# specifically Expected, AttributeUpdates and ConditionalOperator MUST NOT be set.
+      && input.sdkInput.Expected.None?
+      && input.sdkInput.AttributeUpdates.None?
+      && input.sdkInput.ConditionalOperator.None?
+      && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-updateitem
+      //= type=implication
+      //# The UpdateExpression MUST be [valid](ddb-support.md#testupdateexpression).
+      && TestUpdateExpression(tableConfig,
+          input.sdkInput.UpdateExpression,
+          input.sdkInput.ExpressionAttributeNames,
+          input.sdkInput.ExpressionAttributeValues).Success?
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-updateitem
+      //= type=implication
+      //# If all of the above validation succeeds, the UpdateItem request MUST be unchanged.
+      && output.value.transformedInput == input.sdkInput
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-updateitem
     //= type=implication
-    //# If no such Item Encryptor exists,
-    //# there MUST NOT be any modification
-    //# to the UpdateItem request.
+    //# If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+    //# the UpdateItem request MUST be unchanged.
     ensures input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
       && output.Success?
       && output.value.transformedInput == input.sdkInput
   {
     if input.sdkInput.TableName in config.tableEncryptionConfigs {
-      return MakeError("Updates are not supported on tables configured with encryption.");
-    } else {
-      return Success(UpdateItemInputTransformOutput(transformedInput := input.sdkInput));
+      :- Need(input.sdkInput.Expected.None?, E("Legacy parameter 'Expected' not supported in UpdateItem with Encryption"));
+      :- Need(input.sdkInput.AttributeUpdates.None?, E("Legacy parameter 'AttributeUpdates' not supported in UpdateItem with Encryption"));
+      :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
+
+      var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+      var _ :- TestUpdateExpression(tableConfig,
+        input.sdkInput.UpdateExpression,
+        input.sdkInput.ExpressionAttributeNames,
+        input.sdkInput.ExpressionAttributeValues);
     }
+    return Success(UpdateItemInputTransformOutput(transformedInput := input.sdkInput));
   }
 
   method Output(config: Config, input: UpdateItemOutputTransformInput)

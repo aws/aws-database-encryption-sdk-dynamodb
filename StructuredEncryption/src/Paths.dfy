@@ -12,22 +12,45 @@ module StructuredEncryptionPaths {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened StructuredEncryptionUtil
+  import opened AwsCryptographyStructuredEncryptionTypes
 
   datatype Selector =
     | List(pos : uint64)
     | Map(key : GoodString)
 
   type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
+  type TerminalSelector = x : seq<Selector> | ValidTerminalSelector(x) witness *
+
+  predicate method ValidTerminalSelector(s : seq<Selector>)
+  {
+    && 0 < |s| < UINT64_LIMIT
+    && s[0].Map?
+  }
+
+  //= specification/structured-encryption/virtual-field.md#stringify
+  //= type=implication
+  //# Stringify MUST be a a callback function that takes a Terminal Location and returns a string.
+  type Stringify = (TerminalLocation) -> Result<string,string>
+  type Byteify = (TerminalLocation) -> Result<Bytes,string>
+
+  function method StringifyMap(t : TerminalLocation, m : map<string, string>) : Result<string,string>
+  {
+    if |t.parts| != 1 then
+      Failure("Structured TerminalLocation on plain string")
+    else if t.parts[0].key !in m then
+      Failure(t.parts[0].key + " not in map")
+    else
+      Success(m[t.parts[0].key])
+  }
 
   // a specific part of a structure
   datatype TerminalLocation = TerminalLocation (
-    parts : SelectorList
+    parts : TerminalSelector
   )
   {
     // Return the Canonical Path for this part of an item in this table
     function method canonicalPath(table : GoodString)
       : (ret : CanonicalPath)
-      requires 0 < |parts|
       ensures ret ==
           //= specification/structured-encryption/header.md#canonical-path
           //= type=implication
@@ -47,12 +70,33 @@ module StructuredEncryptionPaths {
       var path := MakeCanonicalPath(parts);
       tableName + depth + path
     }
+
+    predicate method isRoot()
+    {
+      |parts| == 1
+    }
+    function method getRoot() : GoodString
+    {
+      assert ValidTerminalSelector(parts);
+      parts[0].key
+    }
   }
 
+  function method TermLocMap?(attr : string) : Result<TerminalLocation, Error>
+  {
+    :- Need(ValidString(attr), E("invalid string : " + attr));
+    Success(TermLocMap(attr))
+  }
+
+  function method TermLocMap(attr : GoodString) : TerminalLocation
+  {
+    TerminalLocation([Map(attr)])
+  }
+  
   function method SimpleCanon(table : GoodString, attr : GoodString)
     : CanonicalPath
   {
-    TerminalLocation([Map(attr)]).canonicalPath(table)
+    TermLocMap(attr).canonicalPath(table)
   }
 
   const ARRAY_TAG : uint8 := '#' as uint8

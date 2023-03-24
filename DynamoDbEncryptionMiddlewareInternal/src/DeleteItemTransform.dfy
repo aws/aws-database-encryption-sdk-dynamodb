@@ -1,10 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DdbMiddlewareConfig.dfy"
+include "DDBSupport.dfy"
 
 module DeleteItemTransform {
   import opened DdbMiddlewareConfig
+  import opened DynamoDBMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes
@@ -18,38 +19,47 @@ module DeleteItemTransform {
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
 
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-deleteitem
-      //= type=implication
-      //# Before a [DeleteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html)
-      //# call is made to DynamoDB,
-      //# the request MUST fail, and the client make no network call to DynamoDB,
-      //# if the request specifies a `ConditionExpression`,
-      //# and there exists an Item Encryptor specified
-      //# within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-      //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-      //# equal to `TableName` in the request.
-      ensures
-        && input.sdkInput.TableName in config.tableEncryptionConfigs
-        && (input.sdkInput.ConditionExpression.Some? || input.sdkInput.ConditionalOperator.Some?)
-        ==> output.Failure?
+    ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-deleteitem
       //= type=implication
-      //# Otherwise, there MUST NOT be any modification
-      //# to the UpdateItem request.
-      ensures
-        || input.sdkInput.TableName !in config.tableEncryptionConfigs
-        || (input.sdkInput.ConditionExpression.None? && input.sdkInput.ConditionalOperator.None?)
-        ==>
-        && output.Success?
-        && output.value.transformedInput == input.sdkInput
+      //# The DeleteItem request MUST NOT refer to any legacy parameters,
+      //# specifically Expected and ConditionalOperator MUST NOT be set.
+      && input.sdkInput.Expected.None?
+      && input.sdkInput.ConditionalOperator.None?
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-deleteitem
+      //= type=implication
+      //# The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
+      && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+      && TestConditionExpression(tableConfig,
+          input.sdkInput.ConditionExpression,
+          input.sdkInput.ExpressionAttributeNames,
+          input.sdkInput.ExpressionAttributeValues).Success?
+
+      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-deleteitem
+      //= type=implication
+      //# If all of the above validation succeeds, the DeleteItem request MUST be unchanged.
+      && output.value.transformedInput == input.sdkInput
+
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-deleteitem
+    //= type=implication
+    //# If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
+    //# the DeleteItem request MUST be unchanged.
+    ensures input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
+      && output.Success?
+      && output.value.transformedInput == input.sdkInput
 
   {
-    if input.sdkInput.TableName !in config.tableEncryptionConfigs {
-      return Success(DeleteItemInputTransformOutput(transformedInput := input.sdkInput));
-    }
-    if input.sdkInput.ConditionExpression.Some? || input.sdkInput.ConditionalOperator.Some? {
-      return MakeError("Condition Expressions not supported in DeleteItem with Encryption.");
+    if input.sdkInput.TableName in config.tableEncryptionConfigs {
+      :- Need(input.sdkInput.Expected.None?, E("Legacy parameter 'Expected' not supported in UpdateItem with Encryption"));
+      :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
+
+      var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+      var _ :- TestConditionExpression(tableConfig,
+        input.sdkInput.ConditionExpression,
+        input.sdkInput.ExpressionAttributeNames,
+        input.sdkInput.ExpressionAttributeValues);
     }
     return Success(DeleteItemInputTransformOutput(transformedInput := input.sdkInput));
   }
