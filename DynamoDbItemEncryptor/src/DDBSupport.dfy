@@ -80,8 +80,8 @@ module DynamoDBSupport {
       var attrs := GetEncryptedAttributes(config, expr, attrNames);
       if |attrs| == 0 then
         Success(true)
-      else // TODO - put attr names in error message
-        Failure("Condition Expressions forbidden on encrypted tables")
+      else
+        Failure("Condition Expressions forbidden on encrypted attributes : " + Join(attrs, ","))
     else
       Success(true)
   }

@@ -1009,7 +1009,7 @@ module DynamoDBFilterExpr {
       if doesMatch then
         Success(ItemList[0..0] + rest)
       else
-        Success(ItemList[0..0] + rest)
+        Success(rest)
 
   }
 

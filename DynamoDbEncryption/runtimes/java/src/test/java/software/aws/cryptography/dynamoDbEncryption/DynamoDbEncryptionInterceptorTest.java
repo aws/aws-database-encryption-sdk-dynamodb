@@ -118,7 +118,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test
@@ -208,7 +208,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test
@@ -234,7 +234,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test
@@ -260,7 +260,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test
@@ -333,7 +333,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test

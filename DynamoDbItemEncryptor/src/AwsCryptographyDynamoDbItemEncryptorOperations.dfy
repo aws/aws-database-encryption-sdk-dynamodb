@@ -79,6 +79,37 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
       !AllowedUnauthenticated(unauthenticatedAttributes, unauthenticatedPrefix, attribute)
   }
 
+  function method CryptoActionString(action: CSE.CryptoAction) : string
+  {
+    match action {
+      case DO_NOTHING => "DO_NOTHING"
+      case SIGN_ONLY => "SIGN_ONLY"
+      case ENCRYPT_AND_SIGN => "ENCRYPT_AND_SIGN"
+    }
+  }
+
+  function method ExplainNotForwardCompatible(
+    attr: string,
+    action: CSE.CryptoAction,
+    unauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
+    unauthenticatedPrefix: Option<string>
+  )
+    : string
+    requires !ForwardCompatibleAttributeAction(attr, action, unauthenticatedAttributes, unauthenticatedPrefix)
+  {
+    "Attribute " + attr + " is configured as " + CryptoActionString(action) + " but " +
+    if action == CSE.DO_NOTHING then
+      "it must also be in unauthenticatedAttributes or begin with the unauthenticatedPrefix."
+    else if unauthenticatedAttributes.Some? && attr in unauthenticatedAttributes.value then
+      "it is also in unauthenticatedAttributes."
+    else if unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attr then
+      "it also begins with the unauthenticatedPrefix."
+    else
+      assert SE.ReservedPrefix <= attr;
+      "it also begins with the reserved prefix."
+  }
+
+
   // Is this attribute unknown to the config?
   predicate method UnknownAttribute(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
