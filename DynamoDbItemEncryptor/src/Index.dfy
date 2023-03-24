@@ -139,9 +139,8 @@ module
           config.allowedUnauthenticatedAttributePrefix
         ))
       {
-        // TODO - make an error message that a customer might understand
         return Failure(DynamoDbItemEncryptorException(
-          message := "Attribute: " + attribute + " configuration not compatible with unauthenticated configuration."
+          message := Operations.ExplainNotForwardCompatible(attribute, action, config.allowedUnauthenticatedAttributes, config.allowedUnauthenticatedAttributePrefix)
         ));
       }
       if !UnreservedPrefix(attribute) {

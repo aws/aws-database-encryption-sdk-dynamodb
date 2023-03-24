@@ -39,6 +39,7 @@ public class DynamoDbEncryptionInterceptorTest {
         PutItemRequest oldRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
                 .item(item)
+                .conditionExpression(TEST_ATTR2_NAME + " < :a")
                 .build();
 
         Context.ModifyRequest context = InterceptorContext.builder()
@@ -100,10 +101,10 @@ public class DynamoDbEncryptionInterceptorTest {
     }
 
     @Test
-    public void TestPutItemGetItemWithConditionExpression() {
+    public void TestPutItemGetItemWithConditionExpressionBad() {
         PutItemRequest oldRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
-                .conditionExpression("foo")
+                .conditionExpression(TEST_ATTR_NAME + " < :a")
                 .build();
 
         Context.ModifyRequest context = InterceptorContext.builder()
@@ -117,7 +118,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test
@@ -191,7 +192,7 @@ public class DynamoDbEncryptionInterceptorTest {
                                         .build())
                                 .conditionCheck(ConditionCheck.builder()
                                         .tableName(TEST_TABLE_NAME)
-                                        .conditionExpression("foo")
+                                        .conditionExpression(TEST_ATTR_NAME + " < :a")
                                         .build())
                                 .build())
                 .build();
@@ -207,7 +208,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test
@@ -217,7 +218,7 @@ public class DynamoDbEncryptionInterceptorTest {
                         TransactWriteItem.builder()
                                 .put(Put.builder()
                                         .tableName(TEST_TABLE_NAME)
-                                        .conditionExpression("foo")
+                                        .conditionExpression(TEST_ATTR_NAME + " < :a")
                                         .build())
                                 .build())
                 .build();
@@ -233,7 +234,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test
@@ -243,7 +244,7 @@ public class DynamoDbEncryptionInterceptorTest {
                         TransactWriteItem.builder()
                                 .delete(Delete.builder()
                                         .tableName(TEST_TABLE_NAME)
-                                        .conditionExpression("foo")
+                                        .conditionExpression(TEST_ATTR_NAME + " < :a")
                                         .build())
                                 .build())
                 .build();
@@ -259,7 +260,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test
@@ -318,7 +319,7 @@ public class DynamoDbEncryptionInterceptorTest {
     public void TestDeleteItemWithConditionExpression() {
         DeleteItemRequest oldRequest = DeleteItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
-                .conditionExpression("foo")
+                .conditionExpression(TEST_ATTR_NAME + " < :a")
                 .build();
 
         Context.ModifyRequest context = InterceptorContext.builder()
@@ -332,7 +333,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Exception exception = assertThrows(DynamoDbEncryptionException.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted tables"));
+        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
     }
 
     @Test

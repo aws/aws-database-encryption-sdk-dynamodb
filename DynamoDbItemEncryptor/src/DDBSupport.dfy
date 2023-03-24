@@ -13,6 +13,7 @@ include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
 include "Util.dfy"
 include "VirtualDDB.dfy"
 include "UpdateExpr.dfy"
+include "FilterExpr.dfy"
 
 module DynamoDBSupport { 
 
@@ -30,6 +31,7 @@ module DynamoDBSupport {
   import SE = StructuredEncryptionUtil
   import Update = DynamoDbUpdateExpr
   import SET = AwsCryptographyStructuredEncryptionTypes
+  import Filter = DynamoDBFilterExpr
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // At the moment, this means that no attribute names starts with "aws_dbe_",
@@ -49,6 +51,20 @@ module DynamoDBSupport {
         Failure("Writing reserved attributes not allowed : " + Join(badSeq, "\n"))
   }
 
+  function method GetEncryptedAttributes(
+    config : Config,
+    expr : Option<string>,
+    attrNames : Option<DDB.ExpressionAttributeNameMap> )
+    : seq<string>
+  {
+    if expr.None? then
+      []
+    else
+      var attrs := Filter.ExtractAttributes(expr.value, attrNames);
+      Seq.Filter((attr : string) => IsEncrypted(config, attr), attrs)
+  }
+
+
   // TestConditionExpression fails if a condition expression is not suitable for the
   // given encryption schema.
   // Generally this means no encrypted attribute is referenced.
@@ -61,7 +77,11 @@ module DynamoDBSupport {
     : Result<bool, string>
   {
     if expr.Some? then
-      Failure("Condition Expressions forbidden on encrypted tables")
+      var attrs := GetEncryptedAttributes(config, expr, attrNames);
+      if |attrs| == 0 then
+        Success(true)
+      else
+        Failure("Condition Expressions forbidden on encrypted attributes : " + Join(attrs, ","))
     else
       Success(true)
   }
