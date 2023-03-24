@@ -781,6 +781,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate method IsValid_NonSensitivePartsList(x: seq<NonSensitivePart>) {
  ( 1 <= |x|  )
 }
+ type NumberList = x: seq<int32> | IsValid_NumberList(x) witness *
+ predicate method IsValid_NumberList(x: seq<int32>) {
+ ( 1 <= |x|  )
+}
  type Prefix = x: string | IsValid_Prefix(x) witness *
  predicate method IsValid_Prefix(x: string) {
  ( 1 <= |x|  )
@@ -847,6 +851,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate method IsValid_StandardBeaconList(x: seq<StandardBeacon>) {
  ( 1 <= |x|  )
 }
+ type StringList = x: seq<string> | IsValid_StringList(x) witness *
+ predicate method IsValid_StringList(x: seq<string>) {
+ ( 1 <= |x|  )
+}
  type TerminalLocation = x: string | IsValid_TerminalLocation(x) witness *
  predicate method IsValid_TerminalLocation(x: string) {
  ( 1 <= |x|  )
@@ -877,6 +885,14 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype TransactWriteItemsOutputTransformOutput = | TransactWriteItemsOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.TransactWriteItemsOutput
  )
+ datatype Transform =
+	| LOWER
+	| UPPER
+	| INSERT
+	| PREFIX
+	| SUFFIX
+	| SUBSTRING
+	| SEGMENT
  datatype UpdateItemInputTransformInput = | UpdateItemInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.UpdateItemInput
  )
@@ -906,6 +922,31 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  type VersionNumber = x: int32 | IsValid_VersionNumber(x) witness *
  predicate method IsValid_VersionNumber(x: int32) {
  ( 1 <= x  )
+}
+ datatype VirtualField = | VirtualField (
+ nameonly name: string ,
+ nameonly parts: VirtualPartList
+ )
+ type VirtualFieldList = x: seq<VirtualField> | IsValid_VirtualFieldList(x) witness *
+ predicate method IsValid_VirtualFieldList(x: seq<VirtualField>) {
+ ( 1 <= |x|  )
+}
+ datatype VirtualPart = | VirtualPart (
+ nameonly loc: TerminalLocation ,
+ nameonly trans: Option<VirtualTransformList>
+ )
+ type VirtualPartList = x: seq<VirtualPart> | IsValid_VirtualPartList(x) witness *
+ predicate method IsValid_VirtualPartList(x: seq<VirtualPart>) {
+ ( 1 <= |x|  )
+}
+ datatype VirtualTransform = | VirtualTransform (
+ nameonly transform: Transform ,
+ nameonly numbers: Option<NumberList> ,
+ nameonly strings: Option<StringList>
+ )
+ type VirtualTransformList = x: seq<VirtualTransform> | IsValid_VirtualTransformList(x) witness *
+ predicate method IsValid_VirtualTransformList(x: seq<VirtualTransform>) {
+ ( 1 <= |x|  )
 }
  datatype Error =
  // Local Error structures are listed here

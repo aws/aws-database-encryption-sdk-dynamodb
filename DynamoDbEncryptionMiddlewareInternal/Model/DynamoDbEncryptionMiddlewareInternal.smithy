@@ -125,6 +125,31 @@ list BeaconVersionList {
 }
 
 @length(min: 1)
+list VirtualFieldList {
+  member: VirtualField
+}
+
+@length(min: 1)
+list VirtualPartList {
+  member: VirtualPart
+}
+
+@length(min: 1)
+list VirtualTransformList {
+  member: VirtualTransform
+}
+
+@length(min: 1)
+list StringList {
+  member: String
+}
+
+@length(min: 1)
+list NumberList {
+  member: Integer
+}
+
+@length(min: 1)
 list StandardBeaconList {
   member: StandardBeacon
 }
@@ -153,6 +178,59 @@ list ConstructorList {
 list ConstructorPartList {
   member: ConstructorPart
 }
+
+structure VirtualField {
+  @required
+  name : String,
+  @required
+  parts : VirtualPartList,
+}
+
+structure VirtualPart {
+  @required
+  loc : TerminalLocation,
+  trans : VirtualTransformList,
+}
+
+@enum([
+    {
+        name: "LOWER",
+        value: "Lower"
+    },
+    {
+        name: "UPPER",
+        value: "Upper"
+    },
+    {
+        name: "INSERT",
+        value: "Insert"
+    },
+    {
+        name: "PREFIX",
+        value: "Prefix"
+    },
+    {
+        name: "SUFFIX",
+        value: "Suffix"
+    },
+    {
+        name: "SUBSTRING",
+        value: "Substring"
+    },
+    {
+        name: "SEGMENT",
+        value: "Segment"
+    },
+])
+string Transform
+
+structure VirtualTransform {
+  @required
+  transform : Transform,
+  numbers : NumberList,
+  strings : StringList,
+}
+
 
 structure SensitivePart {
   @required
