@@ -189,7 +189,7 @@ structure Upper {}
 structure Lower {}
 structure Insert {
   @required
-  string : String
+  literal : String
 }
 
 structure PrefixTrans { // "Prefix" is already used

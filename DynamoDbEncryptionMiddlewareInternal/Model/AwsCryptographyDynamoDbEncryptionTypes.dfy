@@ -774,7 +774,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.GetItemOutput
  )
  datatype Insert = | Insert (
- nameonly string: string
+ nameonly literal: string
  )
  datatype Lower = | Lower (
  

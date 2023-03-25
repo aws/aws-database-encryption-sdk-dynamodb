@@ -6,14 +6,14 @@ package software.amazon.cryptography.dynamoDbEncryption.model;
 import java.util.Objects;
 
 public class Insert {
-  private final String string;
+  private final String literal;
 
   protected Insert(BuilderImpl builder) {
-    this.string = builder.string();
+    this.literal = builder.literal();
   }
 
-  public String string() {
-    return this.string;
+  public String literal() {
+    return this.literal;
   }
 
   public Builder toBuilder() {
@@ -25,35 +25,35 @@ public class Insert {
   }
 
   public interface Builder {
-    Builder string(String string);
+    Builder literal(String literal);
 
-    String string();
+    String literal();
 
     Insert build();
   }
 
   static class BuilderImpl implements Builder {
-    protected String string;
+    protected String literal;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(Insert model) {
-      this.string = model.string();
+      this.literal = model.literal();
     }
 
-    public Builder string(String string) {
-      this.string = string;
+    public Builder literal(String literal) {
+      this.literal = literal;
       return this;
     }
 
-    public String string() {
-      return this.string;
+    public String literal() {
+      return this.literal;
     }
 
     public Insert build() {
-      if (Objects.isNull(this.string()))  {
-        throw new IllegalArgumentException("Missing value for required field `string`");
+      if (Objects.isNull(this.literal()))  {
+        throw new IllegalArgumentException("Missing value for required field `literal`");
       }
       return new Insert(this);
     }
