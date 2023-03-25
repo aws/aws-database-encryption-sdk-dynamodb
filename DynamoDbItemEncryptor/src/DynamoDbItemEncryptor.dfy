@@ -140,7 +140,7 @@ module
         ))
       {
         return Failure(DynamoDbItemEncryptorException(
-          message := "Attribute: " + attribute + " configuration not compatible with unauthenticated configuration."
+          message := Operations.ExplainNotForwardCompatible(attribute, action, config.allowedUnauthenticatedAttributes, config.allowedUnauthenticatedAttributePrefix)
         ));
       }
       if !UnreservedPrefix(attribute) {
@@ -171,7 +171,11 @@ module
       cmm :- maybeCmm.MapFailure(e => AwsCryptographyMaterialProviders(e));
     }
 
+    var maybeCmpClient := MaterialProviders.MaterialProviders();
+    var cmpClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
+
     var internalConfig := Operations.Config(
+      cmpClient := cmpClient,
       tableName := config.tableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,
@@ -180,7 +184,8 @@ module
       allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
-      structuredEncryption := structuredEncryption
+      structuredEncryption := structuredEncryption,
+      beacons := None
     );
     assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
 

@@ -2,18 +2,25 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 using System;
- using AWS.Cryptography.DynamoDbEncryption.Resources; namespace AWS.Cryptography.DynamoDbEncryption.Resources {
- public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
- private AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier _branchKeyIdSupplier ;
- public AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier BranchKeyIdSupplier {
- get { return this._branchKeyIdSupplier; }
- set { this._branchKeyIdSupplier = value; }
-}
- public bool IsSetBranchKeyIdSupplier () {
- return this._branchKeyIdSupplier != null;
-}
- public void Validate() {
- 
-}
-}
+using AWS.Cryptography.DynamoDbEncryption.Resources;
+namespace AWS.Cryptography.DynamoDbEncryption.Resources
+{
+  public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput
+  {
+    private AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier _branchKeyIdSupplier;
+    public AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier BranchKeyIdSupplier
+    {
+      get { return this._branchKeyIdSupplier; }
+      set { this._branchKeyIdSupplier = value; }
+    }
+    public bool IsSetBranchKeyIdSupplier()
+    {
+      return this._branchKeyIdSupplier != null;
+    }
+    public void Validate()
+    {
+      if (!IsSetBranchKeyIdSupplier()) throw new System.ArgumentException("Missing value for required property 'BranchKeyIdSupplier'");
+
+    }
+  }
 }

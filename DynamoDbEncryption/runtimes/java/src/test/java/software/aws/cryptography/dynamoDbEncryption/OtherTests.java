@@ -161,8 +161,9 @@ public class OtherTests {
         IKeyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
         assertNotNull(keyring);
 
+        // Put CaseA item
         // Put item into table
-        String partitionValue = "foo";
+        String partitionValue = "caseA";
         String sortValue = "42";
         String attrValue = "bar";
         String attrValue2 = "hello world";
@@ -199,6 +200,93 @@ public class OtherTests {
         assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
         assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
         assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
+
+        // Assert we can retrieve this item with a Hierarchical keyring configured with expected branch key id
+        CreateAwsKmsHierarchicalKeyringInput keyringAInput = CreateAwsKmsHierarchicalKeyringInput.builder()
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(keyArn)
+                .branchKeyId(BRANCH_KEY_ID)
+                .branchKeyStoreArn(branchKeyStoreArn)
+                .ddbClient(DynamoDbClient.create())
+                .ttlSeconds(6000l)
+                .maxCacheSize(100)
+                .build();
+        IKeyring keyringA = matProv.CreateAwsKmsHierarchicalKeyring(keyringAInput);
+        assertNotNull(keyringA);
+        DynamoDbEncryptionInterceptor interceptorA = TestUtils.createInterceptor(keyringA);
+        DynamoDbClient ddbA = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptorA)
+                                .build())
+                .build();
+
+        GetItemResponse getResponseA = ddbA.getItem(getRequest);
+        assertEquals(200, getResponseA.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItemA = getResponseA.item();
+        assertNotNull(returnedItemA);
+        assertEquals(partitionValue, returnedItemA.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemA.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemA.get(TEST_ATTR_NAME).s());
+
+        // Put CaseB item
+        // Put item into table
+        partitionValue = "caseB";
+        sortValue = "42";
+        attrValue = "bar";
+        attrValue2 = "hello world";
+        Map<String, AttributeValue> itemB = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequest2 = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(itemB)
+                .build();
+
+        PutItemResponse putResponse2 = ddb.putItem(putRequest2);
+        assertEquals(200, putResponse2.sdkHttpResponse().statusCode());
+
+        // Get Item back from table
+        Map<String, AttributeValue> keyToGet2 = createTestKey(partitionValue, sortValue);
+
+        GetItemRequest getRequest2 = GetItemRequest.builder()
+                .key(keyToGet)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        GetItemResponse getResponse2 = ddb.getItem(getRequest);
+        assertEquals(200, getResponse2.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem2 = getResponse2.item();
+        assertNotNull(returnedItem2);
+        assertEquals(partitionValue, returnedItem2.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItem2.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItem2.get(TEST_ATTR_NAME).s());
+
+        // Assert we can get the same item using a hierachical keyring with specified branch key id
+        CreateAwsKmsHierarchicalKeyringInput keyringBInput = CreateAwsKmsHierarchicalKeyringInput.builder()
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(keyArn)
+                .branchKeyId(ACTIVE_ACTIVE_BRANCH_KEY_ID)
+                .branchKeyStoreArn(branchKeyStoreArn)
+                .ddbClient(DynamoDbClient.create())
+                .ttlSeconds(6000l)
+                .maxCacheSize(100)
+                .build();
+        IKeyring keyringB = matProv.CreateAwsKmsHierarchicalKeyring(keyringBInput);
+        assertNotNull(keyringB);
+        DynamoDbEncryptionInterceptor interceptorB = TestUtils.createInterceptor(keyringB);
+        DynamoDbClient ddbB = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptorB)
+                                .build())
+                .build();
+        GetItemResponse getResponseB = ddbB.getItem(getRequest);
+        assertEquals(200, getResponseB.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItemB = getResponseB.item();
+        assertNotNull(returnedItemB);
+        assertEquals(partitionValue, returnedItemB.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemB.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
     }
 
     @Test
@@ -221,7 +309,16 @@ public class OtherTests {
 
     class TestSupplier implements IDynamoDbItemBranchKeyIdSupplier {
         public GetBranchKeyIdFromItemOutput GetBranchKeyIdFromItem(GetBranchKeyIdFromItemInput input) {
-            return GetBranchKeyIdFromItemOutput.builder().branchKeyId("foo").build();
+            Map<String, AttributeValue> item = input.ddbItem();
+            String branchKeyId;
+            if (item.containsKey(TEST_PARTITION_NAME) && item.get(TEST_PARTITION_NAME).s().equals("caseA")) {
+                branchKeyId = BRANCH_KEY_ID;
+            } else if (item.containsKey(TEST_PARTITION_NAME) && item.get(TEST_PARTITION_NAME).s().equals("caseB")) {
+                branchKeyId = ACTIVE_ACTIVE_BRANCH_KEY_ID;
+            } else {
+                throw new IllegalArgumentException("Item invalid, does not contain expected attributes.");
+            }
+            return GetBranchKeyIdFromItemOutput.builder().branchKeyId(branchKeyId).build();
         }
     }
 }

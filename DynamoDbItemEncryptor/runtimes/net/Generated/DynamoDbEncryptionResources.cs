@@ -8,13 +8,13 @@ using AWS.Cryptography.DynamoDbEncryption.Resources;
 using Dafny.Aws.Cryptography.DynamoDbEncryption.Resources.Types;
 namespace AWS.Cryptography.DynamoDbEncryption.Resources
 {
-  public class DynamoDbEncryptionResourcesSupplier
+  public class DynamoDbEncryptionResources
   {
-    private readonly Dafny.Aws.Cryptography.DynamoDbEncryption.Resources.Types.IDynamoDbEncryptionResourcesSupplierClient _impl;
-    public DynamoDbEncryptionResourcesSupplier(AWS.Cryptography.DynamoDbEncryption.Resources.DynamoDbEncryptionResourcesConfig input)
+    private readonly Dafny.Aws.Cryptography.DynamoDbEncryption.Resources.Types.IDynamoDbEncryptionResourcesClient _impl;
+    public DynamoDbEncryptionResources(AWS.Cryptography.DynamoDbEncryption.Resources.DynamoDbEncryptionResourcesConfig input)
     {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Resources.Types._IDynamoDbEncryptionResourcesConfig internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N9_resources__S33_DynamoDbEncryptionResourcesConfig(input);
-      var result = Dafny.Aws.Cryptography.DynamoDbEncryption.Resources.__default.DynamoDbEncryptionResourcesSupplier(internalInput);
+      var result = Dafny.Aws.Cryptography.DynamoDbEncryption.Resources.__default.DynamoDbEncryptionResources(internalInput);
       if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
       this._impl = result.dtor_value;
     }

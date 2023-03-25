@@ -66,21 +66,8 @@ which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#d
 This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
-<<<<<<< HEAD
-- Either this item encryptor's [CMM](./ddb-item-encryptor.md#cmm) or [Keyring](./ddb-item-encryptor.md#keyring)
-  as the underlying CMM or Keyring.
-- The following required encryption context keys:
-  - "aws-crypto-table-name"
-  - "aws-crypto-partition-name"
-  - "aws-crypto-sort-name"
-  - For every attribute on the [input DynamoDb Item](#dynamodb-item),
-    the following concatenation,
-    where `attributeName` is the name of the attribute:
-      "aws-crypto-attr." + `attributeName`
-=======
 - This item encryptor's [CMM](./ddb-item-encryptor.md#cmm) as the underlying CMM.
 - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context)
->>>>>>> b33f307b3fa931ee52eba5dd50f3aa46cc43a6e1
 
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
 this operation MUST delegate encryption of this data to
@@ -115,18 +102,16 @@ The DynamoDB Item Base Context MUST contain:
   - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
   - If this item has a sort key attribute,
     the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-<<<<<<< HEAD
-  - For every attribute on the item, the following key-value pair:
-=======
   - For every [SIGN_ONLY](../structured-encryption/structures.md#signonly) attribute on the item,
     the following key-value pair:
->>>>>>> b33f307b3fa931ee52eba5dd50f3aa46cc43a6e1
     - the key is the following concatenation,
       where `attributeName` is the name of the attribute:
         "aws-crypto-attr." + `attributeName`
-    - the value is the attribute's value serialized according to
+    - the value is the concatenation of the bytes `typeID + serializedValue`
+      [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648),
+      where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
+      and `serializedValue` is the attribute's value serialized according to
       [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
-      and then [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.

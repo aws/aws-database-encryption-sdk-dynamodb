@@ -158,7 +158,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
  returns (res: Result<DynamoDbItemEncryptorClient, Error>)
-<<<<<<< HEAD
  requires config.keyring.Some? ==>
  config.keyring.value.ValidState()
  requires config.cmm.Some? ==>
@@ -185,22 +184,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  config.keyring.value.ValidState()
  ensures config.cmm.Some? ==>
  config.cmm.value.ValidState()
-=======
- requires config.cmm.Some? ==> config.cmm.value.ValidState()
- requires config.keyring.Some? ==> config.keyring.value.ValidState()
- modifies if config.cmm.Some? then config.cmm.value.Modifies else {}
- modifies if config.keyring.Some? then config.keyring.value.Modifies else {}
- ensures res.Success? ==> 
- && fresh(res.value)
- && fresh(res.value.Modifies
- - (if config.cmm.Some? then config.cmm.value.Modifies else {})
- - (if config.keyring.Some? then config.keyring.value.Modifies else {})
- )
- && fresh(res.value.History)
- && res.value.ValidState()
- ensures config.cmm.Some? ==> config.cmm.value.ValidState()
- ensures config.keyring.Some? ==> config.keyring.value.ValidState()
->>>>>>> b33f307b3fa931ee52eba5dd50f3aa46cc43a6e1
 
  class DynamoDbItemEncryptorClient extends IDynamoDbItemEncryptorClient
  {
