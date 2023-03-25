@@ -249,11 +249,11 @@ public class OtherTests {
         Map<String, AttributeValue> keyToGet2 = createTestKey(partitionValue, sortValue);
 
         GetItemRequest getRequest2 = GetItemRequest.builder()
-                .key(keyToGet)
+                .key(keyToGet2)
                 .tableName(TEST_TABLE_NAME)
                 .build();
 
-        GetItemResponse getResponse2 = ddb.getItem(getRequest);
+        GetItemResponse getResponse2 = ddb.getItem(getRequest2);
         assertEquals(200, getResponse2.sdkHttpResponse().statusCode());
         Map<String, AttributeValue> returnedItem2 = getResponse2.item();
         assertNotNull(returnedItem2);

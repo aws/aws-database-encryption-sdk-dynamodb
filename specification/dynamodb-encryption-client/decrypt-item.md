@@ -59,21 +59,8 @@ which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#d
 This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
-<<<<<<< HEAD
-- Either this item encryptor's [CMM](./ddb-item-encryptor.md#cmm) or [Keyring](./ddb-item-encryptor.md#keyring)
-  as the underlying CMM or Keyring.
-- The following required encryption context keys:
-  - "aws-crypto-table-name"
-  - "aws-crypto-partition-name"
-  - "aws-crypto-sort-name"
-  - For every attribute on the [input DynamoDb Item](#dynamodb-item),
-    the following concatenation,
-    where `attributeName` is the name of the attribute:
-      "aws-crypto-attr." + `attributeName`
-=======
 - This item encryptor's [CMM](./ddb-item-encryptor.md#cmm) as the underlying CMM.
 - The keys from the [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
->>>>>>> b33f307b3fa931ee52eba5dd50f3aa46cc43a6e1
 
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
 this operation MUST delegate decryption of this data to
