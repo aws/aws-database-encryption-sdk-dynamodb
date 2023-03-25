@@ -143,16 +143,6 @@ list VirtualTransformList {
 }
 
 @length(min: 1)
-list StringList {
-  member: String
-}
-
-@length(min: 1)
-list NumberList {
-  member: Integer
-}
-
-@length(min: 1)
 list StandardBeaconList {
   member: StandardBeacon
 }

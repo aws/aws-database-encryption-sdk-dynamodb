@@ -10,11 +10,9 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_Opaque;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Character;
-import java.lang.Integer;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementInputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.BatchExecuteStatementOutputTransformInput;
@@ -825,12 +823,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static List<Integer> NumberList(DafnySequence<? extends Integer> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        Function.identity());
-  }
-
   public static List<VirtualTransform> VirtualTransformList(
       DafnySequence<? extends Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualTransform> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
@@ -857,13 +849,6 @@ public class ToNative {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dynamoDbEncryption.ToNative::BeaconVersion);
-  }
-
-  public static List<String> StringList(
-      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::String);
   }
 
   public static List<StandardBeacon> StandardBeaconList(

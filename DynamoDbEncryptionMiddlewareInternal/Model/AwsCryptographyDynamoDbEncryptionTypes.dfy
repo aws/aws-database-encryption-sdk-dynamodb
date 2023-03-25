@@ -788,10 +788,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate method IsValid_NonSensitivePartsList(x: seq<NonSensitivePart>) {
  ( 1 <= |x|  )
 }
- type NumberList = x: seq<int32> | IsValid_NumberList(x) witness *
- predicate method IsValid_NumberList(x: seq<int32>) {
- ( 1 <= |x|  )
-}
  type PositiveInteger = x: int32 | IsValid_PositiveInteger(x) witness *
  predicate method IsValid_PositiveInteger(x: int32) {
  ( 1 <= x  )
@@ -868,10 +864,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  type StandardBeaconList = x: seq<StandardBeacon> | IsValid_StandardBeaconList(x) witness *
  predicate method IsValid_StandardBeaconList(x: seq<StandardBeacon>) {
- ( 1 <= |x|  )
-}
- type StringList = x: seq<string> | IsValid_StringList(x) witness *
- predicate method IsValid_StringList(x: seq<string>) {
  ( 1 <= |x|  )
 }
  datatype Substring = | Substring (

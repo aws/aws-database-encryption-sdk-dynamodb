@@ -128,7 +128,6 @@ import Dafny.Com.Amazonaws.Dynamodb.Types.UpdateTableOutput;
 import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
-import dafny.TypeDescriptor;
 import java.lang.Boolean;
 import java.lang.Character;
 import java.lang.IllegalArgumentException;
@@ -137,7 +136,6 @@ import java.lang.String;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import software.amazon.cryptography.dynamoDbEncryption.model.CollectionOfErrors;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
@@ -906,13 +904,6 @@ public class ToDafny {
     throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualTransform.");
   }
 
-  public static DafnySequence<? extends Integer> NumberList(List<Integer> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
-        nativeValue, 
-        Function.identity(), 
-        TypeDescriptor.INT);
-  }
-
   public static DafnySequence<? extends VirtualTransform> VirtualTransformList(
       List<software.amazon.cryptography.dynamoDbEncryption.model.VirtualTransform> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
@@ -943,14 +934,6 @@ public class ToDafny {
         nativeValue, 
         software.amazon.cryptography.dynamoDbEncryption.ToDafny::BeaconVersion, 
         BeaconVersion._typeDescriptor());
-  }
-
-  public static DafnySequence<? extends DafnySequence<? extends Character>> StringList(
-      List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
-        nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
-        DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends StandardBeacon> StandardBeaconList(
