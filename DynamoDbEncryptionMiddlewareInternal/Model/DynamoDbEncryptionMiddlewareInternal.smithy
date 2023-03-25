@@ -110,6 +110,9 @@ integer BeaconBitLength
 @range(min: 1)
 integer VersionNumber
 
+@range(min: 1)
+integer PositiveInteger
+
 @length(min: 1, max: 1)
 string Char
 
@@ -192,45 +195,45 @@ structure VirtualPart {
   trans : VirtualTransformList,
 }
 
-@enum([
-    {
-        name: "LOWER",
-        value: "Lower"
-    },
-    {
-        name: "UPPER",
-        value: "Upper"
-    },
-    {
-        name: "INSERT",
-        value: "Insert"
-    },
-    {
-        name: "PREFIX",
-        value: "Prefix"
-    },
-    {
-        name: "SUFFIX",
-        value: "Suffix"
-    },
-    {
-        name: "SUBSTRING",
-        value: "Substring"
-    },
-    {
-        name: "SEGMENT",
-        value: "Segment"
-    },
-])
-string Transform
-
-structure VirtualTransform {
+structure Upper {}
+structure Lower {}
+structure Insert {
   @required
-  transform : Transform,
-  numbers : NumberList,
-  strings : StringList,
+  string : String
 }
 
+structure PrefixTrans { // "Prefix" is already used
+  @required
+  length : PositiveInteger
+}
+
+structure Suffix {
+  @required
+  length : PositiveInteger
+}
+structure Substring {
+  @required
+  low : Integer,
+  high : Integer,
+}
+
+structure Segment {
+  @required
+  split : Char,
+  @required
+  low : Integer,
+  high : Integer,
+}
+
+union VirtualTransform {
+  upper: Upper,
+  lower: Lower,
+  insert: Insert,
+  prefix: PrefixTrans,
+  suffix: Suffix,
+  substring : Substring,
+  segment : Segment  
+}
 
 structure SensitivePart {
   @required
@@ -288,6 +291,7 @@ structure BeaconVersion {
   keyring: KeyringReference, // Must be Hierarchy Keyring
   standardBeacons : StandardBeaconList,
   compoundBeacons : CompoundBeaconList,
+  virtualFields : VirtualFieldList,
 }
 
 structure SearchConfig {

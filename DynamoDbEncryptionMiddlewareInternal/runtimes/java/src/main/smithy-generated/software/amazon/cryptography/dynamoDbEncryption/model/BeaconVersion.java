@@ -17,11 +17,14 @@ public class BeaconVersion {
 
   private final List<CompoundBeacon> compoundBeacons;
 
+  private final List<VirtualField> virtualFields;
+
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
     this.keyring = builder.keyring();
     this.standardBeacons = builder.standardBeacons();
     this.compoundBeacons = builder.compoundBeacons();
+    this.virtualFields = builder.virtualFields();
   }
 
   public int version() {
@@ -38,6 +41,10 @@ public class BeaconVersion {
 
   public List<CompoundBeacon> compoundBeacons() {
     return this.compoundBeacons;
+  }
+
+  public List<VirtualField> virtualFields() {
+    return this.virtualFields;
   }
 
   public Builder toBuilder() {
@@ -65,6 +72,10 @@ public class BeaconVersion {
 
     List<CompoundBeacon> compoundBeacons();
 
+    Builder virtualFields(List<VirtualField> virtualFields);
+
+    List<VirtualField> virtualFields();
+
     BeaconVersion build();
   }
 
@@ -77,6 +88,8 @@ public class BeaconVersion {
 
     protected List<CompoundBeacon> compoundBeacons;
 
+    protected List<VirtualField> virtualFields;
+
     protected BuilderImpl() {
     }
 
@@ -85,6 +98,7 @@ public class BeaconVersion {
       this.keyring = model.keyring();
       this.standardBeacons = model.standardBeacons();
       this.compoundBeacons = model.compoundBeacons();
+      this.virtualFields = model.virtualFields();
     }
 
     public Builder version(int version) {
@@ -123,6 +137,15 @@ public class BeaconVersion {
       return this.compoundBeacons;
     }
 
+    public Builder virtualFields(List<VirtualField> virtualFields) {
+      this.virtualFields = virtualFields;
+      return this;
+    }
+
+    public List<VirtualField> virtualFields() {
+      return this.virtualFields;
+    }
+
     public BeaconVersion build() {
       if (Objects.isNull(this.version()))  {
         throw new IllegalArgumentException("Missing value for required field `version`");
@@ -138,6 +161,9 @@ public class BeaconVersion {
       }
       if (Objects.nonNull(this.compoundBeacons()) && this.compoundBeacons().size() < 1) {
         throw new IllegalArgumentException("The size of `compoundBeacons` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.virtualFields()) && this.virtualFields().size() < 1) {
+        throw new IllegalArgumentException("The size of `virtualFields` must be greater than or equal to 1");
       }
       return new BeaconVersion(this);
     }

@@ -3,32 +3,59 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import java.util.List;
 import java.util.Objects;
 
 public class VirtualTransform {
-  private final Transform transform;
+  private final Upper upper;
 
-  private final List<Integer> numbers;
+  private final Lower lower;
 
-  private final List<String> strings;
+  private final Insert insert;
+
+  private final PrefixTrans prefix;
+
+  private final Suffix suffix;
+
+  private final Substring substring;
+
+  private final Segment segment;
 
   protected VirtualTransform(BuilderImpl builder) {
-    this.transform = builder.transform();
-    this.numbers = builder.numbers();
-    this.strings = builder.strings();
+    this.upper = builder.upper();
+    this.lower = builder.lower();
+    this.insert = builder.insert();
+    this.prefix = builder.prefix();
+    this.suffix = builder.suffix();
+    this.substring = builder.substring();
+    this.segment = builder.segment();
   }
 
-  public Transform transform() {
-    return this.transform;
+  public Upper upper() {
+    return this.upper;
   }
 
-  public List<Integer> numbers() {
-    return this.numbers;
+  public Lower lower() {
+    return this.lower;
   }
 
-  public List<String> strings() {
-    return this.strings;
+  public Insert insert() {
+    return this.insert;
+  }
+
+  public PrefixTrans prefix() {
+    return this.prefix;
+  }
+
+  public Suffix suffix() {
+    return this.suffix;
+  }
+
+  public Substring substring() {
+    return this.substring;
+  }
+
+  public Segment segment() {
+    return this.segment;
   }
 
   public Builder toBuilder() {
@@ -40,75 +67,147 @@ public class VirtualTransform {
   }
 
   public interface Builder {
-    Builder transform(Transform transform);
+    Builder upper(Upper upper);
 
-    Transform transform();
+    Upper upper();
 
-    Builder numbers(List<Integer> numbers);
+    Builder lower(Lower lower);
 
-    List<Integer> numbers();
+    Lower lower();
 
-    Builder strings(List<String> strings);
+    Builder insert(Insert insert);
 
-    List<String> strings();
+    Insert insert();
+
+    Builder prefix(PrefixTrans prefix);
+
+    PrefixTrans prefix();
+
+    Builder suffix(Suffix suffix);
+
+    Suffix suffix();
+
+    Builder substring(Substring substring);
+
+    Substring substring();
+
+    Builder segment(Segment segment);
+
+    Segment segment();
 
     VirtualTransform build();
   }
 
   static class BuilderImpl implements Builder {
-    protected Transform transform;
+    protected Upper upper;
 
-    protected List<Integer> numbers;
+    protected Lower lower;
 
-    protected List<String> strings;
+    protected Insert insert;
+
+    protected PrefixTrans prefix;
+
+    protected Suffix suffix;
+
+    protected Substring substring;
+
+    protected Segment segment;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(VirtualTransform model) {
-      this.transform = model.transform();
-      this.numbers = model.numbers();
-      this.strings = model.strings();
+      this.upper = model.upper();
+      this.lower = model.lower();
+      this.insert = model.insert();
+      this.prefix = model.prefix();
+      this.suffix = model.suffix();
+      this.substring = model.substring();
+      this.segment = model.segment();
     }
 
-    public Builder transform(Transform transform) {
-      this.transform = transform;
+    public Builder upper(Upper upper) {
+      this.upper = upper;
       return this;
     }
 
-    public Transform transform() {
-      return this.transform;
+    public Upper upper() {
+      return this.upper;
     }
 
-    public Builder numbers(List<Integer> numbers) {
-      this.numbers = numbers;
+    public Builder lower(Lower lower) {
+      this.lower = lower;
       return this;
     }
 
-    public List<Integer> numbers() {
-      return this.numbers;
+    public Lower lower() {
+      return this.lower;
     }
 
-    public Builder strings(List<String> strings) {
-      this.strings = strings;
+    public Builder insert(Insert insert) {
+      this.insert = insert;
       return this;
     }
 
-    public List<String> strings() {
-      return this.strings;
+    public Insert insert() {
+      return this.insert;
+    }
+
+    public Builder prefix(PrefixTrans prefix) {
+      this.prefix = prefix;
+      return this;
+    }
+
+    public PrefixTrans prefix() {
+      return this.prefix;
+    }
+
+    public Builder suffix(Suffix suffix) {
+      this.suffix = suffix;
+      return this;
+    }
+
+    public Suffix suffix() {
+      return this.suffix;
+    }
+
+    public Builder substring(Substring substring) {
+      this.substring = substring;
+      return this;
+    }
+
+    public Substring substring() {
+      return this.substring;
+    }
+
+    public Builder segment(Segment segment) {
+      this.segment = segment;
+      return this;
+    }
+
+    public Segment segment() {
+      return this.segment;
     }
 
     public VirtualTransform build() {
-      if (Objects.isNull(this.transform()))  {
-        throw new IllegalArgumentException("Missing value for required field `transform`");
-      }
-      if (Objects.nonNull(this.numbers()) && this.numbers().size() < 1) {
-        throw new IllegalArgumentException("The size of `numbers` must be greater than or equal to 1");
-      }
-      if (Objects.nonNull(this.strings()) && this.strings().size() < 1) {
-        throw new IllegalArgumentException("The size of `strings` must be greater than or equal to 1");
+      if (!onlyOneNonNull()) {
+        throw new IllegalArgumentException("`VirtualTransform` is a Union. A Union MUST have one and only one value set.");
       }
       return new VirtualTransform(this);
+    }
+
+    private boolean onlyOneNonNull() {
+      Object[] allValues = {this.upper, this.lower, this.insert, this.prefix, this.suffix, this.substring, this.segment};
+      boolean haveOneNonNull = false;
+      for (Object o : allValues) {
+        if (Objects.nonNull(o)) {
+          if (haveOneNonNull) {
+            return false;
+          }
+          haveOneNonNull = true;
+        }
+      }
+      return haveOneNonNull;
     }
   }
 }

@@ -67,7 +67,8 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly version: VersionNumber ,
  nameonly keyring: AwsCryptographyMaterialProvidersTypes.IKeyring ,
  nameonly standardBeacons: Option<StandardBeaconList> ,
- nameonly compoundBeacons: Option<CompoundBeaconList>
+ nameonly compoundBeacons: Option<CompoundBeaconList> ,
+ nameonly virtualFields: Option<VirtualFieldList>
  )
  type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
  predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
@@ -772,6 +773,12 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype GetItemOutputTransformOutput = | GetItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.GetItemOutput
  )
+ datatype Insert = | Insert (
+ nameonly string: string
+ )
+ datatype Lower = | Lower (
+ 
+ )
  datatype NonSensitivePart = | NonSensitivePart (
  nameonly name: string ,
  nameonly prefix: Prefix ,
@@ -785,10 +792,17 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate method IsValid_NumberList(x: seq<int32>) {
  ( 1 <= |x|  )
 }
+ type PositiveInteger = x: int32 | IsValid_PositiveInteger(x) witness *
+ predicate method IsValid_PositiveInteger(x: int32) {
+ ( 1 <= x  )
+}
  type Prefix = x: string | IsValid_Prefix(x) witness *
  predicate method IsValid_Prefix(x: string) {
  ( 1 <= |x|  )
 }
+ datatype PrefixTrans = | PrefixTrans (
+ nameonly length: PositiveInteger
+ )
  datatype PutItemInputTransformInput = | PutItemInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.PutItemInput
  )
@@ -832,6 +846,11 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly versions: BeaconVersionList ,
  nameonly writeVersion: VersionNumber
  )
+ datatype Segment = | Segment (
+ nameonly split: Char ,
+ nameonly low: int32 ,
+ nameonly high: Option<int32>
+ )
  datatype SensitivePart = | SensitivePart (
  nameonly name: string ,
  nameonly prefix: Prefix ,
@@ -855,6 +874,13 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate method IsValid_StringList(x: seq<string>) {
  ( 1 <= |x|  )
 }
+ datatype Substring = | Substring (
+ nameonly low: int32 ,
+ nameonly high: Option<int32>
+ )
+ datatype Suffix = | Suffix (
+ nameonly length: PositiveInteger
+ )
  type TerminalLocation = x: string | IsValid_TerminalLocation(x) witness *
  predicate method IsValid_TerminalLocation(x: string) {
  ( 1 <= |x|  )
@@ -885,14 +911,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype TransactWriteItemsOutputTransformOutput = | TransactWriteItemsOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.TransactWriteItemsOutput
  )
- datatype Transform =
-	| LOWER
-	| UPPER
-	| INSERT
-	| PREFIX
-	| SUFFIX
-	| SUBSTRING
-	| SEGMENT
  datatype UpdateItemInputTransformInput = | UpdateItemInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.UpdateItemInput
  )
@@ -919,6 +937,9 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype UpdateTableOutputTransformOutput = | UpdateTableOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.UpdateTableOutput
  )
+ datatype Upper = | Upper (
+ 
+ )
  type VersionNumber = x: int32 | IsValid_VersionNumber(x) witness *
  predicate method IsValid_VersionNumber(x: int32) {
  ( 1 <= x  )
@@ -939,11 +960,14 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate method IsValid_VirtualPartList(x: seq<VirtualPart>) {
  ( 1 <= |x|  )
 }
- datatype VirtualTransform = | VirtualTransform (
- nameonly transform: Transform ,
- nameonly numbers: Option<NumberList> ,
- nameonly strings: Option<StringList>
- )
+ datatype VirtualTransform =
+ | upper(upper: Upper)
+ | lower(lower: Lower)
+ | insert(insert: Insert)
+ | prefix(prefix: PrefixTrans)
+ | suffix(suffix: Suffix)
+ | substring(substring: Substring)
+ | segment(segment: Segment)
  type VirtualTransformList = x: seq<VirtualTransform> | IsValid_VirtualTransformList(x) witness *
  predicate method IsValid_VirtualTransformList(x: seq<VirtualTransform>) {
  ( 1 <= |x|  )
