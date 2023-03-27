@@ -14,9 +14,9 @@
 
 
 include "../../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
-include "../../../StructuredEncryption/src/SearchInfo.dfy"
+include "../StructuredEncryption/SearchInfo.dfy"
 include "Util.dfy"
-include "../../../DynamoDbEncryptionMiddlewareInternal/Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 
 module SearchConfigToInfo {
   import opened AwsCryptographyDynamoDbItemEncryptorTypes
