@@ -126,6 +126,9 @@ tasks.test {
     dependsOn("CopyDynamoDb")
     systemProperty("java.library.path", "build/libs")
 
+    // This will show System.out.println statements
+    testLogging.showStandardStreams = true
+
     testLogging {
         lifecycle {
             events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)

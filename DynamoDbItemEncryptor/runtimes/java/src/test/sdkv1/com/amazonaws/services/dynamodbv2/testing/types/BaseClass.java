@@ -174,6 +174,8 @@ public class BaseClass {
         + stringSet
         + ", intSet="
         + intSet
+        + ", doubleValue="
+        + doubleValue
         + ", doubleSet="
         + doubleSet
         + ", version="

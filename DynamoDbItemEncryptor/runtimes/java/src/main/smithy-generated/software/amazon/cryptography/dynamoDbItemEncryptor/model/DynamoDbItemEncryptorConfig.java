@@ -32,6 +32,8 @@ public class DynamoDbItemEncryptorConfig {
 
   private final CryptographicMaterialsManager cmm;
 
+  private final LegacyConfig legacyConfig;
+
   protected DynamoDbItemEncryptorConfig(BuilderImpl builder) {
     this.tableName = builder.tableName();
     this.partitionKeyName = builder.partitionKeyName();
@@ -42,6 +44,7 @@ public class DynamoDbItemEncryptorConfig {
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
+    this.legacyConfig = builder.legacyConfig();
   }
 
   public String tableName() {
@@ -78,6 +81,10 @@ public class DynamoDbItemEncryptorConfig {
 
   public CryptographicMaterialsManager cmm() {
     return this.cmm;
+  }
+
+  public LegacyConfig legacyConfig() {
+    return this.legacyConfig;
   }
 
   public Builder toBuilder() {
@@ -125,6 +132,10 @@ public class DynamoDbItemEncryptorConfig {
 
     CryptographicMaterialsManager cmm();
 
+    Builder legacyConfig(LegacyConfig legacyConfig);
+
+    LegacyConfig legacyConfig();
+
     DynamoDbItemEncryptorConfig build();
   }
 
@@ -147,6 +158,8 @@ public class DynamoDbItemEncryptorConfig {
 
     protected CryptographicMaterialsManager cmm;
 
+    protected LegacyConfig legacyConfig;
+
     protected BuilderImpl() {
     }
 
@@ -160,6 +173,7 @@ public class DynamoDbItemEncryptorConfig {
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.keyring = model.keyring();
       this.cmm = model.cmm();
+      this.legacyConfig = model.legacyConfig();
     }
 
     public Builder tableName(String tableName) {
@@ -242,6 +256,15 @@ public class DynamoDbItemEncryptorConfig {
 
     public CryptographicMaterialsManager cmm() {
       return this.cmm;
+    }
+
+    public Builder legacyConfig(LegacyConfig legacyConfig) {
+      this.legacyConfig = legacyConfig;
+      return this;
+    }
+
+    public LegacyConfig legacyConfig() {
+      return this.legacyConfig;
     }
 
     public DynamoDbItemEncryptorConfig build() {

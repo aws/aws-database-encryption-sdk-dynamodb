@@ -20,20 +20,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.Wrapp
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.store.MetaStore;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.store.ProviderStore;
 import com.amazonaws.services.dynamodbv2.local.embedded.DynamoDBEmbedded;
-import com.amazonaws.services.dynamodbv2.model.AttributeAction;
-import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
-import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
-import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.amazonaws.services.dynamodbv2.model.KeyType;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
-import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import com.amazonaws.services.dynamodbv2.model.ScanResult;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+import com.amazonaws.services.dynamodbv2.model.*;
 import com.amazonaws.services.dynamodbv2.testing.AttributeValueDeserializer;
 import com.amazonaws.services.dynamodbv2.testing.AttributeValueSerializer;
 import com.amazonaws.services.dynamodbv2.testing.ScenarioManifest;
@@ -64,12 +51,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -123,8 +105,9 @@ public class TransformerHolisticIT {
   private static final EncryptionMaterialsProvider symProv;
   private static final EncryptionMaterialsProvider asymProv;
   private static final EncryptionMaterialsProvider symWrappedProv;
-  private static final String HASH_KEY = "hashKey";
-  private static final String RANGE_KEY = "rangeKey";
+  protected static final String HASH_KEY = "hashKey";
+  protected static final String RANGE_KEY = "rangeKey";
+  protected static final String BASE_CLASS_TABLE_NAME = "TableName";
   private static final String RSA = "RSA";
 
   private AmazonDynamoDB client;
@@ -343,6 +326,78 @@ public class TransformerHolisticIT {
     }
   }
 
+  // This runs the test vectors
+  // through the front door of the DDB-EC-Dafny.
+  @Test(dataProvider = "getDecryptTestVectors")
+  public void decryptLegacyTestVector(Scenario scenario) throws IOException {
+    client = DynamoDBEmbedded.create().amazonDynamoDB();
+
+    // load data into ciphertext tables
+    createCiphertextTables(client);
+
+    // load data from vector file
+    putDataFromFile(client, scenario.ciphertextPath);
+
+    // create and load metastore table if necessary
+    ProviderStore metastore = null;
+    if (scenario.metastore != null) {
+      MetaStore.createTable(
+        client, scenario.metastore.tableName, new ProvisionedThroughput(100L, 100L));
+      putDataFromFile(client, scenario.metastore.path);
+      EncryptionMaterialsProvider metaProvider =
+        createProvider(
+          scenario.metastore.providerName,
+          scenario.materialName,
+          scenario.metastore.keys,
+          null);
+      metastore =
+        new MetaStore(
+          client, scenario.metastore.tableName, DynamoDBEncryptor.getInstance(metaProvider));
+    }
+
+    // Create the mapper with the provider under test
+    EncryptionMaterialsProvider provider =
+      createProvider(scenario.providerName, scenario.materialName, scenario.keys, metastore);
+
+    final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(provider);
+
+    // Verify successful decryption
+    switch (scenario.version) {
+      case "v0":
+        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, ENCRYPTED_TEST_VALUE);
+        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, MIXED_TEST_VALUE);
+        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, SIGNED_TEST_VALUE);
+//        The Encryptor can not decrypt an unencrypted record.
+//        However, the mapper can.
+//        This is why this vector exists but is not tested.
+//        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE));
+        break;
+      case "v1":
+        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, ENCRYPTED_TEST_VALUE_2);
+        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, MIXED_TEST_VALUE_2);
+        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, SIGNED_TEST_VALUE_2);
+//        The Encryptor can not decrypt an unencrypted record.
+//        However, the mapper can.
+//        This is why this vector exists but is not tested.
+//        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE_2));
+        break;
+      default:
+        throw new IllegalStateException(
+          "Version " + scenario.version + " not yet implemented in test vector runner");
+    }
+
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Foo");
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Bar");
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Baz");
+
+    for (int x = 1; x <= 3; ++x) {
+      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,0,x);
+      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,1,x);
+      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,4 + x,x);
+    }
+
+  }
+
   @Test(dataProvider = "getEncryptTestVectors")
   public void encryptWithTestVector(Scenario scenario) throws IOException {
     client = DynamoDBEmbedded.create().amazonDynamoDB();;
@@ -371,6 +426,78 @@ public class TransformerHolisticIT {
     EncryptionMaterialsProvider provider =
         createProvider(scenario.providerName, scenario.materialName, scenario.keys, metastore);
     generateStandardData(provider);
+  }
+
+  @Test(dataProvider = "getEncryptTestVectors")
+  public void encryptWithLegacyTestVector(Scenario scenario) throws IOException {
+    client = DynamoDBEmbedded.create().amazonDynamoDB();;
+
+    // load data into ciphertext tables
+    createCiphertextTables(client);
+
+    // create and load metastore table if necessary
+    ProviderStore metastore = null;
+    if (scenario.metastore != null) {
+      MetaStore.createTable(
+        client, scenario.metastore.tableName, new ProvisionedThroughput(100L, 100L));
+      putDataFromFile(client, scenario.metastore.path);
+      EncryptionMaterialsProvider metaProvider =
+        createProvider(
+          scenario.metastore.providerName,
+          scenario.materialName,
+          scenario.metastore.keys,
+          null);
+      metastore =
+        new MetaStore(
+          client, scenario.metastore.tableName, DynamoDBEncryptor.getInstance(metaProvider));
+    }
+
+    // Encrypt data with the provider under test, only ensure that no exception is thrown
+    EncryptionMaterialsProvider provider =
+      createProvider(scenario.providerName, scenario.materialName, scenario.keys, metastore);
+
+    final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(provider);
+
+    // First I encrypt and put the items into the database
+    // that I expect to exist on the decrypt side.
+
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, ENCRYPTED_TEST_VALUE_2);
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, MIXED_TEST_VALUE_2);
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, SIGNED_TEST_VALUE_2);
+
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new HashKeyOnly("Foo"));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new HashKeyOnly("Bar"));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new HashKeyOnly("Baz"));
+
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(0, 1));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(0, 2));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(0, 3));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(1, 1));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(1, 2));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(1, 3));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(5, 1));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(6, 2));
+    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(7, 3));
+
+    // Now that all the items exist in the database
+    // I decrypt them all.
+    // This looks exactly like the decrypt test vectors
+    // this is **not** an accident.
+
+    LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, ENCRYPTED_TEST_VALUE_2);
+    LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, MIXED_TEST_VALUE_2);
+    LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, SIGNED_TEST_VALUE_2);
+
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Foo");
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Bar");
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Baz");
+
+    for (int x = 1; x <= 3; ++x) {
+      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,0,x);
+      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,1,x);
+      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,4 + x,x);
+    }
+
   }
 
   @Test

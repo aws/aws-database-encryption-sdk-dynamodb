@@ -95,6 +95,12 @@ class DynamoDBSigner {
       Key verificationKey,
       ByteBuffer signature)
       throws GeneralSecurityException {
+
+//    System.out.println("verifySignature");
+//    System.out.println(itemAttributes);
+//    System.out.println(attributeFlags);
+//    System.out.println("==========");
+
     if (verificationKey instanceof DelegatedKey) {
       DelegatedKey dKey = (DelegatedKey) verificationKey;
       byte[] stringToSign = calculateStringToSign(itemAttributes, attributeFlags, associatedData);
