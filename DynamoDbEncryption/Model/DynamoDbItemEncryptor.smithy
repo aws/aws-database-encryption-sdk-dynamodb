@@ -1,19 +1,18 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-namespace aws.cryptography.dynamoDbItemEncryptor
+namespace aws.cryptography.dynamoDbEncryption.itemEncryptor
 
 use aws.polymorph#localService
 
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#AttributeMap
-use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#KeySchemaAttributeName
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
-use aws.cryptography.structuredEncryption#CryptoAction
+use aws.cryptography.dynamoDbEncryption#AttributeActions
 
 @localService(
   sdkId: "DynamoDbItemEncryptor",
@@ -121,11 +120,6 @@ structure DecryptItemInput {
 structure DecryptItemOutput {
     @required
     plaintextItem: AttributeMap,
-}
-
-map AttributeActions {
-    key: AttributeName,
-    value: CryptoAction,
 }
 
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)

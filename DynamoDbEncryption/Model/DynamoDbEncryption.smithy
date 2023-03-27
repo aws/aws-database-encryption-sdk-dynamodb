@@ -2,78 +2,41 @@
 // SPDX-License-Identifier: Apache-2.0
 namespace aws.cryptography.dynamoDbEncryption
 
+// The top level namespace for this project.
+// Contains an entry-point for helper methods,
+// and common structures used throughout this project.
+
 use aws.polymorph#localService
 
-use aws.cryptography.dynamoDbItemEncryptor#AttributeActions
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#TableName
+use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
+use aws.cryptography.structuredEncryption#CryptoAction
 
-// TODO "hide" the below APIs from customers, but keep the config structures "public"
-
-// TODO The middleware trait is not yet implemented,
-// Ideally, this trait will:
-//     1. Be syntactic sugar to represent the verbose Transform operation smithy models.
-//     2. Additionally implement all the Transform operations in Dafny as passthrough,
-//        with an ability to easily add more specific impl via specific Transform*' methods.
-//     3. Generate the language-idiomatic way to integrate with the SDK
-//        (e.g. the Java SDK Interceptor)
-//        that takes in DynamoDbEncryptionConfig as input.
-// 
-// @middleware(
-//     awsService: DynamoDB_20120810,
-//     config: DynamoDbEncryptionConfig,
-//     errors: [DynamoDbEncryptionException]
-//     name: "DynamoDbEncryptionMiddlewareInternal"
-// )
+// A config-less entry-point for DynamoDb Encryption helper/factory methods
 @localService(
   sdkId: "DynamoDbEncryption",
   config: DynamoDbEncryptionConfig,
 )
 service DynamoDbEncryption {
     version: "2022-11-21",
-    operations: [
-      PutItemInputTransform,
-      PutItemOutputTransform,
-      GetItemInputTransform,
-      GetItemOutputTransform,
-      BatchWriteItemInputTransform,
-      BatchWriteItemOutputTransform,
-      BatchGetItemInputTransform,
-      BatchGetItemOutputTransform,
-      ScanInputTransform,
-      ScanOutputTransform,
-      QueryInputTransform,
-      QueryOutputTransform,
-      TransactWriteItemsInputTransform,
-      TransactWriteItemsOutputTransform,
-      UpdateItemInputTransform,
-      UpdateItemOutputTransform,
-      DeleteItemInputTransform,
-      DeleteItemOutputTransform,
-      TransactGetItemsInputTransform,
-      TransactGetItemsOutputTransform,
-      ExecuteStatementInputTransform,
-      ExecuteStatementOutputTransform,
-      BatchExecuteStatementInputTransform,
-      BatchExecuteStatementOutputTransform,
-      ExecuteTransactionInputTransform,
-      ExecuteTransactionOutputTransform,
-      CreateTableInputTransform,
-      CreateTableOutputTransform,
-      UpdateTableInputTransform,
-      UpdateTableOutputTransform,
-      DescribeTableInputTransform,
-      DescribeTableOutputTransform,
-    ],
+    operations: [],
     errors: [ DynamoDbEncryptionException ]
 }
 
+// The top level DynamoDbEncryption local service takes in no config
 structure DynamoDbEncryptionConfig {
+}
+
+// The top level configuration for using DDB with client side encryption over multiple DDB tables.
+// Used to configure the internal DynamoDbEncryptionTransforms, and by native implementations
+// of integrations with higher level DDB APIs.
+structure DynamoDbTablesEncryptionConfig {
     @required
     tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
     // TODO allowed passthrough tables
@@ -102,6 +65,11 @@ structure DynamoDbTableEncryptionConfig {
 
     // TODO legacy encryptor
     // TODO legacy schema
+}
+
+map AttributeActions {
+    key: AttributeName,
+    value: CryptoAction,
 }
 
 @range(min: 1, max: 63)

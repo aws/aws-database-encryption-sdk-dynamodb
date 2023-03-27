@@ -2,12 +2,15 @@
 
 ### Code Organization
 
-DynamoDb Encryption is a project containing the following 'localServices':
-- DynamoDbEncryption
-- DynamoDbItemEncryptor
-- StructuredEncryption
+DynamoDb Encryption is a project containing the following Dafny 'localServices':
+- DynamoDbEncryption: A config-less entry point for shared structures and helper methods related to DDB Encryption.
+- DynamoDbItemEncryptor: A client responsible for the encryption and decryption of DDB Items (sans any DDB API call).
+- DynamoDbEncryptionTransforms: An internal interface responsible for appropriately adding encryption to DDB APIs.
+  A custom implementation adapts this interface to the AWS SDK for each target language.
+  This custom implementation exists in each `runtimes/<target_language>` directory. 
+- StructuredEncryption: An internal interface responsible for encrypting and decrypting generic structured data.
 
-`runtimes` contains the implementation of this project in each supported target language.
+`runtimes` contains the implementation (generated and hand-written) of this project in each supported target language.
 
 Currently this project only supports Java.
 
@@ -32,11 +35,7 @@ Common Makefile targets are:
 
 ### Development Requirements
 
-This library builds and verifies with the following:
-- dotnet 6.0.400
-- dafny 3.9.1
-
-TODO: Better define and maintain (via CI) dev dependencies for this module
+TODO
 
 #### (Optional) Dafny Report Generator Requirements
 

@@ -1,0 +1,37 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
+using System;
+ using AWS.Cryptography.DynamoDbEncryption; namespace AWS.Cryptography.DynamoDbEncryption {
+ public class StandardBeacon {
+ private string _name ;
+ private int? _length ;
+ private string _loc ;
+ public string Name {
+ get { return this._name; }
+ set { this._name = value; }
+}
+ public bool IsSetName () {
+ return this._name != null;
+}
+ public int Length {
+ get { return this._length.GetValueOrDefault(); }
+ set { this._length = value; }
+}
+ public bool IsSetLength () {
+ return this._length.HasValue;
+}
+ public string Loc {
+ get { return this._loc; }
+ set { this._loc = value; }
+}
+ public bool IsSetLoc () {
+ return this._loc != null;
+}
+ public void Validate() {
+ if (!IsSetName()) throw new System.ArgumentException("Missing value for required property 'Name'");
+ if (!IsSetLength()) throw new System.ArgumentException("Missing value for required property 'Length'");
+
+}
+}
+}
