@@ -1,1 +1,1 @@
-rootProject.name = "DynamoDbEncryption"
+rootProject.name = "AwsCryptographyDynamoDbEncryption"

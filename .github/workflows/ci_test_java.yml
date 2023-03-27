@@ -12,9 +12,6 @@ jobs:
     strategy:
       matrix:
         library: [
-          StructuredEncryption,
-          DynamoDbItemEncryptor,
-          DynamoDbEncryptionMiddlewareInternal,
           DynamoDbEncryption,
         ]
         java-version: [ 8, 11, 16, 17 ]
@@ -49,7 +46,7 @@ jobs:
           AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
           git config --global --add url.https://github.com/.insteadOf git@github.com:
-          git submodule update --init --recursive private-aws-encryption-sdk-dafny-staging
+          git submodule update --init --recursive submodules/MaterialProviders
 
       # Set up env vars for CodeArtifact
       - name: Set Up Env Vars for CodeArtifact

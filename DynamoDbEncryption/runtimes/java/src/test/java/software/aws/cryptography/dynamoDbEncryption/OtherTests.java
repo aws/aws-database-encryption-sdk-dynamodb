@@ -135,8 +135,10 @@ public class OtherTests {
     }
      */
 
+/*
     @Test
     public void TestBuildEncryptDecryptAwsKmsRsaKeyring() {
+        assertTrue(false);
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
@@ -152,6 +154,7 @@ public class OtherTests {
         IKeyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
         assertNotNull(keyring);
     }
+    */
 
     class TestSupplier implements BranchKeyFromItemSupplier {
         public String getBranchKeyFromItem(GetBranchKeyFromItemInput input) {

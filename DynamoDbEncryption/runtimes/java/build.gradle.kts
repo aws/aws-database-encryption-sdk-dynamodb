@@ -15,6 +15,8 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
     sourceSets["main"].java {
         srcDir("src/main/java")
+        srcDir("src/main/dafny-generated")
+        srcDir("src/main/smithy-generated")
     }
     sourceSets["test"].java {
         srcDir("src/test")
@@ -55,26 +57,21 @@ dependencies {
     implementation("software.amazon.dafny:conversion:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:StandardLibrary:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:AwsCryptographyPrimitives:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:AwsCryptographyDynamoDbItemEncryptor:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:AwsCryptographyDynamoDbEncryptionMiddlewareInternal:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:AwsCryptographyStructuredEncryption:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:ComAmazonawsDynamodb:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:ComAmazonawsKms:1.0-SNAPSHOT")
-    /*implementation("com.amazonaws:aws-java-sdk:1.12.347")*/
+
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:kms")
     implementation("software.amazon.awssdk:core:2.19.1")
+    implementation("com.amazonaws:aws-dynamodb-encryption-java:2.0.3")
+    implementation("software.amazon.awssdk:kms")
+
     implementation("com.amazonaws:aws-dynamodb-encryption-java:2.0.3")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 publishing {
@@ -88,4 +85,15 @@ publishing {
 
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+tasks {
+    register("runDafnyTests", JavaExec::class.java) {
+        mainClass.set("TestsFromDafny")
+        classpath = sourceSets["test"].runtimeClasspath
+    }
 }
