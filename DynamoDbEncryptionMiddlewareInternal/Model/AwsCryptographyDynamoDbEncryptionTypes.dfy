@@ -1013,94 +1013,38 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  function method DefaultDynamoDbEncryptionConfig(): DynamoDbEncryptionConfig
  method DynamoDbEncryption(config: DynamoDbEncryptionConfig := DefaultDynamoDbEncryptionConfig())
  returns (res: Result<DynamoDbEncryptionClient, Error>)
- requires var tmps0 := set t0 | t0 in config.tableEncryptionConfigs.Values;
- forall tmp0 :: tmp0 in tmps0 ==>
- tmp0.keyring.Some? ==>
- tmp0.keyring.value.ValidState()
- requires var tmps1 := set t1 | t1 in config.tableEncryptionConfigs.Values;
- forall tmp1 :: tmp1 in tmps1 ==>
- tmp1.cmm.Some? ==>
- tmp1.cmm.value.ValidState()
- requires var tmps2 := set t2 | t2 in config.tableEncryptionConfigs.Values;
- forall tmp2 :: tmp2 in tmps2 ==>
- tmp2.search.Some? ==>
- var tmps3 := set t3 | t3 in tmp2.search.value.versions;
- forall tmp3 :: tmp3 in tmps3 ==>
- tmp3.keyring.ValidState()
- modifies var tmps4 := set t4 | t4 in config.tableEncryptionConfigs.Values
-  && t4.keyring.Some? 
-  :: t4.keyring.value;
- var tmps4FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps4 :: t0.Modifies;
- (set tmp5ModifyEntry, tmp5Modifies | 
- tmp5Modifies in tmps4FlattenedModifiesSet 
- && tmp5ModifyEntry in tmp5Modifies 
- :: tmp5ModifyEntry)
- modifies var tmps6 := set t6 | t6 in config.tableEncryptionConfigs.Values
-  && t6.cmm.Some? 
-  :: t6.cmm.value;
- var tmps6FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps6 :: t0.Modifies;
- (set tmp7ModifyEntry, tmp7Modifies | 
- tmp7Modifies in tmps6FlattenedModifiesSet 
- && tmp7ModifyEntry in tmp7Modifies 
- :: tmp7ModifyEntry)
- modifies var tmps8 := set t8 | t8 in config.tableEncryptionConfigs.Values
-  && t8.search.Some? 
-  :: set t9 | t9 in t8.search.value.versions :: t9.keyring;
- var tmps8FlattenedModifiesSet: set<set<object>> := set t0
-, t1 | t0 in tmps8 && t1 in t0 :: t1.Modifies;
- (set tmp10ModifyEntry, tmp10Modifies | 
- tmp10Modifies in tmps8FlattenedModifiesSet 
- && tmp10ModifyEntry in tmp10Modifies 
- :: tmp10ModifyEntry)
+ // TODO smithy->Dafny correctly generates something equivalent the following
+ // but as a result DynamoDbEncryption.DynamoDbEncryption and TestFixtures.GetDynamoDbEncryption
+ // take too long to verify
+///// MANUAL UPDATE STARTS HERE
+requires
+var cmms := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.cmm.Some? :: cfg.cmm.value;
+forall cmm :: cmm in cmms ==> cmm.ValidState()
+requires
+var keyrings := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.keyring.Some? :: cfg.keyring.value;
+forall keyring :: keyring in keyrings ==> keyring.ValidState()
+modifies
+  var cmms := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.cmm.Some? :: cfg.cmm.value;
+  var cmmModifiesSet: set<set<object>> := set cmm | cmm in cmms :: cmm.Modifies;
+  // Flatten the set<cmm.Modifies>
+  (set cmmModifyEntry, cmmModifies | cmmModifies in cmmModifiesSet && cmmModifyEntry in cmmModifies :: cmmModifyEntry)
+modifies
+  var keyrings := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.keyring.Some? :: cfg.keyring.value;
+  var keyringModifiesSet: set<set<object>> := set keyring | keyring in keyrings :: keyring.Modifies;
+  // Flatten the set<keyring.Modifies>
+  (set keyringModifyEntry, keyringModifies | keyringModifies in keyringModifiesSet && keyringModifyEntry in keyringModifies :: keyringModifyEntry)
+
  ensures res.Success? ==> 
  && fresh(res.value)
- && fresh(res.value.Modifies
- - ( var tmps11 := set t11 | t11 in config.tableEncryptionConfigs.Values
-  && t11.keyring.Some? 
-  :: t11.keyring.value;
- var tmps11FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps11 :: t0.Modifies;
- (set tmp12ModifyEntry, tmp12Modifies | 
- tmp12Modifies in tmps11FlattenedModifiesSet 
- && tmp12ModifyEntry in tmp12Modifies 
- :: tmp12ModifyEntry)
- ) - ( var tmps13 := set t13 | t13 in config.tableEncryptionConfigs.Values
-  && t13.cmm.Some? 
-  :: t13.cmm.value;
- var tmps13FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps13 :: t0.Modifies;
- (set tmp14ModifyEntry, tmp14Modifies | 
- tmp14Modifies in tmps13FlattenedModifiesSet 
- && tmp14ModifyEntry in tmp14Modifies 
- :: tmp14ModifyEntry)
- ) - ( var tmps15 := set t15 | t15 in config.tableEncryptionConfigs.Values
-  && t15.search.Some? 
-  :: set t16 | t16 in t15.search.value.versions :: t16.keyring;
- var tmps15FlattenedModifiesSet: set<set<object>> := set t0
-, t1 | t0 in tmps15 && t1 in t0 :: t1.Modifies;
- (set tmp17ModifyEntry, tmp17Modifies | 
- tmp17Modifies in tmps15FlattenedModifiesSet 
- && tmp17ModifyEntry in tmp17Modifies 
- :: tmp17ModifyEntry)
- ) )
+ && fresh(res.value.Modifies -
+     set t <- config.tableEncryptionConfigs.Keys, o <- (
+       (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
+     + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
+ ) :: o)
+
  && fresh(res.value.History)
  && res.value.ValidState()
- ensures var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values;
- forall tmp18 :: tmp18 in tmps18 ==>
- tmp18.keyring.Some? ==>
- tmp18.keyring.value.ValidState()
- ensures var tmps19 := set t19 | t19 in config.tableEncryptionConfigs.Values;
- forall tmp19 :: tmp19 in tmps19 ==>
- tmp19.cmm.Some? ==>
- tmp19.cmm.value.ValidState()
- ensures var tmps20 := set t20 | t20 in config.tableEncryptionConfigs.Values;
- forall tmp20 :: tmp20 in tmps20 ==>
- tmp20.search.Some? ==>
- var tmps21 := set t21 | t21 in tmp20.search.value.versions;
- forall tmp21 :: tmp21 in tmps21 ==>
- tmp21.keyring.ValidState()
+///// MANUAL UPDATE ENDS HERE
 
  class DynamoDbEncryptionClient extends IDynamoDbEncryptionClient
  {
