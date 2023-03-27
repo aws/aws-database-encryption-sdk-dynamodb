@@ -49,6 +49,7 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetItemOutputTransformInp
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetItemOutputTransformOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetPrefix;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegment;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegments;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSubstring;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSuffix;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Insert;
@@ -339,11 +340,7 @@ public class ToDafny {
     split = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.split());
     Integer low;
     low = (nativeValue.low());
-    Option<Integer> high;
-    high = Objects.nonNull(nativeValue.high()) ?
-        Option.create_Some((nativeValue.high()))
-        : Option.create_None();
-    return new GetSegment(split, low, high);
+    return new GetSegment(split, low);
   }
 
   public static PutItemInputTransformOutput PutItemInputTransformOutput(
@@ -367,6 +364,17 @@ public class ToDafny {
     DeleteItemInput sdkInput;
     sdkInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DeleteItemInput(nativeValue.sdkInput());
     return new DeleteItemInputTransformInput(sdkInput);
+  }
+
+  public static GetSegments GetSegments(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetSegments nativeValue) {
+    DafnySequence<? extends Character> split;
+    split = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.split());
+    Integer low;
+    low = (nativeValue.low());
+    Integer high;
+    high = (nativeValue.high());
+    return new GetSegments(split, low, high);
   }
 
   public static QueryOutputTransformInput QueryOutputTransformInput(
@@ -898,6 +906,9 @@ public class ToDafny {
     }
     if (Objects.nonNull(nativeValue.segment())) {
       return VirtualTransform.create_segment(ToDafny.GetSegment(nativeValue.segment()));
+    }
+    if (Objects.nonNull(nativeValue.segments())) {
+      return VirtualTransform.create_segments(ToDafny.GetSegments(nativeValue.segments()));
     }
     throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualTransform.");
   }

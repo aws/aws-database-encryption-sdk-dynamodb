@@ -20,6 +20,8 @@ public class VirtualTransform {
 
   private final GetSegment segment;
 
+  private final GetSegments segments;
+
   protected VirtualTransform(BuilderImpl builder) {
     this.upper = builder.upper();
     this.lower = builder.lower();
@@ -28,6 +30,7 @@ public class VirtualTransform {
     this.suffix = builder.suffix();
     this.substring = builder.substring();
     this.segment = builder.segment();
+    this.segments = builder.segments();
   }
 
   public Upper upper() {
@@ -56,6 +59,10 @@ public class VirtualTransform {
 
   public GetSegment segment() {
     return this.segment;
+  }
+
+  public GetSegments segments() {
+    return this.segments;
   }
 
   public Builder toBuilder() {
@@ -95,6 +102,10 @@ public class VirtualTransform {
 
     GetSegment segment();
 
+    Builder segments(GetSegments segments);
+
+    GetSegments segments();
+
     VirtualTransform build();
   }
 
@@ -113,6 +124,8 @@ public class VirtualTransform {
 
     protected GetSegment segment;
 
+    protected GetSegments segments;
+
     protected BuilderImpl() {
     }
 
@@ -124,6 +137,7 @@ public class VirtualTransform {
       this.suffix = model.suffix();
       this.substring = model.substring();
       this.segment = model.segment();
+      this.segments = model.segments();
     }
 
     public Builder upper(Upper upper) {
@@ -189,6 +203,15 @@ public class VirtualTransform {
       return this.segment;
     }
 
+    public Builder segments(GetSegments segments) {
+      this.segments = segments;
+      return this;
+    }
+
+    public GetSegments segments() {
+      return this.segments;
+    }
+
     public VirtualTransform build() {
       if (!onlyOneNonNull()) {
         throw new IllegalArgumentException("`VirtualTransform` is a Union. A Union MUST have one and only one value set.");
@@ -197,7 +220,7 @@ public class VirtualTransform {
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.upper, this.lower, this.insert, this.prefix, this.suffix, this.substring, this.segment};
+      Object[] allValues = {this.upper, this.lower, this.insert, this.prefix, this.suffix, this.substring, this.segment, this.segments};
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

@@ -59,6 +59,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransf
 import software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetPrefix;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetSegment;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetSegments;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetSubstring;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetSuffix;
 import software.amazon.cryptography.dynamoDbEncryption.model.Insert;
@@ -297,9 +298,6 @@ public class ToNative {
     GetSegment.Builder nativeBuilder = GetSegment.builder();
     nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
     nativeBuilder.low((dafnyValue.dtor_low()));
-    if (dafnyValue.dtor_high().is_Some()) {
-      nativeBuilder.high((dafnyValue.dtor_high().dtor_value()));
-    }
     return nativeBuilder.build();
   }
 
@@ -322,6 +320,15 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DeleteItemInputTransformInput dafnyValue) {
     DeleteItemInputTransformInput.Builder nativeBuilder = DeleteItemInputTransformInput.builder();
     nativeBuilder.sdkInput(Dafny.Com.Amazonaws.Dynamodb.ToNative.DeleteItemInput(dafnyValue.dtor_sdkInput()));
+    return nativeBuilder.build();
+  }
+
+  public static GetSegments GetSegments(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegments dafnyValue) {
+    GetSegments.Builder nativeBuilder = GetSegments.builder();
+    nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
+    nativeBuilder.low((dafnyValue.dtor_low()));
+    nativeBuilder.high((dafnyValue.dtor_high()));
     return nativeBuilder.build();
   }
 
@@ -818,6 +825,9 @@ public class ToNative {
     }
     if (dafnyValue.is_segment()) {
       nativeBuilder.segment(ToNative.GetSegment(dafnyValue.dtor_segment()));
+    }
+    if (dafnyValue.is_segments()) {
+      nativeBuilder.segments(ToNative.GetSegments(dafnyValue.dtor_segments()));
     }
     return nativeBuilder.build();
   }

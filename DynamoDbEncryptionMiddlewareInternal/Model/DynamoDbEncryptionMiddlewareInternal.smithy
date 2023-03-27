@@ -212,11 +212,12 @@ structure GetSuffix {
   length : Integer
 }
 
-// return inclusive range of characters, 1-based counting
-// negative numbers count from the end, -1 is the last character
+// return range of characters, 0-based counting
+// low is inclusive, high is exclusive
+// negative numbers count from the end, -1 is the end of string
+// i.e. the whole string is GetSubstring(0, -1)
 // e.g. for "123456789"
-// GetSubstring(3,6) == "3456"
-// GetSubstring(3, -4) == "3456"
+// GetSubstring(2, 6) == GetSubstring(2, -4) == "3456"
 structure GetSubstring {
   @required
   low : Integer,
@@ -224,14 +225,23 @@ structure GetSubstring {
   high : Integer,
 }
 
-// split string on character
-// then return range of pieces, with same semantics as GetSubstring
-// if 'high' is omitted, range is low..low; a.k.a just the one piece 'low'
+// split string on character, then return one piece.
+// 'low' has the same semantics as GetSubstring
 structure GetSegment {
   @required
   split : Char,
   @required
+  low : Integer
+}
+
+// split string on character, then return range of pieces.
+// 'low' and 'high' have the same semantics as GetSubstring
+structure GetSegments {
+  @required
+  split : Char,
+  @required
   low : Integer,
+  @required
   high : Integer,
 }
 
@@ -242,7 +252,8 @@ union VirtualTransform {
   prefix: GetPrefix,
   suffix: GetSuffix,
   substring : GetSubstring,
-  segment : GetSegment
+  segment : GetSegment,
+  segments : GetSegments
 }
 
 structure SensitivePart {

@@ -5,14 +5,17 @@ package software.amazon.cryptography.dynamoDbEncryption.model;
 
 import java.util.Objects;
 
-public class GetSegment {
+public class GetSegments {
   private final String split;
 
   private final Integer low;
 
-  protected GetSegment(BuilderImpl builder) {
+  private final Integer high;
+
+  protected GetSegments(BuilderImpl builder) {
     this.split = builder.split();
     this.low = builder.low();
+    this.high = builder.high();
   }
 
   public String split() {
@@ -21,6 +24,10 @@ public class GetSegment {
 
   public Integer low() {
     return this.low;
+  }
+
+  public Integer high() {
+    return this.high;
   }
 
   public Builder toBuilder() {
@@ -40,7 +47,11 @@ public class GetSegment {
 
     Integer low();
 
-    GetSegment build();
+    Builder high(Integer high);
+
+    Integer high();
+
+    GetSegments build();
   }
 
   static class BuilderImpl implements Builder {
@@ -48,12 +59,15 @@ public class GetSegment {
 
     protected Integer low;
 
+    protected Integer high;
+
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(GetSegment model) {
+    protected BuilderImpl(GetSegments model) {
       this.split = model.split();
       this.low = model.low();
+      this.high = model.high();
     }
 
     public Builder split(String split) {
@@ -74,7 +88,16 @@ public class GetSegment {
       return this.low;
     }
 
-    public GetSegment build() {
+    public Builder high(Integer high) {
+      this.high = high;
+      return this;
+    }
+
+    public Integer high() {
+      return this.high;
+    }
+
+    public GetSegments build() {
       if (Objects.isNull(this.split()))  {
         throw new IllegalArgumentException("Missing value for required field `split`");
       }
@@ -87,7 +110,10 @@ public class GetSegment {
       if (Objects.isNull(this.low()))  {
         throw new IllegalArgumentException("Missing value for required field `low`");
       }
-      return new GetSegment(this);
+      if (Objects.isNull(this.high()))  {
+        throw new IllegalArgumentException("Missing value for required field `high`");
+      }
+      return new GetSegments(this);
     }
   }
 }
