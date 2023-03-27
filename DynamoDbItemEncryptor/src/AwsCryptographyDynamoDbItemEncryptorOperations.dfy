@@ -3,11 +3,12 @@
 include "../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
 include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/src/CMMs/ExpectedEncryptionContextCMM.dfy"
 include "DynamoToStruct.dfy"
+include "Util.dfy"
 include "../../StructuredEncryption/src/SearchInfo.dfy"
 
 module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptographyDynamoDbItemEncryptorOperations {
-  import opened StructuredEncryptionUtil
   import ComAmazonawsDynamodbTypes
+  import opened DynamoDbItemEncryptorUtil
   import CMP = AwsCryptographyMaterialProvidersTypes
   import StructuredEncryption
   import DynamoToStruct
@@ -16,10 +17,10 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   import opened StandardLibrary
   import Seq
   import CSE = AwsCryptographyStructuredEncryptionTypes
-  import SE =  StructuredEncryptionUtil
   import MaterialProviders
   import ExpectedEncryptionContextCMM
   import opened SearchableEncryptionInfo
+  import SET = AwsCryptographyStructuredEncryptionTypes
 
   datatype Config = Config(
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
@@ -40,6 +41,22 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   type InternalConfig = Config
   type ValidConfig = x : Config | ValidInternalConfig?(x) witness *
 
+  predicate method IsEncrypted(config : ValidConfig, attr : string)
+  {
+    && attr in config.attributeActions
+    && config.attributeActions[attr] == SET.ENCRYPT_AND_SIGN
+  }
+
+  predicate method IsSigned(config : ValidConfig, attr : string)
+  {
+    && attr in config.attributeActions
+    && config.attributeActions[attr] != SET.DO_NOTHING
+  }
+
+  const DoNotSign :=
+    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN), attributes := None)
+  const DoSign :=
+    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
 
   // constant attribute names for the encryption context
   const TABLE_NAME : seq<uint8> := UTF8.EncodeAscii("aws-crypto-table-name");
@@ -54,7 +71,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   {
     || (unauthenticatedAttributes.Some? && attr in unauthenticatedAttributes.value)
     || (unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attr)
-    || SE.ReservedPrefix <= attr
+    || ReservedPrefix <= attr
     // Attributes with the reserved prefix are "allowed unauthenticated" in that
     // they are not specified as signed within attributeActions.
     // These attributes MAY still be authenticated via other methods,
@@ -107,7 +124,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     else if unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attr then
       "it also begins with the unauthenticatedPrefix."
     else
-      assert SE.ReservedPrefix <= attr;
+      assert ReservedPrefix <= attr;
       "it also begins with the reserved prefix."
   }
 
@@ -300,7 +317,7 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
 
     // It is forbidden to explicitly configure an attribute with the reserved prefix
     && (forall attribute <- config.attributeActions.Keys ::
-          !(SE.ReservedPrefix <= attribute))
+          !(ReservedPrefix <= attribute))
 
     && (config.beacons.Some? ==> config.beacons.value.ValidState())
   }
@@ -357,13 +374,13 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
     //= type=implication
     //# Otherwise, Attributes MUST be considered as within the signature scope.
     ensures ret.Success? ==>
-      ((ret.value == SE.DoNotSign) <==> !InSignatureScope(config, attr))
+      ((ret.value == DoNotSign) <==> !InSignatureScope(config, attr))
   {
     :- Need(!UnknownAttribute(config, attr), "Attribute " + attr + " is not configured");
     if InSignatureScope(config, attr) then
-      Success(SE.DoSign)
+      Success(DoSign)
     else
-      Success(SE.DoNotSign)
+      Success(DoNotSign)
   }
 
   // get CryptoSchema for this item

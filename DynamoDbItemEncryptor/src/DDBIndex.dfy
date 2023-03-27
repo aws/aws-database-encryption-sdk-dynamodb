@@ -201,6 +201,8 @@ module DynamoDBIndexSupport {
       var newName :- MakeKeySchemaBeaconName(config, element.AttributeName);
       var newAttrs := ReplaceAttrDef(attrs, element.AttributeName, newName);
       Success((element.(AttributeName := newName), newAttrs))
+    else if IsEncrypted(config, element.AttributeName) then
+      Failure("You can't make an index on an encrypted attribute, unless you've configured a beacon for that attribute.")
     else
       Success((element, attrs))
   }

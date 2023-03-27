@@ -152,7 +152,7 @@ module DynamoDBSupport {
   function method LsiOptWithAttrs(config : ValidConfig, schema : Option<DDB.LocalSecondaryIndexList>, attrs : DDB.AttributeDefinitions)
     : Result<(Option<DDB.LocalSecondaryIndexList>, DDB.AttributeDefinitions), string>
   {
-    if schema.None? then
+    if schema.None? || config.beacons.None? then
       Success((schema, []))
     else
       var (newSchema, newAttrs) :- LsiWithAttrs(config, schema.value, attrs);
@@ -163,7 +163,7 @@ module DynamoDBSupport {
   function method GsiOptWithAttrs(config : ValidConfig, schema : Option<DDB.GlobalSecondaryIndexList>, attrs : DDB.AttributeDefinitions)
     : Result<(Option<DDB.GlobalSecondaryIndexList>, DDB.AttributeDefinitions), string>
   {
-    if schema.None? then
+    if schema.None? || config.beacons.None? then
       Success((schema, []))
     else
       var (newSchema, newAttrs) :- GsiWithAttrs(config, schema.value, attrs);
