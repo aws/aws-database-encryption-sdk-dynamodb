@@ -12,13 +12,13 @@ public class VirtualTransform {
 
   private final Insert insert;
 
-  private final PrefixTrans prefix;
+  private final GetPrefix prefix;
 
-  private final Suffix suffix;
+  private final GetSuffix suffix;
 
-  private final Substring substring;
+  private final GetSubstring substring;
 
-  private final Segment segment;
+  private final GetSegment segment;
 
   protected VirtualTransform(BuilderImpl builder) {
     this.upper = builder.upper();
@@ -42,19 +42,19 @@ public class VirtualTransform {
     return this.insert;
   }
 
-  public PrefixTrans prefix() {
+  public GetPrefix prefix() {
     return this.prefix;
   }
 
-  public Suffix suffix() {
+  public GetSuffix suffix() {
     return this.suffix;
   }
 
-  public Substring substring() {
+  public GetSubstring substring() {
     return this.substring;
   }
 
-  public Segment segment() {
+  public GetSegment segment() {
     return this.segment;
   }
 
@@ -79,21 +79,21 @@ public class VirtualTransform {
 
     Insert insert();
 
-    Builder prefix(PrefixTrans prefix);
+    Builder prefix(GetPrefix prefix);
 
-    PrefixTrans prefix();
+    GetPrefix prefix();
 
-    Builder suffix(Suffix suffix);
+    Builder suffix(GetSuffix suffix);
 
-    Suffix suffix();
+    GetSuffix suffix();
 
-    Builder substring(Substring substring);
+    Builder substring(GetSubstring substring);
 
-    Substring substring();
+    GetSubstring substring();
 
-    Builder segment(Segment segment);
+    Builder segment(GetSegment segment);
 
-    Segment segment();
+    GetSegment segment();
 
     VirtualTransform build();
   }
@@ -105,13 +105,13 @@ public class VirtualTransform {
 
     protected Insert insert;
 
-    protected PrefixTrans prefix;
+    protected GetPrefix prefix;
 
-    protected Suffix suffix;
+    protected GetSuffix suffix;
 
-    protected Substring substring;
+    protected GetSubstring substring;
 
-    protected Segment segment;
+    protected GetSegment segment;
 
     protected BuilderImpl() {
     }
@@ -153,39 +153,39 @@ public class VirtualTransform {
       return this.insert;
     }
 
-    public Builder prefix(PrefixTrans prefix) {
+    public Builder prefix(GetPrefix prefix) {
       this.prefix = prefix;
       return this;
     }
 
-    public PrefixTrans prefix() {
+    public GetPrefix prefix() {
       return this.prefix;
     }
 
-    public Builder suffix(Suffix suffix) {
+    public Builder suffix(GetSuffix suffix) {
       this.suffix = suffix;
       return this;
     }
 
-    public Suffix suffix() {
+    public GetSuffix suffix() {
       return this.suffix;
     }
 
-    public Builder substring(Substring substring) {
+    public Builder substring(GetSubstring substring) {
       this.substring = substring;
       return this;
     }
 
-    public Substring substring() {
+    public GetSubstring substring() {
       return this.substring;
     }
 
-    public Builder segment(Segment segment) {
+    public Builder segment(GetSegment segment) {
       this.segment = segment;
       return this;
     }
 
-    public Segment segment() {
+    public GetSegment segment() {
       return this.segment;
     }
 

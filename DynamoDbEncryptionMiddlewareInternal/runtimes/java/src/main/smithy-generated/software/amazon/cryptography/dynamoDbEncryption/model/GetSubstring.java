@@ -5,21 +5,14 @@ package software.amazon.cryptography.dynamoDbEncryption.model;
 
 import java.util.Objects;
 
-public class Segment {
-  private final String split;
-
+public class GetSubstring {
   private final Integer low;
 
   private final Integer high;
 
-  protected Segment(BuilderImpl builder) {
-    this.split = builder.split();
+  protected GetSubstring(BuilderImpl builder) {
     this.low = builder.low();
     this.high = builder.high();
-  }
-
-  public String split() {
-    return this.split;
   }
 
   public Integer low() {
@@ -39,10 +32,6 @@ public class Segment {
   }
 
   public interface Builder {
-    Builder split(String split);
-
-    String split();
-
     Builder low(Integer low);
 
     Integer low();
@@ -51,12 +40,10 @@ public class Segment {
 
     Integer high();
 
-    Segment build();
+    GetSubstring build();
   }
 
   static class BuilderImpl implements Builder {
-    protected String split;
-
     protected Integer low;
 
     protected Integer high;
@@ -64,19 +51,9 @@ public class Segment {
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(Segment model) {
-      this.split = model.split();
+    protected BuilderImpl(GetSubstring model) {
       this.low = model.low();
       this.high = model.high();
-    }
-
-    public Builder split(String split) {
-      this.split = split;
-      return this;
-    }
-
-    public String split() {
-      return this.split;
     }
 
     public Builder low(Integer low) {
@@ -97,20 +74,14 @@ public class Segment {
       return this.high;
     }
 
-    public Segment build() {
-      if (Objects.isNull(this.split()))  {
-        throw new IllegalArgumentException("Missing value for required field `split`");
-      }
-      if (Objects.nonNull(this.split()) && this.split().length() < 1) {
-        throw new IllegalArgumentException("The size of `split` must be greater than or equal to 1");
-      }
-      if (Objects.nonNull(this.split()) && this.split().length() > 1) {
-        throw new IllegalArgumentException("The size of `split` must be less than or equal to 1");
-      }
+    public GetSubstring build() {
       if (Objects.isNull(this.low()))  {
         throw new IllegalArgumentException("Missing value for required field `low`");
       }
-      return new Segment(this);
+      if (Objects.isNull(this.high()))  {
+        throw new IllegalArgumentException("Missing value for required field `high`");
+      }
+      return new GetSubstring(this);
     }
   }
 }

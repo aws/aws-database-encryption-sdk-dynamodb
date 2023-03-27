@@ -5,14 +5,14 @@ package software.amazon.cryptography.dynamoDbEncryption.model;
 
 import java.util.Objects;
 
-public class Suffix {
-  private final int length;
+public class GetSuffix {
+  private final Integer length;
 
-  protected Suffix(BuilderImpl builder) {
+  protected GetSuffix(BuilderImpl builder) {
     this.length = builder.length();
   }
 
-  public int length() {
+  public Integer length() {
     return this.length;
   }
 
@@ -25,40 +25,37 @@ public class Suffix {
   }
 
   public interface Builder {
-    Builder length(int length);
+    Builder length(Integer length);
 
-    int length();
+    Integer length();
 
-    Suffix build();
+    GetSuffix build();
   }
 
   static class BuilderImpl implements Builder {
-    protected int length;
+    protected Integer length;
 
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(Suffix model) {
+    protected BuilderImpl(GetSuffix model) {
       this.length = model.length();
     }
 
-    public Builder length(int length) {
+    public Builder length(Integer length) {
       this.length = length;
       return this;
     }
 
-    public int length() {
+    public Integer length() {
       return this.length;
     }
 
-    public Suffix build() {
+    public GetSuffix build() {
       if (Objects.isNull(this.length()))  {
         throw new IllegalArgumentException("Missing value for required field `length`");
       }
-      if (Objects.nonNull(this.length()) && this.length() < 1) {
-        throw new IllegalArgumentException("`length` must be greater than or equal to 1");
-      }
-      return new Suffix(this);
+      return new GetSuffix(this);
     }
   }
 }

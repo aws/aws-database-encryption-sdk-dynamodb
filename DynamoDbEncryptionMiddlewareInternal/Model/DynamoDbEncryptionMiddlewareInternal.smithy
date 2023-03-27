@@ -110,9 +110,6 @@ integer BeaconBitLength
 @range(min: 1)
 integer VersionNumber
 
-@range(min: 1)
-integer PositiveInteger
-
 @length(min: 1, max: 1)
 string Char
 
@@ -185,29 +182,52 @@ structure VirtualPart {
   trans : VirtualTransformList,
 }
 
+// Convert ASCII characters to upper case
 structure Upper {}
+
+// Convert ASCII characters to lower case
 structure Lower {}
+
+// Append this literal string
 structure Insert {
   @required
   literal : String
 }
 
-structure PrefixTrans { // "Prefix" is already used
+// return the first part of the string
+// Positive length : return that many characters from the front
+// Negative length : exclude -length characters from the end
+// e.g. GetPrefix(-1) returns all but the last character
+structure GetPrefix {
   @required
-  length : PositiveInteger
+  length : Integer
 }
 
-structure Suffix {
+// return the last part of the string
+// Positive length : return that many characters from the end
+// Negative length : exclude -length characters from the front
+// e.g. GetSuffix(-1) returns all but the first character
+structure GetSuffix {
   @required
-  length : PositiveInteger
+  length : Integer
 }
-structure Substring {
+
+// return inclusive range of characters, 1-based counting
+// negative numbers count from the end, -1 is the last character
+// e.g. for "123456789"
+// GetSubstring(3,6) == "3456"
+// GetSubstring(3, -4) == "3456"
+structure GetSubstring {
   @required
   low : Integer,
+  @required
   high : Integer,
 }
 
-structure Segment {
+// split string on character
+// then return range of pieces, with same semantics as GetSubstring
+// if 'high' is omitted, range is low..low; a.k.a just the one piece 'low'
+structure GetSegment {
   @required
   split : Char,
   @required
@@ -219,10 +239,10 @@ union VirtualTransform {
   upper: Upper,
   lower: Lower,
   insert: Insert,
-  prefix: PrefixTrans,
-  suffix: Suffix,
-  substring : Substring,
-  segment : Segment  
+  prefix: GetPrefix,
+  suffix: GetSuffix,
+  substring : GetSubstring,
+  segment : GetSegment
 }
 
 structure SensitivePart {

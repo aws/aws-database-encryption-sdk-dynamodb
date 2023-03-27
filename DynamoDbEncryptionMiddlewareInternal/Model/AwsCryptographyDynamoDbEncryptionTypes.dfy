@@ -773,6 +773,21 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  datatype GetItemOutputTransformOutput = | GetItemOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.GetItemOutput
  )
+ datatype GetPrefix = | GetPrefix (
+ nameonly length: int32
+ )
+ datatype GetSegment = | GetSegment (
+ nameonly split: Char ,
+ nameonly low: int32 ,
+ nameonly high: Option<int32>
+ )
+ datatype GetSubstring = | GetSubstring (
+ nameonly low: int32 ,
+ nameonly high: int32
+ )
+ datatype GetSuffix = | GetSuffix (
+ nameonly length: int32
+ )
  datatype Insert = | Insert (
  nameonly literal: string
  )
@@ -788,17 +803,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate method IsValid_NonSensitivePartsList(x: seq<NonSensitivePart>) {
  ( 1 <= |x|  )
 }
- type PositiveInteger = x: int32 | IsValid_PositiveInteger(x) witness *
- predicate method IsValid_PositiveInteger(x: int32) {
- ( 1 <= x  )
-}
  type Prefix = x: string | IsValid_Prefix(x) witness *
  predicate method IsValid_Prefix(x: string) {
  ( 1 <= |x|  )
 }
- datatype PrefixTrans = | PrefixTrans (
- nameonly length: PositiveInteger
- )
  datatype PutItemInputTransformInput = | PutItemInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.PutItemInput
  )
@@ -842,11 +850,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  nameonly versions: BeaconVersionList ,
  nameonly writeVersion: VersionNumber
  )
- datatype Segment = | Segment (
- nameonly split: Char ,
- nameonly low: int32 ,
- nameonly high: Option<int32>
- )
  datatype SensitivePart = | SensitivePart (
  nameonly name: string ,
  nameonly prefix: Prefix ,
@@ -866,13 +869,6 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  predicate method IsValid_StandardBeaconList(x: seq<StandardBeacon>) {
  ( 1 <= |x|  )
 }
- datatype Substring = | Substring (
- nameonly low: int32 ,
- nameonly high: Option<int32>
- )
- datatype Suffix = | Suffix (
- nameonly length: PositiveInteger
- )
  type TerminalLocation = x: string | IsValid_TerminalLocation(x) witness *
  predicate method IsValid_TerminalLocation(x: string) {
  ( 1 <= |x|  )
@@ -956,10 +952,10 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  | upper(upper: Upper)
  | lower(lower: Lower)
  | insert(insert: Insert)
- | prefix(prefix: PrefixTrans)
- | suffix(suffix: Suffix)
- | substring(substring: Substring)
- | segment(segment: Segment)
+ | prefix(prefix: GetPrefix)
+ | suffix(suffix: GetSuffix)
+ | substring(substring: GetSubstring)
+ | segment(segment: GetSegment)
  type VirtualTransformList = x: seq<VirtualTransform> | IsValid_VirtualTransformList(x) witness *
  predicate method IsValid_VirtualTransformList(x: seq<VirtualTransform>) {
  ( 1 <= |x|  )

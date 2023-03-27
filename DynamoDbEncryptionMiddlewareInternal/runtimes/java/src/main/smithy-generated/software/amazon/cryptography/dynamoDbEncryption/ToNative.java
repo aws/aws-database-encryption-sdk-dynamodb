@@ -57,12 +57,15 @@ import software.amazon.cryptography.dynamoDbEncryption.model.GetItemInputTransfo
 import software.amazon.cryptography.dynamoDbEncryption.model.GetItemInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetItemOutputTransformOutput;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetPrefix;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetSegment;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetSubstring;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetSuffix;
 import software.amazon.cryptography.dynamoDbEncryption.model.Insert;
 import software.amazon.cryptography.dynamoDbEncryption.model.Lower;
 import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.model.NonSensitivePart;
 import software.amazon.cryptography.dynamoDbEncryption.model.OpaqueError;
-import software.amazon.cryptography.dynamoDbEncryption.model.PrefixTrans;
 import software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.PutItemOutputTransformInput;
@@ -76,11 +79,8 @@ import software.amazon.cryptography.dynamoDbEncryption.model.ScanInputTransformO
 import software.amazon.cryptography.dynamoDbEncryption.model.ScanOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.ScanOutputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.SearchConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.Segment;
 import software.amazon.cryptography.dynamoDbEncryption.model.SensitivePart;
 import software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon;
-import software.amazon.cryptography.dynamoDbEncryption.model.Substring;
-import software.amazon.cryptography.dynamoDbEncryption.model.Suffix;
 import software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsInputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.TransactGetItemsOutputTransformInput;
@@ -139,18 +139,18 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static GetSuffix GetSuffix(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSuffix dafnyValue) {
+    GetSuffix.Builder nativeBuilder = GetSuffix.builder();
+    nativeBuilder.length((dafnyValue.dtor_length()));
+    return nativeBuilder.build();
+  }
+
   public static TransactWriteItemsOutputTransformInput TransactWriteItemsOutputTransformInput(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.TransactWriteItemsOutputTransformInput dafnyValue) {
     TransactWriteItemsOutputTransformInput.Builder nativeBuilder = TransactWriteItemsOutputTransformInput.builder();
     nativeBuilder.sdkOutput(Dafny.Com.Amazonaws.Dynamodb.ToNative.TransactWriteItemsOutput(dafnyValue.dtor_sdkOutput()));
     nativeBuilder.originalInput(Dafny.Com.Amazonaws.Dynamodb.ToNative.TransactWriteItemsInput(dafnyValue.dtor_originalInput()));
-    return nativeBuilder.build();
-  }
-
-  public static PrefixTrans PrefixTrans(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PrefixTrans dafnyValue) {
-    PrefixTrans.Builder nativeBuilder = PrefixTrans.builder();
-    nativeBuilder.length((dafnyValue.dtor_length()));
     return nativeBuilder.build();
   }
 
@@ -292,6 +292,17 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static GetSegment GetSegment(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegment dafnyValue) {
+    GetSegment.Builder nativeBuilder = GetSegment.builder();
+    nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
+    nativeBuilder.low((dafnyValue.dtor_low()));
+    if (dafnyValue.dtor_high().is_Some()) {
+      nativeBuilder.high((dafnyValue.dtor_high().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
   public static PutItemInputTransformOutput PutItemInputTransformOutput(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PutItemInputTransformOutput dafnyValue) {
     PutItemInputTransformOutput.Builder nativeBuilder = PutItemInputTransformOutput.builder();
@@ -369,6 +380,13 @@ public class ToNative {
     GetItemOutputTransformInput.Builder nativeBuilder = GetItemOutputTransformInput.builder();
     nativeBuilder.sdkOutput(Dafny.Com.Amazonaws.Dynamodb.ToNative.GetItemOutput(dafnyValue.dtor_sdkOutput()));
     nativeBuilder.originalInput(Dafny.Com.Amazonaws.Dynamodb.ToNative.GetItemInput(dafnyValue.dtor_originalInput()));
+    return nativeBuilder.build();
+  }
+
+  public static GetPrefix GetPrefix(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetPrefix dafnyValue) {
+    GetPrefix.Builder nativeBuilder = GetPrefix.builder();
+    nativeBuilder.length((dafnyValue.dtor_length()));
     return nativeBuilder.build();
   }
 
@@ -606,16 +624,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static Substring Substring(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Substring dafnyValue) {
-    Substring.Builder nativeBuilder = Substring.builder();
-    nativeBuilder.low((dafnyValue.dtor_low()));
-    if (dafnyValue.dtor_high().is_Some()) {
-      nativeBuilder.high((dafnyValue.dtor_high().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static UpdateItemOutputTransformInput UpdateItemOutputTransformInput(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateItemOutputTransformInput dafnyValue) {
     UpdateItemOutputTransformInput.Builder nativeBuilder = UpdateItemOutputTransformInput.builder();
@@ -628,6 +636,14 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.UpdateTableInputTransformOutput dafnyValue) {
     UpdateTableInputTransformOutput.Builder nativeBuilder = UpdateTableInputTransformOutput.builder();
     nativeBuilder.transformedInput(Dafny.Com.Amazonaws.Dynamodb.ToNative.UpdateTableInput(dafnyValue.dtor_transformedInput()));
+    return nativeBuilder.build();
+  }
+
+  public static GetSubstring GetSubstring(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSubstring dafnyValue) {
+    GetSubstring.Builder nativeBuilder = GetSubstring.builder();
+    nativeBuilder.low((dafnyValue.dtor_low()));
+    nativeBuilder.high((dafnyValue.dtor_high()));
     return nativeBuilder.build();
   }
 
@@ -682,17 +698,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static Segment Segment(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Segment dafnyValue) {
-    Segment.Builder nativeBuilder = Segment.builder();
-    nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
-    nativeBuilder.low((dafnyValue.dtor_low()));
-    if (dafnyValue.dtor_high().is_Some()) {
-      nativeBuilder.high((dafnyValue.dtor_high().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static ExecuteTransactionOutputTransformInput ExecuteTransactionOutputTransformInput(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ExecuteTransactionOutputTransformInput dafnyValue) {
     ExecuteTransactionOutputTransformInput.Builder nativeBuilder = ExecuteTransactionOutputTransformInput.builder();
@@ -734,12 +739,6 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.BatchGetItemOutputTransformOutput dafnyValue) {
     BatchGetItemOutputTransformOutput.Builder nativeBuilder = BatchGetItemOutputTransformOutput.builder();
     nativeBuilder.transformedOutput(Dafny.Com.Amazonaws.Dynamodb.ToNative.BatchGetItemOutput(dafnyValue.dtor_transformedOutput()));
-    return nativeBuilder.build();
-  }
-
-  public static Suffix Suffix(Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Suffix dafnyValue) {
-    Suffix.Builder nativeBuilder = Suffix.builder();
-    nativeBuilder.length((dafnyValue.dtor_length()));
     return nativeBuilder.build();
   }
 
@@ -809,16 +808,16 @@ public class ToNative {
       nativeBuilder.insert(ToNative.Insert(dafnyValue.dtor_insert()));
     }
     if (dafnyValue.is_prefix()) {
-      nativeBuilder.prefix(ToNative.PrefixTrans(dafnyValue.dtor_prefix()));
+      nativeBuilder.prefix(ToNative.GetPrefix(dafnyValue.dtor_prefix()));
     }
     if (dafnyValue.is_suffix()) {
-      nativeBuilder.suffix(ToNative.Suffix(dafnyValue.dtor_suffix()));
+      nativeBuilder.suffix(ToNative.GetSuffix(dafnyValue.dtor_suffix()));
     }
     if (dafnyValue.is_substring()) {
-      nativeBuilder.substring(ToNative.Substring(dafnyValue.dtor_substring()));
+      nativeBuilder.substring(ToNative.GetSubstring(dafnyValue.dtor_substring()));
     }
     if (dafnyValue.is_segment()) {
-      nativeBuilder.segment(ToNative.Segment(dafnyValue.dtor_segment()));
+      nativeBuilder.segment(ToNative.GetSegment(dafnyValue.dtor_segment()));
     }
     return nativeBuilder.build();
   }

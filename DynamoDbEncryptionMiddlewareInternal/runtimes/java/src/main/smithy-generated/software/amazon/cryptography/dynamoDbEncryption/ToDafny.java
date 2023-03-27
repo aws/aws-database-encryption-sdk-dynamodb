@@ -47,10 +47,13 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetItemInputTransformInpu
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetItemInputTransformOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetItemOutputTransformInput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetItemOutputTransformOutput;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetPrefix;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegment;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSubstring;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSuffix;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Insert;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Lower;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.NonSensitivePart;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PrefixTrans;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PutItemInputTransformInput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PutItemInputTransformOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PutItemOutputTransformInput;
@@ -64,11 +67,8 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ScanInputTransformOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ScanOutputTransformInput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ScanOutputTransformOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.SearchConfig;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Segment;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.SensitivePart;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.StandardBeacon;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Substring;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Suffix;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.TransactGetItemsInputTransformInput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.TransactGetItemsInputTransformOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.TransactGetItemsOutputTransformInput;
@@ -167,6 +167,13 @@ public class ToDafny {
     return Error.create_CollectionOfErrors(list);
   }
 
+  public static GetSuffix GetSuffix(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetSuffix nativeValue) {
+    Integer length;
+    length = (nativeValue.length());
+    return new GetSuffix(length);
+  }
+
   public static TransactWriteItemsOutputTransformInput TransactWriteItemsOutputTransformInput(
       software.amazon.cryptography.dynamoDbEncryption.model.TransactWriteItemsOutputTransformInput nativeValue) {
     TransactWriteItemsOutput sdkOutput;
@@ -174,13 +181,6 @@ public class ToDafny {
     TransactWriteItemsInput originalInput;
     originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.TransactWriteItemsInput(nativeValue.originalInput());
     return new TransactWriteItemsOutputTransformInput(sdkOutput, originalInput);
-  }
-
-  public static PrefixTrans PrefixTrans(
-      software.amazon.cryptography.dynamoDbEncryption.model.PrefixTrans nativeValue) {
-    Integer length;
-    length = (nativeValue.length());
-    return new PrefixTrans(length);
   }
 
   public static CreateTableInputTransformInput CreateTableInputTransformInput(
@@ -333,6 +333,19 @@ public class ToDafny {
     return new VirtualField(name, parts);
   }
 
+  public static GetSegment GetSegment(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetSegment nativeValue) {
+    DafnySequence<? extends Character> split;
+    split = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.split());
+    Integer low;
+    low = (nativeValue.low());
+    Option<Integer> high;
+    high = Objects.nonNull(nativeValue.high()) ?
+        Option.create_Some((nativeValue.high()))
+        : Option.create_None();
+    return new GetSegment(split, low, high);
+  }
+
   public static PutItemInputTransformOutput PutItemInputTransformOutput(
       software.amazon.cryptography.dynamoDbEncryption.model.PutItemInputTransformOutput nativeValue) {
     PutItemInput transformedInput;
@@ -414,6 +427,13 @@ public class ToDafny {
     GetItemInput originalInput;
     originalInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.GetItemInput(nativeValue.originalInput());
     return new GetItemOutputTransformInput(sdkOutput, originalInput);
+  }
+
+  public static GetPrefix GetPrefix(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetPrefix nativeValue) {
+    Integer length;
+    length = (nativeValue.length());
+    return new GetPrefix(length);
   }
 
   public static TransactWriteItemsInputTransformOutput TransactWriteItemsInputTransformOutput(
@@ -669,17 +689,6 @@ public class ToDafny {
     return new BatchGetItemInputTransformInput(sdkInput);
   }
 
-  public static Substring Substring(
-      software.amazon.cryptography.dynamoDbEncryption.model.Substring nativeValue) {
-    Integer low;
-    low = (nativeValue.low());
-    Option<Integer> high;
-    high = Objects.nonNull(nativeValue.high()) ?
-        Option.create_Some((nativeValue.high()))
-        : Option.create_None();
-    return new Substring(low, high);
-  }
-
   public static UpdateItemOutputTransformInput UpdateItemOutputTransformInput(
       software.amazon.cryptography.dynamoDbEncryption.model.UpdateItemOutputTransformInput nativeValue) {
     UpdateItemOutput sdkOutput;
@@ -694,6 +703,15 @@ public class ToDafny {
     UpdateTableInput transformedInput;
     transformedInput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.UpdateTableInput(nativeValue.transformedInput());
     return new UpdateTableInputTransformOutput(transformedInput);
+  }
+
+  public static GetSubstring GetSubstring(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetSubstring nativeValue) {
+    Integer low;
+    low = (nativeValue.low());
+    Integer high;
+    high = (nativeValue.high());
+    return new GetSubstring(low, high);
   }
 
   public static Upper Upper(
@@ -751,19 +769,6 @@ public class ToDafny {
     return new CreateTableOutputTransformInput(sdkOutput, originalInput);
   }
 
-  public static Segment Segment(
-      software.amazon.cryptography.dynamoDbEncryption.model.Segment nativeValue) {
-    DafnySequence<? extends Character> split;
-    split = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.split());
-    Integer low;
-    low = (nativeValue.low());
-    Option<Integer> high;
-    high = Objects.nonNull(nativeValue.high()) ?
-        Option.create_Some((nativeValue.high()))
-        : Option.create_None();
-    return new Segment(split, low, high);
-  }
-
   public static ExecuteTransactionOutputTransformInput ExecuteTransactionOutputTransformInput(
       software.amazon.cryptography.dynamoDbEncryption.model.ExecuteTransactionOutputTransformInput nativeValue) {
     ExecuteTransactionOutput sdkOutput;
@@ -808,13 +813,6 @@ public class ToDafny {
     BatchGetItemOutput transformedOutput;
     transformedOutput = Dafny.Com.Amazonaws.Dynamodb.ToDafny.BatchGetItemOutput(nativeValue.transformedOutput());
     return new BatchGetItemOutputTransformOutput(transformedOutput);
-  }
-
-  public static Suffix Suffix(
-      software.amazon.cryptography.dynamoDbEncryption.model.Suffix nativeValue) {
-    Integer length;
-    length = (nativeValue.length());
-    return new Suffix(length);
   }
 
   public static VirtualPart VirtualPart(
@@ -890,16 +888,16 @@ public class ToDafny {
       return VirtualTransform.create_insert(ToDafny.Insert(nativeValue.insert()));
     }
     if (Objects.nonNull(nativeValue.prefix())) {
-      return VirtualTransform.create_prefix(ToDafny.PrefixTrans(nativeValue.prefix()));
+      return VirtualTransform.create_prefix(ToDafny.GetPrefix(nativeValue.prefix()));
     }
     if (Objects.nonNull(nativeValue.suffix())) {
-      return VirtualTransform.create_suffix(ToDafny.Suffix(nativeValue.suffix()));
+      return VirtualTransform.create_suffix(ToDafny.GetSuffix(nativeValue.suffix()));
     }
     if (Objects.nonNull(nativeValue.substring())) {
-      return VirtualTransform.create_substring(ToDafny.Substring(nativeValue.substring()));
+      return VirtualTransform.create_substring(ToDafny.GetSubstring(nativeValue.substring()));
     }
     if (Objects.nonNull(nativeValue.segment())) {
-      return VirtualTransform.create_segment(ToDafny.Segment(nativeValue.segment()));
+      return VirtualTransform.create_segment(ToDafny.GetSegment(nativeValue.segment()));
     }
     throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualTransform.");
   }
