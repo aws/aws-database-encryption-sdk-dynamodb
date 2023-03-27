@@ -41,7 +41,14 @@ module CompoundBeacon {
     loc : TerminalLocation,
     prefix : Prefix,
     length : Option<BeaconLength>
-  )
+  ) {
+
+    // TODO virtual fields
+    function method GetFields() : seq<string>
+    {
+      [loc.parts[0].key]
+    }
+  }
 
   datatype ConstructorPart = ConstructorPart (
     name : string,
@@ -69,6 +76,11 @@ module CompoundBeacon {
       var part := Seq.Filter((x : BeaconPart) => (x.name == name), parts);
       :- Need(|part| == 1, E("Internal error, constructor named non-existent part"));
       Success(part[0])
+    }
+
+    function method GetFields() : seq<string>
+    {
+      Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(), parts))
     }
 
     function method {:opaque} {:tailrecursion} TryConstructor(consFields : seq<ConstructorPart>, stringify : Stringify, acc : string := "")

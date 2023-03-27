@@ -11,16 +11,14 @@ module DynamoToStruct {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import AwsCryptographyDynamoDbItemEncryptorTypes
-  import Util = StructuredEncryptionUtil
   import UTF8
   import SortedSets
   import Seq
-  import SE = StructuredEncryptionUtil
 
   type Error = AwsCryptographyDynamoDbItemEncryptorTypes.Error
 
-  type TerminalDataMap = map<AttributeName, Util.StructuredDataTerminalType>
-
+  type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
+  type TerminalDataMap = map<AttributeName, StructuredDataTerminalType>
 
 /* TODO - prove the following
   StructuredToItem(ItemToStructured(itemMap)) == itemMap
@@ -244,7 +242,7 @@ module DynamoToStruct {
     const NULL       : TerminalTypeId := [TERM_T, NULL_T];
     const STRING     : TerminalTypeId := [TERM_T, STRING_T];
     const NUMBER     : TerminalTypeId := [TERM_T, NUMBER_T];
-    const BINARY     : TerminalTypeId := SE.BYTES_TYPE_ID;
+    const BINARY     : TerminalTypeId := [0xFF, 0xFF];
     const BOOLEAN    : TerminalTypeId := [TERM_T, BOOLEAN_T];
     const STRING_SET : TerminalTypeId := [SET_T,  STRING_T];
     const NUMBER_SET : TerminalTypeId := [SET_T,  NUMBER_T];
