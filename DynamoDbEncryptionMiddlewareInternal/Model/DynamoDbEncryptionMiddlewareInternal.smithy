@@ -226,12 +226,12 @@ structure GetSubstring {
 }
 
 // split string on character, then return one piece.
-// 'low' has the same semantics as GetSubstring
+// 'index' has the same semantics as 'low' in GetSubstring
 structure GetSegment {
   @required
   split : Char,
   @required
-  low : Integer
+  index : Integer
 }
 
 // split string on character, then return range of pieces.

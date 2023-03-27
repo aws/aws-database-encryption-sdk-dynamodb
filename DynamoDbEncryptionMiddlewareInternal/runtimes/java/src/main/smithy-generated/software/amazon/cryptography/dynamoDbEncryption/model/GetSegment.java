@@ -8,19 +8,19 @@ import java.util.Objects;
 public class GetSegment {
   private final String split;
 
-  private final Integer low;
+  private final Integer index;
 
   protected GetSegment(BuilderImpl builder) {
     this.split = builder.split();
-    this.low = builder.low();
+    this.index = builder.index();
   }
 
   public String split() {
     return this.split;
   }
 
-  public Integer low() {
-    return this.low;
+  public Integer index() {
+    return this.index;
   }
 
   public Builder toBuilder() {
@@ -36,9 +36,9 @@ public class GetSegment {
 
     String split();
 
-    Builder low(Integer low);
+    Builder index(Integer index);
 
-    Integer low();
+    Integer index();
 
     GetSegment build();
   }
@@ -46,14 +46,14 @@ public class GetSegment {
   static class BuilderImpl implements Builder {
     protected String split;
 
-    protected Integer low;
+    protected Integer index;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetSegment model) {
       this.split = model.split();
-      this.low = model.low();
+      this.index = model.index();
     }
 
     public Builder split(String split) {
@@ -65,13 +65,13 @@ public class GetSegment {
       return this.split;
     }
 
-    public Builder low(Integer low) {
-      this.low = low;
+    public Builder index(Integer index) {
+      this.index = index;
       return this;
     }
 
-    public Integer low() {
-      return this.low;
+    public Integer index() {
+      return this.index;
     }
 
     public GetSegment build() {
@@ -84,8 +84,8 @@ public class GetSegment {
       if (Objects.nonNull(this.split()) && this.split().length() > 1) {
         throw new IllegalArgumentException("The size of `split` must be less than or equal to 1");
       }
-      if (Objects.isNull(this.low()))  {
-        throw new IllegalArgumentException("Missing value for required field `low`");
+      if (Objects.isNull(this.index()))  {
+        throw new IllegalArgumentException("Missing value for required field `index`");
       }
       return new GetSegment(this);
     }

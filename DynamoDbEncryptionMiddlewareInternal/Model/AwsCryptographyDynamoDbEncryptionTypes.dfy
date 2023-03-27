@@ -778,7 +778,7 @@ include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/Inde
  )
  datatype GetSegment = | GetSegment (
  nameonly split: Char ,
- nameonly low: int32
+ nameonly index: int32
  )
  datatype GetSegments = | GetSegments (
  nameonly split: Char ,

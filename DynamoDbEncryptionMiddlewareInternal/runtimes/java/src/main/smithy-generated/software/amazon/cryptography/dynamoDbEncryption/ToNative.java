@@ -297,7 +297,7 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegment dafnyValue) {
     GetSegment.Builder nativeBuilder = GetSegment.builder();
     nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
-    nativeBuilder.low((dafnyValue.dtor_low()));
+    nativeBuilder.index((dafnyValue.dtor_index()));
     return nativeBuilder.build();
   }
 

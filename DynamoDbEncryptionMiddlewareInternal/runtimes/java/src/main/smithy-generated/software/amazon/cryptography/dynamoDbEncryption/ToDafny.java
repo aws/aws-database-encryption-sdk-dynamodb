@@ -338,9 +338,9 @@ public class ToDafny {
       software.amazon.cryptography.dynamoDbEncryption.model.GetSegment nativeValue) {
     DafnySequence<? extends Character> split;
     split = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.split());
-    Integer low;
-    low = (nativeValue.low());
-    return new GetSegment(split, low);
+    Integer index;
+    index = (nativeValue.index());
+    return new GetSegment(split, index);
   }
 
   public static PutItemInputTransformOutput PutItemInputTransformOutput(
