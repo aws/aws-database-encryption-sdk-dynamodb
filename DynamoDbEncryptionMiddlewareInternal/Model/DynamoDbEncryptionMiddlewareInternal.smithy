@@ -125,6 +125,21 @@ list BeaconVersionList {
 }
 
 @length(min: 1)
+list VirtualFieldList {
+  member: VirtualField
+}
+
+@length(min: 1)
+list VirtualPartList {
+  member: VirtualPart
+}
+
+@length(min: 1)
+list VirtualTransformList {
+  member: VirtualTransform
+}
+
+@length(min: 1)
 list StandardBeaconList {
   member: StandardBeacon
 }
@@ -152,6 +167,93 @@ list ConstructorList {
 @length(min: 1)
 list ConstructorPartList {
   member: ConstructorPart
+}
+
+structure VirtualField {
+  @required
+  name : String,
+  @required
+  parts : VirtualPartList,
+}
+
+structure VirtualPart {
+  @required
+  loc : TerminalLocation,
+  trans : VirtualTransformList,
+}
+
+// Convert ASCII characters to upper case
+structure Upper {}
+
+// Convert ASCII characters to lower case
+structure Lower {}
+
+// Append this literal string
+structure Insert {
+  @required
+  literal : String
+}
+
+// return the first part of the string
+// Positive length : return that many characters from the front
+// Negative length : exclude -length characters from the end
+// e.g. GetPrefix(-1) returns all but the last character
+structure GetPrefix {
+  @required
+  length : Integer
+}
+
+// return the last part of the string
+// Positive length : return that many characters from the end
+// Negative length : exclude -length characters from the front
+// e.g. GetSuffix(-1) returns all but the first character
+structure GetSuffix {
+  @required
+  length : Integer
+}
+
+// return range of characters, 0-based counting
+// low is inclusive, high is exclusive
+// negative numbers count from the end, -1 is the end of string
+// i.e. the whole string is GetSubstring(0, -1)
+// e.g. for "123456789"
+// GetSubstring(2, 6) == GetSubstring(2, -4) == "3456"
+structure GetSubstring {
+  @required
+  low : Integer,
+  @required
+  high : Integer,
+}
+
+// split string on character, then return one piece.
+// 'index' has the same semantics as 'low' in GetSubstring
+structure GetSegment {
+  @required
+  split : Char,
+  @required
+  index : Integer
+}
+
+// split string on character, then return range of pieces.
+// 'low' and 'high' have the same semantics as GetSubstring
+structure GetSegments {
+  @required
+  split : Char,
+  @required
+  low : Integer,
+  @required
+  high : Integer,
+}
+
+union VirtualTransform {
+  upper: Upper,
+  lower: Lower,
+  insert: Insert,
+  prefix: GetPrefix,
+  suffix: GetSuffix,
+  substring : GetSubstring,
+  segment : GetSegment,
+  segments : GetSegments
 }
 
 structure SensitivePart {
@@ -210,6 +312,7 @@ structure BeaconVersion {
   keyring: KeyringReference, // Must be Hierarchy Keyring
   standardBeacons : StandardBeaconList,
   compoundBeacons : CompoundBeaconList,
+  virtualFields : VirtualFieldList,
 }
 
 structure SearchConfig {
