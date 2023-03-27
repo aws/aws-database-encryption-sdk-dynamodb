@@ -60,7 +60,8 @@ module
           allowedUnauthenticatedAttributePrefix := inputConfig.allowedUnauthenticatedAttributePrefix,
           algorithmSuiteId := inputConfig.algorithmSuiteId,
           keyring := inputConfig.keyring,
-          cmm := inputConfig.cmm
+          cmm := inputConfig.cmm,
+          legacyConfig := None // TODO pass the right config
         );
         // TODO consider using the raw constructor in order to avoid
         // instantiating multiple StructuredEncryption

@@ -44,6 +44,7 @@ import java.util.function.Function;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import software.amazon.cryptography.dynamoDbItemEncryptor.ILegacyDynamoDbEncryptor;
 
 /**
  * The low-level API used by {@link AttributeEncryptor} to perform crypto operations on the record
@@ -55,7 +56,7 @@ import javax.crypto.spec.IvParameterSpec;
  *
  * @author Greg Rubin
  */
-public class DynamoDBEncryptor {
+public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
   private static final String DEFAULT_SIGNATURE_ALGORITHM = "SHA256withRSA";
   private static final String DEFAULT_METADATA_FIELD = "*amzn-ddb-map-desc*";
   private static final String DEFAULT_SIGNATURE_FIELD = "*amzn-ddb-map-sig*";

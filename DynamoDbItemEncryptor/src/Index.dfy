@@ -13,6 +13,8 @@ module
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import MaterialProviders
   import Operations = AwsCryptographyDynamoDbItemEncryptorOperations
+  import SE =  StructuredEncryptionUtil
+  import InternalLegacyConfig
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
@@ -28,7 +30,8 @@ module
       allowedUnauthenticatedAttributePrefix := None(),
       keyring := None(),
       cmm := None(),
-      algorithmSuiteId := None()
+      algorithmSuiteId := None(),
+      legacyConfig := None()
     )
   }
 
@@ -173,6 +176,7 @@ module
     }
 
     var maybeCmpClient := MaterialProviders.MaterialProviders();
+    var internalLegacyConfig :- InternalLegacyConfig.InternalLegacyConfig.Build(config);
     var cmpClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     var internalConfig := Operations.Config(
@@ -186,7 +190,8 @@ module
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption,
-      beacons := None
+      beacons := None,
+      internalLegacyConfig := internalLegacyConfig
     );
     assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
 
