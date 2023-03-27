@@ -51,6 +51,12 @@ module SearchableEncryptionInfo {
       versions[currWrite].IsVirtualField(field)
     }
 
+    function method GenerateClosure(fields : seq<string>) : seq<string>
+      requires ValidState()
+    {
+      versions[currWrite].GenerateClosure(fields)
+    }
+
     function method GenerateBeacons(stringify : Stringify, byteify : Byteify) : Result<map<string,string>, Error>
       requires ValidState()
     {
@@ -75,6 +81,13 @@ module SearchableEncryptionInfo {
         std.base.name
       else
         cmp.base.name
+    }
+    function method GetFields() : seq<string>
+    {
+      if Standard? then
+        std.GetFields()
+      else
+        cmp.GetFields()
     }
   }
 
@@ -102,6 +115,21 @@ module SearchableEncryptionInfo {
     predicate method IsVirtualField(field : string)
     {
       field in virtualFields
+    }
+
+    function method GetFields(field : string) : seq<string>
+    {
+      if IsBeacon(field) then
+        beacons[field].GetFields() + ["aws_dbe_b_" + field]
+      else
+        [field]
+    }
+
+    function method GenerateClosure(fields : seq<string>) : seq<string>
+    {
+      var fieldLists := Seq.Map((s : string) => GetFields(s), fields);
+      var fieldSet := set f <- fieldLists, g <- f :: g;
+      SortedSets.ComputeSetToOrderedSequence2(fieldSet, CharLess)
     }
 
     // TerminalLocation to string via virtual field, if any
@@ -157,9 +185,10 @@ module SearchableEncryptionInfo {
     // Generate all possible beacons
     function method GenerateBeacons(stringify : Stringify, byteify : Byteify) : Result<map<string,string>, Error>
     {
+      var versionMap := map["aws_dbe_v1" := " "];
       var result := map k <- beacons :: k :=
         beacons[k].hash(t => VirtualStringify(t, stringify), t => VirtualByteify(t, stringify, byteify));
-      Success(map k <- result | result[k].Success? :: k := result[k].value)
+      Success((map k <- result | result[k].Success? :: k := result[k].value) + versionMap)
     }
   }
 }

@@ -147,6 +147,12 @@ module BaseBeacon {
       hash(bytes)
     }
 
+    // TODO virtual fields
+    function method GetFields() : seq<string>
+    {
+      [loc.parts[0].key]
+    }
+
 
     //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
     //= type=implication

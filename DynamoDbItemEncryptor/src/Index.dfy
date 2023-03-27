@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
+include "Util.dfy"
 
 module
   {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryptor" }
   DynamoDbItemEncryptor refines AbstractAwsCryptographyDynamoDbItemEncryptorService
 {
+  import opened DynamoDbItemEncryptorUtil
   import StructuredEncryption
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import MaterialProviders
   import Operations = AwsCryptographyDynamoDbItemEncryptorOperations
-  import SE =  StructuredEncryptionUtil
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
@@ -31,10 +32,10 @@ module
     )
   }
 
-  // because an inline "!(SE.ReservedPrefix <= attr)" is too hard for Dafny
+  // because an inline "!(ReservedPrefix <= attr)" is too hard for Dafny
   predicate method UnreservedPrefix(attr : string)
   {
-    !(SE.ReservedPrefix <= attr)
+    !(ReservedPrefix <= attr)
   }
 
   method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)

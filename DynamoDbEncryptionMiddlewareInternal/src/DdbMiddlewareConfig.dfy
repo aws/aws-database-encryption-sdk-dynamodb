@@ -19,6 +19,7 @@ module DdbMiddlewareConfig {
     var encryptorConfig := config.itemEncryptor.config;
     && config.partitionKeyName == encryptorConfig.partitionKeyName
     && config.sortKeyName == encryptorConfig.sortKeyName
+    && config.itemEncryptor.ValidState()
   }
 
   type ValidTableConfig = c: TableConfig | ValidTableConfig?(c) witness *

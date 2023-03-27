@@ -38,6 +38,8 @@ module AwsCryptographyDynamoDbItemEncryptorOperations refines AbstractAwsCryptog
   )
 
   type InternalConfig = Config
+  type ValidConfig = x : Config | ValidInternalConfig?(x) witness *
+
 
   // constant attribute names for the encryption context
   const TABLE_NAME : seq<uint8> := UTF8.EncodeAscii("aws-crypto-table-name");
