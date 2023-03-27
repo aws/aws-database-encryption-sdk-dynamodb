@@ -83,6 +83,7 @@ Resources:
       Description: "Access DDB, KMS, & CA Resources for CI from GitHub"
       ManagedPolicyArns:
         - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
+        - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
         - !Ref KMSUsage
         - !Ref TestTableUsage
       AssumeRolePolicyDocument: !Sub |
