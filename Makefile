@@ -1,8 +1,3 @@
-verify:
-	CORES=4 $(MAKE) -C DynamoDbItemEncryptor verify
-	CORES=4 $(MAKE) -C DynamoDbEncryptionMiddlewareInternal verify
-	CORES=4 $(MAKE) -C StructuredEncryption verify
-
 duvet: | duvet_extract duvet_report
 
 duvet_extract:
