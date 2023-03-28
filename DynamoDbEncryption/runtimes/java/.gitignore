@@ -1,12 +1,16 @@
 # Ignore Gradle project-specific cache directory
 .gradle
 
+# Ignore Gradle build output directory
+build
+
 # JetBrains
 .idea/*
 *.iml
 
-# Ignore Gradle build output directory
-build
+# Dafny Compile Temp
+temp
+temp-tests
 
 # Mac OS X
 .DS_Store

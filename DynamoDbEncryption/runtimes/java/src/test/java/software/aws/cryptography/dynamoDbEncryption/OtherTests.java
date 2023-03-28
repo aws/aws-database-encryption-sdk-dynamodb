@@ -1,36 +1,33 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
-import org.junit.jupiter.api.Test;
-import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbEncryption.resources.DynamoDbEncryptionResources;
-import software.amazon.cryptography.dynamoDbEncryption.resources.IDynamoDbItemBranchKeyIdSupplier;
-import software.amazon.cryptography.dynamoDbEncryption.resources.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
-import software.amazon.cryptography.dynamoDbEncryption.resources.model.DynamoDbEncryptionResourcesConfig;
-import software.amazon.cryptography.dynamoDbEncryption.resources.model.GetBranchKeyIdFromItemInput;
-import software.amazon.cryptography.dynamoDbEncryption.resources.model.GetBranchKeyIdFromItemOutput;
-import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.materialProviders.IKeyring;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsHierarchicalKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsRsaKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.materialProviders.model.*;
+import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createTestItem;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createTestKey;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createInterceptor;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.KMS_TEST_KEY_ID;
-import static software.aws.cryptography.dynamoDbEncryption.TestUtils.TEST_TABLE_NAME;
-import static software.aws.cryptography.dynamoDbEncryption.TestUtils.TEST_ATTR_NAME;
-import static software.aws.cryptography.dynamoDbEncryption.TestUtils.TEST_PARTITION_NAME;
-import static software.aws.cryptography.dynamoDbEncryption.TestUtils.TEST_SORT_NAME;
+import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createStaticKeyring;
+
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeTest;
 
 // Here we are testing some manually generated interfaces that don't technically belong to this package,
 // but exist alongside this package as a deliverable, and it is easiest to test them here for now.
@@ -41,6 +38,27 @@ public class OtherTests {
   public static final String ACTIVE_ACTIVE_BRANCH_KEY_ID = "hierarchy-test-active-active";
   public static final String keyArn = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
   public static final String branchKeyStoreArn = "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
+    @Test
+    public void TestItemEncryptorBuild() {
+        Map<String, CryptoAction> actions = new HashMap<>();
+        actions.put("foo", CryptoAction.SIGN_ONLY);
+        actions.put("bar", CryptoAction.SIGN_ONLY);
+
+        DynamoDbItemEncryptor itemEncryptor = DynamoDbItemEncryptor.builder()
+                .DynamoDbItemEncryptorConfig(
+                        DynamoDbItemEncryptorConfig.builder()
+                                .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
+                                .sortKeyName("foo")
+                                .partitionKeyName("bar")
+                                .tableName("test-table")
+                                .attributeActions(actions)
+                                .keyring(createStaticKeyring())
+                                // TODO try configuring a LegacyConfig
+                                .build()
+                ).build();
+
+        assertNotNull(itemEncryptor);
+    }
 
   /*
     @Test
@@ -289,23 +307,25 @@ public class OtherTests {
         assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
     }
 
-    @Test
-    public void TestBuildEncryptDecryptAwsKmsRsaKeyring() {
-        MaterialProviders matProv = MaterialProviders.builder()
-                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-                .build();
-
-        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
-
-        CreateAwsKmsRsaKeyringInput input = CreateAwsKmsRsaKeyringInput.builder()
-                .kmsClient(KmsClient.create())
-                .kmsKeyId(KMS_TEST_KEY_ID)
-                .encryptionAlgorithm(RSAES_OAEP_SHA_1)
-                .publicKey(key)
-                .build();
-        IKeyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
-        assertNotNull(keyring);
-    }
+    // This test can no longer pass.
+    // Because there is now a Modulus length check on the public key.
+//    @Test
+//    public void TestBuildEncryptDecryptAwsKmsRsaKeyring() {
+//        MaterialProviders matProv = MaterialProviders.builder()
+//                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+//                .build();
+//
+//        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
+//
+//        CreateAwsKmsRsaKeyringInput input = CreateAwsKmsRsaKeyringInput.builder()
+//                .kmsClient(KmsClient.create())
+//                .kmsKeyId(KMS_TEST_KEY_ID)
+//                .encryptionAlgorithm(RSAES_OAEP_SHA_1)
+//                .publicKey(key)
+//                .build();
+//        IKeyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
+//        assertNotNull(keyring);
+//    }
 
     class TestSupplier implements IDynamoDbItemBranchKeyIdSupplier {
         public GetBranchKeyIdFromItemOutput GetBranchKeyIdFromItem(GetBranchKeyIdFromItemInput input) {

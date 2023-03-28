@@ -70,14 +70,14 @@ otherwise, this operation MUST yield an error.
 
 ### CMM
 
-A CMM that implements the [CMM interface](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md).
+A CMM that implements the [CMM interface](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md).
 
 ### Algorithm Suite
 
-The [algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
+The [algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
 
 This algorithm suite MUST be a
-[supported suite for Database Encryption (DBE)](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum);
+[supported suite for Database Encryption (DBE)](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum);
 otherwise, this operation MUST yield an error.
 
 ### Encryption Context
@@ -85,7 +85,7 @@ otherwise, this operation MUST yield an error.
 See [encryption context](./structures.md#encryption-context).
 
 The prefix `aws-crypto-` is reserved for internal use by the AWS Encryption SDK; see the
-[the Default CMM spec](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/default-cmm.md)
+[the Default CMM spec](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/default-cmm.md)
 for one such use.
 
 ## Outputs
@@ -115,17 +115,17 @@ If any of these steps fails, this operation MUST halt and indicate a failure to 
 ### Retrieve Encryption Materials
 
 This operation MUST obtain a set of encryption materials by calling
-[Get Encryption Materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
+[Get Encryption Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
 on the input [CMM](#cmm).
 
 The call to Get Encryption Materials is constructed as follows:
 - Encryption Context: If provided, this MUST be the [input encryption context](#encryption-context);
   otherwise, this is an empty encryption context.
 - Commitment Policy: This MUST be
-  [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
+  [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
 - Algorithm Suite: If provided, this is the [input algorithm suite](#algorithm-suite);
   otherwise, this field MUST be the algorithm suite corresponding to the enum
-  [DBE.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
+  [DBE.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 - Max Plaintext Length: This field MUST be the result of the calculation `encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize`
   - `encryptedTerminalDataNum` is the number of [Terminal Data](./structures.md#terminal-data)
     in the [input Structured Data](#structured-data) being encrypted,
@@ -133,14 +133,14 @@ The call to Get Encryption Materials is constructed as follows:
   - `totalEncryptedTerminalValuesSize` is the sum of the length of all [Terminal Values](./structures.md#terminal-value)
     in the [input Structured Data](#structured-data) being encrypted,
     as defined by the [input Crypto Schema](#crypto-schema).
-../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md
+../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md
 The algorithm suite used in all aspects of this operation MUST be
 the algorithm suite in the
-[encryption materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md#encryption-materials)
+[encryption materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#encryption-materials)
 returned from the Get Encryption Materials call.
 Note that the algorithm suite in the retrieved encryption materials MAY be different from the input algorithm suite.
 If this algorithm suite is not a
-[supported suite for Database Encryption (DBE)](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum),
+[supported suite for Database Encryption (DBE)](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum),
 this operation MUST yield an error.
 
 ### Calculate Intermediate Encrypted Structured Data
@@ -197,7 +197,7 @@ The `info` used for the HKDF function MUST be
 ### Calculate Cipherkey and Nonce
 
 The HKDF algorithm used to calculate the Field Root Key MUST be the
-[Encryption Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
+[Encryption Key KDF](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
 indicated by the algorithm suite, using a provided plaintext data key, no salt,
 and an info as calculated [above](#calculate-info)
 
@@ -207,7 +207,7 @@ The `FieldRootKey` is combined with the ordinal position of a field within a rec
 to generate a unique `FieldKey` for encrypting that field.
 
 The calculated Field Root MUST have length equal to the
-  [algorithm suite's encryption key length](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
+  [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
 
 The `FieldKeyNonce` for a given offset MUST be 16 bytes comprised of
@@ -250,7 +250,7 @@ Terminal Type Id MUST equal the input Terminal Data's Terminal Type Id.
 
 The Encrypted Terminal Value MUST be derived according to the following encryption:
 - The encryption algorithm used is the
-  [encryption algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
+  [encryption algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.
 - The AAD is the [canonical path](./header.md#canonical-path) for this Terminal Data.
 - The [Cipherkey and Nonce](#calculate-cipherkey-and-nonce) are as calculated above.

@@ -11,10 +11,13 @@ jobs:
   verification:
     strategy:
       matrix:
-        library: [
-          DynamoDbEncryptionMiddlewareInternal,
+        # Break up verification between namespaces over multiple
+        # actions to take advantage of parallelization
+        namespace: [
+          DynamoDbEncryption,
+          DynamoDbEncryptionTransforms,
           DynamoDbItemEncryptor,
-          StructuredEncryption, 
+          StructuredEncryption
         ]
         os: [
           macos-latest,
@@ -34,7 +37,7 @@ jobs:
           AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
           git config --global --add url.https://github.com/.insteadOf git@github.com:
-          git submodule update --init --recursive private-aws-encryption-sdk-dafny-staging
+          git submodule update --init --recursive submodules/MaterialProviders
       
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1
@@ -43,14 +46,14 @@ jobs:
 
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./DynamoDbEncryption
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make verify CORES=$CORES
+          make verify_namespace CORES=$CORES SMITHY_NAMESPACE=${{ matrix.namespace }}
 
       - name: Check solver resource use
         shell: bash
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./DynamoDbEncryption
         run: |
           make dafny-reportgenerator

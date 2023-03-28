@@ -1,34 +1,70 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-DEPS_DIR:=$(ROOT_DIR)/../private-aws-encryption-sdk-dafny-staging
+CORES=2
 
-build_java_dependencies:
-	$(MAKE) -C $(DEPS_DIR)/StandardLibrary build_java
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives build_java
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms build_java
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb build_java
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders build_java
-	$(MAKE) -C $(ROOT_DIR)/../StructuredEncryption build_java
-	$(MAKE) -C $(ROOT_DIR)/../DynamoDbItemEncryptor build_java
-	$(MAKE) -C $(ROOT_DIR)/../DynamoDbEncryptionMiddlewareInternal build_java
+include ../SharedMakefile.mk
 
-mvn_local_deploy_dependencies:
-	$(MAKE) -C $(DEPS_DIR)/StandardLibrary mvn_local_deploy
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographyPrimitives mvn_local_deploy
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsKms mvn_local_deploy
-	$(MAKE) -C $(DEPS_DIR)/ComAmazonawsDynamodb mvn_local_deploy
-	$(MAKE) -C $(DEPS_DIR)/AwsCryptographicMaterialProviders mvn_local_deploy
-	$(MAKE) -C $(ROOT_DIR)/../StructuredEncryption mvn_local_deploy
-	$(MAKE) -C $(ROOT_DIR)/../DynamoDbItemEncryptor mvn_local_deploy
-	$(MAKE) -C $(ROOT_DIR)/../DynamoDbEncryptionMiddlewareInternal mvn_local_deploy
+SMITHY_NAMESPACES := \
+	aws.cryptography.structuredEncryption \
+	aws.cryptography.dynamoDbEncryption \
+	aws.cryptography.dynamoDbEncryption.itemEncryptor \
+	aws.cryptography.dynamoDbEncryption.transforms
+MAX_RESOURCE_COUNT=10000000
+# Order is important
+# In java they MUST be built
+# in the order they depend on each other
+LIBRARIES := \
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders
+STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
+SMITHY_DEPS=submodules/MaterialProviders/model
 
-build_java: build_java_dependencies mvn_local_deploy_dependencies
-	gradle -p runtimes/java build
+format_net:
+	pushd runtimes/net && dotnet format DynamoDbEncryption.csproj && popd
 
-mvn_local_deploy:
-	gradle -p runtimes/java publishToMavenLocal
+# Transpiling the entire project can take a while (~10 minutes),
+# So these custom written targets can be used to short-circuit the process
+# and only transpile Dafny code for a specific namespace,
+# e.g. No transpiling other namespaces
+# and no transpiling and deploying dependencies.
+# Note that these targets don't do any sort of 'clean'.
+# If you are adding/renaming files, you should use `make build_java` first,
+# and then can use these targets if you need to re-transpile after making
+# smaller adjustments.
+# TODO Improve/Generalize these targets into the SharedMakefile
+transpile_impl_namespace_%: TARGET=java
+transpile_impl_namespace_%: OUT=runtimes/java/ImplementationFromDafny
+transpile_impl_namespace_%:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:$(TARGET) \
+		-spillTargetCode:3 \
+		-compile:0 \
+		-optimizeErasableDatatypeWrapper:0 \
+		-useRuntimeLib \
+		-out $(OUT) \
+		./src/$*/Index.dfy \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES));
+	cp -R runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
+	rm -rf runtimes/java/ImplementationFromDafny-java/
 
-test_java:
-	gradle -p runtimes/java test
+transpile_test_namespace_%: TARGET=java
+transpile_test_namespace_%: OUT=runtimes/java/TestsFromDafny
+transpile_test_namespace_%:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:$(TARGET) \
+		-spillTargetCode:3 \
+		-runAllTests:1 \
+		-compile:0 \
+		-optimizeErasableDatatypeWrapper:0 \
+		-useRuntimeLib \
+		-out $(OUT) \
+		`find ./test/$* -name '*.dfy'` \
+		-library:src/Index.dfy;
+	cp -R runtimes/java/TestsFromDafny-java/* runtimes/java/src/test/dafny-generated
+	rm -rf runtimes/java/TestsFromDafny-java

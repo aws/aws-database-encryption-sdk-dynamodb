@@ -43,7 +43,7 @@ or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-cli
 On initialization of a Beacon Version, the caller MUST provide:
 
  - A [version number](#version number) 
- - A [KeyringReference](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/keyring-interface.md)
+ - A [KeyringReference](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/keyring-interface.md)
 
 On initialization of the Beacon Version, the caller MAY provide:
 

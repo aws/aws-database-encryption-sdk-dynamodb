@@ -41,12 +41,12 @@ The Version MUST be `0x01`.
 ### Format Flavor
 
 The flavor dictates the
-[algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md)
+[algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md)
 this message is written under.
 Specifically, the flavor is stored as a single byte, representing the second byte of the
 Algorithm Suite ID; with the first byte assumed to be 0x67.
 The algorithm suite indicated by the flavor MUST be a
-[DBE supported algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
+[DBE supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 
 | Value | Algorithm Suite ID | Algorithm Suite Enum |
 |---|---|---|
@@ -202,11 +202,11 @@ It is the data key encrypted by the key provider.
 #### Commit Key
 
 The HKDF used to calculate the Commitment Key MUST be the
-[Commit Key KDF](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
+[Commit Key KDF](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-commit-key-derivation-settings)
 indicated by the algorithm suite.
 
 The calculated Commitment Key MUST have length equal to the
-[algorithm suite's encryption key length](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
+[algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
 The `info` used for the HKDF function MUST be
 | Field                | Length   |

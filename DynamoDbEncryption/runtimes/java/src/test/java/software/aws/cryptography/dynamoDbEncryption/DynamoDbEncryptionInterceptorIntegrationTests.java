@@ -1,6 +1,5 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
-import org.junit.jupiter.api.BeforeAll;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -8,10 +7,13 @@ import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 
 import java.util.*;
 
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeTest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
+
 
 /*
   Tests require access to a DynamoDb table in the default region with:
@@ -23,7 +25,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     static DynamoDbEncryptionInterceptor interceptor;
     static DynamoDbClient ddb;
 
-    @BeforeAll
+    @BeforeTest
     public static void setup() {
 	// TODO - switch back to createHierarchicalKeyring
         interceptor = createInterceptor(createKmsKeyring());
