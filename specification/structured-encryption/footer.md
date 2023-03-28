@@ -80,14 +80,14 @@ and an associated list of symmetricSigningKeys,
 representing authorized recipients.
 
 the Recipient Tag MUST be MUST be calculated over the [Canonical Hash](#canonical-hash)
-using the [symmetric signature algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings)
+using the [symmetric signature algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings)
 indicated in the algorithm suite,
 and the
-[symmetric signing keys](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys)
+[symmetric signing keys](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys)
 in the encryption materials.
 
 the HMAC values MUST have the same order as the
-[symmetric signing keys](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys)
+[symmetric signing keys](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys)
 used to calculate them.
 
 ## Signature
@@ -101,7 +101,7 @@ The `signature`, if it exists, MUST be calculated over the [Canonical Hash](#can
 using the asymmetric signing key in the encryption materials.
 
 The `signature`, if it exists, MUST be calculated using the
-[asymmetric signature algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings)
+[asymmetric signature algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings)
 indicated by the algorithm suite.
 
 ## Footer Verification
@@ -117,6 +117,6 @@ Recipient Tag comparisons MUST be constant time operations.
 ### Signature Verification
 
 If the footer contains a signature, this signature MUST be verified using the
-[asymmetric signature algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings)
+[asymmetric signature algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings)
 indicated by the algorithm suite.
 

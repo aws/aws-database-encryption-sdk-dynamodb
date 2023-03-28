@@ -1,6 +1,5 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
-import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -10,9 +9,15 @@ import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
+
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class DynamoDbItemConversionIntegrationTests {
     // TODO break this up into distinct tests

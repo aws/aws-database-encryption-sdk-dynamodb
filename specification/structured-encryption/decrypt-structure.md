@@ -63,7 +63,7 @@ otherwise, this operation MUST yield an error.
 
 ### CMM
 
-A CMM that implements the [CMM interface](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md).
+A CMM that implements the [CMM interface](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md).
 
 ### Encrypted Structured Data
 
@@ -138,7 +138,7 @@ in the [input Structured Data](#structured-data):
 ### Retrieve Decryption Materials
 
 This operation MUST obtain a set of decryption materials by calling
-[Decrypt Materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
+[Decrypt Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
 on the [input CMM](#cmm).
 
 The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
@@ -150,11 +150,11 @@ The call to the CMM's Decrypt Materials operation MUST be constructed as follows
 
 The algorithm suite used in all further aspects of this operation MUST be
 the algorithm suite in the
-[decryption materials](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/structures.md#decryption-materials)
+[decryption materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#decryption-materials)
 returned from the Decrypt Materials call.
 Note that the algorithm suite in the retrieved decryption materials MAY be different from the input algorithm suite.
 If this algorithm suite is not a
-[supported suite for DBE](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum)
+[supported suite for DBE](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum)
 this operation MUST yield an error.
 
 ### Verify Signatures
@@ -234,7 +234,7 @@ equal to the deserialized Terminal Type Id.
 The output Terminal Data MUST have a [Terminal Value](./structures.md#terminal-type-id)
 equal to the following decryption:
 - The decryption algorithm used is the
-  [encryption algorithm](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
+  [encryption algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.
 - The AAD is the [canonical path](./header.md#canonical-path) for this Terminal Data.
 - The Cipherkey and Nonce are as calculate [above](#calculate-cipherkey-and-nonce).

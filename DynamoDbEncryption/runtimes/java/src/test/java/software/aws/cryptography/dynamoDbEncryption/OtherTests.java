@@ -1,12 +1,11 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
-import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.TableDescription;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbItemEncryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorConfig;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
@@ -18,10 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.KMS_TEST_KEY_ID;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createStaticKeyring;
+
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeTest;
 
 // Here we are testing some manually generated interfaces that don't technically belong to this package,
 // but exist alongside this package as a deliverable, and it is easiest to test them here for now.

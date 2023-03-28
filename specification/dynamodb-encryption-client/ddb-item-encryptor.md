@@ -112,9 +112,9 @@ that are not authenticated during decryption.
 
 ### Algorithm Suite
 
-The [algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
+The [algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
 
-This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-specification/framework/algorithm-suites.md).
+This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md).
 
 ## Operation
 

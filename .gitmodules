@@ -1,6 +1,3 @@
-[submodule "polymorph"]
-	path = polymorph
-	url = git@github.com:awslabs/polymorph.git
-[submodule "private-aws-encryption-sdk-dafny-staging"]
-	path = private-aws-encryption-sdk-dafny-staging
+[submodule "submodules/MaterialProviders"]
+	path = submodules/MaterialProviders
 	url = git@github.com:aws/private-aws-encryption-sdk-dafny-staging.git

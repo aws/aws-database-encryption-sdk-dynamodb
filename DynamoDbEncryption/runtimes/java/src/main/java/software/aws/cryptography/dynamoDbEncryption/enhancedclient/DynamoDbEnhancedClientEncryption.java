@@ -1,6 +1,6 @@
 package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
@@ -21,7 +21,7 @@ public class DynamoDbEnhancedClientEncryption {
         }
 
         return DynamoDbEncryptionInterceptor.builder()
-                .config(DynamoDbEncryptionConfig.builder()
+                .config(DynamoDbTablesEncryptionConfig.builder()
                         .tableEncryptionConfigs(tableConfigs)
                         .build())
                 .build();
