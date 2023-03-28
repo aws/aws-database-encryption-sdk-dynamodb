@@ -54,6 +54,6 @@ jobs:
 
       - name: Check solver resource use
         shell: bash
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./DynamoDbEncryption
         run: |
           make dafny-reportgenerator
