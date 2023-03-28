@@ -850,7 +850,7 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  // TODO line below manually added. smithy codegen does not know how to deal with a config in a separate namespace.
  method DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig := DefaultDynamoDbTablesEncryptionConfig())
  returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
- // TODO smithy->Dafny correctly generates something equivalent the following
+// TODO smithy->Dafny correctly generates something equivalent the following
  // but as a result DynamoDbEncryption.DynamoDbEncryption and TestFixtures.GetDynamoDbEncryption
  // take too long to verify
 ///// MANUAL UPDATE STARTS HERE
@@ -873,51 +873,15 @@ modifies
 
  ensures res.Success? ==> 
  && fresh(res.value)
- && fresh(res.value.Modifies
- - ( var tmps11 := set t11 | t11 in config.tableEncryptionConfigs.Values
-  && t11.keyring.Some? 
-  :: t11.keyring.value;
- var tmps11FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps11 :: t0.Modifies;
- (set tmp12ModifyEntry, tmp12Modifies | 
- tmp12Modifies in tmps11FlattenedModifiesSet 
- && tmp12ModifyEntry in tmp12Modifies 
- :: tmp12ModifyEntry)
- ) - ( var tmps13 := set t13 | t13 in config.tableEncryptionConfigs.Values
-  && t13.cmm.Some? 
-  :: t13.cmm.value;
- var tmps13FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps13 :: t0.Modifies;
- (set tmp14ModifyEntry, tmp14Modifies | 
- tmp14Modifies in tmps13FlattenedModifiesSet 
- && tmp14ModifyEntry in tmp14Modifies 
- :: tmp14ModifyEntry)
- ) - ( var tmps15 := set t15 | t15 in config.tableEncryptionConfigs.Values
-  && t15.search.Some? 
-  :: set t16 | t16 in t15.search.value.versions :: t16.keyring;
- var tmps15FlattenedModifiesSet: set<set<object>> := set t0
-, t1 | t0 in tmps15 && t1 in t0 :: t1.Modifies;
- (set tmp17ModifyEntry, tmp17Modifies | 
- tmp17Modifies in tmps15FlattenedModifiesSet 
- && tmp17ModifyEntry in tmp17Modifies 
- :: tmp17ModifyEntry)
- ) )
+ && fresh(res.value.Modifies -
+     set t <- config.tableEncryptionConfigs.Keys, o <- (
+       (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
+     + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
+ ) :: o)
+
  && fresh(res.value.History)
  && res.value.ValidState()
- ensures var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values;
- forall tmp18 :: tmp18 in tmps18 ==>
- tmp18.keyring.Some? ==>
- tmp18.keyring.value.ValidState()
- ensures var tmps19 := set t19 | t19 in config.tableEncryptionConfigs.Values;
- forall tmp19 :: tmp19 in tmps19 ==>
- tmp19.cmm.Some? ==>
- tmp19.cmm.value.ValidState()
- ensures var tmps20 := set t20 | t20 in config.tableEncryptionConfigs.Values;
- forall tmp20 :: tmp20 in tmps20 ==>
- tmp20.search.Some? ==>
- var tmps21 := set t21 | t21 in tmp20.search.value.versions;
- forall tmp21 :: tmp21 in tmps21 ==>
- tmp21.keyring.ValidState()
+///// MANUAL UPDATE ENDS HERE
 
  class DynamoDbEncryptionTransformsClient extends IDynamoDbEncryptionTransformsClient
  {

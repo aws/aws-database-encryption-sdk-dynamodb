@@ -11,6 +11,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncry
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromItemInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromItemOutput;
+import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
@@ -25,8 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.*;
 import static software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
@@ -124,6 +124,8 @@ public class OtherTests {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
+
+        // Create client with keyring that uses branch key supplier for key A and key B
         DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
                 .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
                 .build();
@@ -132,7 +134,6 @@ public class OtherTests {
                                 .ddbItemBranchKeyIdSupplier(new TestSupplier())
                                 .build())
                 .branchKeyIdSupplier();
-
         CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
                 .kmsClient(KmsClient.create())
                 .kmsKeyId(keyArn)
@@ -144,48 +145,15 @@ public class OtherTests {
                 .build();
         IKeyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
         assertNotNull(keyring);
-
-        // Put CaseA item
-        // Put item into table
-        String partitionValue = "caseA";
-        String sortValue = "42";
-        String attrValue = "bar";
-        String attrValue2 = "hello world";
-        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
-
-        PutItemRequest putRequest = PutItemRequest.builder()
-                .tableName(TEST_TABLE_NAME)
-                .item(item)
-                .build();
-
         DynamoDbEncryptionInterceptor interceptor = TestUtils.createInterceptor(keyring);
-        DynamoDbClient ddb = DynamoDbClient.builder()
+        DynamoDbClient ddbAB = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
                                 .addExecutionInterceptor(interceptor)
                                 .build())
                 .build();
 
-        PutItemResponse putResponse = ddb.putItem(putRequest);
-        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
-
-        // Get Item back from table
-        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
-
-        GetItemRequest getRequest = GetItemRequest.builder()
-                .key(keyToGet)
-                .tableName(TEST_TABLE_NAME)
-                .build();
-
-        GetItemResponse getResponse = ddb.getItem(getRequest);
-        assertEquals(200, getResponse.sdkHttpResponse().statusCode());
-        Map<String, AttributeValue> returnedItem = getResponse.item();
-        assertNotNull(returnedItem);
-        assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
-        assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
-        assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
-
-        // Assert we can retrieve this item with a Hierarchical keyring configured with expected branch key id
+        // Create client with keyring only configured with key A
         CreateAwsKmsHierarchicalKeyringInput keyringAInput = CreateAwsKmsHierarchicalKeyringInput.builder()
                 .kmsClient(KmsClient.create())
                 .kmsKeyId(keyArn)
@@ -205,47 +173,7 @@ public class OtherTests {
                                 .build())
                 .build();
 
-        GetItemResponse getResponseA = ddbA.getItem(getRequest);
-        assertEquals(200, getResponseA.sdkHttpResponse().statusCode());
-        Map<String, AttributeValue> returnedItemA = getResponseA.item();
-        assertNotNull(returnedItemA);
-        assertEquals(partitionValue, returnedItemA.get(TEST_PARTITION_NAME).s());
-        assertEquals(sortValue, returnedItemA.get(TEST_SORT_NAME).n());
-        assertEquals(attrValue, returnedItemA.get(TEST_ATTR_NAME).s());
-
-        // Put CaseB item
-        // Put item into table
-        partitionValue = "caseB";
-        sortValue = "42";
-        attrValue = "bar";
-        attrValue2 = "hello world";
-        Map<String, AttributeValue> itemB = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
-
-        PutItemRequest putRequest2 = PutItemRequest.builder()
-                .tableName(TEST_TABLE_NAME)
-                .item(itemB)
-                .build();
-
-        PutItemResponse putResponse2 = ddb.putItem(putRequest2);
-        assertEquals(200, putResponse2.sdkHttpResponse().statusCode());
-
-        // Get Item back from table
-        Map<String, AttributeValue> keyToGet2 = createTestKey(partitionValue, sortValue);
-
-        GetItemRequest getRequest2 = GetItemRequest.builder()
-                .key(keyToGet2)
-                .tableName(TEST_TABLE_NAME)
-                .build();
-
-        GetItemResponse getResponse2 = ddb.getItem(getRequest2);
-        assertEquals(200, getResponse2.sdkHttpResponse().statusCode());
-        Map<String, AttributeValue> returnedItem2 = getResponse2.item();
-        assertNotNull(returnedItem2);
-        assertEquals(partitionValue, returnedItem2.get(TEST_PARTITION_NAME).s());
-        assertEquals(sortValue, returnedItem2.get(TEST_SORT_NAME).n());
-        assertEquals(attrValue, returnedItem2.get(TEST_ATTR_NAME).s());
-
-        // Assert we can get the same item using a hierachical keyring with specified branch key id
+        // Create client with keyring only configured with key B
         CreateAwsKmsHierarchicalKeyringInput keyringBInput = CreateAwsKmsHierarchicalKeyringInput.builder()
                 .kmsClient(KmsClient.create())
                 .kmsKeyId(keyArn)
@@ -264,13 +192,140 @@ public class OtherTests {
                                 .addExecutionInterceptor(interceptorB)
                                 .build())
                 .build();
-        GetItemResponse getResponseB = ddbB.getItem(getRequest);
+
+        // Put CaseA item into table with Hierarchy keyring with supplier
+        // Put item into table
+        String partitionValue = "caseA";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequestA = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        PutItemResponse putResponseA = ddbAB.putItem(putRequestA);
+        assertEquals(200, putResponseA.sdkHttpResponse().statusCode());
+
+        // Get Item back from table
+        Map<String, AttributeValue> keyToGetA = createTestKey(partitionValue, sortValue);
+        GetItemRequest getRequestA = GetItemRequest.builder()
+                .key(keyToGetA)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        GetItemResponse getResponseA = ddbAB.getItem(getRequestA);
+        assertEquals(200, getResponseA.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItemA = getResponseA.item();
+        assertNotNull(returnedItemA);
+        assertEquals(partitionValue, returnedItemA.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemA.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemA.get(TEST_ATTR_NAME).s());
+
+        // Assert we can retrieve this item with a Hierarchical keyring configured only with key A
+        getResponseA = ddbA.getItem(getRequestA);
+        assertEquals(200, getResponseA.sdkHttpResponse().statusCode());
+        returnedItemA = getResponseA.item();
+        assertNotNull(returnedItemA);
+        assertEquals(partitionValue, returnedItemA.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemA.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemA.get(TEST_ATTR_NAME).s());
+
+        // Put CaseB item
+        // Put item into table
+        partitionValue = "caseB";
+        sortValue = "42";
+        attrValue = "bar";
+        attrValue2 = "hello world";
+        Map<String, AttributeValue> itemB = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequest2 = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(itemB)
+                .build();
+
+        PutItemResponse putResponse2 = ddbAB.putItem(putRequest2);
+        assertEquals(200, putResponse2.sdkHttpResponse().statusCode());
+
+        // Get Item back from table
+        Map<String, AttributeValue> keyToGetB = createTestKey(partitionValue, sortValue);
+
+        GetItemRequest getRequestB = GetItemRequest.builder()
+                .key(keyToGetB)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        GetItemResponse getResponseB = ddbAB.getItem(getRequestB);
         assertEquals(200, getResponseB.sdkHttpResponse().statusCode());
         Map<String, AttributeValue> returnedItemB = getResponseB.item();
         assertNotNull(returnedItemB);
         assertEquals(partitionValue, returnedItemB.get(TEST_PARTITION_NAME).s());
         assertEquals(sortValue, returnedItemB.get(TEST_SORT_NAME).n());
         assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
+
+        // Assert we can retrieve this item with a Hierarchical keyring configured only with key B
+        getResponseB = ddbB.getItem(getRequestB);
+        assertEquals(200, getResponseB.sdkHttpResponse().statusCode());
+        returnedItemB = getResponseB.item();
+        assertNotNull(returnedItemB);
+        assertEquals(partitionValue, returnedItemB.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemB.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
+    }
+
+    @Test
+    public void TestHierarchyKeyringWithSupplierReturnsExpectedError() {
+        MaterialProviders matProv = MaterialProviders.builder()
+                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+                .build();
+
+        // Create client with keyring that uses branch key supplier that errors on "caseC"
+        DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
+                .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
+                .build();
+        IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
+                        CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
+                                .ddbItemBranchKeyIdSupplier(new TestSupplier())
+                                .build())
+                .branchKeyIdSupplier();
+        CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(keyArn)
+                .branchKeyIdSupplier(branchKeyIdSupplier)
+                .branchKeyStoreArn(branchKeyStoreArn)
+                .ddbClient(DynamoDbClient.create())
+                .ttlSeconds(6000l)
+                .maxCacheSize(100)
+                .build();
+        IKeyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
+        assertNotNull(keyring);
+        DynamoDbEncryptionInterceptor interceptor = TestUtils.createInterceptor(keyring);
+        DynamoDbClient ddbAB = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        // Put CaseA item into table with Hierarchy keyring with supplier
+        String partitionValue = "caseA";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequestA = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        // TODO: Exception SHOULD be `DynamoDbEncryptionException.class`
+        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
+        assertThrows(OpaqueError.class, () -> {
+            ddbAB.putItem(putRequestA);
+        });
     }
 
     class TestSupplier implements IDynamoDbItemBranchKeyIdSupplier {

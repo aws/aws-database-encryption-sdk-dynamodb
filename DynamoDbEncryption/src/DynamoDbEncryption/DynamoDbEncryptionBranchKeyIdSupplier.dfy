@@ -90,7 +90,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
         // Add to our AttributeMap
         attrMap := attrMap[ddbAttrName := ddbAttrValue.val];
 
-        // Pop 'tableName' off the map, so that we may continue iterating
+        // Pop 'ddbAttrKey' off the map, so that we may continue iterating
         s' := set k' | k' in s' && k' != ddbAttrKey :: k';
       }
 
