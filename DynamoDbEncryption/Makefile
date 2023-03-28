@@ -35,9 +35,9 @@ format_net:
 # and then can use these targets if you need to re-transpile after making
 # smaller adjustments.
 # TODO Improve/Generalize these targets into the SharedMakefile
-transpile_implementation_%: TARGET=java
-transpile_implementation_%: OUT=runtimes/java/ImplementationFromDafny
-transpile_implementation_%:
+transpile_impl_single_%: TARGET=java
+transpile_impl_single_%: OUT=runtimes/java/ImplementationFromDafny
+transpile_impl_single_%:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:$(TARGET) \
@@ -46,11 +46,14 @@ transpile_implementation_%:
 		-optimizeErasableDatatypeWrapper:0 \
 		-useRuntimeLib \
 		-out $(OUT) \
-		./src/%/Index.dfy \
+		./src/$*/Index.dfy \
 		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES))
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES));
+	mv -r runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
 
-transpile_test_%:
+transpile_test_single_%: TARGET=java
+transpile_test_single_%: OUT=runtimes/java/TestsFromDafny
+transpile_test_single_%:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:$(TARGET) \
@@ -60,5 +63,6 @@ transpile_test_%:
 		-optimizeErasableDatatypeWrapper:0 \
 		-useRuntimeLib \
 		-out $(OUT) \
-		`find ./test/% -name '*.dfy'` \
-		-library:src/Index.dfy
+		`find ./test/$* -name '*.dfy'` \
+		-library:src/Index.dfy;
+	mv -r runtimes/java/TestsFromDafny-java/* runtimes/java/src/test/dafny-generated
