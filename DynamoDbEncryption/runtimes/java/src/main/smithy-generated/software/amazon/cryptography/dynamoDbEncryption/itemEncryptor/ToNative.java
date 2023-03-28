@@ -7,8 +7,6 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_CollectionOfErrors;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_DynamoDbItemEncryptorException;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.ILegacyDynamoDbEncryptor;
-import java.lang.IllegalArgumentException;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.CollectionOfErrors;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DecryptItemInput;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DecryptItemOutput;
@@ -16,8 +14,6 @@ import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.Dynam
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.EncryptItemInput;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.EncryptItemOutput;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.LegacyConfig;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.LegacyPolicy;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.OpaqueError;
 
@@ -84,7 +80,7 @@ public class ToNative {
       nativeBuilder.cmm(software.amazon.cryptography.materialProviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm().dtor_value()));
     }
     if (dafnyValue.dtor_legacyConfig().is_Some()) {
-      nativeBuilder.legacyConfig(ToNative.LegacyConfig(dafnyValue.dtor_legacyConfig().dtor_value()));
+      nativeBuilder.legacyConfig(software.amazon.cryptography.dynamoDbEncryption.ToNative.LegacyConfig(dafnyValue.dtor_legacyConfig().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -110,41 +106,10 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static LegacyConfig LegacyConfig(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.LegacyConfig dafnyValue) {
-    LegacyConfig.Builder nativeBuilder = LegacyConfig.builder();
-    nativeBuilder.policy(ToNative.LegacyPolicy(dafnyValue.dtor_policy()));
-    nativeBuilder.encryptor(ToNative.LegacyDynamoDbEncryptor(dafnyValue.dtor_encryptor()));
-    nativeBuilder.attributeFlags(software.amazon.cryptography.dynamoDbEncryption.ToNative.AttributeActions(dafnyValue.dtor_attributeFlags()));
-    if (dafnyValue.dtor_defaultAttributeFlag().is_Some()) {
-      nativeBuilder.defaultAttributeFlag(software.amazon.cryptography.structuredEncryption.ToNative.CryptoAction(dafnyValue.dtor_defaultAttributeFlag().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static EncryptItemOutput EncryptItemOutput(
       Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.EncryptItemOutput dafnyValue) {
     EncryptItemOutput.Builder nativeBuilder = EncryptItemOutput.builder();
     nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
     return nativeBuilder.build();
-  }
-
-  public static LegacyPolicy LegacyPolicy(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.LegacyPolicy dafnyValue) {
-    if (dafnyValue.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT()) {
-      return LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
-    }
-    if (dafnyValue.is_FORBID__ENCRYPT__ALLOW__DECRYPT()) {
-      return LegacyPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
-    }
-    if (dafnyValue.is_FORBID__ENCRYPT__FORBID__DECRYPT()) {
-      return LegacyPolicy.FORBID_ENCRYPT_FORBID_DECRYPT;
-    }
-    throw new IllegalArgumentException("No entry of software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.LegacyPolicy matches the input : " + dafnyValue);
-  }
-
-  public static LegacyDynamoDbEncryptor LegacyDynamoDbEncryptor(
-      ILegacyDynamoDbEncryptor dafnyValue) {
-    return LegacyDynamoDbEncryptor.wrap(dafnyValue);
   }
 }

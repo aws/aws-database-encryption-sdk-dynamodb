@@ -1,9 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types;
+using Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types;
 
-namespace Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Internal
+namespace Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Internal
 {
 
   public partial class InternalLegacyConfig

@@ -1,12 +1,12 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-package software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model;
+package software.amazon.cryptography.dynamoDbEncryption.model;
 
 import java.util.Map;
 import java.util.Objects;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.ILegacyDynamoDbEncryptor;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.LegacyDynamoDbEncryptor;
+import software.amazon.cryptography.dynamoDbEncryption.ILegacyDynamoDbEncryptor;
+import software.amazon.cryptography.dynamoDbEncryption.LegacyDynamoDbEncryptor;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 public class LegacyConfig {

@@ -1,13 +1,15 @@
 package com.amazonaws.services.dynamodbv2.datamodeling;
 
-import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Internal.InternalLegacyConfig;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Internal.InternalLegacyConfig;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.amazonaws.services.dynamodbv2.testing.types.*;
 import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.cryptography.dynamoDbItemEncryptor.DynamoDbItemEncryptor;
-import software.amazon.cryptography.dynamoDbItemEncryptor.model.*;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.*;
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.AesWrappingAlg;
@@ -84,6 +86,7 @@ public class LegacyTestVectors {
     final DynamoDBEncryptor legacyEncryptor,
     final Object TEST_VALUE
   ) {
+    final DynamoDbItemEncryptorConfig foo = getConfig(legacyEncryptor, TEST_VALUE);
     final DynamoDbItemEncryptor encryptor = DynamoDbItemEncryptor
       .builder()
       .DynamoDbItemEncryptorConfig(getConfig(legacyEncryptor, TEST_VALUE))

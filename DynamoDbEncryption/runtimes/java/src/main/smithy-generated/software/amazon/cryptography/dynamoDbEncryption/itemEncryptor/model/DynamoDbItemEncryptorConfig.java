@@ -6,6 +6,7 @@ package software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.IKeyring;

@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.TableDescription;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbItemEncryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorConfig;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
@@ -165,28 +165,6 @@ public class OtherTests {
     }
      */
 
-<<<<<<< HEAD
-/*
-    @Test
-    public void TestBuildEncryptDecryptAwsKmsRsaKeyring() {
-        assertTrue(false);
-        MaterialProviders matProv = MaterialProviders.builder()
-                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-                .build();
-
-        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
-
-        CreateAwsKmsRsaKeyringInput input = CreateAwsKmsRsaKeyringInput.builder()
-                .kmsClient(KmsClient.create())
-                .kmsKeyId(KMS_TEST_KEY_ID)
-                .encryptionAlgorithm(RSAES_OAEP_SHA_1)
-                .publicKey(key)
-                .build();
-        IKeyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
-        assertNotNull(keyring);
-    }
-    */
-=======
     // This test can no longer pass.
     // Because there is now a Modulus length check on the public key.
 //    @Test
@@ -206,7 +184,6 @@ public class OtherTests {
 //        IKeyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
 //        assertNotNull(keyring);
 //    }
->>>>>>> 7b7f5c4c37b7727ac61f3d2be407635e3b09755d
 
     class TestSupplier implements BranchKeyFromItemSupplier {
         public String getBranchKeyFromItem(GetBranchKeyFromItemInput input) {

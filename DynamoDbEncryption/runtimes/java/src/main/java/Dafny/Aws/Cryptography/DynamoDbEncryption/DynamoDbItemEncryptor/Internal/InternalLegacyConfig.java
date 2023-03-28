@@ -14,8 +14,8 @@ package Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Internal;
  */
 
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoAction;
-import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.Error;
-import Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.LegacyPolicy;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyPolicy;
 import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
@@ -25,8 +25,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionConte
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
 import dafny.TypeDescriptor;
 import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.cryptography.dynamoDbItemEncryptor.ILegacyDynamoDbEncryptor;
-import software.amazon.cryptography.dynamoDbItemEncryptor.ToNative;
+import software.amazon.cryptography.dynamoDbEncryption.ILegacyDynamoDbEncryptor;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.ToNative;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -73,7 +73,7 @@ public class InternalLegacyConfig {
   }
 
   public Boolean IsLegacyInput(
-    Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemInput input
+    Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemInput input
   ) {
     return input.is_DecryptItemInput() &&
       input._encryptedItem.contains(materialDescriptionFieldName) &&
@@ -84,8 +84,8 @@ public class InternalLegacyConfig {
     return _policy;
   }
 
-  public Result<Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemOutput, Error> EncryptItem(
-    Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemInput input
+  public Result<Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.EncryptItemOutput, Error> EncryptItem(
+    Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.EncryptItemInput input
   ) {
 
     // Precondition: Policy MUST allow the caller to encrypt.
@@ -97,7 +97,8 @@ public class InternalLegacyConfig {
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> plaintextItem = software
         .amazon
         .cryptography
-        .dynamoDbItemEncryptor
+        .dynamoDbEncryption
+        .itemEncryptor
         .ToNative
         .EncryptItemInput(input)
         .plaintextItem();
@@ -109,19 +110,21 @@ public class InternalLegacyConfig {
           encryptionContext
         );
 
-      final software.amazon.cryptography.dynamoDbItemEncryptor.model.EncryptItemOutput nativeOutput = software
+      final software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.EncryptItemOutput nativeOutput = software
         .amazon
         .cryptography
-        .dynamoDbItemEncryptor
+        .dynamoDbEncryption
+        .itemEncryptor
         .model
         .EncryptItemOutput
         .builder()
         .encryptedItem(V1MapToV2Map(encryptedItem))
         .build();
-      final Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.EncryptItemOutput dafnyOutput = software
+      final Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.EncryptItemOutput dafnyOutput = software
         .amazon
         .cryptography
-        .dynamoDbItemEncryptor
+        .dynamoDbEncryption
+        .itemEncryptor
         .ToDafny
         .EncryptItemOutput(nativeOutput);
       return Result.create_Success(dafnyOutput);
@@ -130,8 +133,8 @@ public class InternalLegacyConfig {
     }
   }
 
-  public Result<Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemOutput, Error> DecryptItem(
-    Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemInput input
+  public Result<Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemOutput, Error> DecryptItem(
+    Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemInput input
   ) {
 
     // Precondition: Policy MUST allow the caller to decrypt.
@@ -142,7 +145,8 @@ public class InternalLegacyConfig {
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> encryptedItem = software
         .amazon
         .cryptography
-        .dynamoDbItemEncryptor
+        .dynamoDbEncryption
+        .itemEncryptor
         .ToNative
         .DecryptItemInput(input)
         .encryptedItem();
@@ -154,19 +158,21 @@ public class InternalLegacyConfig {
           encryptionContext
         );
 
-      final software.amazon.cryptography.dynamoDbItemEncryptor.model.DecryptItemOutput nativeOutput = software
+      final software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DecryptItemOutput nativeOutput = software
         .amazon
         .cryptography
-        .dynamoDbItemEncryptor
+        .dynamoDbEncryption
+        .itemEncryptor
         .model
         .DecryptItemOutput
         .builder()
         .plaintextItem(V1MapToV2Map(plaintextItem))
         .build();
-      final Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemOutput dafnyOutput = software
+      final Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemOutput dafnyOutput = software
         .amazon
         .cryptography
-        .dynamoDbItemEncryptor
+        .dynamoDbEncryption
+        .itemEncryptor
         .ToDafny
         .DecryptItemOutput(nativeOutput);
       return Result.create_Success(dafnyOutput);
@@ -176,18 +182,18 @@ public class InternalLegacyConfig {
   }
 
   public static Result<Option<InternalLegacyConfig>, Error> Build(
-    Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DynamoDbItemEncryptorConfig encryptorConfig
+    Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DynamoDbItemEncryptorConfig encryptorConfig
   ) {
 
     // Check for early return (Postcondition): If there is no legacyConfig there is nothing to do.
     if (encryptorConfig.dtor_legacyConfig().is_None()) {
       return Result.create_Success(Option.create_None());
     }
-    final Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.LegacyConfig legacyConfig = encryptorConfig
+    final Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyConfig legacyConfig = encryptorConfig
       .dtor_legacyConfig()
       .dtor_value();
 
-    final ILegacyDynamoDbEncryptor maybeEncryptor = ToNative
+    final ILegacyDynamoDbEncryptor maybeEncryptor = software.amazon.cryptography.dynamoDbEncryption.ToNative
       .LegacyDynamoDbEncryptor(legacyConfig.dtor_encryptor());
 
     // Precondition: The encryptor MUST be a DynamoDBEncryptor
@@ -224,8 +230,9 @@ public class InternalLegacyConfig {
   }
 
   public static boolean isDynamoDBEncryptor(
-    software.amazon.cryptography.dynamoDbItemEncryptor.ILegacyDynamoDbEncryptor maybe
+    software.amazon.cryptography.dynamoDbEncryption.ILegacyDynamoDbEncryptor maybe
   ) {
+    System.out.println(maybe.getClass());
     return maybe.getClass().equals(DynamoDBEncryptor.class);
   }
 
@@ -240,7 +247,7 @@ public class InternalLegacyConfig {
   }
 
   public static Result<EncryptionContext, Error> legacyEncryptionContext(
-    Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DynamoDbItemEncryptorConfig config
+    Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DynamoDbItemEncryptorConfig config
   ) {
     try {
       EncryptionContext.Builder encryptionContextBuilder = new EncryptionContext

@@ -35,3 +35,30 @@ format_net:
 # and then can use these targets if you need to re-transpile after making
 # smaller adjustments.
 # TODO Improve/Generalize these targets into the SharedMakefile
+transpile_implementation_%: TARGET=java
+transpile_implementation_%: OUT=runtimes/java/ImplementationFromDafny
+transpile_implementation_%:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:$(TARGET) \
+		-spillTargetCode:3 \
+		-compile:0 \
+		-optimizeErasableDatatypeWrapper:0 \
+		-useRuntimeLib \
+		-out $(OUT) \
+		./src/%/Index.dfy \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES))
+
+transpile_test_%:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:$(TARGET) \
+		-spillTargetCode:3 \
+		-runAllTests:1 \
+		-compile:0 \
+		-optimizeErasableDatatypeWrapper:0 \
+		-useRuntimeLib \
+		-out $(OUT) \
+		`find ./test/% -name '*.dfy'` \
+		-library:src/Index.dfy

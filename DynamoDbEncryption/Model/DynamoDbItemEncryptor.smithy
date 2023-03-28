@@ -13,7 +13,7 @@ use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.dynamoDbEncryption#AttributeActions
-use aws.cryptography.structuredEncryption#CryptoAction
+use aws.cryptography.dynamoDbEncryption#LegacyConfig
 
 @localService(
   sdkId: "DynamoDbItemEncryptor",
@@ -122,39 +122,6 @@ structure DecryptItemOutput {
     plaintextItem: AttributeMap,
 }
 
-@enum([
-  {
-    name: "REQUIRE_ENCRYPT_ALLOW_DECRYPT",
-    value: "REQUIRE_ENCRYPT_ALLOW_DECRYPT",
-  },
-  {
-    name: "FORBID_ENCRYPT_ALLOW_DECRYPT",
-    value: "FORBID_ENCRYPT_ALLOW_DECRYPT",
-  },
-  {
-    name: "FORBID_ENCRYPT_FORBID_DECRYPT",
-    value: "FORBID_ENCRYPT_FORBID_DECRYPT",
-  },
-])
-string LegacyPolicy
-
-@aws.polymorph#extendable
-resource LegacyDynamoDbEncryptor {
-    operations: []
-}
-
-@aws.polymorph#reference(resource: LegacyDynamoDbEncryptor)
-structure LegacyDynamoDbEncryptorReference {}
-
-structure LegacyConfig {
-    @required
-    policy: LegacyPolicy,
-    @required
-    encryptor: LegacyDynamoDbEncryptorReference,
-    @required
-    attributeFlags: AttributeActions,
-    defaultAttributeFlag: CryptoAction,
-}
 
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
 structure AtomicPrimitivesReference {}

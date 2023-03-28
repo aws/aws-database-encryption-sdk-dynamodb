@@ -18,6 +18,8 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegments;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSubstring;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSuffix;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Insert;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyConfig;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyPolicy;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Lower;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.NonSensitivePart;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.SearchConfig;
@@ -38,6 +40,7 @@ import java.lang.Boolean;
 import java.lang.Character;
 import java.lang.IllegalArgumentException;
 import java.lang.Integer;
+import java.lang.RuntimeException;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
@@ -161,6 +164,21 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc()))
         : Option.create_None();
     return new NonSensitivePart(name, prefix, loc);
+  }
+
+  public static LegacyConfig LegacyConfig(
+      software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig nativeValue) {
+    LegacyPolicy policy;
+    policy = ToDafny.LegacyPolicy(nativeValue.policy());
+    Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor encryptor;
+    encryptor = ToDafny.LegacyDynamoDbEncryptor(nativeValue.encryptor());
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeFlags;
+    attributeFlags = ToDafny.AttributeActions(nativeValue.attributeFlags());
+    Option<CryptoAction> defaultAttributeFlag;
+    defaultAttributeFlag = Objects.nonNull(nativeValue.defaultAttributeFlag()) ?
+        Option.create_Some(software.amazon.cryptography.structuredEncryption.ToDafny.CryptoAction(nativeValue.defaultAttributeFlag()))
+        : Option.create_None();
+    return new LegacyConfig(policy, encryptor, attributeFlags, defaultAttributeFlag);
   }
 
   public static CompoundBeacon CompoundBeacon(
@@ -314,6 +332,24 @@ public class ToDafny {
     return new Error_DynamoDbEncryptionException(message);
   }
 
+  public static LegacyPolicy LegacyPolicy(
+      software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy nativeValue) {
+    switch (nativeValue) {
+      case REQUIRE_ENCRYPT_ALLOW_DECRYPT: {
+        return LegacyPolicy.create_REQUIRE__ENCRYPT__ALLOW__DECRYPT();
+      }
+      case FORBID_ENCRYPT_ALLOW_DECRYPT: {
+        return LegacyPolicy.create_FORBID__ENCRYPT__ALLOW__DECRYPT();
+      }
+      case FORBID_ENCRYPT_FORBID_DECRYPT: {
+        return LegacyPolicy.create_FORBID__ENCRYPT__FORBID__DECRYPT();
+      }
+      default: {
+        throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyPolicy.");
+      }
+    }
+  }
+
   public static VirtualTransform VirtualTransform(
       software.amazon.cryptography.dynamoDbEncryption.model.VirtualTransform nativeValue) {
     if (Objects.nonNull(nativeValue.upper())) {
@@ -437,5 +473,10 @@ public class ToDafny {
         nativeValue, 
         software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.dynamoDbEncryption.ToDafny::DynamoDbTableEncryptionConfig);
+  }
+
+  public static Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor LegacyDynamoDbEncryptor(
+      ILegacyDynamoDbEncryptor nativeValue) {
+    return LegacyDynamoDbEncryptor.wrap(nativeValue).impl();
   }
 }
