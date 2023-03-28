@@ -1,6 +1,15 @@
 ## DynamoDB Encryption Client for Dafny
 
-TODO This is the landing page for the DDBEC for Dafny.
+TODO landing page info for the DDBEC.
+
+### Development
+
+This repo contains several projects:
+- DynamoDbEncryption: Contains the implementation of the DynamoDb Encryption Client in all target languages
+- TODO test vectors
+- TODO examples
+
+A specification of all these projects exists at `specification`.
 
 ## Security
 
