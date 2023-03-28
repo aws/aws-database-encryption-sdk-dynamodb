@@ -310,7 +310,7 @@ public class OtherTests {
                 .build();
 
         // Put CaseA item into table with Hierarchy keyring with supplier
-        String partitionValue = "caseA";
+        String partitionValue = "caseC";
         String sortValue = "42";
         String attrValue = "bar";
         String attrValue2 = "hello world";
