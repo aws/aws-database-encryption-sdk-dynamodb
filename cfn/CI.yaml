@@ -84,6 +84,7 @@ Resources:
       ManagedPolicyArns:
         - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
         - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
+        - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
         - !Ref KMSUsage
         - !Ref TestTableUsage
       AssumeRolePolicyDocument: !Sub |
