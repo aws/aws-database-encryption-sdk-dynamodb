@@ -35,9 +35,9 @@ format_net:
 # and then can use these targets if you need to re-transpile after making
 # smaller adjustments.
 # TODO Improve/Generalize these targets into the SharedMakefile
-transpile_impl_single_%: TARGET=java
-transpile_impl_single_%: OUT=runtimes/java/ImplementationFromDafny
-transpile_impl_single_%:
+transpile_impl_namespace_%: TARGET=java
+transpile_impl_namespace_%: OUT=runtimes/java/ImplementationFromDafny
+transpile_impl_namespace_%:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:$(TARGET) \
@@ -49,11 +49,12 @@ transpile_impl_single_%:
 		./src/$*/Index.dfy \
 		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
 		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES));
-	mv -r runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
+	cp -R runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
+	rm -rf runtimes/java/ImplementationFromDafny-java/
 
-transpile_test_single_%: TARGET=java
-transpile_test_single_%: OUT=runtimes/java/TestsFromDafny
-transpile_test_single_%:
+transpile_test_namespace_%: TARGET=java
+transpile_test_namespace_%: OUT=runtimes/java/TestsFromDafny
+transpile_test_namespace_%:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:$(TARGET) \
@@ -65,4 +66,5 @@ transpile_test_single_%:
 		-out $(OUT) \
 		`find ./test/$* -name '*.dfy'` \
 		-library:src/Index.dfy;
-	mv -r runtimes/java/TestsFromDafny-java/* runtimes/java/src/test/dafny-generated
+	cp -R runtimes/java/TestsFromDafny-java/* runtimes/java/src/test/dafny-generated
+	rm -rf runtimes/java/TestsFromDafny-java
