@@ -23,7 +23,7 @@ STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
 SMITHY_DEPS=submodules/MaterialProviders/model
 
 format_net:
-	pushd runtimes/net && dotnet format && popd
+	pushd runtimes/net && dotnet format DynamoDbEncryption.csproj && popd
 
 # Transpiling the entire project can take a while (~10 minutes),
 # So these custom written targets can be used to short-circuit the process

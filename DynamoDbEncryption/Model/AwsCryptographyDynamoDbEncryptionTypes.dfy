@@ -29,7 +29,8 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly version: VersionNumber ,
  nameonly keyring: AwsCryptographyMaterialProvidersTypes.IKeyring ,
  nameonly standardBeacons: Option<StandardBeaconList> ,
- nameonly compoundBeacons: Option<CompoundBeaconList>
+ nameonly compoundBeacons: Option<CompoundBeaconList> ,
+ nameonly virtualFields: Option<VirtualFieldList>
  )
  type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
  predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
@@ -118,6 +119,31 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
  nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
  )
+ datatype GetPrefix = | GetPrefix (
+ nameonly length: int32
+ )
+ datatype GetSegment = | GetSegment (
+ nameonly split: Char ,
+ nameonly index: int32
+ )
+ datatype GetSegments = | GetSegments (
+ nameonly split: Char ,
+ nameonly low: int32 ,
+ nameonly high: int32
+ )
+ datatype GetSubstring = | GetSubstring (
+ nameonly low: int32 ,
+ nameonly high: int32
+ )
+ datatype GetSuffix = | GetSuffix (
+ nameonly length: int32
+ )
+ datatype Insert = | Insert (
+ nameonly literal: string
+ )
+ datatype Lower = | Lower (
+ 
+ )
  datatype NonSensitivePart = | NonSensitivePart (
  nameonly name: string ,
  nameonly prefix: Prefix ,
@@ -158,9 +184,41 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  predicate method IsValid_TerminalLocation(x: string) {
  ( 1 <= |x|  )
 }
+ datatype Upper = | Upper (
+ 
+ )
  type VersionNumber = x: int32 | IsValid_VersionNumber(x) witness *
  predicate method IsValid_VersionNumber(x: int32) {
  ( 1 <= x  )
+}
+ datatype VirtualField = | VirtualField (
+ nameonly name: string ,
+ nameonly parts: VirtualPartList
+ )
+ type VirtualFieldList = x: seq<VirtualField> | IsValid_VirtualFieldList(x) witness *
+ predicate method IsValid_VirtualFieldList(x: seq<VirtualField>) {
+ ( 1 <= |x|  )
+}
+ datatype VirtualPart = | VirtualPart (
+ nameonly loc: TerminalLocation ,
+ nameonly trans: Option<VirtualTransformList>
+ )
+ type VirtualPartList = x: seq<VirtualPart> | IsValid_VirtualPartList(x) witness *
+ predicate method IsValid_VirtualPartList(x: seq<VirtualPart>) {
+ ( 1 <= |x|  )
+}
+ datatype VirtualTransform =
+ | upper(upper: Upper)
+ | lower(lower: Lower)
+ | insert(insert: Insert)
+ | prefix(prefix: GetPrefix)
+ | suffix(suffix: GetSuffix)
+ | substring(substring: GetSubstring)
+ | segment(segment: GetSegment)
+ | segments(segments: GetSegments)
+ type VirtualTransformList = x: seq<VirtualTransform> | IsValid_VirtualTransformList(x) witness *
+ predicate method IsValid_VirtualTransformList(x: seq<VirtualTransform>) {
+ ( 1 <= |x|  )
 }
  datatype Error =
  // Local Error structures are listed here

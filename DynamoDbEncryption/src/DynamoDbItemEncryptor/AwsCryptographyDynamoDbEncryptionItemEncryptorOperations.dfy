@@ -5,6 +5,8 @@ include "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders
 include "DynamoToStruct.dfy"
 include "../StructuredEncryption/SearchInfo.dfy"
 include "Util.dfy"
+include "../StructuredEncryption/SearchInfo.dfy"
+include "InternalLegacyConfig.dfy"
 
 module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines AbstractAwsCryptographyDynamoDbEncryptionItemEncryptorOperations {
   import ComAmazonawsDynamodbTypes
@@ -17,6 +19,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   import opened StandardLibrary
   import Seq
   import CSE = AwsCryptographyStructuredEncryptionTypes
+  import SE =  StructuredEncryptionUtil
+  import InternalLegacyConfig
   import MaterialProviders
   import ExpectedEncryptionContextCMM
   import opened SearchableEncryptionInfo
@@ -34,9 +38,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     nameonly allowedUnauthenticatedAttributePrefix: Option<string>,
     nameonly algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
     nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient,
-    nameonly beacons : Option<SearchInfo>
-    // TODO legacy encryptor
-    // TODO legacy schema
+    nameonly beacons : Option<SearchInfo>,
+    nameonly internalLegacyConfig: Option<InternalLegacyConfig.InternalLegacyConfig> := None
   )
 
   type InternalConfig = Config
@@ -506,7 +509,10 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     // Otherwise this operation MUST yield an error.
     ensures config.sortKeyName.Some? && config.sortKeyName.value !in input.plaintextItem ==> output.Failure?
 
-    ensures output.Success? ==>
+    ensures 
+      && output.Success? 
+      && !(config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.policy.REQUIRE_ENCRYPT_ALLOW_DECRYPT?)
+    ==>
       //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
       //= type=implication
       //# Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
@@ -541,6 +547,19 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.encryptionContext
         == Some(MakeEncryptionContext(config, plaintextStructure).value)
   {
+
+    if config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.policy.REQUIRE_ENCRYPT_ALLOW_DECRYPT? {
+      :- Need(
+        && config.partitionKeyName in input.plaintextItem
+        && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
+        , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
+      var encryptItemOutput :- config.internalLegacyConfig.value.EncryptItem(input);
+      return Success(encryptItemOutput);
+    }
+
+    // This is to help Dafny with the above complex ensures
+    assert {:split_here} true;
+
     var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem);
     var context :- MakeEncryptionContext(config, plaintextStructure);
     var cryptoSchema :- ConfigToCryptoSchema(config, input.plaintextItem);
@@ -609,7 +628,10 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     // Otherwise this operation MUST yield an error.
     ensures config.sortKeyName.Some? && config.sortKeyName.value !in input.encryptedItem ==> output.Failure?
 
-    ensures output.Success? ==>
+    ensures 
+      && output.Success?
+      && !(config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.IsLegacyInput(input))
+    ==>
       //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
       //= type=implication
       //# Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
@@ -644,6 +666,16 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptionContext
         == Some(MakeEncryptionContext(config, plaintextStructure).value)
   {
+
+    if config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.IsLegacyInput(input) {
+      :- Need(
+        && config.partitionKeyName in input.encryptedItem
+        && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
+        , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
+      var decryptItemOutput :- config.internalLegacyConfig.value.DecryptItem(input);
+      return Success(decryptItemOutput);
+    }
+
     var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem);
     var context :- MakeEncryptionContext(config, encryptedStructure);
     var authenticateSchema :- ConfigToAuthenticateSchema(config, input.encryptedItem);

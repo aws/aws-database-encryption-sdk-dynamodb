@@ -163,6 +163,46 @@ module TestFixtures {
           )
         ]
       )
+  }
+  
+  function method GetAttributeActions() : Types.AttributeActions {
+    map["bar" := CTypes.SIGN_ONLY, "encrypt" := CTypes.ENCRYPT_AND_SIGN, "sign" := CTypes.SIGN_ONLY, "nothing" := CTypes.DO_NOTHING]
+  }
+
+  method GetEncryptorConfig() returns (output : Types.DynamoDbItemEncryptorConfig) {
+    var keyring := GetKmsKeyring();
+    output := Types.DynamoDbItemEncryptorConfig(
+      tableName := "foo",
+      partitionKeyName := "bar",
+      sortKeyName := None(),
+      attributeActions := GetAttributeActions(),
+      allowedUnauthenticatedAttributes := Some(["nothing"]),
+      allowedUnauthenticatedAttributePrefix := None(),
+      keyring := Some(keyring),
+      cmm := None(),
+      algorithmSuiteId := None(),
+      legacyConfig := None()
+    );
+  }
+
+  method GetDynamoDbItemEncryptorFrom(config : Types.DynamoDbItemEncryptorConfig)
+    returns (encryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient)
+    ensures encryptor.ValidState()
+    ensures fresh(encryptor)
+    ensures fresh(encryptor.Modifies)
+  {
+    var keyring := GetKmsKeyring();
+    var encryptorConfig := Types.DynamoDbItemEncryptorConfig(
+      tableName := config.tableName,
+      partitionKeyName := config.partitionKeyName,
+      sortKeyName := config.sortKeyName,
+      attributeActions := config.attributeActions,
+      allowedUnauthenticatedAttributes := config.allowedUnauthenticatedAttributes,
+      allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
+      keyring := Some(keyring),
+      cmm := None(),
+      algorithmSuiteId := None(),
+      legacyConfig := None()
     );
   }
 }

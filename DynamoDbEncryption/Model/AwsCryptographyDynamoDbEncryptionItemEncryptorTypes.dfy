@@ -101,7 +101,8 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly allowedUnauthenticatedAttributePrefix: Option<string> ,
  nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
- nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager>
+ nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
+ nameonly legacyConfig: Option<LegacyConfig>
  )
  datatype EncryptItemInput = | EncryptItemInput (
  nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap
@@ -109,6 +110,51 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype EncryptItemOutput = | EncryptItemOutput (
  nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap
  )
+ datatype LegacyConfig = | LegacyConfig (
+ nameonly policy: LegacyPolicy ,
+ nameonly encryptor: ILegacyDynamoDbEncryptor ,
+ nameonly attributeFlags: AwsCryptographyDynamoDbEncryptionTypes.AttributeActions ,
+ nameonly defaultAttributeFlag: Option<AwsCryptographyStructuredEncryptionTypes.CryptoAction>
+ )
+ class ILegacyDynamoDbEncryptorCallHistory {
+ ghost constructor() {
+ 
+}
+ 
+}
+ trait {:termination false} ILegacyDynamoDbEncryptor
+ {
+ // Helper to define any additional modifies/reads clauses.
+ // If your operations need to mutate state,
+ // add it in your constructor function:
+ // Modifies := {your, fields, here, History};
+ // If you do not need to mutate anything:
+// Modifies := {History};
+
+ ghost const Modifies: set<object>
+ // For an unassigned field defined in a trait,
+ // Dafny can only assign a value in the constructor.
+ // This means that for Dafny to reason about this value,
+ // it needs some way to know (an invariant),
+ // about the state of the object.
+ // This builds on the Valid/Repr paradigm
+ // To make this kind requires safe to add
+ // to methods called from unverified code,
+ // the predicate MUST NOT take any arguments.
+ // This means that the correctness of this requires
+ // MUST only be evaluated by the class itself.
+ // If you require any additional mutation,
+ // then you MUST ensure everything you need in ValidState.
+ // You MUST also ensure ValidState in your constructor.
+ predicate ValidState()
+ ensures ValidState() ==> History in Modifies
+  ghost const History: ILegacyDynamoDbEncryptorCallHistory
+ 
+}
+ datatype LegacyPolicy =
+	| REQUIRE_ENCRYPT_ALLOW_DECRYPT
+	| FORBID_ENCRYPT_ALLOW_DECRYPT
+	| FORBID_ENCRYPT_FORBID_DECRYPT
  datatype Error =
  // Local Error structures are listed here
  | DynamoDbItemEncryptorException (
@@ -161,11 +207,16 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  config.keyring.value.ValidState()
  requires config.cmm.Some? ==>
  config.cmm.value.ValidState()
+ requires config.legacyConfig.Some? ==>
+ config.legacyConfig.value.encryptor.ValidState()
  modifies if config.keyring.Some? then 
  config.keyring.value.Modifies
  else {}
  modifies if config.cmm.Some? then 
  config.cmm.value.Modifies
+ else {}
+ modifies if config.legacyConfig.Some? then 
+ config.legacyConfig.value.encryptor.Modifies
  else {}
  ensures res.Success? ==> 
  && fresh(res.value)
@@ -176,6 +227,9 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ) - ( if config.cmm.Some? then 
  config.cmm.value.Modifies
  else {}
+ ) - ( if config.legacyConfig.Some? then 
+ config.legacyConfig.value.encryptor.Modifies
+ else {}
  ) )
  && fresh(res.value.History)
  && res.value.ValidState()
@@ -183,6 +237,8 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  config.keyring.value.ValidState()
  ensures config.cmm.Some? ==>
  config.cmm.value.ValidState()
+ ensures config.legacyConfig.Some? ==>
+ config.legacyConfig.value.encryptor.ValidState()
 
  class DynamoDbItemEncryptorClient extends IDynamoDbItemEncryptorClient
  {

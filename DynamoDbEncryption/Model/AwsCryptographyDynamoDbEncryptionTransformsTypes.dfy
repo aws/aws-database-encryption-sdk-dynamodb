@@ -845,9 +845,9 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import opened UTF8
  import opened Types = AwsCryptographyDynamoDbEncryptionTransformsTypes
  import Operations : AbstractAwsCryptographyDynamoDbEncryptionTransformsOperations
- // TODO the below line was manually edited
+ // TODO line below manually added. smithy codegen does not know how to deal with a config in a separate namespace.
  function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig
- // TODO the below line was manually edited
+ // TODO line below manually added. smithy codegen does not know how to deal with a config in a separate namespace.
  method DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig := DefaultDynamoDbTablesEncryptionConfig())
  returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
  requires var tmps0 := set t0 | t0 in config.tableEncryptionConfigs.Values;
