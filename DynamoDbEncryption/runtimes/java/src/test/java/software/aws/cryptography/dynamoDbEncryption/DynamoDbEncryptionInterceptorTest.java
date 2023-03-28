@@ -5,27 +5,28 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
-import org.junit.jupiter.api.BeforeAll;
+import org.testng.annotations.BeforeTest;
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.interceptor.*;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.*;
 
-import org.junit.jupiter.api.Test;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.DynamoDbEncryptionTransformsException;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.testng.Assert.*;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
+
+import org.testng.annotations.Test;
 
 public class DynamoDbEncryptionInterceptorTest {
     static DynamoDbEncryptionInterceptor interceptor;
 
-    @BeforeAll
+    @BeforeTest
     public static void setup() {
         interceptor = createInterceptor(createKmsKeyring());
     }
@@ -102,7 +103,10 @@ public class DynamoDbEncryptionInterceptorTest {
         assertNotNull(interceptor);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "^Condition Expressions forbidden on encrypted attributes : attr1$"
+    )
     public void TestPutItemGetItemWithConditionExpressionBad() {
         PutItemRequest oldRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
@@ -117,10 +121,7 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
+        interceptor.modifyRequest(context, attributes);
     }
 
     @Test
@@ -143,7 +144,10 @@ public class DynamoDbEncryptionInterceptorTest {
         assertEquals(oldRequest, newRequest);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "Update Expressions forbidden on signed attributes : " + TEST_ATTR_NAME
+    )
     public void TestUpdateItemOnEncryptedTableBad() throws Exception {
         UpdateItemRequest oldRequest = UpdateItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
@@ -159,10 +163,7 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-	Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
 		interceptor.modifyRequest(context, attributes);
-	    });
-	assertTrue(exception.getMessage().contains("Update Expressions forbidden on signed attributes : " + TEST_ATTR_NAME));
     }
 
     @Test
@@ -184,7 +185,10 @@ public class DynamoDbEncryptionInterceptorTest {
         assertEquals(oldRequest, newRequest);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "Condition Expressions forbidden on encrypted attributes : attr1"
+    )
     public void TestTransactWriteItemsWithConditionCheck() {
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
@@ -207,13 +211,13 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
+        interceptor.modifyRequest(context, attributes);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "Condition Expressions forbidden on encrypted attributes : attr1"
+    )
     public void TestTransactWriteItemsWithPutConditionExpression() {
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
@@ -233,13 +237,13 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
+        interceptor.modifyRequest(context, attributes);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "Condition Expressions forbidden on encrypted attributes : attr1"
+    )
     public void TestTransactWriteItemsWithDeleteConditionExpression() {
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
@@ -259,10 +263,7 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
+        interceptor.modifyRequest(context, attributes);
     }
 
     @Test
@@ -290,7 +291,10 @@ public class DynamoDbEncryptionInterceptorTest {
         assertEquals(oldRequest, newRequest);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "Update Expressions forbidden on signed attributes : " + TEST_ATTR_NAME
+    )
     public void TestTransactWriteItemsWithUpdateOnEncryptedTableBad() {
         TransactWriteItemsRequest oldRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
@@ -311,13 +315,13 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-	assertTrue(exception.getMessage().contains("Update Expressions forbidden on signed attributes : " + TEST_ATTR_NAME));
+        interceptor.modifyRequest(context, attributes);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "Condition Expressions forbidden on encrypted attributes : attr1"
+    )
     public void TestDeleteItemWithConditionExpression() {
         DeleteItemRequest oldRequest = DeleteItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
@@ -332,10 +336,7 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        assertTrue(exception.getMessage().contains("Condition Expressions forbidden on encrypted attributes : attr1"));
+        interceptor.modifyRequest(context, attributes);
     }
 
     @Test
@@ -380,10 +381,11 @@ public class DynamoDbEncryptionInterceptorTest {
             Context.ModifyRequest context = InterceptorContext.builder()
                     .request(oldRequest)
                     .build();
-            Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
+            try {
                 interceptor.modifyRequest(context, attributes);
-            });
-            assertTrue(exception.getMessage().contains("ExecuteStatement not Supported on encrypted tables."));
+            } catch (DynamoDbEncryptionTransformsException e) {
+                assertTrue(e.getMessage().contains("ExecuteStatement not Supported on encrypted tables."));
+            }
         }
     }
 
@@ -405,7 +407,10 @@ public class DynamoDbEncryptionInterceptorTest {
         assertEquals(oldRequest, newRequest);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "DynamoDbEncryptionInterceptor does not support use with unrecognized operation: UnknownOperation"
+    )
     public void TestUnknownOperationRequest() {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(PutItemRequest.builder().build())
@@ -415,13 +420,13 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        assertTrue(exception.getMessage().contains("DynamoDbEncryptionInterceptor does not support use with unrecognized operation"));
+        interceptor.modifyRequest(context, attributes);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb."
+    )
     public void TestUnknownServiceRequest() {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(PutItemRequest.builder().build())
@@ -431,18 +436,15 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "OtherService")
                 .build();
 
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        assertTrue(exception.getMessage().contains("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb."));
+        interceptor.modifyRequest(context, attributes);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "Missing value for required field `config`"
+    )
     public void TestEmptyInterceptorBuild() {
-        Exception exception = assertThrows(DynamoDbEncryptionTransformsException.class, () -> {
-            DynamoDbEncryptionInterceptor.builder().build();
-        });
-        assertTrue(exception.getMessage().contains("Missing value for required field `config`"));
+        DynamoDbEncryptionInterceptor.builder().build();
     }
 
     @Test
@@ -455,7 +457,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        Exception exception = assertThrows(OpaqueError.class, () -> {
+        assertThrows(OpaqueError.class, () -> {
             createInterceptor(actions, allowedUnauth, createKmsKeyring());
         });
         //assertTrue(exception.getMessage().contains("Partition key attribute action MUST be SIGN_ONLY"));
@@ -471,7 +473,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        Exception exception = assertThrows(OpaqueError.class, () -> {
+        assertThrows(OpaqueError.class, () -> {
             createInterceptor(actions, allowedUnauth, createKmsKeyring());
         });
         //assertTrue(exception.getMessage().contains("Sort key attribute action MUST be SIGN_ONLY"));
@@ -487,7 +489,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        Exception exception = assertThrows(OpaqueError.class, () -> {
+        assertThrows(OpaqueError.class, () -> {
             createInterceptor(actions, allowedUnauth, createKmsKeyring());
         });
         // assertTrue(exception.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_ATTR_NAME)));
@@ -496,7 +498,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        Exception exception2 = assertThrows(OpaqueError.class, () -> {
+        assertThrows(OpaqueError.class, () -> {
             createInterceptor(actions, allowedUnauth2, createKmsKeyring());
         });
         //assertTrue(exception2.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_SORT_NAME)));
@@ -522,7 +524,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        Exception exception = assertThrows(OpaqueError.class, () -> {
+        assertThrows(OpaqueError.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
         //assertTrue(exception.getMessage().contains("No Crypto Action configured for attribute"));
@@ -548,7 +550,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        Exception exception = assertThrows(OpaqueError.class, () -> {
+        assertThrows(OpaqueError.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
         //assertTrue(exception.getMessage().contains(String.format("Partition key %s not found in Item to be encrypted or decrypted", TEST_PARTITION_NAME)));
@@ -574,7 +576,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        Exception exception = assertThrows(OpaqueError.class, () -> {
+        assertThrows(OpaqueError.class, () -> {
             interceptor.modifyRequest(context, attributes);
         });
         //assertTrue(exception.getMessage().contains(String.format("Sort key %s not found in Item to be encrypted or decrypted", TEST_SORT_NAME)));

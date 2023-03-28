@@ -1,6 +1,5 @@
 package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 
-import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -14,8 +13,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.testng.Assert.assertEquals;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
+
+import org.testng.annotations.Test;
 
 // TODO test various schema updates
 public class DynamoDbEncryptionEnhancedClientIntegrationTests {

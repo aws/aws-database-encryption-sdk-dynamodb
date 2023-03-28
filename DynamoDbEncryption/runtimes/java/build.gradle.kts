@@ -125,7 +125,6 @@ tasks.withType<JavaCompile>() {
 }
 
 tasks.test {
-    useJUnitPlatform()
     useTestNG()
     dependsOn("CopyDynamoDb")
     systemProperty("java.library.path", "build/libs")
