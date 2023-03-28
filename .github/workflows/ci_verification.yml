@@ -11,8 +11,13 @@ jobs:
   verification:
     strategy:
       matrix:
-        library: [
+        # Break up verification between namespaces over multiple
+        # actions to take advantage of parallelization
+        namespace: [
           DynamoDbEncryption,
+          DynamoDbEncryptionTransforms,
+          DynamoDbItemEncryptor,
+          StructuredEncryption
         ]
         os: [
           macos-latest,
@@ -41,11 +46,11 @@ jobs:
 
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./DynamoDbEncryption
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make verify CORES=$CORES
+          make verify_namespace CORES=$CORES SMITHY_NAMESPACE=${{ matrix.namespace }}
 
       - name: Check solver resource use
         shell: bash
