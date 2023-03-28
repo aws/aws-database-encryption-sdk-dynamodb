@@ -1,11 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DynamoToStruct.dfy"
-include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "../DynamoDbItemEncryptor/DynamoToStruct.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 
 module DynamoDbEncryptionBranchKeyIdSupplier {
-  import opened AwsCryptographyDynamoDbEncryptionResourcesTypes
+  import opened AwsCryptographyDynamoDbEncryptionTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
   import DDB = ComAmazonawsDynamodbTypes
   import opened Seq
@@ -107,7 +107,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
   function method ConvertToMplError(err: Error)
     :(ret: MPL.Error)
   {
-    if err.DynamoDbEncryptionResourcesException? then
+    if err.DynamoDbEncryptionException? then
       MPL.AwsCryptographicMaterialProvidersException(message:=err.message)
     else
       // We expect this interface to be implemented in the native language,

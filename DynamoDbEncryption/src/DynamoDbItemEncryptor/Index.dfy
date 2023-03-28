@@ -1,7 +1,3 @@
-<<<<<<< HEAD:DynamoDbItemEncryptor/src/Index.dfy
-include "DynamoDbItemEncryptor.dfy"
-include "DynamoDbEncryptionResources.dfy"
-=======
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -223,4 +219,3 @@ module
   }
 
 }
->>>>>>> c011b68f0e32b03f49882b0f6246d4a115f62772:DynamoDbEncryption/src/DynamoDbItemEncryptor/Index.dfy

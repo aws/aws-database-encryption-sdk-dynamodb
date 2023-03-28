@@ -1,24 +1,23 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../private-aws-encryption-sdk-dafny-staging/StandardLibrary/src/StandardLibrary.dfy"
-include "../src/DynamoDbEncryptionResources.dfy"
-include "../Model/AwsCryptographyDynamoDbEncryptionResourcesTypes.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
-include "../../private-aws-encryption-sdk-dafny-staging/AwsCryptographicMaterialProviders/Model/AwsCryptographyMaterialProvidersTypes.dfy"
-include "TestFixtures.dfy"
+include "../../../submodules/MaterialProviders/StandardLibrary/src/StandardLibrary.dfy"
+include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "../../../submodules/MaterialProviders/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
+include "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model/AwsCryptographyMaterialProvidersTypes.dfy"
+include "../TestFixtures.dfy"
 
 module DynamoDbEncryptionBranchKeyIdSupplierTest {
   import opened Wrappers
   import opened StandardLibrary.UInt
   import MaterialProviders
-  import DynamoDbEncryptionResources
-  import Types = AwsCryptographyDynamoDbEncryptionResourcesTypes
+  import DynamoDbEncryption
+  import Types = AwsCryptographyDynamoDbEncryptionTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
   import KMS = Com.Amazonaws.Kms
   import DDB = Com.Amazonaws.Dynamodb
   import UTF8
   import TestFixtures
-  import AwsCryptographyDynamoDbItemEncryptorOperations
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
   import Base64
@@ -50,7 +49,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   method {:test} TestHappyCase() 
   {
     var ddbItemToBranchKeyId: Types.IDynamoDbItemBranchKeyIdSupplier := new TestBranchKeyIdSupplier();
-    var ddbEncResources :- expect DynamoDbEncryptionResources.DynamoDbEncryptionResources();
+    var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
     var branchKeyIdSupplierOut :- expect ddbEncResources.CreateDynamoDbEncryptionBranchKeyIdSupplier(
       Types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(
         ddbItemBranchKeyIdSupplier := ddbItemToBranchKeyId
@@ -185,7 +184,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
       } else if BRANCH_KEY in item.Keys && item[BRANCH_KEY].S? && item[BRANCH_KEY].S == CASE_B {
         return Success(Types.GetBranchKeyIdFromItemOutput(branchKeyId:=BRANCH_KEY_ID_B));
       } else {
-        return Failure(Types.DynamoDbEncryptionResourcesException(message := "Can't determine branchKeyId from item"));
+        return Failure(Types.DynamoDbEncryptionException(message := "Can't determine branchKeyId from item"));
       }
     }
   }

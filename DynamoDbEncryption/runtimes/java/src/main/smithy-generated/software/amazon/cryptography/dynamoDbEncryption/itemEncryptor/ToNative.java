@@ -55,13 +55,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static DecryptItemInput DecryptItemInput(
-      Dafny.Aws.Cryptography.DynamoDbItemEncryptor.Types.DecryptItemInput dafnyValue) {
-    DecryptItemInput.Builder nativeBuilder = DecryptItemInput.builder();
-    nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
-    return nativeBuilder.build();
-  }
-
   public static DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig(
       Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DynamoDbItemEncryptorConfig dafnyValue) {
     DynamoDbItemEncryptorConfig.Builder nativeBuilder = DynamoDbItemEncryptorConfig.builder();

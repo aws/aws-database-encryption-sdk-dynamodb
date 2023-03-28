@@ -7,6 +7,8 @@ namespace aws.cryptography.dynamoDbEncryption
 // and common structures used throughout this project.
 
 use aws.polymorph#localService
+use aws.polymorph#reference
+use aws.polymorph#extendable
 
 use aws.cryptography.materialProviders#BranchKeyIdSupplierReference
 use aws.cryptography.materialProviders#KeyringReference
@@ -27,7 +29,7 @@ use aws.cryptography.structuredEncryption#CryptoAction
 )
 service DynamoDbEncryption {
     version: "2022-11-21",
-    operations: [],
+    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier ],
     errors: [ DynamoDbEncryptionException ]
 }
 
@@ -329,15 +331,6 @@ structure SearchConfig {
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
 structure AtomicPrimitivesReference {}
 
-/////////////
-// Errors
-
-@error("client")
-structure DynamoDbEncryptionException {
-  @required
-  message: String,
-}
-
 @extendable
 resource DynamoDbItemBranchKeyIdSupplier{
   operations: [GetBranchKeyIdFromItem]
@@ -374,4 +367,13 @@ structure CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
 structure CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
   @required
   branchKeyIdSupplier: BranchKeyIdSupplierReference 
+}
+
+/////////////
+// Errors
+
+@error("client")
+structure DynamoDbEncryptionException {
+  @required
+  message: String,
 }

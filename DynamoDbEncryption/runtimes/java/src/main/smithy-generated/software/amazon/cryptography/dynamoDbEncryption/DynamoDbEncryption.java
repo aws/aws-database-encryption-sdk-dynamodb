@@ -10,6 +10,8 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.__default;
 import Wrappers_Compile.Result;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
+import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
+import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 
 public class DynamoDbEncryption {
@@ -27,6 +29,16 @@ public class DynamoDbEncryption {
 
   public static Builder builder() {
     return new BuilderImpl();
+  }
+
+  public CreateDynamoDbEncryptionBranchKeyIdSupplierOutput CreateDynamoDbEncryptionBranchKeyIdSupplier(
+      CreateDynamoDbEncryptionBranchKeyIdSupplierInput nativeValue) {
+    Dafny.Aws.Cryptography.DynamoDbEncryption.Types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput dafnyValue = ToDafny.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(nativeValue);
+    Result<Dafny.Aws.Cryptography.DynamoDbEncryption.Types.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error> result = this._impl.CreateDynamoDbEncryptionBranchKeyIdSupplier(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(result.dtor_value());
   }
 
   protected IDynamoDbEncryptionClient impl() {

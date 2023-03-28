@@ -193,8 +193,9 @@ public class InternalLegacyConfig {
       .dtor_legacyConfig()
       .dtor_value();
 
+    final Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor foo = legacyConfig.dtor_encryptor();
     final ILegacyDynamoDbEncryptor maybeEncryptor = software.amazon.cryptography.dynamoDbEncryption.ToNative
-      .LegacyDynamoDbEncryptor(legacyConfig.dtor_encryptor());
+      .LegacyDynamoDbEncryptor(foo);
 
     // Precondition: The encryptor MUST be a DynamoDBEncryptor
     if (!isDynamoDBEncryptor(maybeEncryptor)) {
