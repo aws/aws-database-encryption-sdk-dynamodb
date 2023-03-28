@@ -6,25 +6,26 @@
 
   The only entry point of interest is 
 
-  Convert(outer : DynamoDbItemEncryptorConfig, config : Option<AwsCryptographyDynamoDbEncryptionTypes.SearchConfig>)
+  Convert(outer : DynamoDbItemEncryptorConfig, config : Option<AwsCryptographyDynamoDbEncryptionTransformsTypes.SearchConfig>)
     : Option<SearchableEncryptionInfo.SearchInfo>
   
   e.g. client.info :- Convert(config, config.beacons)
 */
 
 
-include "../../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
 include "../StructuredEncryption/SearchInfo.dfy"
 include "Util.dfy"
-include "../../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy"
 
 module SearchConfigToInfo {
-  import opened AwsCryptographyDynamoDbItemEncryptorTypes
+  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import opened StandardLibrary
   import opened Wrappers
   import opened StandardLibrary.UInt
   import opened DynamoDbItemEncryptorUtil
   import C = AwsCryptographyDynamoDbEncryptionTypes
+  import DDBE = AwsCryptographyDynamoDbEncryptionTypes
 
   import I = SearchableEncryptionInfo
   import V = VirtualFields
@@ -49,7 +50,8 @@ module SearchConfigToInfo {
       :- Need(|config.value.versions| == 1, E("search config must be have exactly one version."));
       var version :- ConvertVersion(outer, config.value.versions[0]);
       var info := I.SearchInfo(versions := [version], currWrite := 0);
-      var _ :- info.CheckValid().MapFailure(e => AwsCryptographyStructuredEncryption(e));
+      var _ :- info.CheckValid()
+          .MapFailure(e => AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
       return Success(Some(info));
     }
   }
@@ -216,7 +218,7 @@ module SearchConfigToInfo {
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
     var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, newKey, beacons[0].length as B.BeaconLength, locString)
-      .MapFailure(e => AwsCryptographyStructuredEncryption(e));
+      .MapFailure(e => AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
     :- Need(IsEncryptedV(outer, virtualFields, newBeacon.loc), E("StandardBeacon " + beacons[0].name + " not defined on an encrypted field."));
     output := AddStandardBeacons(beacons[1..], outer, key, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
   }
@@ -226,7 +228,8 @@ module SearchConfigToInfo {
     : Result<P.TerminalLocation, Error>
   {
     if loc.None? then
-      P.TermLocMap?(name).MapFailure(e => AwsCryptographyStructuredEncryption(e))
+      P.TermLocMap?(name)
+        .MapFailure(e => AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)))
     else
       V.MakeTerminalLocation(loc.value).MapFailure(e => E(e))
   }

@@ -1,17 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module PutItemTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
   method {:test} TestPutItemInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.PutItemInput(
       TableName := "no_such_table",
       Item := map[],
@@ -25,7 +25,7 @@ module PutItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.PutItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.PutItemInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.PutItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -35,7 +35,7 @@ module PutItemTransformTest {
   }
 
   method {:test} TestPutItemOutputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.PutItemOutput(
       Attributes := None(),
       ConsumedCapacity := None(),
@@ -54,7 +54,7 @@ module PutItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.PutItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.PutItemOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.PutItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

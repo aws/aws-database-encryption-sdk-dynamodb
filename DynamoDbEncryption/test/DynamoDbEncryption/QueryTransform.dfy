@@ -1,17 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module QueryTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
   method {:test} TestQueryInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.QueryInput(
       TableName := "no_such_table",
       IndexName := None(),
@@ -32,7 +32,7 @@ module QueryTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.QueryInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.QueryInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.QueryInputTransformInput(
         sdkInput := input
       )
     );
@@ -42,7 +42,7 @@ module QueryTransformTest {
   }
 
   method {:test} TestQueryOutputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.QueryOutput(
       Items := None(),
       Count := None(),
@@ -70,7 +70,7 @@ module QueryTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.QueryOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.QueryOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.QueryOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

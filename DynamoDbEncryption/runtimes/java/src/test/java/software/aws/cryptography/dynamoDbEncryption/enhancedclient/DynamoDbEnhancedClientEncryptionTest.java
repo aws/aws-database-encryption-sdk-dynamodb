@@ -8,7 +8,7 @@ import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
-import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;

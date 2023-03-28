@@ -94,7 +94,7 @@ public class ToNative {
   public static DynamoDbTablesEncryptionConfig DynamoDbTablesEncryptionConfig(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbTablesEncryptionConfig dafnyValue) {
     DynamoDbTablesEncryptionConfig.Builder nativeBuilder = DynamoDbTablesEncryptionConfig.builder();
-    nativeBuilder.tableEncryptionConfigs(ToNative.DynamoDbTableEncryptionConfigs(dafnyValue.dtor_tableEncryptionConfigs()));
+    nativeBuilder.tableEncryptionConfigs(ToNative.DynamoDbTableEncryptionConfigList(dafnyValue.dtor_tableEncryptionConfigs()));
     return nativeBuilder.build();
   }
 
@@ -244,19 +244,19 @@ public class ToNative {
         software.amazon.cryptography.dynamoDbEncryption.ToNative::ConstructorPart);
   }
 
-  public static Map<String, DynamoDbTableEncryptionConfig> DynamoDbTableEncryptionConfigs(
-      DafnyMap<? extends DafnySequence<? extends Character>, ? extends Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbTableEncryptionConfig> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToMap(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::String, 
-        software.amazon.cryptography.dynamoDbEncryption.ToNative::DynamoDbTableEncryptionConfig);
-  }
-
   public static Map<String, CryptoAction> AttributeActions(
       DafnyMap<? extends DafnySequence<? extends Character>, ? extends Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoAction> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToMap(
         dafnyValue, 
         software.amazon.dafny.conversion.ToNative.Simple::String, 
         software.amazon.cryptography.structuredEncryption.ToNative::CryptoAction);
+  }
+
+  public static Map<String, DynamoDbTableEncryptionConfig> DynamoDbTableEncryptionConfigList(
+      DafnyMap<? extends DafnySequence<? extends Character>, ? extends Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbTableEncryptionConfig> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToMap(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::String, 
+        software.amazon.cryptography.dynamoDbEncryption.ToNative::DynamoDbTableEncryptionConfig);
   }
 }

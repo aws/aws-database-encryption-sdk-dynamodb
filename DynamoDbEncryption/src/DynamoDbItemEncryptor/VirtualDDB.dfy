@@ -15,7 +15,7 @@
   GetVirtualAttributes(fields : seq<VirtualField>, item : DDB.AttributeMap) : DDB.AttributeMap
 */
 
-include "../../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
 include "../StructuredEncryption/Virtual.dfy"
 include "DynamoToStruct.dfy"
 

@@ -114,9 +114,9 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager>
  )
- type DynamoDbTableEncryptionConfigs = map<ComAmazonawsDynamodbTypes.TableName, DynamoDbTableEncryptionConfig>
+ type DynamoDbTableEncryptionConfigList = map<ComAmazonawsDynamodbTypes.TableName, DynamoDbTableEncryptionConfig>
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
- nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
+ nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
  )
  datatype NonSensitivePart = | NonSensitivePart (
  nameonly name: string ,

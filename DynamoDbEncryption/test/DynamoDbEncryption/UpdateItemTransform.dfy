@@ -1,17 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module UpdateItemTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
   method {:test} TestUpdateItemInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.UpdateItemInput(
       TableName := "no_such_table",
       Key := map[],
@@ -27,7 +27,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -37,7 +37,7 @@ module UpdateItemTransformTest {
   }
 
     method {:test} TestUpdateItemInputUpdateExpressionSigned() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.UpdateItemInput(
       TableName := "foo",
       Key := map[],
@@ -53,7 +53,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -63,7 +63,7 @@ module UpdateItemTransformTest {
 
 
     method {:test} TestUpdateItemInputUpdateExpressionEncrypted() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.UpdateItemInput(
       TableName := "foo",
       Key := map[],
@@ -79,7 +79,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -89,7 +89,7 @@ module UpdateItemTransformTest {
 
 
     method {:test} TestUpdateItemInputUpdateExpressionPlain() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.UpdateItemInput(
       TableName := "foo",
       Key := map[],
@@ -105,7 +105,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -115,7 +115,7 @@ module UpdateItemTransformTest {
   }
 
   method {:test} TestUpdateItemOutputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.UpdateItemOutput(
       Attributes := None(),
       ConsumedCapacity := None(),
@@ -136,7 +136,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.UpdateItemOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

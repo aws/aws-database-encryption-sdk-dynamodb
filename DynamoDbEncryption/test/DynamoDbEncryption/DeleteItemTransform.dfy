@@ -1,17 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module DeleteItemTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
   method {:test} TestDeleteItemInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.DeleteItemInput(
       TableName := "no_such_table",
       Key := map[],
@@ -25,7 +25,7 @@ module DeleteItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.DeleteItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.DeleteItemInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.DeleteItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -35,7 +35,7 @@ module DeleteItemTransformTest {
   }
 
   method {:test} TestDeleteItemOutputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.DeleteItemOutput(
       Attributes := None(),
       ConsumedCapacity := None(),
@@ -54,7 +54,7 @@ module DeleteItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.DeleteItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.DeleteItemOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.DeleteItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

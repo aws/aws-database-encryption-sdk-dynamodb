@@ -12,8 +12,8 @@ Parse a DynamoDB FilterExpression, ConditionExpression or KeyConditionExpression
 */
 
 
-include "../../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
-include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
+include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
 include "../StructuredEncryption/SearchInfo.dfy"
 include "../../../submodules/MaterialProviders/StandardLibrary/src/FloatCompare.dfy"
 
@@ -24,7 +24,7 @@ module DynamoDBFilterExpr {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbItemEncryptorOperations
+  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
   import opened AwsCryptographyStructuredEncryptionTypes
   import FloatCompare
   import Seq

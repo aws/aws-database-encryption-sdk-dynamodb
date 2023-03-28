@@ -12,11 +12,11 @@ module DynamoDbItemEncryptorTest {
   import MaterialProviders
   import DynamoDbItemEncryptor
   import AwsCryptographyMaterialProvidersTypes
-  import Types = AwsCryptographyDynamoDbItemEncryptorTypes
+  import Types = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import UTF8
   import DDB = ComAmazonawsDynamodbTypes
   import TestFixtures
-  import AwsCryptographyDynamoDbItemEncryptorOperations
+  import AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
 

@@ -1,18 +1,18 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module BatchGetItemTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
 
   method {:test} TestBatchGetItemInputTransform() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.BatchGetItemInput(
       RequestItems := map[
         "foo" := DDB.KeysAndAttributes(
@@ -28,7 +28,7 @@ module BatchGetItemTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.BatchGetItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.BatchGetItemInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchGetItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -38,7 +38,7 @@ module BatchGetItemTransformTest {
   }
 
   method {:test} TestBatchGetItemOutputTransform() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.BatchGetItemOutput(
       Responses := None(),
       UnprocessedKeys := None(),
@@ -59,7 +59,7 @@ module BatchGetItemTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.BatchGetItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.BatchGetItemOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchGetItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

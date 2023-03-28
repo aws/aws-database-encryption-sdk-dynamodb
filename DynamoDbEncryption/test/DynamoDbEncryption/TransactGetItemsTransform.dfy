@@ -1,17 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module TransactGetItemsTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
   method {:test} TestTransactGetItemsInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.TransactGetItemsInput(
       TransactItems := [
         DDB.TransactGetItem(
@@ -26,7 +26,7 @@ module TransactGetItemsTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.TransactGetItemsInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.TransactGetItemsInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactGetItemsInputTransformInput(
         sdkInput := input
       )
     );
@@ -36,7 +36,7 @@ module TransactGetItemsTransformTest {
   }
 
   method {:test} TestTransactGetItemsOutputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.TransactGetItemsOutput(
       ConsumedCapacity := None(),
       Responses := None()
@@ -55,7 +55,7 @@ module TransactGetItemsTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.TransactGetItemsOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.TransactGetItemsOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactGetItemsOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

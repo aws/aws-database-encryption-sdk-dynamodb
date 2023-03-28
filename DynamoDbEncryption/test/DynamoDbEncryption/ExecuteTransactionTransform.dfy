@@ -1,18 +1,18 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module ExecuteTransactionTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
 
   method {:test} TestExecuteTransactionInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var good_input := DDB.ExecuteTransactionInput(
       TransactStatements :=  [
         DDB.ParameterizedStatement (
@@ -24,7 +24,7 @@ module ExecuteTransactionTransformTest {
       ReturnConsumedCapacity := None()
     );
     var good_transformed := middlewareUnderTest.ExecuteTransactionInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.ExecuteTransactionInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteTransactionInputTransformInput(
         sdkInput := good_input
       )
     );
@@ -34,7 +34,7 @@ module ExecuteTransactionTransformTest {
   }
 
   method {:test} TestExecuteTransactionInput() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var bad_input := DDB.ExecuteTransactionInput(
       TransactStatements :=  [
         DDB.ParameterizedStatement (
@@ -46,7 +46,7 @@ module ExecuteTransactionTransformTest {
       ReturnConsumedCapacity := None()
     );
     var bad_transformed := middlewareUnderTest.ExecuteTransactionInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.ExecuteTransactionInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteTransactionInputTransformInput(
         sdkInput := bad_input
       )
     );
@@ -55,7 +55,7 @@ module ExecuteTransactionTransformTest {
   }
 
   method {:test} TestExecuteTransactionOutputTransform() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.ExecuteTransactionOutput(
       Responses := None(),
       ConsumedCapacity := None()
@@ -71,7 +71,7 @@ module ExecuteTransactionTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.ExecuteTransactionOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.ExecuteTransactionOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteTransactionOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

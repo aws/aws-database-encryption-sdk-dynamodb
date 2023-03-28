@@ -1,18 +1,19 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
+include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
 include "Util.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbItemEncryptor" }
-  DynamoDbItemEncryptor refines AbstractAwsCryptographyDynamoDbItemEncryptorService
+  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor" }
+  DynamoDbItemEncryptor refines AbstractAwsCryptographyDynamoDbEncryptionItemEncryptorService
 {
   import opened DynamoDbItemEncryptorUtil
   import StructuredEncryption
   import CSE = AwsCryptographyStructuredEncryptionTypes
+  import DDBE = AwsCryptographyDynamoDbEncryptionTypes
   import MaterialProviders
-  import Operations = AwsCryptographyDynamoDbItemEncryptorOperations
+  import Operations = AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
@@ -155,7 +156,7 @@ module
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
     var structuredEncryption :- structuredEncryptionRes
-      .MapFailure(e => AwsCryptographyStructuredEncryption(e));
+      .MapFailure(e => AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
 
     // TODO For now just passthrough cmm or wrap keyring with DefaultCMM
     var cmm;

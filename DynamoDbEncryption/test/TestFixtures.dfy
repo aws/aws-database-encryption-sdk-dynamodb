@@ -1,16 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../src/DynamoDbEncryption/Index.dfy"
-include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "../src/DynamoDbEncryptionTransforms/Index.dfy"
+include "../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy"
 include "../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model/AwsCryptographyMaterialProvidersTypes.dfy"
 
 module TestFixtures {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes
-  import opened AwsCryptographyDynamoDbItemEncryptorTypes
-  import DynamoDbEncryption
+  import DynamoDbEncryptionTransforms
   import DynamoDbItemEncryptor
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
@@ -69,7 +70,7 @@ module TestFixtures {
   }
 
 
-  method expect_ok<X>(tag : string, actual : Result<X, AwsCryptographyDynamoDbEncryptionTypes.Error>)
+  method expect_ok<X>(tag : string, actual : Result<X, AwsCryptographyDynamoDbEncryptionTransformsTypes.Error>)
     ensures actual.Success?
   {
     if actual.Failure? {
@@ -85,16 +86,16 @@ module TestFixtures {
     expect actual == expected;
   }
 
-  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionTypes.Error>, s : string)
+  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionTransformsTypes.Error>, s : string)
   {
     if !ret.Failure? {
       print "Got Success when expected failure ", s, "\n";
     }
     expect ret.Failure?;
-    if !ret.error.DynamoDbEncryptionException? {
-      print "Error type not DynamoDbEncryptionException : ", ret, "\n";
+    if !ret.error.DynamoDbEncryptionTransformsException? {
+      print "Error type not DynamoDbEncryptionTransformsException : ", ret, "\n";
     }
-    expect ret.error.DynamoDbEncryptionException?;
+    expect ret.error.DynamoDbEncryptionTransformsException?;
     if ret.error.message != s {
       print "Expected error message '", s, "' got message '", ret.error.message, "'\n";
     }
@@ -134,15 +135,15 @@ module TestFixtures {
     );
   }
 
-  method GetDynamoDbEncryption()
-      returns (encryption: DynamoDbEncryption.DynamoDbEncryptionClient)
+  method GetDynamoDbEncryptionTransforms()
+      returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
     ensures encryption.ValidState()
     ensures fresh(encryption)
     ensures fresh(encryption.Modifies)
   {
     var keyring := GetKmsKeyring();
-    encryption :- expect DynamoDbEncryption.DynamoDbEncryption(
-      DynamoDbEncryptionConfig(
+    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+      DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
             partitionKeyName := "bar",

@@ -7,7 +7,8 @@ import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.SdkResponse;
 
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
+import software.amazon.cryptography.dynamoDbEncryption.transforms.DynamoDbEncryptionTransforms;
+import software.amazon.cryptography.dynamoDbEncryption.transforms.model.*;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
 
 import java.util.Objects;
@@ -21,20 +22,22 @@ import static software.aws.cryptography.dynamoDbEncryption.SupportedOperations.S
  */
 public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
-    private final DynamoDbEncryptionConfig config;
-    private DynamoDbEncryption transformer;
+    private final DynamoDbTablesEncryptionConfig config;
+    private DynamoDbEncryptionTransforms transformer;
 
     // TODO find where in sdk we can pull this string from
     static final String DDB_NAME = "DynamoDb";
 
+    // TODO ensure this is not being run with the Async client.
+
     protected DynamoDbEncryptionInterceptor(BuilderImpl builder) {
         this.config = builder.config();
-        this.transformer = DynamoDbEncryption.builder()
-                .DynamoDbEncryptionConfig(config)
+        this.transformer = DynamoDbEncryptionTransforms.builder()
+                .DynamoDbTablesEncryptionConfig(config)
                 .build();
     }
 
-    public DynamoDbEncryptionConfig config() {
+    public DynamoDbTablesEncryptionConfig config() {
         return this.config;
     }
 
@@ -44,7 +47,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
         // Only transform DDB requests. Otherwise, throw an error.
         if (!executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME).equals(DDB_NAME)) {
-            throw DynamoDbEncryptionException.builder()
+            throw DynamoDbEncryptionTransformsException.builder()
                     .message("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.")
                     .build();
         }
@@ -163,7 +166,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
         // Only transform DDB requests. Otherwise, throw an error.
         if (!executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME).equals(DDB_NAME)) {
-            throw DynamoDbEncryptionException.builder()
+            throw DynamoDbEncryptionTransformsException.builder()
                     .message("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.")
                     .build();
         }
@@ -317,7 +320,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
     private void checkSupportedOperation(String operationName) {
         if (!SUPPORTED_OPERATION_NAMES.contains(operationName)) {
-            throw DynamoDbEncryptionException.builder()
+            throw DynamoDbEncryptionTransformsException.builder()
                     .message(String.format("DynamoDbEncryptionInterceptor does not support use with unrecognized operation: %s", operationName))
                     .build();
         }
@@ -343,13 +346,13 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
     }
 
     public interface Builder {
-        Builder config(DynamoDbEncryptionConfig config);
-        DynamoDbEncryptionConfig config();
+        Builder config(DynamoDbTablesEncryptionConfig config);
+        DynamoDbTablesEncryptionConfig config();
         DynamoDbEncryptionInterceptor build();
     }
 
     static class BuilderImpl implements Builder {
-        protected DynamoDbEncryptionConfig config;
+        protected DynamoDbTablesEncryptionConfig config;
 
         protected BuilderImpl() {
         }
@@ -358,18 +361,18 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
             this.config = model.config();
         }
 
-        public Builder config(DynamoDbEncryptionConfig config) {
+        public Builder config(DynamoDbTablesEncryptionConfig config) {
             this.config = config;
             return this;
         }
 
-        public DynamoDbEncryptionConfig config() {
+        public DynamoDbTablesEncryptionConfig config() {
             return this.config;
         }
 
         public DynamoDbEncryptionInterceptor build() {
             if (Objects.isNull(this.config())) {
-                throw DynamoDbEncryptionException.builder()
+                throw DynamoDbEncryptionTransformsException.builder()
                         .message("Missing value for required field `config`")
                         .build();
             }

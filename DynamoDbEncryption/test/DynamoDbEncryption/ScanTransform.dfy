@@ -1,17 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module ScanTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
   method {:test} TestScanInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.ScanInput(
       TableName := "no_such_table",
       IndexName := None(),
@@ -31,7 +31,7 @@ module ScanTransformTest {
       ConsistentRead := None()
     );
     var transformed := middlewareUnderTest.ScanInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.ScanInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.ScanInputTransformInput(
         sdkInput := input
       )
     );
@@ -41,7 +41,7 @@ module ScanTransformTest {
   }
 
   method {:test} TestScanOutputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.ScanOutput(
       Items := None(),
       Count := None(),
@@ -68,7 +68,7 @@ module ScanTransformTest {
       ConsistentRead := None()
     );
     var transformed := middlewareUnderTest.ScanOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.ScanOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.ScanOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

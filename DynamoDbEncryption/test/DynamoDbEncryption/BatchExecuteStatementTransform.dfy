@@ -1,17 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module BatchExecuteStatementTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
   method {:test} TestBatchExecuteStatementInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var good_input := DDB.BatchExecuteStatementInput(
       Statements := [
         DDB.BatchStatementRequest(
@@ -23,7 +23,7 @@ module BatchExecuteStatementTransformTest {
       ReturnConsumedCapacity := None()
     );
     var good_transformed := middlewareUnderTest.BatchExecuteStatementInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.BatchExecuteStatementInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementInputTransformInput(
         sdkInput := good_input
       )
     );
@@ -33,7 +33,7 @@ module BatchExecuteStatementTransformTest {
   }
 
   method {:test} TestBatchExecuteStatementInputEncrypted() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var bad_input := DDB.BatchExecuteStatementInput(
       Statements := [
         DDB.BatchStatementRequest(
@@ -45,18 +45,18 @@ module BatchExecuteStatementTransformTest {
       ReturnConsumedCapacity := None()
     );
     var bad_transformed := middlewareUnderTest.BatchExecuteStatementInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.BatchExecuteStatementInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementInputTransformInput(
         sdkInput := bad_input
       )
     );
 
     expect bad_transformed.Failure?;
-    expect bad_transformed.error.DynamoDbEncryptionException?;
+    expect bad_transformed.error.DynamoDbEncryptionTransformsException?;
     expect bad_transformed.error.message == "BatchExecuteStatement not Supported on encrypted tables.";
   }
 
   method {:test} TestBatchExecuteStatementOutputTransform() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.BatchExecuteStatementOutput(
       Responses := None(),
       ConsumedCapacity := None()
@@ -72,7 +72,7 @@ module BatchExecuteStatementTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.BatchExecuteStatementOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.BatchExecuteStatementOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

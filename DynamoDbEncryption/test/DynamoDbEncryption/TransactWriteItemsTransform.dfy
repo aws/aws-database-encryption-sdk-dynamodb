@@ -1,17 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../src/DynamoDbEncryption/Index.dfy"
+include "../../src/DynamoDbEncryptionTransforms/Index.dfy"
 include "../TestFixtures.dfy"
 
 module TransactWriteItemsTransformTest {
   import opened Wrappers
-  import opened DynamoDbEncryption
+  import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
   method {:test} TestTransactWriteItemsInputPassthrough() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.TransactWriteItemsInput(
       TransactItems := [
         DDB.TransactWriteItem(
@@ -32,7 +32,7 @@ module TransactWriteItemsTransformTest {
       ClientRequestToken := None()
     );
     var transformed := middlewareUnderTest.TransactWriteItemsInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.TransactWriteItemsInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactWriteItemsInputTransformInput(
         sdkInput := input
       )
     );
@@ -42,7 +42,7 @@ module TransactWriteItemsTransformTest {
   }
 
   method {:test} TestTransactWriteItemsInputEmpty() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var input := DDB.TransactWriteItemsInput(
       TransactItems := [
         DDB.TransactWriteItem(
@@ -57,7 +57,7 @@ module TransactWriteItemsTransformTest {
       ClientRequestToken := None()
     );
     var transformed := middlewareUnderTest.TransactWriteItemsInputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.TransactWriteItemsInputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactWriteItemsInputTransformInput(
         sdkInput := input
       )
     );
@@ -65,7 +65,7 @@ module TransactWriteItemsTransformTest {
   }
 
   method {:test} TestTransactWriteItemsOutputTransform() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryption();
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.TransactWriteItemsOutput(
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
@@ -84,7 +84,7 @@ module TransactWriteItemsTransformTest {
       ClientRequestToken := None()
     );
     var transformed := middlewareUnderTest.TransactWriteItemsOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTypes.TransactWriteItemsOutputTransformInput(
+      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactWriteItemsOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

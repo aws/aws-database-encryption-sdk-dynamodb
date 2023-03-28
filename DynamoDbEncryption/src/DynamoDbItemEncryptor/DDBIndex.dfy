@@ -5,8 +5,8 @@
   Support routines for Local and Global Index structures
 */
 
-include "../../Model/AwsCryptographyDynamoDbItemEncryptorTypes.dfy"
-include "AwsCryptographyDynamoDbItemEncryptorOperations.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
+include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
 include "Util.dfy"
 include "VirtualDDB.dfy"
 include "UpdateExpr.dfy"
@@ -15,12 +15,12 @@ include "FilterExpr.dfy"
 module DynamoDBIndexSupport { 
 
   import DDB = ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbItemEncryptorTypes
+  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened DynamoDbItemEncryptorUtil
-  import opened AwsCryptographyDynamoDbItemEncryptorOperations
+  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
   import opened VirtualDDBFields
   import UTF8
   import SortedSets

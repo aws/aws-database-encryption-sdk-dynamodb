@@ -14,7 +14,7 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
-import software.amazon.cryptography.dynamoDbItemEncryptor.model.DynamoDbItemEncryptorException;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,7 +93,7 @@ public class DynamoDbEncryptionInterceptorTest {
         tableConfigs.put(TEST_TABLE_NAME, config);
 
         DynamoDbEncryptionInterceptor interceptor = DynamoDbEncryptionInterceptor.builder()
-                .config(DynamoDbEncryptionConfig.builder()
+                .config(DynamoDbTablesEncryptionConfig.builder()
                         .tableEncryptionConfigs(tableConfigs)
                         .build())
                 .build();

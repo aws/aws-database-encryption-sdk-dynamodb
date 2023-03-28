@@ -38,11 +38,11 @@ structure DynamoDbEncryptionConfig {
 // of integrations with higher level DDB APIs.
 structure DynamoDbTablesEncryptionConfig {
     @required
-    tableEncryptionConfigs: DynamoDbTableEncryptionConfigs
+    tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
     // TODO allowed passthrough tables
 }
 
-map DynamoDbTableEncryptionConfigs {
+map DynamoDbTableEncryptionConfigList {
     key: TableName,
     value: DynamoDbTableEncryptionConfig
 }

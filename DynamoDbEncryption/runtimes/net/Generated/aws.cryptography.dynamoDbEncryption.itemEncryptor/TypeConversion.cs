@@ -488,13 +488,13 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
   return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_CommonError(
     dafnyVal._AwsCryptographyStructuredEncryption
   );
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
-  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
-    dafnyVal._AwsCryptographyMaterialProviders
-  );
  case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_ComAmazonawsDynamodb dafnyVal:
   return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
     dafnyVal._ComAmazonawsDynamodb
+  );
+ case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
+  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
+    dafnyVal._AwsCryptographyMaterialProviders
   );
  case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyDynamoDbEncryption dafnyVal:
   return AWS.Cryptography.DynamoDbEncryption.TypeConversion.FromDafny_CommonError(
