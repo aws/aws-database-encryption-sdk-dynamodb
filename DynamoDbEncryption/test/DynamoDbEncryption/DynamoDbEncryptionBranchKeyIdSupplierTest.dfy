@@ -138,11 +138,6 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
       )
     );
 
-    //= compliance/framework/raw-aes-keyring.txt#2.7.2
-    //= type=test
-    //# If a decryption succeeds, this keyring MUST add the resulting
-    //# plaintext data key to the decryption materials and return the
-    //# modified materials.
     expect encryptionMaterialsOut.materials.plaintextDataKey
     == decryptionMaterialsOut.materials.plaintextDataKey;
   }
