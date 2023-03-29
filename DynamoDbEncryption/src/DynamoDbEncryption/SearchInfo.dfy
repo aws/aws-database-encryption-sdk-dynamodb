@@ -145,12 +145,21 @@ module SearchableEncryptionInfo {
 
     function method GenerateBeacons(item : DDB.AttributeMap) : Result<DDB.AttributeMap, Error>
     {
-      var attrs := map k <- beacons :: beacons[k].getBeaconName() := beacons[k].attrHash(item, virtualFields);
-      if forall k <- attrs :: attrs[k].Success? then
-        Success(map k <- attrs :: k := attrs[k].value)
+      var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+      GenerateBeacons2(beaconNames, item)
+    }
+    function method GenerateBeacons2(
+      names : seq<string>,
+      item : DDB.AttributeMap,
+      acc : DDB.AttributeMap := map[]
+    )
+      : Result<DDB.AttributeMap, Error>
+    {
+      if |names| == 0 then
+        Success(acc)
       else
-        // TODO
-        Failure(E(""))
+        var value :- beacons[names[0]].attrHash(item, virtualFields);
+        GenerateBeacons2(names[1..], item, acc[beacons[names[0]].getBeaconName() := value])
     }
   }
 }
