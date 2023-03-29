@@ -207,7 +207,8 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly allowedUnauthenticatedAttributePrefix: Option<string> ,
  nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
- nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager>
+ nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
+ nameonly legacyConfig: Option<LegacyConfig>
  )
  type DynamoDbTableEncryptionConfigList = map<ComAmazonawsDynamodbTypes.TableName, DynamoDbTableEncryptionConfig>
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (

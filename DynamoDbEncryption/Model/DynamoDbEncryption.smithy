@@ -67,8 +67,7 @@ structure DynamoDbTableEncryptionConfig {
     keyring: KeyringReference,
     cmm: CryptographicMaterialsManagerReference,
 
-    // TODO legacy encryptor
-    // TODO legacy schema
+    legacyConfig: LegacyConfig,
 }
 
 map AttributeActions {

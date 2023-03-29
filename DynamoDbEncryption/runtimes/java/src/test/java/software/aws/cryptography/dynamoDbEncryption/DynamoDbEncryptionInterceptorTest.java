@@ -28,7 +28,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @BeforeTest
     public static void setup() {
-        interceptor = createInterceptor(createKmsKeyring());
+        interceptor = createInterceptor(createKmsKeyring(), null);
     }
 
     @Test
@@ -458,7 +458,7 @@ public class DynamoDbEncryptionInterceptorTest {
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
         assertThrows(OpaqueError.class, () -> {
-            createInterceptor(actions, allowedUnauth, createKmsKeyring());
+            createInterceptor(actions, allowedUnauth, createKmsKeyring(), null);
         });
         //assertTrue(exception.getMessage().contains("Partition key attribute action MUST be SIGN_ONLY"));
     }
@@ -474,7 +474,7 @@ public class DynamoDbEncryptionInterceptorTest {
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
         assertThrows(OpaqueError.class, () -> {
-            createInterceptor(actions, allowedUnauth, createKmsKeyring());
+            createInterceptor(actions, allowedUnauth, createKmsKeyring(), null);
         });
         //assertTrue(exception.getMessage().contains("Sort key attribute action MUST be SIGN_ONLY"));
     }
@@ -490,7 +490,7 @@ public class DynamoDbEncryptionInterceptorTest {
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
         assertThrows(OpaqueError.class, () -> {
-            createInterceptor(actions, allowedUnauth, createKmsKeyring());
+            createInterceptor(actions, allowedUnauth, createKmsKeyring(), null);
         });
         // assertTrue(exception.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_ATTR_NAME)));
 
@@ -499,7 +499,7 @@ public class DynamoDbEncryptionInterceptorTest {
         // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
         // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
         assertThrows(OpaqueError.class, () -> {
-            createInterceptor(actions, allowedUnauth2, createKmsKeyring());
+            createInterceptor(actions, allowedUnauth2, createKmsKeyring(), null);
         });
         //assertTrue(exception2.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_SORT_NAME)));
     }

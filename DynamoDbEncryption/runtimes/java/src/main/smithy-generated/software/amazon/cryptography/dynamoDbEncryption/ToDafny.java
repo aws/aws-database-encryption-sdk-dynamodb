@@ -293,7 +293,11 @@ public class ToDafny {
     cmm = Objects.nonNull(nativeValue.cmm()) ?
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.CryptographicMaterialsManager(nativeValue.cmm()))
         : Option.create_None();
-    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm);
+    Option<LegacyConfig> legacyConfig;
+    legacyConfig = Objects.nonNull(nativeValue.legacyConfig()) ?
+        Option.create_Some(ToDafny.LegacyConfig(nativeValue.legacyConfig()))
+        : Option.create_None();
+    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig);
   }
 
   public static BeaconVersion BeaconVersion(

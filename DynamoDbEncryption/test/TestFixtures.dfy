@@ -161,7 +161,8 @@ module TestFixtures {
             algorithmSuiteId := None(),
             keyring := Some(keyring),
             cmm := None(),
-            search := None
+            search := None,
+            legacyConfig := None
           )
         ]
       )

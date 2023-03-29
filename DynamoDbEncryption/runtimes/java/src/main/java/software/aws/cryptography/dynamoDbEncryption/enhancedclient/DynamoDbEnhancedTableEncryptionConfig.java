@@ -3,7 +3,7 @@ package software.aws.cryptography.dynamoDbEncryption.enhancedclient;
 import java.util.List;
 import java.util.Objects;
 
-/*import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;*/
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
@@ -17,7 +17,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
     private final String allowedUnauthenticatedAttributePrefix;
     private final Keyring keyring;
     private final CryptographicMaterialsManager cmm;
-    /*private final LegacyConfig legacyConfig;*/
+    private final LegacyConfig legacyConfig;
     private final DBEAlgorithmSuiteId algorithmSuiteId;
 
 
@@ -27,7 +27,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
         this.keyring = builder.keyring();
         this.cmm = builder.cmm();
-        /*this.legacyConfig = builder.legacyConfig();*/
+        this.legacyConfig = builder.legacyConfig();
         this.algorithmSuiteId = builder.algorithmSuiteId();
 
     }
@@ -52,9 +52,9 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         return this.cmm;
     }
 
-    /*public LegacyConfig legacyConfig() {
+    public LegacyConfig legacyConfig() {
         return this.legacyConfig;
-    }*/
+    }
 
     public DBEAlgorithmSuiteId algorithmSuiteId() {
         return this.algorithmSuiteId;
@@ -77,8 +77,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         String allowedUnauthenticatedAttributePrefix();
         <I extends IKeyring> Builder keyring(I keyring);
         <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
-        /*Builder legacyConfig(LegacyConfig legacyConfig);*/
-        /*LegacyConfig legacyConfig();*/
+        Builder legacyConfig(LegacyConfig legacyConfig);
+        LegacyConfig legacyConfig();
         Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
         DBEAlgorithmSuiteId algorithmSuiteId();
         DynamoDbEnhancedTableEncryptionConfig build();
@@ -90,7 +90,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         protected String allowedUnauthenticatedAttributePrefix;
         protected Keyring keyring;
         protected CryptographicMaterialsManager cmm;
-        /*protected LegacyConfig legacyConfig;*/
+        protected LegacyConfig legacyConfig;
         protected DBEAlgorithmSuiteId algorithmSuiteId;
         protected BuilderImpl() {
         }
@@ -101,7 +101,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
             this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
             this.keyring = model.keyring();
             this.cmm = model.cmm();
-            /*this.legacyConfig = model.legacyConfig();*/
+            this.legacyConfig = model.legacyConfig();
             this.algorithmSuiteId = model.algorithmSuiteId();
         }
 
@@ -151,14 +151,14 @@ public class DynamoDbEnhancedTableEncryptionConfig {
             return this.cmm;
         }
 
-        /*public Builder legacyConfig(LegacyConfig legacyConfig) {
+        public Builder legacyConfig(LegacyConfig legacyConfig) {
             this.legacyConfig = legacyConfig;
             return this;
-        }*/
+        }
 
-        /*public LegacyConfig legacyConfig() {
+        public LegacyConfig legacyConfig() {
             return this.legacyConfig;
-        }*/
+        }
 
         public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
             this.algorithmSuiteId = algorithmSuiteId;
