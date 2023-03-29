@@ -47,7 +47,7 @@ verify:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		-verificationLogger:text \
+		-verificationLogger:csv \
 		-timeLimit:300 \
 		-trace \
 		`find . -name '*.dfy'`
