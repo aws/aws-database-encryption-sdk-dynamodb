@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../src/DynamoDbItemEncryptor/UpdateExpr.dfy"
+include "../../src/DynamoDbEncryption/UpdateExpr.dfy"
 
 module TestUpdateExpr {
 

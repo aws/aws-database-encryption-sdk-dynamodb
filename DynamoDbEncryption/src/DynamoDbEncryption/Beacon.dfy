@@ -1,26 +1,27 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Util.dfy"
-include "Paths.dfy"
 include "Virtual.dfy"
+include "../../../submodules/MaterialProviders/StandardLibrary/src/HexStrings.dfy"
 
 module BaseBeacon {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened StandardLibrary.String
-  import opened AwsCryptographyStructuredEncryptionTypes
-  import opened StructuredEncryptionUtil
-  import opened StructuredEncryptionPaths
+  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened HexStrings
+  import opened DynamoDbEncryptionUtil
+  import opened DdbVirtualFields
 
+  import DDB = ComAmazonawsDynamodbTypes
   import Prim = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
   import UTF8
   import Seq
   import SortedSets
-  import VirtualFields
+  import TermLoc
 
   //= specification/searchable-encryption/beacons.md#beacon-length
   //= type=implication
@@ -34,6 +35,7 @@ module BaseBeacon {
   datatype BeaconBase = BeaconBase(
     nameonly client: Primitives.AtomicPrimitivesClient,
     nameonly name: string,
+    nameonly beaconName: DDB.AttributeName,
     nameonly key: Bytes
   ) {
 
@@ -103,11 +105,14 @@ module BaseBeacon {
     loc : string
   ) : Result<StandardBeacon, Error>
   {
-    var termLoc :- VirtualFields.MakeTerminalLocation(loc).MapFailure(e => E(e));
-    Success(StandardBeacon(
+    var termLoc :- TermLoc.MakeTermLoc(loc);
+    var beaconName := BeaconPrefix + name;
+    :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
+    Success(StandardBeacon.StandardBeacon(
       BeaconBase (
         client := client,
         name := name,
+        beaconName := beaconName,
         key := key
       ),
       length,
@@ -117,7 +122,7 @@ module BaseBeacon {
   datatype StandardBeacon = StandardBeacon (
     base : BeaconBase,
     length : BeaconLength,
-    loc : TerminalLocation
+    loc : TermLoc.TermLoc
   ) {
     //= specification/searchable-encryption/beacons.md#hash-for-a-standard-beacon
     //= type=implication
@@ -138,6 +143,13 @@ module BaseBeacon {
       base.hash(val, length)
     }
 
+    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<string, Error>
+    {
+      var bytes :- VirtToBytes(loc, item, vf);
+      hash(bytes)
+    }
+    
+/*
     function method {:opaque} getHash(byteify : Byteify)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
@@ -146,11 +158,11 @@ module BaseBeacon {
       var bytes :- byteify(loc).MapFailure(e => E(e));
       hash(bytes)
     }
-
+*/
     // TODO virtual fields
     function method GetFields() : seq<string>
     {
-      [loc.parts[0].key]
+      [loc[0].key]
     }
 
 
@@ -173,29 +185,6 @@ module BaseBeacon {
     {
         base.hash(val, length)
     }
-  }
-
-  // return the hex character for this hex value
-  function method HexVal(x : uint8) : (res : char)
-    requires x < 16
-    ensures '0' <= res <= 'f'
-  {
-    if x < 10 then
-      '0' + x as char
-    else
-      'a' + (x - 10) as char
-  }
-
-  // return the hex string for this byte
-  function method HexStr(x : uint8) : (ret : string)
-    ensures |ret| == 2
-  {
-    if x < 16 then
-      var res := ['0', HexVal(x)];
-      res
-    else
-      var res := [HexVal((x / 16) as uint8), HexVal((x % 16) as uint8)];
-      res
   }
 
   // For a given BeaconLength, how many chars in the associated hex string?
@@ -243,9 +232,9 @@ module BaseBeacon {
     if numChars == 2 * numBytes then
       var topNibble := (bytes[0] / 16);
       var bottomNibble := (bytes[0] % 16);
-      [HexVal(TruncateNibble(topNibble, topBits)), HexVal(bottomNibble)] + HexFmt(bytes[1..])
+      [HexChar(TruncateNibble(topNibble, topBits)), HexChar(bottomNibble)] + ToHexString(bytes[1..])
     else
-      [HexVal(TruncateNibble(bytes[0] % 16, topBits))] + HexFmt(bytes[1..])
+      [HexChar(TruncateNibble(bytes[0] % 16, topBits))] + ToHexString(bytes[1..])
   }
 
   lemma CheckBytesToHex()
@@ -262,14 +251,4 @@ module BaseBeacon {
       && BytesToHex(bytes, 9) == "1b7"
       && BytesToHex(bytes, 10) == "3b7"
   {}
-
-    // return the hex string for these bytes, keeping any leading zero
-    function method {:tailrecursion} HexFmt(val : Bytes) : (ret : string)
-    ensures |ret| == 2 * |val|
-  {
-    if |val| == 0 then
-      []
-    else
-      HexStr(val[0]) + HexFmt(val[1..])
-  }
 }

@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy"
-include "../../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "DynamoDbMiddlewareSupport.dfy"
 
 module DdbMiddlewareConfig {
   import opened Wrappers
@@ -9,12 +9,13 @@ module DdbMiddlewareConfig {
   import DynamoDbItemEncryptor
   import EncTypes = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import DDBE = AwsCryptographyDynamoDbEncryptionTypes
+  import SearchableEncryptionInfo
   
   datatype TableConfig = TableConfig(
     partitionKeyName: string,
     sortKeyName: Option<string>,
-    itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient
-    // TODO beacon config
+    itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient,
+    search : Option<SearchableEncryptionInfo.SearchInfo>
   )
 
   predicate ValidTableConfig?(config: TableConfig) {

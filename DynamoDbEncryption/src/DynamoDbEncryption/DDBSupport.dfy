@@ -8,15 +8,14 @@
   TODO - specify and implement these functions
 */
 
-include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
 include "Util.dfy"
-include "VirtualDDB.dfy"
 include "UpdateExpr.dfy"
 include "FilterExpr.dfy"
+include "Virtual.dfy"
+include "SearchInfo.dfy"
 include "DDBIndex.dfy"
 
-module DynamoDBSupport { 
+module DynamoDBSupport {
 
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
@@ -25,13 +24,13 @@ module DynamoDBSupport {
   import opened StandardLibrary.UInt
   import opened DynamoDbItemEncryptorUtil
   import opened AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
-  import opened VirtualDDBFields
+  import opened DdbVirtualFields
+  import opened DdbMiddlewareConfig
   import opened DynamoDBIndexSupport
   import UTF8
   import SortedSets
   import Seq
   import Update = DynamoDbUpdateExpr
-  import SET = AwsCryptographyStructuredEncryptionTypes
   import Filter = DynamoDBFilterExpr
 
 
@@ -124,35 +123,34 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  function method AddBeacons(config : ValidConfig, item : DDB.AttributeMap)
+  function method AddBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
     : Result<DDB.AttributeMap, string>
   {
-    if config.beacons.None? then
+    if config.search.None? then
       Success(item)
     else
-      var newItems :- config.beacons.value.GenerateBeacons(t => TermToString(t, item), t => TermToBytes(t, item))
+      var newAttrs :- config.search.value.GenerateBeacons(item)
         .MapFailure(e => "Error generating beacons");
-      var newAttrs := map k <- newItems :: k := DS(newItems[k]);
-      var version := DS(VersionPrefix + "1");
-      Success(item + newAttrs)
+      var version : DDB.AttributeMap := map[VersionPrefix + "1" := DS(" ")];
+      Success(item + newAttrs + version)
   }
 
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
   // returning a replacement AttributeMap.
-  function method RemoveBeacons(config : ValidConfig, item : DDB.AttributeMap)
+  function method RemoveBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
     : Result<DDB.AttributeMap, string>
   {
-    if config.beacons.None? then
+    if config.search.None? then
       Success(item)
     else
       Success(map k <- item | (!(ReservedPrefix <= k)) :: k := item[k])
   }
 
   // transform optional LSIs for searchable encryption, changing AttributeDefinitions as needed
-  function method LsiOptWithAttrs(config : ValidConfig, schema : Option<DDB.LocalSecondaryIndexList>, attrs : DDB.AttributeDefinitions)
+  function method LsiOptWithAttrs(config : ValidTableConfig, schema : Option<DDB.LocalSecondaryIndexList>, attrs : DDB.AttributeDefinitions)
     : Result<(Option<DDB.LocalSecondaryIndexList>, DDB.AttributeDefinitions), string>
   {
-    if schema.None? || config.beacons.None? then
+    if schema.None? || config.search.None? then
       Success((schema, []))
     else
       var (newSchema, newAttrs) :- LsiWithAttrs(config, schema.value, attrs);
@@ -160,10 +158,10 @@ module DynamoDBSupport {
   }
 
   // transform optional GSIs for searchable encryption, changing AttributeDefinitions as needed
-  function method GsiOptWithAttrs(config : ValidConfig, schema : Option<DDB.GlobalSecondaryIndexList>, attrs : DDB.AttributeDefinitions)
+  function method GsiOptWithAttrs(config : ValidTableConfig, schema : Option<DDB.GlobalSecondaryIndexList>, attrs : DDB.AttributeDefinitions)
     : Result<(Option<DDB.GlobalSecondaryIndexList>, DDB.AttributeDefinitions), string>
   {
-    if schema.None? || config.beacons.None? then
+    if schema.None? || config.search.None? then
       Success((schema, []))
     else
       var (newSchema, newAttrs) :- GsiWithAttrs(config, schema.value, attrs);
@@ -171,10 +169,10 @@ module DynamoDBSupport {
   }
 
   // Transform a CreateTableInput object for searchable encryption.
-  function method CreateTableInputForBeacons(config : ValidConfig, req : DDB.CreateTableInput)
+  function method CreateTableInputForBeacons(config : ValidTableConfig, req : DDB.CreateTableInput)
     : Result<DDB.CreateTableInput, string>
   {
-    if config.beacons.None? then
+    if config.search.None? then
       Success(req)
     else
       var (newSchema, newAttrs) :- AddBeaconsToKeySchema(config, req.KeySchema, req.AttributeDefinitions);
@@ -189,10 +187,10 @@ module DynamoDBSupport {
   }
 
   // Transform a UpdateTableInput object for searchable encryption.
-  function method UpdateTableInputForBeacons(config : ValidConfig, req : DDB.UpdateTableInput)
+  function method UpdateTableInputForBeacons(config : ValidTableConfig, req : DDB.UpdateTableInput)
     : Result<DDB.UpdateTableInput, string>
   {
-    if config.beacons.None? || req.GlobalSecondaryIndexUpdates.None? then
+    if config.search.None? || req.GlobalSecondaryIndexUpdates.None? then
       Success(req)
     else
       var (indexes, attrs) :- TransformIndexUpdates(config, req.GlobalSecondaryIndexUpdates.value, req.AttributeDefinitions.UnwrapOr([]));
@@ -201,10 +199,10 @@ module DynamoDBSupport {
   }
 
   // Transform a DescribeTableOutput object for searchable encryption.
-  function method DescribeTableOutputForBeacons(config : ValidConfig, req : DDB.DescribeTableOutput)
+  function method DescribeTableOutputForBeacons(config : ValidTableConfig, req : DDB.DescribeTableOutput)
     : Result<DDB.DescribeTableOutput, string>
   {
-    if config.beacons.None? || req.Table.None? then
+    if config.search.None? || req.Table.None? then
       Success(req)
     else
       var locals :- TransformLocalIndexDescription(config, req.Table.value.LocalSecondaryIndexes);
@@ -253,5 +251,4 @@ module DynamoDBSupport {
   {
     Success(resp)
   }
-
 }
