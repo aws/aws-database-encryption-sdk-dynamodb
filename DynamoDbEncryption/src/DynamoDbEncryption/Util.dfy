@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
-//include "../StructuredEncryption/Paths.dfy"
 
 module DynamoDbEncryptionUtil {
   import opened AwsCryptographyDynamoDbEncryptionTypes

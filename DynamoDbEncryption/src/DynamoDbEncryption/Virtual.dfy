@@ -107,24 +107,46 @@ module DdbVirtualFields {
       s[Min(-length, |s|)..]
   }
 
+  // this returns the inclusive value
   function method GetPos(pos : int, limit : nat) : (ret : nat)
-    ensures ret <= limit
+    ensures (limit == 0) || (ret < limit)
   {
-    if pos >= 0 then
-      Min(pos, limit)
+    if limit == 0 then
+      0
+    else if pos >= 0 then
+      Min(pos, limit-1)
     else if limit + pos < 0 then
       0
     else
       limit + pos
   }
+
+  lemma GetPosTest()
+    ensures GetPos(0,5) == 0
+    ensures GetPos(1,5) == 1
+    ensures GetPos(2,5) == 2
+    ensures GetPos(3,5) == 3
+    ensures GetPos(4,5) == 4
+    ensures GetPos(5,5) == 4
+    ensures GetPos(-1,5) == 4
+    ensures GetPos(-2,5) == 3
+    ensures GetPos(-3,5) == 2
+    ensures GetPos(-4,5) == 1
+    ensures GetPos(-5,5) == 0
+    ensures GetPos(-6,5) == 0
+  {}
+
   function method GetSubstring(s : string, low : int, high : int) : string
   {
-    var lo := GetPos(low, |s|);
-    var hi := GetPos(high, |s|);
-    if lo < hi then
-      s[lo..hi]
-    else
+    if |s| == 0 then
       ""
+    else
+      var lo := GetPos(low, |s|);
+      var hi := GetPos(high, |s|);
+      if lo < hi then
+        s[lo..hi]
+      else
+        ""
   }
   function method UpperChar(ch : char) : char
   {
@@ -151,11 +173,10 @@ module DdbVirtualFields {
   function method GetSegment(s : string, split : char, index : int) : string
   {
     var parts := Split(s, split);
-    var pos := GetPos(index, |parts|);
-    if pos == |parts| then
+    if index >= |parts| || -index > |parts| then
       ""
     else
-      parts[pos]
+      parts[GetPos(index, |parts|)]
   }
   function method GetSegments(s : string, split : char, low : int, high : int) : string
   {
