@@ -44,6 +44,7 @@ module
           set t <- config.tableEncryptionConfigs.Keys, o <- (
             (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
           + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
+          + (if config.tableEncryptionConfigs[t].legacyConfig.Some? then config.tableEncryptionConfigs[t].legacyConfig.value.encryptor.Modifies else {})
       ) :: o)
 
         decreases m'.Keys

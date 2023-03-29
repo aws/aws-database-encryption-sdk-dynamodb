@@ -47,10 +47,10 @@ verify:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		-verificationLogger:csv \
+		-verificationLogger:text \
 		-timeLimit:300 \
 		-trace \
-		`find . -name '*.dfy'`
+		src/DynamoDbEncryptionTransforms/Index.dfy
 
 #Verify only a specific namespace at env var $(SMITHY_NAMESPACE)
 verify_namespace:

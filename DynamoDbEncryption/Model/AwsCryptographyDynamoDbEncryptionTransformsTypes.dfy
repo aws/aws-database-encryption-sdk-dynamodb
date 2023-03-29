@@ -860,6 +860,9 @@ forall cmm :: cmm in cmms ==> cmm.ValidState()
 requires
 var keyrings := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.keyring.Some? :: cfg.keyring.value;
 forall keyring :: keyring in keyrings ==> keyring.ValidState()
+requires
+var legacyConfigs := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.legacyConfig.Some? :: cfg.legacyConfig.value;
+forall legacy :: legacy in legacyConfigs ==> legacy.encryptor.ValidState()
 modifies
   var cmms := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.cmm.Some? :: cfg.cmm.value;
   var cmmModifiesSet: set<set<object>> := set cmm | cmm in cmms :: cmm.Modifies;
@@ -870,6 +873,11 @@ modifies
   var keyringModifiesSet: set<set<object>> := set keyring | keyring in keyrings :: keyring.Modifies;
   // Flatten the set<keyring.Modifies>
   (set keyringModifyEntry, keyringModifies | keyringModifies in keyringModifiesSet && keyringModifyEntry in keyringModifies :: keyringModifyEntry)
+modifies
+  var legacyConfigs := set cfg | cfg in config.tableEncryptionConfigs.Values && cfg.legacyConfig.Some? :: cfg.legacyConfig.value;
+  var legacyModifiesSet: set<set<object>> := set legacy | legacy in legacyConfigs :: legacy.encryptor.Modifies;
+  // Flatten the set<legacy.Modifies>
+  (set legacyModifyEntry, legacyModifies | legacyModifies in legacyModifiesSet && legacyModifyEntry in legacyModifies :: legacyModifyEntry)
 
  ensures res.Success? ==> 
  && fresh(res.value)
@@ -877,6 +885,7 @@ modifies
      set t <- config.tableEncryptionConfigs.Keys, o <- (
        (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
      + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
+     + (if config.tableEncryptionConfigs[t].legacyConfig.Some? then config.tableEncryptionConfigs[t].legacyConfig.value.encryptor.Modifies else {})
  ) :: o)
 
  && fresh(res.value.History)

@@ -1,0 +1,1755 @@
+dafny \
+		-vcsCores:2 \
+		-compile:0 \
+		-definiteAssignment:3 \
+		-verificationLogger:text \
+		-timeLimit:300 \
+		-trace \
+		src/DynamoDbEncryptionTransforms/Index.dfy
+Parsing src/DynamoDbEncryptionTransforms/Index.dfy
+/Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/../src/DynamoDbItemEncryptor/../StructuredEncryption/CompoundBeacon.dfy(230,6): Warning: /!\ No trigger covering all quantified variables found.
+/Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(44,10): Warning: /!\ No trigger covering all quantified variables found.
+/Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](874,1): Warning: unusual indentation in body of let-expression (which ends at line 879, column 5); do you perhaps need parentheses?
+/Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](883,1): Warning: unusual indentation in body of let-expression (which ends at line 888, column 5); do you perhaps need parentheses?
+/Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](892,1): Warning: unusual indentation in body of let-expression (which ends at line 897, column 5); do you perhaps need parentheses?
+/Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](901,1): Warning: unusual indentation in body of let-expression (which ends at line 906, column 5); do you perhaps need parentheses?
+Coalescing blocks...
+Inlining...
+
+Running abstract interpretation...
+  [0.090817 s]
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ValidState (well-formedness) ...
+[TRACE] Using prover: /Users/lavaleri/dafny/z3/bin/z3
+[TRACE] Using prover: /Users/lavaleri/dafny/z3/bin/z3
+  [0.781 s, solver resource count: 422329, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ValidState (override check) ...
+  [0.781 s, solver resource count: 392622, 3 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient._ctor (correctness) ...
+Linearising   [1.586676 s]
+Linearising   [1.595067 s]
+  [2.016 s, solver resource count: 522471, 9 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.PutItemInputTransform (correctness) ...
+  [2.003 s, solver resource count: 448347, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.PutItemOutputTransform (correctness) ...
+  [0.389 s, solver resource count: 458878, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.GetItemInputTransform (correctness) ...
+  [0.374 s, solver resource count: 436292, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.GetItemOutputTransform (correctness) ...
+  [0.395 s, solver resource count: 444420, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchWriteItemInputTransform (correctness) ...
+  [0.386 s, solver resource count: 430880, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchWriteItemOutputTransform (correctness) ...
+  [0.810 s, solver resource count: 441535, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchGetItemInputTransform (correctness) ...
+  [0.798 s, solver resource count: 426146, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchGetItemOutputTransform (correctness) ...
+  [0.388 s, solver resource count: 436860, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ScanInputTransform (correctness) ...
+  [0.420 s, solver resource count: 479123, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ScanOutputTransform (correctness) ...
+  [0.370 s, solver resource count: 494533, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.QueryInputTransform (correctness) ...
+  [0.352 s, solver resource count: 479250, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.QueryOutputTransform (correctness) ...
+  [0.811 s, solver resource count: 494664, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.TransactWriteItemsInputTransform (correctness) ...
+  [0.772 s, solver resource count: 432319, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.TransactWriteItemsOutputTransform (correctness) ...
+  [0.391 s, solver resource count: 441136, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.UpdateItemInputTransform (correctness) ...
+  [0.397 s, solver resource count: 456376, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.UpdateItemOutputTransform (correctness) ...
+  [0.401 s, solver resource count: 466904, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.DeleteItemInputTransform (correctness) ...
+  [0.387 s, solver resource count: 448347, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.DeleteItemOutputTransform (correctness) ...
+Linearising   [1.026674 s]
+Linearising   [1.029324 s]
+  [1.393 s, solver resource count: 458878, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.TransactGetItemsInputTransform (correctness) ...
+  [1.371 s, solver resource count: 425448, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.TransactGetItemsOutputTransform (correctness) ...
+  [0.321 s, solver resource count: 436406, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ExecuteStatementInputTransform (correctness) ...
+  [0.324 s, solver resource count: 440645, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ExecuteStatementOutputTransform (correctness) ...
+  [0.331 s, solver resource count: 452722, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchExecuteStatementInputTransform (correctness) ...
+  [0.317 s, solver resource count: 425448, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchExecuteStatementOutputTransform (correctness) ...
+  [1.213 s, solver resource count: 434207, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ExecuteTransactionInputTransform (correctness) ...
+  [1.213 s, solver resource count: 429626, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ExecuteTransactionOutputTransform (correctness) ...
+  [0.368 s, solver resource count: 444178, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.CreateTableInputTransform (correctness) ...
+  [0.375 s, solver resource count: 456563, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.CreateTableOutputTransform (correctness) ...
+  [0.383 s, solver resource count: 466427, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.UpdateTableInputTransform (correctness) ...
+  [0.370 s, solver resource count: 446407, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.UpdateTableOutputTransform (correctness) ...
+  [0.407 s, solver resource count: 456264, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.DescribeTableInputTransform (correctness) ...
+  [0.381 s, solver resource count: 420185, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.DescribeTableOutputTransform (correctness) ...
+  [0.725 s, solver resource count: 426467, 4 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms (well-formedness) ...
+    checking split 1/24, 0.00%, (cost:0/0) ...
+    checking split 2/24, 0.00%, (cost:1494470446391330000000000000000000000000/1) ...
+      --> split #1 done,  [0.073009 s] Valid
+    checking split 3/24, 0.00%, (cost:258437485270899000000000000000000000000/1) ...
+      --> split #3 done,  [0.373122 s] Valid
+    checking split 4/24, 14.67%, (cost:4450952217910020000000000000000000000/1) ...
+      --> split #2 done,  [0.66578 s] Valid
+    checking split 5/24, 99.49%, (cost:4450952217910020000000000000000000000/1) ...
+      --> split #4 done,  [0.701122 s] Valid
+    checking split 6/24, 99.74%, (cost:74773831327620800000000000000000000/1) ...
+      --> split #6 done,  [0.308189 s] Valid
+    checking split 7/24, 99.74%, (cost:74773831327620800000000000000000000/1) ...
+      --> split #5 done,  [0.933733 s] Valid
+    checking split 8/24, 100.00%, (cost:1344035170489900000000000000000000/1) ...
+      --> split #8 done,  [0.281984 s] Valid
+    checking split 9/24, 100.00%, (cost:1344035170489900000000000000000000/1) ...
+      --> split #7 done,  [0.518286 s] Valid
+    checking split 10/24, 100.00%, (cost:180701828109856000000/1) ...
+      --> split #10 done,  [0.135423 s] Valid
+    checking split 11/24, 100.00%, (cost:180701828109856000000/1) ...
+      --> split #11 done,  [0.135383 s] Valid
+    checking split 12/24, 100.00%, (cost:180701828109856000000/1) ...
+      --> split #9 done,  [0.512414 s] Valid
+    checking split 13/24, 100.00%, (cost:313796202202995000000000000000000/1) ...
+      --> split #12 done,  [0.159109 s] Valid
+    checking split 14/24, 100.00%, (cost:313796202202995000000000000000000/1) ...
+      --> split #13 done,  [1.158656 s] Valid
+    checking split 15/24, 100.00%, (cost:313796202202995000000000000000000/1) ...
+      --> split #14 done,  [0.775726 s] Valid
+    checking split 16/24, 100.00%, (cost:313796202202995000000000000000000/1) ...
+      --> split #15 done,  [0.33643 s] Valid
+    checking split 17/24, 100.00%, (cost:5865502359782800000000000000000/1) ...
+      --> split #16 done,  [0.305633 s] Valid
+    checking split 18/24, 100.00%, (cost:173831697740915000000000000000/1) ...
+      --> split #18 done,  [0.116118 s] Valid
+    checking split 19/24, 100.00%, (cost:1081346631972420000000000000/1) ...
+      --> split #17 done,  [0.261599 s] Valid
+    checking split 20/24, 100.00%, (cost:232412422488312000000000000/1) ...
+      --> split #19 done,  [0.230241 s] Valid
+      --> split #20 done,  [0.123572 s] Valid
+    checking split 21/24, 100.00%, (cost:1462950916251380000000000/1) ...
+    checking split 22/24, 100.00%, (cost:311954973911229000000000/1) ...
+      --> split #22 done,  [0.12158 s] Valid
+    checking split 23/24, 100.00%, (cost:2082119494868260000000/1) ...
+      --> split #21 done,  [0.229324 s] Valid
+    checking split 24/24, 100.00%, (cost:466727005155363000000/1) ...
+      --> split #23 done,  [0.216547 s] Valid
+      --> split #24 done,  [0.134819 s] Valid
+  [7.889 s, solver resource count: 12807055, 23 proof obligations]  verified
+
+Verifying DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms (correctness) ...
+    checking split 1/82, 0.00%, (cost:0/0) ...
+    checking split 2/82, 0.00%, (cost:61/1 last) ...
+      --> split #1 done,  [0.119151 s] Valid
+    checking split 3/82, 0.00%, (cost:61/1 last) ...
+Linearising   [0.99731 s]
+Linearising   [1.002764 s]
+      --> split #2 done,  [1.2205 s] Valid
+    checking split 4/82, 0.03%, (cost:61/1 last) ...
+      --> split #3 done,  [1.340183 s] Valid
+    checking split 5/82, 0.06%, (cost:61/1 last) ...
+      --> split #4 done,  [0.365536 s] Valid
+    checking split 6/82, 0.09%, (cost:61/1 last) ...
+      --> split #5 done,  [0.320089 s] Valid
+    checking split 7/82, 0.12%, (cost:120/1) ...
+      --> split #6 done,  [0.318373 s] Valid
+    checking split 8/82, 0.15%, (cost:0/0) ...
+      --> split #8 done,  [0.116602 s] Valid
+    checking split 9/82, 0.15%, (cost:120/1) ...
+      --> split #7 done,  [0.359084 s] Valid
+    checking split 10/82, 0.20%, (cost:0/0) ...
+      --> split #10 done,  [0.122083 s] Valid
+    checking split 11/82, 0.20%, (cost:120/1) ...
+      --> split #9 done,  [0.671736 s] Valid
+    checking split 12/82, 0.26%, (cost:0/0) ...
+      --> split #12 done,  [0.092883 s] Valid
+    checking split 13/82, 0.26%, (cost:0/0) ...
+      --> split #13 done,  [0.097821 s] Valid
+      --> split #11 done,  [0.659834 s] Valid
+    checking split 14/82, 0.26%, (cost:0/0) ...
+    checking split 15/82, 0.32%, (cost:0/0) ...
+      --> split #14 done,  [0.103156 s] Valid
+    checking split 16/82, 0.32%, (cost:0/0) ...
+      --> split #15 done,  [0.100276 s] Valid
+    checking split 17/82, 0.32%, (cost:0/0) ...
+      --> split #16 done,  [0.116206 s] Valid
+    checking split 18/82, 0.32%, (cost:0/0) ...
+      --> split #17 done,  [0.112314 s] Valid
+    checking split 19/82, 0.32%, (cost:0/0) ...
+      --> split #18 done,  [0.104622 s] Valid
+    checking split 20/82, 0.32%, (cost:0/0) ...
+      --> split #19 done,  [0.098941 s] Valid
+    checking split 21/82, 0.32%, (cost:0/0) ...
+      --> split #20 done,  [0.105485 s] Valid
+      --> split #21 done,  [0.11153 s] Valid
+    checking split 22/82, 0.32%, (cost:120/1) ...
+    checking split 23/82, 0.32%, (cost:120/1) ...
+      --> split #23 done,  [0.309868 s] Valid
+    checking split 24/82, 0.37%, (cost:120/1) ...
+      --> split #22 done,  [0.670978 s] Invalid
+      --> split #24 done,  [0.312942 s] Valid
+    checking split 25/82, 0.49%, (cost:120/1) ...
+    checking split 26/82, 0.49%, (cost:0/0) ...
+      --> split #26 done,  [0.458136 s] Valid
+    checking split 27/82, 0.49%, (cost:0/0) ...
+Linearising   [0.666396 s]
+Linearising   [0.666142 s]
+      --> split #27 done,  [0.810819 s] Valid
+    checking split 28/82, 0.49%, (cost:0/0) ...
+      --> split #28 done,  [0.106479 s] Valid
+      --> split #25 done,  [1.444362 s] Valid
+    checking split 29/82, 0.54%, (cost:145/1) ...
+    checking split 30/82, 0.54%, (cost:0/0) ...
+      --> split #30 done,  [0.108985 s] Valid
+    checking split 31/82, 0.54%, (cost:0/0) ...
+      --> split #31 done,  [0.090719 s] Valid
+    checking split 32/82, 0.54%, (cost:0/0) ...
+      --> split #32 done,  [0.101291 s] Valid
+    checking split 33/82, 0.54%, (cost:0/0) ...
+      --> split #29 done,  [0.347513 s] Valid
+    checking split 34/82, 0.61%, (cost:145/1) ...
+      --> split #33 done,  [0.112978 s] Valid
+    checking split 35/82, 0.61%, (cost:145/1) ...
+      --> split #34 done,  [0.375771 s] Valid
+    checking split 36/82, 0.68%, (cost:145/1) ...
+      --> split #35 done,  [0.33353 s] Valid
+    checking split 37/82, 0.75%, (cost:145/1) ...
+Linearising   [0.703419 s]
+Linearising   [0.704604 s]
+      --> split #36 done,  [1.077332 s] Valid
+    checking split 38/82, 0.82%, (cost:0/0) ...
+      --> split #37 done,  [1.047655 s] Valid
+    checking split 39/82, 0.89%, (cost:0/0) ...
+      --> split #38 done,  [0.121664 s] Valid
+      --> split #39 done,  [0.096341 s] Valid
+    checking split 40/82, 0.89%, (cost:277/1) ...
+    checking split 41/82, 0.89%, (cost:277/1) ...
+      --> split #40 done,  [0.698506 s] Valid
+    checking split 42/82, 1.02%, (cost:277/1) ...
+      --> split #41 done,  [0.741142 s] Valid
+    checking split 43/82, 1.15%, (cost:277/1) ...
+      --> split #42 done,  [0.446399 s] Valid
+    checking split 44/82, 1.28%, (cost:277/1) ...
+      --> split #43 done,  [1.221078 s] Valid
+Linearising   [0.686363 s]
+    checking split 45/82, 1.41%, (cost:277/1) ...
+Linearising   [0.58503 s]
+      --> split #44 done,  [2.145591 s] Valid
+    checking split 46/82, 1.54%, (cost:173/1) ...
+      --> split #46 done,  [0.375355 s] Valid
+    checking split 47/82, 1.63%, (cost:0/0) ...
+      --> split #47 done,  [0.12708 s] Valid
+    checking split 48/82, 1.63%, (cost:0/0) ...
+      --> split #48 done,  [0.120805 s] Valid
+    checking split 49/82, 1.63%, (cost:132/1) ...
+      --> split #49 done,  [0.369898 s] Valid
+    checking split 50/82, 1.69%, (cost:0/0) ...
+      --> split #50 done,  [0.125696 s] Valid
+    checking split 51/82, 1.69%, (cost:162/1) ...
+      --> split #51 done,  [0.460336 s] Valid
+    checking split 52/82, 1.77%, (cost:162/1) ...
+      --> split #52 done,  [20.947067 s] Valid
+    checking split 53/82, 1.84%, (cost:162/1) ...
+      --> split #53 done,  [0.481325 s] Valid
+    checking split 54/82, 1.92%, (cost:162/1) ...
+Linearising   [0.771119 s]
+      --> split #54 done,  [1.272733 s] Valid
+    checking split 55/82, 2.00%, (cost:162/1) ...
+      --> split #55 done,  [0.444634 s] Valid
+    checking split 56/82, 2.07%, (cost:162/1) ...
+      --> split #56 done,  [0.442897 s] Valid
+    checking split 57/82, 2.15%, (cost:162/1) ...
+      --> split #57 done,  [0.41109 s] Valid
+    checking split 58/82, 2.23%, (cost:162/1) ...
+      --> split #58 done,  [0.426379 s] Valid
+    checking split 59/82, 2.30%, (cost:162/1) ...
+      --> split #59 done,  [0.441033 s] Valid
+    checking split 60/82, 2.38%, (cost:162/1) ...
+      --> split #60 done,  [0.504445 s] Valid
+    checking split 61/82, 2.46%, (cost:78/1 last) ...
+      --> split #61 done,  [0.408682 s] Valid
+    checking split 62/82, 2.49%, (cost:78/1 last) ...
+      --> split #62 done,  [0.358821 s] Valid
+    checking split 63/82, 2.53%, (cost:0/0) ...
+      --> split #63 done,  [0.113808 s] Valid
+    checking split 64/82, 2.53%, (cost:0/0) ...
+      --> split #64 done,  [0.110938 s] Valid
+    checking split 65/82, 2.53%, (cost:13078/1) ...
+      --> split #65 done,  [0.309574 s] Valid
+    checking split 66/82, 8.73%, (cost:33419/1) ...
+      --> split #66 done,  [0.360929 s] Valid
+    checking split 67/82, 24.58%, (cost:36896/1) ...
+      --> split #67 done,  [0.34998 s] Valid
+    checking split 68/82, 42.07%, (cost:36896/1) ...
+      --> split #68 done,  [0.298279 s] Valid
+    checking split 69/82, 59.57%, (cost:36896/1) ...
+      --> split #69 done,  [0.387538 s] Valid
+    checking split 70/82, 77.06%, (cost:14443/1) ...
+      --> split #70 done,  [0.441923 s] Valid
+    checking split 71/82, 83.91%, (cost:14443/1) ...
+      --> split #71 done,  [0.567638 s] Valid
+    checking split 72/82, 90.76%, (cost:14443/1) ...
+      --> split #72 done,  [0.482762 s] Valid
+    checking split 73/82, 97.61%, (cost:1621/1) ...
+      --> split #73 done,  [0.341561 s] Valid
+    checking split 74/82, 98.37%, (cost:1621/1) ...
+      --> split #74 done,  [0.352271 s] Valid
+    checking split 75/82, 99.14%, (cost:460/1) ...
+      --> split #75 done,  [0.344398 s] Valid
+    checking split 76/82, 99.36%, (cost:460/1) ...
+      --> split #76 done,  [0.371544 s] Valid
+    checking split 77/82, 99.58%, (cost:103/1) ...
+      --> split #77 done,  [0.326846 s] Valid
+    checking split 78/82, 99.63%, (cost:106/1) ...
+      --> split #78 done,  [0.316499 s] Valid
+    checking split 79/82, 99.68%, (cost:147/1) ...
+      --> split #79 done,  [0.341646 s] Valid
+    checking split 80/82, 99.75%, (cost:109/1) ...
+      --> split #80 done,  [0.337297 s] Valid
+    checking split 81/82, 99.80%, (cost:73/1 last) ...
+      --> split #81 done,  [0.318097 s] Valid
+    checking split 82/82, 99.83%, (cost:73/1 last) ...
+      --> split #82 done,  [0.328645 s] Valid
+      --> split #45 done,  [300.425357 s] TimeOut
+  [318.316 s, solver resource count: 317123897, 55 proof obligations]  error
+/Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(68,75): Error: call might violate context's modifies clause
+
+Dafny program verifier finished with 36 verified, 1 error
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms (correctness)
+  Overall outcome: Errors
+  Overall time: 00:05:18.3161460
+  Overall resource count: 317123897
+
+  Assertion batch 1:
+    Outcome: Valid
+    Duration: 00:00:00.1191510
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 2:
+    Outcome: Valid
+    Duration: 00:00:01.2205000
+    Resource count: 499295
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(34,27): This loop invariant holds on entry.
+
+  Assertion batch 3:
+    Outcome: Valid
+    Duration: 00:00:01.3401830
+    Resource count: 497776
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(35,19): This loop invariant holds on entry.
+
+  Assertion batch 4:
+    Outcome: Valid
+    Duration: 00:00:00.3655360
+    Resource count: 501489
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(36,19): This loop invariant holds on entry.
+
+  Assertion batch 5:
+    Outcome: Valid
+    Duration: 00:00:00.3200890
+    Resource count: 501792
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(41,19): This loop invariant holds on entry.
+
+  Assertion batch 6:
+    Outcome: Valid
+    Duration: 00:00:00.3183730
+    Resource count: 513105
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(43,19): This loop invariant holds on entry.
+
+  Assertion batch 7:
+    Outcome: Valid
+    Duration: 00:00:00.3590840
+    Resource count: 561779
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(51,31): a value exists that satisfies this let-such-that expression
+
+  Assertion batch 8:
+    Outcome: Valid
+    Duration: 00:00:00.1166020
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 9:
+    Outcome: Valid
+    Duration: 00:00:00.6717360
+    Resource count: 607814
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(52,57): element is in domain
+
+  Assertion batch 10:
+    Outcome: Valid
+    Duration: 00:00:00.1220830
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 11:
+    Outcome: Valid
+    Duration: 00:00:00.6598340
+    Resource count: 565338
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(55,24): value always satisfies the subset constraints of 'ComAmazonawsDynamodbTypes.TableName'
+
+  Assertion batch 12:
+    Outcome: Valid
+    Duration: 00:00:00.0928830
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 13:
+    Outcome: Valid
+    Duration: 00:00:00.0978210
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 14:
+    Outcome: Valid
+    Duration: 00:00:00.1031560
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 15:
+    Outcome: Valid
+    Duration: 00:00:00.1002760
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 16:
+    Outcome: Valid
+    Duration: 00:00:00.1162060
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 17:
+    Outcome: Valid
+    Duration: 00:00:00.1123140
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 18:
+    Outcome: Valid
+    Duration: 00:00:00.1046220
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 19:
+    Outcome: Valid
+    Duration: 00:00:00.0989410
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 20:
+    Outcome: Valid
+    Duration: 00:00:00.1054850
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 21:
+    Outcome: Valid
+    Duration: 00:00:00.1115300
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 22:
+    Outcome: Invalid
+    Duration: 00:00:00.6709780
+    Resource count: 1358854
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(68,76): call is allowed by context's modifies clause
+
+  Assertion batch 23:
+    Outcome: Valid
+    Duration: 00:00:00.3098680
+    Resource count: 580880
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(68,76): error is impossible: This is the precondition that might not hold.
+
+  Assertion batch 24:
+    Outcome: Valid
+    Duration: 00:00:00.3129420
+    Resource count: 581002
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(68,76): error is impossible: This is the precondition that might not hold.
+
+  Assertion batch 25:
+    Outcome: Valid
+    Duration: 00:00:01.4443620
+    Resource count: 581178
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(68,76): error is impossible: This is the precondition that might not hold.
+
+  Assertion batch 26:
+    Outcome: Valid
+    Duration: 00:00:00.4581360
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 27:
+    Outcome: Valid
+    Duration: 00:00:00.8108190
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 28:
+    Outcome: Valid
+    Duration: 00:00:00.1064790
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 29:
+    Outcome: Valid
+    Duration: 00:00:00.3475130
+    Resource count: 641832
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(70,27): function precondition satisfied
+
+  Assertion batch 30:
+    Outcome: Valid
+    Duration: 00:00:00.1089850
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 31:
+    Outcome: Valid
+    Duration: 00:00:00.0907190
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 32:
+    Outcome: Valid
+    Duration: 00:00:00.1012910
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 33:
+    Outcome: Valid
+    Duration: 00:00:00.1129780
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 34:
+    Outcome: Valid
+    Duration: 00:00:00.3757710
+    Resource count: 649667
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(79,45): target object object is never null
+
+  Assertion batch 35:
+    Outcome: Valid
+    Duration: 00:00:00.3335300
+    Resource count: 673596
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(79,45): assertion always holds
+
+  Assertion batch 36:
+    Outcome: Valid
+    Duration: 00:00:01.0773320
+    Resource count: 675225
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(79,45): assertion always holds
+
+  Assertion batch 37:
+    Outcome: Valid
+    Duration: 00:00:01.0476550
+    Resource count: 676504
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(79,45): assertion always holds
+
+  Assertion batch 38:
+    Outcome: Valid
+    Duration: 00:00:00.1216640
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 39:
+    Outcome: Valid
+    Duration: 00:00:00.0963410
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 40:
+    Outcome: Valid
+    Duration: 00:00:00.6985060
+    Resource count: 1355414
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(33,5): loop or recursion terminates
+
+  Assertion batch 41:
+    Outcome: Valid
+    Duration: 00:00:00.7411420
+    Resource count: 1457514
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(34,27): This loop invariant is maintained by the loop.
+
+  Assertion batch 42:
+    Outcome: Valid
+    Duration: 00:00:00.4463990
+    Resource count: 739415
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(35,19): This loop invariant is maintained by the loop.
+
+  Assertion batch 43:
+    Outcome: Valid
+    Duration: 00:00:01.2210780
+    Resource count: 1885335
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(36,19): This loop invariant is maintained by the loop.
+
+  Assertion batch 44:
+    Outcome: Valid
+    Duration: 00:00:02.1455910
+    Resource count: 1597288
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(41,19): This loop invariant is maintained by the loop.
+
+  Assertion batch 45:
+    Outcome: TimeOut
+    Duration: 00:05:00.4253570
+    Resource count: 250502291
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(43,19): This loop invariant is maintained by the loop.
+
+  Assertion batch 46:
+    Outcome: Valid
+    Duration: 00:00:00.3753550
+    Resource count: 576689
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(83,57): element is in domain
+
+  Assertion batch 47:
+    Outcome: Valid
+    Duration: 00:00:00.1270800
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 48:
+    Outcome: Valid
+    Duration: 00:00:00.1208050
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 49:
+    Outcome: Valid
+    Duration: 00:00:00.3698980
+    Resource count: 634135
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(70,27): function precondition satisfied
+
+  Assertion batch 50:
+    Outcome: Valid
+    Duration: 00:00:00.1256960
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 51:
+    Outcome: Valid
+    Duration: 00:00:00.4603360
+    Resource count: 669309
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(908,5): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 52:
+    Outcome: Valid
+    Duration: 00:00:20.9470670
+    Resource count: 26260903
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(909,5): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 53:
+    Outcome: Valid
+    Duration: 00:00:00.4813250
+    Resource count: 670815
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(947,5): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 54:
+    Outcome: Valid
+    Duration: 00:00:01.2727330
+    Resource count: 669630
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(948,15): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 55:
+    Outcome: Valid
+    Duration: 00:00:00.4446340
+    Resource count: 671713
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(948,15): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 56:
+    Outcome: Valid
+    Duration: 00:00:00.4428970
+    Resource count: 673300
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(948,15): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 57:
+    Outcome: Valid
+    Duration: 00:00:00.4110900
+    Resource count: 656011
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(950,2): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 58:
+    Outcome: Valid
+    Duration: 00:00:00.4263790
+    Resource count: 656545
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(954,2): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 59:
+    Outcome: Valid
+    Duration: 00:00:00.4410330
+    Resource count: 657145
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(958,2): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 60:
+    Outcome: Valid
+    Duration: 00:00:00.5044450
+    Resource count: 667558
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(962,2): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 61:
+    Outcome: Valid
+    Duration: 00:00:00.4086820
+    Resource count: 695925
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(88,35): value always satisfies the subset constraints of 'map<string, ValidTableConfig>'
+
+  Assertion batch 62:
+    Outcome: Valid
+    Duration: 00:00:00.3588210
+    Resource count: 611878
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(86,19): error is impossible: This is the precondition that might not hold.
+
+  Assertion batch 63:
+    Outcome: Valid
+    Duration: 00:00:00.1138080
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 64:
+    Outcome: Valid
+    Duration: 00:00:00.1109380
+    Resource count: 166077
+
+    Assertions:
+
+  Assertion batch 65:
+    Outcome: Valid
+    Duration: 00:00:00.3095740
+    Resource count: 469034
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(45,46): element is in domain
+
+  Assertion batch 66:
+    Outcome: Valid
+    Duration: 00:00:00.3609290
+    Resource count: 628497
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(46,46): element is in domain
+
+  Assertion batch 67:
+    Outcome: Valid
+    Duration: 00:00:00.3499800
+    Resource count: 628599
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(46,94): element is in domain
+
+  Assertion batch 68:
+    Outcome: Valid
+    Duration: 00:00:00.2982790
+    Resource count: 491879
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(46,102): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 69:
+    Outcome: Valid
+    Duration: 00:00:00.3875380
+    Resource count: 652127
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(46,108): target object object is never null
+
+  Assertion batch 70:
+    Outcome: Valid
+    Duration: 00:00:00.4419230
+    Resource count: 491665
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(45,98): element is in domain
+
+  Assertion batch 71:
+    Outcome: Valid
+    Duration: 00:00:00.5676380
+    Resource count: 491665
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(45,110): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 72:
+    Outcome: Valid
+    Duration: 00:00:00.4827620
+    Resource count: 648351
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(45,116): target object object is never null
+
+  Assertion batch 73:
+    Outcome: Valid
+    Duration: 00:00:00.3415610
+    Resource count: 486818
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(43,77): element is in domain
+
+  Assertion batch 74:
+    Outcome: Valid
+    Duration: 00:00:00.3522710
+    Resource count: 564744
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(43,95): target object object is never null
+
+  Assertion batch 75:
+    Outcome: Valid
+    Duration: 00:00:00.3443980
+    Resource count: 485914
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(41,76): element is in domain
+
+  Assertion batch 76:
+    Outcome: Valid
+    Duration: 00:00:00.3715440
+    Resource count: 558068
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(41,94): target object object is never null
+
+  Assertion batch 77:
+    Outcome: Valid
+    Duration: 00:00:00.3268460
+    Resource count: 484031
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(36,102): element is in domain
+
+  Assertion batch 78:
+    Outcome: Valid
+    Duration: 00:00:00.3164990
+    Resource count: 524617
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(38,42): target object object is never null
+
+  Assertion batch 79:
+    Outcome: Valid
+    Duration: 00:00:00.3416460
+    Resource count: 530101
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(40,42): target object object is never null
+
+  Assertion batch 80:
+    Outcome: Valid
+    Duration: 00:00:00.3372970
+    Resource count: 529371
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(39,42): target object object is never null
+
+  Assertion batch 81:
+    Outcome: Valid
+    Duration: 00:00:00.3180970
+    Resource count: 479185
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(35,39): element is in domain
+
+  Assertion batch 82:
+    Outcome: Valid
+    Duration: 00:00:00.3286450
+    Resource count: 519213
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(35,75): element is in domain
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms (well-formedness)
+  Overall outcome: Correct
+  Overall time: 00:00:07.8889590
+  Overall resource count: 12807055
+
+  Assertion batch 1:
+    Outcome: Valid
+    Duration: 00:00:00.0730090
+    Resource count: 64872
+
+    Assertions:
+
+  Assertion batch 2:
+    Outcome: Valid
+    Duration: 00:00:00.6657800
+    Resource count: 1083253
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(966,16): target object object is never null
+
+  Assertion batch 3:
+    Outcome: Valid
+    Duration: 00:00:00.3731220
+    Resource count: 499406
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(964,46): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 4:
+    Outcome: Valid
+    Duration: 00:00:00.7011220
+    Resource count: 499086
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(960,21): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 5:
+    Outcome: Valid
+    Duration: 00:00:00.9337330
+    Resource count: 1062767
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(960,37): target object object is never null
+
+  Assertion batch 6:
+    Outcome: Valid
+    Duration: 00:00:00.3081890
+    Resource count: 498808
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(956,12): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 7:
+    Outcome: Valid
+    Duration: 00:00:00.5182860
+    Resource count: 1028864
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(956,18): target object object is never null
+
+  Assertion batch 8:
+    Outcome: Valid
+    Duration: 00:00:00.2819840
+    Resource count: 498530
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(952,16): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 9:
+    Outcome: Valid
+    Duration: 00:00:00.5124140
+    Resource count: 1004775
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(952,22): target object object is never null
+
+  Assertion batch 10:
+    Outcome: Valid
+    Duration: 00:00:00.1354230
+    Resource count: 230639
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(908,15): destructor 'value' is only applied to datatype values constructed by 'Success'
+
+  Assertion batch 11:
+    Outcome: Valid
+    Duration: 00:00:00.1353830
+    Resource count: 207491
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(909,15): destructor 'value' is only applied to datatype values constructed by 'Success'
+
+  Assertion batch 12:
+    Outcome: Valid
+    Duration: 00:00:00.1591090
+    Resource count: 230719
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(909,21): target object object is never null
+
+  Assertion batch 13:
+    Outcome: Valid
+    Duration: 00:00:01.1586560
+    Resource count: 773287
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(947,15): destructor 'value' is only applied to datatype values constructed by 'Success'
+
+  Assertion batch 14:
+    Outcome: Valid
+    Duration: 00:00:00.7757260
+    Resource count: 773279
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(947,21): target object object is never null
+
+  Assertion batch 15:
+    Outcome: Valid
+    Duration: 00:00:00.3364300
+    Resource count: 529223
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(948,9): destructor 'value' is only applied to datatype values constructed by 'Success'
+
+  Assertion batch 16:
+    Outcome: Valid
+    Duration: 00:00:00.3056330
+    Resource count: 529225
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(948,15): target object object is never null
+
+  Assertion batch 17:
+    Outcome: Valid
+    Duration: 00:00:00.2615990
+    Resource count: 661986
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(941,39): target object object is never null
+
+  Assertion batch 18:
+    Outcome: Valid
+    Duration: 00:00:00.1161180
+    Resource count: 243893
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(939,34): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 19:
+    Outcome: Valid
+    Duration: 00:00:00.2302410
+    Resource count: 595122
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(932,23): target object object is never null
+
+  Assertion batch 20:
+    Outcome: Valid
+    Duration: 00:00:00.1235720
+    Resource count: 241283
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(930,23): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 21:
+    Outcome: Valid
+    Duration: 00:00:00.2293240
+    Resource count: 554654
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(923,23): target object object is never null
+
+  Assertion batch 22:
+    Outcome: Valid
+    Duration: 00:00:00.1215800
+    Resource count: 238847
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(921,14): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+  Assertion batch 23:
+    Outcome: Valid
+    Duration: 00:00:00.2165470
+    Resource count: 520531
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(914,23): target object object is never null
+
+  Assertion batch 24:
+    Outcome: Valid
+    Duration: 00:00:00.1348190
+    Resource count: 236515
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(912,18): destructor 'value' is only applied to datatype values constructed by 'Some'
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient._ctor (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:02.0160910
+  Overall resource count: 522471
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:01.9552950
+    Resource count: 522471
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(108,64): field 'History', which is subject to definite-assignment rules, is always initialized here
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(109,5): field 'Modifies', which is subject to definite-assignment rules, is always initialized at this point in the constructor body
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(109,5): field 'History', which is subject to definite-assignment rules, is always initialized at this point in the constructor body
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(109,5): field 'config', which is subject to definite-assignment rules, is always initialized at this point in the constructor body
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(973,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(973,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(973,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(974,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(975,17): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchExecuteStatementInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3170430
+  Overall resource count: 425448
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.2603500
+    Resource count: 425448
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1434,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1434,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1435,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1436,54): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchExecuteStatementOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:01.2126480
+  Overall resource count: 434207
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:01.1605200
+    Resource count: 434207
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1454,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1454,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1455,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1456,55): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchGetItemInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.7981030
+  Overall resource count: 426146
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.7234610
+    Resource count: 426146
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1114,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1114,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1115,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1116,45): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchGetItemOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3876880
+  Overall resource count: 436860
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3282270
+    Resource count: 436860
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1134,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1134,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1135,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1136,46): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchWriteItemInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3855250
+  Overall resource count: 430880
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3241330
+    Resource count: 430880
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1074,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1074,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1075,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1076,47): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.BatchWriteItemOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.8095350
+  Overall resource count: 441535
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.7593590
+    Resource count: 441535
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1094,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1094,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1095,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1096,48): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.CreateTableInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3753070
+  Overall resource count: 456563
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3098600
+    Resource count: 456563
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1514,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1514,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1515,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1516,44): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.CreateTableOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3830250
+  Overall resource count: 466427
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3378700
+    Resource count: 466427
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1534,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1534,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1535,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1536,45): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.DeleteItemInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3874270
+  Overall resource count: 448347
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3199470
+    Resource count: 448347
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1314,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1314,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1315,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1316,43): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.DeleteItemOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:01.3925570
+  Overall resource count: 458878
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:01.3495880
+    Resource count: 458878
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1334,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1334,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1335,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1336,44): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.DescribeTableInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3814050
+  Overall resource count: 420185
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3291160
+    Resource count: 420185
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1594,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1594,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1595,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1596,46): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.DescribeTableOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.7254300
+  Overall resource count: 426467
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3168340
+    Resource count: 426467
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1614,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1614,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1615,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1616,47): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ExecuteStatementInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3235120
+  Overall resource count: 440645
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.2623990
+    Resource count: 440645
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1394,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1394,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1395,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1396,49): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ExecuteStatementOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3307910
+  Overall resource count: 452722
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.2915750
+    Resource count: 452722
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1414,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1414,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1415,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1416,50): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ExecuteTransactionInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:01.2128390
+  Overall resource count: 429626
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:01.1620170
+    Resource count: 429626
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1474,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1474,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1475,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1476,51): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ExecuteTransactionOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3684970
+  Overall resource count: 444178
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3018530
+    Resource count: 444178
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1494,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1494,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1495,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1496,52): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.GetItemInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3744230
+  Overall resource count: 436292
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.2932940
+    Resource count: 436292
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1034,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1034,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1035,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1036,40): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.GetItemOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3948880
+  Overall resource count: 444420
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3317710
+    Resource count: 444420
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1054,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1054,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1055,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1056,41): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.PutItemInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:02.0031870
+  Overall resource count: 448347
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:01.9421270
+    Resource count: 448347
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](994,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](994,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](995,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](996,40): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.PutItemOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3889850
+  Overall resource count: 458878
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3284960
+    Resource count: 458878
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1014,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1014,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1015,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1016,41): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.QueryInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3522000
+  Overall resource count: 479250
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.2819610
+    Resource count: 479250
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1194,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1194,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1195,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1196,38): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.QueryOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.8109630
+  Overall resource count: 494664
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.7662050
+    Resource count: 494664
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1214,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1214,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1215,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1216,39): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ScanInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.4195940
+  Overall resource count: 479123
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3460150
+    Resource count: 479123
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1154,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1154,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1155,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1156,37): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ScanOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3697250
+  Overall resource count: 494533
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3173770
+    Resource count: 494533
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1174,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1174,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1175,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1176,38): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.TransactGetItemsInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:01.3706450
+  Overall resource count: 425448
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:01.3126200
+    Resource count: 425448
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1354,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1354,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1355,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1356,49): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.TransactGetItemsOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3209720
+  Overall resource count: 436406
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.2761140
+    Resource count: 436406
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1374,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1374,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1375,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1376,50): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.TransactWriteItemsInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.7715390
+  Overall resource count: 432319
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.6997540
+    Resource count: 432319
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1234,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1234,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1235,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1236,51): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.TransactWriteItemsOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3911810
+  Overall resource count: 441136
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3394470
+    Resource count: 441136
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1254,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1254,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1255,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1256,52): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.UpdateItemInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3968560
+  Overall resource count: 456376
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3245540
+    Resource count: 456376
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1274,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1274,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1275,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1276,43): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.UpdateItemOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.4011790
+  Overall resource count: 466904
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3460240
+    Resource count: 466904
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1294,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1294,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1295,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1296,44): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.UpdateTableInputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.3704860
+  Overall resource count: 446407
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3064670
+    Resource count: 446407
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1554,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1554,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1555,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1556,44): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.UpdateTableOutputTransform (correctness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.4074760
+  Overall resource count: 456264
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3520070
+    Resource count: 456264
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1574,2): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1574,5): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1575,10): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy[DynamoDbEncryptionTransforms](1576,45): error is impossible: This is the postcondition that might not hold.
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ValidState (override check)
+  Overall outcome: Correct
+  Overall time: 00:00:00.7809210
+  Overall resource count: 392622
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3654430
+    Resource count: 392622
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(97,15): predicate's decreases clause is below or equal to that in the trait
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(97,15): predicate abides by trait context's reads clause
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/Index.dfy(97,15): the function provides an equal or more detailed postcondition than in its parent trait
+
+Results for DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient.ValidState (well-formedness)
+  Overall outcome: Correct
+  Overall time: 00:00:00.7809610
+  Overall resource count: 422329
+
+  Assertion batch 0:
+    Outcome: Valid
+    Duration: 00:00:00.3654460
+    Resource count: 422329
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(978,10): loop or recursion terminates
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(979,16): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(980,13): error is impossible: This is the postcondition that might not hold.
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/src/DynamoDbEncryptionTransforms/../../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy(981,14): error is impossible: This is the postcondition that might not hold.
