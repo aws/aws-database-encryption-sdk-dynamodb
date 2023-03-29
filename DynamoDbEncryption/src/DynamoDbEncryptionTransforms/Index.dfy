@@ -29,7 +29,7 @@ module
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
   {
     // TODO validate input
-    var internalConfigs: map<string, DdbMiddlewareConfig.TableConfig> := map[];
+    var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
 
     var m' := config.tableEncryptionConfigs;
     while m'.Keys != {}
