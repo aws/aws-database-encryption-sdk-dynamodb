@@ -154,6 +154,7 @@ module SearchableEncryptionInfo {
       acc : DDB.AttributeMap := map[]
     )
       : Result<DDB.AttributeMap, Error>
+      requires forall k <- names :: k in beacons
     {
       if |names| == 0 then
         Success(acc)
