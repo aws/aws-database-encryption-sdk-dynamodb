@@ -18,7 +18,7 @@
 */
 
 include "Util.dfy"
-include "../DynamoDbItemEncryptor/DynamoToStruct.dfy"
+include "DynamoToStruct.dfy"
 
 module TermLoc {
   import opened Wrappers
