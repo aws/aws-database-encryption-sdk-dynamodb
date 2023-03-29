@@ -50,7 +50,7 @@ verify:
 		-verificationLogger:text \
 		-timeLimit:300 \
 		-trace \
-		src/DynamoDbEncryptionTransforms/Index.dfy
+		`find . -name '*.dfy'`
 
 #Verify only a specific namespace at env var $(SMITHY_NAMESPACE)
 verify_namespace:
