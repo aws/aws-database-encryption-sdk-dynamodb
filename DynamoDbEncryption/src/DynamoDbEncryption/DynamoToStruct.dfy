@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
+include "../../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 
 module DynamoToStruct {
 
@@ -10,12 +10,12 @@ module DynamoToStruct {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
+  import AwsCryptographyDynamoDbEncryptionTypes
   import UTF8
   import SortedSets
   import Seq
 
-  type Error = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.Error
+  type Error = AwsCryptographyDynamoDbEncryptionTypes.Error
 
   type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
   type TerminalDataMap = map<AttributeName, StructuredDataTerminalType>
@@ -152,7 +152,7 @@ module DynamoToStruct {
   }
 
   function method MakeError<T>(s : string) : Result<T, Error> {
-    Failure(Error.DynamoDbItemEncryptorException(message := s))
+    Failure(Error.DynamoDbEncryptionException(message := s))
   }
 
   function method MapError<T>(r : Result<T, string>) : Result<T, Error> {
