@@ -3,9 +3,8 @@
 include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
 include "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/CMMs/ExpectedEncryptionContextCMM.dfy"
 include "../DynamoDbEncryption/DynamoToStruct.dfy"
-include "../StructuredEncryption/SearchInfo.dfy"
+include "../DynamoDbEncryption/SearchInfo.dfy"
 include "Util.dfy"
-include "../StructuredEncryption/SearchInfo.dfy"
 include "InternalLegacyConfig.dfy"
 
 module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines AbstractAwsCryptographyDynamoDbEncryptionItemEncryptorOperations {
@@ -23,7 +22,6 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   import InternalLegacyConfig
   import MaterialProviders
   import ExpectedEncryptionContextCMM
-  import opened SearchableEncryptionInfo
   import SET = AwsCryptographyStructuredEncryptionTypes
   import DDBE = AwsCryptographyDynamoDbEncryptionTypes
 
@@ -38,7 +36,6 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     nameonly allowedUnauthenticatedAttributePrefix: Option<string>,
     nameonly algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
     nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient,
-    nameonly beacons : Option<SearchInfo>,
     nameonly internalLegacyConfig: Option<InternalLegacyConfig.InternalLegacyConfig> := None
   )
 
@@ -324,8 +321,6 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     // It is forbidden to explicitly configure an attribute with the reserved prefix
     && (forall attribute <- config.attributeActions.Keys ::
           !(ReservedPrefix <= attribute))
-
-    && (config.beacons.Some? ==> config.beacons.value.ValidState())
   }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>

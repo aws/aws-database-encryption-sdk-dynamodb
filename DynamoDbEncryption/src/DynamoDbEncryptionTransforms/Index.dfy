@@ -3,6 +3,7 @@
 
 include "DdbMiddlewareConfig.dfy"
 include "AwsCryptographyDynamoDbEncryptionTransformsOperations.dfy"
+include "../DynamoDbEncryption/ConfigToInfo.dfy"
 
 module
   {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms" }
@@ -12,6 +13,7 @@ module
   import AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import Operations = AwsCryptographyDynamoDbEncryptionTransformsOperations
   import DynamoDbItemEncryptor
+  import SearchConfigToInfo
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
@@ -27,7 +29,7 @@ module
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
   {
     // TODO validate input
-    var internalConfigs: map<string, DdbMiddlewareConfig.TableConfig> := map[];
+    var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
 
     var m' := config.tableEncryptionConfigs;
     while m'.Keys != {}
@@ -69,11 +71,14 @@ module
 
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
-
+        var searchR := SearchConfigToInfo.Convert(inputConfig, inputConfig.search);
+        // TODO var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+        var search :- searchR.MapFailure(e => DynamoDbEncryptionTransformsException(message := "foo"));
         var internalConfig := DdbMiddlewareConfig.TableConfig(
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
-          itemEncryptor := itemEncryptor
+          itemEncryptor := itemEncryptor,
+          search := search
         );
 
         assert internalConfig.itemEncryptor.ValidState();

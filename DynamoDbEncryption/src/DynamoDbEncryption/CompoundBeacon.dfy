@@ -11,10 +11,7 @@
   - isValid : is the Beacon internally consistent?
 */
 
-
-include "../../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
 include "Util.dfy"
-include "Paths.dfy"
 include "Beacon.dfy"
 
 module CompoundBeacon {
@@ -23,9 +20,10 @@ module CompoundBeacon {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened StandardLibrary.String
-  import opened AwsCryptographyStructuredEncryptionTypes
-  import opened StructuredEncryptionUtil
-  import opened StructuredEncryptionPaths
+  import opened TermLoc
+  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened DynamoDbEncryptionUtil
+  import opened DdbVirtualFields
 
   import Prim = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
@@ -38,7 +36,7 @@ module CompoundBeacon {
   // if length is null, this is a non-sensitive part
   datatype BeaconPart = BeaconPart (
     name : string,
-    loc : TerminalLocation,
+    loc : TermLoc,
     prefix : Prefix,
     length : Option<BeaconLength>
   ) {
@@ -46,7 +44,7 @@ module CompoundBeacon {
     // TODO virtual fields
     function method GetFields() : seq<string>
     {
-      [loc.parts[0].key]
+      [loc[0].key]
     }
   }
 
@@ -83,7 +81,11 @@ module CompoundBeacon {
       Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(), parts))
     }
 
-    function method {:opaque} {:tailrecursion} TryConstructor(consFields : seq<ConstructorPart>, stringify : Stringify, acc : string := "")
+    function method {:opaque} {:tailrecursion} TryConstructor(
+      consFields : seq<ConstructorPart>,
+      item : DDB.AttributeMap,
+      vf : VirtualFieldMap,
+      acc : string := "")
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> |ret.value| > 0
     {
@@ -97,19 +99,23 @@ module CompoundBeacon {
         //# * For that constructor, hash MUST join the [part value](#part-value) for each part on the `split character`,
         //# excluding parts that are not required and with a source field that is not available.
         var part :- FindPartByName(consFields[0].name);
-        var strValue := stringify(part.loc);
+        var strValue := VirtToString(part.loc, item, vf);
         :- Need(!consFields[0].required || strValue.Success?, E("")); // this error message never propagated
         if strValue.Success? then
           var val :- PartValueCalc(part.prefix + strValue.value, part.prefix, part.length);
           if |acc| == 0 then
-            TryConstructor(consFields[1..], stringify, val)
+            TryConstructor(consFields[1..], item, vf, val)
           else
-            TryConstructor(consFields[1..], stringify, acc + [split] + val)
+            TryConstructor(consFields[1..], item, vf, acc + [split] + val)
         else
-          TryConstructor(consFields[1..], stringify, acc)
+          TryConstructor(consFields[1..], item, vf, acc)
     }
 
-    function method {:opaque} {:tailrecursion} TryConstructors(construct : seq<Constructor>, stringify : Stringify)
+    function method {:opaque} {:tailrecursion} TryConstructors(
+      construct : seq<Constructor>,
+      item : DDB.AttributeMap,
+      vf : VirtualFieldMap
+    )
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> |ret.value| > 0
     {
@@ -118,24 +124,24 @@ module CompoundBeacon {
       else
         //= specification/searchable-encryption/beacons.md#hash-for-a-compound-beacon
         //# * has MUST iterate through all constructors, in order, using the first that succeeds.
-        var x := TryConstructor(construct[0].parts, stringify);
+        var x := TryConstructor(construct[0].parts, item, vf);
         if x.Success? then
           x
         else
-          TryConstructors(construct[1..], stringify)
+          TryConstructors(construct[1..], item, vf)
     }
 
     //= specification/searchable-encryption/beacons.md#hash-for-a-compound-beacon
     //= type=implication
     //# * hash MUST take a record as input, and produce a string.
-    function method {:opaque} hash(stringify : Stringify) : (res : Result<string, Error>)
+    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap) : (res : Result<string, Error>)
       ensures res.Success? ==> 
         //= specification/searchable-encryption/beacons.md#hash-for-a-compound-beacon
         //= type=implication
         //# * The returned string MUST NOT be empty.
         && |res.value| > 0
     {
-      TryConstructors(construct, stringify)
+      TryConstructors(construct, item, vf)
     }
 
     function method {:opaque} findPart(val : string)
@@ -231,7 +237,7 @@ module CompoundBeacon {
         | 0 <= x <= |parts| && x < y <= |parts|
         :: !(parts[x].prefix <= parts[x].prefix)
     }
-
+/*
     static predicate method IsEncrypted(schema : CryptoSchemaPlain, name : string)
     {
       && name in schema
@@ -243,7 +249,7 @@ module CompoundBeacon {
       && |Seq.Filter((x : BeaconPart) => x.length.None? &&  IsEncrypted(schema, x.name), parts)| == 0
       && |Seq.Filter((x : BeaconPart) => x.length.Some? && !IsEncrypted(schema, x.name), parts)| == 0
     }
-
+*/
     predicate method ValidPart(f : ConstructorPart)
     {
       |Seq.Filter((x : BeaconPart) => x.name == f.name, parts)| == 1
@@ -264,7 +270,7 @@ module CompoundBeacon {
       else
         ValidConstructor(con[0].parts) && ValidConstructors(con[1..])
     }
-
+/*
     function method isValid(schema : CryptoSchemaPlain, virtualFields : map<string,string>, unauthPrefix : string)
       : (ret : bool)
       ensures ret ==>
@@ -289,7 +295,7 @@ module CompoundBeacon {
     {
       ValidPrefixSet() && ValidNonSensitive(schema) && ValidConstructors(construct)
     }
-
+*/
     //= specification/searchable-encryption/beacons.md#part-value-calculation
     //= type=implication
     //# Part Value Calculation MUST take a string, a prefix, and an optional [beacon length](#beacon-length) as input, and return a string as output.
@@ -331,7 +337,7 @@ module CompoundBeacon {
     : Constructor
     requires 0 < |parts|
   {
-    var cons := Seq.Map((x : BeaconPart) => ConstructorPart(x.name, true), parts);
-    Constructor(cons)
+    var cons := Seq.Map((x : BeaconPart) => ConstructorPart.ConstructorPart(x.name, true), parts);
+    Constructor.Constructor(cons)
   }
 }

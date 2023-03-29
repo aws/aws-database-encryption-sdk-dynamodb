@@ -7,7 +7,7 @@
 */
 
 include "DdbMiddlewareConfig.dfy"
-include "../DynamoDbItemEncryptor/DDBSupport.dfy"
+include "../DynamoDbEncryption/DDBSupport.dfy"
 
 module DynamoDbMiddlewareSupport { 
 
@@ -65,7 +65,7 @@ module DynamoDbMiddlewareSupport {
     : Result<DDB.AttributeMap, Error>
     requires AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
   {
-    BS.AddBeacons(config.itemEncryptor.config, item)
+    BS.AddBeacons(config, item)
       .MapFailure(e => E(e))
   }
 
@@ -74,7 +74,7 @@ module DynamoDbMiddlewareSupport {
   function method {:opaque} RemoveBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
     : Result<DDB.AttributeMap, Error>
   {
-    BS.RemoveBeacons(config.itemEncryptor.config, item)
+    BS.RemoveBeacons(config, item)
       .MapFailure(e => E(e))
   }
 
@@ -82,7 +82,7 @@ module DynamoDbMiddlewareSupport {
   function method {:opaque} CreateTableInputForBeacons(config : ValidTableConfig, req : DDB.CreateTableInput)
     : Result<DDB.CreateTableInput, Error>
   {
-    BS.CreateTableInputForBeacons(config.itemEncryptor.config, req)
+    BS.CreateTableInputForBeacons(config, req)
       .MapFailure(e => E(e))
   }
 
@@ -90,7 +90,7 @@ module DynamoDbMiddlewareSupport {
   function method {:opaque} UpdateTableInputForBeacons(config : ValidTableConfig, req : DDB.UpdateTableInput)
     : Result<DDB.UpdateTableInput, Error>
   {
-    BS.UpdateTableInputForBeacons(config.itemEncryptor.config, req)
+    BS.UpdateTableInputForBeacons(config, req)
       .MapFailure(e => E(e))
   }
 
@@ -98,7 +98,7 @@ module DynamoDbMiddlewareSupport {
   function method {:opaque} DescribeTableOutputForBeacons(config : ValidTableConfig, req : DDB.DescribeTableOutput)
     : Result<DDB.DescribeTableOutput, Error>
   {
-    BS.DescribeTableOutputForBeacons(config.itemEncryptor.config, req)
+    BS.DescribeTableOutputForBeacons(config, req)
       .MapFailure(e => E(e))
   }
 
