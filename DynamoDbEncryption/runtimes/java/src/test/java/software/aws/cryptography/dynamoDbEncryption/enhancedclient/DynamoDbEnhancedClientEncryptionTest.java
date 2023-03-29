@@ -6,6 +6,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.Direc
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
@@ -67,7 +69,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
         final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(kmsClient, "kmsKeyARN");
         final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
-        final Map<String, Set<EncryptionFlags>> oldActions = new HashMap<>();
+        final Map<String, CryptoAction> oldActions = new HashMap<>();
 
         TableSchema<SimpleClass> simpleSchema = TableSchema.fromBean(SimpleClass.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
@@ -76,14 +78,12 @@ public class DynamoDbEnhancedClientEncryptionTest {
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
-                        /*.legacyConfig(
+                        .legacyConfig(
                                 LegacyConfig.builder()
-                                        .legacyEncryptor(LegacyDynamoDbItemEncryptor.builder()
-                                                .encryptor(oldEncryptor)
-                                                .attributeFlags(oldActions)
-                                                .build())
-                                        .legacyPolicy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
-                                        .build())*/
+                                        .encryptor(oldEncryptor)
+                                        .policy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
+                                        .attributeFlags(oldActions)
+                                        .build())
                         .build());
         DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
