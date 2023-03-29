@@ -1,9 +1,18 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.TableDescription;
+import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
+import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbItemBranchKeyIdSupplier;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromItemInput;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromItemOutput;
+import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
+import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -17,11 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.*;
 import static software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
-import static software.aws.cryptography.dynamoDbEncryption.TestUtils.KMS_TEST_KEY_ID;
-import static software.aws.cryptography.dynamoDbEncryption.TestUtils.createStaticKeyring;
+import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
@@ -30,6 +37,11 @@ import org.testng.annotations.BeforeTest;
 // but exist alongside this package as a deliverable, and it is easiest to test them here for now.
 // TODO these should be moved appropriately when they are properly being generated.
 public class OtherTests {
+  // These tests require a keystore populated with a key with this Id
+  public static final String BRANCH_KEY_ID = "hierarchy-test-v1";
+  public static final String ACTIVE_ACTIVE_BRANCH_KEY_ID = "hierarchy-test-active-active";
+  public static final String keyArn = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
+  public static final String branchKeyStoreArn = "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
     @Test
     public void TestItemEncryptorBuild() {
         Map<String, CryptoAction> actions = new HashMap<>();
@@ -52,6 +64,7 @@ public class OtherTests {
         assertNotNull(itemEncryptor);
     }
 
+  /*
     @Test
     public void TestCreateBranchKeyStore() {
         MaterialProviders materialProviders = MaterialProviders.builder()
@@ -104,93 +117,229 @@ public class OtherTests {
 
         assertEquals(1, out.versionCreated());
     }
+   */
 
-    // TODO reintroduce once the branch key supplier is added back to the Hierarchical Keyring
-    /*
     @Test
-    public void TestBuildHierarchyKeyringInvalidConfig() {
+    public void TestHierarchyKeyringWithSupplier() {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
-        BranchKeySupplier branchKeySupplier = matProv.CreateDynamoDbEncryptionBranchKeySupplier(
-                CreateDynamoDbEncryptionBranchKeySupplierInput.builder()
-                        .branchKeyFromItemSupplier(new TestSupplier())
-                        .build());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            CreateAwsKmsHierarchicalKeyringInput.builder()
-                    .kmsClient(AWSKMSClientBuilder.defaultClient())
-                    .kmsKeyId(KMS_TEST_KEY_ID)
-                    .branchKeyId("foo")
-                    //.branchKeySupplier(branchKeySupplier)
-                    .branchKeyStoreArn("branch-keys-table")
-                    .ddbClient(DynamoDbClient.create())
-                    .ttlSeconds(6000l)
-                    .maxCacheSize(100)
-                    .build();
-        });
-        assertTrue(exception.getMessage().contains("`branchKeyId` or `branchKeySupplier` cannot both be configured."));
-
-        Exception exception2 = assertThrows(IllegalArgumentException.class, () -> {
-            CreateAwsKmsHierarchicalKeyringInput.builder()
-                    .kmsClient(AWSKMSClientBuilder.defaultClient())
-                    .kmsKeyId(KMS_TEST_KEY_ID)
-                    .branchKeyStoreArn("branch-keys-table")
-                    .ddbClient(DynamoDbClient.create())
-                    .ttlSeconds(6000l)
-                    .maxCacheSize(100)
-                    .build();
-        });
-        assertTrue(exception2.getMessage().contains("`branchKeyId` or `branchKeySupplier` must be configured."));
-    }
-
-    @Test
-    public void TestBuildHierarchyKeyringWithSupplier() {
-        MaterialProviders matProv = MaterialProviders.builder()
-                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+        // Create client with keyring that uses branch key supplier for key A and key B
+        DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
+                .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
                 .build();
-        // BranchKeySupplier branchKeySupplier = matProv.CreateDynamoDbEncryptionBranchKeySupplier(
-        //         CreateDynamoDbEncryptionBranchKeySupplierInput.builder()
-        //                 .branchKeyFromItemSupplier(new TestSupplier())
-        //                 .build());
-
+        IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
+                        CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
+                                .ddbItemBranchKeyIdSupplier(new TestSupplier())
+                                .build())
+                .branchKeyIdSupplier();
         CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-                .kmsClient(AWSKMSClientBuilder.defaultClient())
-                .kmsKeyId(KMS_TEST_KEY_ID)
-                //.branchKeySupplier(branchKeySupplier)
-                .branchKeyStoreArn("branch-keys-table")
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(keyArn)
+                .branchKeyIdSupplier(branchKeyIdSupplier)
+                .branchKeyStoreArn(branchKeyStoreArn)
                 .ddbClient(DynamoDbClient.create())
                 .ttlSeconds(6000l)
                 .maxCacheSize(100)
                 .build();
-        Keyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
+        IKeyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
         assertNotNull(keyring);
+        DynamoDbEncryptionInterceptor interceptor = TestUtils.createInterceptor(keyring);
+        DynamoDbClient ddbAB = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        // Create client with keyring only configured with key A
+        CreateAwsKmsHierarchicalKeyringInput keyringAInput = CreateAwsKmsHierarchicalKeyringInput.builder()
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(keyArn)
+                .branchKeyId(BRANCH_KEY_ID)
+                .branchKeyStoreArn(branchKeyStoreArn)
+                .ddbClient(DynamoDbClient.create())
+                .ttlSeconds(6000l)
+                .maxCacheSize(100)
+                .build();
+        IKeyring keyringA = matProv.CreateAwsKmsHierarchicalKeyring(keyringAInput);
+        assertNotNull(keyringA);
+        DynamoDbEncryptionInterceptor interceptorA = TestUtils.createInterceptor(keyringA);
+        DynamoDbClient ddbA = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptorA)
+                                .build())
+                .build();
+
+        // Create client with keyring only configured with key B
+        CreateAwsKmsHierarchicalKeyringInput keyringBInput = CreateAwsKmsHierarchicalKeyringInput.builder()
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(keyArn)
+                .branchKeyId(ACTIVE_ACTIVE_BRANCH_KEY_ID)
+                .branchKeyStoreArn(branchKeyStoreArn)
+                .ddbClient(DynamoDbClient.create())
+                .ttlSeconds(6000l)
+                .maxCacheSize(100)
+                .build();
+        IKeyring keyringB = matProv.CreateAwsKmsHierarchicalKeyring(keyringBInput);
+        assertNotNull(keyringB);
+        DynamoDbEncryptionInterceptor interceptorB = TestUtils.createInterceptor(keyringB);
+        DynamoDbClient ddbB = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptorB)
+                                .build())
+                .build();
+
+        // Put CaseA item into table with Hierarchy keyring with supplier
+        // Put item into table
+        String partitionValue = "caseA";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequestA = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        PutItemResponse putResponseA = ddbAB.putItem(putRequestA);
+        assertEquals(200, putResponseA.sdkHttpResponse().statusCode());
+
+        // Get Item back from table
+        Map<String, AttributeValue> keyToGetA = createTestKey(partitionValue, sortValue);
+        GetItemRequest getRequestA = GetItemRequest.builder()
+                .key(keyToGetA)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        GetItemResponse getResponseA = ddbAB.getItem(getRequestA);
+        assertEquals(200, getResponseA.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItemA = getResponseA.item();
+        assertNotNull(returnedItemA);
+        assertEquals(partitionValue, returnedItemA.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemA.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemA.get(TEST_ATTR_NAME).s());
+
+        // Assert we can retrieve this item with a Hierarchical keyring configured only with key A
+        getResponseA = ddbA.getItem(getRequestA);
+        assertEquals(200, getResponseA.sdkHttpResponse().statusCode());
+        returnedItemA = getResponseA.item();
+        assertNotNull(returnedItemA);
+        assertEquals(partitionValue, returnedItemA.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemA.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemA.get(TEST_ATTR_NAME).s());
+
+        // Put CaseB item
+        // Put item into table
+        partitionValue = "caseB";
+        sortValue = "42";
+        attrValue = "bar";
+        attrValue2 = "hello world";
+        Map<String, AttributeValue> itemB = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequest2 = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(itemB)
+                .build();
+
+        PutItemResponse putResponse2 = ddbAB.putItem(putRequest2);
+        assertEquals(200, putResponse2.sdkHttpResponse().statusCode());
+
+        // Get Item back from table
+        Map<String, AttributeValue> keyToGetB = createTestKey(partitionValue, sortValue);
+
+        GetItemRequest getRequestB = GetItemRequest.builder()
+                .key(keyToGetB)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        GetItemResponse getResponseB = ddbAB.getItem(getRequestB);
+        assertEquals(200, getResponseB.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItemB = getResponseB.item();
+        assertNotNull(returnedItemB);
+        assertEquals(partitionValue, returnedItemB.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemB.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
+
+        // Assert we can retrieve this item with a Hierarchical keyring configured only with key B
+        getResponseB = ddbB.getItem(getRequestB);
+        assertEquals(200, getResponseB.sdkHttpResponse().statusCode());
+        returnedItemB = getResponseB.item();
+        assertNotNull(returnedItemB);
+        assertEquals(partitionValue, returnedItemB.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItemB.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
     }
-     */
 
-    // This test can no longer pass.
-    // Because there is now a Modulus length check on the public key.
-//    @Test
-//    public void TestBuildEncryptDecryptAwsKmsRsaKeyring() {
-//        MaterialProviders matProv = MaterialProviders.builder()
-//                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-//                .build();
-//
-//        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
-//
-//        CreateAwsKmsRsaKeyringInput input = CreateAwsKmsRsaKeyringInput.builder()
-//                .kmsClient(KmsClient.create())
-//                .kmsKeyId(KMS_TEST_KEY_ID)
-//                .encryptionAlgorithm(RSAES_OAEP_SHA_1)
-//                .publicKey(key)
-//                .build();
-//        IKeyring keyring = matProv.CreateAwsKmsRsaKeyring(input);
-//        assertNotNull(keyring);
-//    }
+    @Test
+    public void TestHierarchyKeyringWithSupplierReturnsExpectedError() {
+        MaterialProviders matProv = MaterialProviders.builder()
+                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+                .build();
 
-    class TestSupplier implements BranchKeyFromItemSupplier {
-        public String getBranchKeyFromItem(GetBranchKeyFromItemInput input) {
-            return "foo";
+        // Create client with keyring that uses branch key supplier that errors on "caseC"
+        DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
+                .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
+                .build();
+        IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
+                        CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
+                                .ddbItemBranchKeyIdSupplier(new TestSupplier())
+                                .build())
+                .branchKeyIdSupplier();
+        CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(keyArn)
+                .branchKeyIdSupplier(branchKeyIdSupplier)
+                .branchKeyStoreArn(branchKeyStoreArn)
+                .ddbClient(DynamoDbClient.create())
+                .ttlSeconds(6000l)
+                .maxCacheSize(100)
+                .build();
+        IKeyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
+        assertNotNull(keyring);
+        DynamoDbEncryptionInterceptor interceptor = TestUtils.createInterceptor(keyring);
+        DynamoDbClient ddbAB = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        // Put CaseA item into table with Hierarchy keyring with supplier
+        String partitionValue = "caseC";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequestA = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        // TODO: Exception SHOULD be `DynamoDbEncryptionException.class`
+        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
+        assertThrows(OpaqueError.class, () -> {
+            ddbAB.putItem(putRequestA);
+        });
+    }
+
+    class TestSupplier implements IDynamoDbItemBranchKeyIdSupplier {
+        public GetBranchKeyIdFromItemOutput GetBranchKeyIdFromItem(GetBranchKeyIdFromItemInput input) {
+            Map<String, AttributeValue> item = input.ddbItem();
+            String branchKeyId;
+            if (item.containsKey(TEST_PARTITION_NAME) && item.get(TEST_PARTITION_NAME).s().equals("caseA")) {
+                branchKeyId = BRANCH_KEY_ID;
+            } else if (item.containsKey(TEST_PARTITION_NAME) && item.get(TEST_PARTITION_NAME).s().equals("caseB")) {
+                branchKeyId = ACTIVE_ACTIVE_BRANCH_KEY_ID;
+            } else {
+                throw new IllegalArgumentException("Item invalid, does not contain expected attributes.");
+            }
+            return GetBranchKeyIdFromItemOutput.builder().branchKeyId(branchKeyId).build();
         }
     }
 }

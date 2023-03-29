@@ -107,9 +107,11 @@ The DynamoDB Item Base Context MUST contain:
     - the key is the following concatenation,
       where `attributeName` is the name of the attribute:
         "aws-crypto-attr." + `attributeName`
-    - the value is the attribute's value serialized according to
+    - the value is the concatenation of the bytes `typeID + serializedValue`
+      [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648),
+      where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
+      and `serializedValue` is the attribute's value serialized according to
       [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
-      and then [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.

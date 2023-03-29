@@ -7,13 +7,17 @@ namespace aws.cryptography.dynamoDbEncryption
 // and common structures used throughout this project.
 
 use aws.polymorph#localService
+use aws.polymorph#reference
+use aws.polymorph#extendable
 
+use aws.cryptography.materialProviders#BranchKeyIdSupplierReference
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeName
+use com.amazonaws.dynamodb#AttributeMap
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
 use aws.cryptography.structuredEncryption#CryptoAction
@@ -25,7 +29,7 @@ use aws.cryptography.structuredEncryption#CryptoAction
 )
 service DynamoDbEncryption {
     version: "2022-11-21",
-    operations: [],
+    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier ],
     errors: [ DynamoDbEncryptionException ]
 }
 
@@ -326,6 +330,44 @@ structure SearchConfig {
 
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
 structure AtomicPrimitivesReference {}
+
+@extendable
+resource DynamoDbItemBranchKeyIdSupplier{
+  operations: [GetBranchKeyIdFromItem]
+}
+
+@reference(resource: DynamoDbItemBranchKeyIdSupplier)
+structure DynamoDbItemBranchKeyIdSupplierReference {}
+
+operation GetBranchKeyIdFromItem {
+  input: GetBranchKeyIdFromItemInput,
+  output: GetBranchKeyIdFromItemOutput
+}
+
+structure GetBranchKeyIdFromItemInput {
+  @required
+  ddbItem: AttributeMap
+}
+
+structure GetBranchKeyIdFromItemOutput {
+  @required
+  branchKeyId: String
+}
+
+operation CreateDynamoDbEncryptionBranchKeyIdSupplier {
+  input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput,
+  output: CreateDynamoDbEncryptionBranchKeyIdSupplierOutput
+}
+
+structure CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
+  @required
+  ddbItemBranchKeyIdSupplier: DynamoDbItemBranchKeyIdSupplierReference,
+}
+
+structure CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
+  @required
+  branchKeyIdSupplier: BranchKeyIdSupplierReference 
+}
 
 /////////////
 // Errors

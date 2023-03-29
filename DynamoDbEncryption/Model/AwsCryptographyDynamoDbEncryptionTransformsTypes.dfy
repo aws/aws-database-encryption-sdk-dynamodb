@@ -850,7 +850,7 @@ include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  // TODO line below manually added. smithy codegen does not know how to deal with a config in a separate namespace.
  method DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig := DefaultDynamoDbTablesEncryptionConfig())
  returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
- // TODO smithy->Dafny correctly generates something equivalent the following
+// TODO smithy->Dafny correctly generates something equivalent the following
  // but as a result DynamoDbEncryption.DynamoDbEncryption and TestFixtures.GetDynamoDbEncryption
  // take too long to verify
 ///// MANUAL UPDATE STARTS HERE

@@ -221,9 +221,11 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   //#   - the key is the following concatenation,
   //#     where `attributeName` is the name of the attribute:
   //#       "aws-crypto-attr." + `attributeName`
-  //#   - the value is the attribute's value serialized according to
+  //#   - the value is the concatenation of the bytes `typeID + serializedValue`
+  //#     [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648),
+  //#     where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
+  //#     and `serializedValue` is the attribute's value serialized according to
   //#     [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
-  //#     and then [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648).
 
   function method {:opaque} MakeEncryptionContext(
     config : InternalConfig,
@@ -259,7 +261,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     :- Need(forall k <- item :: DDBEncode(ECName(k)).Success?, DDBError("Invalid attribute names"));
     var signedMap : CMP.EncryptionContext :=
       map k <- item | IsSignOnly(config, k) ::
-        DDBEncode(ECName(k)).value := EncodeAscii(Base64.Encode(item[k].content.Terminal.value));
+        DDBEncode(ECName(k)).value := EncodeAscii(Base64.Encode(item[k].content.Terminal.typeId + item[k].content.Terminal.value));
 
     Success(base + signedMap)
   }
