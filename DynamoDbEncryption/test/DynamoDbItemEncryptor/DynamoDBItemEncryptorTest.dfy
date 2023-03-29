@@ -3,6 +3,7 @@
 include "../../../submodules/MaterialProviders/StandardLibrary/src/StandardLibrary.dfy"
 include "../../../submodules/MaterialProviders/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 include "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
+include "../../src/DynamoDbItemEncryptor/Index.dfy"
 include "../TestFixtures.dfy"
 
 module DynamoDbItemEncryptorTest {
@@ -18,6 +19,7 @@ module DynamoDbItemEncryptorTest {
   import AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
+  import DDBE = AwsCryptographyDynamoDbEncryptionTypes
 
   // round trip
   // encrypt => ecrypted fields changed, others did not
@@ -36,7 +38,8 @@ module DynamoDbItemEncryptorTest {
       )
     );
     expect encryptRes.Failure?;
-    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "No Crypto Action configured for attribute unknown");
+    expect encryptRes.error == Types.AwsCryptographyDynamoDbEncryption(
+      DDBE.DynamoDbEncryptionException(message := "No Crypto Action configured for attribute unknown"));
   }
 
   method {:test} TestMissingSortKey() {
