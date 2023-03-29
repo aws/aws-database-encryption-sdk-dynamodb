@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
- include "../src/Index.dfy"
+// TODO below ling was manually updated
+ include "../src/DynamoDbEncryption/Index.dfy"
  include "../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
  include "../../submodules/MaterialProviders/AwsCryptographyPrimitives/src/Index.dfy"
  include "../../submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy"
