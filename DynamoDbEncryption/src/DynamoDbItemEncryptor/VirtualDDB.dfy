@@ -17,7 +17,7 @@
 
 include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
 include "../StructuredEncryption/Virtual.dfy"
-include "DynamoToStruct.dfy"
+include "../DynamoDbEncryption/DynamoToStruct.dfy"
 
 module VirtualDDBFields {
   import opened StandardLibrary

@@ -1,7 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../../../submodules/MaterialProviders/StandardLibrary/src/StandardLibrary.dfy"
-include "../../src/Index.dfy"
 include "../../../submodules/MaterialProviders/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 include "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
 include "../TestFixtures.dfy"

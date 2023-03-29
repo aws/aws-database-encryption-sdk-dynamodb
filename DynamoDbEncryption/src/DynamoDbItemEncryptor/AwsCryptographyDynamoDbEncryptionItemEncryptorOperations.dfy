@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
 include "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/CMMs/ExpectedEncryptionContextCMM.dfy"
-include "DynamoToStruct.dfy"
+include "../DynamoDbEncryption/DynamoToStruct.dfy"
 include "../StructuredEncryption/SearchInfo.dfy"
 include "Util.dfy"
 include "../StructuredEncryption/SearchInfo.dfy"
@@ -393,7 +393,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   function method ConfigToCryptoSchema(
     config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
-    : (ret : Result<CSE.CryptoSchema, Error>)
+    : (ret : Result<CSE.CryptoSchema, DDBE.Error>)
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -441,7 +441,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   function method ConfigToAuthenticateSchema(
     config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
-    : (ret : Result<CSE.AuthenticateSchema, Error>)
+    : (ret : Result<CSE.AuthenticateSchema, DDBE.Error>)
     requires ValidInternalConfig?(config)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
@@ -562,9 +562,11 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     // This is to help Dafny with the above complex ensures
     assert {:split_here} true;
 
-    var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem);
+    var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem)
+        .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
     var context :- MakeEncryptionContext(config, plaintextStructure);
-    var cryptoSchema :- ConfigToCryptoSchema(config, input.plaintextItem);
+    var cryptoSchema :- ConfigToCryptoSchema(config, input.plaintextItem)
+        .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
     var wrappedStruct := CSE.StructuredData(
       content := CSE.StructuredDataContent.DataMap(plaintextStructure),
       attributes := None);
@@ -597,7 +599,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     var encryptVal :- encryptRes.MapFailure(
         e => Error.AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
     var encryptedData := encryptVal.encryptedStructure;
-    var ddbItem :- DynamoToStruct.StructuredToItem(encryptedData.content.DataMap);
+    var ddbItem :- DynamoToStruct.StructuredToItem(encryptedData.content.DataMap)
+        .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
     output := Success(EncryptItemOutput(encryptedItem := ddbItem));
   }
 
@@ -678,9 +681,11 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       return Success(decryptItemOutput);
     }
 
-    var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem);
+    var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem)
+        .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
     var context :- MakeEncryptionContext(config, encryptedStructure);
-    var authenticateSchema :- ConfigToAuthenticateSchema(config, input.encryptedItem);
+    var authenticateSchema :- ConfigToAuthenticateSchema(config, input.encryptedItem)
+        .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
     var wrappedStruct := CSE.StructuredData(
       content := CSE.StructuredDataContent.DataMap(encryptedStructure),
       attributes := None);
@@ -713,7 +718,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     var decryptVal :- decryptRes.MapFailure(
         e => Error.AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
     var decryptedData := decryptVal.plaintextStructure;
-    var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData.content.DataMap);
+    var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData.content.DataMap)
+        .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
     output := Success(DecryptItemOutput(plaintextItem := ddbItem));
   }
 }

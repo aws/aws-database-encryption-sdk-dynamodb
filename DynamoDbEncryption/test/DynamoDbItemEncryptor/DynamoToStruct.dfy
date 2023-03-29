@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "../../src/DynamoDbItemEncryptor/DynamoToStruct.dfy"
+include "../../src/DynamoDbEncryption/DynamoToStruct.dfy"
 
 module DynamoToStructTest {
 
