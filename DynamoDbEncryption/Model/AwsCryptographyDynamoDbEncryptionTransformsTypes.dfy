@@ -873,64 +873,15 @@ modifies
 
  ensures res.Success? ==> 
  && fresh(res.value)
- && fresh(res.value.Modifies
- - ( var tmps14 := set t14 | t14 in config.tableEncryptionConfigs.Values
-  && t14.keyring.Some? 
-  :: t14.keyring.value;
- var tmps14FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps14 :: t0.Modifies;
- (set tmp15ModifyEntry, tmp15Modifies | 
- tmp15Modifies in tmps14FlattenedModifiesSet 
- && tmp15ModifyEntry in tmp15Modifies 
- :: tmp15ModifyEntry)
- ) - ( var tmps16 := set t16 | t16 in config.tableEncryptionConfigs.Values
-  && t16.cmm.Some? 
-  :: t16.cmm.value;
- var tmps16FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps16 :: t0.Modifies;
- (set tmp17ModifyEntry, tmp17Modifies | 
- tmp17Modifies in tmps16FlattenedModifiesSet 
- && tmp17ModifyEntry in tmp17Modifies 
- :: tmp17ModifyEntry)
- ) - ( var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values
-  && t18.legacyConfig.Some? 
-  :: t18.legacyConfig.value.encryptor;
- var tmps18FlattenedModifiesSet: set<set<object>> := set t0
- | t0 in tmps18 :: t0.Modifies;
- (set tmp19ModifyEntry, tmp19Modifies | 
- tmp19Modifies in tmps18FlattenedModifiesSet 
- && tmp19ModifyEntry in tmp19Modifies 
- :: tmp19ModifyEntry)
- ) - ( var tmps20 := set t20 | t20 in config.tableEncryptionConfigs.Values
-  && t20.search.Some? 
-  :: set t21 | t21 in t20.search.value.versions :: t21.keyring;
- var tmps20FlattenedModifiesSet: set<set<object>> := set t0
-, t1 | t0 in tmps20 && t1 in t0 :: t1.Modifies;
- (set tmp22ModifyEntry, tmp22Modifies | 
- tmp22Modifies in tmps20FlattenedModifiesSet 
- && tmp22ModifyEntry in tmp22Modifies 
- :: tmp22ModifyEntry)
- ) )
+ && fresh(res.value.Modifies -
+     set t <- config.tableEncryptionConfigs.Keys, o <- (
+       (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
+     + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
+ ) :: o)
+
  && fresh(res.value.History)
  && res.value.ValidState()
- ensures var tmps23 := set t23 | t23 in config.tableEncryptionConfigs.Values;
- forall tmp23 :: tmp23 in tmps23 ==>
- tmp23.keyring.Some? ==>
- tmp23.keyring.value.ValidState()
- ensures var tmps24 := set t24 | t24 in config.tableEncryptionConfigs.Values;
- forall tmp24 :: tmp24 in tmps24 ==>
- tmp24.cmm.Some? ==>
- tmp24.cmm.value.ValidState()
- ensures var tmps25 := set t25 | t25 in config.tableEncryptionConfigs.Values;
- forall tmp25 :: tmp25 in tmps25 ==>
- tmp25.legacyConfig.Some? ==>
- tmp25.legacyConfig.value.encryptor.ValidState()
- ensures var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
- forall tmp26 :: tmp26 in tmps26 ==>
- tmp26.search.Some? ==>
- var tmps27 := set t27 | t27 in tmp26.search.value.versions;
- forall tmp27 :: tmp27 in tmps27 ==>
- tmp27.keyring.ValidState()
+///// MANUAL UPDATE ENDS HERE
 
  class DynamoDbEncryptionTransformsClient extends IDynamoDbEncryptionTransformsClient
  {
