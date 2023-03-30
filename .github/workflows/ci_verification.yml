@@ -13,7 +13,7 @@ jobs:
       matrix:
         # Break up verification between namespaces over multiple
         # actions to take advantage of parallelization
-        namespace: [
+        service: [
           DynamoDbEncryption,
           DynamoDbEncryptionTransforms,
           DynamoDbItemEncryptor,
@@ -50,7 +50,7 @@ jobs:
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make verify_namespace CORES=$CORES SMITHY_NAMESPACE=${{ matrix.namespace }}
+          make verify_service CORES=$CORES SERVICE=${{ matrix.service }}
 
       - name: Check solver resource use
         shell: bash
