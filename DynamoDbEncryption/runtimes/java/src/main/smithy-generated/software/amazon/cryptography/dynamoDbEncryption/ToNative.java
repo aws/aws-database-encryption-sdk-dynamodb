@@ -271,6 +271,9 @@ public class ToNative {
     if (dafnyValue.dtor_cmm().is_Some()) {
       nativeBuilder.cmm(software.amazon.cryptography.materialProviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm().dtor_value()));
     }
+    if (dafnyValue.dtor_legacyConfig().is_Some()) {
+      nativeBuilder.legacyConfig(ToNative.LegacyConfig(dafnyValue.dtor_legacyConfig().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 

@@ -145,7 +145,7 @@ public class OtherTests {
                 .build();
         IKeyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
         assertNotNull(keyring);
-        DynamoDbEncryptionInterceptor interceptor = TestUtils.createInterceptor(keyring);
+        DynamoDbEncryptionInterceptor interceptor = TestUtils.createInterceptor(keyring, null);
         DynamoDbClient ddbAB = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -165,7 +165,7 @@ public class OtherTests {
                 .build();
         IKeyring keyringA = matProv.CreateAwsKmsHierarchicalKeyring(keyringAInput);
         assertNotNull(keyringA);
-        DynamoDbEncryptionInterceptor interceptorA = TestUtils.createInterceptor(keyringA);
+        DynamoDbEncryptionInterceptor interceptorA = TestUtils.createInterceptor(keyringA, null);
         DynamoDbClient ddbA = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -185,7 +185,7 @@ public class OtherTests {
                 .build();
         IKeyring keyringB = matProv.CreateAwsKmsHierarchicalKeyring(keyringBInput);
         assertNotNull(keyringB);
-        DynamoDbEncryptionInterceptor interceptorB = TestUtils.createInterceptor(keyringB);
+        DynamoDbEncryptionInterceptor interceptorB = TestUtils.createInterceptor(keyringB, null);
         DynamoDbClient ddbB = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -301,7 +301,7 @@ public class OtherTests {
                 .build();
         IKeyring keyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
         assertNotNull(keyring);
-        DynamoDbEncryptionInterceptor interceptor = TestUtils.createInterceptor(keyring);
+        DynamoDbEncryptionInterceptor interceptor = TestUtils.createInterceptor(keyring, null);
         DynamoDbClient ddbAB = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()

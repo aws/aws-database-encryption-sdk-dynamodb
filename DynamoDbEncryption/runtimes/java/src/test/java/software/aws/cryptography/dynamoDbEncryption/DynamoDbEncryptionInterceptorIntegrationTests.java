@@ -1,14 +1,29 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
+import com.amazonaws.services.kms.AWSKMS;
+import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 
+import java.security.GeneralSecurityException;
 import java.util.*;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
+import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
+import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -22,17 +37,16 @@ import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
     - sort key off type 'N' with name "sort_key"
  */
 public class DynamoDbEncryptionInterceptorIntegrationTests {
-    static DynamoDbEncryptionInterceptor interceptor;
-    static DynamoDbClient ddb;
+    static DynamoDbEncryptionInterceptor kmsInterceptor;
+    static DynamoDbClient ddbKmsKeyring;
 
     @BeforeTest
     public static void setup() {
-	// TODO - switch back to createHierarchicalKeyring
-        interceptor = createInterceptor(createKmsKeyring());
-        ddb = DynamoDbClient.builder()
+        kmsInterceptor = createInterceptor(createKmsKeyring(), null);
+        ddbKmsKeyring = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
+                                .addExecutionInterceptor(kmsInterceptor)
                                 .build())
                 .build();
     }
@@ -40,7 +54,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     @Test
     public void TestPutItemGetItem() {
         // Put item into table
-        String partitionValue = "foo";
+        String partitionValue = "get";
         String sortValue = "42";
         String attrValue = "bar";
         String attrValue2 = "hello world";
@@ -51,7 +65,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .item(item)
                 .build();
 
-        PutItemResponse putResponse = ddb.putItem(putRequest);
+        PutItemResponse putResponse = ddbKmsKeyring.putItem(putRequest);
         assertEquals(200, putResponse.sdkHttpResponse().statusCode());
 
         // Get Item back from table
@@ -62,7 +76,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .tableName(TEST_TABLE_NAME)
                 .build();
 
-        GetItemResponse getResponse = ddb.getItem(getRequest);
+        GetItemResponse getResponse = ddbKmsKeyring.getItem(getRequest);
         assertEquals(200, getResponse.sdkHttpResponse().statusCode());
         Map<String, AttributeValue> returnedItem = getResponse.item();
         assertNotNull(returnedItem);
@@ -93,7 +107,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .requestItems(writeRequestItems)
                 .build();
 
-        BatchWriteItemResponse writeResponse = ddb.batchWriteItem(writeRequest);
+        BatchWriteItemResponse writeResponse = ddbKmsKeyring.batchWriteItem(writeRequest);
         assertEquals(200, writeResponse.sdkHttpResponse().statusCode());
         // Technically DDB does not have to process every item,
         // however given we are working with a small set of data
@@ -115,7 +129,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .requestItems(getRequestItems)
                 .build();
 
-        BatchGetItemResponse getResponse = ddb.batchGetItem(getRequest);
+        BatchGetItemResponse getResponse = ddbKmsKeyring.batchGetItem(getRequest);
         assertEquals(200, getResponse.sdkHttpResponse().statusCode());
         // Technically DDB does not have to process every item,
         // however given we are working with a small set of data
@@ -160,7 +174,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                                 .build())
                 .build();
 
-        TransactWriteItemsResponse putResponse = ddb.transactWriteItems(writeRequest);
+        TransactWriteItemsResponse putResponse = ddbKmsKeyring.transactWriteItems(writeRequest);
         assertEquals(200, putResponse.sdkHttpResponse().statusCode());
 
         // Get Item back from table via transactions
@@ -185,7 +199,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 )
                 .build();
 
-        TransactGetItemsResponse getResponse = ddb.transactGetItems(getRequest);
+        TransactGetItemsResponse getResponse = ddbKmsKeyring.transactGetItems(getRequest);
         assertEquals(200, getResponse.sdkHttpResponse().statusCode());
         List<ItemResponse> responses = getResponse.responses();
         assertEquals(2, responses.size());
@@ -213,7 +227,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         BatchWriteItemRequest writeRequest = BatchWriteItemRequest.builder()
                 .requestItems(writeRequestItems)
                 .build();
-        BatchWriteItemResponse writeResponse = ddb.batchWriteItem(writeRequest);
+        BatchWriteItemResponse writeResponse = ddbKmsKeyring.batchWriteItem(writeRequest);
         assertEquals(200, writeResponse.sdkHttpResponse().statusCode());
         assertEquals(0, writeResponse.unprocessedItems().size());
 
@@ -226,7 +240,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .expressionAttributeValues(attrValues)
                 .build();
 
-        ScanResponse scanResponse  = ddb.scan(scanRequest);
+        ScanResponse scanResponse  = ddbKmsKeyring.scan(scanRequest);
         assertEquals(200, scanResponse.sdkHttpResponse().statusCode());
         assertEquals(2, scanResponse.count());
         Map<String, AttributeValue> item = scanResponse.items().get(0);
@@ -253,7 +267,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         BatchWriteItemRequest writeRequest = BatchWriteItemRequest.builder()
                 .requestItems(writeRequestItems)
                 .build();
-        BatchWriteItemResponse writeResponse = ddb.batchWriteItem(writeRequest);
+        BatchWriteItemResponse writeResponse = ddbKmsKeyring.batchWriteItem(writeRequest);
         assertEquals(200, writeResponse.sdkHttpResponse().statusCode());
         assertEquals(0, writeResponse.unprocessedItems().size());
 
@@ -267,12 +281,122 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .expressionAttributeValues(attrValues)
                 .build();
 
-        QueryResponse queryResponse  = ddb.query(queryRequest);
+        QueryResponse queryResponse  = ddbKmsKeyring.query(queryRequest);
         assertEquals(200, queryResponse.sdkHttpResponse().statusCode());
         assertEquals(1, queryResponse.count());
         Map<String, AttributeValue> item = queryResponse.items().get(0);
         assertEquals(partitionValue, item.get(TEST_PARTITION_NAME).s());
         assertEquals(sortValue2, item.get(TEST_SORT_NAME).n());
         assertEquals(attrValue, item.get(TEST_ATTR_NAME).s());
+    }
+
+    @Test
+    public void TestReadLegacyItem() throws GeneralSecurityException {
+        String partitionValue = "legacyRead";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> legacyItem =
+                createLegacyTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        // Set up Legacy DDBEC Encryptor
+        DynamoDBEncryptor legacyEncryptor = createLegacyEncryptor();
+
+        EncryptionContext encryptionContext =
+            new EncryptionContext.Builder()
+                .withTableName(TEST_TABLE_NAME)
+                .withHashKeyName(TEST_PARTITION_NAME)
+                .withRangeKeyName(TEST_SORT_NAME)
+                .build();
+        Map<String, Set<EncryptionFlags>> actions = createLegacyAttributeFlags();
+
+        // Encrypt the plaintext record directly
+        final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> encrypted_record =
+            legacyEncryptor.encryptRecord(legacyItem, actions, encryptionContext);
+        // Put record into ddb directly using SDKv1 Java client
+        AmazonDynamoDB legacyDDB = AmazonDynamoDBClientBuilder.standard().build();
+        legacyDDB.putItem(new com.amazonaws.services.dynamodbv2.model.PutItemRequest(TEST_TABLE_NAME, encrypted_record));
+
+        DynamoDbEncryptionInterceptor interceptor =
+                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT);
+        DynamoDbClient ddbWithLegacy = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        // Read item written by legacy encryptor
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+        GetItemRequest getRequest = GetItemRequest.builder()
+                .key(keyToGet)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+        GetItemResponse getResponse = ddbWithLegacy.getItem(getRequest);
+        assertEquals(200, getResponse.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem = getResponse.item();
+        assertNotNull(returnedItem);
+        assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
+    }
+
+    @Test
+    public void TestWriteLegacyItem() throws GeneralSecurityException {
+        // Put item into table
+        String partitionValue = "legacyWrite";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+        
+        // Set up Legacy DDBEC Encryptor
+        DynamoDBEncryptor legacyEncryptor = createLegacyEncryptor();
+
+        EncryptionContext encryptionContext =
+            new EncryptionContext.Builder()
+                .withTableName(TEST_TABLE_NAME)
+                .withHashKeyName(TEST_PARTITION_NAME)
+                .withRangeKeyName(TEST_SORT_NAME)
+                .build();
+        Map<String, Set<EncryptionFlags>> actions = createLegacyAttributeFlags();
+        
+        // Configure interceptor with legacy behavior
+        DynamoDbEncryptionInterceptor interceptor =
+                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT);
+        DynamoDbClient ddbWithLegacy = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        // Put Item using legacy behavior
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+        PutItemResponse putResponse = ddbWithLegacy.putItem(putRequest);
+        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+
+        // Get record from ddb directly using SDKv1 Java client
+        final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> itemKey = new HashMap<>();
+        itemKey.put(TEST_PARTITION_NAME,
+                new com.amazonaws.services.dynamodbv2.model.AttributeValue().withS(partitionValue));
+        itemKey.put(TEST_SORT_NAME,
+                new com.amazonaws.services.dynamodbv2.model.AttributeValue().withN(sortValue));
+
+        AmazonDynamoDB legacyDDB = AmazonDynamoDBClientBuilder.standard().build();
+        com.amazonaws.services.dynamodbv2.model.GetItemResult getItemResponse = legacyDDB.getItem(
+                new com.amazonaws.services.dynamodbv2.model.GetItemRequest(TEST_TABLE_NAME, itemKey)
+        );
+        
+        // Decrypt the plaintext record directly
+        final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> decryptedRecord =
+            legacyEncryptor.decryptRecord(getItemResponse.getItem(), actions, encryptionContext);
+        assertNotNull(decryptedRecord);
+        assertEquals(partitionValue, decryptedRecord.get(TEST_PARTITION_NAME).getS());
+        assertEquals(sortValue, decryptedRecord.get(TEST_SORT_NAME).getN());
+        assertEquals(attrValue, decryptedRecord.get(TEST_ATTR_NAME).getS());
     }
 }
