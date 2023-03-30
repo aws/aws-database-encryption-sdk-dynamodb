@@ -8,6 +8,7 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_CollectionOfErrors;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_DynamoDbEncryptionException;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_Opaque;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbItemBranchKeyIdSupplier;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Character;

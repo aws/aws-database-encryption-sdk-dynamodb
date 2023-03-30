@@ -5,16 +5,24 @@ CORES=2
 
 include ../SharedMakefile.mk
 
-SMITHY_NAMESPACES := \
-	aws.cryptography.structuredEncryption \
-	aws.cryptography.dynamoDbEncryption \
-	aws.cryptography.dynamoDbEncryption.itemEncryptor \
-	aws.cryptography.dynamoDbEncryption.transforms
+SERVICES := \
+	DynamoDbEncryption \
+	DynamoDbItemEncryptor \
+	DynamoDbEncryptionTransforms \
+	StructuredEncryption
+
+# Namespace for each local service
+# Currently our build relies on local services and namespaces being 1:1
+SERVICE_NAMESPACE_StructuredEncryption=aws.cryptography.structuredEncryption
+SERVICE_NAMESPACE_DynamoDbEncryption=aws.cryptography.dynamoDbEncryption
+SERVICE_NAMESPACE_DynamoDbItemEncryptor=aws.cryptography.dynamoDbEncryption.itemEncryptor
+SERVICE_NAMESPACE_DynamoDbEncryptionTransforms=aws.cryptography.dynamoDbEncryption.transforms
+
 MAX_RESOURCE_COUNT=10000000
 # Order is important
 # In java they MUST be built
 # in the order they depend on each other
-LIBRARIES := \
+PROJECT_DEPENDENCIES := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
@@ -22,49 +30,33 @@ LIBRARIES := \
 STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
 SMITHY_DEPS=submodules/MaterialProviders/model
 
+# Dependencies for each local service
+SERVICE_DEPS_StructuredEncryption := \
+	submodules/MaterialProviders/AwsCryptographyPrimitives/Model \
+	submodules/MaterialProviders/ComAmazonawsKms/Model \
+	submodules/MaterialProviders/ComAmazonawsDynamodb/Model \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model
+SERVICE_DEPS_DynamoDbEncryption := \
+	submodules/MaterialProviders/AwsCryptographyPrimitives/Model \
+	submodules/MaterialProviders/ComAmazonawsKms/Model \
+	submodules/MaterialProviders/ComAmazonawsDynamodb/Model \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model \
+	DynamoDbEncryption/dafny/StructuredEncryption/Model
+SERVICE_DEPS_DynamoDbItemEncryptor := \
+	submodules/MaterialProviders/AwsCryptographyPrimitives/Model \
+	submodules/MaterialProviders/ComAmazonawsKms/Model \
+	submodules/MaterialProviders/ComAmazonawsDynamodb/Model \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model \
+	DynamoDbEncryption/dafny/DynamoDbEncryption/Model \
+	DynamoDbEncryption/dafny/StructuredEncryption/Model
+SERVICE_DEPS_DynamoDbEncryptionTransforms := \
+	submodules/MaterialProviders/AwsCryptographyPrimitives/Model \
+	submodules/MaterialProviders/ComAmazonawsKms/Model \
+	submodules/MaterialProviders/ComAmazonawsDynamodb/Model \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model \
+	DynamoDbEncryption/dafny/DynamoDbEncryption/Model \
+	DynamoDbEncryption/dafny/StructuredEncryption/Model \
+	DynamoDbEncryption/dafny/DynamoDbItemEncryptor/Model
+
 format_net:
 	pushd runtimes/net && dotnet format DynamoDbEncryption.csproj && popd
-
-# Transpiling the entire project can take a while (~10 minutes),
-# So these custom written targets can be used to short-circuit the process
-# and only transpile Dafny code for a specific namespace,
-# e.g. No transpiling other namespaces
-# and no transpiling and deploying dependencies.
-# Note that these targets don't do any sort of 'clean'.
-# If you are adding/renaming files, you should use `make build_java` first,
-# and then can use these targets if you need to re-transpile after making
-# smaller adjustments.
-# TODO Improve/Generalize these targets into the SharedMakefile
-transpile_impl_namespace_%: TARGET=java
-transpile_impl_namespace_%: OUT=runtimes/java/ImplementationFromDafny
-transpile_impl_namespace_%:
-	dafny \
-		-vcsCores:$(CORES) \
-		-compileTarget:$(TARGET) \
-		-spillTargetCode:3 \
-		-compile:0 \
-		-optimizeErasableDatatypeWrapper:0 \
-		-useRuntimeLib \
-		-out $(OUT) \
-		./src/$*/Index.dfy \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES));
-	cp -R runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
-	rm -rf runtimes/java/ImplementationFromDafny-java/
-
-transpile_test_namespace_%: TARGET=java
-transpile_test_namespace_%: OUT=runtimes/java/TestsFromDafny
-transpile_test_namespace_%:
-	dafny \
-		-vcsCores:$(CORES) \
-		-compileTarget:$(TARGET) \
-		-spillTargetCode:3 \
-		-runAllTests:1 \
-		-compile:0 \
-		-optimizeErasableDatatypeWrapper:0 \
-		-useRuntimeLib \
-		-out $(OUT) \
-		`find ./test/$* -name '*.dfy'` \
-		-library:src/Index.dfy;
-	cp -R runtimes/java/TestsFromDafny-java/* runtimes/java/src/test/dafny-generated
-	rm -rf runtimes/java/TestsFromDafny-java
