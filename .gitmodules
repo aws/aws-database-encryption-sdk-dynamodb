@@ -1,3 +1,6 @@
 [submodule "submodules/MaterialProviders"]
 	path = submodules/MaterialProviders
 	url = git@github.com:aws/private-aws-encryption-sdk-dafny-staging.git
+[submodule "submodules/smithy-dafny"]
+	path = submodules/smithy-dafny
+	url = git@github.com:awslabs/smithy-dafny.git
