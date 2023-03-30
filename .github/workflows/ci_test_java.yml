@@ -27,7 +27,6 @@ jobs:
       contents: read
     steps:
       - name: Support longpaths on Git checkout
-        if: os.library == 'windows-latest'
         run: |
           git config --global core.longpaths true
 
