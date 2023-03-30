@@ -26,8 +26,10 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Support longpaths
-        run: git config --system core.longpaths true
+      - name: Support longpaths on Git checkout
+        if: os.library == 'windows-latest'
+        run: |
+          git config --global core.longpaths true
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1

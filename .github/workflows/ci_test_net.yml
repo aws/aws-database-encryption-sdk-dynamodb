@@ -29,8 +29,10 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_NOLOGO: 1
     steps:
-      - name: Support longpaths
-        run: git config --system core.longpaths true
+      - name: Support longpaths on Git checkout
+        if: os.library == 'windows-latest'
+        run: |
+          git config --global core.longpaths true
 
       - uses: actions/checkout@v3
 
