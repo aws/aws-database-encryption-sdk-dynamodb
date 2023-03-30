@@ -34,8 +34,19 @@ Common Makefile targets are:
   You will need to run this the first time you clone this repo, and any time you introduce changes
   that end up adding or removing dafny-generated files.
   - The above command takes awhile to complete.
-    If you want to re-generate dafny code just specific to a service, or tests for a service, use the following:
-    `make transpile_implementation`
+    If you want to re-generate dafny code specific to a service for a service, use the following:
+    `make local_transpile_impl_java_service SERVICE=DynamoDbItemEncryptor`
+    and then `test_java` to build/test those changes.
+    Note that the `transpile_implementation_java_service` target is provided as a convenience,
+    and is not guaranteed to be 100% consistent with output from the regular `build_java` target.
+    The behavior SHOULD NOT be different, although if you are experiencing
+    weird behavior, see if `build_java` resolves the issue.
+    Only use this target for local testing.
+  - `make local_transpile_test_java_service SERVICE=DynamoDbItemEncryptor` may similarly be used similar
+    to above in order to just re-transpile test code specific to a service.
+    However note that this target will clobber all other dafny generated tests from other
+    services.
+    Only use this target for local testing.
 - `make test_java` builds and tests the transpiled code in Java.
 
 ### Development Requirements

@@ -32,31 +32,31 @@ SMITHY_DEPS=submodules/MaterialProviders/model
 
 # Dependencies for each local service
 SERVICE_DEPS_StructuredEncryption := \
-	submodules/MaterialProviders/AwsCryptographyPrimitives/Model \
-	submodules/MaterialProviders/ComAmazonawsKms/Model \
-	submodules/MaterialProviders/ComAmazonawsDynamodb/Model \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders
 SERVICE_DEPS_DynamoDbEncryption := \
-	submodules/MaterialProviders/AwsCryptographyPrimitives/Model \
-	submodules/MaterialProviders/ComAmazonawsKms/Model \
-	submodules/MaterialProviders/ComAmazonawsDynamodb/Model \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model \
-	DynamoDbEncryption/dafny/StructuredEncryption/Model
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	DynamoDbEncryption/dafny/StructuredEncryption
 SERVICE_DEPS_DynamoDbItemEncryptor := \
-	submodules/MaterialProviders/AwsCryptographyPrimitives/Model \
-	submodules/MaterialProviders/ComAmazonawsKms/Model \
-	submodules/MaterialProviders/ComAmazonawsDynamodb/Model \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model \
-	DynamoDbEncryption/dafny/DynamoDbEncryption/Model \
-	DynamoDbEncryption/dafny/StructuredEncryption/Model
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	DynamoDbEncryption/dafny/DynamoDbEncryption \
+	DynamoDbEncryption/dafny/StructuredEncryption
 SERVICE_DEPS_DynamoDbEncryptionTransforms := \
-	submodules/MaterialProviders/AwsCryptographyPrimitives/Model \
-	submodules/MaterialProviders/ComAmazonawsKms/Model \
-	submodules/MaterialProviders/ComAmazonawsDynamodb/Model \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model \
-	DynamoDbEncryption/dafny/DynamoDbEncryption/Model \
-	DynamoDbEncryption/dafny/StructuredEncryption/Model \
-	DynamoDbEncryption/dafny/DynamoDbItemEncryptor/Model
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	DynamoDbEncryption/dafny/DynamoDbEncryption \
+	DynamoDbEncryption/dafny/StructuredEncryption \
+	DynamoDbEncryption/dafny/DynamoDbItemEncryptor
 
 format_net:
 	pushd runtimes/net && dotnet format DynamoDbEncryption.csproj && popd
