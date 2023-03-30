@@ -68,8 +68,7 @@ verify_service:
 		-verificationLogger:csv \
 		-timeLimit:300 \
 		-trace \
-		`find ./src/$(SERVICE) -name '*.dfy'` \
-		`find ./test/$(SERVICE) -name '*.dfy'`
+		`find ./dafny/$(SERVICE) -name '*.dfy'` \
 
 dafny-reportgenerator:
 	dafny-reportgenerator \
@@ -108,8 +107,8 @@ transpile_implementation:
 
 # Target to transpile single local service for convenience.
 # Specify the local service to build by passing a SERVICE env var
-transpile_implementation_single: SERVICES=$(SERVICES)
-transpile_implementation_single: transpile_implementation
+transpile_implementation_service: SERVICES=$(SERVICE)
+transpile_implementation_service: transpile_implementation
 
 transpile_test:
 	dafny \
@@ -126,8 +125,8 @@ transpile_test:
 
 # Target to transpile single local service for convenience.
 # Specify the local service to build by passing a SERVICE env var
-transpile_test_single: SERVICES=$(SERVICES)
-transpile_test_single: transpile_test
+transpile_test_service: SERVICES=$(SERVICE)
+transpile_test_service: transpile_test
 
 transpile_dependencies:
 	$(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) transpile_implementation_$(LANG)
@@ -221,17 +220,17 @@ transpile_implementation_net: TARGET=cs
 transpile_implementation_net: OUT=runtimes/net/ImplementationFromDafny
 transpile_implementation_net: transpile_implementation
 
-transpile_implementation_net_single: TARGET=cs
-transpile_implementation_net_single: OUT=runtimes/net/ImplementationFromDafny
-transpile_implementation_net_single: transpile_implementation_single
+transpile_implementation_net_service: TARGET=cs
+transpile_implementation_net_service: OUT=runtimes/net/ImplementationFromDafny
+transpile_implementation_net_service: transpile_implementation_service
 
 transpile_test_net: TARGET=cs
 transpile_test_net: OUT=runtimes/net/tests/TestsFromDafny
 transpile_test_net: transpile_test
 
-transpile_test_net_single: TARGET=cs
-transpile_test_net_single: OUT=runtimes/net/tests/TestsFromDafny
-transpile_test_net_single: transpile_test_single
+transpile_test_net_service: TARGET=cs
+transpile_test_net_service: OUT=runtimes/net/tests/TestsFromDafny
+transpile_test_net_service: transpile_test_service
 
 transpile_dependencies_net: LANG=net
 transpile_dependencies_net: transpile_dependencies
@@ -265,17 +264,17 @@ transpile_implementation_java: TARGET=java
 transpile_implementation_java: OUT=runtimes/java/ImplementationFromDafny
 transpile_implementation_java: transpile_implementation _mv_implementation_java
 
-transpile_implementation_java_single: TARGET=java
-transpile_implementation_java_single: OUT=runtimes/java/ImplementationFromDafny
-transpile_implementation_java_single: transpile_implementation_single
+transpile_implementation_java_service: TARGET=java
+transpile_implementation_java_service: OUT=runtimes/java/ImplementationFromDafny
+transpile_implementation_java_service: transpile_implementation_service
 
 transpile_test_java: TARGET=java
 transpile_test_java: OUT=runtimes/java/TestsFromDafny
 transpile_test_java: transpile_test _mv_test_java
 
-transpile_test_java_single: TARGET=java
-transpile_test_java_single: OUT=runtimes/java/TestsFromDafny
-transpile_test_java_single: transpile_test_single
+transpile_test_java_service: TARGET=java
+transpile_test_java_service: OUT=runtimes/java/TestsFromDafny
+transpile_test_java_service: transpile_test_service
 
 # Currently Dafny compiles to Java by changing the directory name.
 # Java puts things under a `java` directory.

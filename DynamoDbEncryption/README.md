@@ -2,7 +2,7 @@
 
 ### Code Organization
 
-DynamoDb Encryption is a project containing the following Dafny 'localServices':
+DynamoDb Encryption is a project containing the following Dafny 'localServices' under `dafny`:
 - DynamoDbEncryption: A config-less entry point for shared structures and helper methods related to DDB Encryption.
 - DynamoDbItemEncryptor: A client responsible for the encryption and decryption of DDB Items (sans any DDB API call).
 - DynamoDbEncryptionTransforms: An internal interface responsible for appropriately adding encryption to DDB APIs.
@@ -29,8 +29,13 @@ Within `runtimes/java`:
 Common Makefile targets are:
 
 - `make verify` verifies the whole project.
-  - You can instead specify a single namespace to verify via: `make verify_namespace SMITHY_NAMESPACE=DynamoDbItemEncryptor`
-- `make build_java` transpiles, builds, and tests everything from scratch in Java
+  - You can instead specify a single service to verify via: `make verify_service SERVICE=DynamoDbItemEncryptor`
+- `make build_java` transpiles, builds, and tests everything from scratch in Java.
+  You will need to run this the first time you clone this repo, and any time you introduce changes
+  that end up adding or removing dafny-generated files.
+  - The above command takes awhile to complete.
+    If you want to re-generate dafny code just specific to a service, or tests for a service, use the following:
+    `make transpile_implementation`
 - `make test_java` builds and tests the transpiled code in Java.
 
 ### Development Requirements
