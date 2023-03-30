@@ -6,6 +6,7 @@ include "DdbStatement.dfy"
 
 module ExecuteTransactionTransform {
   import opened DdbMiddlewareConfig
+  import opened DynamoDbMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTransformsTypes

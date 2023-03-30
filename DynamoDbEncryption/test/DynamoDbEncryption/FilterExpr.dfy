@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../src/DynamoDbItemEncryptor/FilterExpr.dfy"
+include "../../src/DynamoDbEncryption/FilterExpr.dfy"
 
 module TestDynamoDBFilterExpr {
   import opened ComAmazonawsDynamodbTypes

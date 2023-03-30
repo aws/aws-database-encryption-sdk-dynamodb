@@ -191,7 +191,6 @@ module
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption,
-      beacons := None,
       internalLegacyConfig := internalLegacyConfig
     );
     assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here

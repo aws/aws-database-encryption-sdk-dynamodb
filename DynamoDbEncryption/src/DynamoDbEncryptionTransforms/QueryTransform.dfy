@@ -1,7 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "DynamoDbMiddlewareSupport.dfy"
+include "DdbMiddlewareConfig.dfy"
+include "../DynamoDbEncryption/DDBSupport.dfy"
 
 module QueryTransform {
   import opened DdbMiddlewareConfig

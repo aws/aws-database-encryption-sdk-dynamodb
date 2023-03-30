@@ -5,36 +5,33 @@
   Support routines for Local and Global Index structures
 */
 
-include "../../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
 include "Util.dfy"
-include "VirtualDDB.dfy"
 include "UpdateExpr.dfy"
 include "FilterExpr.dfy"
 
 module DynamoDBIndexSupport { 
 
   import DDB = ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
+  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDynamoDbEncryptionOperations
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened DynamoDbItemEncryptorUtil
-  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
-  import opened VirtualDDBFields
+  import opened DdbVirtualFields
   import UTF8
   import SortedSets
   import Seq
-  import SE = StructuredEncryptionUtil
   import Update = DynamoDbUpdateExpr
   import SET = AwsCryptographyStructuredEncryptionTypes
   import Filter = DynamoDBFilterExpr
+  import opened DdbMiddlewareConfig
 
   // transform beacon name to plain names
   function method UnbeaconString(s : string) : string
   {
-    if SE.ReservedPrefix <= s then
-      s[|SE.ReservedPrefix|..]
+    if ReservedPrefix <= s then
+      s[|ReservedPrefix|..]
     else
       s
   }
@@ -43,8 +40,8 @@ module DynamoDBIndexSupport {
   function method UnbeaconKeySchemaAttributeName(s : DDB.KeySchemaAttributeName)
     : Result<DDB.KeySchemaAttributeName, string>
   {
-    if SE.ReservedPrefix <= s then
-      var ret := s[|SE.ReservedPrefix|..];
+    if ReservedPrefix <= s then
+      var ret := s[|ReservedPrefix|..];
       if DDB.IsValid_KeySchemaAttributeName(ret) then
         Success(ret)
       else
@@ -62,20 +59,20 @@ module DynamoDBIndexSupport {
   }
 
   // transform beacon names to plain names in KeySchema
-  function method UnbeaconKeySchema(config : ValidConfig, schema : DDB.KeySchema)
+  function method UnbeaconKeySchema(config : ValidTableConfig, schema : DDB.KeySchema)
     : Result<DDB.KeySchema, string>
   {
     Seq.MapWithResult((k : DDB.KeySchemaElement) => UnbeaconKeySchemaElement(k), schema)
   }
 
   // transform beacon names to plain names in Projection
-  function method UnbeaconProjection(config : ValidConfig, projection : DDB.Projection)
+  function method UnbeaconProjection(config : ValidTableConfig, projection : DDB.Projection)
     : Result<DDB.Projection, string>
   {
     if projection.NonKeyAttributes.None? then
       Success(projection)
     else
-      var newAttributes := Seq.Filter((k : DDB.NonKeyAttributeName) => !(SE.ReservedPrefix <= k), projection.NonKeyAttributes.value);
+      var newAttributes := Seq.Filter((k : DDB.NonKeyAttributeName) => !(ReservedPrefix <= k), projection.NonKeyAttributes.value);
       if DDB.IsValid_NonKeyAttributeNameList(newAttributes) then
         Success(projection.(NonKeyAttributes := Some(newAttributes)))
       else
@@ -83,7 +80,7 @@ module DynamoDBIndexSupport {
   }
 
   // transform beacon names to plain names in Global Index Description
-  function method TransformOneLocalIndexDescription(config : ValidConfig, index : DDB.LocalSecondaryIndexDescription)
+  function method TransformOneLocalIndexDescription(config : ValidTableConfig, index : DDB.LocalSecondaryIndexDescription)
     : Result<DDB.LocalSecondaryIndexDescription, string>
   {
     if index.KeySchema.None? then
@@ -94,7 +91,7 @@ module DynamoDBIndexSupport {
   }
 
   // transform beacon names to plain names in Global Index Description
-  function method TransformOneGlobalIndexDescription(config : ValidConfig, index : DDB.GlobalSecondaryIndexDescription)
+  function method TransformOneGlobalIndexDescription(config : ValidTableConfig, index : DDB.GlobalSecondaryIndexDescription)
     : Result<DDB.GlobalSecondaryIndexDescription, string>
   {
     var newKeySchema :-
@@ -115,7 +112,7 @@ module DynamoDBIndexSupport {
   }
 
   // transform beacon names to plain names in Local Index Descriptions
-  function method TransformLocalIndexDescription(config : ValidConfig, req : Option<DDB.LocalSecondaryIndexDescriptionList>)
+  function method TransformLocalIndexDescription(config : ValidTableConfig, req : Option<DDB.LocalSecondaryIndexDescriptionList>)
     : Result<Option<DDB.LocalSecondaryIndexDescriptionList>, string>
   {
     if req.None? then
@@ -126,7 +123,7 @@ module DynamoDBIndexSupport {
   }
 
   // transform beacon names to plain names in Global Index Descriptions
-  function method TransformGlobalIndexDescription(config : ValidConfig, req : Option<DDB.GlobalSecondaryIndexDescriptionList>)
+  function method TransformGlobalIndexDescription(config : ValidTableConfig, req : Option<DDB.GlobalSecondaryIndexDescriptionList>)
     : Result<Option<DDB.GlobalSecondaryIndexDescriptionList>, string>
   {
     if req.None? then
@@ -136,22 +133,22 @@ module DynamoDBIndexSupport {
       Success(Some(nList))
   }
 
-  predicate method IsBeacon(config : ValidConfig, name : string)
+  predicate method IsBeacon(config : ValidTableConfig, name : string)
   {
-    if config.beacons.None? then
+    if config.search.None? then
       false
     else
-      config.beacons.value.IsBeacon(name)
+      config.search.value.IsBeacon(name)
   }
 
   // make beacon name from attribute name
-  function method MakeBeaconName(config : ValidConfig, name : string) : string
+  function method MakeBeaconName(config : ValidTableConfig, name : string) : string
   {
     BeaconPrefix + name
   }
 
   // make beacon name from attribute name, fail if it's not a valid Key Schema Attribute Name
-  function method MakeKeySchemaBeaconName(config : ValidConfig, name : string)
+  function method MakeKeySchemaBeaconName(config : ValidTableConfig, name : string)
     : Result<DDB.KeySchemaAttributeName, string>
   {
     var newName := MakeBeaconName(config, name);
@@ -162,7 +159,7 @@ module DynamoDBIndexSupport {
   }
 
   // make beacon name from attribute name, fail if it's not a valid Non Key Attribute Name
-  function method MakeNonKeyBeaconName(config : ValidConfig, name : string)
+  function method MakeNonKeyBeaconName(config : ValidTableConfig, name : string)
     : Result<DDB.NonKeyAttributeName, string>
   {
     var newName := MakeBeaconName(config, name);
@@ -189,9 +186,21 @@ module DynamoDBIndexSupport {
       [attrs[0]] + ReplaceAttrDef(attrs[1..], oldName, newName)
   }
 
+  predicate method IsEncrypted(config : ValidTableConfig, attr : string)
+  {
+    && attr in config.itemEncryptor.config.attributeActions
+    && config.itemEncryptor.config.attributeActions[attr] == SET.ENCRYPT_AND_SIGN
+  }
+
+  predicate method IsSigned(config : ValidTableConfig, attr : string)
+  {
+    && attr in config.itemEncryptor.config.attributeActions
+    && config.itemEncryptor.config.attributeActions[attr] != SET.DO_NOTHING
+  }
+
   // transform KeySchemaElement for searchable encryption, changing AttributeDefinitions as needed
   function method AddBeaconsToKeySchemaElement(
-    config : ValidConfig,
+    config : ValidTableConfig,
     element : DDB.KeySchemaElement,
     attrs : DDB.AttributeDefinitions
   )
@@ -209,14 +218,14 @@ module DynamoDBIndexSupport {
 
   // transform Projection for searchable encryption
   // for any beacon in the Projection, add the beacon name plus any attributes used to construct the beacon
-  function method AddBeaconsToProjection(config : ValidConfig, proj : DDB.Projection)
+  function method AddBeaconsToProjection(config : ValidTableConfig, proj : DDB.Projection)
     : Result<DDB.Projection, string>
-    requires config.beacons.Some?
+    requires config.search.Some?
   {
     if proj.NonKeyAttributes.None? then
       Success(proj)
     else
-      var newAttributes := config.beacons.value.GenerateClosure(proj.NonKeyAttributes.value);
+      var newAttributes := config.search.value.GenerateClosure(proj.NonKeyAttributes.value);
       if (forall a <- newAttributes :: DDB.IsValid_NonKeyAttributeName(a)) && DDB.IsValid_NonKeyAttributeNameList(newAttributes) then
        Success(proj.(NonKeyAttributes := Some(newAttributes)))
       else
@@ -225,12 +234,12 @@ module DynamoDBIndexSupport {
 
   // transform CreateGlobalSecondaryIndexAction for searchable encryption, changing AttributeDefinitions as needed
   function method TransformCreateGSIAction(
-    config : ValidConfig,
+    config : ValidTableConfig,
     index : DDB.CreateGlobalSecondaryIndexAction,
     attrs : DDB.AttributeDefinitions
   )
     : Result<(DDB.CreateGlobalSecondaryIndexAction, DDB.AttributeDefinitions), string>
-    requires config.beacons.Some?
+    requires config.search.Some?
   {
     var (newKeySchema, attrs) :- AddBeaconsToKeySchema(config, index.KeySchema, attrs);
     var newProjection :- AddBeaconsToProjection(config, index.Projection);
@@ -239,12 +248,12 @@ module DynamoDBIndexSupport {
 
   // transform GSI Updates for searchable encryption, changing AttributeDefinitions as needed
   function method TransformGlobalSecondaryIndexUpdate(
-    config : ValidConfig,
+    config : ValidTableConfig,
     index : DDB.GlobalSecondaryIndexUpdate,
     attrs : DDB.AttributeDefinitions
   )
     : Result<(DDB.GlobalSecondaryIndexUpdate, DDB.AttributeDefinitions), string>
-    requires config.beacons.Some?
+    requires config.search.Some?
   {
     if index.Create.None? then
       Success((index, attrs))
@@ -255,13 +264,13 @@ module DynamoDBIndexSupport {
 
   // transform IndexUpdates for searchable encryption, changing AttributeDefinitions as needed
   function method {:tailrecursion} TransformIndexUpdates(
-    config : ValidConfig,
+    config : ValidTableConfig,
     indexes : DDB.GlobalSecondaryIndexUpdateList,
     attrs : DDB.AttributeDefinitions,
     acc : DDB.GlobalSecondaryIndexUpdateList := []
   )
     : Result<(DDB.GlobalSecondaryIndexUpdateList, DDB.AttributeDefinitions), string>
-    requires config.beacons.Some?
+    requires config.search.Some?
   {
     if |indexes| == 0 then
       Success((acc, attrs))
@@ -272,7 +281,7 @@ module DynamoDBIndexSupport {
 
   // transform KeySchema for searchable encryption, changing AttributeDefinitions as needed
   function method {:tailrecursion} AddBeaconsToKeySchema(
-    config : ValidConfig,
+    config : ValidTableConfig,
     schema : seq<DDB.KeySchemaElement>,
     attrs : DDB.AttributeDefinitions,
     acc : seq<DDB.KeySchemaElement> := [],
@@ -292,12 +301,12 @@ module DynamoDBIndexSupport {
 
   // transform LSI for searchable encryption, changing AttributeDefinitions as needed
   function method TransformOneLsi(
-    config : ValidConfig,
+    config : ValidTableConfig,
     index : DDB.LocalSecondaryIndex,
     attrs : DDB.AttributeDefinitions
   )
     : Result<(DDB.LocalSecondaryIndex, DDB.AttributeDefinitions), string>
-    requires config.beacons.Some?
+    requires config.search.Some?
   {
     var (newSchema, newAttrs) :- AddBeaconsToKeySchema(config, index.KeySchema, attrs);
     var newProjection :- AddBeaconsToProjection(config, index.Projection);
@@ -306,12 +315,12 @@ module DynamoDBIndexSupport {
 
   // transform GSI for searchable encryption, changing AttributeDefinitions as needed
   function method TransformOneGsi(
-    config : ValidConfig,
+    config : ValidTableConfig,
     index : DDB.GlobalSecondaryIndex,
     attrs : DDB.AttributeDefinitions
   )
     : Result<(DDB.GlobalSecondaryIndex, DDB.AttributeDefinitions), string>
-    requires config.beacons.Some?
+    requires config.search.Some?
   {
     var (newSchema, newAttrs) :- AddBeaconsToKeySchema(config, index.KeySchema, attrs);
     var newProjection :- AddBeaconsToProjection(config, index.Projection);
@@ -320,13 +329,13 @@ module DynamoDBIndexSupport {
 
   // transform LSIs for searchable encryption, changing AttributeDefinitions as needed
   function method LsiWithAttrs(
-    config : ValidConfig,
+    config : ValidTableConfig,
     indexes : DDB.LocalSecondaryIndexList,
     attrs : DDB.AttributeDefinitions,
     acc : DDB.LocalSecondaryIndexList := []
   )
     : Result<(DDB.LocalSecondaryIndexList, DDB.AttributeDefinitions), string>
-    requires config.beacons.Some?
+    requires config.search.Some?
   {
     if |indexes| == 0 then
       Success((acc, attrs))
@@ -337,13 +346,13 @@ module DynamoDBIndexSupport {
 
   // transform GSIs for searchable encryption, changing AttributeDefinitions as needed
   function method GsiWithAttrs(
-    config : ValidConfig,
+    config : ValidTableConfig,
     indexes : DDB.GlobalSecondaryIndexList,
     attrs : DDB.AttributeDefinitions,
     acc : DDB.GlobalSecondaryIndexList := []
   )
     : Result<(DDB.GlobalSecondaryIndexList, DDB.AttributeDefinitions), string>
-    requires config.beacons.Some?
+    requires config.search.Some?
   {
     if |indexes| == 0 then
       Success((acc, attrs))
