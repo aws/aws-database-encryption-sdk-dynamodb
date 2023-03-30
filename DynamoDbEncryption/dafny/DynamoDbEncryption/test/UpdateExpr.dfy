@@ -1,11 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/test/UpdateExpr.dfy
-include "../../src/DynamoDbEncryption/UpdateExpr.dfy"
-========
-include "../src/UpdateExpr.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/DynamoDbItemEncryptor/test/UpdateExpr.dfy
+include "../../DynamoDbEncryption/src/UpdateExpr.dfy"
 
 module TestUpdateExpr {
 

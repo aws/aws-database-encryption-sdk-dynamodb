@@ -12,15 +12,11 @@ Parse a DynamoDB FilterExpression, ConditionExpression or KeyConditionExpression
 */
 
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/FilterExpr.dfy
 include "Util.dfy"
-include "../../../submodules/MaterialProviders/StandardLibrary/src/FloatCompare.dfy"
-========
-include "../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
-include "../../StructuredEncryption/src/SearchInfo.dfy"
+include "SearchInfo.dfy"
+include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
+include "AwsCryptographyDynamoDbEncryptionOperations.dfy"
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/FloatCompare.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/FilterExpr.dfy
 
 module DynamoDBFilterExpr {
   import opened UTF8

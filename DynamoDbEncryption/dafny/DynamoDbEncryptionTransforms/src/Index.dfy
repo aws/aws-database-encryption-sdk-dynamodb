@@ -3,7 +3,7 @@
 
 include "DdbMiddlewareConfig.dfy"
 include "AwsCryptographyDynamoDbEncryptionTransformsOperations.dfy"
-include "../DynamoDbEncryption/ConfigToInfo.dfy"
+include "../../DynamoDbEncryption/src/ConfigToInfo.dfy"
 
 module
   {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms" }

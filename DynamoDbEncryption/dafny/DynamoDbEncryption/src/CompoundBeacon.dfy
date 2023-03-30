@@ -11,11 +11,6 @@
   - isValid : is the Beacon internally consistent?
 */
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/CompoundBeacon.dfy
-========
-
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/StructuredEncryption/src/CompoundBeacon.dfy
 include "Util.dfy"
 include "Beacon.dfy"
 

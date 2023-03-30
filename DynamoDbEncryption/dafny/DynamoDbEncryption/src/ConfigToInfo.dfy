@@ -6,25 +6,15 @@
 
   The only entry point of interest is 
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/ConfigToInfo.dfy
-  Convert(outer : DynamoDbTableEncryptionConfig, config : Option<AwsCryptographyDynamoDbEncryptionTransformsTypes.SearchConfig>)
-========
   Convert(outer : DynamoDbItemEncryptorConfig, config : Option<AwsCryptographyDynamoDbEncryptionTypes.SearchConfig>)
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/ConfigToInfo.dfy
     : Option<SearchableEncryptionInfo.SearchInfo>
   
   e.g. client.info :- Convert(config, config.beacons)
 */
 
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/ConfigToInfo.dfy
+include "../../DynamoDbEncryption/src/SearchInfo.dfy"
 include "Util.dfy"
-include "SearchInfo.dfy"
-========
-include "../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "../../StructuredEncryption/src/SearchInfo.dfy"
-include "Util.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/ConfigToInfo.dfy
 
 module SearchConfigToInfo {
   import opened AwsCryptographyDynamoDbEncryptionTypes

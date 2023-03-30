@@ -3,7 +3,7 @@
 include "../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
 include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/CMMs/ExpectedEncryptionContextCMM.dfy"
 include "../../DynamoDbEncryption/src/DynamoToStruct.dfy"
-include "../../StructuredEncryption/src/SearchInfo.dfy"
+include "../../DynamoDbEncryption/src/SearchInfo.dfy"
 include "Util.dfy"
 include "InternalLegacyConfig.dfy"
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "DdbMiddlewareConfig.dfy"
-include "../DynamoDbEncryption/DDBSupport.dfy"
+include "../../DynamoDbEncryption/src/DDBSupport.dfy"
 
 module QueryTransform {
   import opened DdbMiddlewareConfig

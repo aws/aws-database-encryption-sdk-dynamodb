@@ -7,7 +7,7 @@
 */
 
 include "DdbMiddlewareConfig.dfy"
-include "../../DynamoDbItemEncryptor/src/DDBSupport.dfy"
+include "../../DynamoDbEncryption/src/DDBSupport.dfy"
 
 module DynamoDbMiddlewareSupport { 
 

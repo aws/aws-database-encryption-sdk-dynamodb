@@ -1,11 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/test/FilterExpr.dfy
-include "../../src/DynamoDbEncryption/FilterExpr.dfy"
-========
 include "../src/FilterExpr.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/DynamoDbItemEncryptor/test/FilterExpr.dfy
 
 module TestDynamoDBFilterExpr {
   import opened ComAmazonawsDynamodbTypes

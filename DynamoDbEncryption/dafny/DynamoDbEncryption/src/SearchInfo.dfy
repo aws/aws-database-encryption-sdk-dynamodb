@@ -1,11 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/SearchInfo.dfy
 include "Util.dfy"
-========
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/StructuredEncryption/src/SearchInfo.dfy
+include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 include "Beacon.dfy"
 include "CompoundBeacon.dfy"
 include "Virtual.dfy"

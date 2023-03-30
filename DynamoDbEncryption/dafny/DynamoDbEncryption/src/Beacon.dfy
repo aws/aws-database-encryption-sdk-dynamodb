@@ -1,13 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/Beacon.dfy
-========
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/StructuredEncryption/src/Beacon.dfy
 include "Util.dfy"
 include "Virtual.dfy"
-include "../../../submodules/MaterialProviders/StandardLibrary/src/HexStrings.dfy"
+include "../../../../submodules/MaterialProviders/StandardLibrary/src/HexStrings.dfy"
 
 module BaseBeacon {
   import opened Wrappers

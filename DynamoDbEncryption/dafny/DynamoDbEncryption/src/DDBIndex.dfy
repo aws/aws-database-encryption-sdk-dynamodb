@@ -5,11 +5,6 @@
   Support routines for Local and Global Index structures
 */
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/DDBIndex.dfy
-========
-include "../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/DDBIndex.dfy
 include "Util.dfy"
 include "UpdateExpr.dfy"
 include "FilterExpr.dfy"

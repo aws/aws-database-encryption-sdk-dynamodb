@@ -1,13 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/test/Beacon.dfy
-include "../../src/DynamoDbEncryption/Beacon.dfy"
-include "../../src/DynamoDbEncryption/CompoundBeacon.dfy"
-========
-include "../../StructuredEncryption/src/Beacon.dfy"
-include "../../StructuredEncryption/src/CompoundBeacon.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/StructuredEncryption/test/Beacon.dfy
+include "../../DynamoDbEncryption/src/Beacon.dfy"
+include "../../DynamoDbEncryption/src/CompoundBeacon.dfy"
 
 module TestBaseBeacon {
   import opened BaseBeacon

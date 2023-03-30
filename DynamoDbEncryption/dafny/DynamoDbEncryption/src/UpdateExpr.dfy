@@ -1,11 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/UpdateExpr.dfy
 include "Util.dfy"
-========
-include "../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/UpdateExpr.dfy
+include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
 
 module DynamoDbUpdateExpr {
   import opened Wrappers

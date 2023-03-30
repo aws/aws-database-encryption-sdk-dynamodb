@@ -8,11 +8,6 @@
   TODO - specify and implement these functions
 */
 
-<<<<<<<< HEAD:DynamoDbEncryption/dafny/DynamoDbEncryption/src/DDBSupport.dfy
-========
-include "../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
->>>>>>>> 9f84138 (refactor: Refactor danfy local service dir structure):DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/DDBSupport.dfy
 include "Util.dfy"
 include "UpdateExpr.dfy"
 include "FilterExpr.dfy"
