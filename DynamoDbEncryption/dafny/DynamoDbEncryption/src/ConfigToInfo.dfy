@@ -6,7 +6,7 @@
 
   The only entry point of interest is 
 
-  Convert(outer : DynamoDbItemEncryptorConfig, config : Option<AwsCryptographyDynamoDbEncryptionTypes.SearchConfig>)
+  Convert(outer : DynamoDbTableEncryptionConfig, config : Option<AwsCryptographyDynamoDbEncryptionTypes.SearchConfig>)
     : Option<SearchableEncryptionInfo.SearchInfo>
   
   e.g. client.info :- Convert(config, config.beacons)
