@@ -51,7 +51,7 @@ module SearchConfigToInfo {
   }
   
   // TODO : Placeholder
-  function method GetPersistentKey(keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
+  function method GetPersistentKey(keyring: BeaconKey)
     : Result<Bytes, Error>
   {
     Success([1,2,3,4,5])
@@ -89,7 +89,7 @@ module SearchConfigToInfo {
 
     var configVirtualFields: Option<VirtualFieldList> := None;
     var virtualFields :- ConvertVirtualFields(outer, configVirtualFields);
-    var key :- GetPersistentKey(config.keyring);
+    var key :- GetPersistentKey(config.key);
     var beacons :- ConvertBeacons(outer, key, primitives, virtualFields, config.standardBeacons, config.compoundBeacons);
     return Success(I.BeaconVersion(
       version := config.version as I.VersionNumber,
