@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "Util.dfy"
-include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 include "Beacon.dfy"
 include "CompoundBeacon.dfy"
 include "Virtual.dfy"
@@ -102,6 +101,14 @@ module SearchableEncryptionInfo {
       else
         cmp.GetFields()
     }
+    function method GetBeaconValue(value : DDB.AttributeValue) : Result<DDB.AttributeValue, Error>
+    {
+      if Standard? then
+        std.GetBeaconValue(value)
+      else
+        cmp.GetBeaconValue(value)
+    }
+
   }
 
   type BeaconMap = map<string, Beacon>
@@ -149,6 +156,13 @@ module SearchableEncryptionInfo {
       var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
       GenerateBeacons2(beaconNames, item)
     }
+
+    function method GenerateBeacon(name : string, item : DDB.AttributeMap) : Result<DDB.AttributeValue, Error>
+      requires name in beacons
+    {
+      beacons[name].attrHash(item, virtualFields)
+    }
+
     function method GenerateBeacons2(
       names : seq<string>,
       item : DDB.AttributeMap,
@@ -160,7 +174,7 @@ module SearchableEncryptionInfo {
       if |names| == 0 then
         Success(acc)
       else
-        var value :- beacons[names[0]].attrHash(item, virtualFields);
+        var value :- GenerateBeacon(names[0], item);
         GenerateBeacons2(names[1..], item, acc[beacons[names[0]].getBeaconName() := value])
     }
   }

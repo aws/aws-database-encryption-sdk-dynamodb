@@ -5,11 +5,13 @@
   Support routines for Local and Global Index structures
 */
 
+include "Index.dfy"
 include "Util.dfy"
 include "UpdateExpr.dfy"
 include "FilterExpr.dfy"
+include "../../DynamoDbEncryptionTransforms/src/DdbMiddlewareConfig.dfy"
 
-module DynamoDBIndexSupport { 
+module DynamoDBIndexSupport {
 
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDynamoDbEncryptionTypes

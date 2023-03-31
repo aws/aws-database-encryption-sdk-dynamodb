@@ -81,6 +81,28 @@ module CompoundBeacon {
       Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(), parts))
     }
 
+    function method FindAndCalcPart(value : string) : Result<string, Error>
+    {
+      var part := Seq.Filter((b : BeaconPart) => b.prefix <= value, parts);
+      if |part| == 0 then
+        Failure(E("Value " + value + " for beacon " + base.name + " does not match the prefix of any configured part."))
+      else if 1 < |part| then
+        Failure(E("Internal error. Value " + value + " for beacon " + base.name + " somehow matched multiple prefixes."))
+      else
+        PartValueCalc(value, part[0].prefix, part[0].length)
+    }
+
+    function method GetBeaconValue(value : DDB.AttributeValue) : Result<DDB.AttributeValue, Error>
+    {
+      if !value.S? then
+        Failure(E("CompoundBeacon " + base.name + " can only be queried as a string, not as " + AttrTypeToStr(value)))
+      else
+        var parts := Split(value.S, split);
+        var beaconParts :- Seq.MapWithResult(s => FindAndCalcPart(s), parts);
+        var result := Join(beaconParts, [split]);
+        Success(DDB.AttributeValue.S(result))
+    }
+
     function method {:opaque} {:tailrecursion} TryConstructor(
       consFields : seq<ConstructorPart>,
       item : DDB.AttributeMap,

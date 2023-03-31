@@ -3,7 +3,7 @@
 
 include "Util.dfy"
 include "Virtual.dfy"
-include "../../../../submodules/MaterialProviders/StandardLibrary/src/HexStrings.dfy"
+include "DynamoToStruct.dfy"
 
 module BaseBeacon {
   import opened Wrappers
@@ -14,6 +14,7 @@ module BaseBeacon {
   import opened HexStrings
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
+  import DynamoToStruct
 
   import DDB = ComAmazonawsDynamodbTypes
   import Prim = AwsCryptographyPrimitivesTypes
@@ -148,23 +149,19 @@ module BaseBeacon {
       var bytes :- VirtToBytes(loc, item, vf);
       hash(bytes)
     }
-    
-/*
-    function method {:opaque} getHash(byteify : Byteify)
-      : (ret : Result<string, Error>)
-      ensures ret.Success? ==>
-        && |ret.value| > 0
-    {
-      var bytes :- byteify(loc).MapFailure(e => E(e));
-      hash(bytes)
-    }
-*/
+
     // TODO virtual fields
     function method GetFields() : seq<string>
     {
       [loc[0].key]
     }
 
+    function method GetBeaconValue(value : DDB.AttributeValue) : Result<DDB.AttributeValue, Error>
+    {
+      var bytes :- DynamoToStruct.TopLevelAttributeToBytes(value).MapFailure(e => E(e));
+      var h :- hash(bytes);
+      Success(DDB.AttributeValue.S(h))
+    }
 
     //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
     //= type=implication

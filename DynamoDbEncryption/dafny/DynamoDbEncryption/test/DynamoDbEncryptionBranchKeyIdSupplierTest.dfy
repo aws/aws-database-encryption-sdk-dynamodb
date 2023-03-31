@@ -4,7 +4,6 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/StandardLi
 include "../../DynamoDbEncryption/src/Index.dfy"
 include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/Model/AwsCryptographyMaterialProvidersTypes.dfy"
-include "TestFixtures.dfy"
 
 module DynamoDbEncryptionBranchKeyIdSupplierTest {
   import opened Wrappers
@@ -16,7 +15,6 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   import KMS = Com.Amazonaws.Kms
   import DDB = Com.Amazonaws.Dynamodb
   import UTF8
-  import TestFixtures
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
   import Base64
