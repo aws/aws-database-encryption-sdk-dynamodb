@@ -3,6 +3,8 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
+import java.util.Objects;
+
 public class BeaconKey {
   private final String keyArn;
 
@@ -96,6 +98,15 @@ public class BeaconKey {
     }
 
     public BeaconKey build() {
+      if (Objects.isNull(this.keyArn()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyArn`");
+      }
+      if (Objects.isNull(this.tableArn()))  {
+        throw new IllegalArgumentException("Missing value for required field `tableArn`");
+      }
+      if (Objects.isNull(this.branchKeyID()))  {
+        throw new IllegalArgumentException("Missing value for required field `branchKeyID`");
+      }
       return new BeaconKey(this);
     }
   }

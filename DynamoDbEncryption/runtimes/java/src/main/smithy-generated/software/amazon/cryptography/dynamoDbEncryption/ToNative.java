@@ -279,15 +279,9 @@ public class ToNative {
   public static BeaconKey BeaconKey(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.BeaconKey dafnyValue) {
     BeaconKey.Builder nativeBuilder = BeaconKey.builder();
-    if (dafnyValue.dtor_keyArn().is_Some()) {
-      nativeBuilder.keyArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyArn().dtor_value()));
-    }
-    if (dafnyValue.dtor_tableArn().is_Some()) {
-      nativeBuilder.tableArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableArn().dtor_value()));
-    }
-    if (dafnyValue.dtor_branchKeyID().is_Some()) {
-      nativeBuilder.branchKeyID(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyID().dtor_value()));
-    }
+    nativeBuilder.keyArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyArn()));
+    nativeBuilder.tableArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableArn()));
+    nativeBuilder.branchKeyID(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyID()));
     return nativeBuilder.build();
   }
 

@@ -311,8 +311,11 @@ structure CompoundBeacon {
 }
 
 structure BeaconKey {
+  @required
   keyArn : String,
+  @required
   tableArn : String,
+  @required
   branchKeyID : String
 }
 

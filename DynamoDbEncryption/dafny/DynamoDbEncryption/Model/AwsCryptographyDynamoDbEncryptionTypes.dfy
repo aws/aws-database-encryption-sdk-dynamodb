@@ -26,9 +26,9 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ( 1 <= x <= 63 )
 }
  datatype BeaconKey = | BeaconKey (
- nameonly keyArn: Option<string> ,
- nameonly tableArn: Option<string> ,
- nameonly branchKeyID: Option<string>
+ nameonly keyArn: string ,
+ nameonly tableArn: string ,
+ nameonly branchKeyID: string
  )
  datatype BeaconVersion = | BeaconVersion (
  nameonly version: VersionNumber ,

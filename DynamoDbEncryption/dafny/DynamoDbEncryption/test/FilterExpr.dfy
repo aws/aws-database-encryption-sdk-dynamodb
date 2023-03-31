@@ -3,14 +3,17 @@
 
 include "../src/FilterExpr.dfy"
 include "BeaconTestFixtures.dfy"
+include "../src/ConfigToInfo.dfy"
 
 module TestDynamoDBFilterExpr {
+  import opened AwsCryptographyDynamoDbEncryptionTypes
   import opened ComAmazonawsDynamodbTypes
   import opened DynamoDBFilterExpr
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened BeaconTestFixtures
+  import opened SearchConfigToInfo
 
   method expect_equal<T(==)>(a: T, b: T)
     ensures a == b
@@ -89,7 +92,20 @@ module TestDynamoDBFilterExpr {
       ]),
       names := None
     );
-    var newContext :- expect Beaconize(EmptyBeacons, context);
+    var outer := DynamoDbTableEncryptionConfig (
+      partitionKeyName := "foo",
+      sortKeyName := None,
+      search := None,
+      attributeActions := map["std2" := SE.ENCRYPT_AND_SIGN],
+      allowedUnauthenticatedAttributes := None,
+      allowedUnauthenticatedAttributePrefix := None,
+      algorithmSuiteId := None,
+      keyring := None,
+      cmm := None,
+      legacyConfig := None
+    );
+    var beaconVersion :- expect ConvertVersionWithKey(outer, EmptyBeacons, [1,2,3,4,5]);
+    var newContext :- expect Beaconize(beaconVersion, context);
     expect newContext == context;
   }
 }

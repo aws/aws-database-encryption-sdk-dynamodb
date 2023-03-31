@@ -65,14 +65,15 @@ module SearchConfigToInfo {
     ensures client.ValidState()
   {
     var info :- UTF8.Encode("AWS_DBE_SCAN_BEACON" + name).MapFailure(e => E(e));
-    var foo := client.Hkdf(Prim.HkdfInput(
+    var keyR := client.Hkdf(Prim.HkdfInput(
       digestAlgorithm := Prim.SHA_512,
       salt := None,
       ikm := key,
       info := info,
       expectedLength := 64
     ));
-    return Failure(E(""));
+    var key :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
+    return Success(key);
   }
 
   // convert configured BeaconVersion to internal BeaconVersion
@@ -83,13 +84,18 @@ module SearchConfigToInfo {
     :- Need((config.standardBeacons.Some? && 0 < |config.standardBeacons.value|)
          && (config.compoundBeacons.Some? && 0 < |config.compoundBeacons.value|),
          E("At least one beacon must be configured."));
-    var maybePrimitives := Primitives.AtomicPrimitives();
-    // TODO var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
-    var primitives :- maybePrimitives.MapFailure(e => E("Bad primitives construction"));
-
-    var configVirtualFields: Option<VirtualFieldList> := None;
-    var virtualFields :- ConvertVirtualFields(outer, configVirtualFields);
     var key :- GetPersistentKey(config.key);
+    output := ConvertVersionWithKey(outer, config, key);
+  }
+
+  // convert configured BeaconVersion to internal BeaconVersion
+  method ConvertVersionWithKey(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion, key : Bytes)
+    returns (output : Result<I.BeaconVersion, Error>)
+  {
+    var maybePrimitives := Primitives.AtomicPrimitives();
+    var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
+
+    var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
     var beacons :- ConvertBeacons(outer, key, primitives, virtualFields, config.standardBeacons, config.compoundBeacons);
     return Success(I.BeaconVersion(
       version := config.version as I.VersionNumber,
@@ -121,47 +127,46 @@ module SearchConfigToInfo {
   {
     && var name := loc[0].key;
     && name in outer.attributeActions
-    && outer.attributeActions[name] != SE.DO_NOTHING
+    && outer.attributeActions[name] == SE.ENCRYPT_AND_SIGN
   }
 
   // is this terminal location encrypted, OR does it refer to an encrypted virtual field
   predicate method IsEncryptedV(outer : DynamoDbTableEncryptionConfig, virtualFields : V.VirtualFieldMap, loc : TermLoc)
   {
-    var name := loc[0].key;
-    if name in outer.attributeActions then
-      outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN
-    else if name in virtualFields then
-      var vf := virtualFields[name];
-      // A virtual field is encrypted if any part is encrypted
-      vf.examine((t : TermLoc) => IsEncrypted(outer, t))
-    else
-      false
+    || IsEncrypted(outer, loc)
+    || (loc[0].key in virtualFields && virtualFields[loc[0].key].examine((t : TermLoc) => IsEncrypted(outer, t)))
   }
-
 
   // does this name already exists as a configured attribute, or virtual field
-  function method CheckExists2(outer : DynamoDbTableEncryptionConfig, virtualFields : V.VirtualFieldMap, name : string, context : string)
+  function method BeaconNameAllowed(outer : DynamoDbTableEncryptionConfig, virtualFields : V.VirtualFieldMap, name : string, context : string)
     : Result<bool, Error>
   {
-    var _ :- CheckExists(outer, name, context);
     if name in virtualFields then
       Failure(E(name + " not allowed as a " + context + " because it already exists as a virtual field."))
-    else
-      Success(true)
-  }
-
-  // does this name already exists as a configured attribute
-  function method CheckExists(outer : DynamoDbTableEncryptionConfig, name : string, context : string)
-    : Result<bool, Error>
-  {
-    if name in outer.attributeActions then
-      Failure(E(name + " not allowed as a " + context + " because it is already a configured attribute."))
+    else if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
+      Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
     else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
       Failure(E(name + " not allowed as a " + context + " because it is already an allowed unauthenticated attribute."))
     else if outer.allowedUnauthenticatedAttributePrefix.Some? && outer.allowedUnauthenticatedAttributePrefix.value <= name then
       Failure(E(name + " not allowed as a " + context + " because it begins with the allowed unauthenticated prefix."))
     else if ReservedPrefix <= name then
       Failure(E(name + " not allowed as a " + context + " because it begins with the reserved prefix."))
+    else
+      Success(true)
+  }
+
+  // does this name already exists as a configured attribute
+  function method VirtualFieldNameAllowed(outer : DynamoDbTableEncryptionConfig, name : string)
+    : Result<bool, Error>
+  {
+    if name in outer.attributeActions then
+      Failure(E(name + " not allowed as a Virtual Field because it is already a configured attribute."))
+    else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
+      Failure(E(name + " not allowed as a Virtual Field because it is already an allowed unauthenticated attribute."))
+    else if outer.allowedUnauthenticatedAttributePrefix.Some? && outer.allowedUnauthenticatedAttributePrefix.value <= name then
+      Failure(E(name + " not allowed as a Virtual Field because it begins with the allowed unauthenticated prefix."))
+    else if ReservedPrefix <= name then
+      Failure(E(name + " not allowed as a Virtual Field because it begins with the reserved prefix."))
     else
       Success(true)
   }
@@ -177,7 +182,7 @@ module SearchConfigToInfo {
       Success(converted)
     else
       :- Need(vf[0].name !in converted, E("Duplicate VirtualField name : " + vf[0].name));
-      var _ :- CheckExists(outer, vf[0].name, "VirtualField");
+      var _ :- VirtualFieldNameAllowed(outer, vf[0].name);
       var newField :- V.ParseVirtualFieldConfig(vf[0]);
       // need all parts signed
       :- Need(!newField.examine((t : TermLoc) => !IsSigned(outer, t)),
@@ -202,7 +207,7 @@ module SearchConfigToInfo {
       return Success(converted);
     }
     :- Need(beacons[0].name !in converted, E("Duplicate StandardBeacon name : " + beacons[0].name));
-    var _ :- CheckExists2(outer, virtualFields, beacons[0].name, "StandardBeacon");
+    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon");
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
     var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, newKey, beacons[0].length as B.BeaconLength, locString);
@@ -334,7 +339,7 @@ module SearchConfigToInfo {
       return Success(converted);
     }
     :- Need(beacons[0].name !in converted, E("Duplicate CompoundBeacon name : " + beacons[0].name));
-    var _ :- CheckExists(outer, beacons[0].name, "CompoundBeacon");
+    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "CompoundBeacon");
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
 
     // because UnwrapOr doesn't verify when used on a list with a minimum size

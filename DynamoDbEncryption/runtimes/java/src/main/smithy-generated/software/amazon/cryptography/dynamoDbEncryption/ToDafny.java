@@ -300,18 +300,12 @@ public class ToDafny {
 
   public static BeaconKey BeaconKey(
       software.amazon.cryptography.dynamoDbEncryption.model.BeaconKey nativeValue) {
-    Option<DafnySequence<? extends Character>> keyArn;
-    keyArn = Objects.nonNull(nativeValue.keyArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyArn()))
-        : Option.create_None();
-    Option<DafnySequence<? extends Character>> tableArn;
-    tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
-        : Option.create_None();
-    Option<DafnySequence<? extends Character>> branchKeyID;
-    branchKeyID = Objects.nonNull(nativeValue.branchKeyID()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyID()))
-        : Option.create_None();
+    DafnySequence<? extends Character> keyArn;
+    keyArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyArn());
+    DafnySequence<? extends Character> tableArn;
+    tableArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn());
+    DafnySequence<? extends Character> branchKeyID;
+    branchKeyID = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyID());
     return new BeaconKey(keyArn, tableArn, branchKeyID);
   }
 
