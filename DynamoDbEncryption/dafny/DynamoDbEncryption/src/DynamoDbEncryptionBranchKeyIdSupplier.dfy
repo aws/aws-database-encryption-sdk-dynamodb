@@ -64,18 +64,18 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
         MPL.AwsCryptographicMaterialProvidersException(
           message := "Invalid encryption context: Missing partition name"));
       var partitionName := context[MPL_EC_PARTITION_NAME];
-      :- Need(partitionName in context.Keys,
+      var partitionValueKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + partitionName;
+      :- Need(partitionValueKey in context.Keys,
         MPL.AwsCryptographicMaterialProvidersException(
           message := "Invalid encryption context: Missing partition value"));
-      var partitionValueKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + partitionName;
       attrMap :- AddAttributeToMap(partitionValueKey, context[partitionValueKey], attrMap);
 
       if MPL_EC_SORT_NAME in context.Keys {
         var sortName := context[MPL_EC_SORT_NAME];
-        :- Need(sortName in context.Keys,
+        var sortValueKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + sortName;
+        :- Need(sortValueKey in context.Keys,
           MPL.AwsCryptographicMaterialProvidersException(
             message := "Invalid encryption context: Missing sort value"));
-        var sortValueKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + sortName;
         attrMap :- AddAttributeToMap(sortValueKey, context[sortValueKey], attrMap);
       }
         
@@ -91,7 +91,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
 
   method AddAttributeToMap(ddbAttrKey: seq<uint8>, encodedAttrValue: seq<uint8>, attrMap: DDB.AttributeMap)
       returns (res: Result<DDB.AttributeMap, MPL.Error>) 
-    requires |ddbAttrKey| > |DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|
+    requires |ddbAttrKey| >= |DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|
   {
     // Obtain attribute name from EC kvPair key
     var ddbAttrNameBytes := ddbAttrKey[|DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|..];
