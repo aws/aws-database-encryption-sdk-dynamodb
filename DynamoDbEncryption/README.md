@@ -44,8 +44,6 @@ Common Makefile targets are:
     Only use this target for local testing.
   - `make local_transpile_test_java_service SERVICE=DynamoDbItemEncryptor` may be used similar
     to above in order to just re-transpile test code specific to a service.
-    However note that this target will clobber all other dafny generated tests from other
-    services.
     Only use this target for local testing.
 - `make test_java` builds and tests the transpiled code in Java.
 
