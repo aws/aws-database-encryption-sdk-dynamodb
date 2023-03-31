@@ -47,4 +47,11 @@ module DynamoDbEncryptionUtil {
       case BOOL(n) => "BOOL"
     }
   }
+
+  function printFromFunction<T>(x: T): () {
+    ()
+  } by method {
+    print x,"\n";
+    return ();
+  }
 }

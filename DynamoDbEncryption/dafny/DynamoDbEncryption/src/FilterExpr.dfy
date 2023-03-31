@@ -178,6 +178,7 @@ module DynamoDBFilterExpr {
   )
     : Option<SI.Beacon>
     requires pos < |expr|
+    requires expr[pos].Value?
   {
     // value < ATTR
     if pos+2 < |expr| && IsComp(expr[1]) && expr[2].Attr? && expr[2].s in b.beacons then
@@ -217,9 +218,9 @@ module DynamoDBFilterExpr {
     // false if attr_exists(ATTR), or  attr_not_exists(ATTR) or size(ATTR)
     // true otherwise
     if pos < 2 then
-      false
+      true
     else if !expr[pos-1].Open? then
-      false
+      true
     else
       TokenNeedsBeacon(expr[pos-2])
   }
@@ -247,11 +248,16 @@ module DynamoDBFilterExpr {
     if pos == |expr| then
       Success(ParsedContext(acc, values, names))
     else if expr[pos].Attr? then
-      if b.IsBeacon(expr[pos].s) then
+      var isIndirectName := "#" <= expr[pos].s;
+      :- Need(!isIndirectName || (names.Some? && expr[pos].s in names.value), E("Name " + expr[pos].s + " not in ExpressionAttributeNameMap."));
+      var oldName := if isIndirectName then names.value[expr[pos].s] else expr[pos].s;
+      if b.IsBeacon(oldName) then
         if OpNeedsBeacon(expr, pos) then
-          var newName := b.beacons[expr[pos].s].getBeaconName();
-          // TODO - might instead need names[oldName] := newName
-          BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [Attr(newName)])
+          var newName := b.beacons[oldName].getBeaconName();
+          if isIndirectName then
+            BeaconizeParsedExpr(b, expr, pos+1, values, Some(names.value[expr[pos].s := newName]), acc + [expr[pos]])
+          else
+            BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [Attr(newName)])
         else
           BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
       else

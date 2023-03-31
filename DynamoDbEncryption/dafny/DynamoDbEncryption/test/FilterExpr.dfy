@@ -92,20 +92,56 @@ module TestDynamoDBFilterExpr {
       ]),
       names := None
     );
-    var outer := DynamoDbTableEncryptionConfig (
-      partitionKeyName := "foo",
-      sortKeyName := None,
-      search := None,
-      attributeActions := map["std2" := SE.ENCRYPT_AND_SIGN],
-      allowedUnauthenticatedAttributes := None,
-      allowedUnauthenticatedAttributePrefix := None,
-      algorithmSuiteId := None,
-      keyring := None,
-      cmm := None,
-      legacyConfig := None
-    );
-    var beaconVersion :- expect ConvertVersionWithKey(outer, EmptyBeacons, [1,2,3,4,5]);
+    var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, EmptyBeacons, [1,2,3,4,5]);
     var newContext :- expect Beaconize(beaconVersion, context);
     expect newContext == context;
+  }
+
+  method {:test} TestBasicParse() {
+    var context := ExprContext (
+      expr := Some("std2 < :A AND #Field4 = :B"),
+      values:= Some(map[
+        ":A" := DDB.AttributeValue.N("1.23"),
+        ":B" := DDB.AttributeValue.S("abc")
+      ]),
+      names := Some(map[
+        "#Field4" := "std4"
+      ])
+    );
+    var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, EmptyBeacons, [1,2,3,4,5]);
+    var parsed := ParseExpr(context.expr.value);
+    expect |parsed| == 7;
+    expect parsed[0].Attr?;
+    expect parsed[0].s == "std2";
+    expect beaconVersion.IsBeacon(parsed[0].s);
+    expect OpNeedsBeacon(parsed, 0);
+    expect beaconVersion.beacons[parsed[0].s].getBeaconName() == "aws_dbe_b_std2";
+
+    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names);
+    var exprString := ParsedExprToString(newContext.expr);
+    expect exprString == "aws_dbe_b_std2 < :A AND #Field4 = :B";
+  }
+  method {:test} TestBasicBeacons() {
+    var context := ExprContext (
+      expr := Some("std2 < :A AND #Field4 = :B"),
+      values:= Some(map[
+        ":A" := DDB.AttributeValue.N("1.23"),
+        ":B" := DDB.AttributeValue.S("abc")
+      ]),
+      names := Some(map[
+        "#Field4" := "std4"
+      ])
+    );
+    /*
+    var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, EmptyBeacons, [1,2,3,4,5]);
+    var newContext :- expect Beaconize(beaconVersion, context);
+    expect newContext.expr == Some("aws_dbe_b_std2 < :A AND #Field4 = :B");
+    expect newContext.names == Some(map["#Field4" := "aws_dbe_b_std4"]);
+    var itemBeacons :- expect beaconVersion.GenerateBeacons(SimpleItem);
+    print "\n", itemBeacons, "\n";
+    expect "aws_dbe_b_std2" in itemBeacons;
+    expect "aws_dbe_b_std4" in itemBeacons;
+    expect newContext.values == Some(map[":A" := itemBeacons["aws_dbe_b_std2"], ":B" := itemBeacons["aws_dbe_b_std4"]]);
+    */
   }
 }

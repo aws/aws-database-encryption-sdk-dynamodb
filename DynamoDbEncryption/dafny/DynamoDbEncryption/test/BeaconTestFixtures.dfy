@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../src/Index.dfy"
-//include "../src/SearchInfo.dfy"
 
 module BeaconTestFixtures {
   import opened Wrappers
@@ -10,7 +9,7 @@ module BeaconTestFixtures {
   import opened UInt = StandardLibrary.UInt
   import opened AwsCryptographyDynamoDbEncryptionTypes
   import DDB = ComAmazonawsDynamodbTypes
-  //import SI =  SearchableEncryptionInfo
+  import SE = AwsCryptographyStructuredEncryptionTypes
 
   const std2 := StandardBeacon(name := "std2", length := 2, loc := None)
   const std4 := StandardBeacon(name := "std4", length := 4, loc := Some("std4"))
@@ -63,8 +62,8 @@ module BeaconTestFixtures {
     ])
   )
 
-  const Std2String := DDB.AttributeValue.N("222")
-  const Std4String := DDB.AttributeValue.S("444")
+  const Std2String := DDB.AttributeValue.N("1.23")
+  const Std4String := DDB.AttributeValue.S("abc")
   const Std6String := DDB.AttributeValue.S("666")
   const Std6List := DDB.AttributeValue.L([Std6String])
 
@@ -92,13 +91,38 @@ module BeaconTestFixtures {
     compoundBeacons := None,
     virtualFields := None
   )
-/*
- nameonly version: VersionNumber ,
- nameonly key: BeaconKey ,
- nameonly standardBeacons: Option<StandardBeaconList> ,
- nameonly compoundBeacons: Option<CompoundBeaconList> ,
- nameonly virtualFields: Option<VirtualFieldList>
-*/
+
+  const LotsaBeacons := BeaconVersion (
+    version := 1,
+    key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
+    standardBeacons := Some([std2, std4, std6]),
+    compoundBeacons := Some([NameTitle, YearName, Mixed]),
+    virtualFields := None
+  )
+  const EmptyTableConfig := DynamoDbTableEncryptionConfig (
+    partitionKeyName := "foo",
+    sortKeyName := None,
+    search := None,
+    attributeActions := map[],
+    allowedUnauthenticatedAttributes := None,
+    allowedUnauthenticatedAttributePrefix := None,
+    algorithmSuiteId := None,
+    keyring := None,
+    cmm := None,
+    legacyConfig := None
+  );
+  const FullTableConfig := EmptyTableConfig.(
+    attributeActions := map[
+      "std2" := SE.ENCRYPT_AND_SIGN,
+      "std4" := SE.ENCRYPT_AND_SIGN,
+      "std6" := SE.ENCRYPT_AND_SIGN,
+      "Name" := SE.ENCRYPT_AND_SIGN,
+      "Title" := SE.ENCRYPT_AND_SIGN,
+      "Year" := SE.SIGN_ONLY,
+      "Date" := SE.SIGN_ONLY
+    ]
+  );
+
   const SimpleItem : DDB.AttributeMap := map[
     "std2" := Std2String,
     "std4" := Std2String,

@@ -63,9 +63,13 @@ public class ToDafny {
     return Error.create_CollectionOfErrors(list);
   }
 
-  public static StructuredEncryptionConfig StructuredEncryptionConfig(
-      software.amazon.cryptography.structuredEncryption.model.StructuredEncryptionConfig nativeValue) {
-    return new StructuredEncryptionConfig();
+  public static StructuredDataTerminal StructuredDataTerminal(
+      software.amazon.cryptography.structuredEncryption.model.StructuredDataTerminal nativeValue) {
+    DafnySequence<? extends Byte> value;
+    value = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.value());
+    DafnySequence<? extends Byte> typeId;
+    typeId = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.typeId());
+    return new StructuredDataTerminal(value, typeId);
   }
 
   public static CryptoSchema CryptoSchema(
@@ -77,15 +81,6 @@ public class ToDafny {
         Option.create_Some(ToDafny.CryptoSchemaAttributes(nativeValue.attributes()))
         : Option.create_None();
     return new CryptoSchema(content, attributes);
-  }
-
-  public static StructuredDataTerminal StructuredDataTerminal(
-      software.amazon.cryptography.structuredEncryption.model.StructuredDataTerminal nativeValue) {
-    DafnySequence<? extends Byte> value;
-    value = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.value());
-    DafnySequence<? extends Byte> typeId;
-    typeId = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.typeId());
-    return new StructuredDataTerminal(value, typeId);
   }
 
   public static DecryptStructureInput DecryptStructureInput(
@@ -105,6 +100,13 @@ public class ToDafny {
     return new DecryptStructureInput(tableName, encryptedStructure, authenticateSchema, cmm, encryptionContext);
   }
 
+  public static DecryptStructureOutput DecryptStructureOutput(
+      software.amazon.cryptography.structuredEncryption.model.DecryptStructureOutput nativeValue) {
+    StructuredData plaintextStructure;
+    plaintextStructure = ToDafny.StructuredData(nativeValue.plaintextStructure());
+    return new DecryptStructureOutput(plaintextStructure);
+  }
+
   public static AuthenticateSchema AuthenticateSchema(
       software.amazon.cryptography.structuredEncryption.model.AuthenticateSchema nativeValue) {
     AuthenticateSchemaContent content;
@@ -116,11 +118,9 @@ public class ToDafny {
     return new AuthenticateSchema(content, attributes);
   }
 
-  public static DecryptStructureOutput DecryptStructureOutput(
-      software.amazon.cryptography.structuredEncryption.model.DecryptStructureOutput nativeValue) {
-    StructuredData plaintextStructure;
-    plaintextStructure = ToDafny.StructuredData(nativeValue.plaintextStructure());
-    return new DecryptStructureOutput(plaintextStructure);
+  public static StructuredEncryptionConfig StructuredEncryptionConfig(
+      software.amazon.cryptography.structuredEncryption.model.StructuredEncryptionConfig nativeValue) {
+    return new StructuredEncryptionConfig();
   }
 
   public static EncryptStructureOutput EncryptStructureOutput(
@@ -128,6 +128,17 @@ public class ToDafny {
     StructuredData encryptedStructure;
     encryptedStructure = ToDafny.StructuredData(nativeValue.encryptedStructure());
     return new EncryptStructureOutput(encryptedStructure);
+  }
+
+  public static StructuredData StructuredData(
+      software.amazon.cryptography.structuredEncryption.model.StructuredData nativeValue) {
+    StructuredDataContent content;
+    content = ToDafny.StructuredDataContent(nativeValue.content());
+    Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends StructuredDataTerminal>> attributes;
+    attributes = (Objects.nonNull(nativeValue.attributes()) && nativeValue.attributes().size() > 0) ?
+        Option.create_Some(ToDafny.StructuredDataAttributes(nativeValue.attributes()))
+        : Option.create_None();
+    return new StructuredData(content, attributes);
   }
 
   public static EncryptStructureInput EncryptStructureInput(
@@ -149,17 +160,6 @@ public class ToDafny {
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.EncryptionContext(nativeValue.encryptionContext()))
         : Option.create_None();
     return new EncryptStructureInput(tableName, plaintextStructure, cryptoSchema, cmm, algorithmSuiteId, encryptionContext);
-  }
-
-  public static StructuredData StructuredData(
-      software.amazon.cryptography.structuredEncryption.model.StructuredData nativeValue) {
-    StructuredDataContent content;
-    content = ToDafny.StructuredDataContent(nativeValue.content());
-    Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends StructuredDataTerminal>> attributes;
-    attributes = (Objects.nonNull(nativeValue.attributes()) && nativeValue.attributes().size() > 0) ?
-        Option.create_Some(ToDafny.StructuredDataAttributes(nativeValue.attributes()))
-        : Option.create_None();
-    return new StructuredData(content, attributes);
   }
 
   public static Error Error(StructuredEncryptionException nativeValue) {
@@ -201,18 +201,18 @@ public class ToDafny {
     }
   }
 
-  public static AuthenticateSchemaContent AuthenticateSchemaContent(
-      software.amazon.cryptography.structuredEncryption.model.AuthenticateSchemaContent nativeValue) {
-    if (Objects.nonNull(nativeValue.Action())) {
-      return AuthenticateSchemaContent.create_Action(ToDafny.AuthenticateAction(nativeValue.Action()));
+  public static StructuredDataContent StructuredDataContent(
+      software.amazon.cryptography.structuredEncryption.model.StructuredDataContent nativeValue) {
+    if (Objects.nonNull(nativeValue.Terminal())) {
+      return StructuredDataContent.create_Terminal(ToDafny.StructuredDataTerminal(nativeValue.Terminal()));
     }
-    if (Objects.nonNull(nativeValue.SchemaMap())) {
-      return AuthenticateSchemaContent.create_SchemaMap(ToDafny.AuthenticateSchemaMap(nativeValue.SchemaMap()));
+    if (Objects.nonNull(nativeValue.DataList())) {
+      return StructuredDataContent.create_DataList(ToDafny.StructuredDataList(nativeValue.DataList()));
     }
-    if (Objects.nonNull(nativeValue.SchemaList())) {
-      return AuthenticateSchemaContent.create_SchemaList(ToDafny.AuthenticateSchemaList(nativeValue.SchemaList()));
+    if (Objects.nonNull(nativeValue.DataMap())) {
+      return StructuredDataContent.create_DataMap(ToDafny.StructuredDataMap(nativeValue.DataMap()));
     }
-    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchemaContent.");
+    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataContent.");
   }
 
   public static CryptoSchemaContent CryptoSchemaContent(
@@ -229,18 +229,18 @@ public class ToDafny {
     throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchemaContent.");
   }
 
-  public static StructuredDataContent StructuredDataContent(
-      software.amazon.cryptography.structuredEncryption.model.StructuredDataContent nativeValue) {
-    if (Objects.nonNull(nativeValue.Terminal())) {
-      return StructuredDataContent.create_Terminal(ToDafny.StructuredDataTerminal(nativeValue.Terminal()));
+  public static AuthenticateSchemaContent AuthenticateSchemaContent(
+      software.amazon.cryptography.structuredEncryption.model.AuthenticateSchemaContent nativeValue) {
+    if (Objects.nonNull(nativeValue.Action())) {
+      return AuthenticateSchemaContent.create_Action(ToDafny.AuthenticateAction(nativeValue.Action()));
     }
-    if (Objects.nonNull(nativeValue.DataList())) {
-      return StructuredDataContent.create_DataList(ToDafny.StructuredDataList(nativeValue.DataList()));
+    if (Objects.nonNull(nativeValue.SchemaMap())) {
+      return AuthenticateSchemaContent.create_SchemaMap(ToDafny.AuthenticateSchemaMap(nativeValue.SchemaMap()));
     }
-    if (Objects.nonNull(nativeValue.DataMap())) {
-      return StructuredDataContent.create_DataMap(ToDafny.StructuredDataMap(nativeValue.DataMap()));
+    if (Objects.nonNull(nativeValue.SchemaList())) {
+      return AuthenticateSchemaContent.create_SchemaList(ToDafny.AuthenticateSchemaList(nativeValue.SchemaList()));
     }
-    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataContent.");
+    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchemaContent.");
   }
 
   public static DafnySequence<? extends CryptoSchema> CryptoSchemaList(
@@ -251,6 +251,14 @@ public class ToDafny {
         CryptoSchema._typeDescriptor());
   }
 
+  public static DafnySequence<? extends AuthenticateSchema> AuthenticateSchemaList(
+      List<software.amazon.cryptography.structuredEncryption.model.AuthenticateSchema> nativeValue) {
+    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+        nativeValue, 
+        software.amazon.cryptography.structuredEncryption.ToDafny::AuthenticateSchema, 
+        AuthenticateSchema._typeDescriptor());
+  }
+
   public static DafnySequence<? extends StructuredData> StructuredDataList(
       List<software.amazon.cryptography.structuredEncryption.model.StructuredData> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
@@ -259,12 +267,12 @@ public class ToDafny {
         StructuredData._typeDescriptor());
   }
 
-  public static DafnySequence<? extends AuthenticateSchema> AuthenticateSchemaList(
-      List<software.amazon.cryptography.structuredEncryption.model.AuthenticateSchema> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+  public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AuthenticateAction> AuthenticateSchemaAttributes(
+      Map<String, software.amazon.cryptography.structuredEncryption.model.AuthenticateAction> nativeValue) {
+    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.cryptography.structuredEncryption.ToDafny::AuthenticateSchema, 
-        AuthenticateSchema._typeDescriptor());
+        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.cryptography.structuredEncryption.ToDafny::AuthenticateAction);
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends StructuredData> StructuredDataMap(
@@ -275,14 +283,6 @@ public class ToDafny {
         software.amazon.cryptography.structuredEncryption.ToDafny::StructuredData);
   }
 
-  public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AuthenticateSchema> AuthenticateSchemaMap(
-      Map<String, software.amazon.cryptography.structuredEncryption.model.AuthenticateSchema> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
-        nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
-        software.amazon.cryptography.structuredEncryption.ToDafny::AuthenticateSchema);
-  }
-
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoSchema> CryptoSchemaMap(
       Map<String, software.amazon.cryptography.structuredEncryption.model.CryptoSchema> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
@@ -291,20 +291,20 @@ public class ToDafny {
         software.amazon.cryptography.structuredEncryption.ToDafny::CryptoSchema);
   }
 
+  public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AuthenticateSchema> AuthenticateSchemaMap(
+      Map<String, software.amazon.cryptography.structuredEncryption.model.AuthenticateSchema> nativeValue) {
+    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+        nativeValue, 
+        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.cryptography.structuredEncryption.ToDafny::AuthenticateSchema);
+  }
+
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends StructuredDataTerminal> StructuredDataAttributes(
       Map<String, software.amazon.cryptography.structuredEncryption.model.StructuredDataTerminal> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
         software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.structuredEncryption.ToDafny::StructuredDataTerminal);
-  }
-
-  public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AuthenticateAction> AuthenticateSchemaAttributes(
-      Map<String, software.amazon.cryptography.structuredEncryption.model.AuthenticateAction> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
-        nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
-        software.amazon.cryptography.structuredEncryption.ToDafny::AuthenticateAction);
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AuthenticateAction> CryptoSchemaAttributes(
