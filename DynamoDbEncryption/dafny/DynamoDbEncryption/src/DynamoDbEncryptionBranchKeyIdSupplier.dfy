@@ -10,6 +10,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
   import DDB = ComAmazonawsDynamodbTypes
   import opened Seq
   import opened Wrappers
+  import opened StandardLibrary.UInt
   import DynamoToStruct
   import Base64
   import DynamoDbEncryptionUtil
@@ -60,11 +61,14 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
 
       // Add partition key to map
       var partitionECKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + MPL_EC_PARTITION_NAME;
+      :- Need(partitionECKey in context.Keys,
+        MPL.AwsCryptographicMaterialProvidersException(
+          message := "Invalid encryption context: Missing partition name"));
       attrMap :- AddAttributeToMap(partitionECKey, context[partitionECKey], attrMap);
 
       // Add sort key to map if it exists
-      if MPL_EC_SORT_NAME in context.Keys {
-        var sortECKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + MPL_EC_SORT_NAME;
+      var sortECKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + MPL_EC_SORT_NAME;
+      if sortECKey in context.Keys {
         attrMap :- AddAttributeToMap(sortECKey, context[sortECKey], attrMap);
       }
         
@@ -78,7 +82,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
     }
   }
 
-  method AddAttributeToMap(ddbAttrKey: UTF8.ValidUTF8Bytes, encodedAttrValue: UTF8.ValidUTF8Bytes, attrMap: DDB.AttributeMap)
+  method AddAttributeToMap(ddbAttrKey: seq<uint8>, encodedAttrValue: seq<uint8>, attrMap: DDB.AttributeMap)
       returns (res: Result<DDB.AttributeMap, MPL.Error>) 
     requires |ddbAttrKey| > |DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|
   {

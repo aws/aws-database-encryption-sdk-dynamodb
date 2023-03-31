@@ -328,13 +328,21 @@ public class OtherTests {
         });
     }
 
+    // DynamoDbKeyBranchKeyIdSupplier to be used with test items produced from TestUtils.java
     class TestSupplier implements IDynamoDbKeyBranchKeyIdSupplier {
         public GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(GetBranchKeyIdFromDdbKeyInput input) {
-            Map<String, AttributeValue> item = input.ddbKey();
+            Map<String, AttributeValue> key = input.ddbKey();
+
+            // Ensure that key only contains the expected attributes
+            assertTrue(key.containsKey(TEST_PARTITION_NAME));
+            assertTrue(key.containsKey(TEST_SORT_NAME));
+            assertFalse(key.containsKey(TEST_ATTR_NAME));
+            assertFalse(key.containsKey(TEST_ATTR2_NAME));
+
             String branchKeyId;
-            if (item.containsKey(TEST_PARTITION_NAME) && item.get(TEST_PARTITION_NAME).s().equals("caseA")) {
+            if (key.containsKey(TEST_PARTITION_NAME) && key.get(TEST_PARTITION_NAME).s().equals("caseA")) {
                 branchKeyId = BRANCH_KEY_ID;
-            } else if (item.containsKey(TEST_PARTITION_NAME) && item.get(TEST_PARTITION_NAME).s().equals("caseB")) {
+            } else if (key.containsKey(TEST_PARTITION_NAME) && key.get(TEST_PARTITION_NAME).s().equals("caseB")) {
                 branchKeyId = ACTIVE_ACTIVE_BRANCH_KEY_ID;
             } else {
                 throw new IllegalArgumentException("Item invalid, does not contain expected attributes.");
