@@ -298,7 +298,7 @@ test_java:
 
 local_transpile_impl_java_service: TARGET=java
 local_transpile_impl_java_service: OUT=runtimes/java/ImplementationFromDafny
-local_transpile_impl_java_service: local_transpile_implservice
+local_transpile_impl_java_service: local_transpile_impl_service
 	cp -R runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
 	rm -rf runtimes/java/ImplementationFromDafny-java/
 

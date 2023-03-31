@@ -504,7 +504,7 @@ module DynamoDBFilterExpr {
         (4, Size)
       else if ch == ':' then
         var x := ValueLen(s[1..]) + 1;
-        (x, Value(s[1..x]))
+        (x, Value(s[0..x]))
       else if ch == '#' then
         var x := ValueLen(s[1..]) + 1;
         (x, Attr(s[0..x]))

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../src/Index.dfy"
+include "../src/SearchInfo.dfy"
 
 module BeaconTestFixtures {
   import opened Wrappers
@@ -9,6 +10,7 @@ module BeaconTestFixtures {
   import opened UInt = StandardLibrary.UInt
   import opened AwsCryptographyDynamoDbEncryptionTypes
   import DDB = ComAmazonawsDynamodbTypes
+  import SI =  SearchableEncryptionInfo
 
   const std2 := StandardBeacon(name := "std2", length := 2, loc := None)
   const std4 := StandardBeacon(name := "std4", length := 4, loc := Some("std4"))
@@ -72,6 +74,12 @@ module BeaconTestFixtures {
 
   const NameString := DDB.AttributeValue.S("1984")
   const TitleString := DDB.AttributeValue.S("1984")
+
+  const EmptyBeacons := SI.BeaconVersion (
+    version := 1,
+    beacons := map[],
+    virtualFields := map[]
+  )
 
   const SimpleItem : DDB.AttributeMap := map[
     "std2" := Std2String,

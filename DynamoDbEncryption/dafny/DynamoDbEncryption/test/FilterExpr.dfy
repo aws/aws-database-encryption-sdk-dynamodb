@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../src/FilterExpr.dfy"
+include "BeaconTestFixtures.dfy"
 
 module TestDynamoDBFilterExpr {
   import opened ComAmazonawsDynamodbTypes
@@ -9,6 +10,7 @@ module TestDynamoDBFilterExpr {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened BeaconTestFixtures
 
   method expect_equal<T(==)>(a: T, b: T)
     ensures a == b
@@ -76,5 +78,18 @@ module TestDynamoDBFilterExpr {
 
     expect_equal(ExtractAttributes("A < B or size(C) or D between E and F",
       Some(attrMap)), ["A", "B", "D", "E", "F"]);
+  }
+
+  method {:test} TestNoBeacons() {
+    var context := ExprContext (
+      expr := Some("A < :A AND B = :B"),
+      values:= Some(map[
+        ":A" := DDB.AttributeValue.N("1.23"),
+        ":B" := DDB.AttributeValue.S("abc")
+      ]),
+      names := None
+    );
+    var newContext :- expect Beaconize(EmptyBeacons, context);
+    expect newContext == context;
   }
 }
