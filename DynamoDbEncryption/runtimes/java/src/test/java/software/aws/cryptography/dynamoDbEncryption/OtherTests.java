@@ -5,12 +5,12 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
-import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbItemBranchKeyIdSupplier;
+import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbKeyBranchKeyIdSupplier;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromItemInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromItemOutput;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyInput;
+import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -131,7 +131,7 @@ public class OtherTests {
                 .build();
         IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
                         CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
-                                .ddbItemBranchKeyIdSupplier(new TestSupplier())
+                                .ddbKeyBranchKeyIdSupplier(new TestSupplier())
                                 .build())
                 .branchKeyIdSupplier();
         CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
@@ -287,7 +287,7 @@ public class OtherTests {
                 .build();
         IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
                         CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
-                                .ddbItemBranchKeyIdSupplier(new TestSupplier())
+                                .ddbKeyBranchKeyIdSupplier(new TestSupplier())
                                 .build())
                 .branchKeyIdSupplier();
         CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
@@ -328,9 +328,9 @@ public class OtherTests {
         });
     }
 
-    class TestSupplier implements IDynamoDbItemBranchKeyIdSupplier {
-        public GetBranchKeyIdFromItemOutput GetBranchKeyIdFromItem(GetBranchKeyIdFromItemInput input) {
-            Map<String, AttributeValue> item = input.ddbItem();
+    class TestSupplier implements IDynamoDbKeyBranchKeyIdSupplier {
+        public GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(GetBranchKeyIdFromDdbKeyInput input) {
+            Map<String, AttributeValue> item = input.ddbKey();
             String branchKeyId;
             if (item.containsKey(TEST_PARTITION_NAME) && item.get(TEST_PARTITION_NAME).s().equals("caseA")) {
                 branchKeyId = BRANCH_KEY_ID;
@@ -339,7 +339,7 @@ public class OtherTests {
             } else {
                 throw new IllegalArgumentException("Item invalid, does not contain expected attributes.");
             }
-            return GetBranchKeyIdFromItemOutput.builder().branchKeyId(branchKeyId).build();
+            return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(branchKeyId).build();
         }
     }
 }

@@ -47,11 +47,11 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
 
   method {:test} TestHappyCase() 
   {
-    var ddbItemToBranchKeyId: Types.IDynamoDbItemBranchKeyIdSupplier := new TestBranchKeyIdSupplier();
+    var ddbKeyToBranchKeyId: Types.IDynamoDbKeyBranchKeyIdSupplier := new TestBranchKeyIdSupplier();
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
     var branchKeyIdSupplierOut :- expect ddbEncResources.CreateDynamoDbEncryptionBranchKeyIdSupplier(
       Types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(
-        ddbItemBranchKeyIdSupplier := ddbItemToBranchKeyId
+        ddbKeyBranchKeyIdSupplier := ddbKeyToBranchKeyId
       )
     );
     var branchKeyIdSupplier := branchKeyIdSupplierOut.branchKeyIdSupplier;
@@ -144,7 +144,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   // returns "branchKeyIdA" when item contains "branchKey":"caseA"
   // returns "branchKeyIdB" when item contains "branchKey":"caseB"
   // otherwise returns a Failure
-  class TestBranchKeyIdSupplier extends Types.IDynamoDbItemBranchKeyIdSupplier
+  class TestBranchKeyIdSupplier extends Types.IDynamoDbKeyBranchKeyIdSupplier
   {
     predicate ValidState()
       ensures ValidState() ==> History in Modifies
@@ -155,28 +155,28 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     constructor()
       ensures ValidState() && fresh(this) && fresh(History) && fresh(Modifies)
     {
-      History := new Types.IDynamoDbItemBranchKeyIdSupplierCallHistory();
+      History := new Types.IDynamoDbKeyBranchKeyIdSupplierCallHistory();
       Modifies := {History};
     }
 
-    predicate GetBranchKeyIdFromItemEnsuresPublicly(input: Types.GetBranchKeyIdFromItemInput, output: Result<Types.GetBranchKeyIdFromItemOutput, Types.Error>)
+    predicate GetBranchKeyIdFromDdbKeyEnsuresPublicly(input: Types.GetBranchKeyIdFromDdbKeyInput, output: Result<Types.GetBranchKeyIdFromDdbKeyOutput, Types.Error>)
     {true}
 
-    method GetBranchKeyIdFromItem'(input: Types.GetBranchKeyIdFromItemInput)
-        returns (output: Result<Types.GetBranchKeyIdFromItemOutput, Types.Error>)
+    method GetBranchKeyIdFromDdbKey'(input: Types.GetBranchKeyIdFromDdbKeyInput)
+        returns (output: Result<Types.GetBranchKeyIdFromDdbKeyOutput, Types.Error>)
       requires ValidState()
       modifies Modifies - {History}
       decreases Modifies - {History}
       ensures ValidState()
-      ensures GetBranchKeyIdFromItemEnsuresPublicly(input, output)
+      ensures GetBranchKeyIdFromDdbKeyEnsuresPublicly(input, output)
       ensures unchanged(History)
     {
-      var item := input.ddbItem;
+      var item := input.ddbKey;
 
       if BRANCH_KEY in item.Keys && item[BRANCH_KEY].S? && item[BRANCH_KEY].S == CASE_A {
-        return Success(Types.GetBranchKeyIdFromItemOutput(branchKeyId:=BRANCH_KEY_ID_A));
+        return Success(Types.GetBranchKeyIdFromDdbKeyOutput(branchKeyId:=BRANCH_KEY_ID_A));
       } else if BRANCH_KEY in item.Keys && item[BRANCH_KEY].S? && item[BRANCH_KEY].S == CASE_B {
-        return Success(Types.GetBranchKeyIdFromItemOutput(branchKeyId:=BRANCH_KEY_ID_B));
+        return Success(Types.GetBranchKeyIdFromDdbKeyOutput(branchKeyId:=BRANCH_KEY_ID_B));
       } else {
         return Failure(Types.DynamoDbEncryptionException(message := "Can't determine branchKeyId from item"));
       }

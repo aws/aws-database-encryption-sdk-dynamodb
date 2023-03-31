@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "DynamoToStruct.dfy"
+include "Util.dfy"
 
 module DynamoDbEncryptionBranchKeyIdSupplier {
   import opened AwsCryptographyDynamoDbEncryptionTypes
@@ -11,31 +12,35 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
   import opened Wrappers
   import DynamoToStruct
   import Base64
+  import DynamoDbEncryptionUtil
+
+  const MPL_EC_PARTITION_NAME: UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-partition-name")
+  const MPL_EC_SORT_NAME: UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-sort-name")
 
   class DynamoDbEncryptionBranchKeyIdSupplier
     extends MPL.IBranchKeyIdSupplier
   {
-    const ddbItemBranchKeyIdSupplier: IDynamoDbItemBranchKeyIdSupplier
+    const ddbKeyBranchKeyIdSupplier: IDynamoDbKeyBranchKeyIdSupplier
 
     predicate ValidState()
       ensures ValidState() ==> History in Modifies
     {
       && History in Modifies
-      && ddbItemBranchKeyIdSupplier.ValidState()
-      && ddbItemBranchKeyIdSupplier.Modifies <= Modifies
-      && History !in ddbItemBranchKeyIdSupplier.Modifies
+      && ddbKeyBranchKeyIdSupplier.ValidState()
+      && ddbKeyBranchKeyIdSupplier.Modifies <= Modifies
+      && History !in ddbKeyBranchKeyIdSupplier.Modifies
     }
 
     constructor(
-      ddbItemBranchKeyIdSupplier: IDynamoDbItemBranchKeyIdSupplier
+      ddbKeyBranchKeyIdSupplier: IDynamoDbKeyBranchKeyIdSupplier
     )
-      requires ddbItemBranchKeyIdSupplier.ValidState()
-      ensures this.ddbItemBranchKeyIdSupplier == ddbItemBranchKeyIdSupplier
-      ensures ValidState() && fresh(this) && fresh(History) && fresh(Modifies - ddbItemBranchKeyIdSupplier.Modifies)
+      requires ddbKeyBranchKeyIdSupplier.ValidState()
+      ensures this.ddbKeyBranchKeyIdSupplier == ddbKeyBranchKeyIdSupplier
+      ensures ValidState() && fresh(this) && fresh(History) && fresh(Modifies - ddbKeyBranchKeyIdSupplier.Modifies)
     {
-      this.ddbItemBranchKeyIdSupplier := ddbItemBranchKeyIdSupplier;
+      this.ddbKeyBranchKeyIdSupplier := ddbKeyBranchKeyIdSupplier;
       History := new MPL.IBranchKeyIdSupplierCallHistory();
-      Modifies := {History} + ddbItemBranchKeyIdSupplier.Modifies;
+      Modifies := {History} + ddbKeyBranchKeyIdSupplier.Modifies;
     }
 
     predicate GetBranchKeyIdEnsuresPublicly(input: MPL.GetBranchKeyIdInput, output: Result<MPL.GetBranchKeyIdOutput, MPL.Error>)
@@ -50,57 +55,56 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
       ensures GetBranchKeyIdEnsuresPublicly(input, output)
       ensures unchanged(History)
     {
-      // Get encoded SIGN_ONLY DDB attributes from encryption context
       var context := input.encryptionContext;
-      var prefix := UTF8.EncodeAscii("aws-crypto-attr.");
-
       var attrMap: DDB.AttributeMap := map[];
 
-      var ddbAttrKeys := set k <- context.Keys | prefix < k :: k;
-      var s' := ddbAttrKeys;
-      while s' != {}
-        invariant s' <= ddbAttrKeys
-        decreases s'
-      {
-        var ddbAttrKey :| ddbAttrKey in s';
-        var encodedAttrValue := context[ddbAttrKey];
+      // Add partition key to map
+      var partitionECKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + MPL_EC_PARTITION_NAME;
+      attrMap :- AddAttributeToMap(partitionECKey, context[partitionECKey], attrMap);
 
-        // Obtain attribute name from EC kvPair key
-        var ddbAttrNameBytes := ddbAttrKey[|prefix|..];
-        var ddbAttrName :- UTF8.Decode(ddbAttrNameBytes)
-            .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
-        :- Need(DDB.IsValid_AttributeName(ddbAttrName),
-            MPL.AwsCryptographicMaterialProvidersException(
-              message := "Invalid serialization of DDB Attribute in encryption context."));
-
-        // Obtain attribute value from EC kvPair value
-        var utf8DecodedVal :- UTF8.Decode(encodedAttrValue)
-            .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
-        var base64DecodedVal :- Base64.Decode(utf8DecodedVal)
-            .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
-        :- Need(|base64DecodedVal| >= 2,
-            MPL.AwsCryptographicMaterialProvidersException(
-              message := "Invalid serialization of DDB Attribute in encryption context."));
-        var typeId := base64DecodedVal[..2];
-        var serializedValue := base64DecodedVal[2..];
-        var ddbAttrValue :- DynamoToStruct.BytesToAttr(serializedValue, typeId, false)
-            .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
-
-        // Add to our AttributeMap
-        attrMap := attrMap[ddbAttrName := ddbAttrValue.val];
-
-        // Pop 'ddbAttrKey' off the map, so that we may continue iterating
-        s' := set k' | k' in s' && k' != ddbAttrKey :: k';
+      // Add sort key to map if it exists
+      if MPL_EC_SORT_NAME in context.Keys {
+        var sortECKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + MPL_EC_SORT_NAME;
+        attrMap :- AddAttributeToMap(sortECKey, context[sortECKey], attrMap);
       }
-
+        
       // Get branch key id from these DDB attributes
-      var branchKeyIdR := ddbItemBranchKeyIdSupplier.GetBranchKeyIdFromItem(
-            GetBranchKeyIdFromItemInput(ddbItem := attrMap)
+      var branchKeyIdR := ddbKeyBranchKeyIdSupplier.GetBranchKeyIdFromDdbKey(
+            GetBranchKeyIdFromDdbKeyInput(ddbKey := attrMap)
           );
       var branchKeyIdOut :- branchKeyIdR.MapFailure(ConvertToMplError);
 
       return Success(MPL.GetBranchKeyIdOutput(branchKeyId:=branchKeyIdOut.branchKeyId));
     }
+  }
+
+  method AddAttributeToMap(ddbAttrKey: UTF8.ValidUTF8Bytes, encodedAttrValue: UTF8.ValidUTF8Bytes, attrMap: DDB.AttributeMap)
+      returns (res: Result<DDB.AttributeMap, MPL.Error>) 
+    requires |ddbAttrKey| > |DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|
+  {
+    // Obtain attribute name from EC kvPair key
+    var ddbAttrNameBytes := ddbAttrKey[|DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|..];
+    var ddbAttrName :- UTF8.Decode(ddbAttrNameBytes)
+        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
+    :- Need(DDB.IsValid_AttributeName(ddbAttrName),
+        MPL.AwsCryptographicMaterialProvidersException(
+          message := "Invalid serialization of DDB Attribute in encryption context."));
+
+    // Obtain attribute value from EC kvPair value
+    var utf8DecodedVal :- UTF8.Decode(encodedAttrValue)
+        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
+    var base64DecodedVal :- Base64.Decode(utf8DecodedVal)
+        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
+    :- Need(|base64DecodedVal| >= 2,
+        MPL.AwsCryptographicMaterialProvidersException(
+          message := "Invalid serialization of DDB Attribute in encryption context."));
+    var typeId := base64DecodedVal[..2];
+    var serializedValue := base64DecodedVal[2..];
+    var ddbAttrValue :- DynamoToStruct.BytesToAttr(serializedValue, typeId, false)
+        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
+
+    // Add to our AttributeMap
+    return Success(attrMap[ddbAttrName := ddbAttrValue.val]);
   }
   
   function method ConvertToMplError(err: Error)
