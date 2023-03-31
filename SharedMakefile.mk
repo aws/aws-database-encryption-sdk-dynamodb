@@ -298,13 +298,13 @@ test_java:
 
 local_transpile_impl_java_service: TARGET=java
 local_transpile_impl_java_service: OUT=runtimes/java/ImplementationFromDafny
-local_transpile_impl_java_service: local_transpile_implservice
+local_transpile_impl_java_service: local_transpile_impl_service
 	cp -R runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
 	rm -rf runtimes/java/ImplementationFromDafny-java/
 
 local_transpile_impl_net_service: TARGET=cs
 local_transpile_impl_net_service: OUT=runtimes/net/ImplementationFromDafny
-local_transpile_impl_net_service: local_transpile_implservice
+local_transpile_impl_net_service: local_transpile_impl_service
 
 local_transpile_impl_service: SERVICES=$(SERVICE)
 local_transpile_impl_service: deps_var=SERVICE_DEPS_$(SERVICE)

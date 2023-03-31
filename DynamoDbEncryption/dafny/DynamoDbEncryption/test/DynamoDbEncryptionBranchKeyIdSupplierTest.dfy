@@ -43,6 +43,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   const CASE_B_BYTES: seq<uint8> := STRING_TYPE_ID + [0x43, 0x41, 0x53, 0x45, 0x5f, 0x42];
   const BRANCH_KEY_ID_A := BRANCH_KEY_ID
   const BRANCH_KEY_ID_B := ACTIVE_ACTIVE_BRANCH_KEY_ID
+  const EC_PARTITION_NAME := UTF8.EncodeAscii("aws-crypto-partition-name");
   const RESERVED_PREFIX := "aws-crypto-attr.";
 
   method {:test} TestHappyCase() 
@@ -80,12 +81,13 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     var materials :- expect mpl.InitializeEncryptionMaterials(
       MPL.InitializeEncryptionMaterialsInput(
         algorithmSuiteId := TEST_DBE_ALG_SUITE_ID,
-        encryptionContext := map[],
+        encryptionContext := map[EC_PARTITION_NAME := UTF8.EncodeAscii(BRANCH_KEY)],
         requiredEncryptionContextKeys := [],
         signingKey := None,
         verificationKey := None
       )
     );
+
     var caseA :- expect UTF8.Encode(Base64.Encode(CASE_A_BYTES));
     var contextCaseA := materials.encryptionContext[keyAttrName := caseA];
     var materialsA := materials.(encryptionContext := contextCaseA);
