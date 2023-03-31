@@ -5,10 +5,10 @@ package software.amazon.cryptography.dynamoDbEncryption.model;
 
 import java.util.Objects;
 
-public class GetBranchKeyIdFromItemOutput {
+public class GetBranchKeyIdFromDdbKeyOutput {
   private final String branchKeyId;
 
-  protected GetBranchKeyIdFromItemOutput(BuilderImpl builder) {
+  protected GetBranchKeyIdFromDdbKeyOutput(BuilderImpl builder) {
     this.branchKeyId = builder.branchKeyId();
   }
 
@@ -29,7 +29,7 @@ public class GetBranchKeyIdFromItemOutput {
 
     String branchKeyId();
 
-    GetBranchKeyIdFromItemOutput build();
+    GetBranchKeyIdFromDdbKeyOutput build();
   }
 
   static class BuilderImpl implements Builder {
@@ -38,7 +38,7 @@ public class GetBranchKeyIdFromItemOutput {
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(GetBranchKeyIdFromItemOutput model) {
+    protected BuilderImpl(GetBranchKeyIdFromDdbKeyOutput model) {
       this.branchKeyId = model.branchKeyId();
     }
 
@@ -51,11 +51,11 @@ public class GetBranchKeyIdFromItemOutput {
       return this.branchKeyId;
     }
 
-    public GetBranchKeyIdFromItemOutput build() {
+    public GetBranchKeyIdFromDdbKeyOutput build() {
       if (Objects.isNull(this.branchKeyId()))  {
         throw new IllegalArgumentException("Missing value for required field `branchKeyId`");
       }
-      return new GetBranchKeyIdFromItemOutput(this);
+      return new GetBranchKeyIdFromDdbKeyOutput(this);
     }
   }
 }
