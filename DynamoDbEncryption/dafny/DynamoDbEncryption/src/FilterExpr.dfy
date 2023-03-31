@@ -3,11 +3,22 @@
 
 /*
 
-Parse a DynamoDB FilterExpression, ConditionExpression or KeyConditionExpression
+• Parse a DynamoDB FilterExpression, ConditionExpression or KeyConditionExpression
 
   // If none of these attributes are encrypted, then you can let DynamoDB
   // treat this expression normally.
   ExtractAttributes(expr : string, names : Option<ExpressionAttributeNameMap>) : seq<string>
+
+• Beaconize a ConditionExpression or KeyConditionExpression
+• e.g. transform plain expression "A = B" into beacon expression "aws_dbe_b_A = beacon(B)"
+
+  datatype ExprContext = ExprContext (
+    expr : Option<DDB.ConditionExpression>,
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+
+  function method Beaconize(b : SI.BeaconVersion, context : ExprContext) : ExprContext
 
 */
 
@@ -221,7 +232,7 @@ module DynamoDBFilterExpr {
     )
   }
 
-  function method {:tailrecursion} Beaconize2(
+  function method {:tailrecursion} BeaconizeParsedExpr(
     b : SI.BeaconVersion,
     expr : seq<Token>,
     pos : nat,
@@ -239,29 +250,24 @@ module DynamoDBFilterExpr {
       if b.IsBeacon(expr[pos].s) then
         if OpNeedsBeacon(expr, pos) then
           var newName := b.beacons[expr[pos].s].getBeaconName();
-          Beaconize2(b, expr, pos+1, values, names, acc + [Attr(newName)])
+          // TODO - might instead need names[oldName] := newName
+          BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [Attr(newName)])
         else
-          Beaconize2(b, expr, pos+1, values, names, acc + [expr[pos]])
+          BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
       else
-        Beaconize2(b, expr, pos+1, values, names, acc + [expr[pos]])
+        BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
     else if expr[pos].Value? then
       :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
       var oldValue := values[expr[pos].s];
       var bec := BeaconForValue(b, expr, pos, oldValue, names);
       if bec.None? then
-          Beaconize2(b, expr, pos+1, values, names, acc + [expr[pos]])
+          BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
       else
         var newValue :- bec.value.GetBeaconValue(oldValue);
-        Beaconize2(b, expr, pos+1, values[expr[pos].s := newValue], names, acc + [expr[pos]])
+        BeaconizeParsedExpr(b, expr, pos+1, values[expr[pos].s := newValue], names, acc + [expr[pos]])
     else
-      Beaconize2(b, expr, pos+1, values, names, acc + [expr[pos]])
+      BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
   }
-  /*
-  function method Beaconize(b : SI.BeaconVersion, t : ParsedContext) : Result<ParsedContext, Error>
-  {
-    Beaconize2(b, t.expr, t.values, t.names)
-  }
-  */
 
   // Convert the tokens back into an expression
   function method ParsedExprToString(t : seq<Token>) : string
@@ -1049,23 +1055,20 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>
   )
 
-  method {:test} TestUpper() {
-    print "Running Test";
-    expect true;
-  }
+  // transform plain expression "A = B" into beacon expression "aws_dbe_b_A = beacon(B)"
 
-  /*
-  // transform plain expression "A = B" into beacon expression "gZ_b_Z = beacon(B)"
-    function method BeaconExpression (beacons : SI.BeaconVersion, cont : ExprContext) : Result<ExprContext, Error>
-    {
-      if cont.expr.None? || cont.values.None? then
-        Success((cont))
-      else
-        var parsed := ParseExpr(cont.expr.value);
-        var context := ParsedContext(parsed, cont.values.value, cont.names);
-        var newContext :- Beaconize(beacons, context);
-        var ret := ExprContext(Some(ParsedExprToString(newContext.expr)), Some(newContext.values), newContext.names); 
-        Success(ret)
-    }
-  */
+  function method Beaconize(
+    b : SI.BeaconVersion,
+    context : ExprContext
+  )
+    : Result<ExprContext, Error>
+  {
+    if context.expr.None? || context.values.None? then
+      Success(context)
+    else
+      var parsed := ParseExpr(context.expr.value);
+      var context :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, context.names);
+      var exprString := ParsedExprToString(context.expr);
+      Success(ExprContext(Some(exprString), Some(context.values), context.names))
+  }
 }
