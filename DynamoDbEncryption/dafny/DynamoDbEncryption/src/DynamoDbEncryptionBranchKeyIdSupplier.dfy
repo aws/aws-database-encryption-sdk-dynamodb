@@ -89,8 +89,8 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
     }
   }
 
-  method AddAttributeToMap(ddbAttrKey: seq<uint8>, encodedAttrValue: seq<uint8>, attrMap: DDB.AttributeMap)
-      returns (res: Result<DDB.AttributeMap, MPL.Error>) 
+  function method AddAttributeToMap(ddbAttrKey: seq<uint8>, encodedAttrValue: seq<uint8>, attrMap: DDB.AttributeMap)
+      : (res: Result<DDB.AttributeMap, MPL.Error>) 
     requires |ddbAttrKey| >= |DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|
   {
     // Obtain attribute name from EC kvPair key
@@ -115,7 +115,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
         .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
 
     // Add to our AttributeMap
-    return Success(attrMap[ddbAttrName := ddbAttrValue.val]);
+    Success(attrMap[ddbAttrName := ddbAttrValue.val])
   }
   
   function method ConvertToMplError(err: Error)
