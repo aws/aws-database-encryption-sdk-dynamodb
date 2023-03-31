@@ -242,7 +242,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
         ScanResponse scanResponse  = ddbKmsKeyring.scan(scanRequest);
         assertEquals(200, scanResponse.sdkHttpResponse().statusCode());
-        assertEquals(2, scanResponse.count());
+        assertEquals(2, (double) scanResponse.count());
         Map<String, AttributeValue> item = scanResponse.items().get(0);
         assertEquals(partitionValue, item.get(TEST_PARTITION_NAME).s());
         assertEquals(attrValue, item.get(TEST_ATTR_NAME).s());
@@ -283,7 +283,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
         QueryResponse queryResponse  = ddbKmsKeyring.query(queryRequest);
         assertEquals(200, queryResponse.sdkHttpResponse().statusCode());
-        assertEquals(1, queryResponse.count());
+        assertEquals(1, (double) queryResponse.count());
         Map<String, AttributeValue> item = queryResponse.items().get(0);
         assertEquals(partitionValue, item.get(TEST_PARTITION_NAME).s());
         assertEquals(sortValue2, item.get(TEST_SORT_NAME).n());
