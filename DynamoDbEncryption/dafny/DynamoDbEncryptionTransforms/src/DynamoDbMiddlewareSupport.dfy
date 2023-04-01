@@ -106,7 +106,7 @@ module DynamoDbMiddlewareSupport {
   function method {:opaque} QueryInputForBeacons(config : ValidTableConfig, req : DDB.QueryInput)
     : Result<DDB.QueryInput, Error>
   {
-    BS.QueryInputForBeacons(config.itemEncryptor.config, req)
+    BS.QueryInputForBeacons(config, req)
       .MapFailure(e => E(e))
   }
 
@@ -118,7 +118,7 @@ module DynamoDbMiddlewareSupport {
       && ret.value.Items.Some?
       && |ret.value.Items.value| == |resp.Items.value|
   {
-    BS.QueryOutputForBeacons(config.itemEncryptor.config, req, resp)
+    BS.QueryOutputForBeacons(config, req, resp)
       .MapFailure(e => E(e))
   }
 
@@ -126,7 +126,7 @@ module DynamoDbMiddlewareSupport {
   function method {:opaque} ScanInputForBeacons(config : ValidTableConfig, req : DDB.ScanInput)
     : Result<DDB.ScanInput, Error>
   {
-    BS.ScanInputForBeacons(config.itemEncryptor.config, req)
+    BS.ScanInputForBeacons(config, req)
       .MapFailure(e => E(e))
   }
 
@@ -138,7 +138,7 @@ module DynamoDbMiddlewareSupport {
       && ret.value.Items.Some?
       && |ret.value.Items.value| == |resp.Items.value|
   {
-    BS.ScanOutputForBeacons(config.itemEncryptor.config, req, resp)
+    BS.ScanOutputForBeacons(config, req, resp)
       .MapFailure(e => E(e))
   }
 }

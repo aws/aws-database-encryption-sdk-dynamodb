@@ -27,6 +27,7 @@ module DynamoDBSupport {
   import opened DdbVirtualFields
   import opened DdbMiddlewareConfig
   import opened DynamoDBIndexSupport
+  import opened SearchableEncryptionInfo
   import UTF8
   import SortedSets
   import Seq
@@ -217,14 +218,27 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryInput object for searchable encryption.
-  function method QueryInputForBeacons(config : ValidConfig, req : DDB.QueryInput)
+  function method QueryInputForBeacons(config : ValidTableConfig, req : DDB.QueryInput)
     : Result<DDB.QueryInput, string>
   {
-    Success(req)
+    if config.search.None? then
+      Success(req)
+    else
+      var context1 := Filter.ExprContext(req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
+      var context2 :- Filter.Beaconize(config.search.value.curr(), context1).MapFailure(e => "Beaconize failure");
+      var context3 := context2.(expr := req.FilterExpression);
+      var context4 :- Filter.Beaconize(config.search.value.curr(), context3).MapFailure(e => "Beaconize failure");
+      // TODO, pass through error
+      Success(req.(
+        KeyConditionExpression := context2.expr,
+        FilterExpression := context4.expr,
+        ExpressionAttributeNames := context4.names,
+        ExpressionAttributeValues := context4.values
+      ))
   }
 
   // Transform a QueryOutput object for searchable encryption.
-  function method QueryOutputForBeacons(config : ValidConfig, req : DDB.QueryInput, resp : DDB.QueryOutput)
+  function method QueryOutputForBeacons(config : ValidTableConfig, req : DDB.QueryInput, resp : DDB.QueryOutput)
     : (ret : Result<DDB.QueryOutput, string>)
     requires resp.Items.Some?
     ensures ret.Success? ==>
@@ -235,14 +249,24 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanInput object for searchable encryption.
-  function method ScanInputForBeacons(config : ValidConfig, req : DDB.ScanInput)
+  function method ScanInputForBeacons(config : ValidTableConfig, req : DDB.ScanInput)
     : Result<DDB.ScanInput, string>
   {
-    Success(req)
+    if config.search.None? then
+      Success(req)
+    else
+      var context := Filter.ExprContext(req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
+      var newContext :- Filter.Beaconize(config.search.value.curr(), context).MapFailure(e => "Beaconize failure");
+      // TODO, pass through error
+      Success(req.(
+        FilterExpression := newContext.expr,
+        ExpressionAttributeNames := newContext.names,
+        ExpressionAttributeValues := newContext.values
+      ))
   }
 
   // Transform a ScanOutput object for searchable encryption.
-  function method ScanOutputForBeacons(config : ValidConfig, req : DDB.ScanInput, resp : DDB.ScanOutput)
+  function method ScanOutputForBeacons(config : ValidTableConfig, req : DDB.ScanInput, resp : DDB.ScanOutput)
     : (ret : Result<DDB.ScanOutput, string>)
     requires resp.Items.Some?
     ensures ret.Success? ==>

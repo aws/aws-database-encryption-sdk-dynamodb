@@ -39,6 +39,12 @@ module SearchableEncryptionInfo {
       && forall v <- versions :: v.ValidState()
     }
 
+    function method curr() : BeaconVersion
+      requires ValidState()
+    {
+      versions[currWrite]
+    }
+
     predicate method IsBeacon(field : string)
       requires ValidState()
     {
