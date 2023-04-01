@@ -299,6 +299,7 @@ test_java:
 local_transpile_impl_java_service: TARGET=java
 local_transpile_impl_java_service: OUT=runtimes/java/ImplementationFromDafny
 local_transpile_impl_java_service: local_transpile_impl_service
+	rm runtimes/java/ImplementationFromDafny-java/ImplementationFromDafny.java
 	cp -R runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
 	rm -rf runtimes/java/ImplementationFromDafny-java/
 
@@ -318,6 +319,7 @@ local_transpile_impl_service: transpile_implementation
 local_transpile_test_java_service: TARGET=java
 local_transpile_test_java_service: OUT=runtimes/java/TestsFromDafny
 local_transpile_test_java_service: local_transpile_test_service
+	rm runtimes/java/TestsFromDafny-java/TestsFromDafny.java
 	cp -R runtimes/java/TestsFromDafny-java/* runtimes/java/src/test/dafny-generated
 	rm -rf runtimes/java/TestsFromDafny-java
 

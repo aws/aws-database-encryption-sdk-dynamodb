@@ -125,23 +125,20 @@ module TestDynamoDBFilterExpr {
     var context := ExprContext (
       expr := Some("std2 < :A AND #Field4 = :B"),
       values:= Some(map[
-        ":A" := DDB.AttributeValue.N("1.23"),
-        ":B" := DDB.AttributeValue.S("abc")
+        ":A" := Std2String,
+        ":B" := Std4String
       ]),
       names := Some(map[
         "#Field4" := "std4"
       ])
     );
-    /*
-    var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, EmptyBeacons, [1,2,3,4,5]);
+    var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
     var newContext :- expect Beaconize(beaconVersion, context);
-    expect newContext.expr == Some("aws_dbe_b_std2 < :A AND #Field4 = :B");
-    expect newContext.names == Some(map["#Field4" := "aws_dbe_b_std4"]);
+    expect_equal(newContext.expr, Some("aws_dbe_b_std2 < :A AND #Field4 = :B"));
+    expect_equal(newContext.names, Some(map["#Field4" := "aws_dbe_b_std4"]));
     var itemBeacons :- expect beaconVersion.GenerateBeacons(SimpleItem);
-    print "\n", itemBeacons, "\n";
     expect "aws_dbe_b_std2" in itemBeacons;
     expect "aws_dbe_b_std4" in itemBeacons;
-    expect newContext.values == Some(map[":A" := itemBeacons["aws_dbe_b_std2"], ":B" := itemBeacons["aws_dbe_b_std4"]]);
-    */
+    expect_equal(newContext.values, Some(map[":A" := itemBeacons["aws_dbe_b_std2"], ":B" := itemBeacons["aws_dbe_b_std4"]]));
   }
 }

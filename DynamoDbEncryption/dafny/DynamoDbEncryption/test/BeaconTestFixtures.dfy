@@ -31,7 +31,7 @@ module BeaconTestFixtures {
     constructors := None
   )
   const YearName := CompoundBeacon (
-    name := "NameTitle",
+    name := "YearName",
     split := ".",
     sensitive := [Name],
     nonSensitive := Some([Year]),
@@ -45,7 +45,7 @@ module BeaconTestFixtures {
     constructors := None
   )
   const BadPrefix2 := CompoundBeacon (
-    name := "BadPrefix",
+    name := "BadPrefix2",
     split := ".",
     sensitive := [Name],
     nonSensitive := Some([Nothing]),
@@ -125,7 +125,7 @@ module BeaconTestFixtures {
 
   const SimpleItem : DDB.AttributeMap := map[
     "std2" := Std2String,
-    "std4" := Std2String,
+    "std4" := Std4String,
     "std6" := Std6List,
     "Date" := DateMap,
     "Year" := YearString,

@@ -168,6 +168,44 @@ module DynamoDBFilterExpr {
       GetInPos(expr, pos-2)
   }
 
+  function method RealName(s : string) : string
+  {
+    if BeaconPrefix < s then
+      s[|BeaconPrefix|..]
+    else
+      s
+  }
+
+  predicate method HasBeacon(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
+  {
+    if t.Attr? then
+      var name := RealName(t.s);
+      || name in b.beacons
+      || (names.Some? && name in names.value && RealName(names.value[name]) in b.beacons)
+    else
+      false
+  }
+
+  function method GetBeacon(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
+    : Option<SI.Beacon>
+    requires HasBeacon(b, t, names)
+  {
+    if t.Attr? then
+      var name := RealName(t.s);
+      if name in b.beacons then
+        Some(b.beacons[name])
+      else if names.Some? && name in names.value then
+        var name2 := RealName(names.value[name]);
+        if name2 in b.beacons then
+          Some(b.beacons[name2])
+        else
+          None
+      else
+        None
+    else
+      None
+  }
+  
   // expr[pos] is a value; return the beacon t which that value refers
   function method BeaconForValue(
     b : SI.BeaconVersion,
@@ -181,28 +219,28 @@ module DynamoDBFilterExpr {
     requires expr[pos].Value?
   {
     // value < ATTR
-    if pos+2 < |expr| && IsComp(expr[1]) && expr[2].Attr? && expr[2].s in b.beacons then
-      Some(b.beacons[expr[2].s])
+    if pos+2 < |expr| && IsComp(expr[pos+1]) && HasBeacon(b, expr[pos+2], names) then
+      GetBeacon(b, expr[pos+2], names)
     // ATTR < value
-    else if 2 <= pos && IsComp(expr[pos-1]) && expr[pos-2].Attr? && expr[pos-2].s in b.beacons then
-      Some(b.beacons[expr[pos-2].s])
+    else if 2 <= pos && IsComp(expr[pos-1]) && HasBeacon(b, expr[pos-2], names) then
+      GetBeacon(b, expr[pos-2], names)
     // contains(ATTR, value .or. begins_with(ATTR, value 
     else if 4 <= pos && (expr[pos-4].Contains? || expr[pos-4].BeginsWith?) && expr[pos-3].Open?
-    && expr[pos-2].Attr? && expr[pos-2].s in b.beacons && expr[pos-1].Comma? then
-      Some(b.beacons[expr[pos-2].s])
+    && HasBeacon(b, expr[pos-2], names) && expr[pos-1].Comma? then
+      GetBeacon(b, expr[pos-2], names)
     // ATTR BETWEEN value
-    else if 2 <= pos && expr[pos-1].Between? && expr[pos-2].Attr? && expr[pos-2].s in b.beacons then
-      Some(b.beacons[expr[pos-2].s])
+    else if 2 <= pos && expr[pos-1].Between? && HasBeacon(b, expr[pos-2], names) then
+      GetBeacon(b, expr[pos-2], names)
     // ATTR BETWEEN * and value
-    else if 4 <= pos && expr[pos-1].And? && expr[pos-3].Between? && expr[pos-4].Attr? && expr[pos-4].s in b.beacons then
-      Some(b.beacons[expr[pos-4].s])
+    else if 4 <= pos && expr[pos-1].And? && expr[pos-3].Between? && HasBeacon(b, expr[pos-4], names) then
+      GetBeacon(b, expr[pos-4], names)
     // ATTR IN value, value, value, ...
     else if expr[pos].Value? then
       var in_pos := GetInPos(expr, pos);
       if in_pos.None? then
         None
-      else if expr[in_pos.value-1].Attr? && expr[in_pos.value-1].s in b.beacons then
-        Some(b.beacons[expr[in_pos.value-1].s])
+      else if HasBeacon(b, expr[in_pos.value-1], names) then
+        GetBeacon(b, expr[in_pos.value-1], names)
       else
         None
     else
@@ -267,7 +305,7 @@ module DynamoDBFilterExpr {
       var oldValue := values[expr[pos].s];
       var bec := BeaconForValue(b, expr, pos, oldValue, names);
       if bec.None? then
-          BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
+        BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
       else
         var newValue :- bec.value.GetBeaconValue(oldValue);
         BeaconizeParsedExpr(b, expr, pos+1, values[expr[pos].s := newValue], names, acc + [expr[pos]])
