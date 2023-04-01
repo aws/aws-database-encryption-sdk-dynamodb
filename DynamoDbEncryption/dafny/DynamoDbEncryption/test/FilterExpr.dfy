@@ -135,7 +135,9 @@ module TestDynamoDBFilterExpr {
     var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
     var newContext :- expect Beaconize(beaconVersion, context);
     expect_equal(newContext.expr, Some("aws_dbe_b_std2 < :A AND #Field4 = :B"));
-    expect_equal(newContext.names, Some(map["#Field4" := "aws_dbe_b_std4"]));
+    var newName := "aws_dbe_b_std4";
+    expect IsValid_AttributeName(newName);
+    expect_equal(newContext.names, Some(map["#Field4" := newName]));
     var itemBeacons :- expect beaconVersion.GenerateBeacons(SimpleItem);
     expect "aws_dbe_b_std2" in itemBeacons;
     expect "aws_dbe_b_std4" in itemBeacons;
