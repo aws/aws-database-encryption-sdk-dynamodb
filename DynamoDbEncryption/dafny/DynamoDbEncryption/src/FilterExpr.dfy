@@ -247,13 +247,13 @@ module DynamoDBFilterExpr {
       None
   }
 
-  // expr[pos] is an argument to a function
-  // Does that function participate in beacons?
+  // expr[pos] is an argument to a function, which is an Attr which is a beacon
+  // return false if that function operates directly on encrypted values
   predicate method OpNeedsBeacon(expr : seq<Token>, pos : nat)
     requires pos < |expr|
     requires expr[pos].Attr?
   {
-    // false if attr_exists(ATTR), or  attr_not_exists(ATTR) or size(ATTR)
+    // false if attr_exists(ATTR), or  attr_not_exists(ATTR)
     // true otherwise
     if pos < 2 then
       true
@@ -262,11 +262,36 @@ module DynamoDBFilterExpr {
     else
       TokenNeedsBeacon(expr[pos-2])
   }
+
+  // expr[pos] is an argument to a function, which is an Attr which is a beacon
+  // return an error if that function can operate neither on encrypted values nor on beacons
+  function method IsAllowedOnBeacon(expr : seq<Token>, pos : nat, name : string) : Result<bool, Error>
+    requires pos < |expr|
+    requires expr[pos].Attr?
+  {
+    // error if size(ATTR) or attribute_type(ATTR, type)
+    // true otherwise
+    if pos < 2 then
+      Success(true)
+    else if !expr[pos-1].Open? then
+      Success(true)
+    else if TokenAllowsBeacon(expr[pos-2]) then
+      Success(true)
+    else
+      Failure(E("Function " + TokenToString(expr[pos-2]) + " cannot be used on encrypted fields, but it is being used with " + name))
+  }
+
   predicate method TokenNeedsBeacon(t : Token)
   {
     !(
       || t.AttributeExists?
       || t.AttributeNotExists?
+    )
+  }
+  predicate method TokenAllowsBeacon(t : Token)
+  {
+    !(
+      || t.AttributeType?
       || t.Size?
     )
   }
@@ -290,6 +315,7 @@ module DynamoDBFilterExpr {
       :- Need(!isIndirectName || (names.Some? && expr[pos].s in names.value), E("Name " + expr[pos].s + " not in ExpressionAttributeNameMap."));
       var oldName := if isIndirectName then names.value[expr[pos].s] else expr[pos].s;
       if b.IsBeacon(oldName) then
+        var _ :- IsAllowedOnBeacon(expr, pos, oldName);
         if OpNeedsBeacon(expr, pos) then
           var newName := b.beacons[oldName].getBeaconName();
           if isIndirectName then
@@ -1061,15 +1087,26 @@ module DynamoDBFilterExpr {
   // return the results for which the expression is true
   function method FilterResults(
     ItemList : DDB.ItemList,
+    KeyExpression : Option<DDB.KeyExpression>,
     FilterExpression : Option<DDB.ConditionExpression>,
     ExpressionAttributeNames : Option<DDB.ExpressionAttributeNameMap>,
     ExpressionAttributeValues: Option<DDB.ExpressionAttributeValueMap>) : Result<DDB.ItemList, Error>
   {
-    if |ItemList| == 0 || FilterExpression.None? then
+    if |ItemList| == 0 || ExpressionAttributeValues.None? || (KeyExpression.None? && FilterExpression.None?) then
       Success(ItemList)
     else
-      var parsed :- GetParsedExpr(FilterExpression.value);
-      FilterItems(parsed, ItemList)
+      var afterKeys :-
+        if KeyExpression.Some? then
+          var parsed :- GetParsedExpr(KeyExpression.value);
+          FilterItems(parsed, ItemList)
+        else
+          Success(ItemList);
+
+      if FilterExpression.Some? then
+        var parsed :- GetParsedExpr(FilterExpression.value);
+        FilterItems(parsed, afterKeys)
+      else
+        Success(afterKeys)
   }
 
   // Get the name, possibly looking it up in the map
