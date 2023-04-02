@@ -5,7 +5,6 @@
   Support routines for Local and Global Index structures
 */
 
-include "Index.dfy"
 include "Util.dfy"
 include "UpdateExpr.dfy"
 include "FilterExpr.dfy"

@@ -36,6 +36,7 @@ module DynamoDBFilterExpr {
   import opened DynamoDbEncryptionUtil
   import FloatCompare
   import Seq
+  import StandardLibrary.String
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
@@ -180,7 +181,7 @@ module DynamoDBFilterExpr {
     else
       None
   }
-  
+
   // expr[pos] is a value; return the beacon t which that value refers
   function method BeaconForValue(
     b : SI.BeaconVersion,
@@ -199,7 +200,7 @@ module DynamoDBFilterExpr {
     // ATTR < value
     else if 2 <= pos && IsComp(expr[pos-1]) && HasBeacon(b, expr[pos-2], names) then
       GetBeacon(b, expr[pos-2], names)
-    // contains(ATTR, value .or. begins_with(ATTR, value 
+    // contains(ATTR, value .or. begins_with(ATTR, value
     else if 4 <= pos && (expr[pos-4].Contains? || expr[pos-4].BeginsWith?) && expr[pos-3].Open?
     && HasBeacon(b, expr[pos-2], names) && expr[pos-1].Comma? then
       GetBeacon(b, expr[pos-2], names)
@@ -666,7 +667,23 @@ module DynamoDBFilterExpr {
     | Str(s : DDB.AttributeValue)
     | DoesNotExist
 
-  // returns th string value
+  function method GetSize(value : DDB.AttributeValue) : nat
+  {
+    match value {
+      case S(s) => |s|
+      case N(n) => |n|
+      case B(n) => |n|
+      case SS(n) => |n|
+      case NS(n) => |n|
+      case BS(n) => |n|
+      case M(n) => |n|
+      case L(n) => |n|
+      case NULL(n) => 1
+      case BOOL(n) => 1
+    }
+  }
+
+  // returns the string value
   function method GetStr(s : StackValue) : DDB.AttributeValue
   {
     match s
@@ -896,7 +913,14 @@ module DynamoDBFilterExpr {
         else
           Failure(E("Wrong Types for contains"))
 
-      case Size => Success(Bool(true)) // What???
+      case Size =>
+        if |stack| < 1 then
+          Failure(E("No Stack for Size"))
+        else if !stack[|stack|-1].Str? then
+          Failure(E("Wrong Types for Size"))
+        else
+          var n := GetSize(stack[|stack|-1].s);
+          Success(Str(DDB.AttributeValue.N(String.Base10Int2String(n))))
       case _ => Success(Bool(true))
     }
   }
