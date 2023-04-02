@@ -14,8 +14,8 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbTableEncryptionCo
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbTablesEncryptionConfig;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_DynamoDbEncryptionException;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetBranchKeyIdFromItemInput;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetBranchKeyIdFromItemOutput;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetBranchKeyIdFromDdbKeyInput;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetBranchKeyIdFromDdbKeyOutput;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetPrefix;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegment;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetSegments;
@@ -154,9 +154,9 @@ public class ToDafny {
 
   public static CreateDynamoDbEncryptionBranchKeyIdSupplierInput CreateDynamoDbEncryptionBranchKeyIdSupplierInput(
       software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput nativeValue) {
-    Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbItemBranchKeyIdSupplier ddbItemBranchKeyIdSupplier;
-    ddbItemBranchKeyIdSupplier = ToDafny.DynamoDbItemBranchKeyIdSupplier(nativeValue.ddbItemBranchKeyIdSupplier());
-    return new CreateDynamoDbEncryptionBranchKeyIdSupplierInput(ddbItemBranchKeyIdSupplier);
+    Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
+    ddbKeyBranchKeyIdSupplier = ToDafny.DynamoDbKeyBranchKeyIdSupplier(nativeValue.ddbKeyBranchKeyIdSupplier());
+    return new CreateDynamoDbEncryptionBranchKeyIdSupplierInput(ddbKeyBranchKeyIdSupplier);
   }
 
   public static DynamoDbTablesEncryptionConfig DynamoDbTablesEncryptionConfig(
@@ -245,6 +245,13 @@ public class ToDafny {
     return new GetSegment(split, index);
   }
 
+  public static GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKeyOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput nativeValue) {
+    DafnySequence<? extends Character> branchKeyId;
+    branchKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyId());
+    return new GetBranchKeyIdFromDdbKeyOutput(branchKeyId);
+  }
+
   public static CreateDynamoDbEncryptionBranchKeyIdSupplierOutput CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
       software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput nativeValue) {
     IBranchKeyIdSupplier branchKeyIdSupplier;
@@ -321,20 +328,6 @@ public class ToDafny {
     return new BeaconVersion(version, keyring, standardBeacons, compoundBeacons, virtualFields);
   }
 
-  public static GetBranchKeyIdFromItemOutput GetBranchKeyIdFromItemOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromItemOutput nativeValue) {
-    DafnySequence<? extends Character> branchKeyId;
-    branchKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyId());
-    return new GetBranchKeyIdFromItemOutput(branchKeyId);
-  }
-
-  public static GetBranchKeyIdFromItemInput GetBranchKeyIdFromItemInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromItemInput nativeValue) {
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> ddbItem;
-    ddbItem = Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeMap(nativeValue.ddbItem());
-    return new GetBranchKeyIdFromItemInput(ddbItem);
-  }
-
   public static Upper Upper(
       software.amazon.cryptography.dynamoDbEncryption.model.Upper nativeValue) {
     return new Upper();
@@ -362,6 +355,13 @@ public class ToDafny {
     Boolean required;
     required = (nativeValue.required());
     return new ConstructorPart(name, required);
+  }
+
+  public static GetBranchKeyIdFromDdbKeyInput GetBranchKeyIdFromDdbKeyInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyInput nativeValue) {
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> ddbKey;
+    ddbKey = Dafny.Com.Amazonaws.Dynamodb.ToDafny.Key(nativeValue.ddbKey());
+    return new GetBranchKeyIdFromDdbKeyInput(ddbKey);
   }
 
   public static Error Error(DynamoDbEncryptionException nativeValue) {
@@ -513,9 +513,9 @@ public class ToDafny {
         software.amazon.cryptography.dynamoDbEncryption.ToDafny::DynamoDbTableEncryptionConfig);
   }
 
-  public static Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbItemBranchKeyIdSupplier DynamoDbItemBranchKeyIdSupplier(
-      IDynamoDbItemBranchKeyIdSupplier nativeValue) {
-    return DynamoDbItemBranchKeyIdSupplier.wrap(nativeValue).impl();
+  public static Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbKeyBranchKeyIdSupplier DynamoDbKeyBranchKeyIdSupplier(
+      IDynamoDbKeyBranchKeyIdSupplier nativeValue) {
+    return DynamoDbKeyBranchKeyIdSupplier.wrap(nativeValue).impl();
   }
 
   public static Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor LegacyDynamoDbEncryptor(

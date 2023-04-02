@@ -25,7 +25,7 @@ module AwsCryptographyDynamoDbEncryptionOperations refines AbstractAwsCryptograp
     input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput
   ) returns (output: Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>) {
     var supplier := new DynamoDbEncryptionBranchKeyIdSupplier.DynamoDbEncryptionBranchKeyIdSupplier(
-        input.ddbItemBranchKeyIdSupplier
+        input.ddbKeyBranchKeyIdSupplier
     );
     return Success(
         CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(

@@ -17,7 +17,7 @@ use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeName
-use com.amazonaws.dynamodb#AttributeMap
+use com.amazonaws.dynamodb#Key
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
 use aws.cryptography.structuredEncryption#CryptoAction
@@ -331,24 +331,24 @@ structure SearchConfig {
 structure AtomicPrimitivesReference {}
 
 @extendable
-resource DynamoDbItemBranchKeyIdSupplier{
-  operations: [GetBranchKeyIdFromItem]
+resource DynamoDbKeyBranchKeyIdSupplier{
+  operations: [GetBranchKeyIdFromDdbKey]
 }
 
-@reference(resource: DynamoDbItemBranchKeyIdSupplier)
-structure DynamoDbItemBranchKeyIdSupplierReference {}
+@reference(resource: DynamoDbKeyBranchKeyIdSupplier)
+structure DynamoDbKeyBranchKeyIdSupplierReference {}
 
-operation GetBranchKeyIdFromItem {
-  input: GetBranchKeyIdFromItemInput,
-  output: GetBranchKeyIdFromItemOutput
+operation GetBranchKeyIdFromDdbKey {
+  input: GetBranchKeyIdFromDdbKeyInput,
+  output: GetBranchKeyIdFromDdbKeyOutput
 }
 
-structure GetBranchKeyIdFromItemInput {
+structure GetBranchKeyIdFromDdbKeyInput {
   @required
-  ddbItem: AttributeMap
+  ddbKey: Key
 }
 
-structure GetBranchKeyIdFromItemOutput {
+structure GetBranchKeyIdFromDdbKeyOutput {
   @required
   branchKeyId: String
 }
@@ -360,7 +360,7 @@ operation CreateDynamoDbEncryptionBranchKeyIdSupplier {
 
 structure CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
   @required
-  ddbItemBranchKeyIdSupplier: DynamoDbItemBranchKeyIdSupplierReference,
+  ddbKeyBranchKeyIdSupplier: DynamoDbKeyBranchKeyIdSupplierReference,
 }
 
 structure CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
