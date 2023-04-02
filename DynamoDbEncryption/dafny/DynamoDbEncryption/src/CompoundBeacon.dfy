@@ -41,10 +41,12 @@ module CompoundBeacon {
     length : Option<BeaconLength>
   ) {
 
-    // TODO virtual fields
-    function method GetFields() : seq<string>
+  function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
-      [loc[0].key]
+      if loc[0].key in virtualFields then
+        virtualFields[loc[0].key].GetFields()
+      else
+        [loc[0].key]
     }
   }
 
@@ -76,9 +78,9 @@ module CompoundBeacon {
       Success(part[0])
     }
 
-    function method GetFields() : seq<string>
+    function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
-      Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(), parts))
+      Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
     }
 
     function method FindAndCalcPart(value : string) : Result<string, Error>
@@ -313,6 +315,15 @@ module CompoundBeacon {
       |Seq.Filter((x : BeaconPart) => x.name == f.name, parts)| == 1
     }
 
+    function method ValidPartResult(f : ConstructorPart) : Result<bool, Error>
+    {
+      var count := |Seq.Filter((x : BeaconPart) => x.name == f.name, parts)|;
+      if count == 0 then
+        Failure(E("Constructor for beacon " + base.name + " mentions part " + f.name + " but no such beacon part is configured."))
+      else
+        Success(true)
+    }
+
     predicate method ValidConstructor(con : seq<ConstructorPart>)
     {
       if |con| == 0 then
@@ -321,12 +332,33 @@ module CompoundBeacon {
         ValidPart(con[0]) && ValidConstructor(con[1..])
     }
 
-    predicate method ValidConstructors(con : seq<Constructor>)
+    function method ValidConstructorResult(con : seq<ConstructorPart>) : Result<bool, Error>
+    {
+      if |con| == 0 then
+        Success(true)
+      else
+        var _ :- ValidPartResult(con[0]);
+        ValidConstructorResult(con[1..])
+    }
+
+    predicate method {:tailrecursion} ValidConstructors(con : seq<Constructor>)
     {
       if |con| == 0 then
         true
       else
-        ValidConstructor(con[0].parts) && ValidConstructors(con[1..])
+        if ValidConstructor(con[0].parts) then
+          ValidConstructors(con[1..])
+        else
+          false
+    }
+
+    function method {:tailrecursion} ValidConstructorsResult(con : seq<Constructor>) : Result<bool, Error>
+    {
+      if |con| == 0 then
+        Success(true)
+      else
+        var _ :- ValidConstructorResult(con[0].parts);
+        ValidConstructorsResult(con[1..])
     }
 
     function method ValidState()
@@ -346,10 +378,11 @@ module CompoundBeacon {
     {
       ValidPrefixSet() && ValidConstructors(construct)
     }
-    // TODO
+
     function method ValidStateResult() : Result<bool, Error>
     {
       var _ :- ValidPrefixSetResult();
+      var _ :- ValidConstructorsResult(construct);
       Success(true)
     }
 

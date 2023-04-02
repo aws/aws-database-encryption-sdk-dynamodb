@@ -970,7 +970,7 @@ module DynamoDBFilterExpr {
     else if a.B? && b.B? then
       LexicographicLessOrEqual(a.B, b.B, ByteLess)
     else
-      false // TODO, Are there other well defined < operations?
+      false
   }
   predicate method AttributeLT(a : DDB.AttributeValue, b : DDB.AttributeValue)
   {

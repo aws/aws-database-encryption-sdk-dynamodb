@@ -150,10 +150,12 @@ module BaseBeacon {
       hash(bytes)
     }
 
-    // TODO virtual fields
-    function method GetFields() : seq<string>
+    function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
-      [loc[0].key]
+      if loc[0].key in virtualFields then
+        virtualFields[loc[0].key].GetFields()
+      else
+        [loc[0].key]
     }
 
     function method GetBeaconValue(value : DDB.AttributeValue) : Result<DDB.AttributeValue, Error>
@@ -182,16 +184,9 @@ module BaseBeacon {
     {
         base.hash(val, length)
     }
-    // TODO
-    function method ValidStateResult() : Result<bool, Error>
-    {
-      Success(true)
-    }
-    // TODO
-    predicate method ValidState()
-    {
-      true
-    }
+
+    function method ValidStateResult() : Result<bool, Error> {Success(true)}
+    predicate method ValidState() {true}
   }
 
   // For a given BeaconLength, how many chars in the associated hex string?

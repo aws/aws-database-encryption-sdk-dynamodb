@@ -108,12 +108,12 @@ module SearchableEncryptionInfo {
       else
         cmp.base.beaconName
     }
-    function method GetFields() : seq<string>
+    function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
       if Standard? then
-        std.GetFields()
+        std.GetFields(virtualFields)
       else
-        cmp.GetFields()
+        cmp.GetFields(virtualFields)
     }
     function method GetBeaconValue(value : DDB.AttributeValue) : Result<DDB.AttributeValue, Error>
     {
@@ -175,7 +175,7 @@ module SearchableEncryptionInfo {
     function method GetFields(field : string) : seq<string>
     {
       if IsBeacon(field) then
-        beacons[field].GetFields() + ["aws_dbe_b_" + field]
+        beacons[field].GetFields(virtualFields) + ["aws_dbe_b_" + field]
       else
         [field]
     }
