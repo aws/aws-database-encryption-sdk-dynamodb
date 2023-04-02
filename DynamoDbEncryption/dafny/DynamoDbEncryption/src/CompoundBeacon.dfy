@@ -253,25 +253,61 @@ module CompoundBeacon {
           calcParts(pieces[1..], acc + [split] + theBeacon)
     }
 
+    static predicate method OkPrefixStringPair(x : string, y : string)
+    {
+      && !(x <= y)
+      && !(y <= x)
+    }
+    predicate method OkPrefixPair(pos1 : nat, pos2 : nat)
+      requires pos1 < |parts|
+      requires pos2 < |parts|
+    {
+      || pos1 == pos2 
+      || OkPrefixStringPair(parts[pos1].prefix, parts[pos2].prefix)
+    }
+
     predicate method ValidPrefixSet()
     {
       forall x : nat, y : nat
-        | 0 <= x <= |parts| && x < y <= |parts|
-        :: !(parts[x].prefix <= parts[x].prefix)
-    }
-/*
-    static predicate method IsEncrypted(schema : CryptoSchemaPlain, name : string)
-    {
-      && name in schema
-      && schema[name].content.Action == ENCRYPT_AND_SIGN
+        | 0 <= x < |parts| && x < y < |parts|
+        :: OkPrefixPair(x, y)
     }
 
-    predicate method ValidNonSensitive(schema : CryptoSchemaPlain)
+    function method CheckOnePrefixPart(pos1 : nat, pos2 : nat) : (ret : Result<bool, Error>)
+      requires pos1 < |parts|
+      requires pos2 < |parts|
+      ensures ret.Success? ==> OkPrefixPair(pos1, pos2)
     {
-      && |Seq.Filter((x : BeaconPart) => x.length.None? &&  IsEncrypted(schema, x.name), parts)| == 0
-      && |Seq.Filter((x : BeaconPart) => x.length.Some? && !IsEncrypted(schema, x.name), parts)| == 0
+      if !OkPrefixPair(pos1, pos2) then
+        Failure(E("Compound beacon " + base.name + " defines part " + parts[pos1].name + " with prefix " + parts[pos1].prefix
+        + " which is incompatible with part " + parts[pos2].name + " which has a prefix of " + parts[pos2].prefix + "."))
+      else
+        Success(true)
     }
-*/
+
+    function method CheckOnePrefix(pos : nat) : (ret : Result<bool, Error>)
+      requires pos < |parts|
+    {
+      var partNumbers : seq<nat> := seq(|parts|, (i : nat) => i as nat);
+      var _ :- Seq.MapWithResult((p : int) requires 0 <= p < |parts| => CheckOnePrefixPart(pos, p), seq(|parts|, i => i));
+      Success(true)
+    }
+
+    function method ValidPrefixSetResultPos(index : nat) : (ret : Result<bool, Error>)
+      decreases |parts| - index
+    {
+      if |parts| <= index then
+        Success(true)
+      else
+        var _ :- CheckOnePrefix(index);
+        ValidPrefixSetResultPos(index+1)
+    }
+
+    function method ValidPrefixSetResult() : (ret : Result<bool, Error>)
+    {
+      ValidPrefixSetResultPos(0)
+    }
+
     predicate method ValidPart(f : ConstructorPart)
     {
       |Seq.Filter((x : BeaconPart) => x.name == f.name, parts)| == 1
@@ -292,8 +328,8 @@ module CompoundBeacon {
       else
         ValidConstructor(con[0].parts) && ValidConstructors(con[1..])
     }
-/*
-    function method isValid(schema : CryptoSchemaPlain, virtualFields : map<string,string>, unauthPrefix : string)
+
+    function method ValidState()
       : (ret : bool)
       ensures ret ==>
         //= specification/searchable-encryption/beacons.md#initialization-failure
@@ -304,20 +340,19 @@ module CompoundBeacon {
 
         //= specification/searchable-encryption/beacons.md#initialization-failure
         //= type=implication
-        //# Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
-        //# any part of an encrypted field, or any [sensitive-part](#sensitive-part) fails to contain
-        //# some part of an encrypted field.
-        && ValidNonSensitive(schema)
-
-        //= specification/searchable-encryption/beacons.md#initialization-failure
-        //= type=implication
         //# Initialization MUST fail if any [constructor](#constructor) is configured with a field name
         //# that is not a defined [part](#part).
         && ValidConstructors(construct)
     {
-      ValidPrefixSet() && ValidNonSensitive(schema) && ValidConstructors(construct)
+      ValidPrefixSet() && ValidConstructors(construct)
     }
-*/
+    // TODO
+    function method ValidStateResult() : Result<bool, Error>
+    {
+      var _ :- ValidPrefixSetResult();
+      Success(true)
+    }
+
     //= specification/searchable-encryption/beacons.md#part-value-calculation
     //= type=implication
     //# Part Value Calculation MUST take a string, a prefix, and an optional [beacon length](#beacon-length) as input, and return a string as output.

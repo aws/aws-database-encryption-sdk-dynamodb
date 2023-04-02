@@ -15,15 +15,6 @@ module TestDynamoDBFilterExpr {
   import opened BeaconTestFixtures
   import opened SearchConfigToInfo
 
-  method expect_equal<T(==)>(a: T, b: T)
-    ensures a == b
-  {
-    if a != b {
-      print "Not equal: ", a, ", ", b, "\n";
-    }
-    expect a == b;
-  }
-
   method expect_contains(haystack : AttributeValue, needle : AttributeValue, negate : bool)
   {
   if does_contain(haystack, needle) != negate {

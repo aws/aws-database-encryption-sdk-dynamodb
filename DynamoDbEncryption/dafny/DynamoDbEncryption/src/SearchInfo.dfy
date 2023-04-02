@@ -28,15 +28,23 @@ module SearchableEncryptionInfo {
     function method CheckValid() : (ret : Result<bool, Error>)
       ensures ret.Success? ==> ValidState()
     {
-      // TODO - better error messages
+      var _ :- ValidStateResult();
       :- Need(ValidState(), E("State Invalid"));
       Success(true)
     }
+
     predicate method ValidState()
     {
       && 0 < |versions|
       && currWrite < |versions|
       && forall v <- versions :: v.ValidState()
+    }
+
+    // produce nice error messages for common mistakes
+    function method ValidStateResult() : Result<bool, Error>
+    {
+      var _ :- Seq.MapWithResult((v : BeaconVersion) => v.ValidStateResult(), versions);
+      Success(true)
     }
 
     function method curr() : BeaconVersion
@@ -114,7 +122,20 @@ module SearchableEncryptionInfo {
       else
         cmp.GetBeaconValue(value)
     }
-
+    function method ValidStateResult() : Result<bool, Error>
+    {
+      if Standard? then
+        std.ValidStateResult()
+      else
+        cmp.ValidStateResult()
+    }
+    predicate method ValidState()
+    {
+      if Standard? then
+        std.ValidState()
+      else
+        cmp.ValidState()
+    }
   }
 
   type BeaconMap = map<string, Beacon>
@@ -130,6 +151,15 @@ module SearchableEncryptionInfo {
       && version == 1
       && (forall k <- virtualFields :: virtualFields[k].name == k)
       && (forall k <- beacons :: beacons[k].getName() == k)
+      && (forall k <- virtualFields :: virtualFields[k].ValidState())
+      && (forall k <- beacons :: beacons[k].ValidState())
+    }
+
+    function method ValidStateResult() : Result<bool, Error>
+    {
+      var _ :- Seq.MapWithResult((k : Beacon) => k.ValidStateResult(), SortedSets.ComputeSetToSequence(beacons.Values));
+      var _ :- Seq.MapWithResult((k : VirtField) => k.ValidStateResult(), SortedSets.ComputeSetToSequence(virtualFields.Values));
+      Success(true)
     }
 
     predicate method IsBeacon(field : string)

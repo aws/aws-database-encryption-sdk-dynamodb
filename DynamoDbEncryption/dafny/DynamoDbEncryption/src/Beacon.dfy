@@ -182,6 +182,16 @@ module BaseBeacon {
     {
         base.hash(val, length)
     }
+    // TODO
+    function method ValidStateResult() : Result<bool, Error>
+    {
+      Success(true)
+    }
+    // TODO
+    predicate method ValidState()
+    {
+      true
+    }
   }
 
   // For a given BeaconLength, how many chars in the associated hex string?

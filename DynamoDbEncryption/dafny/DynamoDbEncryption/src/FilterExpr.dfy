@@ -119,31 +119,6 @@ module DynamoDBFilterExpr {
     }
   }
 
-  /*
-  function method BeaconFromName(b : SI.BeaconVersion, name : string, names : Option<DDB.ExpressionAttributeNameMap>) : (ret : Option<Beacon>)
-  {
-    if "gZ_b_" < name then
-      b.GetBeacon(name[5..])
-    else if names.Some? && name in names.value then
-      b.GetBeacon(names.value[name])
-    else
-      b.GetBeacon(name)
-  }
-  */
-  /*
-  predicate method TokenHasBeacon(b : SI.BeaconVersion, item : Token) : (ret : bool)
-    ensures ret ==> item.Attr?
-  {
-    if item.Attr? then
-      b.HasBeacon(item.s)
-    else
-      false
-  }
-  
-
-  
-  */
-
   // if expr is "ATTR IN VAL, VAL, VAL..."
   // and expr[pos] is one of the VAL's
   // return pos for the 'IN'

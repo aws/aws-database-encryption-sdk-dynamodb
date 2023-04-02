@@ -11,6 +11,16 @@ module BeaconTestFixtures {
   import DDB = ComAmazonawsDynamodbTypes
   import SE = AwsCryptographyStructuredEncryptionTypes
 
+  method expect_equal<T(==)>(a: T, b: T)
+    ensures a == b
+  {
+    if a != b {
+      print "Not equal: ", a, ", ", b, "\n";
+    }
+    expect a == b;
+  }
+
+
   const std2 := StandardBeacon(name := "std2", length := 2, loc := None)
   const std4 := StandardBeacon(name := "std4", length := 4, loc := Some("std4"))
   const std6 := StandardBeacon(name := "std6", length := 6, loc := Some("std6[0]"))

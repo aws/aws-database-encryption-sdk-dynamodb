@@ -61,6 +61,17 @@ module DdbVirtualFields {
     {
       Examine(parts, exam)
     }
+
+    // TODO
+    predicate method ValidState()
+    {
+      true
+    }
+    // TODO
+    function method ValidStateResult() : Result<bool, Error>
+    {
+      Success(true)
+    }
   }
 
   function method {:opaque} Examine(parts : seq<VirtPart>, exam : Examiner)

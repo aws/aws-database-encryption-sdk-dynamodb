@@ -4,8 +4,6 @@
 /*
   Modified DDB calls share a lot of infrastructure.
   This file captures that commonality, implementing the things in ddb-support.md
-
-  TODO - specify and implement these functions
 */
 
 include "Util.dfy"
