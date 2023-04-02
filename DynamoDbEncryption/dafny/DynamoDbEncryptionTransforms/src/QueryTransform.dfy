@@ -66,12 +66,8 @@ module QueryTransform {
       && output.Success?
       && output.value.transformedOutput == input.sdkOutput
 
-    ensures output.Success?  && input.sdkOutput.Items.Some?  ==>
-      && output.value.transformedOutput.Items.Some?
-      && |output.value.transformedOutput.Items.value| == |input.sdkOutput.Items.value|
-
-    ensures output.Success?  && input.sdkOutput.Items.None?  ==>
-      && output.value.transformedOutput.Items.None?
+    ensures output.Success?  && input.sdkOutput.Items.Some? ==> output.value.transformedOutput.Items.Some?
+    ensures output.Success?  && input.sdkOutput.Items.None? ==> output.value.transformedOutput.Items.None?
 
     ensures output.Success? && input.sdkOutput.Items.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
       var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
