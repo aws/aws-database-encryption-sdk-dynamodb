@@ -5,7 +5,7 @@
 # between all the projects in this repo.
 # They will only function if executed inside a project directory.
 
-# There are serveral variables that are used here.
+# There are several variables that are used here.
 # The expectation is to define these variables
 # inside each project.
 
@@ -14,11 +14,11 @@
 # 	This is is per project because the verification variability can differ.
 # PROJECT_DEPENDENCIES -- List of dependencies for the project.
 # 	It should be the list of top level directory names
-# SERVICES -- List of names of each local service in the project
-# SERVICE_NAMESPACE_<service> -- for each service in SERVICES,
+# PROJECT_SERVICES -- List of names of each local service in the project
+# SERVICE_NAMESPACE_<service> -- for each service in PROJECT_SERVICES,
 #   the list of dependencies for that smithy namespace. It should be a list
 #   of Model directories
-# SERVICE_DEPS_<service> -- for each service in SERVICES,
+# SERVICE_DEPS_<service> -- for each service in PROJECT_SERVICES,
 #   the list of dependencies for that smithy namespace. It should be a list
 #   of Model directories
 # AWS_SDK_CMD -- the `--aws-sdk` command to generate AWS SDK style interfaces.
@@ -34,12 +34,12 @@ PROJECT_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 LIBRARY_ROOT := $(PWD)
 # Smithy Dafny code gen needs to know
 # where the smithy model is.
-# This is generaly in the same directory as the library.
+# This is generally in the same directory as the library.
 # However in the case of a wrapped library,
 # such as the test vectors
 # the implementation MAY be in a different library
 # than the model.
-# By having two releated variables
+# By having two related variables
 # test vector projects can point to
 # the specific model they need
 # but still build everything in their local library directory.
@@ -78,8 +78,13 @@ dafny-reportgenerator:
 
 # Dafny helper targets
 
+# Transpile the entire project's impl
+_transpile_implementation_all: TRANSPILE_TARGETS=$(patsubst %, ./dafny/%/src/Index.dfy, $(PROJECT_SERVICES))
+_transpile_implementation_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES))
+_transpile_implementation_all: transpile_implementation
+
 # The `$(OUT)` and $(TARGET) variables are problematic.
-# Idealy they are different for every target call.
+# Ideally they are different for every target call.
 # However the way make evaluates variables
 # having a target specific variable is hard.
 # This all comes up because a project
@@ -87,7 +92,7 @@ dafny-reportgenerator:
 # This is worked around for now,
 # by the fact that the `TARGET`
 # for all these transpile calls will be the same.
-# For `OUT` this is solved by makeing the paths realative.
+# For `OUT` this is solved by making the paths relative.
 # So that the runtime is express once
 # and can be the same for all such runtimes.
 # Since such targets are all shared,
@@ -101,9 +106,14 @@ transpile_implementation:
 		-optimizeErasableDatatypeWrapper:0 \
 		-useRuntimeLib \
 		-out $(OUT) \
-		$(patsubst %, ./dafny/%/src/Index.dfy, $(SERVICES)) \
+		$(TRANSPILE_TARGETS) \
 		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $($(deps_var)))
+		$(TRANSPILE_DEPENDENCIES)
+
+# Transpile the entire project's tests
+_transpile_test_all: TRANSPILE_TARGETS=$(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES))
+_transpile_test_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES))
+_transpile_test_all: transpile_test
 
 transpile_test:
 	dafny \
@@ -115,9 +125,9 @@ transpile_test:
 		-optimizeErasableDatatypeWrapper:0 \
 		-useRuntimeLib \
 		-out $(OUT) \
-		$(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(SERVICES_TO_TRANSPILE)) \
-		$(patsubst %, -library:dafny/%/src/Index.dfy, $(SERVICES)) \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES))
+		$(TRANSPILE_TARGETS) \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		$(TRANSPILE_DEPENDENCIES)
 
 
 transpile_dependencies:
@@ -153,7 +163,7 @@ _polymorph:
 # Generates all target runtime code for all namespaces in this project.
 .PHONY: polymorph_code_gen
 polymorph_code_gen:
-	for service in $(SERVICES) ; do \
+	for service in $(PROJECT_SERVICES) ; do \
 		export service_deps_var=SERVICE_DEPS_$${service} ; \
 		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
 		export SERVICE=$${service} ; \
@@ -168,7 +178,7 @@ _polymorph_code_gen: _polymorph
 # Generates dafny code for all namespaces in this project
 .PHONY: polymorph_dafny
 polymorph_dafny:
-	for service in $(SERVICES) ; do \
+	for service in $(PROJECT_SERVICES) ; do \
 		export service_deps_var=SERVICE_DEPS_$${service} ; \
 		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
 		export SERVICE=$${service} ; \
@@ -181,7 +191,7 @@ _polymorph_dafny: _polymorph
 # Generates dotnet code for all namespaces in this project
 .PHONY: polymorph_dotnet
 polymorph_dotnet:
-	for service in $(SERVICES) ; do \
+	for service in $(PROJECT_SERVICES) ; do \
 		export service_deps_var=SERVICE_DEPS_$${service} ; \
 		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
 		export SERVICE=$${service} ; \
@@ -194,7 +204,7 @@ _polymorph_dotnet: _polymorph
 # Generates java code for all namespaces in this project
 .PHONY: polymorph_java
 polymorph_java:
-	for service in $(SERVICES) ; do \
+	for service in $(PROJECT_SERVICES) ; do \
 		export service_deps_var=SERVICE_DEPS_$${service} ; \
 		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
 		export SERVICE=$${service} ; \
@@ -210,13 +220,11 @@ transpile_net: | transpile_implementation_net transpile_test_net transpile_depen
 
 transpile_implementation_net: TARGET=cs
 transpile_implementation_net: OUT=runtimes/net/ImplementationFromDafny
-transpile_implementation_net: deps_var=PROJECT_DEPENDENCIES
-transpile_implementation_net: transpile_implementation
+transpile_implementation_net: _transpile_implementation_all
 
 transpile_test_net: TARGET=cs
 transpile_test_net: OUT=runtimes/net/tests/TestsFromDafny
-transpile_test_net: SERVICES_TO_TRANSPILE=$(SERVICES)
-transpile_test_net: transpile_test
+transpile_test_net: _transpile_test_all
 
 transpile_dependencies_net: LANG=net
 transpile_dependencies_net: transpile_dependencies
@@ -248,13 +256,11 @@ transpile_java: | transpile_implementation_java transpile_test_java transpile_de
 
 transpile_implementation_java: TARGET=java
 transpile_implementation_java: OUT=runtimes/java/ImplementationFromDafny
-transpile_implementation_java: deps_var=PROJECT_DEPENDENCIES
-transpile_implementation_java: transpile_implementation _mv_implementation_java
+transpile_implementation_java: _transpile_implementation_all _mv_implementation_java
 
 transpile_test_java: TARGET=java
 transpile_test_java: OUT=runtimes/java/TestsFromDafny
-transpile_test_java: SERVICES_TO_TRANSPILE=$(SERVICES)
-transpile_test_java: transpile_test _mv_test_java
+transpile_test_java: _transpile_test_all _mv_test_java
 
 # Currently Dafny compiles to Java by changing the directory name.
 # Java puts things under a `java` directory.
@@ -287,44 +293,51 @@ test_java:
 ########################## local testing targets
 
 # These targets are added as a convenience for local development.
-# If you experiene weird behavior using these targets,
+# If you experience weird behavior using these targets,
 # fall back to the regular `build` or `test` targets.
 # These targets MUST only be used for local testing,
 # and MUST NOT be used in CI.
 
 # Targets to transpile single local service for convenience.
 # Specify the local service to build by passing a SERVICE env var.
-# Note that this not guaranteed to generate identical files as `transpile_implementation_java`.
+# Note that this does not generate identical files as `transpile_implementation_java`
 
-local_transpile_impl_java_service: TARGET=java
-local_transpile_impl_java_service: OUT=runtimes/java/ImplementationFromDafny
-local_transpile_impl_java_service: local_transpile_impl_service
-	rm runtimes/java/ImplementationFromDafny-java/ImplementationFromDafny.java
+local_transpile_impl_java_single: TARGET=java
+local_transpile_impl_java_single: OUT=runtimes/java/ImplementationFromDafny
+local_transpile_impl_java_single: local_transpile_impl_single
 	cp -R runtimes/java/ImplementationFromDafny-java/* runtimes/java/src/main/dafny-generated
 	rm -rf runtimes/java/ImplementationFromDafny-java/
 
-local_transpile_impl_net_service: TARGET=cs
-local_transpile_impl_net_service: OUT=runtimes/net/ImplementationFromDafny
-local_transpile_impl_net_service: local_transpile_implservice
+local_transpile_impl_net_single: TARGET=cs
+local_transpile_impl_net_single: OUT=runtimes/net/ImplementationFromDafny
+local_transpile_impl_net_single: local_transpile_impl_single
 
-local_transpile_impl_service: SERVICES=$(SERVICE)
-local_transpile_impl_service: deps_var=SERVICE_DEPS_$(SERVICE)
-local_transpile_impl_service: transpile_implementation
+local_transpile_impl_single: deps_var=SERVICE_DEPS_$(SERVICE)
+local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/src/$(FILE)
+local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $($(deps_var))) \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+local_transpile_impl_single: transpile_implementation
 
 # Targets to transpile single local service for convenience.
 # Specify the local service to build by passing a SERVICE env var.
-# Note that this not guaranteed to generate identical files as `transpile_test_java`.
+# Note that this does not generate identical files as `transpile_test_java`,
+# and will clobber tests generated by other services.
 
-local_transpile_test_java_service: TARGET=java
-local_transpile_test_java_service: OUT=runtimes/java/TestsFromDafny
-local_transpile_test_java_service: local_transpile_test_service
-	rm runtimes/java/TestsFromDafny-java/TestsFromDafny.java
+local_transpile_test_java_single: TARGET=java
+local_transpile_test_java_single: OUT=runtimes/java/TestsFromDafny
+local_transpile_test_java_single: local_transpile_test_single
 	cp -R runtimes/java/TestsFromDafny-java/* runtimes/java/src/test/dafny-generated
 	rm -rf runtimes/java/TestsFromDafny-java
 
-local_transpile_test_net_service: TARGET=cs
-local_transpile_test_net_service: OUT=runtimes/net/tests/TestsFromDafny
-local_transpile_test_net_service: local_transpile_test_service
+local_transpile_test_net_single: TARGET=cs
+local_transpile_test_net_single: OUT=runtimes/net/tests/TestsFromDafny
+local_transpile_test_net_single: local_transpile_test_single
 
-local_transpile_test_service: SERVICES_TO_TRANSPILE=$(SERVICE)
-local_transpile_test_service: transpile_test
+local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/test/$(FILE)
+local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
+		$(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES)) \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+local_transpile_test_single: transpile_test
