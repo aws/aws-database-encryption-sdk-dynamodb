@@ -3,34 +3,44 @@
 
 /*
 
-Parse a DynamoDB FilterExpression, ConditionExpression or KeyConditionExpression
+• Parse a DynamoDB FilterExpression, ConditionExpression or KeyConditionExpression
 
   // If none of these attributes are encrypted, then you can let DynamoDB
   // treat this expression normally.
-  ExtractAttributes(s : string, ex : Option<ExpressionAttributeNameMap>) : seq<string>
+  ExtractAttributes(expr : string, names : Option<ExpressionAttributeNameMap>) : seq<string>
+
+• Beaconize a ConditionExpression or KeyConditionExpression
+• e.g. transform plain expression "A = B" into beacon expression "aws_dbe_b_A = beacon(B)"
+
+  datatype ExprContext = ExprContext (
+    expr : Option<DDB.ConditionExpression>,
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+
+  function method Beaconize(b : SI.BeaconVersion, context : ExprContext) : ExprContext
 
 */
 
 
 include "Util.dfy"
 include "SearchInfo.dfy"
-include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "AwsCryptographyDynamoDbEncryptionOperations.dfy"
-include "../../../../submodules/MaterialProviders/StandardLibrary/src/FloatCompare.dfy"
 
 module DynamoDBFilterExpr {
-  import opened UTF8
+  import opened AwsCryptographyDynamoDbEncryptionTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import DDB = ComAmazonawsDynamodbTypes
+  import SI = SearchableEncryptionInfo
+  import opened DynamoDbEncryptionUtil
   import FloatCompare
   import Seq
+  import StandardLibrary.String
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
-  function method ExtractAttributes(s : string, ex : Option<ExpressionAttributeNameMap>) : seq<string>
+  function method ExtractAttributes(s : string, ex : Option<DDB.ExpressionAttributeNameMap>) : seq<string>
   {
     var tokens := ParseExpr(s);
     ExtractAttributes2(tokens, ex, -1)
@@ -47,7 +57,7 @@ module DynamoDBFilterExpr {
   // the recursive inside of ExtractAttributes
   function method {:tailrecursion} ExtractAttributes2(
     tokens : seq<Token>,
-    ex : Option<ExpressionAttributeNameMap>,
+    ex : Option<DDB.ExpressionAttributeNameMap>,
     tokensUntilSkip : int)
     : seq<string>
   {
@@ -110,145 +120,200 @@ module DynamoDBFilterExpr {
     }
   }
 
-  /*
-
-  Please forgive the commented code. I promise it will be either deleted or uncommented by April 17th
-
-  function method BeaconValue(beacons : BeaconVersion, name : string, attr : AttributeValue) : Result<AttributeValue, string>
+  // if expr is "ATTR IN VAL, VAL, VAL..."
+  // and expr[pos] is one of the VAL's
+  // return pos for the 'IN'
+  // else return None
+  function method {:tailrecursion} GetInPos(expr : seq<Token>, pos : nat) : (ret : Option<nat>)
+    requires pos < |expr|
+    ensures ret.Some? ==> ret.value >= 1 && ret.value < |expr|
   {
-    var b := beacons.GetBeacon(name);
-    if b.None? then
-      Failure("No beacon for " + name)
+    if pos < 1 then
+      None
+    else if expr[pos].In? then
+      Some(pos)
+    else if !expr[pos].Value? then
+      None
+    else if pos < 2 then
+      None
+    else if expr[pos-1].In? then
+      Some(pos-1)
+    else if !expr[pos-1].Comma? then
+      None
     else
-      BeaconValue2(b.value, name, attr)
+      GetInPos(expr, pos-2)
   }
-  
-  function method BeaconValue2(b : Beacon, name : string, attr : AttributeValue) : Result<AttributeValue, string>
-  {
-    if b.IsPlain() then
-      var bytes :- AttributeToBytes(attr);
-      Success(AttributeValue.S(b.PlainHash(bytes)))
-    else if attr.S? then
-      var str :- b.CompoundHash(attr.StringAttributeValue);
-      Success(AttributeValue.S(""))
-    else
-      Failure("Attribute " + name + " uses compound hash, but is not of type string")
-  }
-  */
 
-  /*
-  function method BeaconFromName(b : BeaconVersion, name : string, names : Option<ExpressionAttributeNameMap>) : (ret : Option<Beacon>)
+  function method RealName(s : string) : string
   {
-    if "gZ_b_" < name then
-      b.GetBeacon(name[5..])
-    else if names.Some? && name in names.value then
-      b.GetBeacon(names.value[name])
+    if BeaconPrefix < s then
+      s[|BeaconPrefix|..]
     else
-      b.GetBeacon(name)
+      s
   }
-  */
-  /*
-  predicate method TokenHasBeacon(b : BeaconVersion, item : Token) : (ret : bool)
-    ensures ret ==> item.Attr?
+
+  predicate method HasBeacon(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
   {
-    if item.Attr? then
-      b.HasBeacon(item.s)
+    if t.Attr? then
+      var name := RealName(t.s);
+      || name in b.beacons
+      || (names.Some? && name in names.value && RealName(names.value[name]) in b.beacons)
     else
       false
   }
-  
-  // ATTR IN VAL, VAL, VAL
-  function method {:tailrecursion} GetInPos(b : BeaconVersion, before : seq<Token>, acc : Option<nat> := None) : (ret : Option<nat>)
-    ensures ret.Some? ==> ret.value >= 2
+
+  function method GetBeacon(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
+    : Option<SI.Beacon>
+    requires HasBeacon(b, t, names)
   {
-    if |before| < 2 then
-      None
-    else if TokenHasBeacon(b, before[|before|-2]) && before[|before|-1].In? then
-      if acc.Some? then
-        Some(acc.value+2)
+    if t.Attr? then
+      var name := RealName(t.s);
+      if name in b.beacons then
+        Some(b.beacons[name])
+      else if names.Some? && name in names.value then
+        var name2 := RealName(names.value[name]);
+        if name2 in b.beacons then
+          Some(b.beacons[name2])
+        else
+          None
       else
-        Some(2)
-    else if !before[|before|-2].Value? || !before[|before|-1].Comma? then
-     None
-    else if acc.None? then
-      GetInPos(b, before[..|before|-2], Some(2))
+        None
     else
-      GetInPos(b, before[..|before|-2], Some(acc.value+2))
-  }
-  
-  // return the beacon that should be used to encode this value, if any.
-  function method BeaconFromValue(
-    b : BeaconVersion,
-    name : string,
-    before : seq<Token>,
-    after : seq<Token>,
-    values: ExpressionAttributeValueMap,
-    names : Option<ExpressionAttributeNameMap>)
-    : (ret : Option<Beacon>)
-    ensures ret.Some? ==> name in values
-  {
-    if name !in values then
       None
-    // VAL <
-    else if 2 <= |after| && IsComp(after[0]) && TokenHasBeacon(b, after[1]) then
-      BeaconFromName(b, after[1].s, names)
-    // ATTR < VAL
-    else if 2 <= |before| && TokenHasBeacon(b, before[|before|-2]) && IsComp(before[|before|-1])  then
-      BeaconFromName(b, before[|before|-2].s, names)
-    // contains(ATTR, VAL
-    else if 4 <= |before| && (before[|before|-4].Contains? || before[|before|-4].BeginsWith? ) && before[|before|-3].Open?
-    && TokenHasBeacon(b, before[|before|-2]) && before[|before|-1].Comma? then
-      BeaconFromName(b, before[|before|-2].s, names)
-    // ATTR BETWEEN VAL
-    else if 2 <= |before| && TokenHasBeacon(b, before[|before|-2]) && before[|before|-1].Between? then
-      BeaconFromName(b, before[|before|-2].s, names)
-    // ATTR BETWEEN * AND VAL
-    else if 4 <= |before| && TokenHasBeacon(b, before[|before|-4]) && before[|before|-3].Between? && before[|before|-1].And? then
-      BeaconFromName(b, before[|before|-4].s, names)
-    // ATTR IN VAL, VAL, VAL
-    else if 2 <= |before| then
-      var in_pos := GetInPos(b, before);
+  }
+
+  // expr[pos] is a value; return the beacon t which that value refers
+  function method BeaconForValue(
+    b : SI.BeaconVersion,
+    expr : seq<Token>,
+    pos : nat,
+    value: DDB.AttributeValue,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    : Option<SI.Beacon>
+    requires pos < |expr|
+    requires expr[pos].Value?
+  {
+    // value < ATTR
+    if pos+2 < |expr| && IsComp(expr[pos+1]) && HasBeacon(b, expr[pos+2], names) then
+      GetBeacon(b, expr[pos+2], names)
+    // ATTR < value
+    else if 2 <= pos && IsComp(expr[pos-1]) && HasBeacon(b, expr[pos-2], names) then
+      GetBeacon(b, expr[pos-2], names)
+    // contains(ATTR, value .or. begins_with(ATTR, value
+    else if 4 <= pos && (expr[pos-4].Contains? || expr[pos-4].BeginsWith?) && expr[pos-3].Open?
+    && HasBeacon(b, expr[pos-2], names) && expr[pos-1].Comma? then
+      GetBeacon(b, expr[pos-2], names)
+    // ATTR BETWEEN value
+    else if 2 <= pos && expr[pos-1].Between? && HasBeacon(b, expr[pos-2], names) then
+      GetBeacon(b, expr[pos-2], names)
+    // ATTR BETWEEN * and value
+    else if 4 <= pos && expr[pos-1].And? && expr[pos-3].Between? && HasBeacon(b, expr[pos-4], names) then
+      GetBeacon(b, expr[pos-4], names)
+    // ATTR IN value, value, value, ...
+    else if expr[pos].Value? then
+      var in_pos := GetInPos(expr, pos);
       if in_pos.None? then
         None
-      else if in_pos.value <= |before| && TokenHasBeacon(b, before[|before|-in_pos.value]) then // should be ensures on GetInPos
-        BeaconFromName(b, before[|before|-in_pos.value].s, names)
+      else if HasBeacon(b, expr[in_pos.value-1], names) then
+        GetBeacon(b, expr[in_pos.value-1], names)
       else
         None
     else
       None
   }
-  
-  function method {:tailrecursion} Beaconize2(b : BeaconVersion, expr : seq<Token>, 
-    values: ExpressionAttributeValueMap,
-    names : Option<ExpressionAttributeNameMap>,
-    acc : seq<Token> := [])
-    : Result<ParsedContext, string>
+
+  // expr[pos] is an argument to a function, which is an Attr which is a beacon
+  // return false if that function operates directly on encrypted values
+  predicate method OpNeedsBeacon(expr : seq<Token>, pos : nat)
+    requires pos < |expr|
+    requires expr[pos].Attr?
   {
-    if |expr| == 0 then
-      Success(ParsedContext(acc, values, names))
-    else if expr[0].Attr? then
-      var bec := b.GetBeacon(expr[0].s);
-      if bec.None? then
-          Beaconize2(b, expr[1..], values, names, acc + [expr[0]])
-      else
-        Beaconize2(b, expr[1..], values, names, acc + [Attr(BeaconName(expr[0].s))]) // FIXME - no beacon if `size` or `exists`
-    else if expr[0].Value? then
-      var bec := BeaconFromValue(b, expr[0].s, acc, expr[1..], values, names);
-      if bec.None? then
-          Beaconize2(b, expr[1..], values, names, acc + expr[0..0])
-      else
-        var oldValue := values[expr[0].s];
-        var newValue :- BeaconValue2(bec.value, expr[0].s, oldValue);
-        Beaconize2(b, expr[1..], values[expr[0].s := newValue], names, acc + expr[0..0])
+    // false if attr_exists(ATTR), or  attr_not_exists(ATTR)
+    // true otherwise
+    if pos < 2 then
+      true
+    else if !expr[pos-1].Open? then
+      true
     else
-      Beaconize2(b, expr[1..], values, names, acc + [expr[0]])
+      TokenNeedsBeacon(expr[pos-2])
   }
-  
-  function method Beaconize(b : BeaconVersion, t : ParsedContext) : Result<ParsedContext, string>
+
+  // expr[pos] is an argument to a function, which is an Attr which is a beacon
+  // return an error if that function can operate neither on encrypted values nor on beacons
+  function method IsAllowedOnBeacon(expr : seq<Token>, pos : nat, name : string) : Result<bool, Error>
+    requires pos < |expr|
+    requires expr[pos].Attr?
   {
-    Beaconize2(b, t.expr, t.values, t.names)
+    // error if size(ATTR) or attribute_type(ATTR, type)
+    // true otherwise
+    if pos < 2 then
+      Success(true)
+    else if !expr[pos-1].Open? then
+      Success(true)
+    else if TokenAllowsBeacon(expr[pos-2]) then
+      Success(true)
+    else
+      Failure(E("Function " + TokenToString(expr[pos-2]) + " cannot be used on encrypted fields, but it is being used with " + name))
   }
-  */
+
+  predicate method TokenNeedsBeacon(t : Token)
+  {
+    !(
+      || t.AttributeExists?
+      || t.AttributeNotExists?
+    )
+  }
+  predicate method TokenAllowsBeacon(t : Token)
+  {
+    !(
+      || t.AttributeType?
+      || t.Size?
+    )
+  }
+
+  function method {:tailrecursion} BeaconizeParsedExpr(
+    b : SI.BeaconVersion,
+    expr : seq<Token>,
+    pos : nat,
+    values: DDB.ExpressionAttributeValueMap,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    acc : seq<Token> := []
+  )
+    : Result<ParsedContext, Error>
+    requires pos <= |expr|
+    decreases |expr| - pos
+  {
+    if pos == |expr| then
+      Success(ParsedContext(acc, values, names))
+    else if expr[pos].Attr? then
+      var isIndirectName := "#" <= expr[pos].s;
+      :- Need(!isIndirectName || (names.Some? && expr[pos].s in names.value), E("Name " + expr[pos].s + " not in ExpressionAttributeNameMap."));
+      var oldName := if isIndirectName then names.value[expr[pos].s] else expr[pos].s;
+      if b.IsBeacon(oldName) then
+        var _ :- IsAllowedOnBeacon(expr, pos, oldName);
+        if OpNeedsBeacon(expr, pos) then
+          var newName := b.beacons[oldName].getBeaconName();
+          if isIndirectName then
+            BeaconizeParsedExpr(b, expr, pos+1, values, Some(names.value[expr[pos].s := newName]), acc + [expr[pos]])
+          else
+            BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [Attr(newName)])
+        else
+          BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
+      else
+        BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
+    else if expr[pos].Value? then
+      :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
+      var oldValue := values[expr[pos].s];
+      var bec := BeaconForValue(b, expr, pos, oldValue, names);
+      if bec.None? then
+        BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
+      else
+        var newValue :- bec.value.GetBeaconValue(oldValue);
+        BeaconizeParsedExpr(b, expr, pos+1, values[expr[pos].s := newValue], names, acc + [expr[pos]])
+    else
+      BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
+  }
 
   // Convert the tokens back into an expression
   function method ParsedExprToString(t : seq<Token>) : string
@@ -485,7 +550,7 @@ module DynamoDBFilterExpr {
         (4, Size)
       else if ch == ':' then
         var x := ValueLen(s[1..]) + 1;
-        (x, Value(s[1..x]))
+        (x, Value(s[0..x]))
       else if ch == '#' then
         var x := ValueLen(s[1..]) + 1;
         (x, Attr(s[0..x]))
@@ -599,35 +664,51 @@ module DynamoDBFilterExpr {
 
   datatype StackValue =
     | Bool(b : bool)
-    | Str(s : AttributeValue)
+    | Str(s : DDB.AttributeValue)
     | DoesNotExist
 
-  // returns th string value
-  function method GetStr(s : StackValue) : AttributeValue
+  function method GetSize(value : DDB.AttributeValue) : nat
+  {
+    match value {
+      case S(s) => |s|
+      case N(n) => |n|
+      case B(n) => |n|
+      case SS(n) => |n|
+      case NS(n) => |n|
+      case BS(n) => |n|
+      case M(n) => |n|
+      case L(n) => |n|
+      case NULL(n) => 1
+      case BOOL(n) => 1
+    }
+  }
+
+  // returns the string value
+  function method GetStr(s : StackValue) : DDB.AttributeValue
   {
     match s
-    case Bool(b) => AttributeValue.NULL(true)
+    case Bool(b) => DDB.AttributeValue.NULL(true)
     case Str(s) => s
-    case DoesNotExist => AttributeValue.NULL(true)
+    case DoesNotExist => DDB.AttributeValue.NULL(true)
   }
 
   // string to DynamoDB string
   function method AsStr(s : string) : StackValue
   {
-    Str(AttributeValue.S(s))
+    Str(DDB.AttributeValue.S(s))
   }
 
   // look up s in map
-  function method StackvalFromMap(s : string, vals : AttributeMap) : StackValue
+  function method StackValueFromMap(s : string, item : DDB.AttributeMap) : StackValue
   {
-    if s in vals then
-      Str(vals[s])
+    if s in item then
+      Str(item[s])
     else
       DoesNotExist
   }
 
   // parse and return in reverse polish notation
-  function method GetParsedExpr(input : string) : Result<seq<Token>, string>
+  function method GetParsedExpr(input : string) : Result<seq<Token>, Error>
   {
     var seq1 := ParseExpr(input);
     var seq2 := ConvertToPrefix(seq1);
@@ -635,27 +716,27 @@ module DynamoDBFilterExpr {
   }
 
   // parse and evaluate the expression
-  function method FinalEval(input : string, vals : AttributeMap) : Result<bool, string>
+  function method FinalEval(input : string, item : DDB.AttributeMap) : Result<bool, Error>
   {
     var seq3 :- GetParsedExpr(input);
-    EvalExpr(seq3, vals)
+    EvalExpr(seq3, item)
   }
 
   // evaluate the expression, must be in reverse polish notation
-  function method EvalExpr(input : seq<Token>, vals : AttributeMap) : Result<bool, string>
+  function method EvalExpr(input : seq<Token>, item : DDB.AttributeMap) : Result<bool, Error>
   {
-    InnerEvalExpr(input, [], vals)
+    InnerEvalExpr(input, [], item)
   }
 
   // count the number of strings
-  function method NumStrs(input : seq<StackValue>) : nat
+  function method StringsFollowing(input : seq<StackValue>) : nat
   {
     if |input| == 0 then
       0
     else if !input[|input|-1].Str? then
       0
     else
-      1 + NumStrs(input[..|input|-1])
+      1 + StringsFollowing(input[..|input|-1])
   }
 
   // true if haystack contains needle
@@ -674,7 +755,7 @@ module DynamoDBFilterExpr {
   }
 
   // true if haystack contains needle
-  predicate method does_contain(haystack : AttributeValue, needle : AttributeValue)
+  predicate method does_contain(haystack : DDB.AttributeValue, needle : DDB.AttributeValue)
   {
     match haystack{
       case S(s) =>
@@ -713,7 +794,7 @@ module DynamoDBFilterExpr {
   }
 
   // true if haystack begins with needle
-  predicate method begins_with(haystack : AttributeValue, needle : AttributeValue)
+  predicate method begins_with(haystack : DDB.AttributeValue, needle : DDB.AttributeValue)
   {
     match haystack{
       case S(s) =>
@@ -745,13 +826,13 @@ module DynamoDBFilterExpr {
   }
 
   // true if middle between left and right
-  predicate method is_between(middle : AttributeValue, left : AttributeValue, right : AttributeValue)
+  predicate method is_between(middle : DDB.AttributeValue, left : DDB.AttributeValue, right : DDB.AttributeValue)
   {
     AttributeLE(left, middle) && AttributeLE(middle, right)
   }
 
   // true if target in list
-  predicate method is_in(target : AttributeValue, list : seq<StackValue>)
+  predicate method is_in(target : DDB.AttributeValue, list : seq<StackValue>)
   {
     if |list| == 0 then
       false
@@ -762,7 +843,7 @@ module DynamoDBFilterExpr {
   }
 
   // return string version of attribute
-  function method AttrToStr(attr : AttributeValue) : string
+  function method AttrToStr(attr : DDB.AttributeValue) : string
   {
     match attr {
       case S(s) => s
@@ -771,105 +852,95 @@ module DynamoDBFilterExpr {
     }
   }
 
-  // return type of value
-  function method AttrTypeToStr(attr : AttributeValue) : string
+  // true if type of attr is typeStr
+  function method IsAttrType(attr : StackValue, typeStr : StackValue) : bool
   {
-    match attr {
-      case S(s) => "S"
-      case N(n) => "N"
-      case B(n) => "B"
-      case SS(n) => "SS"
-      case NS(n) => "NS"
-      case BS(n) => "BS"
-      case M(n) => "M"
-      case L(n) => "L"
-      case NULL(n) => "NULL"
-      case BOOL(n) => "BOOL"
-    }
-  }
-
-  // true if type of attr is typestr
-  function method IsAttrType(attr : StackValue, typestr : StackValue) : bool
-  {
-    AttrTypeToStr(GetStr(attr)) == AttrToStr(GetStr(typestr))
+    AttrTypeToStr(GetStr(attr)) == AttrToStr(GetStr(typeStr))
   }
 
   // call the function
-  function method apply_function(input : Token, stack : seq<StackValue>, num_args : nat) : Result<StackValue, string>
+  function method apply_function(input : Token, stack : seq<StackValue>, num_args : nat) : Result<StackValue, Error>
   {
     match input {
       case Between =>
         if |stack| < 3 then
-          Failure("No Stack for Between")
+          Failure(E("No Stack for Between"))
         else
         if stack[|stack|-1].Str? && stack[|stack|-2].Str? && stack[|stack|-3].Str? then
           Success(Bool(is_between(stack[|stack|-3].s, stack[|stack|-2].s, stack[|stack|-1].s)))
         else
-          Failure("Wrong Types for contains")
+          Failure(E("Wrong Types for contains"))
 
       case In =>
-        var num := NumStrs(stack);
+        var num := StringsFollowing(stack);
         if |stack| < num then
-          Failure("Tautology False")
+          Failure(E("Tautology False"))
         else if num == 0 then
-          Failure("In has no args")
+          Failure(E("In has no args"))
         else
           Success(Bool(is_in(GetStr(stack[|stack|-num]), stack[|stack|-num+1..])))
       case AttributeExists =>
         if |stack| < 1 then
-          Failure("No Stack for AttributeExists")
+          Failure(E("No Stack for AttributeExists"))
         else
           Success(Bool(!stack[|stack|-1].DoesNotExist?))
 
       case AttributeNotExists =>
         if |stack| < 1 then
-          Failure("No Stack for AttributeExists")
+          Failure(E("No Stack for AttributeExists"))
         else
           Success(Bool(stack[|stack|-1].DoesNotExist?))
       case AttributeType =>
         if |stack| < 2 then
-          Failure("No Stack for AttributeType")
+          Failure(E("No Stack for AttributeType"))
         else
           Success(Bool(IsAttrType(stack[|stack|-2], stack[|stack|-1])))  // What???
       case BeginsWith =>
         if |stack| < 2 then
-          Failure("No Stack for BeginsWith")
+          Failure(E("No Stack for BeginsWith"))
         else
         if stack[|stack|-1].Str? && stack[|stack|-2].Str? then
           Success(Bool(begins_with(stack[|stack|-2].s, stack[|stack|-1].s)))
         else
-          Failure("Wrong Types for contains")
+          Failure(E("Wrong Types for BeginsWith"))
 
       case Contains =>
         if |stack| < 2 then
-          Failure("No Stack for contains")
+          Failure(E("No Stack for contains"))
         else
         if stack[|stack|-1].Str? && stack[|stack|-2].Str? then
           Success(Bool(does_contain(stack[|stack|-2].s, stack[|stack|-1].s)))
         else
-          Failure("Wrong Types for contains")
+          Failure(E("Wrong Types for contains"))
 
-      case Size => Success(Bool(true)) // What???
+      case Size =>
+        if |stack| < 1 then
+          Failure(E("No Stack for Size"))
+        else if !stack[|stack|-1].Str? then
+          Failure(E("Wrong Types for Size"))
+        else
+          var n := GetSize(stack[|stack|-1].s);
+          Success(Str(DDB.AttributeValue.N(String.Base10Int2String(n))))
       case _ => Success(Bool(true))
     }
   }
 
   // call the unary function
-  function method apply_unary(input : Token, stack : StackValue) : Result<StackValue, string>
+  function method apply_unary(input : Token, stack : StackValue) : Result<StackValue, Error>
   {
     if stack.Bool? then
       Success(Bool(!stack.b))
     else
-      Failure("wrong type for Not")
+      Failure(E("wrong type for Not"))
   }
 
   // call the binary function
-  function method apply_binary_bool(input : Token, x : bool, y : bool) : Result<bool, string>
+  function method apply_binary_bool(input : Token, x : bool, y : bool) : Result<bool, Error>
   {
     match input
     case And => Success(x && y)
     case Or => Success(x || y)
-    case _ => Failure("invalid op in apply_binary_bool")
+    case _ => Failure(E("invalid op in apply_binary_bool"))
   }
 
   predicate method LexicographicLess<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
@@ -890,7 +961,7 @@ module DynamoDBFilterExpr {
   predicate method CharLess(a: char, b: char) { a < b }
   predicate method ByteLess(a: uint8, b: uint8) { a < b }
 
-  predicate method AttributeLE(a : AttributeValue, b : AttributeValue)
+  predicate method AttributeLE(a : DDB.AttributeValue, b : DDB.AttributeValue)
   {
     if a.N? && b.N? then
       FloatCompare.CompareFloat(a.N, b.N) <= 0
@@ -899,23 +970,23 @@ module DynamoDBFilterExpr {
     else if a.B? && b.B? then
       LexicographicLessOrEqual(a.B, b.B, ByteLess)
     else
-      false // TODO, Are there other well defined < operations?
+      false
   }
-  predicate method AttributeLT(a : AttributeValue, b : AttributeValue)
+  predicate method AttributeLT(a : DDB.AttributeValue, b : DDB.AttributeValue)
   {
     !AttributeLE(b,a)
   }
-  predicate method AttributeGT(a : AttributeValue, b : AttributeValue)
+  predicate method AttributeGT(a : DDB.AttributeValue, b : DDB.AttributeValue)
   {
     !AttributeLE(a,b)
   }
-  predicate method AttributeGE(a : AttributeValue, b : AttributeValue)
+  predicate method AttributeGE(a : DDB.AttributeValue, b : DDB.AttributeValue)
   {
     AttributeLE(b,a)
   }
 
   // apply the comparison function
-  function method apply_binary_comp(input : Token, x : AttributeValue, y : AttributeValue) : Result<bool, string>
+  function method apply_binary_comp(input : Token, x : DDB.AttributeValue, y : DDB.AttributeValue) : Result<bool, Error>
   {
     match input
     case Eq => Success(x == y)
@@ -924,24 +995,24 @@ module DynamoDBFilterExpr {
     case Lt => Success(AttributeLT(x, y))
     case Ge => Success(AttributeGE(x, y))
     case Gt => Success(AttributeGT(x, y))
-    case _ => Failure("invalid op in apply_binary_bool")
+    case _ => Failure(E("invalid op in apply_binary_bool"))
   }
 
   // apply the binary function
-  function method apply_binary(input : Token, x : StackValue, y : StackValue) : Result<StackValue, string>
+  function method apply_binary(input : Token, x : StackValue, y : StackValue) : Result<StackValue, Error>
   {
     if IsComp(input) then
       if x.Str? && y.Str? then
         var val :- apply_binary_comp(input, x.s, y.s);
         Success(Bool(val))
       else
-        Failure("wrong types for comparison")
+        Failure(E("wrong types for comparison"))
     else
     if x.Bool? && y.Bool? then
       var val :- apply_binary_bool(input, x.b, y.b);
       Success(Bool(val))
     else
-      Failure("wrong types for boolean binary")
+      Failure(E("wrong types for boolean binary"))
   }
 
   // return number of args for the function
@@ -949,7 +1020,7 @@ module DynamoDBFilterExpr {
   {
     match t
     case Between => 3
-    case In => NumStrs(stack)
+    case In => StringsFollowing(stack)
     case AttributeExists => 1
     case AttributeNotExists => 1
     case AttributeType => 1
@@ -960,45 +1031,45 @@ module DynamoDBFilterExpr {
   }
 
   // evaluate the expression
-  function method InnerEvalExpr(input : seq<Token>, stack : seq<StackValue>, vals : AttributeMap) : Result<bool, string>
+  function method InnerEvalExpr(input : seq<Token>, stack : seq<StackValue>, item : DDB.AttributeMap) : Result<bool, Error>
   {
     if 0 == |input| then
       if 1 == |stack| && stack[0].Bool? then
         Success(stack[0].b)
       else
-        Failure("ended with bad stack")
+        Failure(E("ended with bad stack"))
     else
       var t := input[0];
       if t.Value? then
-        InnerEvalExpr(input[1..], stack + [AsStr(t.s)], vals)
+        InnerEvalExpr(input[1..], stack + [AsStr(t.s)], item)
       else if t.Attr? then
-        InnerEvalExpr(input[1..], stack + [StackvalFromMap(t.s, vals)], vals)
+        InnerEvalExpr(input[1..], stack + [StackValueFromMap(t.s, item)], item)
       else if IsUnary(t) then
         if 0 == |stack| then
-          Failure("Empty stack for unary op")
+          Failure(E("Empty stack for unary op"))
         else
           var val :- apply_unary(t, stack[|stack|-1]);
-          InnerEvalExpr(input[1..], stack[..|stack|-1] + [val], vals)
+          InnerEvalExpr(input[1..], stack[..|stack|-1] + [val], item)
       else if IsBinary(t) then
         if |stack| < 2 then
-          Failure("Empty stack for binary op")
+          Failure(E("Empty stack for binary op"))
         else
           var val :- apply_binary(t, stack[|stack|-2], stack[|stack|-1]);
-          InnerEvalExpr(input[1..], stack[..|stack|-2] + [val], vals)
+          InnerEvalExpr(input[1..], stack[..|stack|-2] + [val], item)
       else if IsFunction(t) then
         var num_args := NumArgs(t, stack);
         if |stack| < num_args then
-          Failure("Empty stack for function call")
+          Failure(E("Empty stack for function call"))
         else
           var val :- apply_function(t, stack, num_args);
-          InnerEvalExpr(input[1..], stack[..|stack|-num_args] + [val], vals)
+          InnerEvalExpr(input[1..], stack[..|stack|-num_args] + [val], item)
 
       else
         Success(true)
   }
 
   // return the list of items for which the expression is true
-  function method FilterItems(parsed : seq<Token>, ItemList : ItemList) : Result<ItemList, string>
+  function method FilterItems(parsed : seq<Token>, ItemList : DDB.ItemList) : Result<DDB.ItemList, Error>
   {
     if |ItemList| == 0 then
       Success([])
@@ -1014,20 +1085,31 @@ module DynamoDBFilterExpr {
 
   // return the results for which the expression is true
   function method FilterResults(
-    ItemList : ItemList,
-    FilterExpression : Option<ConditionExpression>,
-    ExpressionAttributeNames : Option<ExpressionAttributeNameMap>,
-    ExpressionAttributeValues: Option<ExpressionAttributeValueMap>) : Result<ItemList, string>
+    ItemList : DDB.ItemList,
+    KeyExpression : Option<DDB.KeyExpression>,
+    FilterExpression : Option<DDB.ConditionExpression>,
+    ExpressionAttributeNames : Option<DDB.ExpressionAttributeNameMap>,
+    ExpressionAttributeValues: Option<DDB.ExpressionAttributeValueMap>) : Result<DDB.ItemList, Error>
   {
-    if |ItemList| == 0 || FilterExpression.None? then
+    if |ItemList| == 0 || ExpressionAttributeValues.None? || (KeyExpression.None? && FilterExpression.None?) then
       Success(ItemList)
     else
-      var parsed :- GetParsedExpr(FilterExpression.value);
-      FilterItems(parsed, ItemList)
+      var afterKeys :-
+        if KeyExpression.Some? then
+          var parsed :- GetParsedExpr(KeyExpression.value);
+          FilterItems(parsed, ItemList)
+        else
+          Success(ItemList);
+
+      if FilterExpression.Some? then
+        var parsed :- GetParsedExpr(FilterExpression.value);
+        FilterItems(parsed, afterKeys)
+      else
+        Success(afterKeys)
   }
 
   // Get the name, possibly looking it up in the map
-  function method GetName(s : string, ExpressionAttributeNames : Option<ExpressionAttributeNameMap>) : string
+  function method GetName(s : string, ExpressionAttributeNames : Option<DDB.ExpressionAttributeNameMap>) : string
   {
     if |s| == 0 then
       s
@@ -1042,29 +1124,31 @@ module DynamoDBFilterExpr {
   }
 
   datatype ExprContext = ExprContext (
-    expr : Option<ConditionExpression>,
-    values: Option<ExpressionAttributeValueMap>,
-    names : Option<ExpressionAttributeNameMap>
+    expr : Option<DDB.ConditionExpression>,
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>
   )
 
   datatype ParsedContext = ParsedContext (
     expr : seq<Token>,
-    values: ExpressionAttributeValueMap,
-    names : Option<ExpressionAttributeNameMap>
+    values: DDB.ExpressionAttributeValueMap,
+    names : Option<DDB.ExpressionAttributeNameMap>
   )
 
-  /*
-  // transform plain expression "A = B" into beacon expression "gZ_b_Z = beacon(B)"
-    function method BeaconExpression (beacons : BeaconVersion, cont : ExprContext) : Result<ExprContext, string>
-    {
-      if cont.expr.None? || cont.values.None? then
-        Success((cont))
-      else
-        var parsed := ParseExpr(cont.expr.value);
-        var ncont := ParsedContext(parsed, cont.values.value, cont.names);
-        var beaconized :- Beaconize(beacons, ncont);
-        var ret := ExprContext(Some(ParsedExprToString(beaconized.expr)), Some(beaconized.values), beaconized.names); 
-        Success(ret)
-    }
-  */
+  // transform plain expression "A = B" into beacon expression "aws_dbe_b_A = beacon(B)"
+
+  function method Beaconize(
+    b : SI.BeaconVersion,
+    context : ExprContext
+  )
+    : Result<ExprContext, Error>
+  {
+    if context.expr.None? || context.values.None? then
+      Success(context)
+    else
+      var parsed := ParseExpr(context.expr.value);
+      var context :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, context.names);
+      var exprString := ParsedExprToString(context.expr);
+      Success(ExprContext(Some(exprString), Some(context.values), context.names))
+  }
 }

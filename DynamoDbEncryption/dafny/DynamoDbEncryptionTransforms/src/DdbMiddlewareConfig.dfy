@@ -1,7 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy"
-include "DynamoDbMiddlewareSupport.dfy"
 
 module DdbMiddlewareConfig {
   import opened Wrappers

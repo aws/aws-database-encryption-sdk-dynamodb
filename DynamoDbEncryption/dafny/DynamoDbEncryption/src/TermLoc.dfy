@@ -69,7 +69,7 @@ module TermLoc {
       Failure(E("Requested attribute " + t[0].key + " not in item."))
     else
       var part :- GetTerminal(item[t[0].key], t[1..]);
-      DynamoToStruct.AttrToBytes(part, true).MapFailure(e => E(e))
+      DynamoToStruct.TopLevelAttributeToBytes(part).MapFailure(e => E(e))
   }
 
   // return the string value for the given terminal in the given value
