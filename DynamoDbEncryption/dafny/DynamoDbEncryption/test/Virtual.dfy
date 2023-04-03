@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../src/UpdateExpr.dfy"
+include "../src/Virtual.dfy"
 
 module TestDdbVirtualFields {
 

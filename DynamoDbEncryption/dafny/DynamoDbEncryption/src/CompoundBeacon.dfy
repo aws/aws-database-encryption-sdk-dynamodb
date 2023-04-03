@@ -41,10 +41,12 @@ module CompoundBeacon {
     length : Option<BeaconLength>
   ) {
 
-    // TODO virtual fields
-    function method GetFields() : seq<string>
+  function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
-      [loc[0].key]
+      if loc[0].key in virtualFields then
+        virtualFields[loc[0].key].GetFields()
+      else
+        [loc[0].key]
     }
   }
 
@@ -76,9 +78,31 @@ module CompoundBeacon {
       Success(part[0])
     }
 
-    function method GetFields() : seq<string>
+    function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
-      Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(), parts))
+      Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
+    }
+
+    function method FindAndCalcPart(value : string) : Result<string, Error>
+    {
+      var part := Seq.Filter((b : BeaconPart) => b.prefix <= value, parts);
+      if |part| == 0 then
+        Failure(E("Value " + value + " for beacon " + base.name + " does not match the prefix of any configured part."))
+      else if 1 < |part| then
+        Failure(E("Internal error. Value " + value + " for beacon " + base.name + " somehow matched multiple prefixes."))
+      else
+        PartValueCalc(value, part[0].prefix, part[0].length)
+    }
+
+    function method GetBeaconValue(value : DDB.AttributeValue) : Result<DDB.AttributeValue, Error>
+    {
+      if !value.S? then
+        Failure(E("CompoundBeacon " + base.name + " can only be queried as a string, not as " + AttrTypeToStr(value)))
+      else
+        var parts := Split(value.S, split);
+        var beaconParts :- Seq.MapWithResult(s => FindAndCalcPart(s), parts);
+        var result := Join(beaconParts, [split]);
+        Success(DDB.AttributeValue.S(result))
     }
 
     function method {:opaque} {:tailrecursion} TryConstructor(
@@ -231,28 +255,73 @@ module CompoundBeacon {
           calcParts(pieces[1..], acc + [split] + theBeacon)
     }
 
+    static predicate method OkPrefixStringPair(x : string, y : string)
+    {
+      && !(x <= y)
+      && !(y <= x)
+    }
+    predicate method OkPrefixPair(pos1 : nat, pos2 : nat)
+      requires pos1 < |parts|
+      requires pos2 < |parts|
+    {
+      || pos1 == pos2 
+      || OkPrefixStringPair(parts[pos1].prefix, parts[pos2].prefix)
+    }
+
     predicate method ValidPrefixSet()
     {
       forall x : nat, y : nat
-        | 0 <= x <= |parts| && x < y <= |parts|
-        :: !(parts[x].prefix <= parts[x].prefix)
-    }
-/*
-    static predicate method IsEncrypted(schema : CryptoSchemaPlain, name : string)
-    {
-      && name in schema
-      && schema[name].content.Action == ENCRYPT_AND_SIGN
+        | 0 <= x < |parts| && x < y < |parts|
+        :: OkPrefixPair(x, y)
     }
 
-    predicate method ValidNonSensitive(schema : CryptoSchemaPlain)
+    function method CheckOnePrefixPart(pos1 : nat, pos2 : nat) : (ret : Result<bool, Error>)
+      requires pos1 < |parts|
+      requires pos2 < |parts|
+      ensures ret.Success? ==> OkPrefixPair(pos1, pos2)
     {
-      && |Seq.Filter((x : BeaconPart) => x.length.None? &&  IsEncrypted(schema, x.name), parts)| == 0
-      && |Seq.Filter((x : BeaconPart) => x.length.Some? && !IsEncrypted(schema, x.name), parts)| == 0
+      if !OkPrefixPair(pos1, pos2) then
+        Failure(E("Compound beacon " + base.name + " defines part " + parts[pos1].name + " with prefix " + parts[pos1].prefix
+        + " which is incompatible with part " + parts[pos2].name + " which has a prefix of " + parts[pos2].prefix + "."))
+      else
+        Success(true)
     }
-*/
+
+    function method CheckOnePrefix(pos : nat) : (ret : Result<bool, Error>)
+      requires pos < |parts|
+    {
+      var partNumbers : seq<nat> := seq(|parts|, (i : nat) => i as nat);
+      var _ :- Seq.MapWithResult((p : int) requires 0 <= p < |parts| => CheckOnePrefixPart(pos, p), seq(|parts|, i => i));
+      Success(true)
+    }
+
+    function method ValidPrefixSetResultPos(index : nat) : (ret : Result<bool, Error>)
+      decreases |parts| - index
+    {
+      if |parts| <= index then
+        Success(true)
+      else
+        var _ :- CheckOnePrefix(index);
+        ValidPrefixSetResultPos(index+1)
+    }
+
+    function method ValidPrefixSetResult() : (ret : Result<bool, Error>)
+    {
+      ValidPrefixSetResultPos(0)
+    }
+
     predicate method ValidPart(f : ConstructorPart)
     {
       |Seq.Filter((x : BeaconPart) => x.name == f.name, parts)| == 1
+    }
+
+    function method ValidPartResult(f : ConstructorPart) : Result<bool, Error>
+    {
+      var count := |Seq.Filter((x : BeaconPart) => x.name == f.name, parts)|;
+      if count == 0 then
+        Failure(E("Constructor for beacon " + base.name + " mentions part " + f.name + " but no such beacon part is configured."))
+      else
+        Success(true)
     }
 
     predicate method ValidConstructor(con : seq<ConstructorPart>)
@@ -263,15 +332,36 @@ module CompoundBeacon {
         ValidPart(con[0]) && ValidConstructor(con[1..])
     }
 
-    predicate method ValidConstructors(con : seq<Constructor>)
+    function method ValidConstructorResult(con : seq<ConstructorPart>) : Result<bool, Error>
+    {
+      if |con| == 0 then
+        Success(true)
+      else
+        var _ :- ValidPartResult(con[0]);
+        ValidConstructorResult(con[1..])
+    }
+
+    predicate method {:tailrecursion} ValidConstructors(con : seq<Constructor>)
     {
       if |con| == 0 then
         true
       else
-        ValidConstructor(con[0].parts) && ValidConstructors(con[1..])
+        if ValidConstructor(con[0].parts) then
+          ValidConstructors(con[1..])
+        else
+          false
     }
-/*
-    function method isValid(schema : CryptoSchemaPlain, virtualFields : map<string,string>, unauthPrefix : string)
+
+    function method {:tailrecursion} ValidConstructorsResult(con : seq<Constructor>) : Result<bool, Error>
+    {
+      if |con| == 0 then
+        Success(true)
+      else
+        var _ :- ValidConstructorResult(con[0].parts);
+        ValidConstructorsResult(con[1..])
+    }
+
+    function method ValidState()
       : (ret : bool)
       ensures ret ==>
         //= specification/searchable-encryption/beacons.md#initialization-failure
@@ -282,20 +372,20 @@ module CompoundBeacon {
 
         //= specification/searchable-encryption/beacons.md#initialization-failure
         //= type=implication
-        //# Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
-        //# any part of an encrypted field, or any [sensitive-part](#sensitive-part) fails to contain
-        //# some part of an encrypted field.
-        && ValidNonSensitive(schema)
-
-        //= specification/searchable-encryption/beacons.md#initialization-failure
-        //= type=implication
         //# Initialization MUST fail if any [constructor](#constructor) is configured with a field name
         //# that is not a defined [part](#part).
         && ValidConstructors(construct)
     {
-      ValidPrefixSet() && ValidNonSensitive(schema) && ValidConstructors(construct)
+      ValidPrefixSet() && ValidConstructors(construct)
     }
-*/
+
+    function method ValidStateResult() : Result<bool, Error>
+    {
+      var _ :- ValidPrefixSetResult();
+      var _ :- ValidConstructorsResult(construct);
+      Success(true)
+    }
+
     //= specification/searchable-encryption/beacons.md#part-value-calculation
     //= type=implication
     //# Part Value Calculation MUST take a string, a prefix, and an optional [beacon length](#beacon-length) as input, and return a string as output.

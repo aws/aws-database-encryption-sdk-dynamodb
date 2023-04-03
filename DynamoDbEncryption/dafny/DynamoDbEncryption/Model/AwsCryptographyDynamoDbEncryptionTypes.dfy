@@ -25,9 +25,14 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  predicate method IsValid_BeaconBitLength(x: int32) {
  ( 1 <= x <= 63 )
 }
+ datatype BeaconKey = | BeaconKey (
+ nameonly keyArn: string ,
+ nameonly tableArn: string ,
+ nameonly branchKeyID: string
+ )
  datatype BeaconVersion = | BeaconVersion (
  nameonly version: VersionNumber ,
- nameonly keyring: AwsCryptographyMaterialProvidersTypes.IKeyring ,
+ nameonly key: BeaconKey ,
  nameonly standardBeacons: Option<StandardBeaconList> ,
  nameonly compoundBeacons: Option<CompoundBeaconList> ,
  nameonly virtualFields: Option<VirtualFieldList>

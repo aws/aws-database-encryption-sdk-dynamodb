@@ -310,11 +310,20 @@ structure CompoundBeacon {
   constructors : ConstructorList
 }
 
+structure BeaconKey {
+  @required
+  keyArn : String,
+  @required
+  tableArn : String,
+  @required
+  branchKeyID : String
+}
+
 structure BeaconVersion {
   @required
   version : VersionNumber,
   @required
-  keyring: KeyringReference, // Must be Hierarchy Keyring
+  key: BeaconKey,
   standardBeacons : StandardBeaconList,
   compoundBeacons : CompoundBeaconList,
   virtualFields : VirtualFieldList,
