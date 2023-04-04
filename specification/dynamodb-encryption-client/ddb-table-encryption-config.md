@@ -46,8 +46,10 @@ The following are OPTIONAL for DynamoDb Table Encryption Configuration:
 - [Legacy Config](#legacy-config)
 - [Plaintext Policy](#plaintext-policy)
 
-The config MUST NOT specify both a [Legacy Config](#legacy-config)
-and a [Plaintext Policy](#plaintext-policy).
+A [Legacy Config](#legacy-config)
+and a [Plaintext Policy](#plaintext-policy)
+both specified on the same config is invalid,
+and MUST result in an error.
 
 ### DynamoDB Table Name
 

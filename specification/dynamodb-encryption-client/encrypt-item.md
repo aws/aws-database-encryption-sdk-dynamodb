@@ -36,12 +36,12 @@ The following inputs to this behavior are REQUIRED:
 The DynamoDB Item is the plaintext item to be encrypted by this behavior.
 
 This item MUST include an Attribute with a name that matches the
-[DynamoDB Partition Key Name](./ddb-item-encryptor.md#dynamodb-partition-key-name)
+[DynamoDB Partition Key Name](./ddb-table-encryption-config.md#dynamodb-partition-key-name)
 configured on the [DynamoDB Item Encryptor](./ddb-item-encryptor.md).
 Otherwise this operation MUST yield an error.
 
 If the [DynamoDB Item Encryptor](./ddb-item-encryptor.md)
-has a [DynamoDB Sort Key Name](./ddb-item-encryptor.md#dynamodb-sort-key-name) configured,
+has a [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name) configured,
 this item MUST include an Attribute with that name.
 Otherwise this operation MUST yield an error.
 
@@ -68,7 +68,7 @@ If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
 this operation MUST NOT encrypt the input item,
 and MUST passthrough that item as the output.
 
-The [Attributes Actions](./ddb-item-encryptor.md#attribute-actions)
+The [Attributes Actions](./ddb-table-encryption-config.md#attribute-actions)
 configured on this Item Encryptor MUST specify a Crypto Action
 for every attribute in the [input DynamoDB Item](#dynamodb-item)
 (Attribute Actions MAY specify a Crypto Action for an attribute not
@@ -80,7 +80,7 @@ which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#d
 This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
-- This item encryptor's [CMM](./ddb-item-encryptor.md#cmm) as the underlying CMM.
+- This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
 - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context)
 
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
@@ -89,7 +89,7 @@ Structured Encryption Client's [Encrypt Structure](../structured-encryption/encr
 with the following inputs:
 - Structured Data MUST be the Structured Data converted above.
 - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
-  analogous to the [configured Attribute Actions](./ddb-item-encryptor.md#attribute-actions).
+  analogous to the [configured Attribute Actions](./ddb-table-encryption-config.md#attribute-actions).
   More specifically:
   - For every attribute on the input Item,
     there MUST exist a Crypto Action in the Crypto Schema
@@ -97,7 +97,7 @@ with the following inputs:
     equals the Crypto Action indexed by that attribute name in the configured Attribute Actions.
   - The Crypto Schema MUST NOT contain more Crypto Actions than those specified by the previous point.
 - If configured, the Algorithm Suite MUST be the
-  [Algorithm Suite configured on this Item Encryptor](./ddb-item-encryptor.md#algorithm-suite).
+  [Algorithm Suite configured on this Item Encryptor](./ddb-table-encryption-config.md#algorithm-suite).
   If not configured on the Item Encryptor, Algorithm Suite MUST NOT be specified.
 - Encryption Context MUST be this input Item's [DynamoDB Item Base Context](#dynamodb-item-base-context).
 - The CMM MUST be the CMM created above.

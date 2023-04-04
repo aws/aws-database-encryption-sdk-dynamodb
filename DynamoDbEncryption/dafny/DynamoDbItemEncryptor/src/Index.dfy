@@ -53,7 +53,7 @@ module
       && res.value.config.allowedUnauthenticatedAttributePrefix == config.allowedUnauthenticatedAttributePrefix
       && res.value.config.algorithmSuiteId == config.algorithmSuiteId
 
-      //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions
+      //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-actions
       //= type=implication
       //# The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
       //# MUST be configured to the partition attribute and, if present, sort attribute.
@@ -65,7 +65,16 @@ module
 
     // TODO expected CMM/Keyring behavior
   {
-    // TODO validation of config input
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //= type=TODO
+    //# A [Legacy Config](#legacy-config)
+    //# and a [Plaintext Policy](#plaintext-policy)
+    //# both specified on the same config is invalid,
+    //# and MUST result in an error.
+
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#plaintext-policy
+    //= type=TODO
+    //# If not specified, encryption and decryption MUST behave according to `FORBID_WRITE_FORBID_READ`.
 
     // TODO Fix this when the compile bug is fixed (https://t.corp.amazon.com/P78273149)
     // :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
@@ -161,11 +170,17 @@ module
     var structuredEncryption :- structuredEncryptionRes
       .MapFailure(e => AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
 
-    // TODO For now just passthrough cmm or wrap keyring with DefaultCMM
     var cmm;
     if (config.cmm.Some?) {
       cmm := config.cmm.value;
     } else {
+      //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#cmm
+      //= type=implication
+      //# If not supplied during initialization,
+      //# the CMM considered "configured" to this
+      //# Item Encryptor MUST be a
+      //# [default CMM](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/default-cmm.md)
+      //# constructed using the [supplied keyring](#keyring) as input.
       var keyring := config.keyring.value;
       var matProv :- expect MaterialProviders.MaterialProviders();
       var maybeCmm := matProv.CreateDefaultCryptographicMaterialsManager(
@@ -188,6 +203,9 @@ module
       attributeActions := config.attributeActions,
       allowedUnauthenticatedAttributes := config.allowedUnauthenticatedAttributes,
       allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
+      //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suite
+      //= type=implication
+      //# The [algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption,
