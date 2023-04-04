@@ -32,6 +32,8 @@ public class DynamoDbTableEncryptionConfig {
 
   private final CryptographicMaterialsManager cmm;
 
+  private final LegacyConfig legacyConfig;
+
   protected DynamoDbTableEncryptionConfig(BuilderImpl builder) {
     this.partitionKeyName = builder.partitionKeyName();
     this.sortKeyName = builder.sortKeyName();
@@ -42,6 +44,7 @@ public class DynamoDbTableEncryptionConfig {
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
+    this.legacyConfig = builder.legacyConfig();
   }
 
   public String partitionKeyName() {
@@ -78,6 +81,10 @@ public class DynamoDbTableEncryptionConfig {
 
   public CryptographicMaterialsManager cmm() {
     return this.cmm;
+  }
+
+  public LegacyConfig legacyConfig() {
+    return this.legacyConfig;
   }
 
   public Builder toBuilder() {
@@ -125,6 +132,10 @@ public class DynamoDbTableEncryptionConfig {
 
     CryptographicMaterialsManager cmm();
 
+    Builder legacyConfig(LegacyConfig legacyConfig);
+
+    LegacyConfig legacyConfig();
+
     DynamoDbTableEncryptionConfig build();
   }
 
@@ -147,6 +158,8 @@ public class DynamoDbTableEncryptionConfig {
 
     protected CryptographicMaterialsManager cmm;
 
+    protected LegacyConfig legacyConfig;
+
     protected BuilderImpl() {
     }
 
@@ -160,6 +173,7 @@ public class DynamoDbTableEncryptionConfig {
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.keyring = model.keyring();
       this.cmm = model.cmm();
+      this.legacyConfig = model.legacyConfig();
     }
 
     public Builder partitionKeyName(String partitionKeyName) {
@@ -242,6 +256,15 @@ public class DynamoDbTableEncryptionConfig {
 
     public CryptographicMaterialsManager cmm() {
       return this.cmm;
+    }
+
+    public Builder legacyConfig(LegacyConfig legacyConfig) {
+      this.legacyConfig = legacyConfig;
+      return this;
+    }
+
+    public LegacyConfig legacyConfig() {
+      return this.legacyConfig;
     }
 
     public DynamoDbTableEncryptionConfig build() {

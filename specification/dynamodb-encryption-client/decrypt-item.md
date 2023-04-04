@@ -36,12 +36,12 @@ The following inputs to this behavior are REQUIRED:
 The DynamoDB Item is the item to be decrypted by this behavior.
 
 This item MUST include an Attribute with a name that matches the
-[DynamoDB Partition Key Name](./ddb-item-encryptor.md#dynamodb-partition-key-name)
+[DynamoDB Partition Key Name](./ddb-table-encryption-config.md#dynamodb-partition-key-name)
 configured on the [DynamoDB Item Encryptor](./ddb-item-encryptor.md).
 Otherwise this operation MUST yield an error.
 
 If the [DynamoDB Item Encryptor](./ddb-item-encryptor.md)
-has a [DynamoDB Sort Key Name](./ddb-item-encryptor.md#dynamodb-sort-key-name) configured,
+has a [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name) configured,
 this item MUST include an Attribute with that name.
 Otherwise this operation MUST yield an error.
 
@@ -53,13 +53,34 @@ The DynamoDB Item is the decryption of the [input DynamoBD Item](#dynamodb-item)
 
 ## Behavior
 
+If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+`FORBID_ENCRYPT_FORBID_DECRYPT` is configured,
+and the input item [is an item written in the legacy format](#determining-legacy-items),
+this operation MUST fail.
+
+If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+`REQUIRE_ENCRYPT_ALLOW_DECRYPT` or `FORBID_ENCRYPT_ALLOW_DECRYPT` is configured,
+and the input item [is an item written in the legacy format](#determining-legacy-items),
+this operation MUST delegate decryption of this item to the
+[Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor),
+using the configured [Attribute Flags](./ddb-encryption-table-config.md) as input.
+The item returned by this operation MUST be the item outputted by the
+[Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor).
+Otherwise, this operations continues as follows.
+
+If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
+`REQUIRE_WRITE_ALLOW_READ` or `FORBID_WRITE_ALLOW_READ` is specified,
+and the input item [is a plaintext item](#determining-plaintext-items)
+this operation MUST NOT decrypt the input item,
+and MUST passthrough that item as the output.
+
 This behavior REQUIRES a [Structured Data](../structured-encryption/structures.md#structured-data)
 which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#dynamodb-item).
 
 This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
-- This item encryptor's [CMM](./ddb-item-encryptor.md#cmm) as the underlying CMM.
+- This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
 - The keys from the [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
 
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
@@ -91,11 +112,27 @@ into the [output DynamoDB Item](#encrypted-dynamodb-item).
 ### Signature Scope
 
 An Attribute on a DynamoDB Item MUST NOT be considered as within the signature scope
-if it's Attribute Name is included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
+if it's Attribute Name is included in [Unauthenticated Attributes](./ddb-table-encryption-config.md#unauthenticated-attributes)
 or if it's Attribute Name begins with the prefix specified in
-[Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix).
+[Unauthenticated Attribute Prefix](./ddb-table-encryption-config.md#unauthenticated-attribute-prefix).
 Otherwise, Attributes MUST be considered as within the signature scope.
 
-If an Authenticate Action other than DO_NOTHING is configured for an attribute name included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
-or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix),
+If an Authenticate Action other than DO_NOTHING is configured for an attribute name included in [Unauthenticated Attributes](./ddb-table-encryption-config.md#unauthenticated-attributes)
+or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-table-encryption-config.md#unauthenticated-attribute-prefix),
 this operation MUST yield an error.
+
+### Determining Legacy Items
+
+An item MUST be determined to be encrypted under the legacy format if it contains
+attributes for the material description and the signature.
+These are usually "*amzn-ddb-map-desc*" and "*amzn-ddb-map-sig*" respectively,
+although the DynamoDbEncryptor allows callers to configure custom names for these attributes.
+
+### Determining Plaintext Items
+
+An item MUST be determined to be plaintext if it does not contain
+attributes with the names "aws_dbe_header" and "aws_dbe_footer".
+
+Note that this does not conflict with the [legacy item](#determining-legacy-items) definition,
+as there is no configuration state which needs to be able to distinguish
+between legacy items and plaintext items.

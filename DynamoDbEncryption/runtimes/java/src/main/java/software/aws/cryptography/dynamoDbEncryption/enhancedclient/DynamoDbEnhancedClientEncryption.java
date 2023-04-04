@@ -79,6 +79,7 @@ public class DynamoDbEnhancedClientEncryption {
         return builder.allowedUnauthenticatedAttributePrefix(configWithSchema.allowedUnauthenticatedAttributePrefix())
                 .allowedUnauthenticatedAttributes(configWithSchema.allowedUnauthenticatedAttributes())
                 .attributeActions(actions)
+                .legacyConfig(configWithSchema.legacyConfig())
                 .build();
     }
 }
