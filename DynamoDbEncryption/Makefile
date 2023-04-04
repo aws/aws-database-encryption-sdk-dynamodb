@@ -5,7 +5,7 @@ CORES=2
 
 include ../SharedMakefile.mk
 
-SERVICES := \
+PROJECT_SERVICES := \
 	DynamoDbEncryption \
 	DynamoDbItemEncryptor \
 	DynamoDbEncryptionTransforms \
