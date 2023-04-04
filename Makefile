@@ -15,5 +15,5 @@ duvet_report:
 		--spec-pattern "compliance/**/*.toml" \
 		--source-pattern "DynamoDbEncryption/dafny/**/*.dfy" \
 		--source-pattern "DynamoDbEncryption/dafny/**/*.smithy" \
-		--source-pattern "DynamoDbEncryption/runtimes/java/**/*.java" \
+		--source-pattern "DynamoDbEncryption/runtimes/java/src/main/java/**/*.java" \
 		--html specification_compliance_report.html

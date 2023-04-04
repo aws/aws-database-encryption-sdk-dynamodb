@@ -610,6 +610,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //# - If configured, the Algorithm Suite MUST be the
         //# [Algorithm Suite configured on this Item Encryptor](./ddb-table-encryption-config.md#algorithm-suite).
+        
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //# If not configured on the Item Encryptor, Algorithm Suite MUST NOT be specified.
         // If not specified on input, the algorithm suite exists as None on the config
