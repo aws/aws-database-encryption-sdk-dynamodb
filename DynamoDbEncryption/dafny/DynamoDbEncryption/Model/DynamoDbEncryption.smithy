@@ -56,6 +56,10 @@ structure DynamoDbTablesEncryptionConfig {
     // TODO allowed passthrough tables
 }
 
+//= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-table-encryption-configs
+//= type=implication
+//# A map of DynamoDb table names to a structure that MUST contain
+//# data as described by [DynamoDb Table Encryption Config](./ddb-table-encryption-config.md).
 map DynamoDbTableEncryptionConfigList {
     key: TableName,
     value: DynamoDbTableEncryptionConfig
@@ -153,7 +157,7 @@ structure LegacyConfig {
     //# This map MAY be different from the top level [Attribute Actions](#attribute-actions).
     @required
     attributeFlags: AttributeActions,
-    
+
     defaultAttributeFlag: CryptoAction,
 }
 

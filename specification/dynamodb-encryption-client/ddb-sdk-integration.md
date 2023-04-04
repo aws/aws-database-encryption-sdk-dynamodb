@@ -80,6 +80,10 @@ A map of DynamoDb table names to a structure that MUST contain
 data as described by [DynamoDb Table Encryption Config](./ddb-table-encryption-config.md).
 Note that this data does not need to contain the Table Name.
 
+During initialization, this client MUST construct a
+[DynamoDb Item Encryptor](./ddb-table-encryption-config.md)
+per configured table, using these table encryption configs.
+
 ### Encrypted Table
 
 If there exists an Item Encryptor specified within the

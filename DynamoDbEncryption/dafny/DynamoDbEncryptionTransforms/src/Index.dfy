@@ -28,9 +28,12 @@ module
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
   {
-    // TODO validate input
     var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
 
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-table-encryption-configs
+    //# During initialization, this client MUST construct a
+    //# [DynamoDb Item Encryptor](./ddb-table-encryption-config.md)
+    //# per configured table, using these table encryption configs.
     var m' := config.tableEncryptionConfigs;
     while m'.Keys != {}
         invariant m'.Keys <= config.tableEncryptionConfigs.Keys
