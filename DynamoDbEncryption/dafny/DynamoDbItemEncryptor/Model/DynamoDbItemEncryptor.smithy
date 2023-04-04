@@ -12,8 +12,11 @@ use com.amazonaws.dynamodb#KeySchemaAttributeName
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
+use aws.cryptography.materialProviders#EncryptedDataKeyList
+use aws.cryptography.materialProviders#EncryptionContext
 use aws.cryptography.dynamoDbEncryption#AttributeActions
 use aws.cryptography.dynamoDbEncryption#LegacyConfig
+use aws.cryptography.structuredEncryption#Version
 
 @localService(
   sdkId: "DynamoDbItemEncryptor",
@@ -97,6 +100,17 @@ structure DynamoDbItemEncryptorConfig {
     legacyConfig: LegacyConfig,
 }
 
+structure ParsedHeader {
+    @required
+    attributeActions: AttributeActions,
+    @required
+    algorithmSuiteId: DBEAlgorithmSuiteId,
+    @required
+    encryptedDataKeys: EncryptedDataKeyList,
+    @required
+    storedEncryptionContext: EncryptionContext
+}
+
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#encryptitem
 //= type=implication
 //# The DynamoDB Item Encryptor MUST provide a function that adheres to [EncryptItem](./encrypt-item.md).
@@ -139,6 +153,9 @@ structure DecryptItemInput {
 structure DecryptItemOutput {
     @required
     plaintextItem: AttributeMap,
+
+    // MAY be None if in plaintext/legacy mode
+    parsedHeader: ParsedHeader,
 }
 
 

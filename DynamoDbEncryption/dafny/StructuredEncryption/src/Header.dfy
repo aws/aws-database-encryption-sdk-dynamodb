@@ -152,10 +152,16 @@ module StructuredEncryptionHeader {
       Success(true)
     }
 
-    function method GetAlgorithmSuite() : Result<CMP.AlgorithmSuiteInfo, Error>
+    function method GetAlgorithmSuite() : (ret: Result<CMP.AlgorithmSuiteInfo, Error>)
+      ensures ret.Success? ==>
+        ValidSuite(ret.value)
     {
       var algorithmSuiteR := AlgorithmSuites.GetAlgorithmSuiteInfo([DbeAlgorithmFamily, flavor as uint8]);
-      algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e))
+      if algorithmSuiteR.Success? then
+        :- Need(ValidSuite(algorithmSuiteR.value), E("Invalid Algorithm Suite"));
+        Success(algorithmSuiteR.value)
+      else
+        algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e))
     }
   }
 

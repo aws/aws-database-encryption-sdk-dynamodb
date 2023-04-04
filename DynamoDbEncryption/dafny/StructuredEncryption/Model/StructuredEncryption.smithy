@@ -4,6 +4,7 @@ namespace aws.cryptography.structuredEncryption
 
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
+use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
 
 use aws.polymorph#localService
@@ -31,6 +32,22 @@ operation DecryptStructure {
     output: DecryptStructureOutput,
 }
 
+//= specification/structured-encryption/header.md#format-version
+//= type=implication
+//# The Version MUST be `0x01`.
+@range(min:1, max:1)
+integer Version
+
+structure ParsedHeader {
+    @required
+    cryptoSchema: CryptoSchema,
+    @required
+    algorithmSuiteId: DBEAlgorithmSuiteId,
+    @required
+    encryptedDataKeys: EncryptedDataKeyList,
+    @required
+    storedEncryptionContext: EncryptionContext
+}
 
 structure EncryptStructureInput {
     //= specification/structured-encryption/encrypt-structure.md#input
@@ -95,7 +112,10 @@ structure DecryptStructureInput {
 
 structure DecryptStructureOutput {
     @required
-    plaintextStructure: StructuredData
+    plaintextStructure: StructuredData,
+
+    @required
+    parsedHeader: ParsedHeader,
 }
 
 

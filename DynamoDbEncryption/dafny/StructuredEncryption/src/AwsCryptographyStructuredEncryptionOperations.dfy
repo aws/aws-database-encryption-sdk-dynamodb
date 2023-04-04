@@ -200,10 +200,14 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
   // for Decrypt, the data necessary to construct the Intermediate Encrypted Structured Data
   datatype DecryptCanon = DecryptCanon (
-    signedFields_c : seq<CanonicalPath>,// these fields were signed, sorted
+    encFields_c : seq<CanonicalPath>,   // These fields were encrypted, sorted.
+                                        // i.e. a Crypto Action of ENCRYPT_AND_SIGN
+    signedFields_c : seq<CanonicalPath>,// These fields were signed, sorted
                                         // i.e. an Authenticate Action of SIGN
-    data_c : StructuredDataCanon        // all signed fields with canonized paths
+    data_c : StructuredDataCanon,       // All signed fields with canonized paths
                                         // i.e. the Intermediate Encrypted Structured Data, properly encrypted
+    cryptoSchema : CryptoSchema         // The crypto schema calculated from the crypto legend.
+                                        // This value is returned as part of the Parsed Header.
   )
 
   // return the subset of "fields" which are ENCRYPT_AND_SIGN
@@ -274,12 +278,14 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   }
 
   // construct the DecryptCanon
-  function method {:opaque} CanonizeForDecrypt(tableName : GoodString, data : StructuredDataPlain, schema : AuthSchemaPlain)
+  function method {:opaque} CanonizeForDecrypt(tableName : GoodString, data : StructuredDataPlain, authSchema : AuthSchemaPlain, legend: Header.Legend)
     : (ret : Result<DecryptCanon, Error>)
-    requires schema.Keys == data.Keys
+    requires authSchema.Keys == data.Keys
     ensures ret.Success? ==>
       && var r := ret.value;
       && (forall k <- r.signedFields_c :: k in r.data_c)
+      && |r.signedFields_c| == |legend|
+      && |r.encFields_c| < (UINT32_LIMIT / 3)
   {
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //# The `signed field list` MUST be all fields for which
@@ -289,13 +295,46 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# sorted by the [Canonical Path](header.md.#canonical-path).
 
     Paths.SimpleCanonUnique(tableName);
-    var fieldMap := map k <- data.Keys | schema[k].content.Action == SIGN :: Paths.SimpleCanon(tableName, k) := k;
+    var fieldMap := map k <- data.Keys | authSchema[k].content.Action == SIGN :: Paths.SimpleCanon(tableName, k) := k;
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
 
+    if |legend| < |signedFields_c| then
+      Failure(E("Schema changed : something that was unsigned is now signed."))
+    else 
+    if |legend| > |signedFields_c| then
+      Failure(E("Schema changed : something that was signed is now unsigned."))
+    else
+
+    //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
+    //# The `encrypted field list` MUST be all fields in the `signed field list`
+    //# for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
+    //# is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes),
+    //# sorted by the field's [canonical path](./header.md#canonical-path).
+    var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, legend);
+    :- Need(|encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
+
+    var actionMap := map k <- data.Keys | authSchema[k].content.Action == SIGN ::
+      k := if Paths.SimpleCanon(tableName, k) in encFields_c then
+        CryptoSchema(
+          content := CryptoSchemaContent.Action(ENCRYPT_AND_SIGN),
+          attributes := None
+        )
+      else
+        CryptoSchema(
+          content := CryptoSchemaContent.Action(SIGN_ONLY),
+          attributes := None
+        );
+    var cryptoSchema := CryptoSchema(
+      content := CryptoSchemaContent.SchemaMap(actionMap),
+      attributes := None
+    );
+
     Success(DecryptCanon(
+      encFields_c,
       signedFields_c,
-      data_c
+      data_c,
+      cryptoSchema
     ))
   }
 
@@ -584,7 +623,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# This operation MUST deserialize the header bytes
     //# according to the [header format](./header.md).
     var head :- Header.PartialDeserialize(headerSerialized);
-    var algorithmSuite :- head.GetAlgorithmSuite();
+    var headerAlgorithmSuite :- head.GetAlgorithmSuite();
 
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
     //# This operation MUST obtain a set of decryption materials by calling
@@ -602,7 +641,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
 
     var matR := input.cmm.DecryptMaterials(
       CMP.DecryptMaterialsInput (
-        algorithmSuiteId := algorithmSuite.id,
+        algorithmSuiteId := headerAlgorithmSuite.id,
         commitmentPolicy := DBE_COMMITMENT_POLICY,
         encryptedDataKeys := head.dataKeys,
         encryptionContext := head.encContext,
@@ -628,22 +667,16 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# [supported suite for DBE](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum)
     //# this operation MUST yield an error.
     :- Need(ValidSuite(mat.algorithmSuite), E("Invalid Algorithm Suite"));
-    var alg := mat.algorithmSuite;
+    var postCMMAlg := mat.algorithmSuite;
     var key : Key := mat.plaintextDataKey.value;
-    var commitKey :- Crypt.GetCommitKey(config.primitives, alg, key, head.msgID);
+    var commitKey :- Crypt.GetCommitKey(config.primitives, postCMMAlg, key, head.msgID);
     //= specification/structured-encryption/decrypt-structure.md#parse-the-header
     //# The header field value MUST be [verified](header.md#commitment-verification)
-    var ok :- head.verifyCommitment(config.primitives, alg, commitKey, headerSerialized);
+    var ok :- head.verifyCommitment(config.primitives, postCMMAlg, commitKey, headerSerialized);
 
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
-    var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema);
+    var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
 
-    if |head.legend| < |canonData.signedFields_c| {
-      return Failure(E("Schema changed : something that was unsigned is now signed."));
-    }
-    if |head.legend| > |canonData.signedFields_c| {
-      return Failure(E("Schema changed : something that was signed is now unsigned."));
-    }
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //= type=implication
     //# Decryption MUST fail if the length of this list does not equal the
@@ -651,18 +684,10 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     // this assert can be an implication, because it is explicitly ensuring an intermediate state.
     assert |head.legend| == |canonData.signedFields_c|;
 
-    //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
-    //# The `encrypted field list` MUST be all fields in the `signed field list`
-    //# for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
-    //# is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes),
-    //# sorted by the field's [canonical path](./header.md#canonical-path).
-    var encryptedFields : seq<CanonicalPath> := FilterEncrypted(canonData.signedFields_c, head.legend);
-    :- Need(|encryptedFields| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
-
     //= specification/structured-encryption/decrypt-structure.md#verify-signatures
     //# This operation MUST deserialize the bytes in [Terminal Value](./structures.md#terminal-value)
     //# according to the [footer format](./footer.md).
-    var footer :- Footer.DeserializeFooter(footerSerialized, alg.signature.ECDSA?);
+    var footer :- Footer.DeserializeFooter(footerSerialized, postCMMAlg.signature.ECDSA?);
 
     //= specification/structured-encryption/decrypt-structure.md#verify-signatures
     //# The footer field value MUST be [verified](footer.md#footer-verification).
@@ -670,8 +695,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //= specification/structured-encryption/decrypt-structure.md#verify-signatures
     //# Decryption MUST fail immediately if verification fails.
     var _ :- footer.validate(config.primitives, mat, head.dataKeys,
-                            canonData.signedFields_c, encryptedFields, map[], canonData.data_c, headerSerialized);
-    var decryptedItems :- Crypt.Decrypt(config.primitives, alg, key, head, encryptedFields, canonData.data_c);
+                            canonData.signedFields_c, canonData.encFields_c, map[], canonData.data_c, headerSerialized);
+    var decryptedItems :- Crypt.Decrypt(config.primitives, postCMMAlg, key, head, canonData.encFields_c, canonData.data_c);
 
     var result : map<string, StructuredData> := map k | k in encRecord.Keys :: k :=
       var c := Paths.SimpleCanon(input.tableName, k);
@@ -699,14 +724,20 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     // this actually verifies, but takes too long
     // forall k <- output.value.plaintextStructure.content.DataMap :: k in encRecord
 
+    var decryptOutput := DecryptStructureOutput(
+      plaintextStructure := StructuredData(
+        content := StructuredDataContent.DataMap(
+          DataMap := smallResult
+        ),
+        attributes := None),
+      parsedHeader := ParsedHeader(
+        cryptoSchema := canonData.cryptoSchema,
+        algorithmSuiteId := headerAlgorithmSuite.id.DBE,
+        encryptedDataKeys := head.dataKeys,
+        storedEncryptionContext := head.encContext
+      )
+    );
 
-
-    var decryptOutput := DecryptStructureOutput(plaintextStructure := StructuredData(
-      content := StructuredDataContent.DataMap(
-        DataMap := smallResult
-      ),
-      attributes := None
-    ));
     assert forall k <- decryptOutput.plaintextStructure.content.DataMap :: k in encRecord;
 
     output := Success(decryptOutput);
