@@ -7,6 +7,7 @@ include "../../DynamoDbEncryption/src/SearchInfo.dfy"
 include "Util.dfy"
 include "InternalLegacyConfig.dfy"
 include "../../DynamoDbEncryption/src/Util.dfy"
+include "../../StructuredEncryption/src/Util.dfy"
 
 module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines AbstractAwsCryptographyDynamoDbEncryptionItemEncryptorOperations {
   import ComAmazonawsDynamodbTypes
@@ -26,6 +27,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   import SET = AwsCryptographyStructuredEncryptionTypes
   import DDBE = AwsCryptographyDynamoDbEncryptionTypes
   import DynamoDbEncryptionUtil
+  import StructuredEncryptionUtil
 
   datatype Config = Config(
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
@@ -38,6 +40,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     nameonly allowedUnauthenticatedAttributePrefix: Option<string>,
     nameonly algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
     nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient,
+    nameonly plaintextPolicy: DDBE.PlaintextPolicy,
     nameonly internalLegacyConfig: Option<InternalLegacyConfig.InternalLegacyConfig> := None
   )
 
@@ -323,6 +326,13 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     // It is forbidden to explicitly configure an attribute with the reserved prefix
     && (forall attribute <- config.attributeActions.Keys ::
           !(ReservedPrefix <= attribute))
+    
+    && (config.internalLegacyConfig.Some? ==> config.plaintextPolicy.FORBID_WRITE_FORBID_READ?)
+    && (
+        (|| config.plaintextPolicy.FORBID_WRITE_ALLOW_READ?
+        || config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?)
+      ==>
+        config.internalLegacyConfig.None?)
   }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
@@ -480,6 +490,11 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     Success(finalSchema)
   }
 
+  function method IsPlaintextItem(ddbItem: ComAmazonawsDynamodbTypes.AttributeMap) : (ret: bool) {
+    !( && StructuredEncryptionUtil.HeaderField in ddbItem.Keys
+       && StructuredEncryptionUtil.FooterField in ddbItem.Keys)
+  }
+
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
   {true}
 
@@ -511,6 +526,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     ensures 
       && output.Success? 
       && !(config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.policy.REQUIRE_ENCRYPT_ALLOW_DECRYPT?)
+      && !(config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?)
     ==>
       //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
       //= type=implication
@@ -545,7 +561,23 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && MakeEncryptionContext(config, plaintextStructure).Success?
       && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.encryptionContext
         == Some(MakeEncryptionContext(config, plaintextStructure).value)
+
+    //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
+    //= type=implication
+    //# If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
+    //# `REQUIRE_WRITE_ALLOW_READ` is specified,
+    //# this operation MUST NOT encrypt the input item,
+    //# and MUST passthrough that item as the output.
+    ensures
+        && config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?
+        && output.Success?
+      ==>
+        && output.value.encryptedItem == input.plaintextItem
   {
+    :- Need(
+      && config.partitionKeyName in input.plaintextItem
+      && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
+      , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
@@ -554,10 +586,6 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     //# [Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor),
     //# using the configured [Attribute Flags](./ddb-encryption-table-config.md) as input.
     if config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.policy.REQUIRE_ENCRYPT_ALLOW_DECRYPT? {
-      :- Need(
-        && config.partitionKeyName in input.plaintextItem
-        && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
-        , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
       var encryptItemOutput :- config.internalLegacyConfig.value.EncryptItem(input);
       //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
       //# The item returned by this operation MUST be the item outputted by the
@@ -565,12 +593,10 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       return Success(encryptItemOutput);
     }
 
-    //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
-    //= type=TODO
-    //# If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
-    //# `REQUIRE_WRITE_ALLOW_READ` is specified,
-    //# this operation MUST NOT encrypt the input item,
-    //# and MUST passthrough that item as the output.
+    if (config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?) {
+      var passthroughOutput := EncryptItemOutput(encryptedItem := input.plaintextItem);
+      return Success(passthroughOutput);
+    }
 
     // This is to help Dafny with the above complex ensures
     assert {:split_here} true;
@@ -658,6 +684,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     ensures 
       && output.Success?
       && !(config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.IsLegacyInput(input))
+      && (config.plaintextPolicy.FORBID_WRITE_FORBID_READ? || !IsPlaintextItem(input.encryptedItem))
     ==>
       //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
       //= type=implication
@@ -692,7 +719,26 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && MakeEncryptionContext(config, plaintextStructure).Success?
       && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptionContext
         == Some(MakeEncryptionContext(config, plaintextStructure).value)
+
+    //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+    //= type=implication
+    //# If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
+    //# `REQUIRE_WRITE_ALLOW_READ` or `FORBID_WRITE_ALLOW_READ` is specified,
+    //# and the input item [is a plaintext item](#determining-plaintext-items)
+    //# this operation MUST NOT decrypt the input item,
+    //# and MUST passthrough that item as the output.
+    ensures
+        && (|| config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?
+            || config.plaintextPolicy.FORBID_WRITE_ALLOW_READ?)
+        && IsPlaintextItem(input.encryptedItem)
+        && output.Success?
+      ==>
+        && output.value.plaintextItem == input.encryptedItem
   {
+    :- Need(
+      && config.partitionKeyName in input.encryptedItem
+      && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
+      , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
@@ -703,10 +749,6 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     //# using the configured [Attribute Flags](./ddb-encryption-table-config.md) as input.
     // Note: InternalLegacyConfig.DecryptItem checks that the legacy policy is correct.
     if config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.IsLegacyInput(input) {
-      :- Need(
-        && config.partitionKeyName in input.encryptedItem
-        && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
-        , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
       var decryptItemOutput :- config.internalLegacyConfig.value.DecryptItem(input);
       //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
       //# The item returned by this operation MUST be the item outputted by the
@@ -714,13 +756,18 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       return Success(decryptItemOutput);
     }
 
-    //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-    //= type=TODO
-    //# If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
-    //# `REQUIRE_WRITE_ALLOW_READ` or `FORBID_WRITE_ALLOW_READ` is specified,
-    //# and the input item [is a plaintext item](#determining-plaintext-items)
-    //# this operation MUST NOT decrypt the input item,
-    //# and MUST passthrough that item as the output.
+    if (
+      && (|| config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?
+          || config.plaintextPolicy.FORBID_WRITE_ALLOW_READ?)
+      && IsPlaintextItem(input.encryptedItem)
+    ) {
+      var passthroughOutput := DecryptItemOutput(plaintextItem := input.encryptedItem);
+      return Success(passthroughOutput);
+    }
+
+    :- Need(!IsPlaintextItem(input.encryptedItem),
+        DynamoDbItemEncryptorException(
+            message := "Encrypted item missing expected header and footer attributes"));
 
     var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem)
         .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));

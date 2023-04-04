@@ -32,7 +32,8 @@ module
       keyring := None(),
       cmm := None(),
       algorithmSuiteId := None(),
-      legacyConfig := None()
+      legacyConfig := None(),
+      plaintextPolicy := None()
     )
   }
 
@@ -63,66 +64,49 @@ module
           && config.sortKeyName.value in config.attributeActions
           && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY)
 
-    // TODO expected CMM/Keyring behavior
-  {
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
-    //= type=TODO
+    //= type=implication
     //# A [Legacy Config](#legacy-config)
     //# and a [Plaintext Policy](#plaintext-policy)
     //# both specified on the same config is invalid,
     //# and MUST result in an error.
+    ensures
+        && config.legacyConfig.Some?
+        && config.plaintextPolicy.Some?
+      ==>
+        res.Failure?
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#plaintext-policy
-    //= type=TODO
+    //= type=implication
     //# If not specified, encryption and decryption MUST behave according to `FORBID_WRITE_FORBID_READ`.
+    ensures
+        && res.Success?
+        && config.plaintextPolicy.None?
+      ==>
+        res.value.config.plaintextPolicy.FORBID_WRITE_FORBID_READ?
+  {
+    :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
+      message := "Cannot provide both a keyring and a CMM"
+    ));
 
-    // TODO Fix this when the compile bug is fixed (https://t.corp.amazon.com/P78273149)
-    // :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
-    //   message := "Cannot provide both a keyring and a CMM"
-    // ));
-    if !(config.keyring.None? || config.cmm.None?) {
-      return Failure(DynamoDbItemEncryptorException(
-        message := "Cannot provide both a keyring and a CMM"
-      ));
-    }
-    // :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
-    //   message := "Must provide either a keyring or a CMM"
-    // ));
-    if !(config.keyring.Some? || config.cmm.Some?) {
-      return Failure(DynamoDbItemEncryptorException(
-        message := "Must provide either a keyring or a CMM"
-      ));
-    }
-    // :- Need(
-    //     && config.partitionKeyName in config.attributeActions
-    //     && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY,
-    //   DynamoDbItemEncryptorException(
-    //     message := "Partition key attribute action MUST be SIGN_ONLY"
-    //   ));
-    if 
-        !(&& config.partitionKeyName in config.attributeActions
-        && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY)
-    {
-      return Failure(DynamoDbItemEncryptorException(
+    :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
+      message := "Must provide either a keyring or a CMM"
+    ));
+
+    :- Need(
+        && config.partitionKeyName in config.attributeActions
+        && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY,
+      DynamoDbItemEncryptorException(
         message := "Partition key attribute action MUST be SIGN_ONLY"
-      ));
-    }
-    // :- Need(
-    //   (config.sortKeyName.Some? ==>
-    //     && config.sortKeyName.value in config.attributeActions
-    //     && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY),
-    //   DynamoDbItemEncryptorException(
-    //     message := "Sort key attribute action MUST be SIGN_ONLY"
-    //   ));
-    if !(
+    ));
+
+    :- Need(
       (config.sortKeyName.Some? ==>
         && config.sortKeyName.value in config.attributeActions
-        && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY))
-    {
-      return Failure(DynamoDbItemEncryptorException(
+        && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY),
+      DynamoDbItemEncryptorException(
         message := "Sort key attribute action MUST be SIGN_ONLY"
-      ));
-    }
+    ));
 
     var attributeActions' := config.attributeActions;
     while attributeActions'.Keys != {}
@@ -195,6 +179,15 @@ module
     var internalLegacyConfig :- InternalLegacyConfig.InternalLegacyConfig.Build(config);
     var cmpClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
+    :- Need(internalLegacyConfig.None? || config.plaintextPolicy.None?, DynamoDbItemEncryptorException(
+      message := "Cannot configure both a plaintext policy and a legacy config."
+    ));
+
+    var plaintextPolicy := if config.plaintextPolicy.Some? then
+      config.plaintextPolicy.value
+    else
+      DDBE.PlaintextPolicy.FORBID_WRITE_FORBID_READ;      
+
     var internalConfig := Operations.Config(
       cmpClient := cmpClient,
       tableName := config.tableName,
@@ -209,7 +202,8 @@ module
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption,
-      internalLegacyConfig := internalLegacyConfig
+      internalLegacyConfig := internalLegacyConfig,
+      plaintextPolicy := plaintextPolicy
     );
     assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
 

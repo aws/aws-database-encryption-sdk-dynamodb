@@ -34,6 +34,8 @@ public class DynamoDbTableEncryptionConfig {
 
   private final LegacyConfig legacyConfig;
 
+  private final PlaintextPolicy plaintextPolicy;
+
   protected DynamoDbTableEncryptionConfig(BuilderImpl builder) {
     this.partitionKeyName = builder.partitionKeyName();
     this.sortKeyName = builder.sortKeyName();
@@ -45,6 +47,7 @@ public class DynamoDbTableEncryptionConfig {
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
     this.legacyConfig = builder.legacyConfig();
+    this.plaintextPolicy = builder.plaintextPolicy();
   }
 
   public String partitionKeyName() {
@@ -85,6 +88,10 @@ public class DynamoDbTableEncryptionConfig {
 
   public LegacyConfig legacyConfig() {
     return this.legacyConfig;
+  }
+
+  public PlaintextPolicy plaintextPolicy() {
+    return this.plaintextPolicy;
   }
 
   public Builder toBuilder() {
@@ -136,6 +143,10 @@ public class DynamoDbTableEncryptionConfig {
 
     LegacyConfig legacyConfig();
 
+    Builder plaintextPolicy(PlaintextPolicy plaintextPolicy);
+
+    PlaintextPolicy plaintextPolicy();
+
     DynamoDbTableEncryptionConfig build();
   }
 
@@ -160,6 +171,8 @@ public class DynamoDbTableEncryptionConfig {
 
     protected LegacyConfig legacyConfig;
 
+    protected PlaintextPolicy plaintextPolicy;
+
     protected BuilderImpl() {
     }
 
@@ -174,6 +187,7 @@ public class DynamoDbTableEncryptionConfig {
       this.keyring = model.keyring();
       this.cmm = model.cmm();
       this.legacyConfig = model.legacyConfig();
+      this.plaintextPolicy = model.plaintextPolicy();
     }
 
     public Builder partitionKeyName(String partitionKeyName) {
@@ -265,6 +279,15 @@ public class DynamoDbTableEncryptionConfig {
 
     public LegacyConfig legacyConfig() {
       return this.legacyConfig;
+    }
+
+    public Builder plaintextPolicy(PlaintextPolicy plaintextPolicy) {
+      this.plaintextPolicy = plaintextPolicy;
+      return this;
+    }
+
+    public PlaintextPolicy plaintextPolicy() {
+      return this.plaintextPolicy;
     }
 
     public DynamoDbTableEncryptionConfig build() {

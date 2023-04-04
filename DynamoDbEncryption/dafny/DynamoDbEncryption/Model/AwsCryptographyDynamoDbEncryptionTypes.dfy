@@ -25,9 +25,14 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  predicate method IsValid_BeaconBitLength(x: int32) {
  ( 1 <= x <= 63 )
 }
+ datatype BeaconKey = | BeaconKey (
+ nameonly keyArn: string ,
+ nameonly tableArn: string ,
+ nameonly branchKeyID: string
+ )
  datatype BeaconVersion = | BeaconVersion (
  nameonly version: VersionNumber ,
- nameonly keyring: AwsCryptographyMaterialProvidersTypes.IKeyring ,
+ nameonly key: BeaconKey ,
  nameonly standardBeacons: Option<StandardBeaconList> ,
  nameonly compoundBeacons: Option<CompoundBeaconList> ,
  nameonly virtualFields: Option<VirtualFieldList>
@@ -208,7 +213,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly legacyConfig: Option<LegacyConfig>
+ nameonly legacyConfig: Option<LegacyConfig> ,
+ nameonly plaintextPolicy: Option<PlaintextPolicy>
  )
  type DynamoDbTableEncryptionConfigList = map<ComAmazonawsDynamodbTypes.TableName, DynamoDbTableEncryptionConfig>
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
@@ -299,6 +305,10 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  predicate method IsValid_NonSensitivePartsList(x: seq<NonSensitivePart>) {
  ( 1 <= |x|  )
 }
+ datatype PlaintextPolicy =
+	| REQUIRE_WRITE_ALLOW_READ
+	| FORBID_WRITE_ALLOW_READ
+	| FORBID_WRITE_FORBID_READ
  type Prefix = x: string | IsValid_Prefix(x) witness *
  predicate method IsValid_Prefix(x: string) {
  ( 1 <= |x|  )

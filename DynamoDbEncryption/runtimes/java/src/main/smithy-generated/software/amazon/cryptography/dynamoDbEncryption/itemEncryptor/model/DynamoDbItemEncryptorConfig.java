@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy;
 import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -35,6 +36,8 @@ public class DynamoDbItemEncryptorConfig {
 
   private final LegacyConfig legacyConfig;
 
+  private final PlaintextPolicy plaintextPolicy;
+
   protected DynamoDbItemEncryptorConfig(BuilderImpl builder) {
     this.tableName = builder.tableName();
     this.partitionKeyName = builder.partitionKeyName();
@@ -46,6 +49,7 @@ public class DynamoDbItemEncryptorConfig {
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
     this.legacyConfig = builder.legacyConfig();
+    this.plaintextPolicy = builder.plaintextPolicy();
   }
 
   public String tableName() {
@@ -86,6 +90,10 @@ public class DynamoDbItemEncryptorConfig {
 
   public LegacyConfig legacyConfig() {
     return this.legacyConfig;
+  }
+
+  public PlaintextPolicy plaintextPolicy() {
+    return this.plaintextPolicy;
   }
 
   public Builder toBuilder() {
@@ -137,6 +145,10 @@ public class DynamoDbItemEncryptorConfig {
 
     LegacyConfig legacyConfig();
 
+    Builder plaintextPolicy(PlaintextPolicy plaintextPolicy);
+
+    PlaintextPolicy plaintextPolicy();
+
     DynamoDbItemEncryptorConfig build();
   }
 
@@ -161,6 +173,8 @@ public class DynamoDbItemEncryptorConfig {
 
     protected LegacyConfig legacyConfig;
 
+    protected PlaintextPolicy plaintextPolicy;
+
     protected BuilderImpl() {
     }
 
@@ -175,6 +189,7 @@ public class DynamoDbItemEncryptorConfig {
       this.keyring = model.keyring();
       this.cmm = model.cmm();
       this.legacyConfig = model.legacyConfig();
+      this.plaintextPolicy = model.plaintextPolicy();
     }
 
     public Builder tableName(String tableName) {
@@ -266,6 +281,15 @@ public class DynamoDbItemEncryptorConfig {
 
     public LegacyConfig legacyConfig() {
       return this.legacyConfig;
+    }
+
+    public Builder plaintextPolicy(PlaintextPolicy plaintextPolicy) {
+      this.plaintextPolicy = plaintextPolicy;
+      return this;
+    }
+
+    public PlaintextPolicy plaintextPolicy() {
+      return this.plaintextPolicy;
     }
 
     public DynamoDbItemEncryptorConfig build() {
