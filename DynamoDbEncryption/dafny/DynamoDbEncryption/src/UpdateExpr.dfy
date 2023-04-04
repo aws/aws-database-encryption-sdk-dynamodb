@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "Util.dfy"
+include "../../DynamoDbItemEncryptor/Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
 
 module DynamoDbUpdateExpr {
   import opened Wrappers

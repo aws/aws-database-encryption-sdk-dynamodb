@@ -54,18 +54,12 @@ module DdbVirtualFields {
     name : string,
     parts : seq<VirtPart>
   ) {
+
     function method {:opaque} examine(exam: Examiner)
       : (ret : bool)
       ensures !ret ==> forall s <- parts :: !exam(s.loc)
     {
       Examine(parts, exam)
-    }
-
-    predicate method ValidState() {true}
-    function method ValidStateResult() : Result<bool, Error> {Success(true)}
-    function method GetFields() : seq<string>
-    {
-      Seq.Map((p : VirtPart) => p.loc[0].key, parts)
     }
   }
 

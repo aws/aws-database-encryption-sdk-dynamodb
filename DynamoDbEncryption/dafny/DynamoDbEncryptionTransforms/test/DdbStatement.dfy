@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/StandardLibrary.dfy"
-include "../src/Index.dfy"
+include "../../DynamoDbEncryptionTransforms/src/Index.dfy"
 
 module DdbStatementTest {
   import opened Wrappers

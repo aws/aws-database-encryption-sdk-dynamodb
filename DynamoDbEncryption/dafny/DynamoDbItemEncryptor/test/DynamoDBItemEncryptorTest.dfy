@@ -4,7 +4,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/StandardLi
 include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
 include "../../DynamoDbEncryption/src/Index.dfy"
-include "../../DynamoDbEncryptionTransforms/test/TestFixtures.dfy"
+include "../../DynamoDbEncryption/test/TestFixtures.dfy"
 
 module DynamoDbItemEncryptorTest {
   import opened Wrappers

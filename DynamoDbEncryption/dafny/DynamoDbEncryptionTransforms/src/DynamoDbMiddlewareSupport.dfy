@@ -25,7 +25,7 @@ module DynamoDbMiddlewareSupport {
   function method {:opaque} IsWriteable(config : ValidTableConfig, item : DDB.AttributeMap)
     : Result<bool, Error>
   {
-    BS.IsWriteable(config, item)
+    BS.IsWriteable(config.itemEncryptor.config, item)
       .MapFailure(e => E(e))
   }
 
@@ -40,7 +40,7 @@ module DynamoDbMiddlewareSupport {
   )
     : Result<bool, Error>
   {
-    BS.TestConditionExpression(config, expr, attrNames, attrValues)
+    BS.TestConditionExpression(config.itemEncryptor.config, expr, attrNames, attrValues)
       .MapFailure(e => E(e))
   }
 
@@ -55,7 +55,7 @@ module DynamoDbMiddlewareSupport {
   )
     : Result<bool, Error>
   {
-    BS.TestUpdateExpression(config, expr, attrNames, attrValues)
+    BS.TestUpdateExpression(config.itemEncryptor.config, expr, attrNames, attrValues)
       .MapFailure(e => E(e))
   }
 
@@ -83,7 +83,7 @@ module DynamoDbMiddlewareSupport {
     : Result<DDB.CreateTableInput, Error>
   {
     BS.CreateTableInputForBeacons(config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a UpdateTableInput object for searchable encryption.
@@ -91,7 +91,7 @@ module DynamoDbMiddlewareSupport {
     : Result<DDB.UpdateTableInput, Error>
   {
     BS.UpdateTableInputForBeacons(config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a DescribeTableOutput object for searchable encryption.
@@ -99,15 +99,15 @@ module DynamoDbMiddlewareSupport {
     : Result<DDB.DescribeTableOutput, Error>
   {
     BS.DescribeTableOutputForBeacons(config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+      .MapFailure(e => E(e))
   }
 
   // Transform a QueryInput object for searchable encryption.
   function method {:opaque} QueryInputForBeacons(config : ValidTableConfig, req : DDB.QueryInput)
     : Result<DDB.QueryInput, Error>
   {
-    BS.QueryInputForBeacons(config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+    BS.QueryInputForBeacons(config.itemEncryptor.config, req)
+      .MapFailure(e => E(e))
   }
 
   // Transform a QueryOutput object for searchable encryption.
@@ -116,17 +116,18 @@ module DynamoDbMiddlewareSupport {
     requires resp.Items.Some?
     ensures ret.Success? ==>
       && ret.value.Items.Some?
+      && |ret.value.Items.value| == |resp.Items.value|
   {
-    BS.QueryOutputForBeacons(config, req, resp)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+    BS.QueryOutputForBeacons(config.itemEncryptor.config, req, resp)
+      .MapFailure(e => E(e))
   }
 
   // Transform a ScanInput object for searchable encryption.
   function method {:opaque} ScanInputForBeacons(config : ValidTableConfig, req : DDB.ScanInput)
     : Result<DDB.ScanInput, Error>
   {
-    BS.ScanInputForBeacons(config, req)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+    BS.ScanInputForBeacons(config.itemEncryptor.config, req)
+      .MapFailure(e => E(e))
   }
 
   // Transform a ScanOutput object for searchable encryption.
@@ -135,8 +136,9 @@ module DynamoDbMiddlewareSupport {
     requires resp.Items.Some?
     ensures ret.Success? ==>
       && ret.value.Items.Some?
+      && |ret.value.Items.value| == |resp.Items.value|
   {
-    BS.ScanOutputForBeacons(config, req, resp)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+    BS.ScanOutputForBeacons(config.itemEncryptor.config, req, resp)
+      .MapFailure(e => E(e))
   }
 }

@@ -5,7 +5,7 @@
 # between all the projects in this repo.
 # They will only function if executed inside a project directory.
 
-# There are several variables that are used here.
+# There are serveral variables that are used here.
 # The expectation is to define these variables
 # inside each project.
 
@@ -34,12 +34,12 @@ PROJECT_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 LIBRARY_ROOT := $(PWD)
 # Smithy Dafny code gen needs to know
 # where the smithy model is.
-# This is generally in the same directory as the library.
+# This is generaly in the same directory as the library.
 # However in the case of a wrapped library,
 # such as the test vectors
 # the implementation MAY be in a different library
 # than the model.
-# By having two related variables
+# By having two releated variables
 # test vector projects can point to
 # the specific model they need
 # but still build everything in their local library directory.
@@ -79,7 +79,7 @@ dafny-reportgenerator:
 # Dafny helper targets
 
 # The `$(OUT)` and $(TARGET) variables are problematic.
-# Ideally they are different for every target call.
+# Idealy they are different for every target call.
 # However the way make evaluates variables
 # having a target specific variable is hard.
 # This all comes up because a project
@@ -87,7 +87,7 @@ dafny-reportgenerator:
 # This is worked around for now,
 # by the fact that the `TARGET`
 # for all these transpile calls will be the same.
-# For `OUT` this is solved by making the paths relative.
+# For `OUT` this is solved by makeing the paths realative.
 # So that the runtime is express once
 # and can be the same for all such runtimes.
 # Since such targets are all shared,
@@ -287,7 +287,7 @@ test_java:
 ########################## local testing targets
 
 # These targets are added as a convenience for local development.
-# If you experience weird behavior using these targets,
+# If you experiene weird behavior using these targets,
 # fall back to the regular `build` or `test` targets.
 # These targets MUST only be used for local testing,
 # and MUST NOT be used in CI.
@@ -318,7 +318,6 @@ local_transpile_impl_service: transpile_implementation
 local_transpile_test_java_service: TARGET=java
 local_transpile_test_java_service: OUT=runtimes/java/TestsFromDafny
 local_transpile_test_java_service: local_transpile_test_service
-	rm runtimes/java/TestsFromDafny-java/TestsFromDafny.java
 	cp -R runtimes/java/TestsFromDafny-java/* runtimes/java/src/test/dafny-generated
 	rm -rf runtimes/java/TestsFromDafny-java
 

@@ -5,11 +5,13 @@ package software.amazon.cryptography.dynamoDbEncryption.model;
 
 import java.util.List;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.IKeyring;
+import software.amazon.cryptography.materialProviders.Keyring;
 
 public class BeaconVersion {
   private final int version;
 
-  private final BeaconKey key;
+  private final Keyring keyring;
 
   private final List<StandardBeacon> standardBeacons;
 
@@ -19,7 +21,7 @@ public class BeaconVersion {
 
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
-    this.key = builder.key();
+    this.keyring = builder.keyring();
     this.standardBeacons = builder.standardBeacons();
     this.compoundBeacons = builder.compoundBeacons();
     this.virtualFields = builder.virtualFields();
@@ -29,8 +31,8 @@ public class BeaconVersion {
     return this.version;
   }
 
-  public BeaconKey key() {
-    return this.key;
+  public Keyring keyring() {
+    return this.keyring;
   }
 
   public List<StandardBeacon> standardBeacons() {
@@ -58,9 +60,9 @@ public class BeaconVersion {
 
     int version();
 
-    Builder key(BeaconKey key);
+    Builder keyring(IKeyring keyring);
 
-    BeaconKey key();
+    Keyring keyring();
 
     Builder standardBeacons(List<StandardBeacon> standardBeacons);
 
@@ -80,7 +82,7 @@ public class BeaconVersion {
   static class BuilderImpl implements Builder {
     protected int version;
 
-    protected BeaconKey key;
+    protected Keyring keyring;
 
     protected List<StandardBeacon> standardBeacons;
 
@@ -93,7 +95,7 @@ public class BeaconVersion {
 
     protected BuilderImpl(BeaconVersion model) {
       this.version = model.version();
-      this.key = model.key();
+      this.keyring = model.keyring();
       this.standardBeacons = model.standardBeacons();
       this.compoundBeacons = model.compoundBeacons();
       this.virtualFields = model.virtualFields();
@@ -108,13 +110,13 @@ public class BeaconVersion {
       return this.version;
     }
 
-    public Builder key(BeaconKey key) {
-      this.key = key;
+    public Builder keyring(IKeyring keyring) {
+      this.keyring = Keyring.wrap(keyring);
       return this;
     }
 
-    public BeaconKey key() {
-      return this.key;
+    public Keyring keyring() {
+      return this.keyring;
     }
 
     public Builder standardBeacons(List<StandardBeacon> standardBeacons) {
@@ -151,8 +153,8 @@ public class BeaconVersion {
       if (Objects.nonNull(this.version()) && this.version() < 1) {
         throw new IllegalArgumentException("`version` must be greater than or equal to 1");
       }
-      if (Objects.isNull(this.key()))  {
-        throw new IllegalArgumentException("Missing value for required field `key`");
+      if (Objects.isNull(this.keyring()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyring`");
       }
       if (Objects.nonNull(this.standardBeacons()) && this.standardBeacons().size() < 1) {
         throw new IllegalArgumentException("The size of `standardBeacons` must be greater than or equal to 1");

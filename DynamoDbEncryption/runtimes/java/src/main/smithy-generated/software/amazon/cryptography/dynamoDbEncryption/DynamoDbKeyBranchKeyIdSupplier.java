@@ -50,8 +50,8 @@ public final class DynamoDbKeyBranchKeyIdSupplier implements IDynamoDbKeyBranchK
     return ToNative.GetBranchKeyIdFromDdbKeyOutput(result.dtor_value());
   }
 
-  protected static final class NativeWrapper implements Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbKeyBranchKeyIdSupplier {
-    protected final IDynamoDbKeyBranchKeyIdSupplier _impl;
+  private static final class NativeWrapper implements Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbKeyBranchKeyIdSupplier {
+    private final IDynamoDbKeyBranchKeyIdSupplier _impl;
 
     NativeWrapper(IDynamoDbKeyBranchKeyIdSupplier nativeImpl) {
       if (nativeImpl instanceof DynamoDbKeyBranchKeyIdSupplier) {

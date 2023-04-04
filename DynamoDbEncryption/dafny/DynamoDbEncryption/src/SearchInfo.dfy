@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "Util.dfy"
+include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
 include "Beacon.dfy"
 include "CompoundBeacon.dfy"
 include "Virtual.dfy"
@@ -28,29 +29,15 @@ module SearchableEncryptionInfo {
     function method CheckValid() : (ret : Result<bool, Error>)
       ensures ret.Success? ==> ValidState()
     {
-      var _ :- ValidStateResult();
+      // TODO - better error messages
       :- Need(ValidState(), E("State Invalid"));
       Success(true)
     }
-
     predicate method ValidState()
     {
       && 0 < |versions|
       && currWrite < |versions|
       && forall v <- versions :: v.ValidState()
-    }
-
-    // produce nice error messages for common mistakes
-    function method ValidStateResult() : Result<bool, Error>
-    {
-      var _ :- Seq.MapWithResult((v : BeaconVersion) => v.ValidStateResult(), versions);
-      Success(true)
-    }
-
-    function method curr() : BeaconVersion
-      requires ValidState()
-    {
-      versions[currWrite]
     }
 
     predicate method IsBeacon(field : string)
@@ -108,33 +95,12 @@ module SearchableEncryptionInfo {
       else
         cmp.base.beaconName
     }
-    function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
+    function method GetFields() : seq<string>
     {
       if Standard? then
-        std.GetFields(virtualFields)
+        std.GetFields()
       else
-        cmp.GetFields(virtualFields)
-    }
-    function method GetBeaconValue(value : DDB.AttributeValue) : Result<DDB.AttributeValue, Error>
-    {
-      if Standard? then
-        std.GetBeaconValue(value)
-      else
-        cmp.GetBeaconValue(value)
-    }
-    function method ValidStateResult() : Result<bool, Error>
-    {
-      if Standard? then
-        std.ValidStateResult()
-      else
-        cmp.ValidStateResult()
-    }
-    predicate method ValidState()
-    {
-      if Standard? then
-        std.ValidState()
-      else
-        cmp.ValidState()
+        cmp.GetFields()
     }
   }
 
@@ -151,15 +117,6 @@ module SearchableEncryptionInfo {
       && version == 1
       && (forall k <- virtualFields :: virtualFields[k].name == k)
       && (forall k <- beacons :: beacons[k].getName() == k)
-      && (forall k <- virtualFields :: virtualFields[k].ValidState())
-      && (forall k <- beacons :: beacons[k].ValidState())
-    }
-
-    function method ValidStateResult() : Result<bool, Error>
-    {
-      var _ :- Seq.MapWithResult((k : Beacon) => k.ValidStateResult(), SortedSets.ComputeSetToSequence(beacons.Values));
-      var _ :- Seq.MapWithResult((k : VirtField) => k.ValidStateResult(), SortedSets.ComputeSetToSequence(virtualFields.Values));
-      Success(true)
     }
 
     predicate method IsBeacon(field : string)
@@ -175,7 +132,7 @@ module SearchableEncryptionInfo {
     function method GetFields(field : string) : seq<string>
     {
       if IsBeacon(field) then
-        beacons[field].GetFields(virtualFields) + ["aws_dbe_b_" + field]
+        beacons[field].GetFields() + ["aws_dbe_b_" + field]
       else
         [field]
     }
@@ -192,13 +149,6 @@ module SearchableEncryptionInfo {
       var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
       GenerateBeacons2(beaconNames, item)
     }
-
-    function method GenerateBeacon(name : string, item : DDB.AttributeMap) : Result<DDB.AttributeValue, Error>
-      requires name in beacons
-    {
-      beacons[name].attrHash(item, virtualFields)
-    }
-
     function method GenerateBeacons2(
       names : seq<string>,
       item : DDB.AttributeMap,
@@ -210,7 +160,7 @@ module SearchableEncryptionInfo {
       if |names| == 0 then
         Success(acc)
       else
-        var value :- GenerateBeacon(names[0], item);
+        var value :- beacons[names[0]].attrHash(item, virtualFields);
         GenerateBeacons2(names[1..], item, acc[beacons[names[0]].getBeaconName() := value])
     }
   }

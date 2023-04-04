@@ -5,7 +5,8 @@
 // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.statements.html
 // for ExecuteStatement, BatchExecuteStatement and ExecuteTransaction
 
-include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
+include "../../../../submodules/MaterialProviders/libraries/src/Wrappers.dfy"
+include "../../../../submodules/MaterialProviders/StandardLibrary/src/StandardLibrary.dfy"
 include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 
 module DdbStatement {

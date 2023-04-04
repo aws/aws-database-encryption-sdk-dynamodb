@@ -67,9 +67,6 @@ service DynamoDbEncryptionTransforms {
 @aws.polymorph#reference(service: aws.cryptography.dynamoDbEncryption.itemEncryptor#DynamoDbItemEncryptor)
 structure DynamoDbItemEncryptorReference {}
 
-@aws.polymorph#reference(service: aws.cryptography.dynamoDbEncryption#DynamoDbEncryption)
-structure DynamoDbEncryptionReference {}
-
 @error("client")
 structure DynamoDbEncryptionTransformsException {
   @required

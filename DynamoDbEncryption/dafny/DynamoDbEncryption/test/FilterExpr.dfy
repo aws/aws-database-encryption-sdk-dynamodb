@@ -2,18 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../src/FilterExpr.dfy"
-include "BeaconTestFixtures.dfy"
-include "../src/ConfigToInfo.dfy"
 
 module TestDynamoDBFilterExpr {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
   import opened ComAmazonawsDynamodbTypes
   import opened DynamoDBFilterExpr
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened BeaconTestFixtures
-  import opened SearchConfigToInfo
+
+  method expect_equal<T(==)>(a: T, b: T)
+    ensures a == b
+  {
+    if a != b {
+      print "Not equal: ", a, ", ", b, "\n";
+    }
+    expect a == b;
+  }
 
   method expect_contains(haystack : AttributeValue, needle : AttributeValue, negate : bool)
   {
@@ -72,66 +76,5 @@ module TestDynamoDBFilterExpr {
 
     expect_equal(ExtractAttributes("A < B or size(C) or D between E and F",
       Some(attrMap)), ["A", "B", "D", "E", "F"]);
-  }
-
-  method {:test} TestNoBeacons() {
-    var context := ExprContext (
-      expr := Some("A < :A AND B = :B"),
-      values:= Some(map[
-        ":A" := DDB.AttributeValue.N("1.23"),
-        ":B" := DDB.AttributeValue.S("abc")
-      ]),
-      names := None
-    );
-    var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, EmptyBeacons, [1,2,3,4,5]);
-    var newContext :- expect Beaconize(beaconVersion, context);
-    expect newContext == context;
-  }
-
-  method {:test} TestBasicParse() {
-    var context := ExprContext (
-      expr := Some("std2 < :A AND #Field4 = :B"),
-      values:= Some(map[
-        ":A" := DDB.AttributeValue.N("1.23"),
-        ":B" := DDB.AttributeValue.S("abc")
-      ]),
-      names := Some(map[
-        "#Field4" := "std4"
-      ])
-    );
-    var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, EmptyBeacons, [1,2,3,4,5]);
-    var parsed := ParseExpr(context.expr.value);
-    expect |parsed| == 7;
-    expect parsed[0].Attr?;
-    expect parsed[0].s == "std2";
-    expect beaconVersion.IsBeacon(parsed[0].s);
-    expect OpNeedsBeacon(parsed, 0);
-    expect beaconVersion.beacons[parsed[0].s].getBeaconName() == "aws_dbe_b_std2";
-
-    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names);
-    var exprString := ParsedExprToString(newContext.expr);
-    expect exprString == "aws_dbe_b_std2 < :A AND #Field4 = :B";
-  }
-  method {:test} TestBasicBeacons() {
-    var context := ExprContext (
-      expr := Some("std2 < :A AND #Field4 = :B"),
-      values:= Some(map[
-        ":A" := Std2String,
-        ":B" := Std4String
-      ]),
-      names := Some(map[
-        "#Field4" := "std4"
-      ])
-    );
-    var beaconVersion :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
-    var newContext :- expect Beaconize(beaconVersion, context);
-    expect_equal(newContext.expr, Some("aws_dbe_b_std2 < :A AND #Field4 = :B"));
-    var newName := "aws_dbe_b_std4";
-    expect IsValid_AttributeName(newName);
-    expect_equal(newContext.names, Some(map["#Field4" := newName]));
-    var itemBeacons :- expect beaconVersion.GenerateBeacons(SimpleItem);
-    expect "aws_dbe_b_std2" in itemBeacons;
-    expect "aws_dbe_b_std4" in itemBeacons;
-    expect_equal(newContext.values, Some(map[":A" := itemBeacons["aws_dbe_b_std2"], ":B" := itemBeacons["aws_dbe_b_std4"]]));
   }
 }

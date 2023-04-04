@@ -1,21 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../src/Beacon.dfy"
-include "../src/CompoundBeacon.dfy"
-include "BeaconTestFixtures.dfy"
-include "../src/ConfigToInfo.dfy"
-include "../src/SearchInfo.dfy"
+include "../../DynamoDbEncryption/src/Beacon.dfy"
+include "../../DynamoDbEncryption/src/CompoundBeacon.dfy"
 
 module TestBaseBeacon {
-  import T = AwsCryptographyDynamoDbEncryptionTypes
   import opened BaseBeacon
   import opened CompoundBeacon
   import opened Wrappers
   import opened TermLoc
-  import opened BeaconTestFixtures
-  import opened DynamoDbEncryptionUtil
-  import C = SearchConfigToInfo
-  import I = SearchableEncryptionInfo
 
   const Timestamp := BeaconPart("timestamp", TermLocMap("timestamp"), "T-", None);
   const Secret := BeaconPart("secret", TermLocMap("secret"), "S-", Some(4));
@@ -53,21 +45,6 @@ module TestBaseBeacon {
     expect str == "80";
     bytes :- expect bb.getHmac(UTF8.EncodeAscii("123"));
     expect bytes[7] == 0x61;
-  }
-
-  method {:test} TestFailures() {
-    var version := T.BeaconVersion (
-      version := 1,
-      key := T.BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-      standardBeacons := None,
-      compoundBeacons := Some([BadPrefix]),
-      virtualFields := None
-    );
-    var beaconVersion :- expect C.ConvertVersionWithKey(FullTableConfig, version, [1,2,3,4,5]);
-
-    var res := beaconVersion.ValidStateResult();
-    expect res.Failure?;
-    expect_equal(res.error, E("Compound beacon BadPrefix defines part Title with prefix T_ which is incompatible with part TooBad which has a prefix of T."));
   }
 
 }
