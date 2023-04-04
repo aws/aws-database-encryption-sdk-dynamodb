@@ -8,6 +8,7 @@ module DynamoDbEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import DDB = ComAmazonawsDynamodbTypes
 
   const ReservedPrefix := "aws_dbe_"
   const BeaconPrefix := "aws_dbe_b_"
@@ -32,4 +33,28 @@ module DynamoDbEncryptionUtil {
   }
 
   type Bytes = seq<uint8>
+
+  // return type of value
+  function method AttrTypeToStr(attr : DDB.AttributeValue) : string
+  {
+    match attr {
+      case S(s) => "S"
+      case N(n) => "N"
+      case B(n) => "B"
+      case SS(n) => "SS"
+      case NS(n) => "NS"
+      case BS(n) => "BS"
+      case M(n) => "M"
+      case L(n) => "L"
+      case NULL(n) => "NULL"
+      case BOOL(n) => "BOOL"
+    }
+  }
+
+  function printFromFunction<T>(x: T): () {
+    ()
+  } by method {
+    print x,"\n";
+    return ();
+  }
 }

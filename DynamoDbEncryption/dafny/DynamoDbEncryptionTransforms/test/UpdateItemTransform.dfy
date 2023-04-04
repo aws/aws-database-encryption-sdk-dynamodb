@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../DynamoDbEncryptionTransforms/src/Index.dfy"
-include "../../DynamoDbEncryption/test/TestFixtures.dfy"
+include "../src/Index.dfy"
+include "TestFixtures.dfy"
 
 module UpdateItemTransformTest {
   import opened Wrappers

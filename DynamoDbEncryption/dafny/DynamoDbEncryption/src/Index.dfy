@@ -2,6 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "AwsCryptographyDynamoDbEncryptionOperations.dfy"
+include "Beacon.dfy"
+include "CompoundBeacon.dfy"
+include "ConfigToInfo.dfy"
+// include "DDBIndex.dfy"
+// include "DDBSupport.dfy"
+include "DynamoDbEncryptionBranchKeyIdSupplier.dfy"
+include "DynamoToStruct.dfy"
+include "FilterExpr.dfy"
+include "SearchInfo.dfy"
+include "TermLoc.dfy"
+include "UpdateExpr.dfy"
+include "Util.dfy"
+include "Virtual.dfy"
 
 module
   {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption" }

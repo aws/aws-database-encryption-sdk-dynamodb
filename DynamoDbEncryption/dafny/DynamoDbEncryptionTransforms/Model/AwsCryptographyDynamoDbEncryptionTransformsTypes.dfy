@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
+ include "../../DynamoDbEncryption/src/Index.dfy"
  include "../../DynamoDbItemEncryptor/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms.Types" } AwsCryptographyDynamoDbEncryptionTransformsTypes
@@ -808,6 +809,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly message: string
  )
  // Any dependent models are listed here
+ | AwsCryptographyDynamoDbEncryption(AwsCryptographyDynamoDbEncryption: AwsCryptographyDynamoDbEncryptionTypes.Error)
  | AwsCryptographyDynamoDbEncryptionItemEncryptor(AwsCryptographyDynamoDbEncryptionItemEncryptor: AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  // The Collection error is used to collect several errors together
