@@ -17,11 +17,7 @@ jobs:
         dotnet-version: [ '6.0.x' ]
         os: [
           # TODO windows-latest,
-<<<<<<< HEAD
-          # TODO ubuntu-latest,
-=======
           # ubuntu-latest,
->>>>>>> 7b05cc773cd139475e2cf90a4cfb0fd27138e1cc
           macos-latest,
         ]
     runs-on: ${{ matrix.os }}
