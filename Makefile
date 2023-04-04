@@ -13,7 +13,7 @@ duvet_report:
 	duvet \
 		report \
 		--spec-pattern "compliance/**/*.toml" \
-		--source-pattern "DynamoDbEncryption/src/**/*.dfy" \
-		--source-pattern "DynamoDbEncryption/test/**/*.dfy" \
-		--source-pattern "DynamoDbEncryption/Model/**/*.smithy" \
+		--source-pattern "DynamoDbEncryption/dafny/**/*.dfy" \
+		--source-pattern "DynamoDbEncryption/dafny/**/*.smithy" \
+		--source-pattern "DynamoDbEncryption/runtimes/java/src/main/java/**/*.java" \
 		--html specification_compliance_report.html

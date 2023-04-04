@@ -41,17 +41,55 @@ structure DynamoDbEncryptionConfig {
 // Used to configure the internal DynamoDbEncryptionTransforms, and by native implementations
 // of integrations with higher level DDB APIs.
 structure DynamoDbTablesEncryptionConfig {
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-encryption-client-configuration
+    //= type=implication
+    //# The client configuration consists of the following REQUIRED field:
+    //# - [DynamoDb Table Encryption Configs](#dynamodb-tables-encryption-configs)
     @required
     tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
+
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-encryption-client-configuration
+    //= type=TODO
+    //# The client configuration MAY include the following field:
+    //# - TODO Searchable Encryption Config
+
     // TODO allowed passthrough tables
 }
 
+//= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-table-encryption-configs
+//= type=implication
+//# A map of DynamoDb table names to a structure that MUST contain
+//# data as described by [DynamoDb Table Encryption Config](./ddb-table-encryption-config.md).
 map DynamoDbTableEncryptionConfigList {
     key: TableName,
     value: DynamoDbTableEncryptionConfig
 }
 
 structure DynamoDbTableEncryptionConfig {
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-table-name
+    //= type=implication
+    //# If this config is being organized with other table configs in a map,
+    //# this value MAY exist as a key value to identify other data in this config,
+    //# instead of existing alongside this data in the same object.
+
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //= type=implication
+    //# The following are REQUIRED for DynamoDb Table Encryption Configuration:
+    //# - [DynamoDB Table Name](#dynamodb-table-name)
+    //# - [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
+    //# - [Attribute Actions](#attribute-actions)
+    //# - A [CMM](#cmm) or [Keyring](#keyring)
+
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //= type=implication
+    //# The following are OPTIONAL for DynamoDb Table Encryption Configuration:
+    //# - [DynamoDB Sort Key Name](#dynamodb-sort-key-name)
+    //# - [Unauthenticated Attributes](#unauthenticated-attributes)
+    //# - [Unauthenticated Attribute Name Prefix](#unauthenticated-attribute-prefix)
+    //# - [Algorithm Suite](#algorithm-suite)
+    //# - [Legacy Config](#legacy-config)
+    //# - [Plaintext Policy](#plaintext-policy)
+
     @required
     partitionKeyName: KeySchemaAttributeName,
     sortKeyName: KeySchemaAttributeName,
@@ -61,6 +99,9 @@ structure DynamoDbTableEncryptionConfig {
     attributeActions: AttributeActions,
     allowedUnauthenticatedAttributes: AttributeNameList,
     allowedUnauthenticatedAttributePrefix: String,
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suite
+    //= type=implication
+    //# This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md).
     algorithmSuiteId: DBEAlgorithmSuiteId,
 
     // Requires a Keyring XOR a CMM
@@ -99,13 +140,24 @@ resource LegacyDynamoDbEncryptor {
 @aws.polymorph#reference(resource: LegacyDynamoDbEncryptor)
 structure LegacyDynamoDbEncryptorReference {}
 
+//= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#legacy-config
+//= type=implication
+//# This config MUST contain:
+//# - [Legacy Encryptor](#legacy-encryptor)
+//# - [Attributes Flags](#attribute-flags)
+//# - [Legacy Policy](#legacy-policy)
 structure LegacyConfig {
     @required
     policy: LegacyPolicy,
     @required
     encryptor: LegacyDynamoDbEncryptorReference,
+
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-flags
+    //= type=implication
+    //# This map MAY be different from the top level [Attribute Actions](#attribute-actions).
     @required
     attributeFlags: AttributeActions,
+
     defaultAttributeFlag: CryptoAction,
 }
 

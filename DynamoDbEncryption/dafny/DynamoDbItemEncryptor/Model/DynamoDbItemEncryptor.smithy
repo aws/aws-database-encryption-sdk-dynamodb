@@ -27,37 +27,47 @@ service DynamoDbItemEncryptor {
 
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
 //= type=implication
-//# On initialization of the DynamoDB Item Encryptor, the caller MUST provide:
-// - [DynamoDB Table Name](#dynamodb-table-name)
-// - [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
-// - [Attribute Actions](#attribute-actions)
-// - A [CMM](#cmm) or [Keyring](#keyring)
+//# On initialization of the DynamoDB Item Encryptor,
+//# the caller MUST provide all REQUIRED fields specified in
+//# [dynamodb encryption table config](./ddb-encryption-table-config.md).
 
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
 //= type=implication
-//# On initialization, the caller MAY provide:
-// - [DynamoDB Sort Key Name](#dynamodb-sort-key-name)
-// - [Unauthenticated Attributes](#unauthenticated-attributes)
-// - [Unauthenticated Attribute Name Prefix](#unauthenticated-attribute-prefix)
-// - [Algorithm Suite](#algorithm-suite)
-// - TODO legacy behavior
-// - TODO allow plaintext behavior
-
+//# and the caller MAY provide any OPTIONAL field specified in
+//# [dynamodb encryption table config](./ddb-encryption-table-config.md).
 
 structure DynamoDbItemEncryptorConfig {
-    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#dynamodb-table-name
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //= type=implication
+    //# The following are REQUIRED for DynamoDb Table Encryption Configuration:
+    //# - [DynamoDB Table Name](#dynamodb-table-name)
+    //# - [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
+    //# - [Attribute Actions](#attribute-actions)
+    //# - A [CMM](#cmm) or [Keyring](#keyring)
+
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //= type=implication
+    //# The following are OPTIONAL for DynamoDb Table Encryption Configuration:
+    //# - [DynamoDB Sort Key Name](#dynamodb-sort-key-name)
+    //# - [Unauthenticated Attributes](#unauthenticated-attributes)
+    //# - [Unauthenticated Attribute Name Prefix](#unauthenticated-attribute-prefix)
+    //# - [Algorithm Suite](#algorithm-suite)
+    //# - [Legacy Config](#legacy-config)
+    //# - [Plaintext Policy](#plaintext-policy)
+
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-table-name
     //= type=implication
     //# This Table Name MUST be a valid DynamoDB Table Name.
     @required
     tableName: TableName,
 
-    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#dynamodb-partition-key-name
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-partition-key-name
     //= type=implication
     //# This Partition Key Name MUST be a valid DynamoDB Key Schema Attribute Name
     @required
     partitionKeyName: KeySchemaAttributeName,
 
-    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#dynamodb-sort-key-name
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-sort-key-name
     //= type=implication
     //# This Sort Key Name MUST be a valid DynamoDB Key Schema Attribute Name
     sortKeyName: KeySchemaAttributeName,
@@ -65,16 +75,19 @@ structure DynamoDbItemEncryptorConfig {
     @required
     attributeActions: AttributeActions,
 
-    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#unauthenticated-attributes
     //= type=implication
     //# Unauthenticated Attributes MUST be a set of Attribute Names.
     allowedUnauthenticatedAttributes: AttributeNameList,
 
-    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#unauthenticated-attribute-prefix
     //= type=implication
     //# Unauthenticated Attribute Prefix MUST be a string.
     allowedUnauthenticatedAttributePrefix: String,
 
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suite
+    //= type=implication
+    //# This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md).
     algorithmSuiteId: DBEAlgorithmSuiteId,
 
     // Requires a Keyring XOR a CMM
@@ -84,11 +97,17 @@ structure DynamoDbItemEncryptorConfig {
     legacyConfig: LegacyConfig,
 }
 
+//= specification/dynamodb-encryption-client/ddb-item-encryptor.md#encryptitem
+//= type=implication
+//# The DynamoDB Item Encryptor MUST provide a function that adheres to [EncryptItem](./encrypt-item.md).
 operation EncryptItem {
     input: EncryptItemInput,
     output: EncryptItemOutput,
 }
 
+//= specification/dynamodb-encryption-client/ddb-item-encryptor.md#decryptitem
+//= type=implication
+//# The DynamoDB Item Encryptor MUST provide a function that adheres to [DecryptItem](./decrypt-item.md).
 operation DecryptItem {
     input: DecryptItemInput,
     output: DecryptItemOutput,

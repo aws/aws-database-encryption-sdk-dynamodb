@@ -67,7 +67,7 @@ public class TestUtils {
                 .branchKeyId("guid")
                 .branchKeyStoreArn("branch-keys-table")
                 .ddbClient(DynamoDbClient.create())
-                .ttlSeconds(6000l)
+                .ttlSeconds(600)
                 .maxCacheSize(100)
                 .build();
         return matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
