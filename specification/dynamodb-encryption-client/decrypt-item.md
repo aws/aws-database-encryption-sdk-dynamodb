@@ -53,6 +53,27 @@ The DynamoDB Item is the decryption of the [input DynamoBD Item](#dynamodb-item)
 
 ## Behavior
 
+If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+`FORBID_ENCRYPT_ALLOW_DECRYPT` or `FORBID_ENCRYPT_FORBID_DECRYPT` is configured,
+and the input item [is an item written in the legacy format](#determining-legacy-items),
+this operation MUST fail.
+
+If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+`REQUIRE_ENCRYPT_ALLOW_DECRYPT` or `FORBID_ENCRYPT_ALLOW_DECRYPT` is configured,
+and the input item [is an item written in the legacy format](#determining-legacy-items),
+this operation MUST delegate decryption of this item to the
+[Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor),
+using the configured [Attribute Flags](./ddb-encryption-table-config.md) as input.
+The item returned by this operation MUST be the item outputted by the
+[Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor).
+Otherwise, this operations continues as follows.
+
+If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
+`REQUIRE_WRITE_ALLOW_READ` or `FORBID_WRITE_ALLOW_READ` is specified,
+and the input item [is a plaintext item](#determining-plaintext-items)
+this operation MUST NOT decrypt the input item,
+and MUST passthrough that item as the output.
+
 This behavior REQUIRES a [Structured Data](../structured-encryption/structures.md#structured-data)
 which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#dynamodb-item).
 
@@ -99,3 +120,19 @@ Otherwise, Attributes MUST be considered as within the signature scope.
 If an Authenticate Action other than DO_NOTHING is configured for an attribute name included in [Unauthenticated Attributes](./ddb-item-encryptor.md#unauthenticated-attributes)
 or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-item-encryptor.md#unauthenticated-attribute-prefix),
 this operation MUST yield an error.
+
+### Determining Legacy Items
+
+An item MUST be determined to be encrypted under the legacy format if it contains
+attributes for the material description and the signature.
+These are usually "*amzn-ddb-map-desc*" and "*amzn-ddb-map-sig*" respectively,
+although the DynamoDbEncryptor allows callers to configure custom names for these attributes.
+
+### Determining Plaintext Items
+
+An item MUST be determined to be plaintext if it does not contain
+attributes with the names "aws_dbe_header" and "aws_dbe_footer".
+
+Note that this does not conflict with the [legacy item](#determining-legacy-items) definition,
+as there is no configuration state which needs to be able to distinguish
+between legacy items and plaintext items.

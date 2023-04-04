@@ -68,14 +68,17 @@ the customer MUST provide in the process of creating a [DynamoDB Encryption Clie
 
 The client configuration consists of the following REQUIRED field:
 
-- [Encryptors](#encryptors)
+- [DynamoDb Table Encryption Configs](#dynamodb-tables-encryption-configs)
 
-### Encryptors
+The client configuration MAY include the following field:
 
-Encryptors MUST be a list of [DynamoDB Item Encryptors](./ddb-item-encryptor.md),
-where each DynamoDB Item Encryptor contains the desired encryption configuration for unique DynamoDB Tables.
-There MUST NOT be two Item Encryptors in this list with the same
-[DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name).
+- TODO Searchable Encryption Config
+
+### DynamoDb Table Encryption Configs
+
+A map of DynamoDb table names to a structure that MUST contain
+data as described by [DynamoDb Table Encryption Config](./ddb-table-encryption-config.md).
+Note that this data does not need to contain the Table Name.
 
 ### Encrypted Table
 
