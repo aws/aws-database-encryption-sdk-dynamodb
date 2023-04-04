@@ -654,7 +654,7 @@ module DynamoDBFilterExpr {
           [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1])
       case Eq | Ne | Lt | Gt | Le | Ge | And | Or =>
         if 0 == |stack| then
-          [input[0]] + ConvertToRpn_inner(input[1..], stack)
+          ConvertToRpn_inner(input[1..], stack + [input[0]])
         else if Precedence(stack[|stack|-1]) >= Precedence(input[0]) then
           [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1])
         else
@@ -710,8 +710,12 @@ module DynamoDBFilterExpr {
   // parse and return in reverse polish notation
   function method GetParsedExpr(input : string) : Result<seq<Token>, Error>
   {
+    var _ := printFromFunction(input);
     var seq1 := ParseExpr(input);
+    var _ := printFromFunction(seq1);
     var seq2 := ConvertToPrefix(seq1);
+    var _ := printFromFunction(seq2);
+    var _ := printFromFunction(ConvertToRpn(seq2));
     Success(ConvertToRpn(seq2))
   }
 
@@ -1063,7 +1067,6 @@ module DynamoDBFilterExpr {
         else
           var val :- apply_function(t, stack, num_args);
           InnerEvalExpr(input[1..], stack[..|stack|-num_args] + [val], item)
-
       else
         Success(true)
   }
@@ -1077,10 +1080,9 @@ module DynamoDBFilterExpr {
       var doesMatch :- EvalExpr(parsed, ItemList[0]);
       var rest :- FilterItems(parsed, ItemList[1..]);
       if doesMatch then
-        Success(ItemList[0..0] + rest)
+        Success(ItemList[..1] + rest)
       else
         Success(rest)
-
   }
 
   // return the results for which the expression is true
@@ -1100,7 +1102,6 @@ module DynamoDBFilterExpr {
           FilterItems(parsed, ItemList)
         else
           Success(ItemList);
-
       if FilterExpression.Some? then
         var parsed :- GetParsedExpr(FilterExpression.value);
         FilterItems(parsed, afterKeys)

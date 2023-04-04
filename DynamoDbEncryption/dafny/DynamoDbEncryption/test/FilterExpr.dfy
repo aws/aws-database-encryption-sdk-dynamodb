@@ -134,4 +134,35 @@ module TestDynamoDBFilterExpr {
     expect "aws_dbe_b_std4" in itemBeacons;
     expect_equal(newContext.values, Some(map[":A" := itemBeacons["aws_dbe_b_std2"], ":B" := itemBeacons["aws_dbe_b_std4"]]));
   }
+
+  function method DS(x : string) : DDB.AttributeValue
+  {
+    DDB.AttributeValue.S(x)
+  }
+  function method DN(x : string) : DDB.AttributeValue
+  {
+    DDB.AttributeValue.N(x)
+  }
+
+  method {:test} TestFilterCompare() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DS("abc"),
+      "two" := DS("cde"),
+      "three" := DS("cde")
+    ];
+    var values : DDB.ExpressionAttributeValueMap := map [
+    ];
+    var newItems :- expect FilterResults([item1], None, Some("one < two"), None, Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("one > two"), None, Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("one <= two"), None, Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("one >= two"), None, Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("one <=>two"), None, Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("one = two"), None, Some(values));
+    expect_equal(newItems, []);
+  }
 }

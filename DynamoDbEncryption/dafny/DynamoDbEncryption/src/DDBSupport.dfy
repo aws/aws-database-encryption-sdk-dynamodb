@@ -237,8 +237,7 @@ module DynamoDBSupport {
   function method QueryOutputForBeacons(config : M.ValidTableConfig, req : DDB.QueryInput, resp : DDB.QueryOutput)
     : (ret : Result<DDB.QueryOutput, Error>)
     requires resp.Items.Some?
-    ensures ret.Success? ==>
-      && ret.value.Items.Some?
+    ensures ret.Success? ==> ret.value.Items.Some?
   {
     if config.search.None? || resp.Items.None? then
       Success(resp)
@@ -278,10 +277,23 @@ module DynamoDBSupport {
   function method ScanOutputForBeacons(config : M.ValidTableConfig, req : DDB.ScanInput, resp : DDB.ScanOutput)
     : (ret : Result<DDB.ScanOutput, Error>)
     requires resp.Items.Some?
-    ensures ret.Success? ==>
-      && ret.value.Items.Some?
-      && |ret.value.Items.value| == |resp.Items.value|
+    ensures ret.Success? ==> ret.value.Items.Some?
   {
-    Success(resp)
+    if config.search.None? then
+      Success(resp)
+    else
+      var newItems :- Filter.FilterResults(
+        resp.Items.value,
+        None,
+        req.FilterExpression,
+        req.ExpressionAttributeNames,
+        req.ExpressionAttributeValues);
+      :- Need(|newItems| < INT32_MAX_LIMIT, DynamoDbEncryptionUtil.E("This is impossible."));
+      var count :=
+        if resp.Count.Some? then
+          Some(|newItems| as DDB.Integer)
+        else
+          None;
+      Success(resp.(Items := Some(newItems), Count := count))
   }
 }

@@ -343,9 +343,7 @@ module SearchConfigToInfo {
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
 
     // because UnwrapOr doesn't verify when used on a list with a minimum size
-    var parts :- AddNonSensitiveParts(
-      if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else []);
-    :- Need(0 < |beacons[0].sensitive|, E("Beacon " + beacons[0].name + " failed to provide a sensitive part."));
+    var parts :- AddNonSensitiveParts(if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else []);
     parts :- AddSensitiveParts(beacons[0].sensitive, |parts| + |beacons[0].sensitive|, parts);
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
     var constructors :- AddConstructors(beacons[0].constructors, parts);
