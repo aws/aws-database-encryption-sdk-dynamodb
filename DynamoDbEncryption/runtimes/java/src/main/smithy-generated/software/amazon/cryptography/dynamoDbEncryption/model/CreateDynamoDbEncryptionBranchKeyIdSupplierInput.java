@@ -4,18 +4,18 @@
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
 import java.util.Objects;
-import software.amazon.cryptography.dynamoDbEncryption.DynamoDbKeyBranchKeyIdSupplier;
-import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbKeyBranchKeyIdSupplier;
+import software.amazon.cryptography.dynamoDbEncryption.DynamoDbItemBranchKeyIdSupplier;
+import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbItemBranchKeyIdSupplier;
 
 public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
-  private final DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
+  private final DynamoDbItemBranchKeyIdSupplier ddbItemBranchKeyIdSupplier;
 
   protected CreateDynamoDbEncryptionBranchKeyIdSupplierInput(BuilderImpl builder) {
-    this.ddbKeyBranchKeyIdSupplier = builder.ddbKeyBranchKeyIdSupplier();
+    this.ddbItemBranchKeyIdSupplier = builder.ddbItemBranchKeyIdSupplier();
   }
 
-  public DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier() {
-    return this.ddbKeyBranchKeyIdSupplier;
+  public DynamoDbItemBranchKeyIdSupplier ddbItemBranchKeyIdSupplier() {
+    return this.ddbItemBranchKeyIdSupplier;
   }
 
   public Builder toBuilder() {
@@ -27,36 +27,36 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
   }
 
   public interface Builder {
-    Builder ddbKeyBranchKeyIdSupplier(IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier);
+    Builder ddbItemBranchKeyIdSupplier(IDynamoDbItemBranchKeyIdSupplier ddbItemBranchKeyIdSupplier);
 
-    DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier();
+    DynamoDbItemBranchKeyIdSupplier ddbItemBranchKeyIdSupplier();
 
     CreateDynamoDbEncryptionBranchKeyIdSupplierInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
+    protected DynamoDbItemBranchKeyIdSupplier ddbItemBranchKeyIdSupplier;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(CreateDynamoDbEncryptionBranchKeyIdSupplierInput model) {
-      this.ddbKeyBranchKeyIdSupplier = model.ddbKeyBranchKeyIdSupplier();
+      this.ddbItemBranchKeyIdSupplier = model.ddbItemBranchKeyIdSupplier();
     }
 
-    public Builder ddbKeyBranchKeyIdSupplier(
-        IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier) {
-      this.ddbKeyBranchKeyIdSupplier = DynamoDbKeyBranchKeyIdSupplier.wrap(ddbKeyBranchKeyIdSupplier);
+    public Builder ddbItemBranchKeyIdSupplier(
+        IDynamoDbItemBranchKeyIdSupplier ddbItemBranchKeyIdSupplier) {
+      this.ddbItemBranchKeyIdSupplier = DynamoDbItemBranchKeyIdSupplier.wrap(ddbItemBranchKeyIdSupplier);
       return this;
     }
 
-    public DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier() {
-      return this.ddbKeyBranchKeyIdSupplier;
+    public DynamoDbItemBranchKeyIdSupplier ddbItemBranchKeyIdSupplier() {
+      return this.ddbItemBranchKeyIdSupplier;
     }
 
     public CreateDynamoDbEncryptionBranchKeyIdSupplierInput build() {
-      if (Objects.isNull(this.ddbKeyBranchKeyIdSupplier()))  {
-        throw new IllegalArgumentException("Missing value for required field `ddbKeyBranchKeyIdSupplier`");
+      if (Objects.isNull(this.ddbItemBranchKeyIdSupplier()))  {
+        throw new IllegalArgumentException("Missing value for required field `ddbItemBranchKeyIdSupplier`");
       }
       return new CreateDynamoDbEncryptionBranchKeyIdSupplierInput(this);
     }

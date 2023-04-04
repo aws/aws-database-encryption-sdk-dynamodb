@@ -67,7 +67,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ( 1 <= |x|  )
 }
  datatype CreateDynamoDbEncryptionBranchKeyIdSupplierInput = | CreateDynamoDbEncryptionBranchKeyIdSupplierInput (
- nameonly ddbKeyBranchKeyIdSupplier: IDynamoDbKeyBranchKeyIdSupplier
+ nameonly ddbItemBranchKeyIdSupplier: IDynamoDbItemBranchKeyIdSupplier
  )
  datatype CreateDynamoDbEncryptionBranchKeyIdSupplierOutput = | CreateDynamoDbEncryptionBranchKeyIdSupplierOutput (
  nameonly branchKeyIdSupplier: AwsCryptographyMaterialProvidersTypes.IBranchKeyIdSupplier
@@ -111,21 +111,21 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  returns (output: Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>)
  requires
  && ValidState()
- && input.ddbKeyBranchKeyIdSupplier.ValidState()
- && input.ddbKeyBranchKeyIdSupplier.Modifies !! {History}
+ && input.ddbItemBranchKeyIdSupplier.ValidState()
+ && input.ddbItemBranchKeyIdSupplier.Modifies !! {History}
  modifies Modifies - {History} ,
- input.ddbKeyBranchKeyIdSupplier.Modifies ,
+ input.ddbItemBranchKeyIdSupplier.Modifies ,
  History`CreateDynamoDbEncryptionBranchKeyIdSupplier
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases Modifies - {History} ,
- input.ddbKeyBranchKeyIdSupplier.Modifies
+ input.ddbItemBranchKeyIdSupplier.Modifies
  ensures
  && ValidState()
  && ( output.Success? ==> 
  && output.value.branchKeyIdSupplier.ValidState()
  && output.value.branchKeyIdSupplier.Modifies !! {History}
  && fresh(output.value.branchKeyIdSupplier)
- && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+ && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbItemBranchKeyIdSupplier.Modifies ) )
  ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
  ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
  
@@ -133,13 +133,13 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
  
  )
- class IDynamoDbKeyBranchKeyIdSupplierCallHistory {
+ class IDynamoDbItemBranchKeyIdSupplierCallHistory {
  ghost constructor() {
- GetBranchKeyIdFromDdbKey := [];
+ GetBranchKeyIdFromItem := [];
 }
- ghost var GetBranchKeyIdFromDdbKey: seq<DafnyCallEvent<GetBranchKeyIdFromDdbKeyInput, Result<GetBranchKeyIdFromDdbKeyOutput, Error>>>
+ ghost var GetBranchKeyIdFromItem: seq<DafnyCallEvent<GetBranchKeyIdFromItemInput, Result<GetBranchKeyIdFromItemOutput, Error>>>
 }
- trait {:termination false} IDynamoDbKeyBranchKeyIdSupplier
+ trait {:termination false} IDynamoDbItemBranchKeyIdSupplier
  {
  // Helper to define any additional modifies/reads clauses.
  // If your operations need to mutate state,
@@ -165,28 +165,28 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
-  ghost const History: IDynamoDbKeyBranchKeyIdSupplierCallHistory
- predicate GetBranchKeyIdFromDdbKeyEnsuresPublicly(input: GetBranchKeyIdFromDdbKeyInput , output: Result<GetBranchKeyIdFromDdbKeyOutput, Error>)
+  ghost const History: IDynamoDbItemBranchKeyIdSupplierCallHistory
+ predicate GetBranchKeyIdFromItemEnsuresPublicly(input: GetBranchKeyIdFromItemInput , output: Result<GetBranchKeyIdFromItemOutput, Error>)
  // The public method to be called by library consumers
- method GetBranchKeyIdFromDdbKey ( input: GetBranchKeyIdFromDdbKeyInput )
- returns (output: Result<GetBranchKeyIdFromDdbKeyOutput, Error>)
+ method GetBranchKeyIdFromItem ( input: GetBranchKeyIdFromItemInput )
+ returns (output: Result<GetBranchKeyIdFromItemOutput, Error>)
  requires
  && ValidState()
  modifies Modifies - {History} ,
- History`GetBranchKeyIdFromDdbKey
+ History`GetBranchKeyIdFromItem
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases Modifies - {History}
  ensures
  && ValidState()
- ensures GetBranchKeyIdFromDdbKeyEnsuresPublicly(input, output)
- ensures History.GetBranchKeyIdFromDdbKey == old(History.GetBranchKeyIdFromDdbKey) + [DafnyCallEvent(input, output)]
+ ensures GetBranchKeyIdFromItemEnsuresPublicly(input, output)
+ ensures History.GetBranchKeyIdFromItem == old(History.GetBranchKeyIdFromItem) + [DafnyCallEvent(input, output)]
  {
- output := GetBranchKeyIdFromDdbKey' (input);
- History.GetBranchKeyIdFromDdbKey := History.GetBranchKeyIdFromDdbKey + [DafnyCallEvent(input, output)];
+ output := GetBranchKeyIdFromItem' (input);
+ History.GetBranchKeyIdFromItem := History.GetBranchKeyIdFromItem + [DafnyCallEvent(input, output)];
 }
  // The method to implement in the concrete class. 
- method GetBranchKeyIdFromDdbKey' ( input: GetBranchKeyIdFromDdbKeyInput )
- returns (output: Result<GetBranchKeyIdFromDdbKeyOutput, Error>)
+ method GetBranchKeyIdFromItem' ( input: GetBranchKeyIdFromItemInput )
+ returns (output: Result<GetBranchKeyIdFromItemOutput, Error>)
  requires
  && ValidState()
  modifies Modifies - {History}
@@ -194,7 +194,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  decreases Modifies - {History}
  ensures
  && ValidState()
- ensures GetBranchKeyIdFromDdbKeyEnsuresPublicly(input, output)
+ ensures GetBranchKeyIdFromItemEnsuresPublicly(input, output)
  ensures unchanged(History)
  
 }
@@ -214,10 +214,10 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
  nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
  )
- datatype GetBranchKeyIdFromDdbKeyInput = | GetBranchKeyIdFromDdbKeyInput (
- nameonly ddbKey: ComAmazonawsDynamodbTypes.Key
+ datatype GetBranchKeyIdFromItemInput = | GetBranchKeyIdFromItemInput (
+ nameonly ddbItem: ComAmazonawsDynamodbTypes.AttributeMap
  )
- datatype GetBranchKeyIdFromDdbKeyOutput = | GetBranchKeyIdFromDdbKeyOutput (
+ datatype GetBranchKeyIdFromItemOutput = | GetBranchKeyIdFromItemOutput (
  nameonly branchKeyId: string
  )
  datatype GetPrefix = | GetPrefix (
@@ -441,21 +441,21 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  returns (output: Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>)
  requires
  && ValidState()
- && input.ddbKeyBranchKeyIdSupplier.ValidState()
- && input.ddbKeyBranchKeyIdSupplier.Modifies !! {History}
+ && input.ddbItemBranchKeyIdSupplier.ValidState()
+ && input.ddbItemBranchKeyIdSupplier.Modifies !! {History}
  modifies Modifies - {History} ,
- input.ddbKeyBranchKeyIdSupplier.Modifies ,
+ input.ddbItemBranchKeyIdSupplier.Modifies ,
  History`CreateDynamoDbEncryptionBranchKeyIdSupplier
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases Modifies - {History} ,
- input.ddbKeyBranchKeyIdSupplier.Modifies
+ input.ddbItemBranchKeyIdSupplier.Modifies
  ensures
  && ValidState()
  && ( output.Success? ==> 
  && output.value.branchKeyIdSupplier.ValidState()
  && output.value.branchKeyIdSupplier.Modifies !! {History}
  && fresh(output.value.branchKeyIdSupplier)
- && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+ && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbItemBranchKeyIdSupplier.Modifies ) )
  ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
  ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
  {
@@ -481,17 +481,17 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  returns (output: Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>)
  requires
  && ValidInternalConfig?(config)
- && input.ddbKeyBranchKeyIdSupplier.ValidState()
+ && input.ddbItemBranchKeyIdSupplier.ValidState()
  modifies ModifiesInternalConfig(config) ,
- input.ddbKeyBranchKeyIdSupplier.Modifies
+ input.ddbItemBranchKeyIdSupplier.Modifies
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases ModifiesInternalConfig(config) ,
- input.ddbKeyBranchKeyIdSupplier.Modifies
+ input.ddbItemBranchKeyIdSupplier.Modifies
  ensures
  && ValidInternalConfig?(config)
  && ( output.Success? ==> 
  && output.value.branchKeyIdSupplier.ValidState()
  && fresh(output.value.branchKeyIdSupplier)
- && fresh ( output.value.branchKeyIdSupplier.Modifies - ModifiesInternalConfig(config) - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+ && fresh ( output.value.branchKeyIdSupplier.Modifies - ModifiesInternalConfig(config) - input.ddbItemBranchKeyIdSupplier.Modifies ) )
  ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
 }
