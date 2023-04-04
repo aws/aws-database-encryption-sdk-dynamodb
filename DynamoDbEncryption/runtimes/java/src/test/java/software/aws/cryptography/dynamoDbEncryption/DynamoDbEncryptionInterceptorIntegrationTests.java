@@ -18,10 +18,7 @@ import java.util.*;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
+import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
@@ -42,7 +39,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     @BeforeTest
     public static void setup() {
-        kmsInterceptor = createInterceptor(createKmsKeyring(), null);
+        kmsInterceptor = createInterceptor(createKmsKeyring(), null, null);
         ddbKmsKeyring = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -318,7 +315,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         legacyDDB.putItem(new com.amazonaws.services.dynamodbv2.model.PutItemRequest(TEST_TABLE_NAME, encrypted_record));
 
         DynamoDbEncryptionInterceptor interceptor =
-                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT);
+                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT, null);
         DynamoDbClient ddbWithLegacy = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -363,7 +360,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         
         // Configure interceptor with legacy behavior
         DynamoDbEncryptionInterceptor interceptor =
-                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT);
+                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT, null);
         DynamoDbClient ddbWithLegacy = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -409,12 +406,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         String attrValue2 = "hello world";
         Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
 
-        DynamoDbClient regularClient = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(kmsInterceptor)
-                                .build())
-                .build(); 
+        DynamoDbClient regularClient = DynamoDbClient.builder().build();
 
         PutItemRequest putRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
@@ -482,12 +474,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         assertEquals(200, putResponse.sdkHttpResponse().statusCode());
 
         // Get Item back from table, using *ALLOW_READ Plaintext policy
-        DynamoDbClient regularClient = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(kmsInterceptor)
-                                .build())
-                .build(); 
+        DynamoDbClient regularClient = DynamoDbClient.builder().build();
 
         Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
 

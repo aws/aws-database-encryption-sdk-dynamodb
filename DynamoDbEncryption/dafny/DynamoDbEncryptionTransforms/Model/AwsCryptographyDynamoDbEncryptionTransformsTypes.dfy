@@ -12,7 +12,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import opened UTF8
  import AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
  // TODO line below manually added
- import awsCryptographyDynamoDbEncryptionTypes
+ import AwsCryptographyDynamoDbEncryptionTypes
  import ComAmazonawsDynamodbTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
