@@ -490,6 +490,10 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     Success(finalSchema)
   }
 
+  //= specification/dynamodb-encryption-client/decrypt-item.md#determining-plaintext-items
+  //= type=implication
+  //# An item MUST be determined to be plaintext if it does not contain
+  //# attributes with the names "aws_dbe_header" and "aws_dbe_footer".
   function method IsPlaintextItem(ddbItem: ComAmazonawsDynamodbTypes.AttributeMap) : (ret: bool) {
     !( && StructuredEncryptionUtil.HeaderField in ddbItem.Keys
        && StructuredEncryptionUtil.FooterField in ddbItem.Keys)
@@ -579,6 +583,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
       , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
 
+    assert {:split_here} true;
+
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
     //# `REQUIRE_ENCRYPT_ALLOW_DECRYPT` is specified,
@@ -598,7 +604,6 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       return Success(passthroughOutput);
     }
 
-    // This is to help Dafny with the above complex ensures
     assert {:split_here} true;
 
     var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem)
@@ -609,6 +614,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     var wrappedStruct := CSE.StructuredData(
       content := CSE.StructuredDataContent.DataMap(plaintextStructure),
       attributes := None);
+
+    assert {:split_here} true;
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //# This operation MUST create a
@@ -644,6 +651,9 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
         encryptionContext:=Some(context)
       )
     );
+
+    assert {:split_here} true;
+
     var encryptVal :- encryptRes.MapFailure(
         e => Error.AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
     var encryptedData := encryptVal.encryptedStructure;
@@ -740,6 +750,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
       , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
 
+    assert {:split_here} true;
+
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
     //# `REQUIRE_ENCRYPT_ALLOW_DECRYPT` or `FORBID_ENCRYPT_ALLOW_DECRYPT` is configured,
@@ -755,6 +767,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       //# [Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor).
       return Success(decryptItemOutput);
     }
+
+    assert {:split_here} true;
 
     if (
       && (|| config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?
@@ -778,6 +792,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       content := CSE.StructuredDataContent.DataMap(encryptedStructure),
       attributes := None);
 
+    assert {:split_here} true;
+
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# This operation MUST create a
     //# [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
@@ -794,6 +810,8 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     );
     var reqCMM :- reqCMMR.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
+    assert {:split_here} true;
+
     var decryptRes := config.structuredEncryption.DecryptStructure(
       CSE.DecryptStructureInput(
         tableName := config.tableName,
@@ -805,6 +823,9 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
         encryptionContext:=Some(context)
       )
     );
+
+    assert {:split_here} true;
+
     var decryptVal :- decryptRes.MapFailure(
         e => Error.AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
     var decryptedData := decryptVal.plaintextStructure;
@@ -812,9 +833,4 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
         .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
     output := Success(DecryptItemOutput(plaintextItem := ddbKey));
   }
-
-  //= specification/dynamodb-encryption-client/decrypt-item.md#determining-plaintext-items
-  //= type=TODO
-  //# An item MUST be determined to be plaintext if it does not contain
-  //# attributes with the names "aws_dbe_header" and "aws_dbe_footer".
 }
