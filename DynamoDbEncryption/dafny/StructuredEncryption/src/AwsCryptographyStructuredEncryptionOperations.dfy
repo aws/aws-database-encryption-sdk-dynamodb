@@ -229,7 +229,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && |c.encFields_c| < (UINT32_LIMIT / 3)
     && c.cryptoSchema.content.SchemaMap?
     && var actionMap := c.cryptoSchema.content.SchemaMap;
-    && (forall k :: k in actionMap ==> (exists path, tableName :: path in c.signedFields_c && path == Paths.SimpleCanon(tableName, k)))
+    && (exists tableName :: (forall k :: k in actionMap ==> Paths.SimpleCanon(tableName, k) in c.data_c))
   }
 
   // return the subset of "fields" which are ENCRYPT_AND_SIGN
@@ -338,7 +338,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, legend);
     :- Need(|encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
 
-    var actionMap := map k <- data.Keys | Paths.SimpleCanon(tableName, k) in signedFields_c ::
+    var actionMap := map k <- data.Keys | Paths.SimpleCanon(tableName, k) in data_c.Keys ::
       k := if Paths.SimpleCanon(tableName, k) in encFields_c then
         CryptoSchema(
           content := CryptoSchemaContent.Action(ENCRYPT_AND_SIGN),
@@ -362,14 +362,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       cryptoSchema
     );
 
-    // assert (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c);
-    // assert (forall k :: k in c.signedFields_c ==> k in c.data_c.Keys);
-    // assert (forall k :: k in c.encFields_c ==> k in c.signedFields_c);
-    // assert |c.encFields_c| < (UINT32_LIMIT / 3);
-    // assert c.cryptoSchema.content.SchemaMap?;
-    // var actionMap := c.cryptoSchema.content.SchemaMap;
-    // assert
-    //   (forall k :: k in actionMap ==> (exists path, tableName :: path in c.signedFields_c && path == Paths.SimpleCanon(tableName, k)));
+    assert (forall k :: k in c.cryptoSchema.content.SchemaMap ==> Paths.SimpleCanon(tableName, k) in c.data_c);
 
     assert ValidDecryptCanon?(c);
 
