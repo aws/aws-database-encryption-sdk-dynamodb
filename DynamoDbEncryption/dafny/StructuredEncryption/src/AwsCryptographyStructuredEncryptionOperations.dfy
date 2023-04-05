@@ -321,7 +321,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     assert (forall v :: v in data_c.Values ==> v in data.Values);
 
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
-    assert (forall k <- data_c.Keys :: k in signedFields_c);
+    assert forall k <- data_c.Keys :: k in signedFields_c;
     assert (forall k :: k in data_c.Keys ==> k in signedFields_c);
 
     if |legend| < |signedFields_c| then

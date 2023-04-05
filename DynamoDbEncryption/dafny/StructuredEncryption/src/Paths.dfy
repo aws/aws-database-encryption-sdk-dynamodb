@@ -93,7 +93,7 @@ module StructuredEncryptionPaths {
     TerminalLocation([Map(attr)])
   }
   
-  function method SimpleCanon(table : GoodString, attr : GoodString)
+  function method {:opaque} SimpleCanon(table : GoodString, attr : GoodString)
     : CanonicalPath
   {
     TermLocMap(attr).canonicalPath(table)
