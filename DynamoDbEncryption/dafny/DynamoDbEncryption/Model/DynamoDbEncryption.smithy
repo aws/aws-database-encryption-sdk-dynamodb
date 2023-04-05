@@ -109,6 +109,7 @@ structure DynamoDbTableEncryptionConfig {
     cmm: CryptographicMaterialsManagerReference,
 
     legacyConfig: LegacyConfig,
+    plaintextPolicy: PlaintextPolicy
 }
 
 map AttributeActions {
@@ -160,6 +161,22 @@ structure LegacyConfig {
 
     defaultAttributeFlag: CryptoAction,
 }
+
+@enum([
+  {
+    name: "REQUIRE_WRITE_ALLOW_READ",
+    value: "REQUIRE_WRITE_ALLOW_READ",
+  },
+  {
+    name: "FORBID_WRITE_ALLOW_READ",
+    value: "FORBID_WRITE_ALLOW_READ",
+  },
+  {
+    name: "FORBID_WRITE_FORBID_READ",
+    value: "FORBID_WRITE_FORBID_READ",
+  },
+])
+string PlaintextPolicy
 
 @range(min: 1, max: 63)
 integer BeaconBitLength
