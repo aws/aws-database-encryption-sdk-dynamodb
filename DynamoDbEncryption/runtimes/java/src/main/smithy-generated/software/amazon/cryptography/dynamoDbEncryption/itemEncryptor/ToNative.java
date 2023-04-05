@@ -117,6 +117,9 @@ public class ToNative {
     if (dafnyValue.dtor_legacyConfig().is_Some()) {
       nativeBuilder.legacyConfig(software.amazon.cryptography.dynamoDbEncryption.ToNative.LegacyConfig(dafnyValue.dtor_legacyConfig().dtor_value()));
     }
+    if (dafnyValue.dtor_plaintextPolicy().is_Some()) {
+      nativeBuilder.plaintextPolicy(software.amazon.cryptography.dynamoDbEncryption.ToNative.PlaintextPolicy(dafnyValue.dtor_plaintextPolicy().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 

@@ -111,9 +111,13 @@ structure DecryptStructureInput {
 }
 
 structure DecryptStructureOutput {
+    //= specification/structured-encryption/decrypt-structure.md#output
+    //= type=implication
+    //# This operation MUST output the following:
+    //#   - [Structured Data](#structured-data)
+    //#   - [Parsed Header](#parsed-header)
     @required
     plaintextStructure: StructuredData,
-
     @required
     parsedHeader: ParsedHeader,
 }

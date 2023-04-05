@@ -9,10 +9,7 @@ import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.kms.KmsClientBuilder;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
+import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
@@ -74,7 +71,7 @@ public class TestUtils {
     }
 
     public static DynamoDbEncryptionInterceptor createInterceptor(
-            Map<String, CryptoAction> actions, List<String> allowedUnauth, IKeyring keyring, LegacyPolicy policy) {
+            Map<String, CryptoAction> actions, List<String> allowedUnauth, IKeyring keyring, LegacyPolicy legacyPolicy, PlaintextPolicy ptPolicy) {
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder()
                 .partitionKeyName(TEST_PARTITION_NAME)
@@ -85,8 +82,11 @@ public class TestUtils {
         if (!allowedUnauth.isEmpty()) {
             builder = builder.allowedUnauthenticatedAttributes(allowedUnauth);
         }
-        if (null != policy) {
-            builder = builder.legacyConfig(createLegacyConfig(policy));
+        if (null != legacyPolicy) {
+            builder = builder.legacyConfig(createLegacyConfig(legacyPolicy));
+        }
+        if (null != ptPolicy) {
+            builder = builder.plaintextPolicy(ptPolicy);
         }
         tableConfigs.put(TEST_TABLE_NAME, builder.build());
 
@@ -97,14 +97,14 @@ public class TestUtils {
                 .build();
     }
 
-    public static DynamoDbEncryptionInterceptor createInterceptor(IKeyring keyring, LegacyPolicy policy) {
+    public static DynamoDbEncryptionInterceptor createInterceptor(IKeyring keyring, LegacyPolicy legacyPolicy, PlaintextPolicy ptPolicy) {
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_ATTR_NAME, CryptoAction.ENCRYPT_AND_SIGN);
         actions.put(TEST_ATTR2_NAME, CryptoAction.DO_NOTHING);
         List<String> allowedUnauth = Arrays.asList(TEST_ATTR2_NAME);
-        return createInterceptor(actions, allowedUnauth, keyring, policy);
+        return createInterceptor(actions, allowedUnauth, keyring, legacyPolicy, ptPolicy);
     }
 
     public static Map<String, AttributeValue> createTestItem(String partition, String sort, String attr1, String attr2) {

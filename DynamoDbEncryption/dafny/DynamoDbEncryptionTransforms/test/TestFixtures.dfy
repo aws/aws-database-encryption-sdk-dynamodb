@@ -22,6 +22,10 @@ module TestFixtures {
     map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY, "nothing" := CSE.DO_NOTHING]
   }
 
+  function method GetSignedAttributeActions() : AttributeActions {
+    map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY]
+  }
+
   method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
     var keyring := GetKmsKeyring();
     output := DynamoDbItemEncryptorConfig(
@@ -34,6 +38,7 @@ module TestFixtures {
       keyring := Some(keyring),
       cmm := None(),
       algorithmSuiteId := None(),
+      plaintextPolicy := None(),
       legacyConfig := None()
     );
   }
@@ -55,7 +60,8 @@ module TestFixtures {
       keyring := Some(keyring),
       cmm := None(),
       algorithmSuiteId := None(),
-      legacyConfig := None()
+      legacyConfig := None(),
+      plaintextPolicy := None()
     );
     encryptor :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
   }
@@ -161,7 +167,8 @@ module TestFixtures {
             keyring := Some(keyring),
             cmm := None(),
             search := None,
-            legacyConfig := None
+            legacyConfig := None,
+            plaintextPolicy := None
           )
         ]
       )

@@ -70,7 +70,6 @@ representing the deserialized form of the header of the input encrypted structur
 - [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions): The Crypto Schema for each signed attribute,
   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the structure,
   converted into Attribute Actions.
-- [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
 - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
 
 ## Behavior

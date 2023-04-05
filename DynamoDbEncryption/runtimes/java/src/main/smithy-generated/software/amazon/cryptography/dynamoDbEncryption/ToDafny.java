@@ -27,6 +27,7 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyConfig;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyPolicy;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Lower;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.NonSensitivePart;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PlaintextPolicy;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.SearchConfig;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.SensitivePart;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.StandardBeacon;
@@ -141,7 +142,11 @@ public class ToDafny {
     legacyConfig = Objects.nonNull(nativeValue.legacyConfig()) ?
         Option.create_Some(ToDafny.LegacyConfig(nativeValue.legacyConfig()))
         : Option.create_None();
-    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig);
+    Option<PlaintextPolicy> plaintextPolicy;
+    plaintextPolicy = Objects.nonNull(nativeValue.plaintextPolicy()) ?
+        Option.create_Some(ToDafny.PlaintextPolicy(nativeValue.plaintextPolicy()))
+        : Option.create_None();
+    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
   }
 
   public static GetSegment GetSegment(
@@ -396,6 +401,24 @@ public class ToDafny {
       }
       default: {
         throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyPolicy.");
+      }
+    }
+  }
+
+  public static PlaintextPolicy PlaintextPolicy(
+      software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy nativeValue) {
+    switch (nativeValue) {
+      case REQUIRE_WRITE_ALLOW_READ: {
+        return PlaintextPolicy.create_REQUIRE__WRITE__ALLOW__READ();
+      }
+      case FORBID_WRITE_ALLOW_READ: {
+        return PlaintextPolicy.create_FORBID__WRITE__ALLOW__READ();
+      }
+      case FORBID_WRITE_FORBID_READ: {
+        return PlaintextPolicy.create_FORBID__WRITE__FORBID__READ();
+      }
+      default: {
+        throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PlaintextPolicy.");
       }
     }
   }

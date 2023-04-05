@@ -75,6 +75,25 @@ module StructuredDataTestFixtures {
     ),
     attributes := None()
   );
+  const TEST_CRYPTO_SCHEMA_AUTH_ONLY := CryptoSchema(
+    content := CryptoSchemaContent.SchemaMap(
+      SchemaMap := map[
+        "foo" := CryptoSchema(
+          content := CryptoSchemaContent.Action(
+              Action := CryptoAction.ENCRYPT_AND_SIGN
+          ),
+          attributes := None()
+        ),
+        "bar" := CryptoSchema(
+          content := CryptoSchemaContent.Action(
+              Action := CryptoAction.SIGN_ONLY
+          ),
+          attributes := None()
+        )
+      ]
+    ),
+    attributes := None()
+  );
   const TEST_AUTHENTICATE_SCHEMA := AuthenticateSchema(
     content := AuthenticateSchemaContent.SchemaMap(
       SchemaMap := map[

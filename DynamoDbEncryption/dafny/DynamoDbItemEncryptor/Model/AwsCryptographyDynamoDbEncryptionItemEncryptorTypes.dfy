@@ -103,7 +103,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly legacyConfig: Option<AwsCryptographyDynamoDbEncryptionTypes.LegacyConfig>
+ nameonly legacyConfig: Option<AwsCryptographyDynamoDbEncryptionTypes.LegacyConfig> ,
+ nameonly plaintextPolicy: Option<AwsCryptographyDynamoDbEncryptionTypes.PlaintextPolicy>
  )
  datatype EncryptItemInput = | EncryptItemInput (
  nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap

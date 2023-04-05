@@ -119,7 +119,8 @@ module BeaconTestFixtures {
     algorithmSuiteId := None,
     keyring := None,
     cmm := None,
-    legacyConfig := None
+    legacyConfig := None,
+    plaintextPolicy := None
   );
   const FullTableConfig := EmptyTableConfig.(
     attributeActions := map[

@@ -8,7 +8,6 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_CollectionOfErrors;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_DynamoDbEncryptionException;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_Opaque;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbKeyBranchKeyIdSupplier;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Character;
@@ -42,6 +41,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.Lower;
 import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.model.NonSensitivePart;
 import software.amazon.cryptography.dynamoDbEncryption.model.OpaqueError;
+import software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy;
 import software.amazon.cryptography.dynamoDbEncryption.model.SearchConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.SensitivePart;
 import software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon;
@@ -134,6 +134,9 @@ public class ToNative {
     }
     if (dafnyValue.dtor_legacyConfig().is_Some()) {
       nativeBuilder.legacyConfig(ToNative.LegacyConfig(dafnyValue.dtor_legacyConfig().dtor_value()));
+    }
+    if (dafnyValue.dtor_plaintextPolicy().is_Some()) {
+      nativeBuilder.plaintextPolicy(ToNative.PlaintextPolicy(dafnyValue.dtor_plaintextPolicy().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -358,6 +361,20 @@ public class ToNative {
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy matches the input : " + dafnyValue);
   }
 
+  public static PlaintextPolicy PlaintextPolicy(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PlaintextPolicy dafnyValue) {
+    if (dafnyValue.is_REQUIRE__WRITE__ALLOW__READ()) {
+      return PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ;
+    }
+    if (dafnyValue.is_FORBID__WRITE__ALLOW__READ()) {
+      return PlaintextPolicy.FORBID_WRITE_ALLOW_READ;
+    }
+    if (dafnyValue.is_FORBID__WRITE__FORBID__READ()) {
+      return PlaintextPolicy.FORBID_WRITE_FORBID_READ;
+    }
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy matches the input : " + dafnyValue);
+  }
+
   public static VirtualTransform VirtualTransform(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualTransform dafnyValue) {
     VirtualTransform.Builder nativeBuilder = VirtualTransform.builder();
@@ -474,19 +491,16 @@ public class ToNative {
         software.amazon.cryptography.structuredEncryption.ToNative::CryptoAction);
   }
 
+  public static DynamoDbKeyBranchKeyIdSupplier DynamoDbKeyBranchKeyIdSupplier(
+      IDynamoDbKeyBranchKeyIdSupplier dafnyValue) {
+    return DynamoDbKeyBranchKeyIdSupplier.wrap(dafnyValue);
+  }
+
   public static ILegacyDynamoDbEncryptor LegacyDynamoDbEncryptor(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor dafnyValue) {
     if (dafnyValue instanceof LegacyDynamoDbEncryptor.NativeWrapper) {
       return ((LegacyDynamoDbEncryptor.NativeWrapper) dafnyValue)._impl;
     }
     return LegacyDynamoDbEncryptor.wrap(dafnyValue);
-  }
-
-  public static IDynamoDbKeyBranchKeyIdSupplier DynamoDbKeyBranchKeyIdSupplier(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbKeyBranchKeyIdSupplier dafnyValue) {
-    if (dafnyValue instanceof DynamoDbKeyBranchKeyIdSupplier.NativeWrapper) {
-      return ((DynamoDbKeyBranchKeyIdSupplier.NativeWrapper) dafnyValue)._impl;
-    }
-    return DynamoDbKeyBranchKeyIdSupplier.wrap(dafnyValue);
   }
 }

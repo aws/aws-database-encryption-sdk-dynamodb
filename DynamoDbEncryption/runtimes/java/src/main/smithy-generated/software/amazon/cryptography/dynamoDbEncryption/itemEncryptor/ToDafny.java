@@ -12,6 +12,7 @@ import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_DynamoDbItemEncryptorException;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.ParsedHeader;
 import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyConfig;
+import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PlaintextPolicy;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptedDataKey;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
@@ -129,7 +130,11 @@ public class ToDafny {
     legacyConfig = Objects.nonNull(nativeValue.legacyConfig()) ?
         Option.create_Some(software.amazon.cryptography.dynamoDbEncryption.ToDafny.LegacyConfig(nativeValue.legacyConfig()))
         : Option.create_None();
-    return new DynamoDbItemEncryptorConfig(tableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig);
+    Option<PlaintextPolicy> plaintextPolicy;
+    plaintextPolicy = Objects.nonNull(nativeValue.plaintextPolicy()) ?
+        Option.create_Some(software.amazon.cryptography.dynamoDbEncryption.ToDafny.PlaintextPolicy(nativeValue.plaintextPolicy()))
+        : Option.create_None();
+    return new DynamoDbItemEncryptorConfig(tableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
   }
 
   public static EncryptItemInput EncryptItemInput(

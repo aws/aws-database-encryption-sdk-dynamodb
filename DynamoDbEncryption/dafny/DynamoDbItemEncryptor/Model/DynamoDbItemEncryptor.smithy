@@ -17,6 +17,7 @@ use aws.cryptography.materialProviders#EncryptionContext
 use aws.cryptography.dynamoDbEncryption#AttributeActions
 use aws.cryptography.dynamoDbEncryption#LegacyConfig
 use aws.cryptography.structuredEncryption#Version
+use aws.cryptography.dynamoDbEncryption#PlaintextPolicy
 
 @localService(
   sdkId: "DynamoDbItemEncryptor",
@@ -98,8 +99,19 @@ structure DynamoDbItemEncryptorConfig {
     cmm: CryptographicMaterialsManagerReference,
 
     legacyConfig: LegacyConfig,
+
+    plaintextPolicy: PlaintextPolicy,
 }
 
+//= specification/dynamodb-encryption-client/decrypt-item.md#parsed-header
+//= type=implication
+//# This structure MUST contain the following values,
+//# representing the deserialized form of the header of the input encrypted structure:
+//#   - [Algorithm Suite ID](./header.md#format-flavor): The Algorithm Suite ID associated with the Format Flavor on the header.
+//#   - [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions): The Crypto Schema for each signed attribute,
+//#     calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the structure,
+//#     converted into Attribute Actions.
+//#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
 structure ParsedHeader {
     @required
     attributeActions: AttributeActions,
@@ -151,6 +163,10 @@ structure DecryptItemInput {
 }
 
 structure DecryptItemOutput {
+    //= specification/dynamodb-encryption-client/decrypt-item.md#output
+    //= type=implication
+    //# This operation MUST output the following:
+    //#   - [DynamoDb Item](#dynamodb-item-1)
     @required
     plaintextItem: AttributeMap,
 
