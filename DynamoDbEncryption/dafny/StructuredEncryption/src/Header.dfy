@@ -366,8 +366,11 @@ module StructuredEncryptionHeader {
     // that field should be encrypted.
     :- Need(forall x <- schema.content.SchemaMap.Keys :: ValidString(x), E("bad attribute name"));
     Paths.SimpleCanonUnique(tableName);
+
     var fn := k => Paths.SimpleCanon(tableName, k);
-    MapKeepsCount(authSchema, k => Paths.SimpleCanon(tableName, k));
+    assert forall k :: true ==> fn(k) == Paths.SimpleCanon(tableName, k); // This is a bit silly to have to assert, but necessary when SimpleCanon is opaque
+
+    MapKeepsCount(authSchema, fn);
     var canonSchema := MyMap(fn, authSchema);
     assert |authSchema| == |canonSchema|;
     var attrs := SortedSets.ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);
