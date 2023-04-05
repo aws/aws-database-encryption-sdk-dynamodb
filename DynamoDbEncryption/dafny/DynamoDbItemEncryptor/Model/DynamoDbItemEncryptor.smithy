@@ -14,6 +14,7 @@ use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.dynamoDbEncryption#AttributeActions
 use aws.cryptography.dynamoDbEncryption#LegacyConfig
+use aws.cryptography.dynamoDbEncryption#PlaintextPolicy
 
 @localService(
   sdkId: "DynamoDbItemEncryptor",
@@ -95,6 +96,8 @@ structure DynamoDbItemEncryptorConfig {
     cmm: CryptographicMaterialsManagerReference,
 
     legacyConfig: LegacyConfig,
+
+    plaintextPolicy: PlaintextPolicy,
 }
 
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#encryptitem

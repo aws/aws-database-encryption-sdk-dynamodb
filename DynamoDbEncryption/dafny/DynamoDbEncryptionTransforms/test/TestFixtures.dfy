@@ -34,6 +34,7 @@ module TestFixtures {
       keyring := Some(keyring),
       cmm := None(),
       algorithmSuiteId := None(),
+      plaintextPolicy := None(),
       legacyConfig := None()
     );
   }
@@ -55,7 +56,8 @@ module TestFixtures {
       keyring := Some(keyring),
       cmm := None(),
       algorithmSuiteId := None(),
-      legacyConfig := None()
+      legacyConfig := None(),
+      plaintextPolicy := None()
     );
     encryptor :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
   }
@@ -161,7 +163,8 @@ module TestFixtures {
             keyring := Some(keyring),
             cmm := None(),
             search := None,
-            legacyConfig := None
+            legacyConfig := None,
+            plaintextPolicy := None
           )
         ]
       )

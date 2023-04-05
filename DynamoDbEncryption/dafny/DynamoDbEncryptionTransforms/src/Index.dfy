@@ -67,7 +67,8 @@ module
           algorithmSuiteId := inputConfig.algorithmSuiteId,
           keyring := inputConfig.keyring,
           cmm := inputConfig.cmm,
-          legacyConfig := inputConfig.legacyConfig
+          legacyConfig := inputConfig.legacyConfig,
+          plaintextPolicy := inputConfig.plaintextPolicy
         );
         // TODO consider using the raw constructor in order to avoid
         // instantiating multiple StructuredEncryption

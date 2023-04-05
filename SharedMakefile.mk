@@ -56,7 +56,20 @@ verify:
 		-verificationLogger:csv \
 		-timeLimit:300 \
 		-trace \
-		`find . -name '*.dfy'`
+		`find . -name '*.dfy`
+
+# Verify single file FILE with text logger.
+# This is useful for debugging resource count usage within a file.
+verify_single:
+	@: $(if ${CORES},,CORES=2);
+	dafny \
+		-vcsCores:$(CORES) \
+		-compile:0 \
+		-definiteAssignment:3 \
+		-verificationLogger:text \
+		-timeLimit:300 \
+		-trace \
+		$(FILE)
 
 #Verify only a specific namespace at env var $(SERVICE)
 verify_service:

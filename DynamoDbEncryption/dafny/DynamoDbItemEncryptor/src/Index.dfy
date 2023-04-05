@@ -32,7 +32,8 @@ module
       keyring := None(),
       cmm := None(),
       algorithmSuiteId := None(),
-      legacyConfig := None()
+      legacyConfig := None(),
+      plaintextPolicy := None()
     )
   }
 
@@ -63,19 +64,14 @@ module
           && config.sortKeyName.value in config.attributeActions
           && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY)
 
-    // TODO expected CMM/Keyring behavior
-  {
-    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
-    //= type=TODO
-    //# A [Legacy Config](#legacy-config)
-    //# and a [Plaintext Policy](#plaintext-policy)
-    //# both specified on the same config is invalid,
-    //# and MUST result in an error.
-
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#plaintext-policy
-    //= type=TODO
     //# If not specified, encryption and decryption MUST behave according to `FORBID_WRITE_FORBID_READ`.
-
+    ensures
+        && res.Success?
+        && config.plaintextPolicy.None?
+      ==>
+        res.value.config.plaintextPolicy.FORBID_WRITE_FORBID_READ?
+  {
     // TODO Fix this when the compile bug is fixed (https://t.corp.amazon.com/P78273149)
     // :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
     //   message := "Cannot provide both a keyring and a CMM"
@@ -195,6 +191,25 @@ module
     var internalLegacyConfig :- InternalLegacyConfig.InternalLegacyConfig.Build(config);
     var cmpClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //# A [Legacy Config](#legacy-config)
+    //# and a [Plaintext Policy](#plaintext-policy)
+    //# both specified on the same config is invalid,
+    //# and MUST result in an error.
+    // :- Need(internalLegacyConfig.None? || config.plaintextPolicy.None?, DynamoDbItemEncryptorException(
+    //   message := "Cannot configure both a plaintext policy and a legacy config."
+    // ));
+    if !(internalLegacyConfig.None? || config.plaintextPolicy.None?) {
+      return Failure(DynamoDbItemEncryptorException(
+        message := "Cannot configure both a plaintext policy and a legacy config."
+      ));
+    }
+
+    var plaintextPolicy := if config.plaintextPolicy.Some? then
+      config.plaintextPolicy.value
+    else
+      DDBE.PlaintextPolicy.FORBID_WRITE_FORBID_READ;      
+
     var internalConfig := Operations.Config(
       cmpClient := cmpClient,
       tableName := config.tableName,
@@ -209,7 +224,8 @@ module
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption,
-      internalLegacyConfig := internalLegacyConfig
+      internalLegacyConfig := internalLegacyConfig,
+      plaintextPolicy := plaintextPolicy
     );
     assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
 

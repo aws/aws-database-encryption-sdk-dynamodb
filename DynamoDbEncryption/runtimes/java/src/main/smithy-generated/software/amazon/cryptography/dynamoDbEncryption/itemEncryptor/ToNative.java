@@ -55,13 +55,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static DecryptItemInput DecryptItemInput(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemInput dafnyValue) {
-    DecryptItemInput.Builder nativeBuilder = DecryptItemInput.builder();
-    nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
-    return nativeBuilder.build();
-  }
-
   public static DecryptItemOutput DecryptItemOutput(
       Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemOutput dafnyValue) {
     DecryptItemOutput.Builder nativeBuilder = DecryptItemOutput.builder();
@@ -76,10 +69,10 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static EncryptItemInput EncryptItemInput(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.EncryptItemInput dafnyValue) {
-    EncryptItemInput.Builder nativeBuilder = EncryptItemInput.builder();
-    nativeBuilder.plaintextItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_plaintextItem()));
+  public static DecryptItemInput DecryptItemInput(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemInput dafnyValue) {
+    DecryptItemInput.Builder nativeBuilder = DecryptItemInput.builder();
+    nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
     return nativeBuilder.build();
   }
 
@@ -110,6 +103,16 @@ public class ToNative {
     if (dafnyValue.dtor_legacyConfig().is_Some()) {
       nativeBuilder.legacyConfig(software.amazon.cryptography.dynamoDbEncryption.ToNative.LegacyConfig(dafnyValue.dtor_legacyConfig().dtor_value()));
     }
+    if (dafnyValue.dtor_plaintextPolicy().is_Some()) {
+      nativeBuilder.plaintextPolicy(software.amazon.cryptography.dynamoDbEncryption.ToNative.PlaintextPolicy(dafnyValue.dtor_plaintextPolicy().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static EncryptItemInput EncryptItemInput(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.EncryptItemInput dafnyValue) {
+    EncryptItemInput.Builder nativeBuilder = EncryptItemInput.builder();
+    nativeBuilder.plaintextItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_plaintextItem()));
     return nativeBuilder.build();
   }
 }
