@@ -559,23 +559,41 @@ module DynamoDBFilterExpr {
         (x, Attr(s[0..x]))
   }
 
+  function method {:opaque} VarOrSize(input: seq<Token>)
+    : (ret : nat)
+    ensures ret <= |input|
+  {
+    if |input| == 0 then
+      0
+    else if input[0].Value? || input[0].Attr? then
+      1
+    else if 3 < |input| && input[0].Size? && input[1].Open? && IsVar(input[2]) && input[3].Close? then
+      4
+    else
+      0
+  }
+
   // does it start with "A BETWEEN X AND Y"
-  predicate method IsBetween(input: seq<Token>)
+  function method IsBetween(input: seq<Token>)
+    : (ret : Option<(int, int, int)>)
+    ensures ret.Some? ==> (ret.value.0 + ret.value.1 + ret.value.2 + 2) <= |input|
   {
     if |input| < 5 then
-      false
-    else if !IsVar(input[0]) then
-      false
-    else if input[1] != Between then
-      false
-    else if !IsVar(input[2]) then
-      false
-    else if input[3] != And then
-      false
-    else if !IsVar(input[4]) then
-      false
+      None
     else
-      true
+      var p1 := VarOrSize(input);
+      if 0 < p1 && (p1+1 < |input|) && input[p1].Between? then
+        var p2 := VarOrSize(input[p1+1..]);
+        if 0 < p2 && (p1+p2+2 < |input|) && input[p1+p2+1].And? then
+          var p3 := VarOrSize(input[p1+p2+2..]);
+          if 0 < p3 then
+            Some((p1, p2, p3))
+          else
+            None
+        else
+          None
+      else
+        None
   }
 
   // does it start with "A IN ("
@@ -597,12 +615,15 @@ module DynamoDBFilterExpr {
   // transform A BETWEEN X AND Y to BETWEEN(A, X, Y)
   function method ConvertToPrefix(input: seq<Token>) : (res : seq<Token>)
   {
+    var between := IsBetween(input);
     if |input| < 5 then
       input
     else if IsIN(input) then
       [input[1], input[2], input[0], Comma] + ConvertToPrefix(input[3..])
-    else if IsBetween(input) then
-      [input[1], Open, input[0], Comma, input[2], Comma, input[4], Close] + ConvertToPrefix(input[5..])
+    else if between.Some? then
+      var b := between.value;
+      [Between, Open] + input[0..b.0] + [Comma] + input[b.0+1..b.0+b.1+1] + [Comma]
+        + input[b.0+b.1+2..b.0+b.1+b.2+2] + [Close] + ConvertToPrefix(input[b.0+b.1+b.2+2..])
     else
       [input[0]] + ConvertToPrefix(input[1..])
   }
@@ -633,7 +654,7 @@ module DynamoDBFilterExpr {
       match input[0]
       case Attr(s)  => [input[0]] + ConvertToRpn_inner(input[1..], stack)
       case Value(s)  => [input[0]] + ConvertToRpn_inner(input[1..], stack)
-      case Open | Not | AttributeExists | AttributeNotExists | AttributeType
+      case Between | In | Not | AttributeExists | AttributeNotExists | AttributeType
         | BeginsWith | Contains | Size
         => ConvertToRpn_inner(input[1..], stack + [input[0]])
       case Comma =>
@@ -651,15 +672,15 @@ module DynamoDBFilterExpr {
         else if stack[|stack|-1] == Open then
           ConvertToRpn_inner(input[1..], stack[..|stack|-1])
         else
-          [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1])
+          [stack[|stack|-1]] + ConvertToRpn_inner(input[1..], stack[..|stack|-1])
       case Eq | Ne | Lt | Gt | Le | Ge | And | Or =>
         if 0 == |stack| then
           ConvertToRpn_inner(input[1..], stack + [input[0]])
         else if Precedence(stack[|stack|-1]) >= Precedence(input[0]) then
           [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1])
         else
-          [input[0]] + ConvertToRpn_inner(input[1..], stack)
-      case Between | In => ConvertToRpn_inner(input[1..], stack)
+          ConvertToRpn_inner(input[1..], stack + [input[0]])
+      case Open => ConvertToRpn_inner(input[1..], stack)
   }
 
   datatype StackValue =
@@ -698,11 +719,24 @@ module DynamoDBFilterExpr {
     Str(DDB.AttributeValue.S(s))
   }
 
-  // look up s in map
-  function method StackValueFromMap(s : string, item : DDB.AttributeMap) : StackValue
+  function method StackValueFromValue(
+    s : string,
+    values : Option<DDB.ExpressionAttributeValueMap>
+) : StackValue
   {
-    if s in item then
-      Str(item[s])
+    if values.Some? && s in values.value then
+      Str(values.value[s])
+    else
+      DoesNotExist
+  }
+
+  function method StackValueFromAttr(
+    s : string,
+    values : DDB.AttributeMap
+) : StackValue
+  {
+    if s in values then
+      Str(values[s])
     else
       DoesNotExist
   }
@@ -710,26 +744,21 @@ module DynamoDBFilterExpr {
   // parse and return in reverse polish notation
   function method GetParsedExpr(input : string) : Result<seq<Token>, Error>
   {
-    var _ := printFromFunction(input);
     var seq1 := ParseExpr(input);
-    var _ := printFromFunction(seq1);
     var seq2 := ConvertToPrefix(seq1);
-    var _ := printFromFunction(seq2);
-    var _ := printFromFunction(ConvertToRpn(seq2));
     Success(ConvertToRpn(seq2))
   }
 
-  // parse and evaluate the expression
-  function method FinalEval(input : string, item : DDB.AttributeMap) : Result<bool, Error>
-  {
-    var seq3 :- GetParsedExpr(input);
-    EvalExpr(seq3, item)
-  }
-
   // evaluate the expression, must be in reverse polish notation
-  function method EvalExpr(input : seq<Token>, item : DDB.AttributeMap) : Result<bool, Error>
+  function method EvalExpr(
+    input : seq<Token>,
+    item : DDB.AttributeMap,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    values : Option<DDB.ExpressionAttributeValueMap>
+  )
+    : Result<bool, Error>
   {
-    InnerEvalExpr(input, [], item)
+    InnerEvalExpr(input, [], item, names, values)
   }
 
   // count the number of strings
@@ -1035,7 +1064,14 @@ module DynamoDBFilterExpr {
   }
 
   // evaluate the expression
-  function method InnerEvalExpr(input : seq<Token>, stack : seq<StackValue>, item : DDB.AttributeMap) : Result<bool, Error>
+  function method InnerEvalExpr(
+    input : seq<Token>,
+    stack : seq<StackValue>,
+    item : DDB.AttributeMap,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    values : Option<DDB.ExpressionAttributeValueMap>
+  )
+    : Result<bool, Error>
   {
     if 0 == |input| then
       if 1 == |stack| && stack[0].Bool? then
@@ -1045,40 +1081,45 @@ module DynamoDBFilterExpr {
     else
       var t := input[0];
       if t.Value? then
-        InnerEvalExpr(input[1..], stack + [AsStr(t.s)], item)
+        InnerEvalExpr(input[1..], stack + [StackValueFromValue(t.s, values)], item, names, values)
       else if t.Attr? then
-        InnerEvalExpr(input[1..], stack + [StackValueFromMap(t.s, item)], item)
+        InnerEvalExpr(input[1..], stack + [StackValueFromAttr(t.s, item)], item, names, values)
       else if IsUnary(t) then
         if 0 == |stack| then
           Failure(E("Empty stack for unary op"))
         else
           var val :- apply_unary(t, stack[|stack|-1]);
-          InnerEvalExpr(input[1..], stack[..|stack|-1] + [val], item)
+          InnerEvalExpr(input[1..], stack[..|stack|-1] + [val], item, names, values)
       else if IsBinary(t) then
         if |stack| < 2 then
           Failure(E("Empty stack for binary op"))
         else
           var val :- apply_binary(t, stack[|stack|-2], stack[|stack|-1]);
-          InnerEvalExpr(input[1..], stack[..|stack|-2] + [val], item)
+          InnerEvalExpr(input[1..], stack[..|stack|-2] + [val], item, names, values)
       else if IsFunction(t) then
         var num_args := NumArgs(t, stack);
         if |stack| < num_args then
           Failure(E("Empty stack for function call"))
         else
           var val :- apply_function(t, stack, num_args);
-          InnerEvalExpr(input[1..], stack[..|stack|-num_args] + [val], item)
+          InnerEvalExpr(input[1..], stack[..|stack|-num_args] + [val], item, names, values)
       else
         Success(true)
   }
 
   // return the list of items for which the expression is true
-  function method FilterItems(parsed : seq<Token>, ItemList : DDB.ItemList) : Result<DDB.ItemList, Error>
+  function method FilterItems(parsed : seq<Token>,
+    ItemList : DDB.ItemList,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    values : Option<DDB.ExpressionAttributeValueMap>
+  )
+    : Result<DDB.ItemList, Error>
   {
     if |ItemList| == 0 then
       Success([])
     else
-      var doesMatch :- EvalExpr(parsed, ItemList[0]);
-      var rest :- FilterItems(parsed, ItemList[1..]);
+      var doesMatch :- EvalExpr(parsed, ItemList[0], names, values);
+      var rest :- FilterItems(parsed, ItemList[1..], names, values);
       if doesMatch then
         Success(ItemList[..1] + rest)
       else
@@ -1093,18 +1134,18 @@ module DynamoDBFilterExpr {
     ExpressionAttributeNames : Option<DDB.ExpressionAttributeNameMap>,
     ExpressionAttributeValues: Option<DDB.ExpressionAttributeValueMap>) : Result<DDB.ItemList, Error>
   {
-    if |ItemList| == 0 || ExpressionAttributeValues.None? || (KeyExpression.None? && FilterExpression.None?) then
+    if |ItemList| == 0 || (KeyExpression.None? && FilterExpression.None?) then
       Success(ItemList)
     else
       var afterKeys :-
         if KeyExpression.Some? then
           var parsed :- GetParsedExpr(KeyExpression.value);
-          FilterItems(parsed, ItemList)
+          FilterItems(parsed, ItemList, ExpressionAttributeNames, ExpressionAttributeValues)
         else
           Success(ItemList);
       if FilterExpression.Some? then
         var parsed :- GetParsedExpr(FilterExpression.value);
-        FilterItems(parsed, afterKeys)
+        FilterItems(parsed, afterKeys, ExpressionAttributeNames, ExpressionAttributeValues)
       else
         Success(afterKeys)
   }

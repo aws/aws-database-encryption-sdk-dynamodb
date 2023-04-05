@@ -160,9 +160,159 @@ module TestDynamoDBFilterExpr {
     expect_equal(newItems, [item1]);
     newItems :- expect FilterResults([item1], None, Some("one >= two"), None, Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("one <=>two"), None, Some(values));
+    newItems :- expect FilterResults([item1], None, Some("one <> two"), None, Some(values));
     expect_equal(newItems, [item1]);
     newItems :- expect FilterResults([item1], None, Some("one = two"), None, Some(values));
     expect_equal(newItems, []);
+
+    newItems :- expect FilterResults([item1], None, Some("three < two"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("three > two"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("three <= two"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("three >= two"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("three <> two"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("three = two"), None, None);
+    expect_equal(newItems, [item1]);
   }
+
+  method {:test} TestFilterIn() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DS("abc"),
+      "two" := DS("cde"),
+      "three" := DS("cde")
+    ];
+    var newItems :- expect FilterResults([item1], None, Some("one in (two, three)"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("two in (one, three)"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("three in (two, one)"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("three in (one, one, one, one, two, one, one)"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("three in (one, one, one, one, one, one, one)"), None, None);
+    expect_equal(newItems, []);
+  }
+
+  method {:test} TestFilterBetweenAlpha() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DS("abc"),
+      "two" := DS("bcd"),
+      "three" := DS("cde")
+    ];
+    var newItems :- expect FilterResults([item1], None, Some("one between two and three"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("two between one and three"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("two between three and one"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("two between two and three"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("two between one and two"), None, None);
+    expect_equal(newItems, [item1]);
+  }
+
+  method {:test} TestFilterBetweenNumber() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DN("9"),
+      "two" := DN("52"),
+      "three" := DN("185")
+    ];
+    var newItems :- expect FilterResults([item1], None, Some("one between two and three"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("two between one and three"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("two between three and one"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("two between two and three"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("two between one and two"), None, None);
+    expect_equal(newItems, [item1]);
+  }
+  method {:test} TestFilterSize() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DN("9"),
+      "two" := DN("52"),
+      "three" := DN("185")
+    ];
+    var values : Option<DDB.ExpressionAttributeValueMap> := Some(map [
+      ":uno" := DN("1"),
+      ":dos" := DN("2"),
+      ":tres" := DN("3")
+    ]);
+
+    var newItems :- expect FilterResults([item1], None, Some("size(one) = :uno"), None, values);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("size(two) between :uno and :tres"), None, values);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("size(three) > :dos"), None, values);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("size(two) in (:uno, :dos)"), None, values);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("size(two) in (:uno, :tres)"), None, values);
+    expect_equal(newItems, []);
+  }
+  method {:test} TestFilterContains() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DN("abcdef"),
+      "two" := DN("a"),
+      "three" := DN("f"),
+      "four" := DN("cde"),
+      "five" := DN("efg")
+    ];
+
+    var newItems :- expect FilterResults([item1], None, Some("contains(one, two)"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("contains(one, three)"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("contains(one, four)"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("contains(one, five)"), None, None);
+    expect_equal(newItems, []);
+  }
+
+  method {:test} TestFilterBegins() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DN("abcdef"),
+      "two" := DN("a"),
+      "three" := DN("f"),
+      "four" := DN("abcd"),
+      "five" := DN("abcdf")
+    ];
+
+    var newItems :- expect FilterResults([item1], None, Some("begins_with(one, two)"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("begins_with(one, three)"), None, None);
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("begins_with(one, four)"), None, None);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("begins_with(one, five)"), None, None);
+    expect_equal(newItems, []);
+  }
+    method {:test} TestFilterComplex() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DN("1"),
+      "two" := DN("2"),
+      "three" := DN("3")
+    ];
+    var values : Option<DDB.ExpressionAttributeValueMap> := Some(map [
+      ":four" := DN("4"),
+      ":five" := DN("5"),
+      ":six" := DN("6")
+    ]);
+
+    var newItems :- expect FilterResults([item1], None, Some("one < :four and two < :five"), None, values);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("one < :four or two > :five"), None, values);
+    expect_equal(newItems, [item1]);
+
+  }
+
+  //  AttributeExists | AttributeNotExists | AttributeType
+  // not
+  // size(x) in(a,b,c)
+
 }
