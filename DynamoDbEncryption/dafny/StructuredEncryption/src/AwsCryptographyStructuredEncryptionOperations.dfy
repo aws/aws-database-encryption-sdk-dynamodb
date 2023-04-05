@@ -315,13 +315,13 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# sorted by the [Canonical Path](header.md.#canonical-path).
 
     Paths.SimpleCanonUnique(tableName);
-    var fieldMap := map k <- data.Keys | authSchema[k].content.Action == SIGN :: Paths.SimpleCanon(tableName, k) := k;
-
-    var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
+    var data_c := map k <- data.Keys | authSchema[k].content.Action == SIGN ::
+      Paths.SimpleCanon(tableName, k) := data[k];
     assert (forall k :: k in data.Keys && authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(tableName, k) in data_c.Keys);
     assert (forall v :: v in data_c.Values ==> v in data.Values);
 
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
+    assert (forall k :: k in data_c.Keys ==> k in signedFields_c);
 
     if |legend| < |signedFields_c| then
       Failure(E("Schema changed : something that was unsigned is now signed."))
@@ -354,6 +354,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       attributes := None
     );
 
+    assert (forall k :: k in data_c.Keys ==> k in signedFields_c);
 
     var c := DecryptCanonData(
       encFields_c,
@@ -363,6 +364,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     );
 
     // We need to hold dafny's hand here
+    assert (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c);
     assert (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c);
     assert (forall k :: k in c.signedFields_c ==> k in c.data_c.Keys);
     assert (forall k :: k in c.encFields_c ==> k in c.signedFields_c);
