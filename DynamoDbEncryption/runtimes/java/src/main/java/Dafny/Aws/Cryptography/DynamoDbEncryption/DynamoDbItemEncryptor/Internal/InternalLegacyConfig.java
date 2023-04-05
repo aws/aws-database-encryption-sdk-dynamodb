@@ -75,6 +75,9 @@ public class InternalLegacyConfig {
   public Boolean IsLegacyInput(
     Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemInput input
   ) {
+    //= specification/dynamodb-encryption-client/decrypt-item.md#determining-legacy-items
+    //# An item MUST be determined to be encrypted under the legacy format if it contains
+    //# attributes for the material description and the signature.
     return input.is_DecryptItemInput() &&
       input._encryptedItem.contains(materialDescriptionFieldName) &&
       input._encryptedItem.contains(signatureFieldName);
@@ -138,6 +141,11 @@ public class InternalLegacyConfig {
   ) {
 
     // Precondition: Policy MUST allow the caller to decrypt.
+    //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+    //# If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+    //# `FORBID_ENCRYPT_FORBID_DECRYPT` is configured,
+    //# and the input item [is an item written in the legacy format](#determining-legacy-items),
+    //# this operation MUST fail.
     if (!_policy.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT() && !_policy.is_FORBID__ENCRYPT__ALLOW__DECRYPT()) {
       return createFailure("Legacy Policy does not support decrypt.");
     }

@@ -18,10 +18,7 @@ import java.util.*;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
+import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
@@ -42,7 +39,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     @BeforeTest
     public static void setup() {
-        kmsInterceptor = createInterceptor(createKmsKeyring(), null);
+        kmsInterceptor = createInterceptor(createKmsKeyring(), null, null);
         ddbKmsKeyring = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -318,7 +315,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         legacyDDB.putItem(new com.amazonaws.services.dynamodbv2.model.PutItemRequest(TEST_TABLE_NAME, encrypted_record));
 
         DynamoDbEncryptionInterceptor interceptor =
-                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT);
+                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT, null);
         DynamoDbClient ddbWithLegacy = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -363,7 +360,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         
         // Configure interceptor with legacy behavior
         DynamoDbEncryptionInterceptor interceptor =
-                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT);
+                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT, null);
         DynamoDbClient ddbWithLegacy = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -398,5 +395,100 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         assertEquals(partitionValue, decryptedRecord.get(TEST_PARTITION_NAME).getS());
         assertEquals(sortValue, decryptedRecord.get(TEST_SORT_NAME).getN());
         assertEquals(attrValue, decryptedRecord.get(TEST_ATTR_NAME).getS());
+    }
+
+    @Test
+    public void TestPlaintextRead() {
+        // Put plaintext item into table
+        String partitionValue = "get";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        DynamoDbClient regularClient = DynamoDbClient.builder().build();
+
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        PutItemResponse putResponse = regularClient.putItem(putRequest);
+        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+
+        // Get Item back from table, using *ALLOW_READ Plaintext policy
+        DynamoDbEncryptionInterceptor interceptor = createInterceptor(
+                createKmsKeyring(), // Just need to configure some valid keyring
+                null,
+                PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ);
+        DynamoDbClient clientWithPolicy = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+
+        GetItemRequest getRequest = GetItemRequest.builder()
+                .key(keyToGet)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        GetItemResponse getResponse = clientWithPolicy.getItem(getRequest);
+        assertEquals(200, getResponse.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem = getResponse.item();
+        assertNotNull(returnedItem);
+        assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
+    }
+
+    @Test
+    public void TestPlaintextWrite() {
+        // Put plaintext item into table using client with REQUIRE_WRITE* policy
+        String partitionValue = "get";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        DynamoDbEncryptionInterceptor interceptor = createInterceptor(
+                createKmsKeyring(), // Just need to configure some valid keyring
+                null,
+                PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ);
+        DynamoDbClient clientWithPolicy = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+
+
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        PutItemResponse putResponse = clientWithPolicy.putItem(putRequest);
+        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+
+        // Get Item back from table, using *ALLOW_READ Plaintext policy
+        DynamoDbClient regularClient = DynamoDbClient.builder().build();
+
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+
+        GetItemRequest getRequest = GetItemRequest.builder()
+                .key(keyToGet)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        GetItemResponse getResponse = regularClient.getItem(getRequest);
+        assertEquals(200, getResponse.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem = getResponse.item();
+        assertNotNull(returnedItem);
+        assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
     }
 }

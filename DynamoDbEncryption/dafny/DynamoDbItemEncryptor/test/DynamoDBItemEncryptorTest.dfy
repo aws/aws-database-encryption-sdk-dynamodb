@@ -56,7 +56,7 @@ module DynamoDbItemEncryptorTest {
       )
     );
     expect encryptRes.Failure?;
-    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Sort key sort not found in Item to be encrypted or decrypted");
+    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Configuration missmatch partition or sort key does not exist in item.");
   }
 
   method {:test} TestRoundTrip() {
