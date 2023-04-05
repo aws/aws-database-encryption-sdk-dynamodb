@@ -229,8 +229,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && |c.encFields_c| < (UINT32_LIMIT / 3)
     && c.cryptoSchema.content.SchemaMap?
     && var actionMap := c.cryptoSchema.content.SchemaMap;
-    && (exists tableName ::
-      (forall k :: k in actionMap ==> (exists path :: path in c.signedFields_c && path == Paths.SimpleCanon(tableName, k))))
+    && (forall k :: k in actionMap ==> (exists path, tableName :: path in c.signedFields_c && path == Paths.SimpleCanon(tableName, k)))
   }
 
   // return the subset of "fields" which are ENCRYPT_AND_SIGN
@@ -260,7 +259,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   }
 
   // construct the EncryptCanon
-  function method {:opaque} CanonizeForEncrypt(tableName : GoodString, data : StructuredDataPlain, schema : CryptoSchemaPlain)
+  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForEncrypt(tableName : GoodString, data : StructuredDataPlain, schema : CryptoSchemaPlain)
     : (ret : Result<EncryptCanon, Error>)
     requires schema.Keys == data.Keys
     ensures ret.Success? ==>
@@ -298,7 +297,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   }
 
   // construct the DecryptCanon
-  function method {:opaque} CanonizeForDecrypt(tableName : GoodString, data : StructuredDataPlain, authSchema : AuthSchemaPlain, legend: Header.Legend)
+  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(tableName : GoodString, data : StructuredDataPlain, authSchema : AuthSchemaPlain, legend: Header.Legend)
     : (ret : Result<DecryptCanon, Error>)
     requires authSchema.Keys == data.Keys
     ensures ret.Success? ==>
@@ -318,13 +317,9 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     Paths.SimpleCanonUnique(tableName);
     var fieldMap := map k <- data.Keys | authSchema[k].content.Action == SIGN :: Paths.SimpleCanon(tableName, k) := k;
 
-    assert {:split_here} true;
-
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     assert (forall k :: k in data.Keys && authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(tableName, k) in data_c.Keys);
     assert (forall v :: v in data_c.Values ==> v in data.Values);
-
-    assert {:split_here} true;
 
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
 
@@ -334,8 +329,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     if |legend| > |signedFields_c| then
       Failure(E("Schema changed : something that was signed is now unsigned."))
     else
-
-    assert {:split_here} true;
 
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //# The `encrypted field list` MUST be all fields in the `signed field list`
@@ -361,7 +354,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       attributes := None
     );
 
-    assert {:split_here} true;
 
     var c := DecryptCanonData(
       encFields_c,
@@ -369,6 +361,15 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       data_c,
       cryptoSchema
     );
+
+    // assert (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c);
+    // assert (forall k :: k in c.signedFields_c ==> k in c.data_c.Keys);
+    // assert (forall k :: k in c.encFields_c ==> k in c.signedFields_c);
+    // assert |c.encFields_c| < (UINT32_LIMIT / 3);
+    // assert c.cryptoSchema.content.SchemaMap?;
+    // var actionMap := c.cryptoSchema.content.SchemaMap;
+    // assert
+    //   (forall k :: k in actionMap ==> (exists path, tableName :: path in c.signedFields_c && path == Paths.SimpleCanon(tableName, k)));
 
     assert ValidDecryptCanon?(c);
 
