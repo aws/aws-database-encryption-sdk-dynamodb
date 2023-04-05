@@ -317,12 +317,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     Paths.SimpleCanonUnique(tableName);
     var data_c := map k <- data.Keys | authSchema[k].content.Action == SIGN ::
       Paths.SimpleCanon(tableName, k) := data[k];
-    assert (forall k :: k in data.Keys && authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(tableName, k) in data_c.Keys);
-    assert (forall v :: v in data_c.Values ==> v in data.Values);
 
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
-    assert forall k <- data_c.Keys :: k in signedFields_c;
-    assert (forall k :: k in data_c.Keys ==> k in signedFields_c);
 
     if |legend| < |signedFields_c| then
       Failure(E("Schema changed : something that was unsigned is now signed."))
@@ -355,26 +351,12 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       attributes := None
     );
 
-    assert (forall k :: k in data_c.Keys ==> k in signedFields_c);
-
-    var c := DecryptCanonData(
+    Success(DecryptCanonData(
       encFields_c,
       signedFields_c,
       data_c,
       cryptoSchema
-    );
-
-    // We need to hold dafny's hand here
-    assert (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c);
-    assert (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c);
-    assert (forall k :: k in c.signedFields_c ==> k in c.data_c.Keys);
-    assert (forall k :: k in c.encFields_c ==> k in c.signedFields_c);
-    assert |c.encFields_c| < (UINT32_LIMIT / 3);
-    assert c.cryptoSchema.content.SchemaMap?;
-    assert (forall k :: k in c.cryptoSchema.content.SchemaMap ==> Paths.SimpleCanon(tableName, k) in c.data_c.Keys);
-    assert ValidDecryptCanon?(c);
-
-    Success(c)
+    ))
   }
 
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
