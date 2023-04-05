@@ -58,7 +58,7 @@ verify:
 		-trace \
 		`find . -name '*.dfy'`
 
-# Verify single file FILE with text logger.
+# Verify single file FILE with text logger, can also specify PROC to match specific methods
 # This is useful for debugging resource count usage within a file.
 verify_single:
 	dafny \
@@ -66,8 +66,9 @@ verify_single:
 		-compile:0 \
 		-definiteAssignment:3 \
 		-verificationLogger:text \
-		-timeLimit:300 \
+		-timeLimit:60 \
 		-trace \
+		$(if ${PROC},-proc:*$(PROC)*,) \
 		$(FILE)
 
 #Verify only a specific namespace at env var $(SERVICE)
