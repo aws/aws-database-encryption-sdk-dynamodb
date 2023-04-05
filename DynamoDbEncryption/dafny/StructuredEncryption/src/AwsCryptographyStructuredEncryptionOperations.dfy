@@ -362,8 +362,13 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       cryptoSchema
     );
 
-    assert (forall k :: k in c.cryptoSchema.content.SchemaMap ==> Paths.SimpleCanon(tableName, k) in c.data_c);
-
+    // We need to hold dafny's hand here
+    assert (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c);
+    assert (forall k :: k in c.signedFields_c ==> k in c.data_c.Keys);
+    assert (forall k :: k in c.encFields_c ==> k in c.signedFields_c);
+    assert |c.encFields_c| < (UINT32_LIMIT / 3);
+    assert c.cryptoSchema.content.SchemaMap?;
+    assert (forall k :: k in c.cryptoSchema.content.SchemaMap ==> Paths.SimpleCanon(tableName, k) in c.data_c.Keys);
     assert ValidDecryptCanon?(c);
 
     Success(c)
