@@ -50,30 +50,46 @@ module TermLoc {
     t[0].key !in item
   }
 
-  // return the string value for the given terminal in the given item
-  function method TermToString(t : TermLoc, item : DDB.AttributeMap)
-    : Result<string, Error>
+  // return the AttributeValue for the given terminal in the given item
+  function method TermToAttr(t : TermLoc, item : DDB.AttributeMap, names : Option<DDB.ExpressionAttributeNameMap>)
+    : Result<DDB.AttributeValue, Error>
   {
     if t[0].key !in item then
       Failure(E("Requested attribute " + t[0].key + " not in item."))
     else
-      var part :- GetTerminal(item[t[0].key], t[1..]);
-      AttrValueToString(part)
+      GetTerminal(item[t[0].key], t[1..], names)
+  }
+
+  // return the AttributeValue for the given terminal in the given item
+  function method TermToAttrReq(t : TermLoc, item : DDB.AttributeMap, names : Option<DDB.ExpressionAttributeNameMap>)
+    : Result<DDB.AttributeValue, Error>
+    requires t[0].key in item
+  {
+    GetTerminal(item[t[0].key], t[1..], names)
+  }
+
+  // return the string value for the given terminal in the given item
+  function method TermToString(t : TermLoc, item : DDB.AttributeMap)
+    : Result<string, Error>
+  {
+    var part :- TermToAttr(t, item, None);
+    AttrValueToString(part)
   }
 
   // return the string value for the given terminal in the given item
   function method TermToBytes(t : TermLoc, item : DDB.AttributeMap)
     : Result<Bytes, Error>
   {
-    if t[0].key !in item then
-      Failure(E("Requested attribute " + t[0].key + " not in item."))
-    else
-      var part :- GetTerminal(item[t[0].key], t[1..]);
-      DynamoToStruct.TopLevelAttributeToBytes(part).MapFailure(e => E(e))
+    var part :- TermToAttr(t, item, None);
+    DynamoToStruct.TopLevelAttributeToBytes(part).MapFailure(e => E(e))
   }
 
   // return the string value for the given terminal in the given value
-  function method {:tailrecursion} {:opaque} GetTerminal(v : DDB.AttributeValue, parts : seq<Selector>)
+  function method {:tailrecursion} {:opaque} GetTerminal(
+    v : DDB.AttributeValue,
+    parts : seq<Selector>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
     : Result<DDB.AttributeValue, Error>
   {
     if |parts| == 0 then
@@ -94,14 +110,17 @@ module TermLoc {
           else if |l| <= parts[0].pos as int then
             Failure(E("Tried to access beyond the end of the list"))
           else
-            GetTerminal(l[parts[0].pos], parts[1..])
+            GetTerminal(l[parts[0].pos], parts[1..], names)
         case M(m) =>
           if !parts[0].Map? then
             Failure(E("Tried to access map with index"))
           else if parts[0].key !in m then
-            Failure(E("Tried to access " + parts[0].key + " which is not in the map."))
+            if names.Some? && parts[0].key in names.value && names.value[parts[0].key] in m then
+              GetTerminal(m[names.value[parts[0].key]], parts[1..], names)
+            else
+              Failure(E("Tried to access " + parts[0].key + " which is not in the map."))
           else
-            GetTerminal(m[parts[0].key], parts[1..])
+            GetTerminal(m[parts[0].key], parts[1..], names)
       }
   }
 

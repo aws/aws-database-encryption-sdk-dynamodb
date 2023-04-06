@@ -17,31 +17,31 @@ module TestDynamoDBFilterExpr {
 
   method expect_contains(haystack : AttributeValue, needle : AttributeValue, negate : bool)
   {
-  if does_contain(haystack, needle) != negate {
-      if negate {
-        print haystack, " should not have contained ", needle, "but it did\n";
-      }
-      else {
-        print haystack, " should have contained ", needle, "but it didn't\n";
-      }
-  }
+    if does_contain(haystack, needle) != negate {
+        if negate {
+          print haystack, " should not have contained ", needle, "but it did\n";
+        }
+        else {
+          print haystack, " should have contained ", needle, "but it didn't\n";
+        }
+    }
     expect does_contain(haystack, needle) == negate;
   }
 
   method {:test} LowLevelTests() {
     expect_equal(ParseExpr("and"), [And]);
     expect_equal(ParseExpr("  AnD   "), [And]);
-    expect_equal(ParseExpr(" A  AnD  B "), [Attr("A"), And, Attr("B")]);
+    expect_equal(ParseExpr(" A  AnD  B "), [MakeAttr("A"), And, MakeAttr("B")]);
 
-    var input := [Not, Attr("A"), In, Open, Attr("B"), Comma, Attr("C"), Close, Or];
+    var input := [Not, MakeAttr("A"), In, Open, MakeAttr("B"), Comma, MakeAttr("C"), Close, Or];
     expect IsIN(input[1..]);
-    expect_equal(ConvertToPrefix(input),  [Not, In, Open, Attr("A"), Comma, Attr("B"), Comma, Attr("C"), Close, Or]);
+    expect_equal(ConvertToPrefix(input),  [Not, In, Open, MakeAttr("A"), Comma, MakeAttr("B"), Comma, MakeAttr("C"), Close, Or]);
 
     input := [And, Or, Not, And, Or, Not, And, Or, Not];
     expect_equal(ConvertToPrefix(input), input);
 
-    input := [Not, Attr("A"), In, Open, Attr("B"), Comma, Attr("C"), Close];
-    expect_equal(ConvertToPrefix(input), [Not, In, Open, Attr("A"), Comma, Attr("B"), Comma, Attr("C"), Close]);
+    input := [Not, MakeAttr("A"), In, Open, MakeAttr("B"), Comma, MakeAttr("C"), Close];
+    expect_equal(ConvertToPrefix(input), [Not, In, Open, MakeAttr("A"), Comma, MakeAttr("B"), Comma, MakeAttr("C"), Close]);
   }
 
   method {:test} TestExtractAttributes() {
@@ -311,8 +311,104 @@ module TestDynamoDBFilterExpr {
 
   }
 
-  //  AttributeExists | AttributeNotExists | AttributeType
-  // not
-  // size(x) in(a,b,c)
+  method {:test} TestFilterIndirectNames() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DS("abc"),
+      "two" := DS("cde"),
+      "three" := DS("cde")
+    ];
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":uno" := DS("ab"),
+      ":dos" := DS("bc")
+    ];
+    var names : DDB.ExpressionAttributeNameMap := map [
+      "#eine" := "one",
+      "#zwei" := "two",
+      "#drei" := "three"
+    ];
 
+    var newItems :- expect FilterResults([item1], None, Some("one < two"), Some(names), Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("one > two"), Some(names), Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("#eine < #zwei"), Some(names), Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("#eine > #zwei"), Some(names), Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([item1], None, Some("#eine < :dos"), Some(names), Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some("#eine > :dos"), Some(names), Some(values));
+    expect_equal(newItems, []);
+
+  }
+
+
+  method {:test} TestFilterIndirectNamesWithLoc() {
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":uno" := DS("ab"),
+      ":dos" := DN("2")
+    ];
+    var names : DDB.ExpressionAttributeNameMap := map [
+      "#eine" := "Date",
+      "#zwei" := "Month",
+      "#drei" := "Year"
+    ];
+
+    var newItems :- expect FilterResults([SimpleItem], None, Some("Date.Month < :uno"), Some(names), Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults([SimpleItem], None, Some("Date.Month > :uno"), Some(names), Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([SimpleItem], None, Some("Date.#zwei < :uno"), Some(names), Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults([SimpleItem], None, Some("Date.#zwei > :uno"), Some(names), Some(values));
+    expect_equal(newItems, []);
+  }
+
+  method {:test} TestFilterAttrOps() {
+    var names : DDB.ExpressionAttributeNameMap := map [
+      "#fecha" := "Date"
+    ];
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":m" := DS("M"),
+      ":s" := DS("N")
+    ];
+
+    var newItems :- expect FilterResults([SimpleItem], None, Some("attribute_exists(Date)"), Some(names), Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_exists(Nope)"), Some(names), Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_not_exists(Date)"), Some(names), Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_not_exists(Nope)"), Some(names), Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_type(Date, :m)"), Some(names), Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_type(std2, :s)"), Some(names), Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults([SimpleItem], None, Some("not attribute_exists(Date)"), Some(names), Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults([SimpleItem], None, Some("not attribute_exists(Nope)"), Some(names), Some(values));
+    expect_equal(newItems, [SimpleItem]);  
+  }
+  method {:test} TestFilterSizeIn() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DN("9"),
+      "two" := DN("52"),
+      "three" := DN("185")
+    ];
+    var values : Option<DDB.ExpressionAttributeValueMap> := Some(map [
+      ":uno" := DN("1"),
+      ":dos" := DN("2"),
+      ":tres" := DN("3")
+    ]);
+
+    var newItems :- expect FilterResults([item1], None, Some("size(one) in (:uno, :dos, :tres)"), None, values);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some(":uno in (size(one), :dos, :tres)"), None, values);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some(":uno in (:dos, :tres, size(one))"), None, values);
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults([item1], None, Some(":uno in (:dos, :tres)"), None, values);
+    expect_equal(newItems, []);
+  }
 }

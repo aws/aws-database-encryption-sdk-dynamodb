@@ -13,7 +13,7 @@
 */
 
 
-include "../../DynamoDbEncryption/src/SearchInfo.dfy"
+include "SearchInfo.dfy"
 include "Util.dfy"
 
 module SearchConfigToInfo {
@@ -23,6 +23,7 @@ module SearchConfigToInfo {
   import opened StandardLibrary.UInt
   import opened DynamoDbEncryptionUtil
   import opened TermLoc
+  import SortedSets
 
   import I = SearchableEncryptionInfo
   import V = DdbVirtualFields
@@ -88,6 +89,31 @@ module SearchConfigToInfo {
     output := ConvertVersionWithKey(outer, config, key);
   }
 
+  method {:tailrecursion} GetHmacKeys(
+    client : Primitives.AtomicPrimitivesClient,
+    key : Bytes,
+    beacons : I.BeaconMap,
+    beaconKeys : seq<string>,
+    acc : HmacKeyMap := map[]
+  )
+    returns (output : Result<HmacKeyMap, Error>)
+    requires forall k <- beaconKeys :: k in beacons
+    requires forall k <- acc :: k in beacons
+    ensures output.Success? ==> forall k <- output.value :: k in beacons
+    decreases |beaconKeys|
+
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    if |beaconKeys| == 0 {
+      return Success(acc);
+    } else {
+      var key :- GetBeaconKey(client, key, beaconKeys[0]);
+      output := GetHmacKeys(client, key, beacons, beaconKeys[1..], acc[beaconKeys[0] := key]);
+    }
+  }
+
   // convert configured BeaconVersion to internal BeaconVersion
   method ConvertVersionWithKey(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion, key : Bytes)
     returns (output : Result<I.BeaconVersion, Error>)
@@ -97,10 +123,15 @@ module SearchConfigToInfo {
 
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
     var beacons :- ConvertBeacons(outer, key, primitives, virtualFields, config.standardBeacons, config.compoundBeacons);
+
+    var beaconKeys := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+    var hmacKeys :- GetHmacKeys(primitives, key, beacons, beaconKeys);
+
     return Success(I.BeaconVersion(
       version := config.version as I.VersionNumber,
       beacons := beacons,
-      virtualFields := virtualFields
+      virtualFields := virtualFields,
+      hmacKeys := hmacKeys
     ));
   }
 
@@ -340,7 +371,6 @@ module SearchConfigToInfo {
     }
     :- Need(beacons[0].name !in converted, E("Duplicate CompoundBeacon name : " + beacons[0].name));
     var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "CompoundBeacon");
-    var newKey :- GetBeaconKey(client, key, beacons[0].name);
 
     // because UnwrapOr doesn't verify when used on a list with a minimum size
     var parts :- AddNonSensitiveParts(if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else []);
@@ -354,8 +384,7 @@ module SearchConfigToInfo {
       B.BeaconBase (
         client := client,
         name := beacons[0].name,
-        beaconName := beaconName,
-        key := key
+        beaconName := beaconName
       ),
       beacons[0].split[0],
       parts,
