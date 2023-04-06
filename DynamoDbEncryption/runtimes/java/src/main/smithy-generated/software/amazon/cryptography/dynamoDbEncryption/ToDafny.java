@@ -55,11 +55,10 @@ import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.dynamoDbEncryption.model.CollectionOfErrors;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
-import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.model.OpaqueError;
 
 public class ToDafny {
-  public static Error Error(NativeError nativeValue) {
+  public static Error Error(RuntimeException nativeValue) {
     if (nativeValue instanceof DynamoDbEncryptionException) {
       return ToDafny.Error((DynamoDbEncryptionException) nativeValue);
     }

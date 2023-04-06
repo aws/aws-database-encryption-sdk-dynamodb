@@ -38,7 +38,6 @@ import software.amazon.cryptography.dynamoDbEncryption.model.Insert;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
 import software.amazon.cryptography.dynamoDbEncryption.model.Lower;
-import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.model.NonSensitivePart;
 import software.amazon.cryptography.dynamoDbEncryption.model.OpaqueError;
 import software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy;
@@ -52,10 +51,10 @@ import software.amazon.cryptography.dynamoDbEncryption.model.VirtualTransform;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 public class ToNative {
-  public static OpaqueError Error(Error_Opaque dafnyValue) {
-    OpaqueError.Builder nativeBuilder = OpaqueError.builder();
-    nativeBuilder.obj(dafnyValue.dtor_obj());
-    return nativeBuilder.build();
+  // ToNative always unwraps Opaque errors back to the underlying RuntimeException
+  // TODO what if it's an Exception?
+  public static RuntimeException Error(Dafny.Aws.Cryptography.StructuredEncryption.Types.Error_Opaque dafnyValue) {
+    return (RuntimeException) dafnyValue.dtor_obj();
   }
 
   public static CollectionOfErrors Error(Error_CollectionOfErrors dafnyValue) {
@@ -73,9 +72,15 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static NativeError Error(Error dafnyValue) {
+  public static RuntimeException Error(Error dafnyValue) {
     if (dafnyValue.is_DynamoDbEncryptionException()) {
       return ToNative.Error((Error_DynamoDbEncryptionException) dafnyValue);
+    }
+    if (dafnyValue.is_AwsCryptographyStructuredEncryption()) {
+      return software.amazon.cryptography.structuredEncryption.ToNative.Error(dafnyValue.dtor_AwsCryptographyStructuredEncryption());
+    }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return software.amazon.cryptography.materialProviders.ToNative.Error(dafnyValue.dtor_AwsCryptographyMaterialProviders());
     }
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);

@@ -27,11 +27,10 @@ import java.lang.Character;
 import java.util.Objects;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.CollectionOfErrors;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorException;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.OpaqueError;
 
 public class ToDafny {
-  public static Error Error(NativeError nativeValue) {
+  public static Error Error(RuntimeException nativeValue) {
     if (nativeValue instanceof DynamoDbItemEncryptorException) {
       return ToDafny.Error((DynamoDbItemEncryptorException) nativeValue);
     }

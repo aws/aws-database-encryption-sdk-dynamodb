@@ -25,7 +25,6 @@ import software.amazon.cryptography.structuredEncryption.model.DecryptStructureI
 import software.amazon.cryptography.structuredEncryption.model.DecryptStructureOutput;
 import software.amazon.cryptography.structuredEncryption.model.EncryptStructureInput;
 import software.amazon.cryptography.structuredEncryption.model.EncryptStructureOutput;
-import software.amazon.cryptography.structuredEncryption.model.NativeError;
 import software.amazon.cryptography.structuredEncryption.model.OpaqueError;
 import software.amazon.cryptography.structuredEncryption.model.ParsedHeader;
 import software.amazon.cryptography.structuredEncryption.model.StructuredData;
@@ -35,10 +34,10 @@ import software.amazon.cryptography.structuredEncryption.model.StructuredEncrypt
 import software.amazon.cryptography.structuredEncryption.model.StructuredEncryptionException;
 
 public class ToNative {
-  public static OpaqueError Error(Error_Opaque dafnyValue) {
-    OpaqueError.Builder nativeBuilder = OpaqueError.builder();
-    nativeBuilder.obj(dafnyValue.dtor_obj());
-    return nativeBuilder.build();
+  // ToNative always unwraps Opaque errors back to the underlying RuntimeException
+  // TODO what if it's an Exception?
+  public static RuntimeException Error(Error_Opaque dafnyValue) {
+    return (RuntimeException) dafnyValue.dtor_obj();
   }
 
   public static CollectionOfErrors Error(Error_CollectionOfErrors dafnyValue) {
@@ -57,9 +56,12 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static NativeError Error(Error dafnyValue) {
+  public static RuntimeException Error(Error dafnyValue) {
     if (dafnyValue.is_StructuredEncryptionException()) {
       return ToNative.Error((Error_StructuredEncryptionException) dafnyValue);
+    }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return software.amazon.cryptography.materialProviders.ToNative.Error(dafnyValue.dtor_AwsCryptographyMaterialProviders());
     }
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);

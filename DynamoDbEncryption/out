@@ -1,0 +1,306 @@
+dafny \
+		-vcsCores:2 \
+		-compile:0 \
+		-definiteAssignment:3 \
+		-verificationLogger:text \
+		-timeLimit:60 \
+		-trace \
+		-proc:*CanonizeForDecrypt* \
+		./dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy
+Parsing ./dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy
+/Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(232,8): Warning: /!\ No terms found to trigger on.
+Coalescing blocks...
+Inlining...
+
+Running abstract interpretation...
+  [0.253846 s]
+
+Verifying AwsCryptographyStructuredEncryptionOperations.CanonizeForDecrypt (well-formedness) ...
+[TRACE] Using prover: /Users/lavaleri/dafny/z3/bin/z3
+    checking split 1/28, 0.00%, (cost:0/0) ...
+[TRACE] Using prover: /Users/lavaleri/dafny/z3/bin/z3
+    checking split 2/28, 0.00%, (cost:0/0) ...
+      --> split #1 done,  [0.318473 s] Valid
+    checking split 3/28, 0.00%, (cost:152/1) ...
+      --> split #2 done,  [0.156638 s] Valid
+    checking split 4/28, 0.00%, (cost:152/1) ...
+      --> split #3 done,  [0.205293 s] Valid
+    checking split 5/28, 0.53%, (cost:152/1) ...
+      --> split #4 done,  [0.224861 s] Valid
+    checking split 6/28, 1.07%, (cost:152/1) ...
+      --> split #5 done,  [0.237517 s] Valid
+    checking split 7/28, 1.60%, (cost:215/1) ...
+      --> split #6 done,  [0.256763 s] Valid
+    checking split 8/28, 2.13%, (cost:215/1) ...
+      --> split #7 done,  [0.222529 s] Valid
+    checking split 9/28, 2.89%, (cost:2245/1) ...
+      --> split #8 done,  [0.211432 s] Valid
+    checking split 10/28, 3.64%, (cost:4020/1) ...
+      --> split #10 done,  [0.259919 s] Valid
+    checking split 11/28, 17.74%, (cost:4020/1) ...
+      --> split #11 done,  [0.277351 s] Valid
+    checking split 12/28, 31.84%, (cost:4020/1) ...
+      --> split #9 done,  [0.750433 s] Valid
+    checking split 13/28, 39.71%, (cost:4020/1) ...
+      --> split #12 done,  [0.287279 s] Valid
+    checking split 14/28, 53.81%, (cost:4020/1) ...
+      --> split #14 done,  [0.274283 s] Valid
+    checking split 15/28, 67.91%, (cost:4020/1) ...
+      --> split #13 done,  [0.751839 s] Valid
+    checking split 16/28, 82.01%, (cost:238/1) ...
+      --> split #15 done,  [0.357273 s] Valid
+    checking split 17/28, 96.11%, (cost:238/1) ...
+      --> split #16 done,  [0.239998 s] Valid
+    checking split 18/28, 96.94%, (cost:171/1) ...
+      --> split #17 done,  [0.253712 s] Valid
+    checking split 19/28, 97.78%, (cost:169/1) ...
+      --> split #18 done,  [0.260695 s] Valid
+    checking split 20/28, 98.38%, (cost:54/1) ...
+      --> split #20 done,  [0.417955 s] Valid
+    checking split 21/28, 98.57%, (cost:33/1) ...
+      --> split #19 done,  [0.561861 s] Valid
+    checking split 22/28, 99.16%, (cost:16/1 last) ...
+      --> split #21 done,  [0.142472 s] Valid
+    checking split 23/28, 99.27%, (cost:16/1 last) ...
+      --> split #22 done,  [0.144182 s] Valid
+    checking split 24/28, 99.33%, (cost:86/1) ...
+      --> split #23 done,  [0.149395 s] Valid
+    checking split 25/28, 99.38%, (cost:33/1) ...
+      --> split #24 done,  [0.21394 s] Valid
+    checking split 26/28, 99.68%, (cost:21/1) ...
+      --> split #25 done,  [0.209322 s] Valid
+    checking split 27/28, 99.80%, (cost:21/1) ...
+      --> split #26 done,  [0.211563 s] Valid
+    checking split 28/28, 99.88%, (cost:14/1 last) ...
+      --> split #27 done,  [0.242928 s] Valid
+      --> split #28 done,  [0.305575 s] Valid
+  [5.450 s, solver resource count: 14507840, 26 proof obligations]  verified
+
+Dafny program verifier finished with 1 verified, 0 errors
+
+Results for AwsCryptographyStructuredEncryptionOperations.CanonizeForDecrypt (well-formedness)
+  Overall outcome: Correct
+  Overall time: 00:00:05.4499090
+  Overall resource count: 14507840
+
+  Assertion batch 1:
+    Outcome: Valid
+    Duration: 00:00:00.3184730
+    Resource count: 241936
+
+    Assertions:
+
+  Assertion batch 2:
+    Outcome: Valid
+    Duration: 00:00:00.1566380
+    Resource count: 241936
+
+    Assertions:
+
+  Assertion batch 3:
+    Outcome: Valid
+    Duration: 00:00:00.2052930
+    Resource count: 372777
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(321,38): function precondition satisfied
+
+  Assertion batch 4:
+    Outcome: Valid
+    Duration: 00:00:00.2248610
+    Resource count: 375440
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(321,38): function precondition satisfied
+
+  Assertion batch 5:
+    Outcome: Valid
+    Duration: 00:00:00.2375170
+    Resource count: 368636
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(321,38): function precondition satisfied
+
+  Assertion batch 6:
+    Outcome: Valid
+    Duration: 00:00:00.2567630
+    Resource count: 380581
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(321,38): function precondition satisfied
+
+  Assertion batch 7:
+    Outcome: Valid
+    Duration: 00:00:00.2225290
+    Resource count: 390449
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(335,45): function precondition satisfied
+
+  Assertion batch 8:
+    Outcome: Valid
+    Duration: 00:00:00.2114320
+    Resource count: 395426
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(336,43): divisor is always non-zero.
+
+  Assertion batch 9:
+    Outcome: Valid
+    Duration: 00:00:00.7504330
+    Resource count: 1714182
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(354,5): value always satisfies the subset constraints of 'Result<DecryptCanon, Error>'
+
+  Assertion batch 10:
+    Outcome: Valid
+    Duration: 00:00:00.2599190
+    Resource count: 467351
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(304,7): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 11:
+    Outcome: Valid
+    Duration: 00:00:00.2773510
+    Resource count: 578066
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(304,37): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 12:
+    Outcome: Valid
+    Duration: 00:00:00.2872790
+    Resource count: 544698
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(306,7): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 13:
+    Outcome: Valid
+    Duration: 00:00:00.7518390
+    Resource count: 1736027
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(306,11): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 14:
+    Outcome: Valid
+    Duration: 00:00:00.2742830
+    Resource count: 545353
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(308,7): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 15:
+    Outcome: Valid
+    Duration: 00:00:00.3572730
+    Resource count: 807321
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(308,11): error is impossible: This is the postcondition that might not hold.
+
+  Assertion batch 16:
+    Outcome: Valid
+    Duration: 00:00:00.2399980
+    Resource count: 459057
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(336,5): function precondition satisfied
+
+  Assertion batch 17:
+    Outcome: Valid
+    Duration: 00:00:00.2537120
+    Resource count: 504189
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(336,5): value always satisfies the subset constraints of 'Result<DecryptCanon, Error>'
+
+  Assertion batch 18:
+    Outcome: Valid
+    Duration: 00:00:00.2606950
+    Resource count: 622169
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(327,7): value always satisfies the subset constraints of 'Result<DecryptCanon, Error>'
+
+  Assertion batch 19:
+    Outcome: Valid
+    Duration: 00:00:00.5618610
+    Resource count: 622619
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(324,7): value always satisfies the subset constraints of 'Result<DecryptCanon, Error>'
+
+  Assertion batch 20:
+    Outcome: Valid
+    Duration: 00:00:00.4179550
+    Resource count: 324123
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(319,24): key expressions refer to unique values
+
+  Assertion batch 21:
+    Outcome: Valid
+    Duration: 00:00:00.1424720
+    Resource count: 255008
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(319,46): element is in domain
+
+  Assertion batch 22:
+    Outcome: Valid
+    Duration: 00:00:00.1441820
+    Resource count: 272252
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(318,50): element is in domain
+
+  Assertion batch 23:
+    Outcome: Valid
+    Duration: 00:00:00.1493950
+    Resource count: 268765
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(318,62): destructor 'Action' is only applied to datatype values constructed by 'Action'
+
+  Assertion batch 24:
+    Outcome: Valid
+    Duration: 00:00:00.2139400
+    Resource count: 396073
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(308,32): destructor 'value' is only applied to datatype values constructed by 'Success'
+
+  Assertion batch 25:
+    Outcome: Valid
+    Duration: 00:00:00.2093220
+    Resource count: 395894
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(306,119): destructor 'value' is only applied to datatype values constructed by 'Success'
+
+  Assertion batch 26:
+    Outcome: Valid
+    Duration: 00:00:00.2115630
+    Resource count: 420048
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(306,51): element is in domain
+
+  Assertion batch 27:
+    Outcome: Valid
+    Duration: 00:00:00.2429280
+    Resource count: 414150
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(306,63): destructor 'Action' is only applied to datatype values constructed by 'Action'
+
+  Assertion batch 28:
+    Outcome: Valid
+    Duration: 00:00:00.3055750
+    Resource count: 393314
+
+    Assertions:
+      /Users/lavaleri/github/aws-dynamodb-encryption-dafny/DynamoDbEncryption/dafny/StructuredEncryption/src/AwsCryptographyStructuredEncryptionOperations.dfy(304,15): destructor 'value' is only applied to datatype values constructed by 'Success'

@@ -35,12 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.structuredEncryption.model.CollectionOfErrors;
-import software.amazon.cryptography.structuredEncryption.model.NativeError;
 import software.amazon.cryptography.structuredEncryption.model.OpaqueError;
 import software.amazon.cryptography.structuredEncryption.model.StructuredEncryptionException;
 
 public class ToDafny {
-  public static Error Error(NativeError nativeValue) {
+  public static Error Error(RuntimeException nativeValue) {
     if (nativeValue instanceof StructuredEncryptionException) {
       return ToDafny.Error((StructuredEncryptionException) nativeValue);
     }

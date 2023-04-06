@@ -45,7 +45,6 @@ import software.amazon.cryptography.dynamoDbEncryption.transforms.model.GetItemI
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.GetItemInputTransformOutput;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.GetItemOutputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.GetItemOutputTransformOutput;
-import software.amazon.cryptography.dynamoDbEncryption.transforms.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.PutItemInputTransformInput;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.PutItemInputTransformOutput;
@@ -77,10 +76,10 @@ import software.amazon.cryptography.dynamoDbEncryption.transforms.model.UpdateTa
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.UpdateTableOutputTransformOutput;
 
 public class ToNative {
-  public static OpaqueError Error(Error_Opaque dafnyValue) {
-    OpaqueError.Builder nativeBuilder = OpaqueError.builder();
-    nativeBuilder.obj(dafnyValue.dtor_obj());
-    return nativeBuilder.build();
+  // ToNative always unwraps Opaque errors back to the underlying RuntimeException
+  // TODO what if it's an Exception?
+  public static RuntimeException Error(Dafny.Aws.Cryptography.StructuredEncryption.Types.Error_Opaque dafnyValue) {
+    return (RuntimeException) dafnyValue.dtor_obj();
   }
 
   public static CollectionOfErrors Error(Error_CollectionOfErrors dafnyValue) {
@@ -99,10 +98,19 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static NativeError Error(Error dafnyValue) {
+  public static RuntimeException Error(Error dafnyValue) {
     if (dafnyValue.is_DynamoDbEncryptionTransformsException()) {
       return ToNative.Error((Error_DynamoDbEncryptionTransformsException) dafnyValue);
     }
+
+    if (dafnyValue.is_AwsCryptographyDynamoDbEncryption()) {
+      return software.amazon.cryptography.dynamoDbEncryption.ToNative.Error(dafnyValue.dtor_AwsCryptographyDynamoDbEncryption());
+    }
+
+    if (dafnyValue.is_AwsCryptographyDynamoDbEncryptionItemEncryptor()) {
+      return software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.ToNative.Error(dafnyValue.dtor_AwsCryptographyDynamoDbEncryptionItemEncryptor());
+    }
+
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }

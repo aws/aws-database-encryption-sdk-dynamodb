@@ -10,7 +10,6 @@ import java.lang.IllegalArgumentException;
 import java.util.Objects;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput;
-import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.model.OpaqueError;
 
 public final class DynamoDbKeyBranchKeyIdSupplier implements IDynamoDbKeyBranchKeyIdSupplier {
@@ -67,7 +66,7 @@ public final class DynamoDbKeyBranchKeyIdSupplier implements IDynamoDbKeyBranchK
         GetBranchKeyIdFromDdbKeyOutput nativeOutput = this._impl.GetBranchKeyIdFromDdbKey(nativeInput);
         Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetBranchKeyIdFromDdbKeyOutput dafnyOutput = ToDafny.GetBranchKeyIdFromDdbKeyOutput(nativeOutput);
         return Result.create_Success(dafnyOutput);
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
       } catch (Exception ex) {
         OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -77,7 +76,7 @@ public final class DynamoDbKeyBranchKeyIdSupplier implements IDynamoDbKeyBranchK
 
     public Result<Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetBranchKeyIdFromDdbKeyOutput, Error> GetBranchKeyIdFromDdbKey_k(
         Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetBranchKeyIdFromDdbKeyInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new UnsupportedOperationException("Not supported at this time.");
     }
   }
 }

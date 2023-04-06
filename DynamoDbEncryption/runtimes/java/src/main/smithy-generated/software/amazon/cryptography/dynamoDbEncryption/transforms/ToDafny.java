@@ -105,11 +105,10 @@ import dafny.DafnySequence;
 import java.lang.Character;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.CollectionOfErrors;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.DynamoDbEncryptionTransformsException;
-import software.amazon.cryptography.dynamoDbEncryption.transforms.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
 
 public class ToDafny {
-  public static Error Error(NativeError nativeValue) {
+  public static Error Error(RuntimeException nativeValue) {
     if (nativeValue instanceof DynamoDbEncryptionTransformsException) {
       return ToDafny.Error((DynamoDbEncryptionTransformsException) nativeValue);
     }

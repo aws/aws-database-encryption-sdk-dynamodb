@@ -5,54 +5,86 @@ package software.amazon.cryptography.structuredEncryption.model;
 
 import java.util.Objects;
 
-public class StructuredEncryptionException extends NativeError {
+public class StructuredEncryptionException extends RuntimeException {
   protected StructuredEncryptionException(BuilderImpl builder) {
-    super(builder);
-  }
-
-  @Override
-  public Builder toBuilder() {
-    return new BuilderImpl(this);
+    super(messageFromBuilder(builder), builder.cause());
   }
 
   public static Builder builder() {
     return new BuilderImpl();
   }
 
-  public interface Builder extends NativeError.Builder {
-    Builder message(String message);
-
-    Builder cause(Throwable cause);
-
-    StructuredEncryptionException build();
+  public Builder toBuilder() {
+    return new BuilderImpl(this);
   }
 
-  static class BuilderImpl extends NativeError.BuilderImpl implements Builder {
+  private static String messageFromBuilder(Builder builder) {
+    if (builder.message() != null) {
+      return builder.message();
+    }
+    if (builder.cause() != null) {
+      return builder.cause().getMessage();
+    }
+    return null;
+  }
+
+  public String message() {
+    return this.getMessage();
+  }
+
+  public Throwable cause() {
+    return this.getCause();
+  }
+
+  static class BuilderImpl implements Builder {
+    protected String message;
+
+    protected Throwable cause;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(StructuredEncryptionException model) {
-      super(model);
+      this.cause = model.getCause();
+      this.message = model.getMessage();
     }
 
-    @Override
     public Builder message(String message) {
-      super.message(message);
+      this.message = message;
       return this;
     }
 
-    @Override
+    public String message() {
+      return this.message;
+    }
+
     public Builder cause(Throwable cause) {
-      super.cause(cause);
+      this.cause = cause;
       return this;
     }
 
-    @Override
+    public Throwable cause() {
+      return this.cause;
+    }
+
     public StructuredEncryptionException build() {
       if (Objects.isNull(this.message()))  {
         throw new IllegalArgumentException("Missing value for required field `message`");
       }
+
       return new StructuredEncryptionException(this);
     }
+  }
+
+  public interface Builder {
+    Builder message(String message);
+
+    String message();
+
+    Builder cause(Throwable cause);
+
+    Throwable cause();
+
+    StructuredEncryptionException build();
   }
 }

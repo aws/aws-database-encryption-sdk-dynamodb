@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.*;
 
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorException;
+import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.DynamoDbEncryptionTransformsException;
@@ -447,7 +449,10 @@ public class DynamoDbEncryptionInterceptorTest {
         DynamoDbEncryptionInterceptor.builder().build();
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbItemEncryptorException.class,
+            expectedExceptionsMessageRegExp = "^Partition key attribute action MUST be SIGN_ONLY$"
+    )
     public void TestBadCryptoActionOnPartitionKey() {
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.ENCRYPT_AND_SIGN);
@@ -455,15 +460,13 @@ public class DynamoDbEncryptionInterceptorTest {
         actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
         List<String> allowedUnauth = Arrays.asList(TEST_ATTR_NAME);
 
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            createInterceptor(actions, allowedUnauth, createKmsKeyring(), null, null);
-        });
-        //assertTrue(exception.getMessage().contains("Partition key attribute action MUST be SIGN_ONLY"));
+        createInterceptor(actions, allowedUnauth, createKmsKeyring(), null, null);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbItemEncryptorException.class,
+            expectedExceptionsMessageRegExp = "^Sort key attribute action MUST be SIGN_ONLY$"
+    )
     public void TestBadCryptoActionOnSortKey() {
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
@@ -471,40 +474,42 @@ public class DynamoDbEncryptionInterceptorTest {
         actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
         List<String> allowedUnauth = Arrays.asList(TEST_ATTR_NAME);
 
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            createInterceptor(actions, allowedUnauth, createKmsKeyring(), null, null);
-        });
-        //assertTrue(exception.getMessage().contains("Sort key attribute action MUST be SIGN_ONLY"));
+        createInterceptor(actions, allowedUnauth, createKmsKeyring(), null, null);
     }
 
-    @Test
-    public void TestInconsistentSignatureScope() {
+    @Test(
+            expectedExceptions = DynamoDbItemEncryptorException.class,
+            expectedExceptionsMessageRegExp =
+                    "Attribute " + TEST_ATTR_NAME + " is configured as DO_NOTHING but it must also be in unauthenticatedAttributes or begin with the unauthenticatedPrefix."
+    )
+    public void TestSignatureScopeMissingAttr() {
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
         List<String> allowedUnauth = Arrays.asList();
 
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            createInterceptor(actions, allowedUnauth, createKmsKeyring(), null, null);
-        });
-        // assertTrue(exception.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_ATTR_NAME)));
-
-        List<String> allowedUnauth2 = Arrays.asList(TEST_ATTR_NAME, TEST_SORT_NAME);
-
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            createInterceptor(actions, allowedUnauth2, createKmsKeyring(), null, null);
-        });
-        //assertTrue(exception2.getMessage().contains(String.format("Attribute: %s configuration not compatible with unauthenticated configuration.", TEST_SORT_NAME)));
+        createInterceptor(actions, allowedUnauth, createKmsKeyring(), null, null);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbItemEncryptorException.class,
+            expectedExceptionsMessageRegExp = "Attribute " + TEST_SORT_NAME + " is configured as SIGN_ONLY but it is also in unauthenticatedAttributes."
+    )
+    public void TestSignatureScopeExtraAttr() {
+        Map<String, CryptoAction> actions = new HashMap<>();
+        actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
+        actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
+        actions.put(TEST_ATTR_NAME, CryptoAction.DO_NOTHING);
+        List<String> allowedUnauth = Arrays.asList(TEST_ATTR_NAME, TEST_SORT_NAME);
+
+        createInterceptor(actions, allowedUnauth, createKmsKeyring(), null, null);
+    }
+
+    @Test(
+            expectedExceptions = DynamoDbEncryptionException.class,
+            expectedExceptionsMessageRegExp = "No Crypto Action configured for attribute attr3"
+    )
     public void TestPutWithInvalidCryptoAction() {
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");
         // Add an attribute not modelled in the crypto schema
@@ -522,15 +527,13 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        //assertTrue(exception.getMessage().contains("No Crypto Action configured for attribute"));
+        interceptor.modifyRequest(context, attributes);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbItemEncryptorException.class,
+            expectedExceptionsMessageRegExp = "Configuration missmatch partition or sort key does not exist in item."
+    )
     public void TestPutMissingPartition() {
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");
         // Remove partition key from item
@@ -548,15 +551,13 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        //assertTrue(exception.getMessage().contains(String.format("Partition key %s not found in Item to be encrypted or decrypted", TEST_PARTITION_NAME)));
+        interceptor.modifyRequest(context, attributes);
     }
 
-    @Test
+    @Test(
+            expectedExceptions = DynamoDbItemEncryptorException.class,
+            expectedExceptionsMessageRegExp = "Configuration missmatch partition or sort key does not exist in item."
+    )
     public void TestPutMissingSort() {
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");
         // Remove partition key from item
@@ -574,11 +575,6 @@ public class DynamoDbEncryptionInterceptorTest {
                 .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            interceptor.modifyRequest(context, attributes);
-        });
-        //assertTrue(exception.getMessage().contains(String.format("Sort key %s not found in Item to be encrypted or decrypted", TEST_SORT_NAME)));
+        interceptor.modifyRequest(context, attributes);
     }
 }

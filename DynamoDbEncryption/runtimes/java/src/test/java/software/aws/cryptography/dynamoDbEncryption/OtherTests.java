@@ -7,10 +7,8 @@ import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
 import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbKeyBranchKeyIdSupplier;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
-import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput;
+import software.amazon.cryptography.dynamoDbEncryption.model.*;
+import software.amazon.cryptography.dynamoDbEncryption.transforms.model.DynamoDbEncryptionTransformsException;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -275,7 +273,18 @@ public class OtherTests {
         assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
     }
 
-    @Test
+    // Note this is a good test for our internal error handling.
+    // We need to build, then ultimately unwrap:
+    // DynamoDbEncryptionTransformsException(
+    //   DynamoDbItemEncryptorException(
+    //     DynamoDbEncryptionException(
+    //       StructuredEncryptionException(
+    //         AwsCryptographyMaterialProvidersException(
+    //           IllegalArgumentException)))))
+    @Test(
+            expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "Item invalid, does not contain expected attributes."
+    )
     public void TestHierarchyKeyringWithSupplierReturnsExpectedError() {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
@@ -321,11 +330,7 @@ public class OtherTests {
                 .item(item)
                 .build();
 
-        // TODO: Exception SHOULD be `DynamoDbEncryptionException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            ddbAB.putItem(putRequestA);
-        });
+        ddbAB.putItem(putRequestA);
     }
 
     // DynamoDbKeyBranchKeyIdSupplier to be used with test items produced from TestUtils.java
