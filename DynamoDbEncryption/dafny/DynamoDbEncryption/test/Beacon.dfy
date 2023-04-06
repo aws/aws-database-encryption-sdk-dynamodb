@@ -23,35 +23,35 @@ module TestBaseBeacon {
   method {:test} TestCompoundBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
-    var b := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo", key := [1,2]);
+    var b := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo");
     var parts := [Timestamp, Secret];
     var cons := MakeDefaultConstructor(parts);
     var b1 := CompoundBeacon(b, '.', parts, [cons]);
     var data := map["timestamp" := "1234", "secret" := "abcd"];
-    var bytes :- expect b.getHmac(UTF8.EncodeAscii("S-abcd"));
+    var bytes :- expect b.getHmac(UTF8.EncodeAscii("S-abcd"), key := [1,2]);
     expect bytes[7] == 0x42;
 
    // var str :- expect b1.hash(t => StringifyMap(t, data));
    // expect str == "T-1234.S-2";
 
-    var query :-  expect b1.getPart("T-1234.S-abcd");
+    var query :-  expect b1.getPart("T-1234.S-abcd", key := [1,2]);
     expect query == "T-1234.S-2";
   }
 
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
-    var bb := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo", key := [1,2]);
+    var bb := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo");
     var b := StandardBeacon(bb, 8, TermLocMap("foo"));
-    var bytes :- expect bb.getHmac([1,2,3]);
+    var bytes :- expect bb.getHmac([1,2,3], key := [1,2]);
     expect bytes == [0x27, 0x93, 0x93, 0x8b, 0x26, 0xe9, 0x52, 0x7e];
-    var str :- expect b.hash([1,2,3]);
+    var str :- expect b.hash([1,2,3], key := [1,2]);
     expect str == "7e";
-    bytes :- expect bb.getHmac([]);
+    bytes :- expect bb.getHmac([], key := [1,2]);
     expect bytes[7] == 0x80;
-    str :- expect b.hash([]);
+    str :- expect b.hash([], key := [1,2]);
     expect str == "80";
-    bytes :- expect bb.getHmac(UTF8.EncodeAscii("123"));
+    bytes :- expect bb.getHmac(UTF8.EncodeAscii("123"), key := [1,2]);
     expect bytes[7] == 0x61;
   }
 

@@ -13,6 +13,8 @@ module DynamoDbEncryptionUtil {
   const ReservedPrefix := "aws_dbe_"
   const BeaconPrefix := "aws_dbe_b_"
   const VersionPrefix := "aws_dbe_v_"
+
+  type HmacKeyMap = map<string, Bytes>
   
   const DDBEC_ATTR_PREFIX := "aws-crypto-attr."
   const DDBEC_EC_ATTR_PREFIX: UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(DDBEC_ATTR_PREFIX)

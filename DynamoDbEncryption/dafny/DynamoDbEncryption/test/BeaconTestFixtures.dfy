@@ -77,9 +77,9 @@ module BeaconTestFixtures {
   const Std6String := DDB.AttributeValue.S("666")
   const Std6List := DDB.AttributeValue.L([Std6String])
 
-  const YearString := DDB.AttributeValue.S("1984")
+  const YearString := DDB.AttributeValue.N("1984")
   const MonthString := DDB.AttributeValue.S("May")
-  const DateMap := DDB.AttributeValue.M(map["Month" := MonthString])
+  const DateMap := DDB.AttributeValue.M(map["Month" := MonthString, "Year" := YearString])
 
   const NameString := DDB.AttributeValue.S("1984")
   const TitleString := DDB.AttributeValue.S("1984")

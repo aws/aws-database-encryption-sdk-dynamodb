@@ -36,14 +36,13 @@ module BaseBeacon {
   datatype BeaconBase = BeaconBase(
     nameonly client: Primitives.AtomicPrimitivesClient,
     nameonly name: string,
-    nameonly beaconName: DDB.AttributeName,
-    nameonly key: Bytes
+    nameonly beaconName: DDB.AttributeName
   ) {
 
     //= specification/searchable-encryption/beacons.md#basichash
     //= type=implication
     //# * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.
-    function method {:opaque} hash(val : Bytes, length : BeaconLength)
+    function method {:opaque} hash(val : Bytes, key : Bytes, length : BeaconLength)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> 
         //= specification/searchable-encryption/beacons.md#basichash
@@ -55,8 +54,8 @@ module BaseBeacon {
         //= type=implication
         //# * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
         //# of the input bytes and the configured key, and keep the first 8 bytes.
-        && getHmac(val).Success?
-        && var hash := getHmac(val).value;
+        && getHmac(val, key).Success?
+        && var hash := getHmac(val, key).value;
 
         //= specification/searchable-encryption/beacons.md#basichash
         //= type=implication
@@ -69,23 +68,23 @@ module BaseBeacon {
         && |ret.value| == (((length as uint8) + 3) / 4) as nat
 
     {
-      var hash :- getHmac(val);
+      var hash :- getHmac(val, key);
       Success(BytesToHex(hash, length))
     }
 
     // Get the standard hash for the UTF8 encoded representation of this string.
-    function method {:opaque} hashStr(val : string, length : BeaconLength) : (res : Result<string, Error>)
+    function method {:opaque} hashStr(val : string, key : Bytes, length : BeaconLength) : (res : Result<string, Error>)
       ensures res.Success? ==> |res.value| > 0
     {
       var str := UTF8.Encode(val);
       if str.Failure? then
         Failure(E(str.error))
       else
-        hash(str.value, length)
+        hash(str.value, key, length)
     }
 
     // calculate the HMAC for some bytes
-    function method {:opaque} getHmac(data  : Bytes) : (res : Result<Bytes, Error>)
+    function method {:opaque} getHmac(data : Bytes, key : Bytes) : (res : Result<Bytes, Error>)
       ensures res.Success? ==> |res.value| == 8
     {
       var input := Prim.HMacInput (
@@ -113,8 +112,7 @@ module BaseBeacon {
       BeaconBase (
         client := client,
         name := name,
-        beaconName := beaconName,
-        key := key
+        beaconName := beaconName
       ),
       length,
       termLoc
@@ -128,7 +126,7 @@ module BaseBeacon {
     //= specification/searchable-encryption/beacons.md#hash-for-a-standard-beacon
     //= type=implication
     //# * hash MUST take a sequence of bytes as input and produce a string.
-    function method {:opaque} hash(val : Bytes)
+    function method {:opaque} hash(val : Bytes, key : Bytes)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
         && |ret.value| > 0
@@ -136,18 +134,18 @@ module BaseBeacon {
         //= specification/searchable-encryption/beacons.md#hash-for-a-standard-beacon
         //= type=implication
         //# * hash MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
-        && base.hash(val, length).Success?
-        && ret.value == base.hash(val, length).value
+        && base.hash(val, key, length).Success?
+        && ret.value == base.hash(val, key, length).value
 
         && |ret.value| == (((length as uint8) + 3) / 4) as nat
     {
-      base.hash(val, length)
+      base.hash(val, key, length)
     }
 
-    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<string, Error>
+    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : Result<string, Error>
     {
       var bytes :- VirtToBytes(loc, item, vf);
-      hash(bytes)
+      hash(bytes, key)
     }
 
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
@@ -158,17 +156,17 @@ module BaseBeacon {
         [loc[0].key]
     }
 
-    function method GetBeaconValue(value : DDB.AttributeValue) : Result<DDB.AttributeValue, Error>
+    function method GetBeaconValue(value : DDB.AttributeValue, key : Bytes) : Result<DDB.AttributeValue, Error>
     {
       var bytes :- DynamoToStruct.TopLevelAttributeToBytes(value).MapFailure(e => E(e));
-      var h :- hash(bytes);
+      var h :- hash(bytes, key);
       Success(DDB.AttributeValue.S(h))
     }
 
     //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
     //= type=implication
     //# * getPart MUST take a sequence of bytes as input, and produce a string.
-    function method {:opaque} getPart(val : Bytes)
+    function method {:opaque} getPart(val : Bytes, key : Bytes)
       : (ret : Result<string, Error>)
       requires 0 < |val|
 
@@ -179,10 +177,10 @@ module BaseBeacon {
         //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
         //= type=implication
         //# * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
-        && base.hash(val, length).Success?
-        && ret.value == base.hash(val, length).value
+        && base.hash(val, key, length).Success?
+        && ret.value == base.hash(val, key, length).value
     {
-        base.hash(val, length)
+        base.hash(val, key, length)
     }
 
     function method ValidStateResult() : Result<bool, Error> {Success(true)}

@@ -35,6 +35,7 @@ module DynamoDBFilterExpr {
   import SI = SearchableEncryptionInfo
   import opened DynamoDbEncryptionUtil
   import FloatCompare
+  import opened TermLoc
   import Seq
   import StandardLibrary.String
 
@@ -74,7 +75,7 @@ module DynamoDBFilterExpr {
   }
 
   datatype Token =
-    | Attr(s:string)
+    | Attr(s:string, loc : TermLoc)
     | Value(s:string)
     | Eq | Ne | Lt | Gt | Le | Ge
     | Between
@@ -95,7 +96,7 @@ module DynamoDBFilterExpr {
   function method TokenToString(t : Token) : string
   {
     match t {
-      case Attr(s) => s
+      case Attr(s, l) => s
       case Value(s) => s
       case Eq => "="
       case Ne => "<>"
@@ -297,7 +298,7 @@ module DynamoDBFilterExpr {
           if isIndirectName then
             BeaconizeParsedExpr(b, expr, pos+1, values, Some(names.value[expr[pos].s := newName]), acc + [expr[pos]])
           else
-            BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [Attr(newName)])
+            BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [Attr(newName, TermLocMap(newName))])
         else
           BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
       else
@@ -309,7 +310,7 @@ module DynamoDBFilterExpr {
       if bec.None? then
         BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
       else
-        var newValue :- bec.value.GetBeaconValue(oldValue);
+        var newValue :- bec.value.GetBeaconValue(oldValue, b.hmacKeys);
         BeaconizeParsedExpr(b, expr, pos+1, values[expr[pos].s := newValue], names, acc + [expr[pos]])
     else
       BeaconizeParsedExpr(b, expr, pos+1, values, names, acc + [expr[pos]])
@@ -355,7 +356,7 @@ module DynamoDBFilterExpr {
   predicate method IsVar(t : Token) {
     match t
     case Value(s) => true
-    case Attr(s) => true
+    case Attr(s, loc) => true
     case _ => false
   }
 
@@ -380,7 +381,7 @@ module DynamoDBFilterExpr {
     case Open => 11
     case Close => 11
     case Comma => 11
-    case Attr(s) => 10
+    case Attr(s, loc) => 10
     case Value(s) => 10
     case Eq => 9
     case Ne => 9
@@ -461,7 +462,7 @@ module DynamoDBFilterExpr {
   {
     if ValueChar(ch) then
       true
-    else if ch in [':' ,'[' ,']' ,'.'] then
+    else if ch in [':' ,'[' ,']' ,'.','#'] then
       true
     else
       false
@@ -491,6 +492,14 @@ module DynamoDBFilterExpr {
       0
   }
 
+  function method MakeAttr(s : string) : Token
+  {
+    var loc := MakeTermLoc(s);
+    if loc.Success? then
+      Attr(s, loc.value)
+    else
+      Attr(s, TermLocMap(s))
+  }
   // return the next token, and the number of characters consumed
   // if zero is returned for the index, then ignore the token and stop looking.
   function method {:vcs_split_on_every_assert}  FindIndexToken(s: string): (res: (nat, Token))
@@ -553,10 +562,10 @@ module DynamoDBFilterExpr {
         (x, Value(s[0..x]))
       else if ch == '#' then
         var x := ValueLen(s[1..]) + 1;
-        (x, Attr(s[0..x]))
+        (x, MakeAttr(s[0..x]))
       else
         var x := AttributeLen(s);
-        (x, Attr(s[0..x]))
+        (x, MakeAttr(s[0..x]))
   }
 
   function method {:opaque} VarOrSize(input: seq<Token>)
@@ -629,9 +638,9 @@ module DynamoDBFilterExpr {
   }
 
   lemma TestConvertToPrefix3(input: seq<Token>)
-    requires input == [Attr("A"), In, Open, Attr("B"), Comma, Attr("C"), Close]
+    requires input == [MakeAttr("A"), In, Open, MakeAttr("B"), Comma, MakeAttr("C"), Close]
     ensures IsIN(input)
-    ensures ConvertToPrefix(input) ==  [In, Open, Attr("A"), Comma, Attr("B"), Comma, Attr("C"), Close]
+    ensures ConvertToPrefix(input) ==  [In, Open, MakeAttr("A"), Comma, MakeAttr("B"), Comma, MakeAttr("C"), Close]
   {}
 
   // convert from parsed order to executable order
@@ -652,7 +661,7 @@ module DynamoDBFilterExpr {
         [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1])
     else
       match input[0]
-      case Attr(s)  => [input[0]] + ConvertToRpn_inner(input[1..], stack)
+      case Attr(s, loc)  => [input[0]] + ConvertToRpn_inner(input[1..], stack)
       case Value(s)  => [input[0]] + ConvertToRpn_inner(input[1..], stack)
       case Between | In | Not | AttributeExists | AttributeNotExists | AttributeType
         | BeginsWith | Contains | Size
@@ -730,15 +739,34 @@ module DynamoDBFilterExpr {
       DoesNotExist
   }
 
-  function method StackValueFromAttr(
+  function method StackValueFromItem(
     s : string,
-    values : DDB.AttributeMap
-) : StackValue
+    item : DDB.AttributeMap
+  )
+    : StackValue
   {
-    if s in values then
-      Str(values[s])
+    if s in item then
+      Str(item[s])
     else
       DoesNotExist
+  }
+
+  function method StackValueFromAttr(
+    t : Token,
+    item : DDB.AttributeMap,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    : StackValue
+    requires t.Attr?
+  {
+    if names.Some? && t.s in names.value then
+      StackValueFromItem(names.value[t.s], item)
+    else
+      var attr := TermToAttr(t.loc, item, names);
+      if attr.Success? then
+        Str(attr.value)
+      else
+        DoesNotExist
   }
 
   // parse and return in reverse polish notation
@@ -927,7 +955,7 @@ module DynamoDBFilterExpr {
         if |stack| < 2 then
           Failure(E("No Stack for AttributeType"))
         else
-          Success(Bool(IsAttrType(stack[|stack|-2], stack[|stack|-1])))  // What???
+          Success(Bool(IsAttrType(stack[|stack|-2], stack[|stack|-1])))
       case BeginsWith =>
         if |stack| < 2 then
           Failure(E("No Stack for BeginsWith"))
@@ -1056,7 +1084,7 @@ module DynamoDBFilterExpr {
     case In => StringsFollowing(stack)
     case AttributeExists => 1
     case AttributeNotExists => 1
-    case AttributeType => 1
+    case AttributeType => 2
     case BeginsWith => 2
     case Contains => 2
     case Size => 1
@@ -1083,7 +1111,7 @@ module DynamoDBFilterExpr {
       if t.Value? then
         InnerEvalExpr(input[1..], stack + [StackValueFromValue(t.s, values)], item, names, values)
       else if t.Attr? then
-        InnerEvalExpr(input[1..], stack + [StackValueFromAttr(t.s, item)], item, names, values)
+        InnerEvalExpr(input[1..], stack + [StackValueFromAttr(t, item, names)], item, names, values)
       else if IsUnary(t) then
         if 0 == |stack| then
           Failure(E("Empty stack for unary op"))
