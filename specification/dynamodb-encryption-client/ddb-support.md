@@ -69,7 +69,7 @@ Transform a CreateTableInput object for searchable encryption.
 
 If the KeySchema of the table, or the KeySchema of one of the associated
 global or local indexes, have an AttributeName equal to the name of a configured beacon,
-the AttributeName must be replaced by the internal beacon name
+the AttributeName MUST be replaced by the internal beacon name
 (i.e. NAME replaced by aws_dbe_b_NAME) and the AttributeType MUST be changed to string.
 
 The same name changes MUST be made to the AttributeDefinitions.
@@ -80,7 +80,7 @@ Transform an UpdateTableInput object for searchable encryption.
 
 If a Global Secondary Index is being created, and its KeySchema
 has an AttributeName equal to the name of a configured beacon,
-the AttributeName must be replaced by the internal beacon name
+the AttributeName MUST be replaced by the internal beacon name
 (i.e. NAME replaced by aws_dbe_b_NAME) and the AttributeType MUST be changed to string.
 
 The same name changes MUST be made to the AttributeDefinitions.
