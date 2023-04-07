@@ -122,9 +122,6 @@ module CompoundBeacon {
         else
           Success(acc)
       else
-        //= specification/searchable-encryption/beacons.md#hash-for-a-compound-beacon
-        //# * For that constructor, hash MUST join the [part value](#part-value) for each part on the `split character`,
-        //# excluding parts that are not required and with a source field that is not available.
         var part :- FindPartByName(consFields[0].name);
         var strValue := VirtToString(part.loc, item, vf);
         :- Need(!consFields[0].required || strValue.Success?, E("")); // this error message never propagated
@@ -150,8 +147,6 @@ module CompoundBeacon {
       if |construct| == 0 then
         Failure(E("No constructor for " + base.name + " could be satisfied."))
       else
-        //= specification/searchable-encryption/beacons.md#hash-for-a-compound-beacon
-        //# * has MUST iterate through all constructors, in order, using the first that succeeds.
         var x := TryConstructor(construct[0].parts, item, vf, keys);
         if x.Success? then
           x
@@ -159,14 +154,8 @@ module CompoundBeacon {
           TryConstructors(construct[1..], item, vf, keys)
     }
 
-    //= specification/searchable-encryption/beacons.md#hash-for-a-compound-beacon
-    //= type=implication
-    //# * hash MUST take a record as input, and produce a string.
     function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : (res : Result<string, Error>)
       ensures res.Success? ==> 
-        //= specification/searchable-encryption/beacons.md#hash-for-a-compound-beacon
-        //= type=implication
-        //# * The returned string MUST NOT be empty.
         && |res.value| > 0
     {
       TryConstructors(construct, item, vf, keys)

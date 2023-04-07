@@ -27,22 +27,6 @@ module StructuredEncryptionPaths {
     && s[0].Map?
   }
 
-  //= specification/structured-encryption/virtual-field.md#stringify
-  //= type=implication
-  //# Stringify MUST be a a callback function that takes a Terminal Location and returns a string.
-  type Stringify = (TerminalLocation) -> Result<string,string>
-  type Byteify = (TerminalLocation) -> Result<Bytes,string>
-
-  function method StringifyMap(t : TerminalLocation, m : map<string, string>) : Result<string,string>
-  {
-    if |t.parts| != 1 then
-      Failure("Structured TerminalLocation on plain string")
-    else if t.parts[0].key !in m then
-      Failure(t.parts[0].key + " not in map")
-    else
-      Success(m[t.parts[0].key])
-  }
-
   // a specific part of a structure
   datatype TerminalLocation = TerminalLocation (
     parts : TerminalSelector

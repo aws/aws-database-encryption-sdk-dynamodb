@@ -191,7 +191,7 @@ module TermLoc {
     : (ret : Result<Selector, Error>)
     requires |s| > 0 && (s[0] == '.' || s[0] == '[')
 
-    //= specification/structured-encryption/virtual-field.md#segments
+    //= specification/searchable-encryption/virtual.md#segments
     //= type=implication
     //# A Segment MUST be one of
     //# - A literal "." followed by a field name, indicating a lookup into a Structured Data Map.
@@ -241,8 +241,6 @@ module TermLoc {
       var name := s[..pos.value];
       var selectors :- GetSelectors(s[pos.value..]);
       :- Need(|selectors|+1 < UINT64_LIMIT, E("Selector Overflow"));
-      //= specification/structured-encryption/virtual-field.md#terminal-location
-      //# A terminal location MUST be a field name followed by zero or more [Segments](#segments)
       Success([Map(name)] + selectors)
   }
 

@@ -186,7 +186,7 @@ A constructor `succeeds` if all its required [source fields](#source-field) exis
 
 Each constructor is tried, in the order configured, until one succeeds.
 
-If no constructor succeeds, the record cannot be written.
+If no constructor succeeds, the beacon is not included in the record.
 
 If no constructors are configured, a default constructor is generated,
 which is all of the configured parts, in their configured order,
@@ -338,10 +338,11 @@ required part.
 Initialization MUST fail if two [constructors](#constructor) are configured
 with the same set of required parts.
 
-Construction MUST fail if any plaintext value used in the construction contains the split character.
+### Beacon Value
 
-TODO - It might be a good idea for initialization to fail if it's possible for more than one
-constructor to succeed. More thought is necessary.
+The value for a beacon is as defined below under
+[value for a standard beacon](#value-for-a-standard-beacon)
+or [value for a compound beacon](#value-for-a-compound-beacon).
 
 ## Beacon Operations
 
@@ -357,17 +358,23 @@ of the input bytes and the configured key, and keep the first 8 bytes.
  * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
  * the length of the returned string MUST be (`beacon length`/4) rounded up.
 
-### hash for a standard beacon
- * hash MUST take a sequence of bytes as input and produce a string.
- * hash MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
+### value for a standard beacon
+ * This operation MUST take a record as input, and produce an optional string.
+ * This operation MUST return no value if the associated field does not exist in the record
+ * This operation MUST convert the attribute value of the associated field to
+a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
+ * This operation MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
 
-### hash for a compound beacon
+### value for a compound beacon
 
- * hash MUST take a record as input, and produce a string.
- * The returned string MUST NOT be empty.
- * has MUST iterate through all constructors, in order, using the first that succeeds.
- * For that constructor, hash MUST join the [part value](#part-value) for each part on the `split character`,
+ * This operation MUST take a record as input, and produce an optional string.
+ * If a string is returned, it MUST NOT be empty.
+ * This operation MUST iterate through all constructors, in order, using the first that succeeds.
+ * For that constructor, hash MUST join the [part value](#part-value) for each part
+on the `split character`,
 excluding parts that are not required and with a source field that is not available.
+ * This operation MUST fail if any plaintext value used in the construction contains the split character.
+ * If no constructor, this operation must return no value.
 
 ### getPart for a standard beacon
 
