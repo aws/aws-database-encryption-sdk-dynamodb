@@ -142,7 +142,7 @@ public class InternalLegacyConfig {
 
     // Precondition: Policy MUST allow the caller to decrypt.
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-    //# If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+    //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
     //# `FORBID_ENCRYPT_FORBID_DECRYPT` is configured,
     //# and the input item [is an item written in the legacy format](#determining-legacy-items),
     //# this operation MUST fail.

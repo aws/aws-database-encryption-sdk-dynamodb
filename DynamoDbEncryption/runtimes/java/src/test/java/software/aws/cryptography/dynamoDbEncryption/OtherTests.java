@@ -15,9 +15,9 @@ import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueEr
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
-import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
+import software.amazon.cryptography.materialProviders.model.OpaqueError;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 import java.nio.ByteBuffer;

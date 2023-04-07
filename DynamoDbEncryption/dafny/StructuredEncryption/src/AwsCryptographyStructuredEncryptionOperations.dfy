@@ -31,7 +31,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   import AlgorithmSuites
 
   datatype Config = Config(
-    primitives : Primitives.AtomicPrimitivesClient
+    primitives : Primitives.AtomicPrimitivesClient,
+    materialProviders : MaterialProviders.MaterialProvidersClient
   )
 
   type InternalConfig = Config
@@ -39,10 +40,13 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   const DBE_COMMITMENT_POLICY := CMP.CommitmentPolicy.DBE(CMP.DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT)
 
   predicate ValidInternalConfig?(config: InternalConfig)
-  {config.primitives.ValidState()}
+  {
+    && config.primitives.ValidState()
+    && config.materialProviders.ValidState()
+  }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
-  {config.primitives.Modifies}
+  {config.primitives.Modifies + config.materialProviders.Modifies}
 
   predicate EncryptStructureEnsuresPublicly(
     input: EncryptStructureInput,
@@ -306,6 +310,11 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && (forall k :: k in data.Keys && authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(tableName, k) in ret.value.data_c.Keys)
     ensures ret.Success? ==>
       && (forall v :: v in ret.value.data_c.Values ==> v in data.Values)
+    ensures ret.Success? ==>
+      && ret.value.cryptoSchema.content.SchemaMap?
+      && CryptoSchemaMapIsFlat(ret.value.cryptoSchema.content.SchemaMap)
+      && AuthSchemaIsFlat(authSchema)
+      && ValidParsedCryptoSchema(ret.value.cryptoSchema.content.SchemaMap, authSchema, tableName)
   {
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //# The `signed field list` MUST be all fields for which
@@ -520,6 +529,53 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.encryptedStructure.content.DataMap? ==> output.value.plaintextStructure.content.DataMap?)
     && (output.Success? && input.encryptedStructure.content.DataList? ==> output.value.plaintextStructure.content.DataList?)
     && (output.Success? && input.encryptedStructure.content.Terminal? ==> output.value.plaintextStructure.content.Terminal?)
+      // Ensure the CryptoSchema in the ParsedHeader is consistent with the input authenticateSchema
+    && (output.Success? ==>
+      // For now we only support decrypting flat maps
+      && output.value.parsedHeader.cryptoSchema.content.SchemaMap?
+      && var cryptoMap := output.value.parsedHeader.cryptoSchema.content.SchemaMap;
+      && CryptoSchemaMapIsFlat(cryptoMap)
+      && input.authenticateSchema.content.SchemaMap?
+      && var authMap := input.authenticateSchema.content.SchemaMap;
+      && AuthSchemaIsFlat(authMap)
+      && ValidString(input.tableName)
+      && ValidParsedCryptoSchema(cryptoMap, authMap, input.tableName))
+  }
+
+  predicate ValidParsedCryptoSchema(cryptoSchema: CryptoSchemaMap, authSchema: AuthenticateSchemaMap, tableName: GoodString)
+    requires AuthSchemaIsFlat(authSchema)
+    requires CryptoSchemaMapIsFlat(cryptoSchema)
+  {
+    // Every field in the crypto map exists in the auth map as SIGN
+    && (forall k <- cryptoSchema.Keys :: k in authSchema && authSchema[k].content.Action.SIGN?)
+    // The crypto map is not missing any SIGN fields from the auth map
+    && (forall kv <- authSchema.Items | kv.1.content.Action.SIGN? :: kv.0 in cryptoSchema.Keys)
+    // Every field in the crypto map is ENCRYPT_AND_SIGN or SIGN_ONLY
+    && (forall v <- cryptoSchema.Values :: v.content.Action.SIGN_ONLY? || v.content.Action.ENCRYPT_AND_SIGN?)
+
+  }
+
+  // Removing DO_NOT_SIGN fields from authSchema does not change the vailidity of the cryptoSchema
+  lemma TrimmedParsedCryptoSchemaValid(
+    cryptoSchema: CryptoSchemaMap,
+    authSchema: AuthenticateSchemaMap,
+    trimmedAuthSchema: AuthenticateSchemaMap,
+    tableName: GoodString
+  )
+    requires AuthSchemaIsFlat(authSchema)
+    requires AuthSchemaIsFlat(trimmedAuthSchema)
+    requires CryptoSchemaMapIsFlat(cryptoSchema)
+    requires forall k <- trimmedAuthSchema :: k in authSchema;
+    requires forall k <- trimmedAuthSchema :: trimmedAuthSchema[k] == authSchema[k];
+    requires forall k <- authSchema | k !in trimmedAuthSchema.Keys :: authSchema[k].content.Action.DO_NOT_SIGN?
+    requires ValidParsedCryptoSchema(cryptoSchema, authSchema, tableName)
+    ensures ValidParsedCryptoSchema(cryptoSchema, trimmedAuthSchema, tableName)
+  {
+    if !(authSchema == trimmedAuthSchema) {
+      var k :| k in authSchema.Keys && authSchema[k].content.Action.DO_NOT_SIGN? && k !in trimmedAuthSchema;
+      var authSchema' := map k' | k' in authSchema && k' != k :: k' := authSchema[k'];
+      TrimmedParsedCryptoSchemaValid(cryptoSchema, authSchema', trimmedAuthSchema, tableName);
+    }
   }
 
   const ReservedAuthMap : AuthSchemaPlain := map[
@@ -630,6 +686,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     :- Need(input.authenticateSchema.content.SchemaMap?, E("Authenticate Schema must be a SchemaMap"));
     :- Need(AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap), E("Schema must be flat."));
     :- Need(forall k <- input.authenticateSchema.content.SchemaMap :: ValidString(k), E("Schema has bad field name."));
+    :- Need(forall k <- input.authenticateSchema.content.SchemaMap :: k !in ReservedAuthMap, E("xsSchema must not include reserved fields."));
     var authSchema : AuthSchemaPlain := input.authenticateSchema.content.SchemaMap + ReservedAuthMap;
 
     :- Need(input.encryptedStructure.content.DataMap?, E("Input structure must be a DataMap"));
@@ -646,7 +703,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# This operation MUST deserialize the header bytes
     //# according to the [header format](./header.md).
     var head :- Header.PartialDeserialize(headerSerialized);
-    var headerAlgorithmSuite :- head.GetAlgorithmSuite();
+    var headerAlgorithmSuite :- head.GetAlgorithmSuite(config.materialProviders);
 
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
     //# This operation MUST obtain a set of decryption materials by calling
@@ -766,7 +823,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         encryptedDataKeys := head.dataKeys,
         storedEncryptionContext := head.encContext
     );
-
+    TrimmedParsedCryptoSchemaValid(canonData.cryptoSchema.content.SchemaMap, authSchema, input.authenticateSchema.content.SchemaMap, input.tableName);
 
     var decryptOutput := DecryptStructureOutput(
       plaintextStructure := StructuredData(

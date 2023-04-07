@@ -22,6 +22,7 @@ module StructuredEncryptionHeader {
   import Paths = StructuredEncryptionPaths
   import Random
   import Functions
+  import MaterialProviders
 
   const VERSION_LEN := 1
   const FLAVOR_LEN := 1
@@ -152,16 +153,17 @@ module StructuredEncryptionHeader {
       Success(true)
     }
 
-    function method GetAlgorithmSuite() : (ret: Result<CMP.AlgorithmSuiteInfo, Error>)
+    method GetAlgorithmSuite(matProv: MaterialProviders.MaterialProvidersClient) returns (ret: Result<CMP.AlgorithmSuiteInfo, Error>)
       ensures ret.Success? ==>
         ValidSuite(ret.value)
     {
-      var algorithmSuiteR := AlgorithmSuites.GetAlgorithmSuiteInfo([DbeAlgorithmFamily, flavor as uint8]);
-      if algorithmSuiteR.Success? then
+      var algorithmSuiteR := matProv.GetAlgorithmSuiteInfo([DbeAlgorithmFamily, flavor as uint8]);
+      if algorithmSuiteR.Success? {
         :- Need(ValidSuite(algorithmSuiteR.value), E("Invalid Algorithm Suite"));
-        Success(algorithmSuiteR.value)
-      else
-        algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e))
+        return Success(algorithmSuiteR.value);
+      } else {
+        return algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+      }
     }
   }
 

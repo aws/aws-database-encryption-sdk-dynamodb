@@ -10,6 +10,7 @@ module
 
   import Operations = AwsCryptographyStructuredEncryptionOperations
   import Aws.Cryptography.Primitives
+  import MaterialProviders
 
   function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
   {
@@ -21,7 +22,9 @@ module
   {
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
-    var client := new StructuredEncryptionClient(Operations.Config(primitives := primitives));
+    var maybeMatProv := MaterialProviders.MaterialProviders();
+    var matProv :- maybeMatProv.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var client := new StructuredEncryptionClient(Operations.Config(primitives := primitives, materialProviders := matProv));
     return Success(client);
   }
 

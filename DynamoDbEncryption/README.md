@@ -28,7 +28,9 @@ Within `runtimes/java`:
 
 Common Makefile targets are:
 
-- `make verify` verifies the whole project. This takes a long time, so you probably don't want to use this often.
+- `make verify` verifies the whole project. You should specify a `CORES` that is as high as your
+  computer supports in order to speed this up. However, this will still probably take long enough
+  that your dev loop should instead use the following:
   - You can instead specify a single service to verify via: `make verify_service SERVICE=DynamoDbItemEncryptor`
   - You can also verify a specific file and output in a more help format via: `make verify_single FILE=<filename>`,
     where `<filename>` is the path to the file to verify relative to this directory (`DynamoDbEncryption`).
