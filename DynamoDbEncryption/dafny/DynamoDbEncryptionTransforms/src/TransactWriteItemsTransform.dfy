@@ -111,6 +111,7 @@ module TransactWriteItemsTransform {
         var put := Some(item.Put.value.(Item := encrypted.encryptedItem));
         var newItem := item.(Put := put);
         result := result + [newItem];
+        assert |old(result)| == x +1;
       } else {
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# Any actions other than `Put, MUST be unchanged.
@@ -119,6 +120,7 @@ module TransactWriteItemsTransform {
         //# Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
         //# MUST be unchanged.
         result := result + [item];
+        assert |old(result)| == x +1;
       }
     }
     var finalResult := result; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
