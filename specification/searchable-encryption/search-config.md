@@ -43,7 +43,9 @@ or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-cli
 On initialization of a Beacon Version, the caller MUST provide:
 
  - A [version number](#version number) 
- - A [KeyringReference](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/keyring-interface.md)
+ - A [KeyStore](#TODO)
+ - Either a [BranchKeyID](#TODO) of the name of the field that will hold the
+[BranchKeyID](#TODO) in every record.
 
 On initialization of the Beacon Version, the caller MAY provide:
 
@@ -94,6 +96,17 @@ reference by a [sensitive part](beacons.md#sensitive-part) is not `encrypted`.
 Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
 reference by a [non-sensitive part](beacons.md#non-sensitive-part) is `encrypted`,
 or is not `signed`.
+
+### Key Generation
+
+Each beacon requires a key for use in its HMAC calculation.
+
+The BeaconVersion uses its BranchKeyID and KeyStore to retrieve the beacon key 
+associated with that BranchKeyID.
+
+For each beacon, the HKDF-SHA512 algorithm MUST be used to calculate
+the key for the individual beacon, using the beacon key retrieved above as the key,
+no salt. The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" and the beacon name.
 
 ### Version Number
 
