@@ -539,7 +539,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && var authMap := input.authenticateSchema.content.SchemaMap;
       && AuthSchemaIsFlat(authMap)
       && ValidString(input.tableName)
-      && ValidParsedCryptoSchema(cryptoMap, authMap, input.tableName))
+      && ValidParsedCryptoSchema(cryptoMap, authMap + ReservedAuthMap, input.tableName))
   }
 
   predicate ValidParsedCryptoSchema(cryptoSchema: CryptoSchemaMap, authSchema: AuthenticateSchemaMap, tableName: GoodString)
@@ -553,29 +553,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     // Every field in the crypto map is ENCRYPT_AND_SIGN or SIGN_ONLY
     && (forall v <- cryptoSchema.Values :: v.content.Action.SIGN_ONLY? || v.content.Action.ENCRYPT_AND_SIGN?)
 
-  }
-
-  // Removing DO_NOT_SIGN fields from authSchema does not change the vailidity of the cryptoSchema
-  lemma TrimmedParsedCryptoSchemaValid(
-    cryptoSchema: CryptoSchemaMap,
-    authSchema: AuthenticateSchemaMap,
-    trimmedAuthSchema: AuthenticateSchemaMap,
-    tableName: GoodString
-  )
-    requires AuthSchemaIsFlat(authSchema)
-    requires AuthSchemaIsFlat(trimmedAuthSchema)
-    requires CryptoSchemaMapIsFlat(cryptoSchema)
-    requires forall k <- trimmedAuthSchema :: k in authSchema;
-    requires forall k <- trimmedAuthSchema :: trimmedAuthSchema[k] == authSchema[k];
-    requires forall k <- authSchema | k !in trimmedAuthSchema.Keys :: authSchema[k].content.Action.DO_NOT_SIGN?
-    requires ValidParsedCryptoSchema(cryptoSchema, authSchema, tableName)
-    ensures ValidParsedCryptoSchema(cryptoSchema, trimmedAuthSchema, tableName)
-  {
-    if !(authSchema == trimmedAuthSchema) {
-      var k :| k in authSchema.Keys && authSchema[k].content.Action.DO_NOT_SIGN? && k !in trimmedAuthSchema;
-      var authSchema' := map k' | k' in authSchema && k' != k :: k' := authSchema[k'];
-      TrimmedParsedCryptoSchemaValid(cryptoSchema, authSchema', trimmedAuthSchema, tableName);
-    }
   }
 
   const ReservedAuthMap : AuthSchemaPlain := map[
@@ -824,7 +801,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         encryptedDataKeys := head.dataKeys,
         storedEncryptionContext := head.encContext
     );
-    TrimmedParsedCryptoSchemaValid(canonData.cryptoSchema.content.SchemaMap, authSchema, input.authenticateSchema.content.SchemaMap, input.tableName);
 
     var decryptOutput := DecryptStructureOutput(
       plaintextStructure := StructuredData(
