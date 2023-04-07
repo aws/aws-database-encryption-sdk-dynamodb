@@ -122,7 +122,7 @@ Transform an unencrypted QueryOutput object for searchable encryption.
 We expect that the list of items returned will contain some extra records
 that matched the beacon values, but do not match the plaintext values.
 
-For each item, we must evaluate the query expressions supplied in the QueryInput
+For each item, we MUST evaluate the query expressions supplied in the QueryInput
 against the decrypted field values returned by the query.
 That is, we must filter the decrypted records exactly the way that
 the DynamoDB server would have, if the server had access to the plaintext values
