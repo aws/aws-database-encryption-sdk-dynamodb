@@ -56,7 +56,7 @@ module QueryTransform {
     }
   }
 
-  method Output(config: Config, input: QueryOutputTransformInput)
+  method {:vcs_split_on_every_assert} Output(config: Config, input: QueryOutputTransformInput)
     returns (output: Result<QueryOutputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)

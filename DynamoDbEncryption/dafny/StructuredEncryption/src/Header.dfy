@@ -22,6 +22,7 @@ module StructuredEncryptionHeader {
   import Paths = StructuredEncryptionPaths
   import Random
   import Functions
+  import MaterialProviders
 
   const VERSION_LEN := 1
   const FLAVOR_LEN := 1
@@ -152,10 +153,17 @@ module StructuredEncryptionHeader {
       Success(true)
     }
 
-    function method GetAlgorithmSuite() : Result<CMP.AlgorithmSuiteInfo, Error>
+    method GetAlgorithmSuite(matProv: MaterialProviders.MaterialProvidersClient) returns (ret: Result<CMP.AlgorithmSuiteInfo, Error>)
+      ensures ret.Success? ==>
+        ValidSuite(ret.value)
     {
-      var algorithmSuiteR := AlgorithmSuites.GetAlgorithmSuiteInfo([DbeAlgorithmFamily, flavor as uint8]);
-      algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e))
+      var algorithmSuiteR := matProv.GetAlgorithmSuiteInfo([DbeAlgorithmFamily, flavor as uint8]);
+      if algorithmSuiteR.Success? {
+        :- Need(ValidSuite(algorithmSuiteR.value), E("Invalid Algorithm Suite"));
+        return Success(algorithmSuiteR.value);
+      } else {
+        return algorithmSuiteR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+      }
     }
   }
 
@@ -360,8 +368,11 @@ module StructuredEncryptionHeader {
     // that field should be encrypted.
     :- Need(forall x <- schema.content.SchemaMap.Keys :: ValidString(x), E("bad attribute name"));
     Paths.SimpleCanonUnique(tableName);
+
     var fn := k => Paths.SimpleCanon(tableName, k);
-    MapKeepsCount(authSchema, k => Paths.SimpleCanon(tableName, k));
+    assert forall k :: true ==> fn(k) == Paths.SimpleCanon(tableName, k); // This is a bit silly to have to assert, but necessary when SimpleCanon is opaque
+
+    MapKeepsCount(authSchema, fn);
     var canonSchema := MyMap(fn, authSchema);
     assert |authSchema| == |canonSchema|;
     var attrs := SortedSets.ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);

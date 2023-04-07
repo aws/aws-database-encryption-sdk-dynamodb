@@ -20,6 +20,7 @@ module DynamoDbItemEncryptorTest {
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
   import DDBE = AwsCryptographyDynamoDbEncryptionTypes
+  import AlgorithmSuites
 
   // round trip
   // encrypt => ecrypted fields changed, others did not
@@ -92,5 +93,14 @@ module DynamoDbItemEncryptorTest {
 
     expect decryptRes.Success?;
     expect decryptRes.value.plaintextItem == inputItem;
+
+    var parsedHeader := decryptRes.value.parsedHeader;
+    expect parsedHeader.Some?;
+    expect parsedHeader.value.algorithmSuiteId == AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384.id.DBE;
+    expect parsedHeader.value.attributeActions == TestFixtures.GetSignedAttributeActions();
+    // Expect the verification key in the context
+    expect |parsedHeader.value.storedEncryptionContext| == 1;
+    expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
+    expect |parsedHeader.value.encryptedDataKeys| == 1;
   }
 }

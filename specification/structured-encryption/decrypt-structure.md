@@ -84,10 +84,26 @@ used during the original [encryption](./encrypt-structure.md) of the [input Stru
 
 ## Output
 
+This operation MUST output the following:
+
+- [Structured Data](#structured-data)
+- [Parsed Header](#parsed-header)
+
 ### Structured Data
 
 The decrypted form of the [input Encrypted Structured Data](#encrypted-structured-data),
 decrypted according to the [behavior specified below](#behavior).
+
+### Parsed Header
+
+This structure MUST contain the following values,
+representing the deserialized form of the header of the input encrypted structure:
+
+- [Algorithm Suite ID](./header.md#format-flavor): The Algorithm Suite ID associated with the Format Flavor on the header.
+- [Crypto Schema](./header.md#encrypt-legend): The Crypto Schema for each signed Terminal,
+  calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
+- [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
+- [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
 
 ## Behavior
 
@@ -215,6 +231,9 @@ and a value equal to the [decryption](#terminal-data-decryption) of the input Te
 - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
   a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
   Put plainly, the output Structured Data does not add any extra Structured Data during decryption.
+
+The output MUST also include a [Parsed Header](#parsed-header) that contains
+data that was serialized into the header included in the output Structured Data.
 
 #### Terminal Data Decryption
 

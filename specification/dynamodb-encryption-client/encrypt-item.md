@@ -54,16 +54,16 @@ the encrypted form of the [input DynamoDB Item](#dynamodb-item).
 
 ## Behavior
 
-If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
 `REQUIRE_ENCRYPT_ALLOW_DECRYPT` is specified,
 this operation MUST delegate encryption of this item to the
-[Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor),
-using the configured [Attribute Flags](./ddb-encryption-table-config.md) as input.
+[Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor),
+using the configured [Attribute Flags](./ddb-table-encryption-config.md) as input.
 The item returned by this operation MUST be the item outputted by the
-[Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor).
+[Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor).
 Otherwise, this operations continues as follows.
 
-If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
+If a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) of
 `REQUIRE_WRITE_ALLOW_READ` is specified,
 this operation MUST NOT encrypt the input item,
 and MUST passthrough that item as the output.

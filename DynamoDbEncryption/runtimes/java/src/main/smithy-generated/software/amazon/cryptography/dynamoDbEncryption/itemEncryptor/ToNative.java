@@ -16,6 +16,7 @@ import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.Encry
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.EncryptItemOutput;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.OpaqueError;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.ParsedHeader;
 
 public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
@@ -59,6 +60,9 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DecryptItemOutput dafnyValue) {
     DecryptItemOutput.Builder nativeBuilder = DecryptItemOutput.builder();
     nativeBuilder.plaintextItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_plaintextItem()));
+    if (dafnyValue.dtor_parsedHeader().is_Some()) {
+      nativeBuilder.parsedHeader(ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 
@@ -66,6 +70,16 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.EncryptItemOutput dafnyValue) {
     EncryptItemOutput.Builder nativeBuilder = EncryptItemOutput.builder();
     nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
+    return nativeBuilder.build();
+  }
+
+  public static ParsedHeader ParsedHeader(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.ParsedHeader dafnyValue) {
+    ParsedHeader.Builder nativeBuilder = ParsedHeader.builder();
+    nativeBuilder.attributeActions(software.amazon.cryptography.dynamoDbEncryption.ToNative.AttributeActions(dafnyValue.dtor_attributeActions()));
+    nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialProviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
+    nativeBuilder.encryptedDataKeys(software.amazon.cryptography.materialProviders.ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
+    nativeBuilder.storedEncryptionContext(software.amazon.cryptography.materialProviders.ToNative.EncryptionContext(dafnyValue.dtor_storedEncryptionContext()));
     return nativeBuilder.build();
   }
 

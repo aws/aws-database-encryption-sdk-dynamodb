@@ -27,6 +27,7 @@ import software.amazon.cryptography.structuredEncryption.model.EncryptStructureI
 import software.amazon.cryptography.structuredEncryption.model.EncryptStructureOutput;
 import software.amazon.cryptography.structuredEncryption.model.NativeError;
 import software.amazon.cryptography.structuredEncryption.model.OpaqueError;
+import software.amazon.cryptography.structuredEncryption.model.ParsedHeader;
 import software.amazon.cryptography.structuredEncryption.model.StructuredData;
 import software.amazon.cryptography.structuredEncryption.model.StructuredDataContent;
 import software.amazon.cryptography.structuredEncryption.model.StructuredDataTerminal;
@@ -71,6 +72,16 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static ParsedHeader ParsedHeader(
+      Dafny.Aws.Cryptography.StructuredEncryption.Types.ParsedHeader dafnyValue) {
+    ParsedHeader.Builder nativeBuilder = ParsedHeader.builder();
+    nativeBuilder.cryptoSchema(ToNative.CryptoSchema(dafnyValue.dtor_cryptoSchema()));
+    nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialProviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
+    nativeBuilder.encryptedDataKeys(software.amazon.cryptography.materialProviders.ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
+    nativeBuilder.storedEncryptionContext(software.amazon.cryptography.materialProviders.ToNative.EncryptionContext(dafnyValue.dtor_storedEncryptionContext()));
+    return nativeBuilder.build();
+  }
+
   public static EncryptStructureOutput EncryptStructureOutput(
       Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureOutput dafnyValue) {
     EncryptStructureOutput.Builder nativeBuilder = EncryptStructureOutput.builder();
@@ -105,6 +116,7 @@ public class ToNative {
       Dafny.Aws.Cryptography.StructuredEncryption.Types.DecryptStructureOutput dafnyValue) {
     DecryptStructureOutput.Builder nativeBuilder = DecryptStructureOutput.builder();
     nativeBuilder.plaintextStructure(ToNative.StructuredData(dafnyValue.dtor_plaintextStructure()));
+    nativeBuilder.parsedHeader(ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader()));
     return nativeBuilder.build();
   }
 

@@ -12,8 +12,11 @@ use com.amazonaws.dynamodb#KeySchemaAttributeName
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
+use aws.cryptography.materialProviders#EncryptedDataKeyList
+use aws.cryptography.materialProviders#EncryptionContext
 use aws.cryptography.dynamoDbEncryption#AttributeActions
 use aws.cryptography.dynamoDbEncryption#LegacyConfig
+use aws.cryptography.structuredEncryption#Version
 use aws.cryptography.dynamoDbEncryption#PlaintextPolicy
 
 @localService(
@@ -30,12 +33,12 @@ service DynamoDbItemEncryptor {
 //= type=implication
 //# On initialization of the DynamoDB Item Encryptor,
 //# the caller MUST provide all REQUIRED fields specified in
-//# [dynamodb encryption table config](./ddb-encryption-table-config.md).
+//# [dynamodb encryption table config](./ddb-table-encryption-config.md).
 
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
 //= type=implication
 //# and the caller MAY provide any OPTIONAL field specified in
-//# [dynamodb encryption table config](./ddb-encryption-table-config.md).
+//# [dynamodb encryption table config](./ddb-table-encryption-config.md).
 
 structure DynamoDbItemEncryptorConfig {
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
@@ -100,6 +103,26 @@ structure DynamoDbItemEncryptorConfig {
     plaintextPolicy: PlaintextPolicy,
 }
 
+//= specification/dynamodb-encryption-client/decrypt-item.md#parsed-header
+//= type=implication
+//# This structure MUST contain the following values,
+//# representing the deserialized form of the header of the input encrypted structure:
+//#   - [Algorithm Suite ID](./header.md#format-flavor): The Algorithm Suite ID associated with the Format Flavor on the header.
+//#   - [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions): The Crypto Schema for each signed attribute,
+//#     calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the structure,
+//#     converted into Attribute Actions.
+//#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
+structure ParsedHeader {
+    @required
+    attributeActions: AttributeActions,
+    @required
+    algorithmSuiteId: DBEAlgorithmSuiteId,
+    @required
+    encryptedDataKeys: EncryptedDataKeyList,
+    @required
+    storedEncryptionContext: EncryptionContext
+}
+
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#encryptitem
 //= type=implication
 //# The DynamoDB Item Encryptor MUST provide a function that adheres to [EncryptItem](./encrypt-item.md).
@@ -140,8 +163,15 @@ structure DecryptItemInput {
 }
 
 structure DecryptItemOutput {
+    //= specification/dynamodb-encryption-client/decrypt-item.md#output
+    //= type=implication
+    //# This operation MUST output the following:
+    //#   - [DynamoDb Item](#dynamodb-item-1)
     @required
     plaintextItem: AttributeMap,
+
+    // MAY be None if in plaintext/legacy mode
+    parsedHeader: ParsedHeader,
 }
 
 

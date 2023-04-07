@@ -4,6 +4,7 @@
 package software.amazon.cryptography.structuredEncryption;
 
 import Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptedDataKey;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateAction;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchema;
@@ -17,6 +18,7 @@ import Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureInput;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureOutput;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.Error;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.Error_StructuredEncryptionException;
+import Dafny.Aws.Cryptography.StructuredEncryption.Types.ParsedHeader;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredData;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataContent;
 import Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataTerminal;
@@ -63,6 +65,19 @@ public class ToDafny {
     return Error.create_CollectionOfErrors(list);
   }
 
+  public static ParsedHeader ParsedHeader(
+      software.amazon.cryptography.structuredEncryption.model.ParsedHeader nativeValue) {
+    CryptoSchema cryptoSchema;
+    cryptoSchema = ToDafny.CryptoSchema(nativeValue.cryptoSchema());
+    DBEAlgorithmSuiteId algorithmSuiteId;
+    algorithmSuiteId = software.amazon.cryptography.materialProviders.ToDafny.DBEAlgorithmSuiteId(nativeValue.algorithmSuiteId());
+    DafnySequence<? extends EncryptedDataKey> encryptedDataKeys;
+    encryptedDataKeys = software.amazon.cryptography.materialProviders.ToDafny.EncryptedDataKeyList(nativeValue.encryptedDataKeys());
+    DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> storedEncryptionContext;
+    storedEncryptionContext = software.amazon.cryptography.materialProviders.ToDafny.EncryptionContext(nativeValue.storedEncryptionContext());
+    return new ParsedHeader(cryptoSchema, algorithmSuiteId, encryptedDataKeys, storedEncryptionContext);
+  }
+
   public static EncryptStructureOutput EncryptStructureOutput(
       software.amazon.cryptography.structuredEncryption.model.EncryptStructureOutput nativeValue) {
     StructuredData encryptedStructure;
@@ -102,7 +117,9 @@ public class ToDafny {
       software.amazon.cryptography.structuredEncryption.model.DecryptStructureOutput nativeValue) {
     StructuredData plaintextStructure;
     plaintextStructure = ToDafny.StructuredData(nativeValue.plaintextStructure());
-    return new DecryptStructureOutput(plaintextStructure);
+    ParsedHeader parsedHeader;
+    parsedHeader = ToDafny.ParsedHeader(nativeValue.parsedHeader());
+    return new DecryptStructureOutput(plaintextStructure, parsedHeader);
   }
 
   public static StructuredEncryptionConfig StructuredEncryptionConfig(

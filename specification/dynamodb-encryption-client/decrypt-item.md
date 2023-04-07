@@ -47,28 +47,49 @@ Otherwise this operation MUST yield an error.
 
 ## Output
 
+This operation MUST output the following:
+
+- [DynamoDb Item](#dynamodb-item-1)
+
+This operation MUST also output a [Parsed Header](#parsed-header) if the following is true:
+- The operation is not using a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) that allows legacy decrypts,
+  and the input item is a [legacy item](#determining-legacy-items).
+- The operation is not using a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) that allows plaintext reads,
+  and the input item is a [plaintext item](#determining-plaintext-items).
+
 ### DynamoDB Item
 
 The DynamoDB Item is the decryption of the [input DynamoBD Item](#dynamodb-item).
 
+### Parsed Header
+
+This structure MUST contain the following values,
+representing the deserialized form of the header of the input encrypted structure:
+
+- [Algorithm Suite ID](./header.md#format-flavor): The Algorithm Suite ID associated with the Format Flavor on the header.
+- [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions): The Crypto Schema for each signed attribute,
+  calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the structure,
+  converted into Attribute Actions.
+- [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
+
 ## Behavior
 
-If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
 `FORBID_ENCRYPT_FORBID_DECRYPT` is configured,
 and the input item [is an item written in the legacy format](#determining-legacy-items),
 this operation MUST fail.
 
-If a [Legacy Policy](./ddb-encryption-table-config.md#legacy-policy) of
+If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
 `REQUIRE_ENCRYPT_ALLOW_DECRYPT` or `FORBID_ENCRYPT_ALLOW_DECRYPT` is configured,
 and the input item [is an item written in the legacy format](#determining-legacy-items),
 this operation MUST delegate decryption of this item to the
-[Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor),
-using the configured [Attribute Flags](./ddb-encryption-table-config.md) as input.
+[Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor),
+using the configured [Attribute Flags](./ddb-table-encryption-config.md) as input.
 The item returned by this operation MUST be the item outputted by the
-[Legacy Encryptor](./ddb-encryption-table-config.md#legacy-encryptor).
+[Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor).
 Otherwise, this operations continues as follows.
 
-If a [Plaintext Policy](./ddb-encryption-table-config.md#plaintext-policy) of
+If a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) of
 `REQUIRE_WRITE_ALLOW_READ` or `FORBID_WRITE_ALLOW_READ` is specified,
 and the input item [is a plaintext item](#determining-plaintext-items)
 this operation MUST NOT decrypt the input item,
@@ -108,6 +129,9 @@ with the following inputs:
 The output to this behavior is the [conversion](./ddb-item-conversion.md)
 of the decrypted Structured Data determined above
 into the [output DynamoDB Item](#encrypted-dynamodb-item).
+
+The output MUST also include a [Parsed Header](#parsed-header) that contains
+data that was serialized into the header included in the output DynamoDb Item.
 
 ### Signature Scope
 

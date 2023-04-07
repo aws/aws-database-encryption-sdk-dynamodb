@@ -28,22 +28,32 @@ Within `runtimes/java`:
 
 Common Makefile targets are:
 
-- `make verify` verifies the whole project.
+- `make verify` verifies the whole project. You should specify a `CORES` that is as high as your
+  computer supports in order to speed this up. However, this will still probably take long enough
+  that your dev loop should instead use the following:
   - You can instead specify a single service to verify via: `make verify_service SERVICE=DynamoDbItemEncryptor`
+  - You can also verify a specific file and output in a more help format via: `make verify_single FILE=<filename>`,
+    where `<filename>` is the path to the file to verify relative to this directory (`DynamoDbEncryption`).
+    You may optionally narrow down the scope by specifying a `PROC`. For example, if you just want to verify
+    the method `EncryptStructure`, use `make verify_single FILE=<filename> PROC=EncryptStructure`
 - `make build_java` transpiles, builds, and tests everything from scratch in Java.
   You will need to run this the first time you clone this repo, and any time you introduce changes
   that end up adding or removing dafny-generated files.
   - The above command takes a while to complete.
     If you want to re-generate dafny code specific to a service for a service, use the following:
-    `make local_transpile_impl_java_service SERVICE=DynamoDbItemEncryptor`
+    `make local_transpile_impl_java_single SERVICE=DynamoDbItemEncryptor FILE=Index.dfy`
     and then `test_java` to build/test those changes.
-    Note that the `transpile_implementation_java_service` target is provided as a convenience,
+    Using `Index.dfy` will end up transpiling the entire service, but you can also specify a different
+    file to scope down the transpilation further. This target will transpile `FILE` and every
+    "includes" in that `FILE`, recursively down to the bounds of the service namespace.
+    Note that the `transpile_implementation_java_single` target is provided as a convenience,
     and is not guaranteed to be 100% consistent with output from the regular `build_java` target.
     The behavior SHOULD NOT be different, although if you are experiencing
     weird behavior, see if `build_java` resolves the issue.
     Only use this target for local testing.
-  - `make local_transpile_test_java_service SERVICE=DynamoDbItemEncryptor` may be used similar
-    to above in order to just re-transpile test code specific to a service.
+  - `make local_transpile_test_java_single SERVICE=DynamoDbItemEncryptor FILE=DynamoDBItemEncryptorTest.dfy`
+    may be used similar to above in order to re-transpile a specific test file
+    (and any of that module's "includes" within `/test`).
     Note that this will clobber all other Dafny generated tests being run
     with `make test_java`. This target is useful to quickly iterate on changes
     to tests within a specific file, but you will need to `make build_java`

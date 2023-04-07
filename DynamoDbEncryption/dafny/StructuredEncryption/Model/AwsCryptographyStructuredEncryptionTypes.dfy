@@ -53,7 +53,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
  )
  datatype DecryptStructureOutput = | DecryptStructureOutput (
- nameonly plaintextStructure: StructuredData
+ nameonly plaintextStructure: StructuredData ,
+ nameonly parsedHeader: ParsedHeader
  )
  datatype EncryptStructureInput = | EncryptStructureInput (
  nameonly tableName: string ,
@@ -65,6 +66,12 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  datatype EncryptStructureOutput = | EncryptStructureOutput (
  nameonly encryptedStructure: StructuredData
+ )
+ datatype ParsedHeader = | ParsedHeader (
+ nameonly cryptoSchema: CryptoSchema ,
+ nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
+ nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
+ nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
  )
  datatype StructuredData = | StructuredData (
  nameonly content: StructuredDataContent ,
@@ -163,6 +170,10 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ( 2 <= |x| <= 2 )
 }
  type TerminalValue = seq<uint8>
+ type Version = x: int32 | IsValid_Version(x) witness *
+ predicate method IsValid_Version(x: int32) {
+ ( 1 <= x <= 1 )
+}
  datatype Error =
  // Local Error structures are listed here
  | StructuredEncryptionException (

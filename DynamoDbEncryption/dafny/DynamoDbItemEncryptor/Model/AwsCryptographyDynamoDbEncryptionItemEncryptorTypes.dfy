@@ -24,7 +24,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap
  )
  datatype DecryptItemOutput = | DecryptItemOutput (
- nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap
+ nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap ,
+ nameonly parsedHeader: Option<ParsedHeader>
  )
  class IDynamoDbItemEncryptorClientCallHistory {
  ghost constructor() {
@@ -110,6 +111,12 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  datatype EncryptItemOutput = | EncryptItemOutput (
  nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap
+ )
+ datatype ParsedHeader = | ParsedHeader (
+ nameonly attributeActions: AwsCryptographyDynamoDbEncryptionTypes.AttributeActions ,
+ nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
+ nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
+ nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
  )
  datatype Error =
  // Local Error structures are listed here

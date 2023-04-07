@@ -10,12 +10,19 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 public class DecryptItemOutput {
   private final Map<String, AttributeValue> plaintextItem;
 
+  private final ParsedHeader parsedHeader;
+
   protected DecryptItemOutput(BuilderImpl builder) {
     this.plaintextItem = builder.plaintextItem();
+    this.parsedHeader = builder.parsedHeader();
   }
 
   public Map<String, AttributeValue> plaintextItem() {
     return this.plaintextItem;
+  }
+
+  public ParsedHeader parsedHeader() {
+    return this.parsedHeader;
   }
 
   public Builder toBuilder() {
@@ -31,17 +38,24 @@ public class DecryptItemOutput {
 
     Map<String, AttributeValue> plaintextItem();
 
+    Builder parsedHeader(ParsedHeader parsedHeader);
+
+    ParsedHeader parsedHeader();
+
     DecryptItemOutput build();
   }
 
   static class BuilderImpl implements Builder {
     protected Map<String, AttributeValue> plaintextItem;
 
+    protected ParsedHeader parsedHeader;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(DecryptItemOutput model) {
       this.plaintextItem = model.plaintextItem();
+      this.parsedHeader = model.parsedHeader();
     }
 
     public Builder plaintextItem(Map<String, AttributeValue> plaintextItem) {
@@ -51,6 +65,15 @@ public class DecryptItemOutput {
 
     public Map<String, AttributeValue> plaintextItem() {
       return this.plaintextItem;
+    }
+
+    public Builder parsedHeader(ParsedHeader parsedHeader) {
+      this.parsedHeader = parsedHeader;
+      return this;
+    }
+
+    public ParsedHeader parsedHeader() {
+      return this.parsedHeader;
     }
 
     public DecryptItemOutput build() {

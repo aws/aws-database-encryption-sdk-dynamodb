@@ -56,19 +56,19 @@ verify:
 		-verificationLogger:csv \
 		-timeLimit:300 \
 		-trace \
-		`find . -name '*.dfy`
+		`find . -name '*.dfy'`
 
-# Verify single file FILE with text logger.
+# Verify single file FILE with text logger, can also specify PROC to match specific methods
 # This is useful for debugging resource count usage within a file.
 verify_single:
-	@: $(if ${CORES},,CORES=2);
 	dafny \
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
 		-verificationLogger:text \
-		-timeLimit:300 \
+		-timeLimit:60 \
 		-trace \
+		$(if ${PROC},-proc:*$(PROC)*,) \
 		$(FILE)
 
 #Verify only a specific namespace at env var $(SERVICE)
@@ -330,7 +330,7 @@ local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/src/$(FILE)
 local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
 		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $($(deps_var))) \
 		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
 local_transpile_impl_single: transpile_implementation
 
 # Targets to transpile single local service for convenience.
@@ -348,9 +348,9 @@ local_transpile_test_net_single: TARGET=cs
 local_transpile_test_net_single: OUT=runtimes/net/tests/TestsFromDafny
 local_transpile_test_net_single: local_transpile_test_single
 
-local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/test/$(FILE)
-local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
+local_transpile_test_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/test/$(FILE)
+local_transpile_test_single: TRANSPILE_DEPENDENCIES= \
 		$(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES)) \
 		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
 local_transpile_test_single: transpile_test

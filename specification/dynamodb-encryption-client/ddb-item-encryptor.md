@@ -35,9 +35,9 @@ DynamoDB Items outside of DynamoDB API calls.
 
 On initialization of the DynamoDB Item Encryptor,
 the caller MUST provide all REQUIRED fields specified in
-[dynamodb encryption table config](./ddb-encryption-table-config.md).
+[dynamodb encryption table config](./ddb-table-encryption-config.md).
 and the caller MAY provide any OPTIONAL field specified in
-[dynamodb encryption table config](./ddb-encryption-table-config.md).
+[dynamodb encryption table config](./ddb-table-encryption-config.md).
 
 ## Operation
 

@@ -93,7 +93,7 @@ module StructuredEncryptionPaths {
     TerminalLocation([Map(attr)])
   }
   
-  function method SimpleCanon(table : GoodString, attr : GoodString)
+  function method {:opaque} SimpleCanon(table : GoodString, attr : GoodString)
     : CanonicalPath
   {
     TermLocMap(attr).canonicalPath(table)
@@ -185,6 +185,7 @@ module StructuredEncryptionPaths {
     ensures SimpleCanon(table, x) != SimpleCanon(table, y)
   {
     assert SimpleCanon(table, x) != SimpleCanon(table, y) by {
+      reveal SimpleCanon();
       assert TerminalLocation([Map(x)]).canonicalPath(table) != TerminalLocation([Map(y)]).canonicalPath(table) by {
         OnePart([Map(x)]);
         OnePart([Map(y)]);
@@ -203,6 +204,7 @@ module StructuredEncryptionPaths {
   lemma SimpleCanonUnique(table : GoodString)
     ensures forall x : GoodString, y : GoodString :: x != y ==> SimpleCanon(table, x) != SimpleCanon(table, y)
   {
+    reveal SimpleCanon();
     forall x : GoodString, y : GoodString ensures x != y ==> SimpleCanon(table, x) != SimpleCanon(table, y) {
       if x != y {
         SimpleCanonUnique2(table, x, y);
