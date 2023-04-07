@@ -123,17 +123,10 @@ module BaseBeacon {
     length : BeaconLength,
     loc : TermLoc.TermLoc
   ) {
-    //= specification/searchable-encryption/beacons.md#hash-for-a-standard-beacon
-    //= type=implication
-    //# * hash MUST take a sequence of bytes as input and produce a string.
     function method {:opaque} hash(val : Bytes, key : Bytes)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
         && |ret.value| > 0
-
-        //= specification/searchable-encryption/beacons.md#hash-for-a-standard-beacon
-        //= type=implication
-        //# * hash MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
         && base.hash(val, key, length).Success?
         && ret.value == base.hash(val, key, length).value
 
