@@ -488,16 +488,19 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   }
 
   function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchema)
-    : (ret: map<ComAmazonawsDynamodbTypes.AttributeName, CSE.CryptoAction>)
+    : (ret: Result<map<ComAmazonawsDynamodbTypes.AttributeName, CSE.CryptoAction>, Error>)
     requires schema.content.SchemaMap?;
-    requires forall k <- schema.content.SchemaMap :: schema.content.SchemaMap[k].content.Action?;
-    requires forall k <- schema.content.SchemaMap :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k);
-    requires forall k <- schema.content.SchemaMap :: !schema.content.SchemaMap[k].content.Action.DO_NOTHING?;
-    requires forall k <- schema.content.SchemaMap :: InSignatureScope(config, k);
-    ensures forall k <- ret.Keys :: InSignatureScope(config, k)
-    ensures forall k <- ret.Keys :: !ret[k].DO_NOTHING?
+    requires forall k <- schema.content.SchemaMap :: schema.content.SchemaMap[k].content.Action?
+    requires forall v <- schema.content.SchemaMap.Values :: v.content.Action.SIGN_ONLY? || v.content.Action.ENCRYPT_AND_SIGN?
+    ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
+    ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
   {
-    map k <- schema.content.SchemaMap.Keys | true :: k := schema.content.SchemaMap[k].content.Action
+    // We can formally verify these properties, but it is too resource intensive
+    :- Need(forall k <- schema.content.SchemaMap :: InSignatureScope(config, k),
+      DynamoDbItemEncryptorException( message := "Recieved unexpected Crypto Schema: mismatch with signature scope"));
+    :- Need(forall k <- schema.content.SchemaMap :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
+      DynamoDbItemEncryptorException( message := "Recieved unexpected Crypto Schema: Invalid attribute names"));
+    Success(map k <- schema.content.SchemaMap.Keys | true :: k := schema.content.SchemaMap[k].content.Action)
   }
 
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
@@ -746,11 +749,13 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && output.value.parsedHeader.Some?
       && var structuredEncParsed := Seq.Last(config.structuredEncryption.History.DecryptStructure).output.value.parsedHeader;
       && structuredEncParsed.cryptoSchema.content.SchemaMap?
-      && (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap :: structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action? && !structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.DO_NOTHING?)
-      && (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k))
-      && (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap :: InSignatureScope(config, k))
+      && (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
+        && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
+        && (structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.ENCRYPT_AND_SIGN? || structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.SIGN_ONLY?))
+      && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
+      && maybeCryptoSchema.Success?
       && output.value.parsedHeader.value == ParsedHeader(
-          attributeActions := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema),
+          attributeActions := maybeCryptoSchema.value,
           algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
           storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
           encryptedDataKeys := structuredEncParsed.encryptedDataKeys
@@ -852,10 +857,9 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData.content.DataMap)
         .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
 
-    var parsedAuthActions := ConvertCryptoSchemaToAttributeActions(config, decryptVal.parsedHeader.cryptoSchema);
+    var schemaToConvert := decryptVal.parsedHeader.cryptoSchema;
 
-    // Validate the parsed header is consistent with our signature scope configuration
-
+    var parsedAuthActions :- ConvertCryptoSchemaToAttributeActions(config, schemaToConvert);
 
     var parsedHeader := ParsedHeader(
       attributeActions := parsedAuthActions,
