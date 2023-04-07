@@ -686,7 +686,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     :- Need(input.authenticateSchema.content.SchemaMap?, E("Authenticate Schema must be a SchemaMap"));
     :- Need(AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap), E("Schema must be flat."));
     :- Need(forall k <- input.authenticateSchema.content.SchemaMap :: ValidString(k), E("Schema has bad field name."));
-    :- Need(forall k <- input.authenticateSchema.content.SchemaMap :: k !in ReservedAuthMap, E("Schema must not include reserved fields."));
+    :- Need(forall k <- input.authenticateSchema.content.SchemaMap | k in ReservedAuthMap ::
+      input.authenticateSchema.content.SchemaMap[k] == ReservedAuthMap[k], E("Reserved fields in Schema must be DO_NOT_SIGN."));
     var authSchema : AuthSchemaPlain := input.authenticateSchema.content.SchemaMap + ReservedAuthMap;
 
     :- Need(input.encryptedStructure.content.DataMap?, E("Input structure must be a DataMap"));
