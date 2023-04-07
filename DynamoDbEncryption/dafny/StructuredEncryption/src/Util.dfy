@@ -90,7 +90,7 @@ module StructuredEncryptionUtil {
   // Within the context of the StructuredEncryptionClient, certain things must be true of any Algorithm Suite
   predicate method ValidSuite(alg : CMP.AlgorithmSuiteInfo)
   {
-    alg.id.DBE?
+    alg.id.DBE? && AlgorithmSuites.DBEAlgorithmSuite?(alg)
   }
 
   predicate method ValidString(x : string)
