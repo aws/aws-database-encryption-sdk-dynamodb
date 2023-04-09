@@ -135,6 +135,18 @@ module BaseBeacon {
       base.hash(val, key, length)
     }
 
+    // Get the standard hash for the UTF8 encoded representation of this string.
+    function method {:opaque} hashStr(val : string, keys : HmacKeyMap) : (res : Result<string, Error>)
+      ensures res.Success? ==> |res.value| > 0
+    {
+      :- Need(base.name in keys, E("Internal Error, no key for " + base.name));
+      var str := UTF8.Encode(val);
+      if str.Failure? then
+        Failure(E(str.error))
+      else
+        hash(str.value, keys[base.name])
+    }
+
     function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : Result<string, Error>
     {
       var bytes :- VirtToBytes(loc, item, vf);

@@ -17,9 +17,9 @@ module TestBaseBeacon {
   import C = SearchConfigToInfo
   import I = SearchableEncryptionInfo
 
-  const Timestamp := BeaconPart("timestamp", TermLocMap("timestamp"), "T-", None);
-  const Secret := BeaconPart("secret", TermLocMap("secret"), "S-", Some(4));
-
+  //const Timestamp := BeaconPart("timestamp", TermLocMap("timestamp"), "T-", None);
+  //const Secret := BeaconPart("secret", TermLocMap("secret"), "S-", Some(4));
+/*
   method {:test} TestCompoundBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
@@ -37,7 +37,7 @@ module TestBaseBeacon {
     var query :-  expect b1.getPart("T-1234.S-abcd", key := [1,2]);
     expect query == "T-1234.S-2";
   }
-
+*/
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 

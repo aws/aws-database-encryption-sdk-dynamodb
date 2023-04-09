@@ -12,7 +12,6 @@
   e.g. client.info :- Convert(config, config.beacons)
 */
 
-
 include "SearchInfo.dfy"
 include "Util.dfy"
 
@@ -264,12 +263,12 @@ module SearchConfigToInfo {
       Success(converted)
     else
       var loc :- GetLoc(parts[0].name, parts[0].loc);
-      var newPart := CB.BeaconPart(parts[0].name, loc, parts[0].prefix, None);
+      var newPart := CB.NonSensitive(parts[0].prefix, parts[0].name, loc);
       AddNonSensitiveParts(parts[1..], origSize, converted + [newPart])
   }
 
   // convert configured SensitivePart to internal BeaconPart
-  function method AddSensitiveParts(parts : seq<SensitivePart>, origSize : nat, converted : seq<CB.BeaconPart>)
+  function method AddSensitiveParts(parts : seq<SensitivePart>, origSize : nat, converted : seq<CB.BeaconPart>, std : I.BeaconMap)
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
     ensures ret.Success? ==> |ret.value| == origSize
@@ -277,9 +276,11 @@ module SearchConfigToInfo {
     if |parts| == 0 then
       Success(converted)
     else
-      var loc :- GetLoc(parts[0].name, parts[0].loc);
-      var newPart := CB.BeaconPart(parts[0].name, loc, parts[0].prefix, Some(parts[0].length as B.BeaconLength));
-      AddSensitiveParts(parts[1..], origSize, converted + [newPart])
+      if parts[0].name in std && std[parts[0].name].Standard? then
+        var newPart := CB.Sensitive(parts[0].prefix, std[parts[0].name].std);
+        AddSensitiveParts(parts[1..], origSize, converted + [newPart], std)
+      else
+        Failure(E("Sensitive part needs standard beacon " + parts[0].name + " which is not configured."))
   }
 
   // create the default constructor, if not constructor is specified
@@ -293,7 +294,7 @@ module SearchConfigToInfo {
     if |parts| == 0 then
       Success([CB.Constructor(converted)])
     else
-      MakeDefaultConstructor(parts[1..], converted + [CB.ConstructorPart(parts[0].name, true)])
+      MakeDefaultConstructor(parts[1..], converted + [CB.ConstructorPart(parts[0], true)])
   }
 
   // convert configured ConstructorParts to internal ConstructorParts
@@ -305,8 +306,9 @@ module SearchConfigToInfo {
     if |c| == 0 then
       Success(converted)
     else
-      :- Need(exists p <- parts :: p.name == c[0].name, E("Constructor refers to part name " + c[0].name + " but there is no part by that name."));
-      var newPart := CB.ConstructorPart(c[0].name, c[0].required);
+      var thePart := Seq.Filter((p : CB.BeaconPart) => p.getName() == c[0].name, parts);
+      :- Need(0 < |thePart|, E("Constructor refers to part name " + c[0].name + " but there is no part by that name."));
+      var newPart := CB.ConstructorPart(thePart[0], c[0].required);
       MakeConstructor2(c[1..], parts, origSize, converted + [newPart])
   }
 
@@ -372,7 +374,7 @@ module SearchConfigToInfo {
 
     // because UnwrapOr doesn't verify when used on a list with a minimum size
     var parts :- AddNonSensitiveParts(if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else []);
-    parts :- AddSensitiveParts(beacons[0].sensitive, |parts| + |beacons[0].sensitive|, parts);
+    parts :- AddSensitiveParts(beacons[0].sensitive, |parts| + |beacons[0].sensitive|, parts, converted);
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
     var constructors :- AddConstructors(beacons[0].constructors, parts);
     var beaconName := BeaconPrefix + beacons[0].name;

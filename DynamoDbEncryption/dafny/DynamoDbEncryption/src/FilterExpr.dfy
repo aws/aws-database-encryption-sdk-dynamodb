@@ -1081,9 +1081,6 @@ module DynamoDBFilterExpr {
         var val :- apply_binary_comp(input, x.s, y.s);
         Success(Bool(val))
       else
-        var _ := printFromFunction(input);
-        var _ := printFromFunction(x);
-        var _ := printFromFunction(y);
         Failure(E("wrong types for comparison"))
     else
     if x.Bool? && y.Bool? then
@@ -1167,14 +1164,6 @@ module DynamoDBFilterExpr {
     else
       var newAttrs :- b.GenerateBeacons(ItemList[0], true);
       var doesMatch :- EvalExpr(parsed, ItemList[0] + newAttrs, names, values);
-      var _ := printFromFunction("doesMatch is");
-      var _ := printFromFunction(doesMatch);
-      var _ := printFromFunction("for");
-      var _ := printFromFunction(parsed);
-      var _ := printFromFunction(newAttrs);
-      var _ := printFromFunction(ItemList[0] + newAttrs);
-      var _ := printFromFunction(names);
-      var _ := printFromFunction(values);
       var rest :- FilterItems(b, parsed, ItemList[1..], names, values);
       if doesMatch then
         Success(ItemList[..1] + rest)
@@ -1205,11 +1194,8 @@ module DynamoDBFilterExpr {
         else
           Success(ItemList);
       if FilterExpression.Some? then
-        var _ := printFromFunction(FilterExpression.value);
         var parsed := ParseExpr(FilterExpression.value);
         var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, true);
-        var _ := printFromFunction(expr);
-        var _ := printFromFunction(expr.values);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
         FilterItems(b, expr2, afterKeys, expr.names, expr.values)
