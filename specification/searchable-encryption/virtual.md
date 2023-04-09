@@ -34,6 +34,11 @@ On initialization of a Virtual Field, the caller MUST provide:
 The evaluation of a Virtual Field MUST be the concatenation of all of its parts,
 in the order they are configured.
 
+Initialization MUST fail if two virtual fields are defined with the same set of locations.
+
+Initialization MUST fail if a virtual field is defined with only one location,
+and also a [standard beacon](beacons.md#standard-beacon) is defined with that same location.
+
 ### Virtual Part Initialization
 
 On initialization of a Virtual Part, the caller MUST provide:
