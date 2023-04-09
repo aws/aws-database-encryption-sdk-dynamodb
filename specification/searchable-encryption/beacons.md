@@ -78,7 +78,7 @@ The beacon string will be 1/4 this length.
 
 ### Terminal Location
 
-A terminal location designates a portion of a structured value. Defined [here](virtual.md#terminal-location)
+A terminal location designates a portion of a structured value. Defined [here](virtual.md#terminal-location).
 
 ### Standard Beacon
 
@@ -129,22 +129,18 @@ field, or [virtual field](virtual.md), or to attempt to write a field of this na
 The `split character` separates the parts of a compound beacon.
 In the examples below, we assume "`.`".
 
-Each [sensitive part](#sensitive-part) has a field name, 
-a [terminal location](virtual.md#terminal-location),
-a prefix and a [beacon length](#beacon-length).
-The field name must refer directly to a configured field,
-or [virtual field](virtual.md).
-The values of these fields are stored a hashes, not plaintext.
+Each [sensitive part](#sensitive-part) has a name and a prefix.
+The name MUST be the name of a configured standard beacon.
+
 For example :
 
-| Beacon Name | Location | Prefix | Length |
-|---|---|---|---|
-| social | social | S- | 23 |
-| phone | phone| P- | 25 |
-| zipcode | address.zipcode | Z- | 15 |
+| Beacon Name | Prefix |
+|---|---|
+| social | S- |
+| phone | P- |
+| zipcode | Z- |
 
-The first row should be interpreted as a literal `S-` followed by the 23-bit beacon
-of the "social" field.
+The first row should be interpreted as a literal `S-` followed by the "social" standard beacon.
 
 Each [nonsensitive part](#non-sensitive-part) has a field name, a [terminal location](virtual.md#terminal-location) and a prefix.
 The values of these fields are stored in plaintext.
@@ -158,9 +154,6 @@ of the "timestamp" field.
 
 It is an error for the configuration of a non-sensitive part to refer to
 an encrypted field in any way.
-
-It is an error if the configuration of a sensitive part does not refer to
-an encrypted field in some way.
 
 Prefixes can be any valid string, but no prefix string can be a prefix of another prefix string.
 
@@ -254,6 +247,8 @@ On initialization of a Standard Beacon, the caller MUST provide:
 
 If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
+Initialization MUST fail if two standard beacons are configured with the same location.
+
 
 ### Compound Beacon Initialization
 
@@ -285,15 +280,8 @@ If no [terminal location](virtual.md#terminal-location) is provided, the `name` 
 
 On initialization of a [sensitive part](#sensitive-part), the caller MUST provide:
 
- * A name -- a string
+ * A name -- a string, the name of a standard beacon
  * A prefix -- a string
- * A `length` -- a [beacon length](#beacon-length)
-
-On initialization of a [sensitive parts](#non-sensitive-part), the caller MAY provide:
-
- * A [terminal location](virtual.md#terminal-location) -- a string
-
-If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 #### Constructor Initialization
 
