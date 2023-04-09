@@ -136,6 +136,7 @@ module BeaconTestFixtures {
       "std6" := SE.ENCRYPT_AND_SIGN,
       "Name" := SE.ENCRYPT_AND_SIGN,
       "Title" := SE.ENCRYPT_AND_SIGN,
+      "TooBad" := SE.ENCRYPT_AND_SIGN,
       "Year" := SE.SIGN_ONLY,
       "Date" := SE.SIGN_ONLY
     ]

@@ -59,7 +59,7 @@ module TestBaseBeacon {
     var version := T.BeaconVersion (
       version := 1,
       key := T.BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-      standardBeacons := None,
+      standardBeacons := Some([NameB, TitleB, TooBadB]),
       compoundBeacons := Some([BadPrefix]),
       virtualFields := None
     );
