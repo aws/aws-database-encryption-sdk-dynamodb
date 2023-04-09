@@ -172,9 +172,7 @@ module SearchConfigToInfo {
   function method BeaconNameAllowed(outer : DynamoDbTableEncryptionConfig, virtualFields : V.VirtualFieldMap, name : string, context : string)
     : Result<bool, Error>
   {
-    if name in virtualFields then
-      Failure(E(name + " not allowed as a " + context + " because it already exists as a virtual field."))
-    else if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
+    if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
       Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
     else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
       Failure(E(name + " not allowed as a " + context + " because it is already an allowed unauthenticated attribute."))

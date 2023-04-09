@@ -111,7 +111,7 @@ module CompoundBeacon {
       consFields : seq<ConstructorPart>,
       item : DDB.AttributeMap,
       vf : VirtualFieldMap,
-      keys : HmacKeyMap,
+      keys : Option<HmacKeyMap>,
       acc : string := "")
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> |ret.value| > 0
@@ -125,8 +125,14 @@ module CompoundBeacon {
         var part :- FindPartByName(consFields[0].name);
         var strValue := VirtToString(part.loc, item, vf);
         :- Need(!consFields[0].required || strValue.Success?, E("")); // this error message never propagated
-        if strValue.Success? && base.name in keys then // TODO "base.name in keys" should be required
-          var val :- PartValueCalc(part.prefix + strValue.value, part.prefix, keys[base.name], part.length);
+        if strValue.Success? && keys.None? then
+          var val := part.prefix + strValue.value;
+          if |acc| == 0 then
+            TryConstructor(consFields[1..], item, vf, keys, val)
+          else
+            TryConstructor(consFields[1..], item, vf, keys, acc + [split] + val)
+        else if strValue.Success? && base.name in keys.value then // TODO "base.name in keys" should be required
+          var val :- PartValueCalc(part.prefix + strValue.value, part.prefix, keys.value[base.name], part.length);
           if |acc| == 0 then
             TryConstructor(consFields[1..], item, vf, keys, val)
           else
@@ -139,7 +145,7 @@ module CompoundBeacon {
       construct : seq<Constructor>,
       item : DDB.AttributeMap,
       vf : VirtualFieldMap,
-      keys : HmacKeyMap
+      keys : Option<HmacKeyMap>
     )
       : (ret : Result<string, Error>)
       ensures ret.Success? ==> |ret.value| > 0
@@ -158,7 +164,14 @@ module CompoundBeacon {
       ensures res.Success? ==> 
         && |res.value| > 0
     {
-      TryConstructors(construct, item, vf, keys)
+      TryConstructors(construct, item, vf, Some(keys))
+    }
+
+    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : (res : Result<string, Error>)
+      ensures res.Success? ==> 
+        && |res.value| > 0
+    {
+      TryConstructors(construct, item, vf, None)
     }
 
     function method {:opaque} findPart(val : string)

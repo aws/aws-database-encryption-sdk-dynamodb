@@ -233,6 +233,15 @@ module DdbVirtualFields {
       GetVirtField2(parts[1..], item, acc + trans)
   }
 
+  function method VirtToAttr(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<DDB.AttributeValue, Error>
+  {
+    if |loc| == 1 && loc[0].key in vf then
+      var str :- GetVirtField(vf[loc[0].key], item);
+      Success(DS(str))
+    else
+      TermLoc.TermToAttr(loc, item, None)
+  }
+
   function method VirtToBytes(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Bytes, Error>
   {
     if |loc| == 1 && loc[0].key in vf then

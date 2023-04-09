@@ -140,6 +140,11 @@ module BaseBeacon {
       var bytes :- VirtToBytes(loc, item, vf);
       hash(bytes, key)
     }
+    
+    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<DDB.AttributeValue, Error>
+    {
+      VirtToAttr(loc, item, vf)
+    }
 
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {

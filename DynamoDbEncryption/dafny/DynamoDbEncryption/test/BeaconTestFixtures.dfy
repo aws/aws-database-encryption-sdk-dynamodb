@@ -81,8 +81,13 @@ module BeaconTestFixtures {
   const MonthString := DDB.AttributeValue.S("May")
   const DateMap := DDB.AttributeValue.M(map["Month" := MonthString, "Year" := YearString])
 
-  const NameString := DDB.AttributeValue.S("1984")
-  const TitleString := DDB.AttributeValue.S("1984")
+  const NameString := DDB.AttributeValue.S("MyName")
+  const TitleString := DDB.AttributeValue.S("MyTitle")
+
+  const VPart1 := VirtualPart(loc := "Name", trans := Some([insert(Insert(literal := "__"))]))
+  const VPart2 := VirtualPart(loc := "Title", trans := Some([lower(Lower)]))
+  const NameTitleField := VirtualField(name := "NameTitleField", parts := [VPart1, VPart2])
+  const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 8, loc := None)
 
   // erroneously empty
   const VeryEmptyBeacons := BeaconVersion (
@@ -105,9 +110,9 @@ module BeaconTestFixtures {
   const LotsaBeacons := BeaconVersion (
     version := 1,
     key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-    standardBeacons := Some([std2, std4, std6]),
+    standardBeacons := Some([std2, std4, std6, NameTitleBeacon]),
     compoundBeacons := Some([NameTitle, YearName, Mixed]),
-    virtualFields := None
+    virtualFields := Some([NameTitleField])
   )
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
     partitionKeyName := "foo",

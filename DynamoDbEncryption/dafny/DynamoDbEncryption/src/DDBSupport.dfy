@@ -243,6 +243,7 @@ module DynamoDBSupport {
       Success(resp)
     else
       var newItems :- Filter.FilterResults(
+        config.search.value.curr(),
         resp.Items.value,
         req.KeyConditionExpression,
         req.FilterExpression,
@@ -283,6 +284,7 @@ module DynamoDBSupport {
       Success(resp)
     else
       var newItems :- Filter.FilterResults(
+        config.search.value.curr(),
         resp.Items.value,
         None,
         req.FilterExpression,
