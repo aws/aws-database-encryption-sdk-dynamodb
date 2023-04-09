@@ -54,7 +54,7 @@ module ScanTransform {
     }
   }
 
-  method Output(config: Config, input: ScanOutputTransformInput)
+  method {:vcs_split_on_every_assert} Output(config: Config, input: ScanOutputTransformInput)
     returns (output: Result<ScanOutputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
