@@ -199,6 +199,29 @@ module SearchConfigToInfo {
       Success(true)
   }
 
+  function method FindVirtualFieldWithThisLocation(fields : V.VirtualFieldMap, locs : set<TermLoc>) : Option<string>
+  {
+    var fieldNames := SortedSets.ComputeSetToOrderedSequence2(fields.Keys, CharLess);
+    FindVirtualFieldWithThisLocation2(fieldNames, fields, locs)
+  }
+  function method {:tailrecursion} FindVirtualFieldWithThisLocation2(
+    fieldNames : seq<string>,
+    fields : V.VirtualFieldMap,
+    locs : set<TermLoc>
+  )
+    : Option<string>
+    requires forall k <- fieldNames :: k in fields
+  {
+    if |fieldNames| == 0 then
+      None
+    else
+      var f := fields[fieldNames[0]];
+      if f.GetLocs() == locs then
+        Some(fieldNames[0])
+      else
+        FindVirtualFieldWithThisLocation2(fieldNames[1..], fields, locs)
+  }
+
   // convert configured VirtualFields to internal VirtualFields
   function method {:tailrecursion} AddVirtualFields(
       vf : seq<AwsCryptographyDynamoDbEncryptionTypes.VirtualField>,
@@ -215,7 +238,35 @@ module SearchConfigToInfo {
       // need all parts signed
       :- Need(!newField.examine((t : TermLoc) => !IsSigned(outer, t)),
         E("VirtualField " + vf[0].name + " must be defined on signed fields."));
-      AddVirtualFields(vf[1..], outer, converted[vf[0].name := newField])
+      var badField := FindVirtualFieldWithThisLocation(converted, newField.GetLocs());
+      if badField.Some? then
+        Failure(E("Virtual field " + vf[0].name + " is defined on the same locations as " + badField.value + "."))
+      else
+        AddVirtualFields(vf[1..], outer, converted[vf[0].name := newField])
+  }
+
+  function method FindBeaconWithThisLocation(beacons : I.BeaconMap, loc : TermLoc) : Option<string>
+  {
+    var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+    FindBeaconWithThisLocation2(beaconNames, beacons, loc)
+  }
+
+  function method {:tailrecursion} FindBeaconWithThisLocation2(
+    beaconNames : seq<string>,
+    beacons : I.BeaconMap,
+    loc : TermLoc
+  )
+    : Option<string>
+    requires forall k <- beaconNames :: k in beacons
+  {
+    if |beaconNames| == 0 then
+      None
+    else
+      var b := beacons[beaconNames[0]];
+      if b.Standard? && b.std.loc == loc then
+        Some(beaconNames[0])
+      else
+        FindBeaconWithThisLocation2(beaconNames[1..], beacons, loc)
   }
 
   // convert configured StandardBeacons to internal Beacons
@@ -240,6 +291,17 @@ module SearchConfigToInfo {
     var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, newKey, beacons[0].length as B.BeaconLength, locString);
     :- Need(IsEncryptedV(outer, virtualFields, newBeacon.loc), E("StandardBeacon " + beacons[0].name + " not defined on an encrypted field."));
+    var badBeacon := FindBeaconWithThisLocation(converted, newBeacon.loc);
+    if badBeacon.Some? {
+      return Failure(E("Beacon " + beacons[0].name + " is defined on location " + TermLocToString(newBeacon.loc)
+      + ", but beacon " + badBeacon.value + " is already defined on that location."));
+    }
+    var badField := FindVirtualFieldWithThisLocation(virtualFields, {newBeacon.loc});
+    if badField.Some? {
+      return Failure(E("Beacon " + beacons[0].name + " is defined on location " + TermLocToString(newBeacon.loc)
+      + ", but virtual field " + badField.value + " is already defined on that single location."));
+    }
+
     output := AddStandardBeacons(beacons[1..], outer, key, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
   }
 

@@ -67,6 +67,14 @@ module DdbVirtualFields {
     {
       Seq.Map((p : VirtPart) => p.loc[0].key, parts)
     }
+    function method GetLocs() : set<TermLoc.TermLoc>
+    {
+      set p <- parts :: p.loc
+    }
+    predicate method HasSingleLoc(loc : TermLoc.TermLoc)
+    {
+      |parts| == 1 && parts[0].loc == loc
+    }
   }
 
   function method {:opaque} Examine(parts : seq<VirtPart>, exam : Examiner)

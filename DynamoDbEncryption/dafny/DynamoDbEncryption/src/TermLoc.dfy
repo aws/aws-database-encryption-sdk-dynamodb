@@ -26,6 +26,7 @@ module TermLoc {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDynamoDbEncryptionTypes
   import opened DynamoDbEncryptionUtil
+  import StandardLibrary.String
   import DDB = ComAmazonawsDynamodbTypes
   import Seq
   import DynamoToStruct
@@ -37,6 +38,20 @@ module TermLoc {
   type Bytes = seq<uint8>
   type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
   type TermLoc = x : seq<Selector> | ValidTermLoc(x) witness *
+
+  function method TermLocToString(t : TermLoc) : string
+  {
+    t[0].key + SelectorListToString(t[1..])
+  }
+  function method SelectorListToString(s : SelectorList) : string
+  {
+    if |s| == 0 then
+      ""
+    else if s[0].Map? then
+      "." + s[0].key + SelectorListToString(s[1..])
+    else
+      "[" + String.Base10Int2String(s[0].pos as int) + "]" + SelectorListToString(s[1..])
+  }
 
   predicate method ValidTermLoc(s : seq<Selector>)
   {

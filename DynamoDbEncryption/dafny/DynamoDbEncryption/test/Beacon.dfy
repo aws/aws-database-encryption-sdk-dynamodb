@@ -69,5 +69,12 @@ module TestBaseBeacon {
     expect res.Failure?;
     expect_equal(res.error, E("Compound beacon BadPrefix defines part Title with prefix T_ which is incompatible with part TooBad which has a prefix of T."));
   }
+  /*
+    Successes :
+      some test vectors
 
+    Failures :
+      construct beacon value with split character
+
+  */
 }

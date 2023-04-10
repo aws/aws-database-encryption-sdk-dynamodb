@@ -90,6 +90,7 @@ module BeaconTestFixtures {
   const VPart2 := VirtualPart(loc := "Title", trans := Some([lower(Lower)]))
   const NameTitleField := VirtualField(name := "NameTitleField", parts := [VPart1, VPart2])
   const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 8, loc := None)
+  const NameVirtField := VirtualField(name := "NameVirtField", parts := [VPart1])
 
   // erroneously empty
   const VeryEmptyBeacons := BeaconVersion (

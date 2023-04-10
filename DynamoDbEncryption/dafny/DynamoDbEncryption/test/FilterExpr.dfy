@@ -444,9 +444,7 @@ module TestDynamoDBFilterExpr {
   }
 
   /*
-    2 std beacons on same loc
-    2 virt fields with same locs
-    virt field with 1 loc same as beacon
-    compound beacon on virtual field
+    Successes :
+      compound beacon on virtual field
   */
 }
