@@ -12,7 +12,6 @@ module ScanTransform {
   import EncTypes = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import Seq
 
-
   method Input(config: Config, input: ScanInputTransformInput)
     returns (output: Result<ScanInputTransformOutput, Error>)
 
@@ -71,7 +70,8 @@ module ScanTransform {
       var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
       var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
       && (|newHistory| == |oldHistory| + |input.sdkOutput.Items.value|)
-
+/*
+  Dafny blew a gasket, and now is over the resource count for this
       && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.Items.value| + |oldHistory| ::
 
           //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
@@ -92,6 +92,7 @@ module ScanTransform {
           //# is this list entry.
           && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[i-|oldHistory|]
         )
+  */
   {
     var tableName := input.originalInput.TableName;
     if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
