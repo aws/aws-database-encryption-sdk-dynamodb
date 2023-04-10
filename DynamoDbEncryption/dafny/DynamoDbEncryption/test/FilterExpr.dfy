@@ -108,7 +108,7 @@ module TestDynamoDBFilterExpr {
     expect OpNeedsBeacon(parsed, 0);
     expect beaconVersion.beacons[parsed[0].s].getBeaconName() == "aws_dbe_b_std2";
 
-    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names);
+    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, false);
     var exprString := ParsedExprToString(newContext.expr);
     expect exprString == "aws_dbe_b_std2 < :A AND #Field4 = :B";
   }
@@ -152,48 +152,49 @@ module TestDynamoDBFilterExpr {
     ];
     var values : DDB.ExpressionAttributeValueMap := map [
     ];
-    var newItems :- expect FilterResults([item1], None, Some("one < two"), None, Some(values));
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("one < two"), None, Some(values));
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("one > two"), None, Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("one > two"), None, Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("one <= two"), None, Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("one <= two"), None, Some(values));
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("one >= two"), None, Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("one >= two"), None, Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("one <> two"), None, Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("one <> two"), None, Some(values));
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("one = two"), None, Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("one = two"), None, Some(values));
     expect_equal(newItems, []);
 
-    newItems :- expect FilterResults([item1], None, Some("three < two"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three < two"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("three > two"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three > two"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("three <= two"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three <= two"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("three >= two"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three >= two"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("three <> two"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three <> two"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("three = two"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three = two"), None, None);
     expect_equal(newItems, [item1]);
   }
-
   method {:test} TestFilterIn() {
     var item1  : DDB.AttributeMap := map[
       "one" := DS("abc"),
       "two" := DS("cde"),
       "three" := DS("cde")
     ];
-    var newItems :- expect FilterResults([item1], None, Some("one in (two, three)"), None, None);
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("one in (two, three)"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("two in (one, three)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two in (one, three)"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("three in (two, one)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three in (two, one)"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("three in (one, one, one, one, two, one, one)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three in (one, one, one, one, two, one, one)"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("three in (one, one, one, one, one, one, one)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("three in (one, one, one, one, one, one, one)"), None, None);
     expect_equal(newItems, []);
   }
 
@@ -203,15 +204,16 @@ module TestDynamoDBFilterExpr {
       "two" := DS("bcd"),
       "three" := DS("cde")
     ];
-    var newItems :- expect FilterResults([item1], None, Some("one between two and three"), None, None);
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("one between two and three"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("two between one and three"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two between one and three"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("two between three and one"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two between three and one"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("two between two and three"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two between two and three"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("two between one and two"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two between one and two"), None, None);
     expect_equal(newItems, [item1]);
   }
 
@@ -221,15 +223,16 @@ module TestDynamoDBFilterExpr {
       "two" := DN("52"),
       "three" := DN("185")
     ];
-    var newItems :- expect FilterResults([item1], None, Some("one between two and three"), None, None);
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("one between two and three"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("two between one and three"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two between one and three"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("two between three and one"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two between three and one"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("two between two and three"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two between two and three"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("two between one and two"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("two between one and two"), None, None);
     expect_equal(newItems, [item1]);
   }
   method {:test} TestFilterSize() {
@@ -244,15 +247,16 @@ module TestDynamoDBFilterExpr {
       ":tres" := DN("3")
     ]);
 
-    var newItems :- expect FilterResults([item1], None, Some("size(one) = :uno"), None, values);
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("size(one) = :uno"), None, values);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("size(two) between :uno and :tres"), None, values);
+    newItems :- expect FilterResults(bv, [item1], None, Some("size(two) between :uno and :tres"), None, values);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("size(three) > :dos"), None, values);
+    newItems :- expect FilterResults(bv, [item1], None, Some("size(three) > :dos"), None, values);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("size(two) in (:uno, :dos)"), None, values);
+    newItems :- expect FilterResults(bv, [item1], None, Some("size(two) in (:uno, :dos)"), None, values);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("size(two) in (:uno, :tres)"), None, values);
+    newItems :- expect FilterResults(bv, [item1], None, Some("size(two) in (:uno, :tres)"), None, values);
     expect_equal(newItems, []);
   }
   method {:test} TestFilterContains() {
@@ -264,13 +268,14 @@ module TestDynamoDBFilterExpr {
       "five" := DN("efg")
     ];
 
-    var newItems :- expect FilterResults([item1], None, Some("contains(one, two)"), None, None);
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("contains(one, two)"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("contains(one, three)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("contains(one, three)"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("contains(one, four)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("contains(one, four)"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("contains(one, five)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("contains(one, five)"), None, None);
     expect_equal(newItems, []);
   }
 
@@ -283,13 +288,14 @@ module TestDynamoDBFilterExpr {
       "five" := DN("abcdf")
     ];
 
-    var newItems :- expect FilterResults([item1], None, Some("begins_with(one, two)"), None, None);
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("begins_with(one, two)"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("begins_with(one, three)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("begins_with(one, three)"), None, None);
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("begins_with(one, four)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("begins_with(one, four)"), None, None);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("begins_with(one, five)"), None, None);
+    newItems :- expect FilterResults(bv, [item1], None, Some("begins_with(one, five)"), None, None);
     expect_equal(newItems, []);
   }
     method {:test} TestFilterComplex() {
@@ -304,9 +310,10 @@ module TestDynamoDBFilterExpr {
       ":six" := DN("6")
     ]);
 
-    var newItems :- expect FilterResults([item1], None, Some("one < :four and two < :five"), None, values);
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("one < :four and two < :five"), None, values);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("one < :four or two > :five"), None, values);
+    newItems :- expect FilterResults(bv, [item1], None, Some("one < :four or two > :five"), None, values);
     expect_equal(newItems, [item1]);
 
   }
@@ -327,17 +334,18 @@ module TestDynamoDBFilterExpr {
       "#drei" := "three"
     ];
 
-    var newItems :- expect FilterResults([item1], None, Some("one < two"), Some(names), Some(values));
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("one < two"), Some(names), Some(values));
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("one > two"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("one > two"), Some(names), Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("#eine < #zwei"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("#eine < #zwei"), Some(names), Some(values));
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("#eine > #zwei"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("#eine > #zwei"), Some(names), Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([item1], None, Some("#eine < :dos"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("#eine < :dos"), Some(names), Some(values));
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some("#eine > :dos"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [item1], None, Some("#eine > :dos"), Some(names), Some(values));
     expect_equal(newItems, []);
 
   }
@@ -354,13 +362,14 @@ module TestDynamoDBFilterExpr {
       "#drei" := "Year"
     ];
 
-    var newItems :- expect FilterResults([SimpleItem], None, Some("Date.Month < :uno"), Some(names), Some(values));
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [SimpleItem], None, Some("Date.Month < :uno"), Some(names), Some(values));
     expect_equal(newItems, [SimpleItem]);
-    newItems :- expect FilterResults([SimpleItem], None, Some("Date.Month > :uno"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("Date.Month > :uno"), Some(names), Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([SimpleItem], None, Some("Date.#zwei < :uno"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("Date.#zwei < :uno"), Some(names), Some(values));
     expect_equal(newItems, [SimpleItem]);
-    newItems :- expect FilterResults([SimpleItem], None, Some("Date.#zwei > :uno"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("Date.#zwei > :uno"), Some(names), Some(values));
     expect_equal(newItems, []);
   }
 
@@ -373,21 +382,22 @@ module TestDynamoDBFilterExpr {
       ":s" := DS("N")
     ];
 
-    var newItems :- expect FilterResults([SimpleItem], None, Some("attribute_exists(Date)"), Some(names), Some(values));
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [SimpleItem], None, Some("attribute_exists(Date)"), Some(names), Some(values));
     expect_equal(newItems, [SimpleItem]);
-    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_exists(Nope)"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("attribute_exists(Nope)"), Some(names), Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_not_exists(Date)"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("attribute_not_exists(Date)"), Some(names), Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_not_exists(Nope)"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("attribute_not_exists(Nope)"), Some(names), Some(values));
     expect_equal(newItems, [SimpleItem]);
-    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_type(Date, :m)"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("attribute_type(Date, :m)"), Some(names), Some(values));
     expect_equal(newItems, [SimpleItem]);
-    newItems :- expect FilterResults([SimpleItem], None, Some("attribute_type(std2, :s)"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("attribute_type(std2, :s)"), Some(names), Some(values));
     expect_equal(newItems, [SimpleItem]);
-    newItems :- expect FilterResults([SimpleItem], None, Some("not attribute_exists(Date)"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("not attribute_exists(Date)"), Some(names), Some(values));
     expect_equal(newItems, []);
-    newItems :- expect FilterResults([SimpleItem], None, Some("not attribute_exists(Nope)"), Some(names), Some(values));
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("not attribute_exists(Nope)"), Some(names), Some(values));
     expect_equal(newItems, [SimpleItem]);  
   }
   method {:test} TestFilterSizeIn() {
@@ -402,13 +412,39 @@ module TestDynamoDBFilterExpr {
       ":tres" := DN("3")
     ]);
 
-    var newItems :- expect FilterResults([item1], None, Some("size(one) in (:uno, :dos, :tres)"), None, values);
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("size(one) in (:uno, :dos, :tres)"), None, values);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some(":uno in (size(one), :dos, :tres)"), None, values);
+    newItems :- expect FilterResults(bv, [item1], None, Some(":uno in (size(one), :dos, :tres)"), None, values);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some(":uno in (:dos, :tres, size(one))"), None, values);
+    newItems :- expect FilterResults(bv, [item1], None, Some(":uno in (:dos, :tres, size(one))"), None, values);
     expect_equal(newItems, [item1]);
-    newItems :- expect FilterResults([item1], None, Some(":uno in (:dos, :tres)"), None, values);
+    newItems :- expect FilterResults(bv, [item1], None, Some(":uno in (:dos, :tres)"), None, values);
     expect_equal(newItems, []);
   }
+
+  method {:test} TestFilterBeacons() {
+
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":val2" := DN("1.23"),
+      ":val3" := DS("N_MyName.T_MyTitle"),
+      ":val4" := DS("T_MyTitle"),
+      ":val5" := DS("MyName__mytitle")
+    ];
+
+    var bv :- expect ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var newItems :- expect FilterResults(bv, [SimpleItem], None, Some("std2 = :val2"), None, Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val3"), None, Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("contains(NameTitle, :val4)"), None, Some(values));
+    expect_equal(newItems, [SimpleItem]);
+    newItems :- expect FilterResults(bv, [SimpleItem], None, Some("NameTitleField = :val5)"), None, Some(values));
+    expect_equal(newItems, [SimpleItem]);
+  }
+
+  /*
+    Successes :
+      compound beacon on virtual field
+  */
 }

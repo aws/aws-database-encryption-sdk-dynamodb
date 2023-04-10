@@ -319,9 +319,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  datatype SensitivePart = | SensitivePart (
  nameonly name: string ,
- nameonly prefix: Prefix ,
- nameonly length: BeaconBitLength ,
- nameonly loc: Option<TerminalLocation>
+ nameonly prefix: Prefix
  )
  type SensitivePartsList = x: seq<SensitivePart> | IsValid_SensitivePartsList(x) witness *
  predicate method IsValid_SensitivePartsList(x: seq<SensitivePart>) {

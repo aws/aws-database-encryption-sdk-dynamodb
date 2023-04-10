@@ -92,10 +92,21 @@ module SearchableEncryptionInfo {
       else
         cmp.hash(item, vf, keys)
     }
-    function method attrHash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : Result<DDB.AttributeValue, Error>
+    function method naked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<DDB.AttributeValue, Error>
     {
-      var str :- hash(item, vf, keys);
-      Success(DS(str))
+      if Standard? then
+        std.getNaked(item, vf)
+      else
+        var str :- cmp.getNaked(item, vf);
+        Success(DS(str))
+    }
+    function method attrHash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : Option<HmacKeyMap>) : Result<DDB.AttributeValue, Error>
+    {
+      if keys.Some? then
+        var str :- hash(item, vf, keys.value);
+        Success(DS(str))
+      else
+        naked(item, vf)
     }
     function method getName() : string
     {
@@ -118,15 +129,18 @@ module SearchableEncryptionInfo {
       else
         cmp.GetFields(virtualFields)
     }
-    function method GetBeaconValue(value : DDB.AttributeValue, keys : HmacKeyMap) : Result<DDB.AttributeValue, Error>
+    function method GetBeaconValue(value : DDB.AttributeValue, keys : HmacKeyMap, naked : bool) : Result<DDB.AttributeValue, Error>
     {
-      if Standard? then
-        if std.base.name in keys then
-          std.GetBeaconValue(value, keys[std.base.name])
-        else
-          Failure(E("Internal error. Beacon " + std.base.name + " has no key."))
+      if naked then
+        Success(value)
       else
-        cmp.GetBeaconValue(value, keys)
+        if Standard? then
+          if std.base.name in keys then
+            std.GetBeaconValue(value, keys[std.base.name])
+          else
+            Failure(E("Internal error. Beacon " + std.base.name + " has no key."))
+        else
+          cmp.GetBeaconValue(value, keys)
     }
     function method ValidStateResult() : Result<bool, Error>
     {
@@ -195,13 +209,13 @@ module SearchableEncryptionInfo {
       SortedSets.ComputeSetToOrderedSequence2(fieldSet, CharLess)
     }
 
-    function method GenerateBeacons(item : DDB.AttributeMap) : Result<DDB.AttributeMap, Error>
+    function method GenerateBeacons(item : DDB.AttributeMap, naked : bool := false) : Result<DDB.AttributeMap, Error>
     {
       var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
-      GenerateBeacons2(beaconNames, item, hmacKeys)
+      GenerateBeacons2(beaconNames, item, if naked then None else Some(hmacKeys))
     }
 
-    function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : HmacKeyMap) : Result<DDB.AttributeValue, Error>
+    function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : Option<HmacKeyMap>) : Result<DDB.AttributeValue, Error>
       requires name in beacons
     {
       beacons[name].attrHash(item, virtualFields, keys)
@@ -210,7 +224,7 @@ module SearchableEncryptionInfo {
     function method GenerateBeacons2(
       names : seq<string>,
       item : DDB.AttributeMap,
-      keys : HmacKeyMap,
+      keys : Option<HmacKeyMap>,
       acc : DDB.AttributeMap := map[]
     )
       : Result<DDB.AttributeMap, Error>
@@ -219,8 +233,11 @@ module SearchableEncryptionInfo {
       if |names| == 0 then
         Success(acc)
       else
-        var value :- GenerateBeacon(names[0], item, keys);
-        GenerateBeacons2(names[1..], item, keys, acc[beacons[names[0]].getBeaconName() := value])
+        var value := GenerateBeacon(names[0], item, keys);
+        if value.Success? then
+          GenerateBeacons2(names[1..], item, keys, acc[beacons[names[0]].getBeaconName() := value.value])
+        else
+          GenerateBeacons2(names[1..], item, keys, acc)
     }
   }
 }

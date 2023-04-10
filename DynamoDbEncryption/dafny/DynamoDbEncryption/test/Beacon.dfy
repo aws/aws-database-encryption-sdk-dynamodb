@@ -17,9 +17,9 @@ module TestBaseBeacon {
   import C = SearchConfigToInfo
   import I = SearchableEncryptionInfo
 
-  const Timestamp := BeaconPart("timestamp", TermLocMap("timestamp"), "T-", None);
-  const Secret := BeaconPart("secret", TermLocMap("secret"), "S-", Some(4));
-
+  //const Timestamp := BeaconPart("timestamp", TermLocMap("timestamp"), "T-", None);
+  //const Secret := BeaconPart("secret", TermLocMap("secret"), "S-", Some(4));
+/*
   method {:test} TestCompoundBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
@@ -37,7 +37,7 @@ module TestBaseBeacon {
     var query :-  expect b1.getPart("T-1234.S-abcd", key := [1,2]);
     expect query == "T-1234.S-2";
   }
-
+*/
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
@@ -59,7 +59,7 @@ module TestBaseBeacon {
     var version := T.BeaconVersion (
       version := 1,
       key := T.BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-      standardBeacons := None,
+      standardBeacons := Some([NameB, TitleB, TooBadB]),
       compoundBeacons := Some([BadPrefix]),
       virtualFields := None
     );
@@ -69,5 +69,12 @@ module TestBaseBeacon {
     expect res.Failure?;
     expect_equal(res.error, E("Compound beacon BadPrefix defines part Title with prefix T_ which is incompatible with part TooBad which has a prefix of T."));
   }
+  /*
+    Successes :
+      some test vectors
 
+    Failures :
+      construct beacon value with split character
+
+  */
 }

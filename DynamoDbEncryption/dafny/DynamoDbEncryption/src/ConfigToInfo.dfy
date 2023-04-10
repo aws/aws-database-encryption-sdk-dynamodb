@@ -12,7 +12,6 @@
   e.g. client.info :- Convert(config, config.beacons)
 */
 
-
 include "SearchInfo.dfy"
 include "Util.dfy"
 
@@ -172,9 +171,7 @@ module SearchConfigToInfo {
   function method BeaconNameAllowed(outer : DynamoDbTableEncryptionConfig, virtualFields : V.VirtualFieldMap, name : string, context : string)
     : Result<bool, Error>
   {
-    if name in virtualFields then
-      Failure(E(name + " not allowed as a " + context + " because it already exists as a virtual field."))
-    else if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
+    if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
       Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
     else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
       Failure(E(name + " not allowed as a " + context + " because it is already an allowed unauthenticated attribute."))
@@ -202,6 +199,29 @@ module SearchConfigToInfo {
       Success(true)
   }
 
+  function method FindVirtualFieldWithThisLocation(fields : V.VirtualFieldMap, locs : set<TermLoc>) : Option<string>
+  {
+    var fieldNames := SortedSets.ComputeSetToOrderedSequence2(fields.Keys, CharLess);
+    FindVirtualFieldWithThisLocation2(fieldNames, fields, locs)
+  }
+  function method {:tailrecursion} FindVirtualFieldWithThisLocation2(
+    fieldNames : seq<string>,
+    fields : V.VirtualFieldMap,
+    locs : set<TermLoc>
+  )
+    : Option<string>
+    requires forall k <- fieldNames :: k in fields
+  {
+    if |fieldNames| == 0 then
+      None
+    else
+      var f := fields[fieldNames[0]];
+      if f.GetLocs() == locs then
+        Some(fieldNames[0])
+      else
+        FindVirtualFieldWithThisLocation2(fieldNames[1..], fields, locs)
+  }
+
   // convert configured VirtualFields to internal VirtualFields
   function method {:tailrecursion} AddVirtualFields(
       vf : seq<AwsCryptographyDynamoDbEncryptionTypes.VirtualField>,
@@ -218,7 +238,35 @@ module SearchConfigToInfo {
       // need all parts signed
       :- Need(!newField.examine((t : TermLoc) => !IsSigned(outer, t)),
         E("VirtualField " + vf[0].name + " must be defined on signed fields."));
-      AddVirtualFields(vf[1..], outer, converted[vf[0].name := newField])
+      var badField := FindVirtualFieldWithThisLocation(converted, newField.GetLocs());
+      if badField.Some? then
+        Failure(E("Virtual field " + vf[0].name + " is defined on the same locations as " + badField.value + "."))
+      else
+        AddVirtualFields(vf[1..], outer, converted[vf[0].name := newField])
+  }
+
+  function method FindBeaconWithThisLocation(beacons : I.BeaconMap, loc : TermLoc) : Option<string>
+  {
+    var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+    FindBeaconWithThisLocation2(beaconNames, beacons, loc)
+  }
+
+  function method {:tailrecursion} FindBeaconWithThisLocation2(
+    beaconNames : seq<string>,
+    beacons : I.BeaconMap,
+    loc : TermLoc
+  )
+    : Option<string>
+    requires forall k <- beaconNames :: k in beacons
+  {
+    if |beaconNames| == 0 then
+      None
+    else
+      var b := beacons[beaconNames[0]];
+      if b.Standard? && b.std.loc == loc then
+        Some(beaconNames[0])
+      else
+        FindBeaconWithThisLocation2(beaconNames[1..], beacons, loc)
   }
 
   // convert configured StandardBeacons to internal Beacons
@@ -243,6 +291,17 @@ module SearchConfigToInfo {
     var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, newKey, beacons[0].length as B.BeaconLength, locString);
     :- Need(IsEncryptedV(outer, virtualFields, newBeacon.loc), E("StandardBeacon " + beacons[0].name + " not defined on an encrypted field."));
+    var badBeacon := FindBeaconWithThisLocation(converted, newBeacon.loc);
+    if badBeacon.Some? {
+      return Failure(E("Beacon " + beacons[0].name + " is defined on location " + TermLocToString(newBeacon.loc)
+      + ", but beacon " + badBeacon.value + " is already defined on that location."));
+    }
+    var badField := FindVirtualFieldWithThisLocation(virtualFields, {newBeacon.loc});
+    if badField.Some? {
+      return Failure(E("Beacon " + beacons[0].name + " is defined on location " + TermLocToString(newBeacon.loc)
+      + ", but virtual field " + badField.value + " is already defined on that single location."));
+    }
+
     output := AddStandardBeacons(beacons[1..], outer, key, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
   }
 
@@ -266,12 +325,12 @@ module SearchConfigToInfo {
       Success(converted)
     else
       var loc :- GetLoc(parts[0].name, parts[0].loc);
-      var newPart := CB.BeaconPart(parts[0].name, loc, parts[0].prefix, None);
+      var newPart := CB.NonSensitive(parts[0].prefix, parts[0].name, loc);
       AddNonSensitiveParts(parts[1..], origSize, converted + [newPart])
   }
 
   // convert configured SensitivePart to internal BeaconPart
-  function method AddSensitiveParts(parts : seq<SensitivePart>, origSize : nat, converted : seq<CB.BeaconPart>)
+  function method AddSensitiveParts(parts : seq<SensitivePart>, origSize : nat, converted : seq<CB.BeaconPart>, std : I.BeaconMap)
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
     ensures ret.Success? ==> |ret.value| == origSize
@@ -279,9 +338,11 @@ module SearchConfigToInfo {
     if |parts| == 0 then
       Success(converted)
     else
-      var loc :- GetLoc(parts[0].name, parts[0].loc);
-      var newPart := CB.BeaconPart(parts[0].name, loc, parts[0].prefix, Some(parts[0].length as B.BeaconLength));
-      AddSensitiveParts(parts[1..], origSize, converted + [newPart])
+      if parts[0].name in std && std[parts[0].name].Standard? then
+        var newPart := CB.Sensitive(parts[0].prefix, std[parts[0].name].std);
+        AddSensitiveParts(parts[1..], origSize, converted + [newPart], std)
+      else
+        Failure(E("Sensitive part needs standard beacon " + parts[0].name + " which is not configured."))
   }
 
   // create the default constructor, if not constructor is specified
@@ -295,7 +356,7 @@ module SearchConfigToInfo {
     if |parts| == 0 then
       Success([CB.Constructor(converted)])
     else
-      MakeDefaultConstructor(parts[1..], converted + [CB.ConstructorPart(parts[0].name, true)])
+      MakeDefaultConstructor(parts[1..], converted + [CB.ConstructorPart(parts[0], true)])
   }
 
   // convert configured ConstructorParts to internal ConstructorParts
@@ -307,8 +368,9 @@ module SearchConfigToInfo {
     if |c| == 0 then
       Success(converted)
     else
-      :- Need(exists p <- parts :: p.name == c[0].name, E("Constructor refers to part name " + c[0].name + " but there is no part by that name."));
-      var newPart := CB.ConstructorPart(c[0].name, c[0].required);
+      var thePart := Seq.Filter((p : CB.BeaconPart) => p.getName() == c[0].name, parts);
+      :- Need(0 < |thePart|, E("Constructor refers to part name " + c[0].name + " but there is no part by that name."));
+      var newPart := CB.ConstructorPart(thePart[0], c[0].required);
       MakeConstructor2(c[1..], parts, origSize, converted + [newPart])
   }
 
@@ -374,7 +436,7 @@ module SearchConfigToInfo {
 
     // because UnwrapOr doesn't verify when used on a list with a minimum size
     var parts :- AddNonSensitiveParts(if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else []);
-    parts :- AddSensitiveParts(beacons[0].sensitive, |parts| + |beacons[0].sensitive|, parts);
+    parts :- AddSensitiveParts(beacons[0].sensitive, |parts| + |beacons[0].sensitive|, parts, converted);
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
     var constructors :- AddConstructors(beacons[0].constructors, parts);
     var beaconName := BeaconPrefix + beacons[0].name;

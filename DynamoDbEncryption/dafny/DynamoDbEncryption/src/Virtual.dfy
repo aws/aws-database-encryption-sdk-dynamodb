@@ -67,6 +67,14 @@ module DdbVirtualFields {
     {
       Seq.Map((p : VirtPart) => p.loc[0].key, parts)
     }
+    function method GetLocs() : set<TermLoc.TermLoc>
+    {
+      set p <- parts :: p.loc
+    }
+    predicate method HasSingleLoc(loc : TermLoc.TermLoc)
+    {
+      |parts| == 1 && parts[0].loc == loc
+    }
   }
 
   function method {:opaque} Examine(parts : seq<VirtPart>, exam : Examiner)
@@ -231,6 +239,15 @@ module DdbVirtualFields {
       var value :- TermLoc.TermToString(parts[0].loc, item);
       var trans := FullTransform(parts[0].trans, value);
       GetVirtField2(parts[1..], item, acc + trans)
+  }
+
+  function method VirtToAttr(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<DDB.AttributeValue, Error>
+  {
+    if |loc| == 1 && loc[0].key in vf then
+      var str :- GetVirtField(vf[loc[0].key], item);
+      Success(DS(str))
+    else
+      TermLoc.TermToAttr(loc, item, None)
   }
 
   function method VirtToBytes(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Bytes, Error>

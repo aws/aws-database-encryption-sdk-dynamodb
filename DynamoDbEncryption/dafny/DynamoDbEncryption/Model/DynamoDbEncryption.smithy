@@ -334,10 +334,7 @@ structure SensitivePart {
   @required
   name : String,
   @required
-  prefix : Prefix,
-  @required
-  length : BeaconBitLength,
-  loc : TerminalLocation
+  prefix : Prefix
 }
 
 structure NonSensitivePart {

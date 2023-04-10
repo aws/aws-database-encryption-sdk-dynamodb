@@ -20,18 +20,20 @@ module BeaconTestFixtures {
     expect a == b;
   }
 
-
   const std2 := StandardBeacon(name := "std2", length := 2, loc := None)
   const std4 := StandardBeacon(name := "std4", length := 4, loc := Some("std4"))
   const std6 := StandardBeacon(name := "std6", length := 6, loc := Some("std6[0]"))
+  const NameB := StandardBeacon(name := "Name", length := 12, loc := None)
+  const TitleB := StandardBeacon(name := "Title", length := 12, loc := None)
+  const TooBadB := StandardBeacon(name := "TooBad", length := 12, loc := None)
 
   const Year := NonSensitivePart(name := "Year", prefix := "Y_", loc := None)
   const Month := NonSensitivePart(name := "Month", prefix := "M_", loc := Some("Date.Month"))
   const Nothing := NonSensitivePart(name := "Nothing", prefix := "N__", loc := None)
 
-  const Name := SensitivePart(name := "Name", prefix := "N_", length := 4, loc := None)
-  const Title := SensitivePart(name := "Title", prefix := "T_", length := 4, loc := None)
-  const TooBad := SensitivePart(name := "TooBad", prefix := "T", length := 4, loc := None)
+  const Name := SensitivePart(name := "Name", prefix := "N_")
+  const Title := SensitivePart(name := "Title", prefix := "T_")
+  const TooBad := SensitivePart(name := "TooBad", prefix := "T")
 
   const NameTitle := CompoundBeacon (
     name := "NameTitle",
@@ -81,8 +83,14 @@ module BeaconTestFixtures {
   const MonthString := DDB.AttributeValue.S("May")
   const DateMap := DDB.AttributeValue.M(map["Month" := MonthString, "Year" := YearString])
 
-  const NameString := DDB.AttributeValue.S("1984")
-  const TitleString := DDB.AttributeValue.S("1984")
+  const NameString := DDB.AttributeValue.S("MyName")
+  const TitleString := DDB.AttributeValue.S("MyTitle")
+
+  const VPart1 := VirtualPart(loc := "Name", trans := Some([insert(Insert(literal := "__"))]))
+  const VPart2 := VirtualPart(loc := "Title", trans := Some([lower(Lower)]))
+  const NameTitleField := VirtualField(name := "NameTitleField", parts := [VPart1, VPart2])
+  const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 8, loc := None)
+  const NameVirtField := VirtualField(name := "NameVirtField", parts := [VPart1])
 
   // erroneously empty
   const VeryEmptyBeacons := BeaconVersion (
@@ -105,9 +113,9 @@ module BeaconTestFixtures {
   const LotsaBeacons := BeaconVersion (
     version := 1,
     key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-    standardBeacons := Some([std2, std4, std6]),
+    standardBeacons := Some([std2, std4, std6, NameTitleBeacon, NameB, TitleB]),
     compoundBeacons := Some([NameTitle, YearName, Mixed]),
-    virtualFields := None
+    virtualFields := Some([NameTitleField])
   )
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
     partitionKeyName := "foo",
@@ -129,6 +137,7 @@ module BeaconTestFixtures {
       "std6" := SE.ENCRYPT_AND_SIGN,
       "Name" := SE.ENCRYPT_AND_SIGN,
       "Title" := SE.ENCRYPT_AND_SIGN,
+      "TooBad" := SE.ENCRYPT_AND_SIGN,
       "Year" := SE.SIGN_ONLY,
       "Date" := SE.SIGN_ONLY
     ]
