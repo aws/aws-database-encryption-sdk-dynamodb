@@ -22,7 +22,7 @@ Although [versioning](#versioning) is not yet supported, it exists in the config
 On initialization of the Search Config, the caller MUST provide:
 
  - A list of [beacon versions](#beacon-version-initialization)
- - The [version number](#version-number) of the [beacon versions](#beacon-version) to be used or writing.
+ - The [version number](#version-number) of the [beacon versions](#beacon-version) to be used for writing.
 
 Initialization MUST fail if the length of the list of [beacon versions](#beacon-version) is not 1.
 
@@ -43,9 +43,7 @@ or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-cli
 On initialization of a Beacon Version, the caller MUST provide:
 
  - A [version number](#version number) 
- - A [KeyStore](#TODO)
- - Either a [BranchKeyID](#TODO) of the name of the field that will hold the
-[BranchKeyID](#TODO) in every record.
+ - A [Beacon Key Source](#beacon-key-source)
 
 On initialization of the Beacon Version, the caller MAY provide:
 
@@ -55,13 +53,19 @@ On initialization of the Beacon Version, the caller MAY provide:
 
 Initialization MUST fail if the [version number](#version number) is not `1`.
 
-Initialization MUST fail if the keyring is not a Hierarchy Keyring.
-
 Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon) or
 [compound beacon](beacons.md#compound-beacon) is not provided.
 
 Initialization MUST fail if the name of any [virtual fields](virtual.md#virtual-field) matches that
 of any [configured field](#configured-field).
+
+Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
+and the name of any of the following matches
+the [multi key store](#multi-key-store-initialization)'s Key Field Name:
+- [virtual fields](virtual.md#virtual-field)
+- [standard beacons](beacons.md#standard-beacon)
+- [compound beacons](beacons.md#compound-beacon)
+- [configured field](#configured-field)
 
 Initialization MUST fail if the name of any [standard beacon](beacons.md#standard-beacon) or
 [compound beacon](beacons.md#compound-beacon) matches that
@@ -73,11 +77,11 @@ Initialization MUST fail if there is any overlap among the names of the
 or [virtual fields](virtual.md#virtual-field).
 
 A [terminal location](virtual.md#terminal-location) is considered `signed` if
-the field that  contains it is  [SIGN_ONLY](structures.md#signonly)
+the field that contains it is [SIGN_ONLY](structures.md#signonly)
 or [ENCRYPT_AND_SIGN](structures.md#encryptandsign).
 
 A [terminal location](virtual.md#terminal-location) is considered `encrypted` if
-the field that  contains it is [ENCRYPT_AND_SIGN](structures.md#encryptandsign).
+the field that contains it is [ENCRYPT_AND_SIGN](structures.md#encryptandsign).
 
 A virtual field is considered `signed` if all of its
 [terminal locations](virtual.md#terminal-location) are `signed` or `encrypted`.
@@ -101,12 +105,18 @@ or is not `signed`.
 
 Each beacon requires a key for use in its HMAC calculation.
 
-The BeaconVersion uses its BranchKeyID and KeyStore to retrieve the beacon key 
-associated with that BranchKeyID.
+The BeaconVersion uses KeyStore in its Beacon Key Source to retrieve the beacon key.
+In the case of a Single Key Store,
+the Beacon Key Id on the Single Key Store MUST be passed to the KeyStore
+to retrieve the beacon key.
+In the case of a Multi Key Store,
+the value of Key Field Name MUST be used to get the beacon key it
+and be passed to the KeyStore.
 
-For each beacon, the HKDF-SHA512 algorithm MUST be used to calculate
-the key for the individual beacon, using the beacon key retrieved above as the key,
-no salt. The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" and the beacon name.
+For each beacon HKDF-SHA512 MUST be used
+to calculate the key for individual beacon,
+using the beacon key retrieved above as the initial key material with no salt.
+The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" and the beacon name.
 
 ### Version Number
 
@@ -135,3 +145,40 @@ when no records exists with the associate [version tag](#version-tag).
 ### Version Tag
 
 For version `N`, the name of the version tag is `aws_dbe_vN` and the value of the tag is a single space.
+
+## Beacon Key Source
+
+A Beacon Version needs to be able to get beacon keys.
+This defines two flavors of source.
+
+### Single Key Store Initialization
+
+The single key store is intended to be used
+when all items in a DDB table use the same beacon key.
+This can also be described as single tenant.
+
+On initialization of a Single Key Store, the caller MUST provide:
+
+ - A [Keystore](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md)
+   - If being used with a Hierarchical Keyring to encrypt/decrypt items, this SHOULD be the same Keystore as configured to that Keyring.
+ - A [Beacon Key Id](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md)
+ - A [cacheTTL](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#time-to-live-ttl)
+
+
+### Multi Key Store Initialization
+
+The multi key store is intended to be used
+when different items in a DDB table use the different beacon keys.
+This can also be described as multi tenant.
+
+On initialization of a Multi Key Store, the caller MUST provide:
+
+ - A [Keystore](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md)
+   - If being used with a Hierarchical Keyring to encrypt/decrypt items, this SHOULD be the same Keystore as configured to that Keyring.
+ - A [Key Field Name](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md)
+ - A [cache TTL](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#time-to-live-ttl)
+ - A [max cache size](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#entry-capacity)
+
+The key field name is used
+to discover the beacon key to request from the keystore.
+It can be used on its own or as part of a compound beacon.

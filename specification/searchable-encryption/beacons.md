@@ -11,7 +11,9 @@
 
 ## Overview
 
-Beacons use stable hashes of the plaintext values of encrypted fields to allow searches on client-side encrypted records and using truncation to provide some basic privacy protections.
+Beacons use stable hashes of plaintext values of encrypted fields
+to allow searches on client-side encrypted records
+using truncation to provide some basic privacy protections.
 
 ### Definitions
 
@@ -337,6 +339,14 @@ or [value for a compound beacon](#value-for-a-compound-beacon).
 Both standard and compound beacons define two operations
  * [hash](#hash) - turn a plaintext record into a beacon
  * [getPart](#getpart) - turn a plaintext query string into a beacon
+
+The key material used to hash MUST be obtained via the configured `KeyStore`'s `GetBeaconKey` operation.
+The input to this operation MUST be either:
+  - the `brachKeyId`, if configured in SearchConfig for this beacon.
+  - the output of the configured `branchKeyIdSupplier`'s `DynamoDbKeyBranchKeyIdSupplier`,
+    using the DDB `Key`
+    (an attribute map containing the partition and sort attributes for this GSI)
+    as input.
 
 ### basicHash
  * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.
