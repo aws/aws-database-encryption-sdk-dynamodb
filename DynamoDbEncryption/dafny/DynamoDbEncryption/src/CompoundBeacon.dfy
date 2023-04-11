@@ -54,7 +54,7 @@ module CompoundBeacon {
       }
     }
 
-    function method getString(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<string, Error>
+    function method getString(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<string>, Error>
     {
       match this {
         case Sensitive(p, b) => VirtToString(b.loc, item, vf)
@@ -128,30 +128,30 @@ module CompoundBeacon {
       vf : VirtualFieldMap,
       keys : Option<HmacKeyMap>,
       acc : string := "")
-      : (ret : Result<string, Error>)
-      ensures ret.Success? ==> |ret.value| > 0
+      : (ret : Result<Option<string>, Error>)
+      ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
     {
       if |consFields| == 0 then
         if |acc| ==  0 then
           Failure(E("Internal Error : Empty beacon created."))
         else
-          Success(acc)
+          Success(Some(acc))
       else
         var part := consFields[0].part;
-        var strValue := part.getString(item, vf);
-        :- Need(!consFields[0].required || strValue.Success?, E("")); // this error message never propagated
-        if strValue.Success? && keys.None? then
-          var val := part.prefix + strValue.value;
+        var strValue :- part.getString(item, vf);
+        if strValue.Some? then
+          :- Need(split !in strValue.value, E("Part " + part.getName() + " for beacon " + base.name + " has value '" + strValue.value + "' which contains the split character " + [split] + "'."));
+          var val :-
+            if keys.None? then
+              Success(part.prefix + strValue.value)
+            else
+              PartValueCalc(part.prefix + strValue.value, part.prefix, keys.value, part);
           if |acc| == 0 then
             TryConstructor(consFields[1..], item, vf, keys, val)
           else
             TryConstructor(consFields[1..], item, vf, keys, acc + [split] + val)
-        else if strValue.Success? then
-          var val :- PartValueCalc(part.prefix + strValue.value, part.prefix, keys.value, part);
-          if |acc| == 0 then
-            TryConstructor(consFields[1..], item, vf, keys, val)
-          else
-            TryConstructor(consFields[1..], item, vf, keys, acc + [split] + val)
+        else if consFields[0].required then
+          Success(None)
         else
           TryConstructor(consFields[1..], item, vf, keys, acc)
     }
@@ -162,29 +162,29 @@ module CompoundBeacon {
       vf : VirtualFieldMap,
       keys : Option<HmacKeyMap>
     )
-      : (ret : Result<string, Error>)
-      ensures ret.Success? ==> |ret.value| > 0
+      : (ret : Result<Option<string>, Error>)
+      ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
     {
       if |construct| == 0 then
-        Failure(E("No constructor for " + base.name + " could be satisfied."))
+        Success(None)
       else
-        var x := TryConstructor(construct[0].parts, item, vf, keys);
-        if x.Success? then
-          x
+        var x :- TryConstructor(construct[0].parts, item, vf, keys);
+        if x.Some? then
+          Success(x)
         else
           TryConstructors(construct[1..], item, vf, keys)
     }
 
-    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : (res : Result<string, Error>)
-      ensures res.Success? ==> 
-        && |res.value| > 0
+    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : (res : Result<Option<string>, Error>)
+      ensures res.Success? && res.value.Some? ==> 
+        && |res.value.value| > 0
     {
       TryConstructors(construct, item, vf, Some(keys))
     }
 
-    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : (res : Result<string, Error>)
-      ensures res.Success? ==> 
-        && |res.value| > 0
+    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : (res : Result<Option<string>, Error>)
+      ensures res.Success? && res.value.Some? ==> 
+        && |res.value.value| > 0
     {
       TryConstructors(construct, item, vf, None)
     }
@@ -364,21 +364,23 @@ module CompoundBeacon {
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
       //# If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.
-      ensures part.NonSensitive? ==>
-        && ret.Success?
+      ensures part.NonSensitive? && ret.Success? ==>
         && ret.value == data
         && 0 < |ret.value|
+        && split !in data
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
       //# If the [beacon length](#beacon-length) is provided,
       //# the part value MUST be the concatenation
       //# of the prefix and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
-      ensures ret.Success? && part.Sensitive? ==>
+      ensures part.Sensitive? && ret.Success? ==>
         && 0 < |ret.value|
         && part.beacon.hashStr(data, keys).Success?
         && ret.value == prefix + part.beacon.hashStr(data, keys).value
+        && split !in data
     {
+      :- Need(split !in data, E("Value '" + data + "' for beacon part " + part.getName() + " contains the split character '" + [split] + "'."));
       match part {
         case Sensitive(p, b) => 
           var hash :- b.hashStr(data, keys);

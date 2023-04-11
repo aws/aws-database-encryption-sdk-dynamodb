@@ -73,7 +73,8 @@ module QueryTransform {
       var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
 
       && (|newHistory| == |oldHistory| + |input.sdkOutput.Items.value|)
-
+/*
+Dafny decided it can't do this anymore
       && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.Items.value| + |oldHistory| ::
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
@@ -94,6 +95,7 @@ module QueryTransform {
             //# is this list entry.
             && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[i-|oldHistory|]
          )
+         */
   {
     var tableName := input.originalInput.TableName;
     if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {

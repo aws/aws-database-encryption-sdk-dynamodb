@@ -19,6 +19,7 @@ module SearchableEncryptionInfo {
   import SortedSets
 
   newtype VersionNumber = uint64
+  type ValidSearchInfo = x : SearchInfo | x.ValidState?() witness *
 
   datatype SearchInfo = SearchInfo(
     versions : seq<BeaconVersion>,
@@ -26,14 +27,14 @@ module SearchableEncryptionInfo {
   ) {
 
     function method CheckValid() : (ret : Result<bool, Error>)
-      ensures ret.Success? ==> ValidState()
+      ensures ret.Success? ==> ValidState?()
     {
       var _ :- ValidStateResult();
-      :- Need(ValidState(), E("State Invalid"));
+      :- Need(ValidState?(), E("State Invalid"));
       Success(true)
     }
 
-    predicate method ValidState()
+    predicate method ValidState?()
     {
       && 0 < |versions|
       && currWrite < |versions|
@@ -48,31 +49,31 @@ module SearchableEncryptionInfo {
     }
 
     function method curr() : BeaconVersion
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite]
     }
 
     predicate method IsBeacon(field : string)
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite].IsBeacon(field)
     }
     
     predicate method IsVirtualField(field : string)
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite].IsVirtualField(field)
     }
 
     function method GenerateClosure(fields : seq<string>) : seq<string>
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite].GenerateClosure(fields)
     }
 
     function method GenerateBeacons(item : DDB.AttributeMap) : Result<DDB.AttributeMap, Error>
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite].GenerateBeacons(item)
     }
@@ -82,7 +83,7 @@ module SearchableEncryptionInfo {
     | Standard(std : BaseBeacon.StandardBeacon)
     | Compound(cmp : CompoundBeacon.CompoundBeacon)
   {
-    function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : Result<string, Error>
+    function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : Result<Option<string>, Error>
     {
       if Standard? then
         if std.base.name in keys then
@@ -92,19 +93,25 @@ module SearchableEncryptionInfo {
       else
         cmp.hash(item, vf, keys)
     }
-    function method naked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<DDB.AttributeValue, Error>
+    function method naked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<DDB.AttributeValue>, Error>
     {
       if Standard? then
         std.getNaked(item, vf)
       else
         var str :- cmp.getNaked(item, vf);
-        Success(DS(str))
+        if str.None? then
+          Success(None)
+        else
+          Success(Some(DS(str.value)))
     }
-    function method attrHash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : Option<HmacKeyMap>) : Result<DDB.AttributeValue, Error>
+    function method attrHash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : Option<HmacKeyMap>) : Result<Option<DDB.AttributeValue>, Error>
     {
       if keys.Some? then
         var str :- hash(item, vf, keys.value);
-        Success(DS(str))
+        if str.None? then
+          Success(None)
+        else
+          Success(Some(DS(str.value)))
       else
         naked(item, vf)
     }
@@ -215,7 +222,7 @@ module SearchableEncryptionInfo {
       GenerateBeacons2(beaconNames, item, if naked then None else Some(hmacKeys))
     }
 
-    function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : Option<HmacKeyMap>) : Result<DDB.AttributeValue, Error>
+    function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : Option<HmacKeyMap>) : Result<Option<DDB.AttributeValue>, Error>
       requires name in beacons
     {
       beacons[name].attrHash(item, virtualFields, keys)
@@ -233,8 +240,8 @@ module SearchableEncryptionInfo {
       if |names| == 0 then
         Success(acc)
       else
-        var value := GenerateBeacon(names[0], item, keys);
-        if value.Success? then
+        var value :- GenerateBeacon(names[0], item, keys);
+        if value.Some? then
           GenerateBeacons2(names[1..], item, keys, acc[beacons[names[0]].getBeaconName() := value.value])
         else
           GenerateBeacons2(names[1..], item, keys, acc)

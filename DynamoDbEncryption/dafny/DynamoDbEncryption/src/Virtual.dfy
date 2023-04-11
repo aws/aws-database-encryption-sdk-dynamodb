@@ -222,7 +222,7 @@ module DdbVirtualFields {
     else
       FullTransform(t[1..], DoTransform(t[0], s))
   }
-  function method GetVirtField(vf : VirtField, item : DDB.AttributeMap) : Result<string, Error>
+  function method GetVirtField(vf : VirtField, item : DDB.AttributeMap) : Result<Option<string>, Error>
   {
     GetVirtField2(vf.parts, item)
   }
@@ -231,35 +231,45 @@ module DdbVirtualFields {
     item : DDB.AttributeMap,
     acc : string := ""
   )
-    : Result<string, Error>
+    : Result<Option<string>, Error>
   {
     if |parts| == 0 then
-      Success(acc)
+      Success(Some(acc))
     else
       var value :- TermLoc.TermToString(parts[0].loc, item);
-      var trans := FullTransform(parts[0].trans, value);
-      GetVirtField2(parts[1..], item, acc + trans)
+      if value.None? then
+        Success(None)
+      else
+        var trans := FullTransform(parts[0].trans, value.value);
+        GetVirtField2(parts[1..], item, acc + trans)
   }
 
-  function method VirtToAttr(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<DDB.AttributeValue, Error>
+  function method VirtToAttr(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<DDB.AttributeValue>, Error>
   {
     if |loc| == 1 && loc[0].key in vf then
       var str :- GetVirtField(vf[loc[0].key], item);
-      Success(DS(str))
+      if str.None? then
+        Success(None)
+      else
+        Success(Some(DS(str.value)))
     else
-      TermLoc.TermToAttr(loc, item, None)
+      Success(TermLoc.TermToAttr(loc, item, None))
   }
 
-  function method VirtToBytes(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Bytes, Error>
+  function method VirtToBytes(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<Bytes>, Error>
   {
     if |loc| == 1 && loc[0].key in vf then
       var str :- GetVirtField(vf[loc[0].key], item);
-      UTF8.Encode(str).MapFailure(e => E(e))
+      if str.None? then
+        Success(None)
+      else
+        var ustr :- UTF8.Encode(str.value).MapFailure(e => E(e));
+      Success(Some(ustr))
     else
       TermLoc.TermToBytes(loc, item)
   }
 
-  function method VirtToString(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<string, Error>
+  function method VirtToString(loc : TermLoc.TermLoc, item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<string>, Error>
   {
     if |loc| == 1 && loc[0].key in vf then
       GetVirtField(vf[loc[0].key], item)
