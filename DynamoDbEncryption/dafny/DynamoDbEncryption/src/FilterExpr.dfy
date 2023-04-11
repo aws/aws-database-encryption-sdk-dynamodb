@@ -777,7 +777,7 @@ module DynamoDBFilterExpr {
       StackValueFromItem(names.value[t.s], item)
     else
       var attr := TermToAttr(t.loc, item, names);
-      if attr.Success? then
+      if attr.Some? then
         Str(attr.value)
       else
         DoesNotExist

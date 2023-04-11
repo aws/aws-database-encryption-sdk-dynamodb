@@ -55,7 +55,7 @@ module TestBaseBeacon {
     expect bytes[7] == 0x61;
   }
 
-  method {:test} TestFailures() {
+  method {:test} TestBadPrefix() {
     var version := T.BeaconVersion (
       version := 1,
       key := T.BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
@@ -69,12 +69,18 @@ module TestBaseBeacon {
     expect res.Failure?;
     expect_equal(res.error, E("Compound beacon BadPrefix defines part Title with prefix T_ which is incompatible with part TooBad which has a prefix of T."));
   }
+  method {:test} TestContainsSplit()
+  {
+    var bv :- expect C.ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
+    var goodAttrs :- expect bv.GenerateBeacons(SimpleItem);
+    var badItem := SimpleItem["Name" := DDB.AttributeValue.S("A.B")];
+    var badAttrs := bv.GenerateBeacons(badItem);
+    expect badAttrs.Failure?;
+    expect_equal(badAttrs.error, E("Part Name for beacon Mixed has value 'A.B' which contains the split character .'."));
+  }
+
   /*
     Successes :
       some test vectors
-
-    Failures :
-      construct beacon value with split character
-
   */
 }

@@ -67,36 +67,40 @@ module TermLoc {
 
   // return the AttributeValue for the given terminal in the given item
   function method TermToAttr(t : TermLoc, item : DDB.AttributeMap, names : Option<DDB.ExpressionAttributeNameMap>)
-    : Result<DDB.AttributeValue, Error>
+    : Option<DDB.AttributeValue>
   {
     if t[0].key !in item then
-      Failure(E("Requested attribute " + t[0].key + " not in item."))
+      None
     else
-      GetTerminal(item[t[0].key], t[1..], names)
-  }
-
-  // return the AttributeValue for the given terminal in the given item
-  function method TermToAttrReq(t : TermLoc, item : DDB.AttributeMap, names : Option<DDB.ExpressionAttributeNameMap>)
-    : Result<DDB.AttributeValue, Error>
-    requires t[0].key in item
-  {
-    GetTerminal(item[t[0].key], t[1..], names)
+      var res := GetTerminal(item[t[0].key], t[1..], names);
+      if res.Success? then
+        Some(res.value)
+      else
+        None
   }
 
   // return the string value for the given terminal in the given item
   function method TermToString(t : TermLoc, item : DDB.AttributeMap)
-    : Result<string, Error>
+    : Result<Option<string>, Error>
   {
-    var part :- TermToAttr(t, item, None);
-    AttrValueToString(part)
+    var part := TermToAttr(t, item, None);
+    if part.None? then
+      Success(None)
+    else
+      var res :- AttrValueToString(part.value);
+      Success(Some(res))    
   }
 
   // return the string value for the given terminal in the given item
   function method TermToBytes(t : TermLoc, item : DDB.AttributeMap)
-    : Result<Bytes, Error>
+    : Result<Option<Bytes>, Error>
   {
-    var part :- TermToAttr(t, item, None);
-    DynamoToStruct.TopLevelAttributeToBytes(part).MapFailure(e => E(e))
+    var part := TermToAttr(t, item, None);
+    if part.None? then
+      Success(None)
+    else
+      var res :- DynamoToStruct.TopLevelAttributeToBytes(part.value).MapFailure(e => E(e));
+      Success(Some(res))
   }
 
   // return the string value for the given terminal in the given value

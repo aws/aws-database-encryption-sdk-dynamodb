@@ -35,4 +35,7 @@ module TestDynamoDBConfigToInfo {
     expect beaconVersion.Failure?;
     expect beaconVersion.error == E("Beacon Name is defined on location Name, but virtual field NameVirtField is already defined on that single location.");
   }
+  /*
+    If primary or sort keys of table are beacons, they must be strictly NonSensitive
+  */
 }

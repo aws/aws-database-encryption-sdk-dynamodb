@@ -129,6 +129,6 @@ module TestDdbVirtualFields {
     var bazList := DDB.AttributeValue.L([fooString, barString, flornMap]);
     var item : DDB.AttributeMap := map["foo" := fooString, "bar" := barString, "baz" := bazList];
     var str :- expect GetVirtField(virtField, item);
-    expect str == "1.23barstringFlornString";
+    expect str == Some("1.23barstringFlornString");
   }
 }
