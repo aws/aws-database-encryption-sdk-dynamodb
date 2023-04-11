@@ -34,9 +34,7 @@ module SearchConfigToInfo {
 
   // convert configured SearchConfig to internal SearchInfo
   method Convert(outer : DynamoDbTableEncryptionConfig, config : Option<SearchConfig>)
-    returns (ret : Result<Option<I.SearchInfo>, Error>)
-    ensures ret.Success? && ret.value.Some? ==>
-      && ret.value.value.ValidState()
+    returns (ret : Result<Option<I.ValidSearchInfo>, Error>)
   {
     if config.None? {
       return Success(None);
@@ -289,6 +287,7 @@ module SearchConfigToInfo {
     var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon");
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
     var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
+    // TODO - require loc is signed
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, newKey, beacons[0].length as B.BeaconLength, locString);
     :- Need(IsEncryptedV(outer, virtualFields, newBeacon.loc), E("StandardBeacon " + beacons[0].name + " not defined on an encrypted field."));
     var badBeacon := FindBeaconWithThisLocation(converted, newBeacon.loc);

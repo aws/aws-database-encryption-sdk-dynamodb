@@ -14,7 +14,7 @@ module DdbMiddlewareConfig {
     partitionKeyName: string,
     sortKeyName: Option<string>,
     itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient,
-    search : Option<SearchableEncryptionInfo.SearchInfo>
+    search : Option<SearchableEncryptionInfo.ValidSearchInfo>
   )
 
   predicate ValidTableConfig?(config: TableConfig) {
@@ -22,7 +22,6 @@ module DdbMiddlewareConfig {
     && config.partitionKeyName == encryptorConfig.partitionKeyName
     && config.sortKeyName == encryptorConfig.sortKeyName
     && config.itemEncryptor.ValidState()
-    && (config.search.None? || config.search.value.ValidState())
   }
 
   type ValidTableConfig = c: TableConfig | ValidTableConfig?(c) witness *

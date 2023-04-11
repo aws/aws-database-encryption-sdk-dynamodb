@@ -19,6 +19,7 @@ module SearchableEncryptionInfo {
   import SortedSets
 
   newtype VersionNumber = uint64
+  type ValidSearchInfo = x : SearchInfo | x.ValidState?() witness *
 
   datatype SearchInfo = SearchInfo(
     versions : seq<BeaconVersion>,
@@ -26,14 +27,14 @@ module SearchableEncryptionInfo {
   ) {
 
     function method CheckValid() : (ret : Result<bool, Error>)
-      ensures ret.Success? ==> ValidState()
+      ensures ret.Success? ==> ValidState?()
     {
       var _ :- ValidStateResult();
-      :- Need(ValidState(), E("State Invalid"));
+      :- Need(ValidState?(), E("State Invalid"));
       Success(true)
     }
 
-    predicate method ValidState()
+    predicate method ValidState?()
     {
       && 0 < |versions|
       && currWrite < |versions|
@@ -48,31 +49,31 @@ module SearchableEncryptionInfo {
     }
 
     function method curr() : BeaconVersion
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite]
     }
 
     predicate method IsBeacon(field : string)
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite].IsBeacon(field)
     }
     
     predicate method IsVirtualField(field : string)
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite].IsVirtualField(field)
     }
 
     function method GenerateClosure(fields : seq<string>) : seq<string>
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite].GenerateClosure(fields)
     }
 
     function method GenerateBeacons(item : DDB.AttributeMap) : Result<DDB.AttributeMap, Error>
-      requires ValidState()
+      requires ValidState?()
     {
       versions[currWrite].GenerateBeacons(item)
     }

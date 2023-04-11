@@ -22,7 +22,6 @@ module DynamoDBSupport {
   import opened StandardLibrary.UInt
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
-  import M = DdbMiddlewareConfig
   import opened DynamoDBIndexSupport
   import opened SearchableEncryptionInfo
   import UTF8
@@ -36,7 +35,7 @@ module DynamoDBSupport {
   // At the moment, this means that no attribute names starts with "aws_dbe_",
   // as all other attribute names would need to be configured, and all the
   // other weird constraints were checked at configuration time.
-  function method IsWriteable(config : M.ValidTableConfig, item : DDB.AttributeMap)
+  function method IsWriteable(item : DDB.AttributeMap)
     : Result<bool, string>
   {
     if forall k <- item :: !(ReservedPrefix <= k) then
@@ -51,7 +50,7 @@ module DynamoDBSupport {
   }
 
   function method GetEncryptedAttributes(
-    config : M.ValidTableConfig,
+    actions : AttributeActions,
     expr : Option<string>,
     attrNames : Option<DDB.ExpressionAttributeNameMap> )
     : seq<string>
@@ -60,7 +59,7 @@ module DynamoDBSupport {
       []
     else
       var attrs := Filter.ExtractAttributes(expr.value, attrNames);
-      Seq.Filter((attr : string) => IsEncrypted(config, attr), attrs)
+      Seq.Filter((attr : string) => IsEncrypted(actions, attr), attrs)
   }
 
 
@@ -68,7 +67,7 @@ module DynamoDBSupport {
   // given encryption schema.
   // Generally this means no encrypted attribute is referenced.
   function method TestConditionExpression(
-    config : M.ValidTableConfig,
+    actions : AttributeActions,
     expr: Option<DDB.ConditionExpression>,
     attrNames: Option<DDB.ExpressionAttributeNameMap>,
     attrValues: Option<DDB.ExpressionAttributeValueMap>
@@ -76,7 +75,7 @@ module DynamoDBSupport {
     : Result<bool, string>
   {
     if expr.Some? then
-      var attrs := GetEncryptedAttributes(config, expr, attrNames);
+      var attrs := GetEncryptedAttributes(actions, expr, attrNames);
       if |attrs| == 0 then
         Success(true)
       else
@@ -85,23 +84,23 @@ module DynamoDBSupport {
       Success(true)
   }
 
-  predicate method IsEncrypted(config : M.ValidTableConfig, attr : string)
+  predicate method IsSigned(actions : AttributeActions, attr : string)
   {
-    && attr in config.itemEncryptor.config.attributeActions
-    && config.itemEncryptor.config.attributeActions[attr] == SET.ENCRYPT_AND_SIGN
+    && attr in actions
+    && actions[attr] != SET.DO_NOTHING
   }
 
-  predicate method IsSigned(config : M.ValidTableConfig, attr : string)
+  predicate method IsEncrypted(actions : AttributeActions, attr : string)
   {
-    && attr in config.itemEncryptor.config.attributeActions
-    && config.itemEncryptor.config.attributeActions[attr] != SET.DO_NOTHING
+    && attr in actions
+    && actions[attr] == SET.ENCRYPT_AND_SIGN
   }
 
   // TestUpdateExpression fails if an update expression is not suitable for the
   // given encryption schema.
   // Generally this means no signed attribute is referenced.
   function method TestUpdateExpression(
-    config : M.ValidTableConfig,
+    actions : AttributeActions,
     expr: Option<DDB.UpdateExpression>,
     attrNames: Option<DDB.ExpressionAttributeNameMap>,
     attrValues: Option<DDB.ExpressionAttributeValueMap>
@@ -110,7 +109,7 @@ module DynamoDBSupport {
   {
     if expr.Some? then
       var attrs := Update.ExtractAttributes(expr.value, attrNames);
-      var encryptedAttrs := Seq.Filter(s => IsSigned(config, s), attrs);
+      var encryptedAttrs := Seq.Filter(s => IsSigned(actions, s), attrs);
       if |encryptedAttrs| == 0 then
         Success(true)
       else
@@ -121,13 +120,13 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  function method AddBeacons(config : M.ValidTableConfig, item : DDB.AttributeMap)
+  function method AddBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
     : Result<DDB.AttributeMap, string>
   {
-    if config.search.None? then
+    if search.None? then
       Success(item)
     else
-      var newAttrs :- config.search.value.GenerateBeacons(item)
+      var newAttrs :- search.value.GenerateBeacons(item)
         .MapFailure(e => "Error generating beacons");
       var version : DDB.AttributeMap := map[VersionPrefix + "1" := DS(" ")];
       Success(item + newAttrs + version)
@@ -135,47 +134,61 @@ module DynamoDBSupport {
 
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
   // returning a replacement AttributeMap.
-  function method RemoveBeacons(config : M.ValidTableConfig, item : DDB.AttributeMap)
+  function method RemoveBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
     : Result<DDB.AttributeMap, string>
   {
-    if config.search.None? then
+    if search.None? then
       Success(item)
     else
       Success(map k <- item | (!(ReservedPrefix <= k)) :: k := item[k])
   }
 
   // transform optional LSIs for searchable encryption, changing AttributeDefinitions as needed
-  function method LsiOptWithAttrs(config : M.ValidTableConfig, schema : Option<DDB.LocalSecondaryIndexList>, attrs : DDB.AttributeDefinitions)
+  function method LsiOptWithAttrs(
+    search : ValidSearchInfo,
+    actions : AttributeActions,
+    schema : Option<DDB.LocalSecondaryIndexList>,
+    attrs : DDB.AttributeDefinitions
+  )
     : Result<(Option<DDB.LocalSecondaryIndexList>, DDB.AttributeDefinitions), Error>
   {
-    if schema.None? || config.search.None? then
+    if schema.None? then
       Success((schema, []))
     else
-      var (newSchema, newAttrs) :- LsiWithAttrs(config, schema.value, attrs);
+      var (newSchema, newAttrs) :- LsiWithAttrs(search, actions, schema.value, attrs);
       Success((Some(newSchema), newAttrs))
   }
 
   // transform optional GSIs for searchable encryption, changing AttributeDefinitions as needed
-  function method GsiOptWithAttrs(config : M.ValidTableConfig, schema : Option<DDB.GlobalSecondaryIndexList>, attrs : DDB.AttributeDefinitions)
+  function method GsiOptWithAttrs(
+    search : ValidSearchInfo,
+    actions : AttributeActions,
+    schema : Option<DDB.GlobalSecondaryIndexList>,
+    attrs : DDB.AttributeDefinitions
+  )
     : Result<(Option<DDB.GlobalSecondaryIndexList>, DDB.AttributeDefinitions), Error>
   {
-    if schema.None? || config.search.None? then
+    if schema.None? then
       Success((schema, []))
     else
-      var (newSchema, newAttrs) :- GsiWithAttrs(config, schema.value, attrs);
+      var (newSchema, newAttrs) :- GsiWithAttrs(search, actions, schema.value, attrs);
       Success((Some(newSchema), newAttrs))
   }
 
   // Transform a CreateTableInput object for searchable encryption.
-  function method CreateTableInputForBeacons(config : M.ValidTableConfig, req : DDB.CreateTableInput)
+  function method CreateTableInputForBeacons(
+    search : Option<ValidSearchInfo>,
+    actions : AttributeActions,
+    req : DDB.CreateTableInput
+  )
     : Result<DDB.CreateTableInput, Error>
   {
-    if config.search.None? then
+    if search.None? then
       Success(req)
     else
-      var (newSchema, newAttrs) :- AddBeaconsToKeySchema(config, req.KeySchema, req.AttributeDefinitions);
-      var (newLsi, newAttrs) :- LsiOptWithAttrs(config, req.LocalSecondaryIndexes, newAttrs);
-      var (newGsi, newAttrs) :- GsiOptWithAttrs(config, req.GlobalSecondaryIndexes, newAttrs);
+      var (newSchema, newAttrs) :- AddBeaconsToKeySchema(search.value, actions, req.KeySchema, req.AttributeDefinitions);
+      var (newLsi, newAttrs) :- LsiOptWithAttrs(search.value, actions, req.LocalSecondaryIndexes, newAttrs);
+      var (newGsi, newAttrs) :- GsiOptWithAttrs(search.value, actions, req.GlobalSecondaryIndexes, newAttrs);
       Success(req.(
         KeySchema := newSchema,
         AttributeDefinitions := newAttrs,
@@ -185,26 +198,30 @@ module DynamoDBSupport {
   }
 
   // Transform a UpdateTableInput object for searchable encryption.
-  function method UpdateTableInputForBeacons(config : M.ValidTableConfig, req : DDB.UpdateTableInput)
+  function method UpdateTableInputForBeacons(
+    search : Option<ValidSearchInfo>,
+    actions : AttributeActions,
+    req : DDB.UpdateTableInput
+  )
     : Result<DDB.UpdateTableInput, Error>
   {
-    if config.search.None? || req.GlobalSecondaryIndexUpdates.None? then
+    if search.None? || req.GlobalSecondaryIndexUpdates.None? then
       Success(req)
     else
-      var (indexes, attrs) :- TransformIndexUpdates(config, req.GlobalSecondaryIndexUpdates.value, req.AttributeDefinitions.UnwrapOr([]));
+      var (indexes, attrs) :- TransformIndexUpdates(search.value, actions, req.GlobalSecondaryIndexUpdates.value, req.AttributeDefinitions.UnwrapOr([]));
       var newAttrs := if |attrs| == 0 then None else Some(attrs);
       Success(req.(GlobalSecondaryIndexUpdates := Some(indexes), AttributeDefinitions := newAttrs))
   }
 
   // Transform a DescribeTableOutput object for searchable encryption.
-  function method DescribeTableOutputForBeacons(config : M.ValidTableConfig, req : DDB.DescribeTableOutput)
+  function method DescribeTableOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.DescribeTableOutput)
     : Result<DDB.DescribeTableOutput, Error>
   {
-    if config.search.None? || req.Table.None? then
+    if search.None? || req.Table.None? then
       Success(req)
     else
-      var locals :- TransformLocalIndexDescription(config, req.Table.value.LocalSecondaryIndexes);
-      var globals :- TransformGlobalIndexDescription(config, req.Table.value.GlobalSecondaryIndexes);
+      var locals :- TransformLocalIndexDescription(req.Table.value.LocalSecondaryIndexes);
+      var globals :- TransformGlobalIndexDescription(req.Table.value.GlobalSecondaryIndexes);
       Success(
         DDB.DescribeTableOutput(
           Table := Some(
@@ -215,16 +232,16 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryInput object for searchable encryption.
-  function method QueryInputForBeacons(config : M.ValidTableConfig, req : DDB.QueryInput)
+  function method QueryInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput)
     : Result<DDB.QueryInput, Error>
   {
-    if config.search.None? then
+    if search.None? then
       Success(req)
     else
       var context1 := Filter.ExprContext(req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var context2 :- Filter.Beaconize(config.search.value.curr(), context1);
+      var context2 :- Filter.Beaconize(search.value.curr(), context1);
       var context3 := context2.(expr := req.FilterExpression);
-      var context4 :- Filter.Beaconize(config.search.value.curr(), context3);
+      var context4 :- Filter.Beaconize(search.value.curr(), context3);
       Success(req.(
         KeyConditionExpression := context2.expr,
         FilterExpression := context4.expr,
@@ -234,16 +251,16 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryOutput object for searchable encryption.
-  function method QueryOutputForBeacons(config : M.ValidTableConfig, req : DDB.QueryInput, resp : DDB.QueryOutput)
+  function method QueryOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput, resp : DDB.QueryOutput)
     : (ret : Result<DDB.QueryOutput, Error>)
     requires resp.Items.Some?
     ensures ret.Success? ==> ret.value.Items.Some?
   {
-    if config.search.None? || resp.Items.None? then
+    if search.None? || resp.Items.None? then
       Success(resp)
     else
       var newItems :- Filter.FilterResults(
-        config.search.value.curr(),
+        search.value.curr(),
         resp.Items.value,
         req.KeyConditionExpression,
         req.FilterExpression,
@@ -259,14 +276,14 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanInput object for searchable encryption.
-  function method ScanInputForBeacons(config : M.ValidTableConfig, req : DDB.ScanInput)
+  function method ScanInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput)
     : Result<DDB.ScanInput, Error>
   {
-    if config.search.None? then
+    if search.None? then
       Success(req)
     else
       var context := Filter.ExprContext(req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.Beaconize(config.search.value.curr(), context);
+      var newContext :- Filter.Beaconize(search.value.curr(), context);
       Success(req.(
         FilterExpression := newContext.expr,
         ExpressionAttributeNames := newContext.names,
@@ -275,16 +292,16 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanOutput object for searchable encryption.
-  function method ScanOutputForBeacons(config : M.ValidTableConfig, req : DDB.ScanInput, resp : DDB.ScanOutput)
+  function method ScanOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput, resp : DDB.ScanOutput)
     : (ret : Result<DDB.ScanOutput, Error>)
     requires resp.Items.Some?
     ensures ret.Success? ==> ret.value.Items.Some?
   {
-    if config.search.None? then
+    if search.None? then
       Success(resp)
     else
       var newItems :- Filter.FilterResults(
-        config.search.value.curr(),
+        search.value.curr(),
         resp.Items.value,
         None,
         req.FilterExpression,
