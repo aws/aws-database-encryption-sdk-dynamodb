@@ -14,13 +14,15 @@ use aws.cryptography.materialProviders#BranchKeyIdSupplierReference
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
+use aws.cryptography.keyStore#KeyStore
+use aws.cryptography.structuredEncryption#CryptoAction
+
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#Key
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
-use aws.cryptography.structuredEncryption#CryptoAction
 
 // A config-less entry-point for DynamoDb Encryption helper/factory methods
 @localService(
@@ -370,26 +372,34 @@ structure CompoundBeacon {
   name : String,
   @required
   split : Char,
-  @required
   sensitive : SensitivePartsList,
   nonSensitive : NonSensitivePartsList,
   constructors : ConstructorList
 }
 
-structure BeaconKey {
-  @required
-  keyArn : String,
-  @required
-  tableArn : String,
-  @required
-  branchKeyID : String
+structure SingleKeyStore {
+  keyStore : KeyStore,
+  keyId : String,
+  cacheTTL: Integer,
+}
+
+structure MultiKeyStore {
+  keyStore : KeyStore,
+  keyFieldName : String,
+  cacheTTL: Integer,
+  maxCacheSize: Integer
+}
+
+union BeaconKeySource {
+  single : SingleKeyStore,
+  multi : MultiKeyStore
 }
 
 structure BeaconVersion {
   @required
   version : VersionNumber,
   @required
-  key: BeaconKey,
+  keySource: BeaconKeySource,
   standardBeacons : StandardBeaconList,
   compoundBeacons : CompoundBeaconList,
   virtualFields : VirtualFieldList,
