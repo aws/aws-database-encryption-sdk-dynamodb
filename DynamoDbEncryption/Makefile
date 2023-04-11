@@ -26,7 +26,8 @@ PROJECT_DEPENDENCIES := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore
 STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
 SMITHY_DEPS=submodules/MaterialProviders/model
 
@@ -35,25 +36,28 @@ SERVICE_DEPS_StructuredEncryption := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders
 SERVICE_DEPS_DynamoDbEncryption := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
 	DynamoDbEncryption/dafny/StructuredEncryption
 SERVICE_DEPS_DynamoDbItemEncryptor := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/StructuredEncryption
 SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/StructuredEncryption \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor

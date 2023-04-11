@@ -3,7 +3,8 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  include "../../StructuredEncryption/src/Index.dfy"
- include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
+ include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy"
+ include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/AwsCryptographyPrimitives/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.Types" } AwsCryptographyDynamoDbEncryptionTypes
@@ -13,6 +14,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import opened UTF8
  import AwsCryptographyStructuredEncryptionTypes
  import AwsCryptographyMaterialProvidersTypes
+ import AwsCryptographyKeyStoreTypes
  import AwsCryptographyPrimitivesTypes
  import ComAmazonawsDynamodbTypes
  // Generic helpers for verification of mock/unit tests.
@@ -25,14 +27,12 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  predicate method IsValid_BeaconBitLength(x: int32) {
  ( 1 <= x <= 63 )
 }
- datatype BeaconKey = | BeaconKey (
- nameonly keyArn: string ,
- nameonly tableArn: string ,
- nameonly branchKeyID: string
- )
+ datatype BeaconKeySource =
+ | single(single: SingleKeyStore)
+ | multi(multi: MultiKeyStore)
  datatype BeaconVersion = | BeaconVersion (
  nameonly version: VersionNumber ,
- nameonly key: BeaconKey ,
+ nameonly keySource: BeaconKeySource ,
  nameonly standardBeacons: Option<StandardBeaconList> ,
  nameonly compoundBeacons: Option<CompoundBeaconList> ,
  nameonly virtualFields: Option<VirtualFieldList>
@@ -48,7 +48,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype CompoundBeacon = | CompoundBeacon (
  nameonly name: string ,
  nameonly split: Char ,
- nameonly sensitive: SensitivePartsList ,
+ nameonly sensitive: Option<SensitivePartsList> ,
  nameonly nonSensitive: Option<NonSensitivePartsList> ,
  nameonly constructors: Option<ConstructorList>
  )
@@ -296,6 +296,12 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype Lower = | Lower (
  
  )
+ datatype MultiKeyStore = | MultiKeyStore (
+ nameonly keyStore: Option<AwsCryptographyKeyStoreTypes.IKeyStoreClient> ,
+ nameonly keyFieldName: Option<string> ,
+ nameonly cacheTTL: Option<int32> ,
+ nameonly maxCacheSize: Option<int32>
+ )
  datatype NonSensitivePart = | NonSensitivePart (
  nameonly name: string ,
  nameonly prefix: Prefix ,
@@ -325,6 +331,11 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  predicate method IsValid_SensitivePartsList(x: seq<SensitivePart>) {
  ( 1 <= |x|  )
 }
+ datatype SingleKeyStore = | SingleKeyStore (
+ nameonly keyStore: Option<AwsCryptographyKeyStoreTypes.IKeyStoreClient> ,
+ nameonly keyId: Option<string> ,
+ nameonly cacheTTL: Option<int32>
+ )
  datatype StandardBeacon = | StandardBeacon (
  nameonly name: string ,
  nameonly length: BeaconBitLength ,
@@ -382,6 +393,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  // Any dependent models are listed here
  | AwsCryptographyStructuredEncryption(AwsCryptographyStructuredEncryption: AwsCryptographyStructuredEncryptionTypes.Error)
  | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
+ | AwsCryptographyKeyStore(AwsCryptographyKeyStore: AwsCryptographyKeyStoreTypes.Error)
  | AwsCryptographyPrimitives(AwsCryptographyPrimitives: AwsCryptographyPrimitivesTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  // The Collection error is used to collect several errors together

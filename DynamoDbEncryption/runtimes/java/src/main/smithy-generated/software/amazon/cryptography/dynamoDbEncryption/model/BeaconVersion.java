@@ -9,7 +9,7 @@ import java.util.Objects;
 public class BeaconVersion {
   private final int version;
 
-  private final BeaconKey key;
+  private final BeaconKeySource keySource;
 
   private final List<StandardBeacon> standardBeacons;
 
@@ -19,7 +19,7 @@ public class BeaconVersion {
 
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
-    this.key = builder.key();
+    this.keySource = builder.keySource();
     this.standardBeacons = builder.standardBeacons();
     this.compoundBeacons = builder.compoundBeacons();
     this.virtualFields = builder.virtualFields();
@@ -29,8 +29,8 @@ public class BeaconVersion {
     return this.version;
   }
 
-  public BeaconKey key() {
-    return this.key;
+  public BeaconKeySource keySource() {
+    return this.keySource;
   }
 
   public List<StandardBeacon> standardBeacons() {
@@ -58,9 +58,9 @@ public class BeaconVersion {
 
     int version();
 
-    Builder key(BeaconKey key);
+    Builder keySource(BeaconKeySource keySource);
 
-    BeaconKey key();
+    BeaconKeySource keySource();
 
     Builder standardBeacons(List<StandardBeacon> standardBeacons);
 
@@ -80,7 +80,7 @@ public class BeaconVersion {
   static class BuilderImpl implements Builder {
     protected int version;
 
-    protected BeaconKey key;
+    protected BeaconKeySource keySource;
 
     protected List<StandardBeacon> standardBeacons;
 
@@ -93,7 +93,7 @@ public class BeaconVersion {
 
     protected BuilderImpl(BeaconVersion model) {
       this.version = model.version();
-      this.key = model.key();
+      this.keySource = model.keySource();
       this.standardBeacons = model.standardBeacons();
       this.compoundBeacons = model.compoundBeacons();
       this.virtualFields = model.virtualFields();
@@ -108,13 +108,13 @@ public class BeaconVersion {
       return this.version;
     }
 
-    public Builder key(BeaconKey key) {
-      this.key = key;
+    public Builder keySource(BeaconKeySource keySource) {
+      this.keySource = keySource;
       return this;
     }
 
-    public BeaconKey key() {
-      return this.key;
+    public BeaconKeySource keySource() {
+      return this.keySource;
     }
 
     public Builder standardBeacons(List<StandardBeacon> standardBeacons) {
@@ -151,8 +151,8 @@ public class BeaconVersion {
       if (Objects.nonNull(this.version()) && this.version() < 1) {
         throw new IllegalArgumentException("`version` must be greater than or equal to 1");
       }
-      if (Objects.isNull(this.key()))  {
-        throw new IllegalArgumentException("Missing value for required field `key`");
+      if (Objects.isNull(this.keySource()))  {
+        throw new IllegalArgumentException("Missing value for required field `keySource`");
       }
       if (Objects.nonNull(this.standardBeacons()) && this.standardBeacons().size() < 1) {
         throw new IllegalArgumentException("The size of `standardBeacons` must be greater than or equal to 1");

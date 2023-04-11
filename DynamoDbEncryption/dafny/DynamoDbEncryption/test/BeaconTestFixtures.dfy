@@ -38,35 +38,35 @@ module BeaconTestFixtures {
   const NameTitle := CompoundBeacon (
     name := "NameTitle",
     split := ".",
-    sensitive := [Name,Title],
+    sensitive := Some([Name,Title]),
     nonSensitive := None,
     constructors := None
   )
   const YearName := CompoundBeacon (
     name := "YearName",
     split := ".",
-    sensitive := [Name],
+    sensitive := Some([Name]),
     nonSensitive := Some([Year]),
     constructors := None
   )
   const BadPrefix := CompoundBeacon (
     name := "BadPrefix",
     split := ".",
-    sensitive := [Name,Title,TooBad],
+    sensitive := Some([Name,Title,TooBad]),
     nonSensitive := None,
     constructors := None
   )
   const BadPrefix2 := CompoundBeacon (
     name := "BadPrefix2",
     split := ".",
-    sensitive := [Name],
+    sensitive := Some([Name]),
     nonSensitive := Some([Nothing]),
     constructors := None
   )
   const Mixed := CompoundBeacon (
     name := "Mixed",
     split := ".",
-    sensitive := [Name,Title],
+    sensitive := Some([Name,Title]),
     nonSensitive := Some([Year,Month]),
     constructors := Some([
       Constructor(parts := [ConstructorPart(name := "Name", required := true), ConstructorPart(name := "Year", required := true)]),
@@ -92,10 +92,12 @@ module BeaconTestFixtures {
   const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 8, loc := None)
   const NameVirtField := VirtualField(name := "NameVirtField", parts := [VPart1])
 
+  const keySource : BeaconKeySource;
+
   // erroneously empty
   const VeryEmptyBeacons := BeaconVersion (
     version := 1,
-    key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
+    keySource := keySource,
     standardBeacons := None,
     compoundBeacons := None,
     virtualFields := None
@@ -104,7 +106,7 @@ module BeaconTestFixtures {
   // as empty as possible
   const EmptyBeacons := BeaconVersion (
     version := 1,
-    key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
+    keySource := keySource,
     standardBeacons := Some([std2]),
     compoundBeacons := None,
     virtualFields := None
@@ -112,7 +114,7 @@ module BeaconTestFixtures {
 
   const LotsaBeacons := BeaconVersion (
     version := 1,
-    key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
+    keySource := keySource,
     standardBeacons := Some([std2, std4, std6, NameTitleBeacon, NameB, TitleB]),
     compoundBeacons := Some([NameTitle, YearName, Mixed]),
     virtualFields := Some([NameTitleField])

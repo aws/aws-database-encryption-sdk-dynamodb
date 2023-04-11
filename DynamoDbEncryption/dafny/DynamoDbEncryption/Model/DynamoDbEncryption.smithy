@@ -377,14 +377,17 @@ structure CompoundBeacon {
   constructors : ConstructorList
 }
 
+@aws.polymorph#reference(service: aws.cryptography.keyStore#KeyStore)
+structure KeyStoreReference {}
+
 structure SingleKeyStore {
-  keyStore : KeyStore,
+  keyStore : KeyStoreReference,
   keyId : String,
   cacheTTL: Integer,
 }
 
 structure MultiKeyStore {
-  keyStore : KeyStore,
+  keyStore : KeyStoreReference,
   keyFieldName : String,
   cacheTTL: Integer,
   maxCacheSize: Integer

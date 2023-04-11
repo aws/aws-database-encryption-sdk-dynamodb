@@ -49,7 +49,7 @@ module SearchConfigToInfo {
   }
   
   // TODO : Placeholder
-  function method GetPersistentKey(keyring: BeaconKey)
+  function method GetPersistentKey(keyring: BeaconKeySource)
     : Result<Bytes, Error>
   {
     Success([1,2,3,4,5])
@@ -82,7 +82,7 @@ module SearchConfigToInfo {
     :- Need((config.standardBeacons.Some? && 0 < |config.standardBeacons.value|)
          && (config.compoundBeacons.Some? && 0 < |config.compoundBeacons.value|),
          E("At least one beacon must be configured."));
-    var key :- GetPersistentKey(config.key);
+    var key :- GetPersistentKey(config.keySource);
     output := ConvertVersionWithKey(outer, config, key);
   }
 
@@ -435,7 +435,9 @@ module SearchConfigToInfo {
 
     // because UnwrapOr doesn't verify when used on a list with a minimum size
     var parts :- AddNonSensitiveParts(if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else []);
-    parts :- AddSensitiveParts(beacons[0].sensitive, |parts| + |beacons[0].sensitive|, parts, converted);
+    var sensitive := if beacons[0].sensitive.Some? then beacons[0].sensitive.value else [];
+    parts :- AddSensitiveParts(sensitive, |parts| + |sensitive|, parts, converted);
+    :- Need(0 < |parts|, E("For beacon " + beacons[0].name + " no parts were supplied."));
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
     var constructors :- AddConstructors(beacons[0].constructors, parts);
     var beaconName := BeaconPrefix + beacons[0].name;
