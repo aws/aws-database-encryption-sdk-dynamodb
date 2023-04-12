@@ -469,7 +469,7 @@ module SearchConfigToInfo {
     ensures client.ValidState()
   {
     if standard.None? && compound.None? {
-      return Failure(E("At least one beacon must be configured 1."));
+      return Failure(E("At least one beacon must be configured."));
     } else if standard.Some? && compound.Some? {
       var std :- AddStandardBeacons(standard.value, outer, key, client, virtualFields);
       output := AddCompoundBeacons(compound.value, outer, key, client, virtualFields, std);
