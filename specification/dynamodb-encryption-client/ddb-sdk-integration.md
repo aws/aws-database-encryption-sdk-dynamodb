@@ -70,16 +70,6 @@ The client configuration consists of the following REQUIRED field:
 
 - [DynamoDb Table Encryption Configs](#dynamodb-table-encryption-configs)
 
-The client configuration MAY include the following field:
-
-- [Searchable Encryption Config](../searchable-encryption/search-config.md)
-
-A [Searchable Encryption Config](../searchable-encryption/search-config.md)
-and either a [Legacy Config](./ddb-table-encryption-config.md#legacy-config)
-or a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy)
-being specified on the same client config is invalid,
-and MUST result in an error.
-
 ### DynamoDb Table Encryption Configs
 
 A map of DynamoDb table names to a structure that MUST contain
@@ -479,7 +469,7 @@ Otherwise
 The Scan request MUST NOT refer to any legacy parameters,
 specifically AttributesToGet, ScanFilter and ConditionalOperator MUST NOT be set.
 
-The request MUST be [altered](#scaninputforbeacons)
+The request MUST be [altered](./ddb-support.md#scaninputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
 ### Modify before Query
@@ -495,7 +485,7 @@ Otherwise
 The Query request MUST NOT refer to any legacy parameters,
 specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST NOT be set.
 
-The request MUST be [altered](#queryinputforbeacons)
+The request MUST be [altered](./ddb-support.md#queryinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
 ### Modify before CreateTable
@@ -506,7 +496,7 @@ call is made to DynamoDB :
 If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
 the CreateTable request MUST be unchanged.
 
-Otherwise, the response MUST be [altered](#createtableinputforbeacons)
+Otherwise, the response MUST be [altered](./ddb-support.md#createtableinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
 ### Modify before UpdateTable
@@ -517,7 +507,7 @@ call is made to DynamoDB :
 If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
 the UpdateTable request MUST be unchanged.
 
-Otherwise, the response MUST be [altered](#updatetableinputforbeacons)
+Otherwise, the response MUST be [altered](./ddb-support.md#updatetableinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
 ### Modify after DescribeTable
@@ -528,7 +518,7 @@ call is made to DynamoDB :
 If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
 the DescribeTable response MUST be unchanged.
 
-Otherwise, the response MUST be [altered](#describetableoutputforbeacons)
+Otherwise, the response MUST be [altered](./ddb-support.md#describetableoutputforbeacons)
 to transform references to beacons back into references to encrypted attributes.
 
 ## Allowed Passthrough DynamoDB APIs
