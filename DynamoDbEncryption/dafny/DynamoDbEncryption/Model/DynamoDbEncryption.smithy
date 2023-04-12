@@ -403,6 +403,7 @@ structure BeaconVersion {
   version : VersionNumber,
   @required
   keySource: BeaconKeySource,
+  @required
   standardBeacons : StandardBeaconList,
   compoundBeacons : CompoundBeaconList,
   virtualFields : VirtualFieldList,

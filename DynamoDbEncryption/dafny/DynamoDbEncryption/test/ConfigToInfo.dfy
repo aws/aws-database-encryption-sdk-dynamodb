@@ -17,7 +17,7 @@ module TestDynamoDBConfigToInfo {
 
   method {:test} TestTwoBeaconsOneLoc() {
     var fred := StandardBeacon(name := "fred", length := 16, loc := Some("std6[0]"));
-    var newBeacons := LotsaBeacons.(standardBeacons := Some([std2, std4, std6, NameTitleBeacon, NameB, TitleB, fred]));
+    var newBeacons := LotsaBeacons.(standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB, fred]);
     var beaconVersion := ConvertVersionWithKey(FullTableConfig, newBeacons, [1,2,3,4,5]);
     expect beaconVersion.Failure?;
     expect beaconVersion.error == E("Beacon fred is defined on location std6[0], but beacon std6 is already defined on that location.");

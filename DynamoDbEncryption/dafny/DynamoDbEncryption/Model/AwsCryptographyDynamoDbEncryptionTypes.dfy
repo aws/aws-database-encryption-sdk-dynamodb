@@ -33,7 +33,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype BeaconVersion = | BeaconVersion (
  nameonly version: VersionNumber ,
  nameonly keySource: BeaconKeySource ,
- nameonly standardBeacons: Option<StandardBeaconList> ,
+ nameonly standardBeacons: StandardBeaconList ,
  nameonly compoundBeacons: Option<CompoundBeaconList> ,
  nameonly virtualFields: Option<VirtualFieldList>
  )

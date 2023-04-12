@@ -79,9 +79,7 @@ module SearchConfigToInfo {
     returns (output : Result<I.BeaconVersion, Error>)
   {
     :- Need(config.version == 1, E("Version number in BeaconVersion must be '1'."));
-    :- Need((config.standardBeacons.Some? && 0 < |config.standardBeacons.value|)
-         && (config.compoundBeacons.Some? && 0 < |config.compoundBeacons.value|),
-         E("At least one beacon must be configured."));
+    :- Need(0 < |config.standardBeacons|, E("At least one standard beacon must be configured."));
     var key :- GetPersistentKey(config.keySource);
     output := ConvertVersionWithKey(outer, config, key);
   }
@@ -148,6 +146,14 @@ module SearchConfigToInfo {
     && var name := loc[0].key;
     && name in outer.attributeActions
     && outer.attributeActions[name] != SE.DO_NOTHING
+  }
+
+  // is this terminal location signed, but not encrypted
+  predicate method IsSignOnly(outer : DynamoDbTableEncryptionConfig, loc : TermLoc)
+  {
+    && var name := loc[0].key;
+    && name in outer.attributeActions
+    && outer.attributeActions[name] != SE.SIGN_ONLY
   }
 
   // is this terminal location encrypted
@@ -287,7 +293,6 @@ module SearchConfigToInfo {
     var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon");
     var newKey :- GetBeaconKey(client, key, beacons[0].name);
     var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
-    // TODO - require loc is signed
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, newKey, beacons[0].length as B.BeaconLength, locString);
     :- Need(IsEncryptedV(outer, virtualFields, newBeacon.loc), E("StandardBeacon " + beacons[0].name + " not defined on an encrypted field."));
     var badBeacon := FindBeaconWithThisLocation(converted, newBeacon.loc);
@@ -313,9 +318,23 @@ module SearchConfigToInfo {
     else
       MakeTermLoc(loc.value)
   }
+  // optional location, defaults to name
+  function method GetLocStr(name : string, loc : Option<string>)
+    : string
+  {
+    if loc.None? then
+      name
+    else
+      loc.value
+  }
 
   // convert configured NonSensitivePart to internal BeaconPart
-  function method {:tailrecursion} AddNonSensitiveParts(parts : seq<NonSensitivePart>, origSize : nat := |parts|, converted : seq<CB.BeaconPart> := [])
+  function method {:tailrecursion} AddNonSensitiveParts(
+    parts : seq<NonSensitivePart>,
+    outer : DynamoDbTableEncryptionConfig,
+    origSize : nat := |parts|,
+    converted : seq<CB.BeaconPart> := []
+  )
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
     ensures ret.Success? ==> |ret.value| == origSize
@@ -325,7 +344,9 @@ module SearchConfigToInfo {
     else
       var loc :- GetLoc(parts[0].name, parts[0].loc);
       var newPart := CB.NonSensitive(parts[0].prefix, parts[0].name, loc);
-      AddNonSensitiveParts(parts[1..], origSize, converted + [newPart])
+      :- Need(IsSignOnly(outer, newPart.loc), E("NonSensitive Part " + newPart.name
+        + " is built from " + GetLocStr(parts[0].name, parts[0].loc) + " which is not SIGN_ONLY."));
+      AddNonSensitiveParts(parts[1..], outer,origSize, converted + [newPart])
   }
 
   // convert configured SensitivePart to internal BeaconPart
@@ -434,7 +455,8 @@ module SearchConfigToInfo {
     var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "CompoundBeacon");
 
     // because UnwrapOr doesn't verify when used on a list with a minimum size
-    var parts :- AddNonSensitiveParts(if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else []);
+    var nonSensitive := if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else [];
+    var parts :- AddNonSensitiveParts(nonSensitive, outer);
     var sensitive := if beacons[0].sensitive.Some? then beacons[0].sensitive.value else [];
     parts :- AddSensitiveParts(sensitive, |parts| + |sensitive|, parts, converted);
     :- Need(0 < |parts|, E("For beacon " + beacons[0].name + " no parts were supplied."));
@@ -462,22 +484,18 @@ module SearchConfigToInfo {
     key : Bytes,
     client: Primitives.AtomicPrimitivesClient,
     virtualFields : V.VirtualFieldMap,
-    standard : Option<StandardBeaconList>,
+    standard : StandardBeaconList,
     compound : Option<CompoundBeaconList>)
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    if standard.None? && compound.None? {
-      return Failure(E("At least one beacon must be configured."));
-    } else if standard.Some? && compound.Some? {
-      var std :- AddStandardBeacons(standard.value, outer, key, client, virtualFields);
+    var std :- AddStandardBeacons(standard, outer, key, client, virtualFields);
+    if compound.Some? {
       output := AddCompoundBeacons(compound.value, outer, key, client, virtualFields, std);
-    } else if standard.Some? {
-      output := AddStandardBeacons(standard.value, outer, key, client, virtualFields);
     } else {
-      output := AddCompoundBeacons(compound.value, outer, key, client, virtualFields, map[]);
+      output := Success(std);
     }
   }
 }

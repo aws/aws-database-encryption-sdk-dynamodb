@@ -154,6 +154,9 @@ public class BeaconVersion {
       if (Objects.isNull(this.keySource()))  {
         throw new IllegalArgumentException("Missing value for required field `keySource`");
       }
+      if (Objects.isNull(this.standardBeacons()))  {
+        throw new IllegalArgumentException("Missing value for required field `standardBeacons`");
+      }
       if (Objects.nonNull(this.standardBeacons()) && this.standardBeacons().size() < 1) {
         throw new IllegalArgumentException("The size of `standardBeacons` must be greater than or equal to 1");
       }

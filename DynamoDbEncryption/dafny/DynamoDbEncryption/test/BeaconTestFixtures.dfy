@@ -94,20 +94,11 @@ module BeaconTestFixtures {
 
   const keySource : BeaconKeySource;
 
-  // erroneously empty
-  const VeryEmptyBeacons := BeaconVersion (
-    version := 1,
-    keySource := keySource,
-    standardBeacons := None,
-    compoundBeacons := None,
-    virtualFields := None
-  )
-
   // as empty as possible
   const EmptyBeacons := BeaconVersion (
     version := 1,
     keySource := keySource,
-    standardBeacons := Some([std2]),
+    standardBeacons := [std2],
     compoundBeacons := None,
     virtualFields := None
   )
@@ -115,7 +106,7 @@ module BeaconTestFixtures {
   const LotsaBeacons := BeaconVersion (
     version := 1,
     keySource := keySource,
-    standardBeacons := Some([std2, std4, std6, NameTitleBeacon, NameB, TitleB]),
+    standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
     compoundBeacons := Some([NameTitle, YearName, Mixed]),
     virtualFields := Some([NameTitleField])
   )
