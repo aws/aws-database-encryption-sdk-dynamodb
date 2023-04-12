@@ -42,105 +42,105 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Ref TableName
 
-    TestTableWithSimpleBeaconIndex:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: "partition_key"
-            AttributeType: "S"
-          - AttributeName: "sort_key"
-            AttributeType: "N"
-          - AttributeName: "beacon_str_attr"
-            AttributeType: "S"
-          - AttributeName: "beacon_num_attr"
-            AttributeType: "N"
-        GlobalSecondaryIndexes:
-          - IndexName: "Example-Beacon-Index"
-            KeySchema:
-              - AttributeName: "beacon_str_attr"
-                KeyType: "HASH"
-              - AttributeName: "beacon_num_attr"
-                KeyType: "RANGE"
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: "5"
-              WriteCapacityUnits: "5"
-        KeySchema:
-          - AttributeName: "partition_key"
-            KeyType: "HASH"
-          - AttributeName: "sort_key"
-            KeyType: "RANGE"
-        ProvisionedThroughput:
-          ReadCapacityUnits: "5"
-          WriteCapacityUnits: "5"
-        TableName: !Ref TableWithSimpleBeaconIndexName
+  TestTableWithSimpleBeaconIndex:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "partition_key"
+          AttributeType: "S"
+        - AttributeName: "sort_key"
+          AttributeType: "N"
+        - AttributeName: "beacon_str_attr"
+          AttributeType: "S"
+        - AttributeName: "beacon_num_attr"
+          AttributeType: "N"
+      GlobalSecondaryIndexes:
+        - IndexName: "Example-Beacon-Index"
+          KeySchema:
+            - AttributeName: "beacon_str_attr"
+              KeyType: "HASH"
+            - AttributeName: "beacon_num_attr"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+      KeySchema:
+        - AttributeName: "partition_key"
+          KeyType: "HASH"
+        - AttributeName: "sort_key"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref TableWithSimpleBeaconIndexName
 
-    # This schema is modeled off of
-    # https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
-    TestTableWithComplexBeaconIndex:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: "PK"
-            AttributeType: "S"
-          - AttributeName: "SK"
-            AttributeType: "S"
-          - AttributeName: "PK1"
-            AttributeType: "S"
-          - AttributeName: "SK1"
-            AttributeType: "S"
-          - AttributeName: "PK2"
-            AttributeType: "S"
-          - AttributeName: "SK2"
-            AttributeType: "S"
-          - AttributeName: "PK3"
-            AttributeType: "S"
-          - AttributeName: "SK3"
-            AttributeType: "S"
-        GlobalSecondaryIndexes:
-          - IndexName: "GSI-1"
-            KeySchema:
-              - AttributeName: "PK1"
-                KeyType: "HASH"
-              - AttributeName: "SK1"
-                KeyType: "RANGE"
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: "5"
-              WriteCapacityUnits: "5"
-          - IndexName: "GSI-2"
-            KeySchema:
-              - AttributeName: "PK2"
-                KeyType: "HASH"
-              - AttributeName: "SK2"
-                KeyType: "RANGE"
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: "5"
-              WriteCapacityUnits: "5"
-          - IndexName: "GSI-3"
-            KeySchema:
-              - AttributeName: "PK3"
-                KeyType: "HASH"
-              - AttributeName: "SK3"
-                KeyType: "RANGE"
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: "5"
-              WriteCapacityUnits: "5"
-        KeySchema:
-          - AttributeName: "PK"
-            KeyType: "HASH"
-          - AttributeName: "SK"
-            KeyType: "RANGE"
-        ProvisionedThroughput:
-          ReadCapacityUnits: "5"
-          WriteCapacityUnits: "5"
-        TableName: !Ref TableWithComplexBeaconIndexName
+  # This schema is modeled off of
+  # https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
+  TestTableWithComplexBeaconIndex:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "PK"
+          AttributeType: "S"
+        - AttributeName: "SK"
+          AttributeType: "S"
+        - AttributeName: "PK1"
+          AttributeType: "S"
+        - AttributeName: "SK1"
+          AttributeType: "S"
+        - AttributeName: "PK2"
+          AttributeType: "S"
+        - AttributeName: "SK2"
+          AttributeType: "S"
+        - AttributeName: "PK3"
+          AttributeType: "S"
+        - AttributeName: "SK3"
+          AttributeType: "S"
+      GlobalSecondaryIndexes:
+        - IndexName: "GSI-1"
+          KeySchema:
+            - AttributeName: "PK1"
+              KeyType: "HASH"
+            - AttributeName: "SK1"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "GSI-2"
+          KeySchema:
+            - AttributeName: "PK2"
+              KeyType: "HASH"
+            - AttributeName: "SK2"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "GSI-3"
+          KeySchema:
+            - AttributeName: "PK3"
+              KeyType: "HASH"
+            - AttributeName: "SK3"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+      KeySchema:
+        - AttributeName: "PK"
+          KeyType: "HASH"
+        - AttributeName: "SK"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref TableWithComplexBeaconIndexName
 
   # This policy SHOULD be given to:
   #  - awslabs/aws-dynamodb-encryption-dafny
