@@ -137,19 +137,20 @@ The name MUST be the name of a configured standard beacon.
 For example :
 
 | Beacon Name | Prefix |
-|---|---|
-| social | S- |
-| phone | P- |
-| zipcode | Z- |
+|-------------|--------|
+| social      | S-     |
+| phone       | P-     |
+| zipcode     | Z-     |
 
 The first row should be interpreted as a literal `S-` followed by the "social" standard beacon.
 
-Each [nonsensitive part](#non-sensitive-part) has a field name, a [terminal location](virtual.md#terminal-location) and a prefix.
+Each [nonsensitive part](#non-sensitive-part) has a field name,
+a [terminal location](virtual.md#terminal-location) and a prefix.
 The values of these fields are stored in plaintext.
 
-| Field Name | Location | Prefix |
-|---|---|---|
-| timestamp | timestamp | T- |
+| Field Name | Location  | Prefix |
+|------------|-----------|--------|
+| timestamp  | timestamp | T-     |
 
 The first row should be interpreted as a literal `T-` followed by the plaintext
 of the "timestamp" field.
@@ -166,11 +167,11 @@ but you can't have both "A-" and "A--".
 
 To write a compound beacon, one generates the [virtual database field](#virtual-database-field),
 via a `constructor`,
-and then turns the sensitive parts into [standard beacons](#standard-beacon).
+and then turns the sensitive parts from their [standard beacons](#standard-beacon).
 
 A single constructor has a name and an ordered list of parts.
 Each part can be required or optional.
-Every constructor must contain at least on required sensitive field.
+Every constructor must contain at least one required field.
 
 An example list of constructors might be :
 
@@ -247,7 +248,8 @@ On initialization of a Standard Beacon, the caller MUST provide:
 
  * a [terminal location](virtual.md#terminal-location) -- a string
 
-If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
+If no [terminal location](virtual.md#terminal-location) is provided,
+the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 Initialization MUST fail if two standard beacons are configured with the same location.
 
@@ -258,10 +260,10 @@ On initialization of a Compound Beacon, the caller MUST provide:
 
  * A name -- a string
  * A split character -- a character
- * A list of [sensitive parts](#sensitive-part)
-
+ 
  On initialization of a Compound Beacon, the caller MAY provide:
 
+ * A list of [sensitive parts](#sensitive-part)
  * A list of [non-sensitive parts](#non-sensitive-part)
  * A list of constructors
 
@@ -276,7 +278,8 @@ On initialization of a [non-sensitive parts](#non-sensitive-part), the caller MA
 
  * A [terminal location](virtual.md#terminal-location) -- a string
 
-If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
+If no [terminal location](virtual.md#terminal-location) is provided,
+the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 #### Sensitive Part Initialization
 
@@ -303,8 +306,8 @@ This name MUST match the name of one of the [sensitive](#sensitive-part) or [non
 ### Default Construction
 
 * If no constructors are configured, a default constructor MUST be generated.
-* This default constructor MUST be all of the non-sensitive parts, followed by all the
-sensitive part, all parts being required.
+* This default constructor MUST be all of the non-sensitive parts,
+followed by all the sensitive part, all parts being required.
 
 ### Part
 
@@ -340,13 +343,23 @@ Both standard and compound beacons define two operations
  * [hash](#hash) - turn a plaintext record into a beacon
  * [getPart](#getpart) - turn a plaintext query string into a beacon
 
-The key material used to hash MUST be obtained via the configured `KeyStore`'s `GetBeaconKey` operation.
-The input to this operation MUST be either:
-  - the `brachKeyId`, if configured in SearchConfig for this beacon.
-  - the output of the configured `branchKeyIdSupplier`'s `DynamoDbKeyBranchKeyIdSupplier`,
-    using the DDB `Key`
-    (an attribute map containing the partition and sort attributes for this GSI)
-    as input.
+The key material used to hash MUST be obtained
+from the [Beacon Key Source](./search-config.md#beacon-key-source)
+in the configured [Beacon Version](./search-config.md#beacon-version-initialization) for this beacon.
+
+If the configured [Beacon Key Source](./search-config.md#beacon-key-source)
+is [Single Key Store](./search-config.md#single-key-store-initialization)
+then the beacon key id MUST be passed to the configured `KeyStore`'s `GetBeaconKey` operation.
+
+If the configured [Beacon Key Source](./search-config.md#beacon-key-source)
+is [Multi Key Store](./search-config.md#multi-key-store-initialization)
+then the beacon key id passed to the configured `KeyStore`'s `GetBeaconKey` operation
+MUST be the [terminal location](virtual.md#terminal-location) configured in `Key Field Name`.
+
+This result SHOULD be stored in a [Local CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md).
+This Local CMC SHOULD be queried first
+and if the materials exist they should be used
+to avoid going to the `KeyStore` for every beacon.
 
 ### basicHash
  * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.

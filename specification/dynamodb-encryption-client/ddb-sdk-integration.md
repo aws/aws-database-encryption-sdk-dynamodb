@@ -168,13 +168,15 @@ The Item MUST be [writable](ddb-support.md#writable).
 
 The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
 
-Beacons MUST be [added](ddb-support.md#addbeacons).
+Non-Sensitive Beacons MUST be [added](ddb-support.md#addnonsensitivebeacons).
 
 If the request is validated,
 the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [Encrypt Item](./encrypt-item.md),
 where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-is output of the [add beacons](ddb-support.md#addbeacons) operation.
+is output of the [add beacons](ddb-support.md#addnonsensitivebeacons) operation.
+
+Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
 
 If any of the above fails,
 the client MUST NOT make a network call to DynamoDB,
@@ -182,7 +184,7 @@ and PutItem MUST yield an error.
 
 The PutItem request's `Item` field MUST be replaced
 with a value that is equivalent to
-the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
+the output of the [add sensitive beacons](ddb-support.md#addsensitivebeacons) operation
 calculated above.
 
 ### Encrypt before BatchWriteItem

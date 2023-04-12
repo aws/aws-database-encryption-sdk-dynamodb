@@ -15,8 +15,10 @@ The first category is for general support, used across multiple DynamoDB API tra
  * [Writable](#writable) - are the attributes in this item ok to write
  * [TestConditionExpression](#testconditionexpression) - Is this condition expression suitable for use
  * [TestUpdateExpression](#testupdateexpression) - Is this update expression suitable for use
- * [AddBeacons](#addbeacons) - Add attributes to an item to enable searchable encryption
- * [RemoveBeacons](#removebeacons) - Remove all private attributes from an item, e.g. the ones added in [AddBeacons](#addbeacons)
+ * [AddNonSensitiveBeacons](#addnonsensitivebeacons) - Add non sensitive attributes to an item to enable searchable encryption
+ * [AddSensitiveBeacons](#addsensitivebeacons) - Add attributes to an item to enable searchable encryption
+ * [RemoveBeacons](#removebeacons) - Remove all private attributes from an item,
+ e.g. the ones added in [AddNonSensitiveBeacons](#addnonsensitivebeacons) and [AddSensitiveBeacons](#addsensitivebeacons)
 
 The second category is support for specific interceptors, where the whole input or output structure is modified.
  * [CreateTableInputForBeacons](#createtableinputforbeacons)
@@ -42,18 +44,56 @@ TestConditionExpression MUST fail if any operand in the condition expression is 
 
 TestUpdateExpression MUST fail if any operand in the update expression is a signed attribute name.
 
-## AddBeacons
+AddSensitiveBeacons
 
-AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
+## AddNonSensitiveBeacons
+
+AddNonSensitiveBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
 returning a replacement AttributeMap.
 
-For every configured beacon which can be successfully built from the attributes in the input AttributeMap,
-AddBeacons MUST add an attribute named aws_dbe_b_NAME, where NAME is the name of the beacon.
-The value of this attribute MUST be a string, and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value)
+AddNonSensitiveBeacons MUST only operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
+that do not have any [sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
 
-AddBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
+For every configured compound beacons which only contains non sensitive parts
+that can be successfully built from the attributes in the input AttributeMap,
+AddNonSensitiveBeacons MUST add an attribute named aws_dbe_b_NAME,
+where NAME is the name of the beacon.
+The value of this attribute MUST be a string,
+and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value)
 
-The result of AddBeacons MUST contain, unaltered, everything in the input AttributeMap.
+AddNonSensitiveBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
+
+The result of AddNonSensitiveBeacons MUST contain, unaltered, everything in the input AttributeMap.
+
+## AddSensitiveBeacons
+
+AddSensitiveBeacons examines the [Encrypt Item Input](./encrypt-item.md#input) and [Encrypt Item Output](./encrypt-item.md#output).
+
+The [Parsed Header](./encrypt-item.md#parsed-header)'s encrypted data keys MUST contain only one encrypted data key.
+It's [Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
+MUST equal the provider ID for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt).
+
+If Beacon Key Source configuration is [multi key store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+and an attribute exists with the name of the configured Key Field Name
+then the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
+MUST match this value and this value MUST NOT be returned or written to DynamoDB. 
+
+AddSensitiveBeacons examines [DynamoDB Item](./encrypt-item.md#dynamodb-item) AttributeMap
+and modifies the [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
+it to be appropriate for Searchable Encryption,
+returning a replacement AttributeMap.
+
+AddSensitiveBeacons MUST NOT operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
+that only have [non-sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
+
+For every configured compound beacons which does not only contain non sensitive parts
+that can be successfully built from the attributes in the input AttributeMap,
+AddSensitiveBeacons MUST add an attribute named aws_dbe_b_NAME,
+where NAME is the name of the beacon.
+The value of this attribute MUST be a string,
+and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value)
+
+The result of AddSensitiveBeacons MUST contain, unaltered, everything in the input AttributeMap.
 
 ## RemoveBeacons
 
