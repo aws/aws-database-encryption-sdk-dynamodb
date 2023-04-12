@@ -1,5 +1,5 @@
 # This workflow performs tests in Java.
-name: Library Java tests
+name: Java Examples
 
 on: 
   pull_request:

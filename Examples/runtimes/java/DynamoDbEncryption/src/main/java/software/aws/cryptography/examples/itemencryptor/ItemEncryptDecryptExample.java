@@ -1,32 +1,20 @@
-package software.aws.cryptography.examples;
+package software.aws.cryptography.examples.itemencryptor;
 
-import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DecryptItemInput;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.EncryptItemInput;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/*
-  This example sets up DynamoDb Encryption for the AWS SDK client
-  and uses the low level PutItem and GetItem DDB APIs to demonstrate
-  putting a client-side encrypted item into DynamoDb
-  and then retrieving and decrypting that item from DynamoDb. 
-
-  Running this examples requires access to a DDBTable named `ddbTableName`
-  with the following primary key configuration:
-    - Partition key is named "partition_key" with type (S)
-    - Sort key is named "sort_key" with type (S)
- */
-public class BasicPutGetExample {
+public class ItemEncryptDecryptExample {
 
     public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
         // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
@@ -84,71 +72,51 @@ public class BasicPutGetExample {
         //   the ":" prefix should be considered unauthenticated.
         final String unauthAttrPrefix = ":";
 
-        // 3. Create the DynamoDb Encryption configuration for the table we will be writing to.
-        final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-        final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+        // 3. Create the configuration for the DynamoDb Item Encryptor
+        final DynamoDbItemEncryptorConfig config = DynamoDbItemEncryptorConfig.builder()
+                .tableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActions(attributeActions)
                 .keyring(kmsKeyring)
                 .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
                 .build();
-        tableConfigs.put(ddbTableName, config);
 
-        // 4. Create the DynamoDb Encryption Interceptor
-        DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
-                .config(DynamoDbTablesEncryptionConfig.builder()
-                        .tableEncryptionConfigs(tableConfigs)
-                        .build())
+        // 4. Create the DynamoDb Item Encryptor
+        final DynamoDbItemEncryptor itemEncryptor = DynamoDbItemEncryptor.builder()
+                .DynamoDbItemEncryptorConfig(config)
                 .build();
 
-        // 5. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
-        final DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(encryptionInterceptor)
-                                .build())
-                .build();
+        // 5. Directly encrypt a DynamoDb item using the DynamoDb Item Encryptor
+        final Map<String, AttributeValue> originalItem = new HashMap<>();
+        originalItem.put("partition_key", AttributeValue.builder().s("ItemEncryptDecryptExample").build());
+        originalItem.put("sort_key", AttributeValue.builder().n("0").build());
+        originalItem.put("data_to_encrypt", AttributeValue.builder().s("encrypt and sign me!").build());
+        originalItem.put("data_to_sign", AttributeValue.builder().s("sign me!").build());
+        originalItem.put(":data_to_ignore", AttributeValue.builder().s("ignore me!").build());
 
-        // 6. Put an item into our table using the above client.
-        //    Before the item gets sent to DynamoDb, it will be encrypted
-        //    client-side, according to our configuration.
-        final HashMap<String, AttributeValue> item = new HashMap<>();
-        item.put("partition_key", AttributeValue.builder().s("BasicPutGetExample").build());
-        item.put("sort_key", AttributeValue.builder().n("0").build());
-        item.put("data_to_encrypt", AttributeValue.builder().s("encrypt and sign me!").build());
-        item.put("data_to_sign", AttributeValue.builder().s("sign me!").build());
-        item.put(":data_to_ignore", AttributeValue.builder().s("ignore me!").build());
+        final Map<String, AttributeValue> encryptedItem = itemEncryptor.EncryptItem(
+                EncryptItemInput.builder()
+                        .plaintextItem(originalItem)
+                        .build()
+        ).encryptedItem();
 
-        final PutItemRequest putRequest = PutItemRequest.builder()
-                .tableName(ddbTableName)
-                .item(item)
-                .build();
+        // Demonstrate that the item has been encrypted
+        assert encryptedItem.get("partition_key").s().equals("ItemEncryptDecryptExample");
+        assert encryptedItem.get("sort_key").n().equals("0");
+        assert encryptedItem.get("data_to_encrypt").b() != null;
 
-        final PutItemResponse putResponse = ddb.putItem(putRequest);
-
-        // Demonstrate that PutItem succeeded
-        assert 200 == putResponse.sdkHttpResponse().statusCode();
-
-        // 7. Get the item back from our table using the same client.
-        //    The client will decrypt the item client-side, and return
-        //    back the original item.
-        final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-        keyToGet.put("partition_key", AttributeValue.builder().s("BasicPutGetExample").build());
-        keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
-
-        final GetItemRequest getRequest = GetItemRequest.builder()
-                .key(keyToGet)
-                .tableName(ddbTableName)
-                .build();
-
-        final GetItemResponse getResponse = ddb.getItem(getRequest);
+        // 6. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
+        final Map<String, AttributeValue> decryptedItem = itemEncryptor.DecryptItem(
+                DecryptItemInput.builder()
+                        .encryptedItem(encryptedItem)
+                        .build()
+        ).plaintextItem();
 
         // Demonstrate that GetItem succeeded and returned the decrypted item
-        assert 200 == getResponse.sdkHttpResponse().statusCode();
-        final Map<String, AttributeValue> returnedItem = getResponse.item();
-        assert returnedItem.get("data_to_encrypt").s().equals("encrypt and sign me!");
-
+        assert decryptedItem.get("partition_key").s().equals("ItemEncryptDecryptExample");
+        assert decryptedItem.get("sort_key").n().equals("0");
+        assert decryptedItem.get("data_to_encrypt").s().equals("encrypt and sign me!");
     }
 
     public static void main(final String[] args) {
