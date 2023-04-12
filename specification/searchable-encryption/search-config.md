@@ -30,7 +30,7 @@ Initialization MUST fail if the [version number](#version-number) is not `1`.
 
 ### Configured Field
 
-A name refers to a configured field if it appears in the 
+A name refers to a configured field if it appears in the
 [item encryptor](../dynamodb-encryption-client/ddb-item-encryptor.md#initialization)
 configuration as one of the
 [attribute actions](../dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions) or
@@ -42,7 +42,7 @@ or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-cli
 
 On initialization of a Beacon Version, the caller MUST provide:
 
- - A [version number](#version number) 
+ - A [version number](#version number)
  - A [Beacon Key Source](#beacon-key-source)
 
 On initialization of the Beacon Version, the caller MAY provide:
@@ -118,7 +118,7 @@ with the next higher [version number](#version number).
 
 When a record is written, its beacons are generated using the version designated in the [search config](#initialization). In addition to the configured beacons, a [version tag](#version-tag) MUST also be written.
 
-When a querying a database, it might be necessary to make multiple queries, one per version, 
+When a querying a database, it might be necessary to make multiple queries, one per version,
 to successfully find all the records.
 For this reason, it is recommended that one rewrite all of the records from an old version with the new version.
 
@@ -145,6 +145,7 @@ On initialization of a Single Key Store, the caller MUST provide:
  - [Keystore](#keystore)
  - [Beacon Key Id](#beacon-key-id)
  - [cacheTTL](#cachettl)
+
 ### Multi Key Store Initialization
 
 The multi key store is intended to be used
@@ -170,7 +171,7 @@ If being used with a Hierarchical Keyring to encrypt/decrypt items, this SHOULD 
 
 A single [Beacon Key Id](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md) that exists in the [keystore](####keystore).
 
-#### Key Field Name 
+#### Key Field Name
 
 A attribute name that is used to identify the beacon key.
 This attribute can be passed in on the DDB item,
@@ -182,7 +183,7 @@ and used to extract a beacon key id from a query.
 The [cacheTTL](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#time-to-live-ttl)
 for how long a beacon key should exist locally before reauthorization.
 
-#### max cache size 
+#### max cache size
 The [max cache size](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#entry-capacity)
 that the [Key Store Cache](#key-store-cache) will be configured to.
 
@@ -199,12 +200,6 @@ that the [Key Store Cache](#key-store-cache) will be configured to.
  It is easy for beacon key ids to be unique within a single key source,
  this may not be true across all key sources.
 
-
-
-The key field name is used
-to discover the beacon key to request from the keystore.
-It can be used on its own or as part of a compound beacon.
-
 ## Beacon Keys
 
 In order for [beacons](./beacons.md) to function they need materials.
@@ -212,48 +207,80 @@ Beacon keys are these materials.
 A beacon key forms a hierarchy of HMAC keys for all searchable components.
 Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key-source).
 
-### Get beacon key
+### Get beacon key after encrypt
 
-Takes a [Beacon Key Source](#beacon-key-source) and a [DynamoDB Item](../dynamodb-encryption-client/encrypt-item.md#dynamodb-item).
+Takes a [Search Config](#search-config) and a [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header).
 
-If the [Beacon Key Source](#beacon-key-source) is a [Single Key Store](#single-key-store-initialization) then:
+The [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header)'s encrypted data keys MUST contain only one encrypted data key.
+It's [Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
+MUST equal the provider ID for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt).
 
-Get beacon key MUST Call the associated [Key Store Cache](#key-store-cache)
-[Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry)
-with the configured Beacon Key Id.
-If the cache returns an [cache entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-entry)
-the get beacon key MUST return the [entry materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#materials).
+If the [Beacon Key Source](#beacon-key-source) is a [Single Key Store](#single-key-store-initialization)
+then `beacon key id` MUST be the configured [beacon key id](#beacon-key-id)
 
-If the cache does not return a [cache entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-entry)
-then the beacon key id MUST be passed to the configured `KeyStore`'s `GetBeaconKey` operation.
+If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key-store-initialization)
+then `beacon key id` MUST be the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
+MUST match this value.
 
-These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
-with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
-equal to now + configured `cacheTTL`.
-
-These cached materials MUST be returned.
-
-If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key-store-initialization) then:
-
-
-
+The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore` MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
+and the result returned.
 
 ### Get beacon key for query
 
+Takes a [Search Config](#search-config) and a [Query Object]
 
-### Verify beacon key after encrypt
+If the [Beacon Key Source](#beacon-key-source) is a [Single Key Store](#single-key-store-initialization)
+then `beacon key id` MUST be the configured [beacon key id](#beacon-key-id)
 
-### Verify beacon key after decrypt
+If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key-store-initialization)
+then construct a list of all [compound beacons](./beacons.md#compound-beacon)
+that have a [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
+with a `name` equal to the [Key Field Name](#key-field-name).
+If if this list of compound beacons is empty then get beacon key for query MUST fail.
 
+Construct a list of filter expression and key condition expression
+whose names are equal to the [compound beacons](./beacons.md#compound-beacon) names found.
+If this list of expression is empty get beacon key for query MUST fail.
 
+For each value extract the value of the [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
+with the `name` of that part that equals [Key Field Name](#key-field-name)
+and construct a list of beacon key ids.
 
-The BeaconVersion uses KeyStore in its Beacon Key Source to retrieve the beacon key.
-In the case of a Single Key Store,
-the Beacon Key Id on the Single Key Store MUST be passed to the KeyStore
-to retrieve the beacon key.
-In the case of a Multi Key Store,
-the value of Key Field Name MUST be used to get the beacon key it
-and be passed to the KeyStore.
+If this list of beacon key ids is empty get beacon key for query MUST fail.
+If this list of beacon key ids has more than one unique beacon key id
+then get beacon key for query MUST fail.
+
+This unique value MUST be the `beacon key id`.
+
+The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore` MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
+and the result returned.
+
+### Get Beacon Key Materials
+
+Takes a `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`
+
+Get beacon key MUST Call the associated [Key Store Cache](#key-store-cache)
+[Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry)
+with the `beacon key id`.
+
+If a [cache entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-entry)
+exist get beacon key MUST return the [entry materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#materials).
+
+The `beacon key id` MUST be passed to the configured `KeyStore`'s `GetBeaconKey` operation.
+If `GetBeaconKey` fails get beacon key MUST fail.
+
+For every [standard beacons](beacons.md#standard-beacon-initialization) an HMAC key
+MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
+[Beacon Key Materials](#beacon-key-materials) MUST be generated
+with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
+and the [HMAC Keys](#hmac-keys) equal to a map
+of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
+
+These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
+with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
+equal to now + configured [cacheTTL](#cachettl).
+
+These cached materials MUST be returned.
 
 ### HMAC Key Generation
 
@@ -264,3 +291,40 @@ to calculate the key for individual beacon,
 using the beacon key retrieved above as the initial key material with no salt.
 The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" and the beacon name.
 The `expectedLength` MUST be 64 bytes.
+
+
+
+
+
+
+
+// This needs to be moved to the ESDK specification,
+// but is here to facilitate development.
+## Beacon Key Materials
+
+#### Implementations
+
+| Language | Confirmed Compatible with Spec Version | Minimum Version Confirmed | Implementation |
+| -------- | -------------------------------------- | ------------------------- | -------------- |
+
+#### Structure
+
+Beacon Key materials are a structure containing materials
+that are used in structured encryption.
+They contain HMAC keys derived from a Beacon Key
+stored in the [Key Store](branch-key-store.md)
+
+This structure MUST include the following fields:
+
+- [Beacon Key Id](#beacon-key-id)
+- [HMAC Keys](#hmac-keys)
+
+##### Beacon Key Id
+
+The Beacon key id that was used to obtain
+the beacon key from a [Key Store](branch-key-store.md)
+
+##### HMAC Keys
+
+The a key-value mapping of arbitrary, UTF-8 encoded strings
+to HMAC Keys derived from the beacon key material.

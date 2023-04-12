@@ -131,7 +131,7 @@ field, or [virtual field](virtual.md), or to attempt to write a field of this na
 The `split character` separates the parts of a compound beacon.
 In the examples below, we assume "`.`".
 
-Each [sensitive part](#sensitive-part) has a name and a prefix.
+Each [sensitive part](#sensitive-part-initialization) has a name and a prefix.
 The name MUST be the name of a configured standard beacon.
 
 For example :
@@ -144,7 +144,7 @@ For example :
 
 The first row should be interpreted as a literal `S-` followed by the "social" standard beacon.
 
-Each [nonsensitive part](#non-sensitive-part) has a field name,
+Each [nonsensitive part](#non-sensitive-part-initialization) has a field name,
 a [terminal location](virtual.md#terminal-location) and a prefix.
 The values of these fields are stored in plaintext.
 
@@ -263,18 +263,18 @@ On initialization of a Compound Beacon, the caller MUST provide:
  
  On initialization of a Compound Beacon, the caller MAY provide:
 
- * A list of [sensitive parts](#sensitive-part)
- * A list of [non-sensitive parts](#non-sensitive-part)
+ * A list of [sensitive parts](#sensitive-part-initialization)
+ * A list of [non-sensitive parts](#non-sensitive-part-initialization)
  * A list of constructors
 
 #### Non Sensitive Part Initialization
 
-On initialization of a [non-sensitive part](#non-sensitive-part), the caller MUST provide:
+On initialization of a [non-sensitive part](#non-sensitive-part-initialization), the caller MUST provide:
 
  * A name -- a string
  * A prefix -- a string
 
-On initialization of a [non-sensitive parts](#non-sensitive-part), the caller MAY provide:
+On initialization of a [non-sensitive parts](#non-sensitive-part-initialization), the caller MAY provide:
 
  * A [terminal location](virtual.md#terminal-location) -- a string
 
@@ -283,7 +283,7 @@ the `name` MUST be used as the [terminal location](virtual.md#terminal-location)
 
 #### Sensitive Part Initialization
 
-On initialization of a [sensitive part](#sensitive-part), the caller MUST provide:
+On initialization of a [sensitive part](#sensitive-part-initialization), the caller MUST provide:
 
  * A name -- a string, the name of a standard beacon
  * A prefix -- a string
@@ -301,7 +301,7 @@ On initialization of a constructor part, the caller MUST provide:
  * A name -- a string
  * A required flag -- a boolean
 
-This name MUST match the name of one of the [sensitive](#sensitive-part) or [non-sensitive](#sensitive-part) parts.
+This name MUST match the name of one of the [sensitive](#sensitive-part-initialization) or [non-sensitive](#non-sensitive-part-initialization) parts.
 
 ### Default Construction
 
@@ -311,15 +311,15 @@ followed by all the sensitive part, all parts being required.
 
 ### Part
 
-The word `part` is used to refer to any [sensitive](#sensitive-part) or [non-sensitive](#sensitive-part) part.
+The word `part` is used to refer to any [sensitive](#sensitive-part-initialization) or [non-sensitive](#sensitive-part-initialization) part.
 
 ### Initialization Failure
 
 Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
 the `prefix` of any other [part](#part).
 
-Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
-any part of an encrypted field, or any [sensitive-part](#sensitive-part) fails to contain
+Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part-initialization) contains
+any part of an encrypted field, or any [sensitive-part](#sensitive-part-initialization) fails to contain
 some part of an encrypted field.
 
 Initialization MUST fail if any [constructor](#constructor) is configured with a field name
