@@ -297,10 +297,10 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  
  )
  datatype MultiKeyStore = | MultiKeyStore (
- nameonly keyStore: Option<AwsCryptographyKeyStoreTypes.IKeyStoreClient> ,
- nameonly keyFieldName: Option<string> ,
- nameonly cacheTTL: Option<int32> ,
- nameonly maxCacheSize: Option<int32>
+ nameonly keyStore: AwsCryptographyKeyStoreTypes.IKeyStoreClient ,
+ nameonly keyFieldName: string ,
+ nameonly cacheTTL: int32 ,
+ nameonly maxCacheSize: int32
  )
  datatype NonSensitivePart = | NonSensitivePart (
  nameonly name: string ,
@@ -332,9 +332,9 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ( 1 <= |x|  )
 }
  datatype SingleKeyStore = | SingleKeyStore (
- nameonly keyStore: Option<AwsCryptographyKeyStoreTypes.IKeyStoreClient> ,
- nameonly keyId: Option<string> ,
- nameonly cacheTTL: Option<int32>
+ nameonly keyStore: AwsCryptographyKeyStoreTypes.IKeyStoreClient ,
+ nameonly keyId: string ,
+ nameonly cacheTTL: int32
  )
  datatype StandardBeacon = | StandardBeacon (
  nameonly name: string ,

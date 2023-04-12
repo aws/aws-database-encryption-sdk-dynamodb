@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
+import java.util.Objects;
 import software.amazon.cryptography.keyStore.KeyStore;
 
 public class SingleKeyStore {
@@ -98,6 +99,15 @@ public class SingleKeyStore {
     }
 
     public SingleKeyStore build() {
+      if (Objects.isNull(this.keyStore()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyStore`");
+      }
+      if (Objects.isNull(this.keyId()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyId`");
+      }
+      if (Objects.isNull(this.cacheTTL()))  {
+        throw new IllegalArgumentException("Missing value for required field `cacheTTL`");
+      }
       return new SingleKeyStore(this);
     }
   }

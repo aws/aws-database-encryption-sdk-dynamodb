@@ -381,15 +381,22 @@ structure CompoundBeacon {
 structure KeyStoreReference {}
 
 structure SingleKeyStore {
+  @required
   keyStore : KeyStoreReference,
+  @required
   keyId : String,
+  @required
   cacheTTL: Integer,
 }
 
 structure MultiKeyStore {
+  @required
   keyStore : KeyStoreReference,
+  @required
   keyFieldName : String,
+  @required
   cacheTTL: Integer,
+  @required
   maxCacheSize: Integer
 }
 

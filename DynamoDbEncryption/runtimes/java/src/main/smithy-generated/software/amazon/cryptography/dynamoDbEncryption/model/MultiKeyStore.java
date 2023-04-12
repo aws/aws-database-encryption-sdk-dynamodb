@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
+import java.util.Objects;
 import software.amazon.cryptography.keyStore.KeyStore;
 
 public class MultiKeyStore {
@@ -121,6 +122,18 @@ public class MultiKeyStore {
     }
 
     public MultiKeyStore build() {
+      if (Objects.isNull(this.keyStore()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyStore`");
+      }
+      if (Objects.isNull(this.keyFieldName()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyFieldName`");
+      }
+      if (Objects.isNull(this.cacheTTL()))  {
+        throw new IllegalArgumentException("Missing value for required field `cacheTTL`");
+      }
+      if (Objects.isNull(this.maxCacheSize()))  {
+        throw new IllegalArgumentException("Missing value for required field `maxCacheSize`");
+      }
       return new MultiKeyStore(this);
     }
   }
