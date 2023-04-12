@@ -6,10 +6,10 @@ Parameters:
     Type: String
     Description: Test Table Name
     Default: DynamoDbEncryptionInterceptorTestTable
-  BranchKeystoreTableName:
-    Type: String
-    Description: Testing Branch Keystore Table Name
-    Default: BranchKeystoreTestTable
+#  BranchKeystoreTableName:
+#    Type: String
+#    Description: Testing Branch Keystore Table Name
+#    Default: BranchKeystoreTestTable
   ProjectName:
     Type: String
     Description: A prefix that will be applied to any names
@@ -38,41 +38,42 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Ref TableName
 
-  TestBranchKeystoreTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "branch-key-id"
-          AttributeType: "S"
-        - AttributeName: "status"
-          AttributeType: "S"
-        # TODO: `version` will need to become `type`; the spec recently changed from `version` to `type`.
-        # As of 4/12/2023, the MPL implementation has not been updated, and still refers to `version`.
-        # This table will use `version` to test the existing implementation.
-        # As part of updating, we will probably need to delete and recreate this table.
-        - AttributeName: "version"
-          AttributeType: "S"
-      GlobalSecondaryIndexes:
-        - IndexName: "Active-Keys"
-          KeySchema:
-            - AttributeName: "branch-key-id"
-              KeyType: "HASH"
-            - AttributeName: "status"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
-      KeySchema:
-        - AttributeName: "branch-key-id"
-          KeyType: "HASH"
-        - AttributeName: "version"
-          KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-      TableName: !Ref TableName
+  # TODO: Create this table when MPL implementation uses `type` in key schema
+  # MPL spec recently changed key schema from `version` to `type`.
+  # As of 4/12/2023, the MPL implementation has not been updated, and still refers to `version`.
+  # This table should be created when MPL uses `type` to test the existing implementation.
+  # Until then, we will use the existing non-CFN-controlled table for testing, which uses `version`.
+#  TestBranchKeystoreTable:
+#    Type: AWS::DynamoDB::Table
+#    Properties:
+#      AttributeDefinitions:
+#        - AttributeName: "branch-key-id"
+#          AttributeType: "S"
+#        - AttributeName: "status"
+#          AttributeType: "S"
+#        - AttributeName: "type"
+#          AttributeType: "S"
+#      GlobalSecondaryIndexes:
+#        - IndexName: "Active-Keys"
+#          KeySchema:
+#            - AttributeName: "branch-key-id"
+#              KeyType: "HASH"
+#            - AttributeName: "status"
+#              KeyType: "RANGE"
+#          Projection:
+#            ProjectionType: ALL
+#          ProvisionedThroughput:
+#            ReadCapacityUnits: "5"
+#            WriteCapacityUnits: "5"
+#      KeySchema:
+#        - AttributeName: "branch-key-id"
+#          KeyType: "HASH"
+#        - AttributeName: "type"
+#          KeyType: "RANGE"
+#      ProvisionedThroughput:
+#        ReadCapacityUnits: "5"
+#        WriteCapacityUnits: "5"
+#      TableName: !Ref BranchKeystoreTestTable
 
   # This policy SHOULD be given to:
   #  - awslabs/aws-dynamodb-encryption-dafny
@@ -99,8 +100,8 @@ Resources:
             Resource:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*"
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BranchKeystoreTableName}"
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BranchKeystoreTableName}/index/*"
+#              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BranchKeystoreTableName}"
+#              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BranchKeystoreTableName}/index/*"
 
   KMSUsage:
     Type: "AWS::IAM::ManagedPolicy"
