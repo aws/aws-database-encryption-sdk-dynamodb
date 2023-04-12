@@ -18,7 +18,7 @@ SERVICE_NAMESPACE_DynamoDbEncryption=aws.cryptography.dynamoDbEncryption
 SERVICE_NAMESPACE_DynamoDbItemEncryptor=aws.cryptography.dynamoDbEncryption.itemEncryptor
 SERVICE_NAMESPACE_DynamoDbEncryptionTransforms=aws.cryptography.dynamoDbEncryption.transforms
 
-MAX_RESOURCE_COUNT=10000000
+MAX_RESOURCE_COUNT=20000000
 # Order is important
 # In java they MUST be built
 # in the order they depend on each other
