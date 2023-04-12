@@ -83,7 +83,7 @@ jobs:
           make build_java CORES=$CORES
           make mvn_local_deploy
 
-      - name: Test ${{ matrix.library }}
+      - name: Test Examples
         working-directory: ./Examples
         run: |
           # Run simple examples
