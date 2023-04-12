@@ -44,15 +44,10 @@ TestConditionExpression MUST fail if any operand in the condition expression is 
 
 TestUpdateExpression MUST fail if any operand in the update expression is a signed attribute name.
 
-AddSensitiveBeacons
-
 ## AddNonSensitiveBeacons
 
 AddNonSensitiveBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
 returning a replacement AttributeMap.
-
-The [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source) for the configured table
-MUST be used to obtain the correct beacon key information needed to add non sensitive beacons.
 
 AddNonSensitiveBeacons MUST only operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
 that do not have any [sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
@@ -92,7 +87,7 @@ returning a replacement AttributeMap.
 AddSensitiveBeacons MUST NOT operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
 that only have [non-sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
 
-For every configured compound beacons which does not only contain non sensitive parts
+For all other configured beacons
 that can be successfully built from the attributes in the input AttributeMap,
 AddSensitiveBeacons MUST add an attribute named aws_dbe_b_NAME,
 where NAME is the name of the beacon.

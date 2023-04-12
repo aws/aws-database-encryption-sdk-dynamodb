@@ -167,7 +167,7 @@ but you can't have both "A-" and "A--".
 
 To write a compound beacon, one generates the [virtual database field](#virtual-database-field),
 via a `constructor`,
-and then turns the sensitive parts from their [standard beacons](#standard-beacon).
+and then combines the sensitive parts from the referenced [standard beacons](#standard-beacon).
 
 A single constructor has a name and an ordered list of parts.
 Each part can be required or optional.
@@ -362,10 +362,10 @@ and if the materials exist they should be used
 to avoid going to the `KeyStore` for every beacon.
 
 ### basicHash
- * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.
+ * basicHash MUST take an [hmac key](#hmac-key), a [beacon length](#beacon-length) and a sequence of bytes as input.
  * basicHash MUST produce a non-empty string as output.
  * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-of the input bytes and the configured key, and keep the first 8 bytes.
+of the input bytes and the [hmac key](#hmac-key), and keep the first 8 bytes.
  * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
  * the length of the returned string MUST be (`beacon length`/4) rounded up.
 
