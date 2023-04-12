@@ -82,7 +82,7 @@ module SearchConfigToInfo {
   {
     :- Need(config.version == 1, E("Version number in BeaconVersion must be '1'."));
     :- Need((config.standardBeacons.Some? && 0 < |config.standardBeacons.value|)
-         && (config.compoundBeacons.Some? && 0 < |config.compoundBeacons.value|),
+         || (config.compoundBeacons.Some? && 0 < |config.compoundBeacons.value|),
          E("At least one beacon must be configured."));
     var key :- GetPersistentKey(config.key);
     output := ConvertVersionWithKey(outer, config, key);
@@ -469,7 +469,7 @@ module SearchConfigToInfo {
     ensures client.ValidState()
   {
     if standard.None? && compound.None? {
-      return Failure(E("At least one beacon must be configured."));
+      return Failure(E("At least one beacon must be configured 1."));
     } else if standard.Some? && compound.Some? {
       var std :- AddStandardBeacons(standard.value, outer, key, client, virtualFields);
       output := AddCompoundBeacons(compound.value, outer, key, client, virtualFields, std);
