@@ -33,7 +33,7 @@ This string is the Branch Key Id that MUST be used by the hierarchical keyring f
 This operation MUST return an implementation of the `BranchKeyIdSupplier` that behaves in the following way on `GetBranchKeyId`:
 - It MUST deserialize the "aws-crypto-partition-name" value in the input encryption context to determine the partition name.
   If this key does not exist in the encryption context, this operation MUST fail.
-- It MUST get the serialized partition value by grabbing the `aws-crypto.attr:<partition_name>` from the encryption context.
+- It MUST get the serialized partition value by grabbing the `aws-crypto-attr.<partition_name>` from the encryption context.
   If this key does not exist in the encryption context, this operation MUST fail.
 - It MUST check for the existence of "aws-crypto-sort-name" in the input encryption context.
   - If this key exists, it gets the serialized sort value by grabbing the `aws-crypto.attr:<sort_name>` from the encryption context.
