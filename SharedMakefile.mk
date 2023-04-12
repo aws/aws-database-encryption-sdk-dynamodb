@@ -53,20 +53,28 @@ verify:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-verificationLogger:csv \
-		-timeLimit:300 \
+		-timeLimit:100 \
 		-trace \
-		`find . -name '*.dfy'`
+		`find . -name *.dfy`
 
-# Verify single file FILE with text logger, can also specify PROC to match specific methods
+# Verify single file FILE with text logger.
 # This is useful for debugging resource count usage within a file.
+# Use PROC to further scope the verification
 verify_single:
+	@: $(if ${CORES},,CORES=2);
 	dafny \
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-verificationLogger:text \
-		-timeLimit:60 \
+		-timeLimit:100 \
 		-trace \
 		$(if ${PROC},-proc:*$(PROC)*,) \
 		$(FILE)
@@ -78,10 +86,28 @@ verify_service:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-verificationLogger:csv \
-		-timeLimit:300 \
+		-timeLimit:100 \
 		-trace \
 		`find ./dafny/$(SERVICE) -name '*.dfy'` \
+
+format:
+	dafny format \
+		--function-syntax 3 \
+		--quantifier-syntax 3 \
+		--unicode-char false \
+		`find . -name '*.dfy'`
+
+format-check:
+	dafny format \
+		--check \
+		--function-syntax 3 \
+		--quantifier-syntax 3 \
+		--unicode-char false \
+		`find . -name '*.dfy'`
 
 dafny-reportgenerator:
 	dafny-reportgenerator \
@@ -92,8 +118,8 @@ dafny-reportgenerator:
 # Dafny helper targets
 
 # Transpile the entire project's impl
-_transpile_implementation_all: TRANSPILE_TARGETS=$(patsubst %, ./dafny/%/src/Index.dfy, $(PROJECT_SERVICES))
-_transpile_implementation_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES))
+_transpile_implementation_all: TRANSPILE_TARGETS=$(if ${PROJECT_SERVICES}, $(patsubst %, ./dafny/%/src/Index.dfy, $(PROJECT_SERVICES)), src/Index.dfy)
+_transpile_implementation_all: TRANSPILE_DEPENDENCIES=$(if ${PROJECT_INDEX}, $(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)), )
 _transpile_implementation_all: transpile_implementation
 
 # The `$(OUT)` and $(TARGET) variables are problematic.
@@ -117,15 +143,18 @@ transpile_implementation:
 		-spillTargetCode:3 \
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-useRuntimeLib \
 		-out $(OUT) \
 		$(TRANSPILE_TARGETS) \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		$(if $(strip $(STD_LIBRARY)) , -library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy, ) \
 		$(TRANSPILE_DEPENDENCIES)
 
 # Transpile the entire project's tests
-_transpile_test_all: TRANSPILE_TARGETS=$(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES))
-_transpile_test_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES))
+_transpile_test_all: TRANSPILE_TARGETS=$(if ${PROJECT_SERVICES}, $(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES)), `find ./test -name '*.dfy'`)
+_transpile_test_all: TRANSPILE_DEPENDENCIES=$(if ${PROJECT_INDEX}, $(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)), )
 _transpile_test_all: transpile_test
 
 transpile_test:
@@ -136,15 +165,20 @@ transpile_test:
 		-runAllTests:1 \
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-useRuntimeLib \
 		-out $(OUT) \
 		$(TRANSPILE_TARGETS) \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		$(if $(strip $(STD_LIBRARY)) , -library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy, ) \
 		$(TRANSPILE_DEPENDENCIES)
 
 
+# If we are not the StandardLibrary, transpile the StandardLibrary.
+# Transpile all other dependencies
 transpile_dependencies:
-	$(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) transpile_implementation_$(LANG)
+	$(if $(strip $(STD_LIBRARY)), $(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) transpile_implementation_$(LANG), )
 	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/% transpile_implementation_$(LANG);, $(PROJECT_DEPENDENCIES))
 
 ########################## Code-Gen targets
@@ -289,8 +323,10 @@ _mv_test_java:
 transpile_dependencies_java: LANG=java
 transpile_dependencies_java: transpile_dependencies
 
+# If we are not StandardLibrary, locally deploy the StandardLibrary.
+# Locally deploy all other dependencies 
 mvn_local_deploy_dependencies:
-	$(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) mvn_local_deploy
+	$(if $(strip $(STD_LIBRARY)), $(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) mvn_local_deploy, )
 	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/% mvn_local_deploy;, $(PROJECT_DEPENDENCIES))
 
 # The Java MUST all exist already through the transpile step.
@@ -299,9 +335,7 @@ mvn_local_deploy:
 
 test_java:
     # run Dafny generated tests
-	gradle -p runtimes/java runDafnyTests
-    # run hand written Java tests
-	gradle -p runtimes/java test
+	gradle -p runtimes/java runTests
 
 ########################## local testing targets
 
@@ -329,8 +363,8 @@ local_transpile_impl_single: deps_var=SERVICE_DEPS_$(SERVICE)
 local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/src/$(FILE)
 local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
 		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $($(deps_var))) \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
+		$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)) \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
 local_transpile_impl_single: transpile_implementation
 
 # Targets to transpile single local service for convenience.
@@ -348,9 +382,9 @@ local_transpile_test_net_single: TARGET=cs
 local_transpile_test_net_single: OUT=runtimes/net/tests/TestsFromDafny
 local_transpile_test_net_single: local_transpile_test_single
 
-local_transpile_test_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/test/$(FILE)
-local_transpile_test_single: TRANSPILE_DEPENDENCIES= \
+local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/test/$(FILE)
+local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
 		$(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES)) \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
+		$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)) \
+		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
 local_transpile_test_single: transpile_test
