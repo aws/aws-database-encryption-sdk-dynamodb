@@ -76,7 +76,7 @@ MUST equal the provider ID for the [AWS KMS Hierarchical Keyring](../../submodul
 If Beacon Key Source configuration is [multi key store](../searchable-encryption/search-config.md#multi-key-store-initialization)
 and an attribute exists with the name of the configured Key Field Name
 then the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
-MUST match this value and this value MUST NOT be returned or written to DynamoDB. 
+MUST match this value and this value.
 
 AddSensitiveBeacons examines [DynamoDB Item](./encrypt-item.md#dynamodb-item) AttributeMap
 and modifies the [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
@@ -93,7 +93,10 @@ where NAME is the name of the beacon.
 The value of this attribute MUST be a string,
 and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value)
 
-The result of AddSensitiveBeacons MUST contain, unaltered, everything in the input AttributeMap.
+The result of AddSensitiveBeacons MUST contain, unaltered, everything in the input AttributeMap
+unless the Beacon Key Source configuration
+is [multi key store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+in which case the Key Field Name MUST be removed.
 
 ## RemoveBeacons
 

@@ -68,11 +68,17 @@ the customer MUST provide in the process of creating a [DynamoDB Encryption Clie
 
 The client configuration consists of the following REQUIRED field:
 
-- [DynamoDb Table Encryption Configs](#dynamodb-tables-encryption-configs)
+- [DynamoDb Table Encryption Configs](#dynamodb-table-encryption-configs)
 
 The client configuration MAY include the following field:
 
-- TODO Searchable Encryption Config
+- [Searchable Encryption Config](../searchable-encryption/search-config.md)
+
+A [Searchable Encryption Config](../searchable-encryption/search-config.md)
+and either a [Legacy Config](./ddb-table-encryption-config.md#legacy-config)
+or a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy)
+being specified on the same client config is invalid,
+and MUST result in an error.
 
 ### DynamoDb Table Encryption Configs
 
