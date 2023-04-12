@@ -79,7 +79,7 @@ The [Parsed Header](./encrypt-item.md#parsed-header)'s encrypted data keys MUST 
 It's [Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
 MUST equal the provider ID for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt).
 
-If Beacon Key Source configuration is [multi key store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+If the Beacon Key Source configuration is [multi key store](../searchable-encryption/search-config.md#multi-key-store-initialization)
 and an attribute exists with the name of the configured Key Field Name
 then the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
 MUST match this value.
