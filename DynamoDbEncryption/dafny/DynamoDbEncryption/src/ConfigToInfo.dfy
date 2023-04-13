@@ -102,28 +102,33 @@ module SearchConfigToInfo {
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
     var source :- MakeKeySource(config.keyStore, config.keySource, primitives);
-    output := ConvertVersionWithSource(outer, primitives, config, source);
+    output := ConvertVersionWithSource(outer, config, source);
   }
 
   // convert configured BeaconVersion to internal BeaconVersion
   method ConvertVersionWithSource(
     outer : DynamoDbTableEncryptionConfig,
-    client: Primitives.AtomicPrimitivesClient,
     config : BeaconVersion,
     source : I.KeySource
   )
     returns (output : Result<I.BeaconVersion, Error>)
-    modifies client.Modifies
-    requires client.ValidState()
-    ensures client.ValidState()
+    modifies source.Modifies()
     requires source.ValidState()
     ensures output.Success? ==>
       && output.value.ValidState()
       && output.value.keySource == source
   {
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
-    var beacons :- ConvertBeacons(outer, client, virtualFields, config.standardBeacons, config.compoundBeacons);
-
+    var beacons :- ConvertBeacons(outer, source.client, virtualFields, config.standardBeacons, config.compoundBeacons);
+    if source.keyLoc.MultiLoc? {
+      var name := source.keyLoc.keyName;
+      if name in beacons {
+        return Failure(E("A beacon key field name of " + name + " was configured, but there's also a beacon of that name."));
+      }
+      if name in virtualFields {
+        return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
+      }
+    }
     return Success(I.BeaconVersion(
       version := config.version as I.VersionNumber,
       keySource := source,

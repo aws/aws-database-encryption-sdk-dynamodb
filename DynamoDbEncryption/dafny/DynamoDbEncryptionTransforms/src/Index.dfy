@@ -14,22 +14,27 @@ module
   import Operations = AwsCryptographyDynamoDbEncryptionTransformsOperations
   import DynamoDbItemEncryptor
   import SearchConfigToInfo
-
+  import ET = AwsCryptographyDynamoDbEncryptionTypes
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
   // build a default config?
   function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig
   {
-    AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig(
+    ET.DynamoDbTablesEncryptionConfig(
       tableEncryptionConfigs := map[]
     )
+  }
+
+  predicate ValidWholeSearchConfig(config : ET.DynamoDbTablesEncryptionConfig)
+  {
+    forall t <- config.tableEncryptionConfigs :: SearchConfigToInfo.ValidSearchConfig(config.tableEncryptionConfigs[t].search)
   }
 
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
   {
     var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
-
+    assert ValidWholeSearchConfig(config);
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-table-encryption-configs
     //# During initialization, this client MUST construct a
     //# [DynamoDb Item Encryptor](./ddb-table-encryption-config.md)
@@ -38,6 +43,7 @@ module
     while m'.Keys != {}
         invariant m'.Keys <= config.tableEncryptionConfigs.Keys
         invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
+        invariant forall k <- internalConfigs :: OneSearchValidState(internalConfigs[k])
         invariant forall tableName <- internalConfigs, tableConfig :: (tableConfig == internalConfigs[tableName]
           ==>
             && tableConfig.itemEncryptor.config.tableName == tableName
@@ -76,22 +82,26 @@ module
 
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
+        assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
         var searchR := SearchConfigToInfo.Convert(inputConfig, inputConfig.search);
         var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+        assert search.None? || search.value.ValidState();
+        assert search.None? || fresh(search.value.Modifies() - {search.value.versions[0].keySource.store});
         var internalConfig := DdbMiddlewareConfig.TableConfig(
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
           itemEncryptor := itemEncryptor,
           search := search
         );
-
+        assert OneSearchValidState(internalConfig);
         assert internalConfig.itemEncryptor.ValidState();
         internalConfigs := internalConfigs[tableName := internalConfig];
+        assert forall k <- internalConfigs :: OneSearchValidState(internalConfigs[k]);
 
         // Pop 'tableName' off the map, so that we may continue iterating
         m' := map k' | k' in m' && k' != tableName :: m'[k'];
     }
-
+    assert SearchValidState(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs));
     var client := new DynamoDbEncryptionTransformsClient(
       DdbMiddlewareConfig.Config(
         tableEncryptionConfigs := internalConfigs
