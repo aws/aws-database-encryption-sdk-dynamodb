@@ -227,7 +227,10 @@ module
       internalLegacyConfig := internalLegacyConfig,
       plaintextPolicy := plaintextPolicy
     );
-    assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
+
+    // Dafny needs some extra help here
+    assert (forall attribute <- internalConfig.attributeActions.Keys :: !(ReservedPrefix <= attribute));
+    assert Operations.ValidInternalConfig?(internalConfig);
 
     var client := new DynamoDbItemEncryptorClient(internalConfig);
     return Success(client);
