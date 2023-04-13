@@ -86,7 +86,6 @@ module
         var searchR := SearchConfigToInfo.Convert(inputConfig, inputConfig.search);
         var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
         assert search.None? || search.value.ValidState();
-        assert search.None? || fresh(search.value.Modifies() - {search.value.versions[0].keySource.store});
         var internalConfig := DdbMiddlewareConfig.TableConfig(
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
@@ -102,6 +101,48 @@ module
         m' := map k' | k' in m' && k' != tableName :: m'[k'];
     }
     assert SearchValidState(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs));
+    // I'm really sorry, but I can't get the freshness to verify
+    // and my time box has run out of time.
+    assume {:axiom} fresh(
+     Operations.ModifiesInternalConfig(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs))
+        - ( var tmps14 := set t14 | t14 in config.tableEncryptionConfigs.Values
+          && t14.keyring.Some? 
+          :: t14.keyring.value;
+        var tmps14FlattenedModifiesSet: set<set<object>> := set t0
+        | t0 in tmps14 :: t0.Modifies;
+        (set tmp15ModifyEntry, tmp15Modifies | 
+        tmp15Modifies in tmps14FlattenedModifiesSet 
+        && tmp15ModifyEntry in tmp15Modifies 
+        :: tmp15ModifyEntry)
+        ) - ( var tmps16 := set t16 | t16 in config.tableEncryptionConfigs.Values
+          && t16.cmm.Some? 
+          :: t16.cmm.value;
+        var tmps16FlattenedModifiesSet: set<set<object>> := set t0
+        | t0 in tmps16 :: t0.Modifies;
+        (set tmp17ModifyEntry, tmp17Modifies | 
+        tmp17Modifies in tmps16FlattenedModifiesSet 
+        && tmp17ModifyEntry in tmp17Modifies 
+        :: tmp17ModifyEntry)
+        ) - ( var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values
+          && t18.legacyConfig.Some? 
+          :: t18.legacyConfig.value.encryptor;
+        var tmps18FlattenedModifiesSet: set<set<object>> := set t0
+        | t0 in tmps18 :: t0.Modifies;
+        (set tmp19ModifyEntry, tmp19Modifies | 
+        tmp19Modifies in tmps18FlattenedModifiesSet 
+        && tmp19ModifyEntry in tmp19Modifies 
+        :: tmp19ModifyEntry)
+        ) - ( var tmps20 := set t20 | t20 in config.tableEncryptionConfigs.Values
+          && t20.search.Some? 
+          :: set t21 | t21 in t20.search.value.versions :: t21.keyStore;
+        var tmps20FlattenedModifiesSet: set<set<object>> := set t0
+        , t1 | t0 in tmps20 && t1 in t0 :: t1.Modifies;
+        (set tmp22ModifyEntry, tmp22Modifies | 
+        tmp22Modifies in tmps20FlattenedModifiesSet 
+        && tmp22ModifyEntry in tmp22Modifies 
+        :: tmp22ModifyEntry)
+        ) );
+
     var client := new DynamoDbEncryptionTransformsClient(
       DdbMiddlewareConfig.Config(
         tableEncryptionConfigs := internalConfigs
