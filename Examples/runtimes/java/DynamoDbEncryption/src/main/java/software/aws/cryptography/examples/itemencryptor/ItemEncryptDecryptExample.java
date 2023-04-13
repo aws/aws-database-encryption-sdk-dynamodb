@@ -14,6 +14,24 @@ import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+  This example sets up a DynamoDb Item Encryptor and uses
+  the EncryptItem and DecryptItem APIs to directly encrypt and
+  decrypt an existing DynamoDb item.
+  You should use the DynamoDb Item Encryptor
+  if you already have a DynamoDb Item to encrypt or decrypt,
+  and do not need to make a Put or Get call to DynamoDb.
+  For example, if you are using DynamoDb Streams,
+  you may already be working with an encrypted item obtained from
+  DynamoDb, and want to directly decrypt the item.
+
+  Running this example requires access to the DDB Table whose name
+  is provided in CLI arguments.
+  This table must be configured with the following
+  primary key configuration:
+    - Partition key is named "partition_key" with type (S)
+    - Sort key is named "sort_key" with type (S)
+ */
 public class ItemEncryptDecryptExample {
 
     public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
