@@ -33,8 +33,8 @@ public final class LegacyDynamoDbEncryptor implements ILegacyDynamoDbEncryptor {
     return this._impl;
   }
 
-  private static final class NativeWrapper implements Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor {
-    private final ILegacyDynamoDbEncryptor _impl;
+  protected static final class NativeWrapper implements Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor {
+    protected final ILegacyDynamoDbEncryptor _impl;
 
     NativeWrapper(ILegacyDynamoDbEncryptor nativeImpl) {
       if (nativeImpl instanceof LegacyDynamoDbEncryptor) {

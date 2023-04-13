@@ -17,7 +17,6 @@ module BatchWriteItemTransform {
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
-
   {
     var tableNames := input.sdkInput.RequestItems.Keys;
     var result : map<DDB.TableName, DDB.WriteRequests> := map[];

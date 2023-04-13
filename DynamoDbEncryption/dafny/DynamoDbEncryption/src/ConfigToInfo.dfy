@@ -29,12 +29,16 @@ module SearchConfigToInfo {
   import B = BaseBeacon
   import CB = CompoundBeacon
   import SE = AwsCryptographyStructuredEncryptionTypes
-  import Prim = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
 
   // convert configured SearchConfig to internal SearchInfo
   method Convert(outer : DynamoDbTableEncryptionConfig, config : Option<SearchConfig>)
-    returns (ret : Result<Option<I.ValidSearchInfo>, Error>)
+    returns (output : Result<Option<I.ValidSearchInfo>, Error>)
+    requires ValidSearchConfig(config)
+    ensures output.Success? && output.value.Some? ==>
+      && output.value.value.ValidState()
+      && fresh(output.value.value.versions[0].keySource.cache)
+      && fresh(output.value.value.versions[0].keySource.client)
   {
     if config.None? {
       return Success(None);
@@ -47,86 +51,84 @@ module SearchConfigToInfo {
       return Success(Some(info));
     }
   }
-  
-  // TODO : Placeholder
-  function method GetPersistentKey(keyring: BeaconKeySource)
-    : Result<Bytes, Error>
+
+  predicate ValidBeaconVersion(config : BeaconVersion)
   {
-    Success([1,2,3,4,5])
+    config.keyStore.ValidState()
+  }
+  predicate ValidSearchConfig(config : Option<SearchConfig>)
+  {
+    if config.None? then
+      true
+    else
+      forall b <- config.value.versions :: ValidBeaconVersion(b)
   }
 
-  // convert persistent key to the derived key for this beacon
-  method GetBeaconKey(client : Primitives.AtomicPrimitivesClient, key : Bytes, name : string)
-    returns (output : Result<Bytes, Error>)
+  method MakeKeySource(
+    keyStore : I.ValidStore,
+    config : BeaconKeySource,
+    client: Primitives.AtomicPrimitivesClient
+  )
+    returns (output : Result<I.KeySource, Error>)
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+    ensures output.Success? ==>
+      && output.value.ValidState()
+      && fresh(output.value.cache)
+      && output.value.client == client
   {
-    var info :- UTF8.Encode("AWS_DBE_SCAN_BEACON" + name).MapFailure(e => E(e));
-    var keyR := client.Hkdf(Prim.HkdfInput(
-      digestAlgorithm := Prim.SHA_512,
-      salt := None,
-      ikm := key,
-      info := info,
-      expectedLength := 64
-    ));
-    var key :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
-    return Success(key);
+    if config.multi? {
+      var cache := new I.DumbCache();
+      output := Success(I.KeySource(client, cache, keyStore, I.MultiLoc(config.multi.keyFieldName)));
+    } else {
+      var cache := new I.DumbCache();
+      output := Success(I.KeySource(client, cache, keyStore, I.SingleLoc(config.single.keyId)));
+    }
   }
 
   // convert configured BeaconVersion to internal BeaconVersion
   method ConvertVersion(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion)
     returns (output : Result<I.BeaconVersion, Error>)
+    requires ValidBeaconVersion(config)
+    ensures output.Success? ==>
+      && output.value.ValidState()
+      && fresh(output.value.keySource.cache)
+      && fresh(output.value.keySource.client)
   {
     :- Need(config.version == 1, E("Version number in BeaconVersion must be '1'."));
     :- Need(0 < |config.standardBeacons|, E("At least one standard beacon must be configured."));
-    var key :- GetPersistentKey(config.keySource);
-    output := ConvertVersionWithKey(outer, config, key);
-  }
 
-  method {:tailrecursion} GetHmacKeys(
-    client : Primitives.AtomicPrimitivesClient,
-    key : Bytes,
-    beacons : I.BeaconMap,
-    beaconKeys : seq<string>,
-    acc : HmacKeyMap := map[]
-  )
-    returns (output : Result<HmacKeyMap, Error>)
-    requires forall k <- beaconKeys :: k in beacons
-    requires forall k <- acc :: k in beacons
-    ensures output.Success? ==> forall k <- output.value :: k in beacons
-    decreases |beaconKeys|
-
-    modifies client.Modifies
-    requires client.ValidState()
-    ensures client.ValidState()
-  {
-    if |beaconKeys| == 0 {
-      return Success(acc);
-    } else {
-      var key :- GetBeaconKey(client, key, beaconKeys[0]);
-      output := GetHmacKeys(client, key, beacons, beaconKeys[1..], acc[beaconKeys[0] := key]);
-    }
+    var maybePrimitives := Primitives.AtomicPrimitives();
+    var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
+    var source :- MakeKeySource(config.keyStore, config.keySource, primitives);
+    output := ConvertVersionWithSource(outer, primitives, config, source);
   }
 
   // convert configured BeaconVersion to internal BeaconVersion
-  method ConvertVersionWithKey(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion, key : Bytes)
+  method ConvertVersionWithSource(
+    outer : DynamoDbTableEncryptionConfig,
+    client: Primitives.AtomicPrimitivesClient,
+    config : BeaconVersion,
+    source : I.KeySource
+  )
     returns (output : Result<I.BeaconVersion, Error>)
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+    requires source.ValidState()
+    ensures output.Success? ==>
+      && output.value.ValidState()
+      && output.value.keySource == source
   {
-    var maybePrimitives := Primitives.AtomicPrimitives();
-    var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
-
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
-    var beacons :- ConvertBeacons(outer, key, primitives, virtualFields, config.standardBeacons, config.compoundBeacons);
-
-    var beaconKeys := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
-    var hmacKeys :- GetHmacKeys(primitives, key, beacons, beaconKeys);
+    var beacons :- ConvertBeacons(outer, client, virtualFields, config.standardBeacons, config.compoundBeacons);
 
     return Success(I.BeaconVersion(
       version := config.version as I.VersionNumber,
+      keySource := source,
       beacons := beacons,
-      virtualFields := virtualFields,
-      hmacKeys := hmacKeys
+      virtualFields := virtualFields
     ));
   }
 
@@ -277,7 +279,6 @@ module SearchConfigToInfo {
   method {:tailrecursion} AddStandardBeacons(
       beacons : seq<StandardBeacon>,
       outer : DynamoDbTableEncryptionConfig,
-      key : Bytes,
       client: Primitives.AtomicPrimitivesClient,
       virtualFields : V.VirtualFieldMap,
       converted : I.BeaconMap := map[])
@@ -291,9 +292,8 @@ module SearchConfigToInfo {
     }
     :- Need(beacons[0].name !in converted, E("Duplicate StandardBeacon name : " + beacons[0].name));
     var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon");
-    var newKey :- GetBeaconKey(client, key, beacons[0].name);
     var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
-    var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, newKey, beacons[0].length as B.BeaconLength, locString);
+    var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString);
     :- Need(IsEncryptedV(outer, virtualFields, newBeacon.loc), E("StandardBeacon " + beacons[0].name + " not defined on an encrypted field."));
     var badBeacon := FindBeaconWithThisLocation(converted, newBeacon.loc);
     if badBeacon.Some? {
@@ -306,7 +306,7 @@ module SearchConfigToInfo {
       + ", but virtual field " + badField.value + " is already defined on that single location."));
     }
 
-    output := AddStandardBeacons(beacons[1..], outer, key, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
+    output := AddStandardBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
   }
 
   // optional location, defaults to name
@@ -439,7 +439,6 @@ module SearchConfigToInfo {
   method {:tailrecursion} AddCompoundBeacons(
       beacons : seq<CompoundBeacon>,
       outer : DynamoDbTableEncryptionConfig,
-      key : Bytes,
       client: Primitives.AtomicPrimitivesClient,
       virtualFields : V.VirtualFieldMap,
       converted : I.BeaconMap := map[])
@@ -475,13 +474,12 @@ module SearchConfigToInfo {
       parts,
       constructors
     );
-    output := AddCompoundBeacons(beacons[1..], outer, key, client, virtualFields, converted[beacons[0].name := I.Compound(newBeacon)]);
+    output := AddCompoundBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Compound(newBeacon)]);
   }
 
   // convert configured Beacons to internal BeaconMap
   method ConvertBeacons(
     outer : DynamoDbTableEncryptionConfig,
-    key : Bytes,
     client: Primitives.AtomicPrimitivesClient,
     virtualFields : V.VirtualFieldMap,
     standard : StandardBeaconList,
@@ -491,9 +489,9 @@ module SearchConfigToInfo {
     requires client.ValidState()
     ensures client.ValidState()
   {
-    var std :- AddStandardBeacons(standard, outer, key, client, virtualFields);
+    var std :- AddStandardBeacons(standard, outer, client, virtualFields);
     if compound.Some? {
-      output := AddCompoundBeacons(compound.value, outer, key, client, virtualFields, std);
+      output := AddCompoundBeacons(compound.value, outer, client, virtualFields, std);
     } else {
       output := Success(std);
     }

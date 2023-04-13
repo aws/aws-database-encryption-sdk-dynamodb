@@ -381,15 +381,18 @@ structure CompoundBeacon {
 structure KeyStoreReference {}
 
 structure SingleKeyStore {
-  keyStore : KeyStoreReference,
+  @required
   keyId : String,
+  @required
   cacheTTL: Integer,
 }
 
 structure MultiKeyStore {
-  keyStore : KeyStoreReference,
+  @required
   keyFieldName : String,
+  @required
   cacheTTL: Integer,
+  @required
   maxCacheSize: Integer
 }
 
@@ -401,6 +404,8 @@ union BeaconKeySource {
 structure BeaconVersion {
   @required
   version : VersionNumber,
+  @required
+  keyStore : KeyStoreReference,
   @required
   keySource: BeaconKeySource,
   @required

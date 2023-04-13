@@ -5,9 +5,12 @@ package software.amazon.cryptography.dynamoDbEncryption.model;
 
 import java.util.List;
 import java.util.Objects;
+import software.amazon.cryptography.keyStore.KeyStore;
 
 public class BeaconVersion {
   private final int version;
+
+  private final KeyStore keyStore;
 
   private final BeaconKeySource keySource;
 
@@ -19,6 +22,7 @@ public class BeaconVersion {
 
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
+    this.keyStore = builder.keyStore();
     this.keySource = builder.keySource();
     this.standardBeacons = builder.standardBeacons();
     this.compoundBeacons = builder.compoundBeacons();
@@ -27,6 +31,10 @@ public class BeaconVersion {
 
   public int version() {
     return this.version;
+  }
+
+  public KeyStore keyStore() {
+    return this.keyStore;
   }
 
   public BeaconKeySource keySource() {
@@ -58,6 +66,10 @@ public class BeaconVersion {
 
     int version();
 
+    Builder keyStore(KeyStore keyStore);
+
+    KeyStore keyStore();
+
     Builder keySource(BeaconKeySource keySource);
 
     BeaconKeySource keySource();
@@ -80,6 +92,8 @@ public class BeaconVersion {
   static class BuilderImpl implements Builder {
     protected int version;
 
+    protected KeyStore keyStore;
+
     protected BeaconKeySource keySource;
 
     protected List<StandardBeacon> standardBeacons;
@@ -93,6 +107,7 @@ public class BeaconVersion {
 
     protected BuilderImpl(BeaconVersion model) {
       this.version = model.version();
+      this.keyStore = model.keyStore();
       this.keySource = model.keySource();
       this.standardBeacons = model.standardBeacons();
       this.compoundBeacons = model.compoundBeacons();
@@ -106,6 +121,15 @@ public class BeaconVersion {
 
     public int version() {
       return this.version;
+    }
+
+    public Builder keyStore(KeyStore keyStore) {
+      this.keyStore = new KeyStore(keyStore);
+      return this;
+    }
+
+    public KeyStore keyStore() {
+      return this.keyStore;
     }
 
     public Builder keySource(BeaconKeySource keySource) {
@@ -150,6 +174,9 @@ public class BeaconVersion {
       }
       if (Objects.nonNull(this.version()) && this.version() < 1) {
         throw new IllegalArgumentException("`version` must be greater than or equal to 1");
+      }
+      if (Objects.isNull(this.keyStore()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyStore`");
       }
       if (Objects.isNull(this.keySource()))  {
         throw new IllegalArgumentException("Missing value for required field `keySource`");

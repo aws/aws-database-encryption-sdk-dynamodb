@@ -3,23 +3,16 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.cryptography.keyStore.KeyStore;
+import java.util.Objects;
 
 public class SingleKeyStore {
-  private final KeyStore keyStore;
-
   private final String keyId;
 
   private final Integer cacheTTL;
 
   protected SingleKeyStore(BuilderImpl builder) {
-    this.keyStore = builder.keyStore();
     this.keyId = builder.keyId();
     this.cacheTTL = builder.cacheTTL();
-  }
-
-  public KeyStore keyStore() {
-    return this.keyStore;
   }
 
   public String keyId() {
@@ -39,10 +32,6 @@ public class SingleKeyStore {
   }
 
   public interface Builder {
-    Builder keyStore(KeyStore keyStore);
-
-    KeyStore keyStore();
-
     Builder keyId(String keyId);
 
     String keyId();
@@ -55,8 +44,6 @@ public class SingleKeyStore {
   }
 
   static class BuilderImpl implements Builder {
-    protected KeyStore keyStore;
-
     protected String keyId;
 
     protected Integer cacheTTL;
@@ -65,18 +52,8 @@ public class SingleKeyStore {
     }
 
     protected BuilderImpl(SingleKeyStore model) {
-      this.keyStore = model.keyStore();
       this.keyId = model.keyId();
       this.cacheTTL = model.cacheTTL();
-    }
-
-    public Builder keyStore(KeyStore keyStore) {
-      this.keyStore = new KeyStore(keyStore);
-      return this;
-    }
-
-    public KeyStore keyStore() {
-      return this.keyStore;
     }
 
     public Builder keyId(String keyId) {
@@ -98,6 +75,12 @@ public class SingleKeyStore {
     }
 
     public SingleKeyStore build() {
+      if (Objects.isNull(this.keyId()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyId`");
+      }
+      if (Objects.isNull(this.cacheTTL()))  {
+        throw new IllegalArgumentException("Missing value for required field `cacheTTL`");
+      }
       return new SingleKeyStore(this);
     }
   }

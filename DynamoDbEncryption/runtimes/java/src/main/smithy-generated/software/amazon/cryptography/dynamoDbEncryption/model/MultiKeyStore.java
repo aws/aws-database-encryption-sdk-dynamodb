@@ -3,11 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dynamoDbEncryption.model;
 
-import software.amazon.cryptography.keyStore.KeyStore;
+import java.util.Objects;
 
 public class MultiKeyStore {
-  private final KeyStore keyStore;
-
   private final String keyFieldName;
 
   private final Integer cacheTTL;
@@ -15,14 +13,9 @@ public class MultiKeyStore {
   private final Integer maxCacheSize;
 
   protected MultiKeyStore(BuilderImpl builder) {
-    this.keyStore = builder.keyStore();
     this.keyFieldName = builder.keyFieldName();
     this.cacheTTL = builder.cacheTTL();
     this.maxCacheSize = builder.maxCacheSize();
-  }
-
-  public KeyStore keyStore() {
-    return this.keyStore;
   }
 
   public String keyFieldName() {
@@ -46,10 +39,6 @@ public class MultiKeyStore {
   }
 
   public interface Builder {
-    Builder keyStore(KeyStore keyStore);
-
-    KeyStore keyStore();
-
     Builder keyFieldName(String keyFieldName);
 
     String keyFieldName();
@@ -66,8 +55,6 @@ public class MultiKeyStore {
   }
 
   static class BuilderImpl implements Builder {
-    protected KeyStore keyStore;
-
     protected String keyFieldName;
 
     protected Integer cacheTTL;
@@ -78,19 +65,9 @@ public class MultiKeyStore {
     }
 
     protected BuilderImpl(MultiKeyStore model) {
-      this.keyStore = model.keyStore();
       this.keyFieldName = model.keyFieldName();
       this.cacheTTL = model.cacheTTL();
       this.maxCacheSize = model.maxCacheSize();
-    }
-
-    public Builder keyStore(KeyStore keyStore) {
-      this.keyStore = new KeyStore(keyStore);
-      return this;
-    }
-
-    public KeyStore keyStore() {
-      return this.keyStore;
     }
 
     public Builder keyFieldName(String keyFieldName) {
@@ -121,6 +98,15 @@ public class MultiKeyStore {
     }
 
     public MultiKeyStore build() {
+      if (Objects.isNull(this.keyFieldName()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyFieldName`");
+      }
+      if (Objects.isNull(this.cacheTTL()))  {
+        throw new IllegalArgumentException("Missing value for required field `cacheTTL`");
+      }
+      if (Objects.isNull(this.maxCacheSize()))  {
+        throw new IllegalArgumentException("Missing value for required field `maxCacheSize`");
+      }
       return new MultiKeyStore(this);
     }
   }

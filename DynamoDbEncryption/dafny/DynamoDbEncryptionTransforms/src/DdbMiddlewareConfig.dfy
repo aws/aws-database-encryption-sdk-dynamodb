@@ -26,9 +26,34 @@ module DdbMiddlewareConfig {
 
   type ValidTableConfig = c: TableConfig | ValidTableConfig?(c) witness *
 
+  function OneSearchModifies(config : ValidTableConfig) : set<object>
+  {
+    if config.search.Some? then config.search.value.Modifies() else {}
+  }
+  function SearchModifies(config: Config) : set<object>
+  {
+    set x, y | y in config.tableEncryptionConfigs && x in OneSearchModifies(config.tableEncryptionConfigs[y]) :: x
+  }
+  function SearchModifiesTable(config: Config, tableName : string) : set<object>
+  {
+    if tableName in config.tableEncryptionConfigs then
+      OneSearchModifies(config.tableEncryptionConfigs[tableName])
+    else
+      {}
+  }
+  predicate OneSearchValidState(config : ValidTableConfig)
+  {
+    if config.search.Some? then config.search.value.ValidState() else true
+  }
+  predicate SearchValidState(config: Config)
+  {
+    forall k <- config.tableEncryptionConfigs :: OneSearchValidState(config.tableEncryptionConfigs[k])
+  }
+
   function ModifiesConfig(config: Config) : set<object>
   {
-    set t <- config.tableEncryptionConfigs.Keys, o <- config.tableEncryptionConfigs[t].itemEncryptor.Modifies :: o
+    (set t <- config.tableEncryptionConfigs.Keys, o <- config.tableEncryptionConfigs[t].itemEncryptor.Modifies :: o)
+    + (set t <- config.tableEncryptionConfigs.Keys, o <- OneSearchModifies(config.tableEncryptionConfigs[t]) :: o)
   }
 
   predicate ValidConfig?(config: Config)
@@ -37,6 +62,7 @@ module DdbMiddlewareConfig {
         config.tableEncryptionConfigs[tableName].itemEncryptor.config.tableName == tableName)
     && (forall t :: t in config.tableEncryptionConfigs.Keys ==>
         config.tableEncryptionConfigs[t].itemEncryptor.ValidState())
+    && SearchValidState(config)
   }
 
 

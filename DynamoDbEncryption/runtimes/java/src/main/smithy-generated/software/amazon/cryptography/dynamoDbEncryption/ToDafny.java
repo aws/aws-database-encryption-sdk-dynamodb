@@ -87,15 +87,6 @@ public class ToDafny {
     return Error.create_CollectionOfErrors(list);
   }
 
-  public static SensitivePart SensitivePart(
-      software.amazon.cryptography.dynamoDbEncryption.model.SensitivePart nativeValue) {
-    DafnySequence<? extends Character> name;
-    name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
-    DafnySequence<? extends Character> prefix;
-    prefix = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.prefix());
-    return new SensitivePart(name, prefix);
-  }
-
   public static StandardBeacon StandardBeacon(
       software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon nativeValue) {
     DafnySequence<? extends Character> name;
@@ -109,20 +100,29 @@ public class ToDafny {
     return new StandardBeacon(name, length, loc);
   }
 
-  public static GetBranchKeyIdFromDdbKeyInput GetBranchKeyIdFromDdbKeyInput(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyInput nativeValue) {
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> ddbKey;
-    ddbKey = Dafny.Com.Amazonaws.Dynamodb.ToDafny.Key(nativeValue.ddbKey());
-    return new GetBranchKeyIdFromDdbKeyInput(ddbKey);
+  public static SensitivePart SensitivePart(
+      software.amazon.cryptography.dynamoDbEncryption.model.SensitivePart nativeValue) {
+    DafnySequence<? extends Character> name;
+    name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
+    DafnySequence<? extends Character> prefix;
+    prefix = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.prefix());
+    return new SensitivePart(name, prefix);
   }
 
-  public static GetSubstring GetSubstring(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetSubstring nativeValue) {
-    Integer low;
-    low = (nativeValue.low());
-    Integer high;
-    high = (nativeValue.high());
-    return new GetSubstring(low, high);
+  public static ConstructorPart ConstructorPart(
+      software.amazon.cryptography.dynamoDbEncryption.model.ConstructorPart nativeValue) {
+    DafnySequence<? extends Character> name;
+    name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
+    Boolean required;
+    required = (nativeValue.required());
+    return new ConstructorPart(name, required);
+  }
+
+  public static Constructor Constructor(
+      software.amazon.cryptography.dynamoDbEncryption.model.Constructor nativeValue) {
+    DafnySequence<? extends ConstructorPart> parts;
+    parts = ToDafny.ConstructorPartList(nativeValue.parts());
+    return new Constructor(parts);
   }
 
   public static CompoundBeacon CompoundBeacon(
@@ -146,41 +146,11 @@ public class ToDafny {
     return new CompoundBeacon(name, split, sensitive, nonSensitive, constructors);
   }
 
-  public static Constructor Constructor(
-      software.amazon.cryptography.dynamoDbEncryption.model.Constructor nativeValue) {
-    DafnySequence<? extends ConstructorPart> parts;
-    parts = ToDafny.ConstructorPartList(nativeValue.parts());
-    return new Constructor(parts);
-  }
-
-  public static ConstructorPart ConstructorPart(
-      software.amazon.cryptography.dynamoDbEncryption.model.ConstructorPart nativeValue) {
-    DafnySequence<? extends Character> name;
-    name = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name());
-    Boolean required;
-    required = (nativeValue.required());
-    return new ConstructorPart(name, required);
-  }
-
-  public static MultiKeyStore MultiKeyStore(
-      software.amazon.cryptography.dynamoDbEncryption.model.MultiKeyStore nativeValue) {
-    Option<IKeyStoreClient> keyStore;
-    keyStore = Objects.nonNull(nativeValue.keyStore()) ?
-        Option.create_Some(software.amazon.cryptography.keyStore.ToDafny.KeyStore(nativeValue.keyStore()))
-        : Option.create_None();
-    Option<DafnySequence<? extends Character>> keyFieldName;
-    keyFieldName = Objects.nonNull(nativeValue.keyFieldName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyFieldName()))
-        : Option.create_None();
-    Option<Integer> cacheTTL;
-    cacheTTL = Objects.nonNull(nativeValue.cacheTTL()) ?
-        Option.create_Some((nativeValue.cacheTTL()))
-        : Option.create_None();
-    Option<Integer> maxCacheSize;
-    maxCacheSize = Objects.nonNull(nativeValue.maxCacheSize()) ?
-        Option.create_Some((nativeValue.maxCacheSize()))
-        : Option.create_None();
-    return new MultiKeyStore(keyStore, keyFieldName, cacheTTL, maxCacheSize);
+  public static GetBranchKeyIdFromDdbKeyInput GetBranchKeyIdFromDdbKeyInput(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyInput nativeValue) {
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> ddbKey;
+    ddbKey = Dafny.Com.Amazonaws.Dynamodb.ToDafny.Key(nativeValue.ddbKey());
+    return new GetBranchKeyIdFromDdbKeyInput(ddbKey);
   }
 
   public static VirtualPart VirtualPart(
@@ -213,17 +183,12 @@ public class ToDafny {
     return new GetPrefix(length);
   }
 
-  public static CreateDynamoDbEncryptionBranchKeyIdSupplierOutput CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
-      software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput nativeValue) {
-    IBranchKeyIdSupplier branchKeyIdSupplier;
-    branchKeyIdSupplier = software.amazon.cryptography.materialProviders.ToDafny.BranchKeyIdSupplier(nativeValue.branchKeyIdSupplier());
-    return new CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(branchKeyIdSupplier);
-  }
-
   public static BeaconVersion BeaconVersion(
       software.amazon.cryptography.dynamoDbEncryption.model.BeaconVersion nativeValue) {
     Integer version;
     version = (nativeValue.version());
+    IKeyStoreClient keyStore;
+    keyStore = software.amazon.cryptography.keyStore.ToDafny.KeyStore(nativeValue.keyStore());
     BeaconKeySource keySource;
     keySource = ToDafny.BeaconKeySource(nativeValue.keySource());
     DafnySequence<? extends StandardBeacon> standardBeacons;
@@ -236,34 +201,12 @@ public class ToDafny {
     virtualFields = (Objects.nonNull(nativeValue.virtualFields()) && nativeValue.virtualFields().size() > 0) ?
         Option.create_Some(ToDafny.VirtualFieldList(nativeValue.virtualFields()))
         : Option.create_None();
-    return new BeaconVersion(version, keySource, standardBeacons, compoundBeacons, virtualFields);
+    return new BeaconVersion(version, keyStore, keySource, standardBeacons, compoundBeacons, virtualFields);
   }
 
   public static Lower Lower(
       software.amazon.cryptography.dynamoDbEncryption.model.Lower nativeValue) {
     return new Lower();
-  }
-
-  public static SingleKeyStore SingleKeyStore(
-      software.amazon.cryptography.dynamoDbEncryption.model.SingleKeyStore nativeValue) {
-    Option<IKeyStoreClient> keyStore;
-    keyStore = Objects.nonNull(nativeValue.keyStore()) ?
-        Option.create_Some(software.amazon.cryptography.keyStore.ToDafny.KeyStore(nativeValue.keyStore()))
-        : Option.create_None();
-    Option<DafnySequence<? extends Character>> keyId;
-    keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
-        : Option.create_None();
-    Option<Integer> cacheTTL;
-    cacheTTL = Objects.nonNull(nativeValue.cacheTTL()) ?
-        Option.create_Some((nativeValue.cacheTTL()))
-        : Option.create_None();
-    return new SingleKeyStore(keyStore, keyId, cacheTTL);
-  }
-
-  public static Upper Upper(
-      software.amazon.cryptography.dynamoDbEncryption.model.Upper nativeValue) {
-    return new Upper();
   }
 
   public static GetSegment GetSegment(
@@ -275,15 +218,25 @@ public class ToDafny {
     return new GetSegment(split, index);
   }
 
-  public static GetSegments GetSegments(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetSegments nativeValue) {
-    DafnySequence<? extends Character> split;
-    split = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.split());
-    Integer low;
-    low = (nativeValue.low());
-    Integer high;
-    high = (nativeValue.high());
-    return new GetSegments(split, low, high);
+  public static SingleKeyStore SingleKeyStore(
+      software.amazon.cryptography.dynamoDbEncryption.model.SingleKeyStore nativeValue) {
+    DafnySequence<? extends Character> keyId;
+    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    Integer cacheTTL;
+    cacheTTL = (nativeValue.cacheTTL());
+    return new SingleKeyStore(keyId, cacheTTL);
+  }
+
+  public static Upper Upper(
+      software.amazon.cryptography.dynamoDbEncryption.model.Upper nativeValue) {
+    return new Upper();
+  }
+
+  public static GetSuffix GetSuffix(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetSuffix nativeValue) {
+    Integer length;
+    length = (nativeValue.length());
+    return new GetSuffix(length);
   }
 
   public static DynamoDbTableEncryptionConfig DynamoDbTableEncryptionConfig(
@@ -344,18 +297,18 @@ public class ToDafny {
     return new NonSensitivePart(name, prefix, loc);
   }
 
+  public static CreateDynamoDbEncryptionBranchKeyIdSupplierOutput CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
+      software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput nativeValue) {
+    IBranchKeyIdSupplier branchKeyIdSupplier;
+    branchKeyIdSupplier = software.amazon.cryptography.materialProviders.ToDafny.BranchKeyIdSupplier(nativeValue.branchKeyIdSupplier());
+    return new CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(branchKeyIdSupplier);
+  }
+
   public static GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKeyOutput(
       software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput nativeValue) {
     DafnySequence<? extends Character> branchKeyId;
     branchKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyId());
     return new GetBranchKeyIdFromDdbKeyOutput(branchKeyId);
-  }
-
-  public static GetSuffix GetSuffix(
-      software.amazon.cryptography.dynamoDbEncryption.model.GetSuffix nativeValue) {
-    Integer length;
-    length = (nativeValue.length());
-    return new GetSuffix(length);
   }
 
   public static DynamoDbTablesEncryptionConfig DynamoDbTablesEncryptionConfig(
@@ -396,6 +349,17 @@ public class ToDafny {
     return new SearchConfig(versions, writeVersion);
   }
 
+  public static MultiKeyStore MultiKeyStore(
+      software.amazon.cryptography.dynamoDbEncryption.model.MultiKeyStore nativeValue) {
+    DafnySequence<? extends Character> keyFieldName;
+    keyFieldName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyFieldName());
+    Integer cacheTTL;
+    cacheTTL = (nativeValue.cacheTTL());
+    Integer maxCacheSize;
+    maxCacheSize = (nativeValue.maxCacheSize());
+    return new MultiKeyStore(keyFieldName, cacheTTL, maxCacheSize);
+  }
+
   public static VirtualField VirtualField(
       software.amazon.cryptography.dynamoDbEncryption.model.VirtualField nativeValue) {
     DafnySequence<? extends Character> name;
@@ -405,28 +369,30 @@ public class ToDafny {
     return new VirtualField(name, parts);
   }
 
+  public static GetSegments GetSegments(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetSegments nativeValue) {
+    DafnySequence<? extends Character> split;
+    split = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.split());
+    Integer low;
+    low = (nativeValue.low());
+    Integer high;
+    high = (nativeValue.high());
+    return new GetSegments(split, low, high);
+  }
+
+  public static GetSubstring GetSubstring(
+      software.amazon.cryptography.dynamoDbEncryption.model.GetSubstring nativeValue) {
+    Integer low;
+    low = (nativeValue.low());
+    Integer high;
+    high = (nativeValue.high());
+    return new GetSubstring(low, high);
+  }
+
   public static Error Error(DynamoDbEncryptionException nativeValue) {
     DafnySequence<? extends Character> message;
     message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_DynamoDbEncryptionException(message);
-  }
-
-  public static PlaintextPolicy PlaintextPolicy(
-      software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy nativeValue) {
-    switch (nativeValue) {
-      case REQUIRE_WRITE_ALLOW_READ: {
-        return PlaintextPolicy.create_REQUIRE__WRITE__ALLOW__READ();
-      }
-      case FORBID_WRITE_ALLOW_READ: {
-        return PlaintextPolicy.create_FORBID__WRITE__ALLOW__READ();
-      }
-      case FORBID_WRITE_FORBID_READ: {
-        return PlaintextPolicy.create_FORBID__WRITE__FORBID__READ();
-      }
-      default: {
-        throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PlaintextPolicy.");
-      }
-    }
   }
 
   public static LegacyPolicy LegacyPolicy(
@@ -443,6 +409,24 @@ public class ToDafny {
       }
       default: {
         throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.LegacyPolicy.");
+      }
+    }
+  }
+
+  public static PlaintextPolicy PlaintextPolicy(
+      software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy nativeValue) {
+    switch (nativeValue) {
+      case REQUIRE_WRITE_ALLOW_READ: {
+        return PlaintextPolicy.create_REQUIRE__WRITE__ALLOW__READ();
+      }
+      case FORBID_WRITE_ALLOW_READ: {
+        return PlaintextPolicy.create_FORBID__WRITE__ALLOW__READ();
+      }
+      case FORBID_WRITE_FORBID_READ: {
+        return PlaintextPolicy.create_FORBID__WRITE__FORBID__READ();
+      }
+      default: {
+        throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.PlaintextPolicy.");
       }
     }
   }
@@ -487,12 +471,12 @@ public class ToDafny {
     throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualTransform.");
   }
 
-  public static DafnySequence<? extends ConstructorPart> ConstructorPartList(
-      List<software.amazon.cryptography.dynamoDbEncryption.model.ConstructorPart> nativeValue) {
+  public static DafnySequence<? extends VirtualField> VirtualFieldList(
+      List<software.amazon.cryptography.dynamoDbEncryption.model.VirtualField> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.cryptography.dynamoDbEncryption.ToDafny::ConstructorPart, 
-        ConstructorPart._typeDescriptor());
+        software.amazon.cryptography.dynamoDbEncryption.ToDafny::VirtualField, 
+        VirtualField._typeDescriptor());
   }
 
   public static DafnySequence<? extends StandardBeacon> StandardBeaconList(
@@ -503,14 +487,6 @@ public class ToDafny {
         StandardBeacon._typeDescriptor());
   }
 
-  public static DafnySequence<? extends VirtualPart> VirtualPartList(
-      List<software.amazon.cryptography.dynamoDbEncryption.model.VirtualPart> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
-        nativeValue, 
-        software.amazon.cryptography.dynamoDbEncryption.ToDafny::VirtualPart, 
-        VirtualPart._typeDescriptor());
-  }
-
   public static DafnySequence<? extends NonSensitivePart> NonSensitivePartsList(
       List<software.amazon.cryptography.dynamoDbEncryption.model.NonSensitivePart> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
@@ -519,12 +495,20 @@ public class ToDafny {
         NonSensitivePart._typeDescriptor());
   }
 
-  public static DafnySequence<? extends VirtualTransform> VirtualTransformList(
-      List<software.amazon.cryptography.dynamoDbEncryption.model.VirtualTransform> nativeValue) {
+  public static DafnySequence<? extends ConstructorPart> ConstructorPartList(
+      List<software.amazon.cryptography.dynamoDbEncryption.model.ConstructorPart> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.cryptography.dynamoDbEncryption.ToDafny::VirtualTransform, 
-        VirtualTransform._typeDescriptor());
+        software.amazon.cryptography.dynamoDbEncryption.ToDafny::ConstructorPart, 
+        ConstructorPart._typeDescriptor());
+  }
+
+  public static DafnySequence<? extends VirtualPart> VirtualPartList(
+      List<software.amazon.cryptography.dynamoDbEncryption.model.VirtualPart> nativeValue) {
+    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+        nativeValue, 
+        software.amazon.cryptography.dynamoDbEncryption.ToDafny::VirtualPart, 
+        VirtualPart._typeDescriptor());
   }
 
   public static DafnySequence<? extends Constructor> ConstructorList(
@@ -533,6 +517,14 @@ public class ToDafny {
         nativeValue, 
         software.amazon.cryptography.dynamoDbEncryption.ToDafny::Constructor, 
         Constructor._typeDescriptor());
+  }
+
+  public static DafnySequence<? extends VirtualTransform> VirtualTransformList(
+      List<software.amazon.cryptography.dynamoDbEncryption.model.VirtualTransform> nativeValue) {
+    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+        nativeValue, 
+        software.amazon.cryptography.dynamoDbEncryption.ToDafny::VirtualTransform, 
+        VirtualTransform._typeDescriptor());
   }
 
   public static DafnySequence<? extends SensitivePart> SensitivePartsList(
@@ -559,14 +551,6 @@ public class ToDafny {
         BeaconVersion._typeDescriptor());
   }
 
-  public static DafnySequence<? extends VirtualField> VirtualFieldList(
-      List<software.amazon.cryptography.dynamoDbEncryption.model.VirtualField> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
-        nativeValue, 
-        software.amazon.cryptography.dynamoDbEncryption.ToDafny::VirtualField, 
-        VirtualField._typeDescriptor());
-  }
-
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> AttributeActions(
       Map<String, software.amazon.cryptography.structuredEncryption.model.CryptoAction> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
@@ -583,13 +567,13 @@ public class ToDafny {
         software.amazon.cryptography.dynamoDbEncryption.ToDafny::DynamoDbTableEncryptionConfig);
   }
 
-  public static Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbKeyBranchKeyIdSupplier DynamoDbKeyBranchKeyIdSupplier(
-      IDynamoDbKeyBranchKeyIdSupplier nativeValue) {
-    return DynamoDbKeyBranchKeyIdSupplier.wrap(nativeValue).impl();
-  }
-
   public static Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor LegacyDynamoDbEncryptor(
       ILegacyDynamoDbEncryptor nativeValue) {
     return LegacyDynamoDbEncryptor.wrap(nativeValue).impl();
+  }
+
+  public static Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbKeyBranchKeyIdSupplier DynamoDbKeyBranchKeyIdSupplier(
+      IDynamoDbKeyBranchKeyIdSupplier nativeValue) {
+    return DynamoDbKeyBranchKeyIdSupplier.wrap(nativeValue).impl();
   }
 }

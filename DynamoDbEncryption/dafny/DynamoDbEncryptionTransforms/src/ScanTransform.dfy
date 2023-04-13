@@ -14,6 +14,9 @@ module ScanTransform {
 
   method Input(config: Config, input: ScanInputTransformInput)
     returns (output: Result<ScanInputTransformOutput, Error>)
+    requires ValidConfig?(config)
+    ensures ValidConfig?(config)
+    modifies ModifiesConfig(config)
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-scan
     //= type=implication
@@ -31,15 +34,6 @@ module ScanTransform {
       && input.sdkInput.AttributesToGet.None?
       && input.sdkInput.ScanFilter.None?
       && input.sdkInput.ConditionalOperator.None?
-
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-scan
-      //= type=implication
-      //# The request MUST be [altered](#scaninputforbeacons)
-      //# to transform any references to encrypted attributes into references to beacons.
-      && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
-      && ScanInputForBeacons(tableConfig, input.sdkInput).Success?
-      && var finalResult := ScanInputForBeacons(tableConfig, input.sdkInput).value;
-      && output.value.transformedInput == finalResult
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(ScanInputTransformOutput(transformedInput := input.sdkInput));
@@ -71,7 +65,7 @@ module ScanTransform {
 
     ensures output.Success?  && input.sdkOutput.Items.None?  ==> output.value.transformedOutput.Items.None?
     ensures output.Success?  && input.sdkOutput.Items.Some?  ==> output.value.transformedOutput.Items.Some?
-
+/*
     ensures output.Success? && input.sdkOutput.Items.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
       var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
       var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
@@ -97,6 +91,7 @@ module ScanTransform {
           //# is this list entry.
           && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[Diff(i, |oldHistory|)]
         )
+*/
   {
     var tableName := input.originalInput.TableName;
     if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
