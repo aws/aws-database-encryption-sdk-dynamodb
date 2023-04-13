@@ -11,11 +11,9 @@
 
 ## Overview
 
-Virtual fields are a work in progress, and not yet part of the database encryption project.
-
 A virtual field is a field constructed from parts of other fields, but never stored.
 
-A virtual field can be used in the construction of a [compound beacon](./compound-beacons.md)
+A virtual field can be used in the construction of a [beacon](beacons.md)
 which can be stored in the database and can be used to search.
 
 For example a virtual NameTag field, which is constructed from the first letter of the FirstName
@@ -26,12 +24,154 @@ any other search term, e.g. `NameTag=jsmith`. Other than this, and the initial c
 the user experience is the same as if there were no virtual beacons, e.g. results never
 contain virtual field values.
 
-One of the primary customer benefits is that this allows a beacon on a sub-part
-of a structured value.
+### Virtual Field Initialization
+
+On initialization of a Virtual Field, the caller MUST provide:
+
+ * A name -- a string
+ * A list of [Virtual Parts](#virtual-part-initialization)
+
+The evaluation of a Virtual Field MUST be the concatenation of all of its parts,
+in the order they are configured.
+
+Initialization MUST fail if two virtual fields are defined with the same set of locations.
+
+Initialization MUST fail if a virtual field is defined with only one location,
+and also a [standard beacon](beacons.md#standard-beacon) is defined with that same location.
+
+### Virtual Part Initialization
+
+On initialization of a Virtual Part, the caller MUST provide:
+
+ * A location -- a [Terminal Location](#terminal-location)
+
+ On initialization of a Virtual Part, the caller MAY provide:
+
+ * A list of [Virtual Transforms](#virtual-transform-initialization)
+
+The evaluation of a Virtual Part MUST be the value of its location,
+which is then transformed by each Virtual Transform,
+in the order they are configured.
+
+Evaluation MUST fail if the location does not exist,
+or is not a plain string value.
+
+ ### Virtual Transform Initialization
+
+On initialization of a Virtual Transform, the caller MUST provide exactly one of
+
+ * an [Upper](#upper-transform-initialization) transform
+ * a [Lower](#lower-transform-initialization) transform
+ * an [Insert](#insert-transform-initialization) transform
+ * a [GetPrefix](#getprefix-transform-initialization) transform
+ * a [GetSuffix](#getsuffix-transform-initialization) transform
+ * a [GetSubstring](#getsubstring-transform-initialization) transform
+ * a [GetSegment](#getsegment-transform-initialization) transform
+ * a [GetSegments](#getsegments-transform-initialization) transform
+
+All transforms take a string as input and produce a string as output.
+
+### Upper Transform Initialization
+
+On initialization of an Upper Transform, the caller MUST NOT provide any further information
+
+The Upper transform MUST convert all ascii lowercase characters into their uppercase equivalents. 
+
+### Lower Transform Initialization
+
+On initialization of a Lower Transform, the caller MUST NOT provide any further information
+
+The Lower transform MUST convert all ascii uppercase characters into their lowercase equivalents. 
+
+### Insert Transform Initialization
+
+On initialization of an Insert Transform, the caller MUST provide:
+
+* a literal string
+
+The Insert transform MUST append this string to its input
+
+### GetPrefix Transform Initialization
+
+On initialization of a GetPrefix Transform, the caller MUST provide:
+
+ * length : an integer
+
+If length is negative, then the GetPrefix transform MUST return
+all but the last `-length` character of the input.
+
+Otherwise, the GetPrefix transform MUST return the first `length` characters of the input.
+
+In either case, if length exceeds the length of the string, an empty string MUST be returned.
+
+### GetSuffix Transform Initialization
+
+On initialization of a GetSuffix Transform, the caller MUST provide:
+
+ * length : an integer
+
+If length is negative, then the GetSuffix transform MUST return
+all but the first `-length` character of the input.
+
+Otherwise, the GetSuffix transform MUST return the last `length` characters of the input.
+
+In either case, if length exceeds the length of the string, an empty string MUST be returned.
+
+### Position Definition
+
+The transforms below refer to positions within a list.
+
+If the position provided is positive, it is the zero-based index from the start of the list.
+
+If the position provided is negative, it's absolute value is the
+one-based index from the start of the list, i.e. -1 refers to the last item in the list.
+
+Positions are always clamped to the bounds of the list. That is `-999999999` refers to the first item in the list, and `999999999` refers to the position just after the last item in the list.
+
+### GetSubstring Transform Initialization
+
+On initialization of a GetSubstring Transform, the caller MUST provide:
+
+ * low : an integer [position](#position-definition)
+ * high : an integer [position](#position-definition)
+
+The GetSubstring transform MUST return the range of characters
+from low (inclusive) to high (exclusive)
+
+If high is less than or equal to low, an empty string is returned.
+
+### GetSegment Transform Initialization
+
+On initialization of a GetSegment Transform, the caller MUST provide:
+
+ * split : an character
+ * index : an integer [position](#position-definition)
+
+The GetSegment transform MUST split the input string on the given character,
+and return the item in the resulting list the corresponds to the given position.
+
+If index is greater than the number of items in the list, and empty string MUST be returned.
+
+### GetSegments Transform Initialization
+
+On initialization of a GetSegments Transform, the caller MUST provide:
+
+ * split : an character
+ * low : an integer [position](#position-definition)
+ * high : an integer [position](#position-definition)
+
+The GetSegment transform MUST split the input string on the `split` character,
+The GetSegments transform MUST MUST split the input string on the given character,
+and return the range of parts from low (inclusive) to high (exclusive),
+joined on the `split` character.
+
+If high is less than or equal to low, an empty string is returned.
 
 ### Terminal Location
 
 A Terminal Location is a Path to a part of a piece of structured data.
+
+It is exactly equivalent to a DynamoDB document path, e.g. `foo` or `foo.bar` or `foo.bar[3].baz`
 
 A Terminal Location specification MUST be a list of one more [Segments](#segments),
 the first one of which must be a string index.
@@ -43,76 +183,3 @@ A Segment MUST be one of
  - A literal "." followed by a field name, indicating a lookup into a Structured Data Map.
  - A literal "[" followed by a decimal integer followed by a literal "]",
 indicating an index into a  Structured Data List.
-
-### Stringify
-
-A virtual field is always a string, and so all [source paths](#source-path)
-must be converted to strings before being used to construct a virtual field.
-
-Stringify MUST be a a callback function that takes a Terminal Location and returns a string.
-
-The DynamoDB callback resolves a Path on an ItemMap and produces
-a string based on the type of the Terminal.
-
-### Field Modifications
-
-The following functions MUST be provided to modify strings
-
-* "Prefix" N - the first N characters (not bytes). The unmodified string if N > length.
-* "Suffix" N - the last N characters (not bytes). The unmodified string if N > length.
-* "Lower" - any ascii letters replaced with their lowercase equivalent.
-* "Upper" - any ascii letters replaced with their uppercase equivalent.
-* "Parts" Char Low High - Split the string on Char, keep only the parts Low..High inclusive.
-Both Low and High reduced to total parts. High is optional, and defaults to Low.
-
-### Virtual Segment
-
-A virtual segment MUST be one of
- - a [literal value](#literal-value)
- - a [value calculation](#value-calculation)
-
-#### Literal Value
-
-A literal value must be the string "Literal" followed by whitespace followed by
-a string that contains no whitespace.
-
-For example `Literal _` or `Literal foo`.
-
-#### Value Calculation
-
-A value calculation MUST be a [Terminal Location](#terminal-location) followed by zero or more
-" | " delimited Field Modifications.
-
-For example, `FirstName | Lower | Prefix 1`
-
- 1 Stringifys the FirstName field
- 1 Converts it to lowercase
- 1 Discards all but the first character
-
-### Virtual Field Definition
-
-A virtual value is " + " delimited list of [virtual segments](#virtual-segement).
-
-For example the NameTag example above might be specified as
-
-`FirstName | Lower | Prefix 1 + LastName | Lower`
-
-Or the same thing, with an underscore between the parts
-
-`FirstName | Lower | Prefix 1 + Literal _ + LastName | Lower`
-
-### Virtual Field Initialization
-
-On initialization of a Virtual Field, the caller MUST provide:
-
- * A name -- a string
- * A [Virtual Field Definition](#virtual-field-definition) -- a string
-
-[Beacons](beacons.md) can be defined in terms of virtual fields or regular record fields.
-
-### Limitations
-
-Because of the syntax above
-
-* The ` + ` and ` | ` that delimit pieces must be surrounded by whitespace
-* Literal Values and field names cannot contain whitespace.
