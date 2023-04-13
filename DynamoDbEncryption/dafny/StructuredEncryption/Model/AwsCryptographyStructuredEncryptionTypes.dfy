@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
- include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
+ // TODO begin manual update
+ include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy"
+ include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy"
+ // TODO end manual update
  include "../../../../submodules/MaterialProviders/AwsCryptographyPrimitives/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.StructuredEncryption.Types" } AwsCryptographyStructuredEncryptionTypes
  {

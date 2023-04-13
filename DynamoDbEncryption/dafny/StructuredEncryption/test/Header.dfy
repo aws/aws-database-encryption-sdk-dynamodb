@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../StructuredEncryption/src/Index.dfy"
-include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
 
 module TestHeader {
   import opened Wrappers
