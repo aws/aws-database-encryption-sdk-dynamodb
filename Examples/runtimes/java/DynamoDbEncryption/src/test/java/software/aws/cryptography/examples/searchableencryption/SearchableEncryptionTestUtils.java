@@ -8,11 +8,13 @@ public class SearchableEncryptionTestUtils {
   // Our tests require access to DDB Table with this name
   public static final String TEST_DDB_TABLE_NAME = "SimpleBeaconTestTable";
 
-  // Our tests require access to DDB Table with this name
+  // The branch keystore DDB table must contain a branch key item with this value in the `branch-key-id` column
   public static final String TEST_BRANCH_KEY_ID = "hierarchy-test-v1";
-  // Our tests require access to DDB Table with this name
+
+  // The branch key must have been created using this KMS key
   public static final String TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ID = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-  // Our tests require access to DDB Table with this name
+
+  // Our tests require access to DDB Table with this name configured as a branch keystore
   public static final String TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME = "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
 
 }
