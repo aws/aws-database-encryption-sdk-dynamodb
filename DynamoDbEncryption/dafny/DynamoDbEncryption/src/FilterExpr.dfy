@@ -1190,7 +1190,7 @@ module DynamoDBFilterExpr {
           var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, true);
           var expr1 := ConvertToPrefix(expr.expr);
           var expr2 := ConvertToRpn(expr1);
-          FilterItems(b, expr.expr, ItemList, expr.names, expr.values)
+          FilterItems(b, expr2, ItemList, expr.names, expr.values)
         else
           Success(ItemList);
       if FilterExpression.Some? then

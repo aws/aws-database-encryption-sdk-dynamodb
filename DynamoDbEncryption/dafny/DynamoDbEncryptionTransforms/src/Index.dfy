@@ -77,8 +77,7 @@ module
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
         var searchR := SearchConfigToInfo.Convert(inputConfig, inputConfig.search);
-        // TODO var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
-        var search :- searchR.MapFailure(e => DynamoDbEncryptionTransformsException(message := "foo"));
+        var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
         var internalConfig := DdbMiddlewareConfig.TableConfig(
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
