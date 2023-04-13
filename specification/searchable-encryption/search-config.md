@@ -60,16 +60,19 @@ Initialization MUST fail if the name of any [virtual fields](virtual.md#virtual-
 of any [configured field](#configured-field).
 
 Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
-and the name of any of the following matches
-the [multi key store](#multi-key-store-initialization)'s Key Field Name:
+and the name of any of the following match the [beacon key field name](#beacon-key-field-name)
 - [virtual fields](virtual.md#virtual-field)
 - [standard beacons](beacons.md#standard-beacon)
 - [compound beacons](beacons.md#compound-beacon)
-- [configured field](#configured-field)
 
-Initialization MUST fail if the name of any [standard beacon](beacons.md#standard-beacon) or
-[compound beacon](beacons.md#compound-beacon) matches that
-of any unencrypted [configured field](#configured-field).
+Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
+and the [beacon key field name](#beacon-key-field-name)
+is a [configured field](#configured-field) 
+with [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign).
+
+Initialization MUST fail if the name of any [standard beacon](beacons.md#standard-beacon)
+or [compound beacon](beacons.md#compound-beacon)
+matches that of any unencrypted [configured field](#configured-field).
 
 Initialization MUST fail if there is any overlap among the names of the
 [standard beacons](beacons.md#standard-beacon)
@@ -77,11 +80,11 @@ Initialization MUST fail if there is any overlap among the names of the
 or [virtual fields](virtual.md#virtual-field).
 
 A [terminal location](virtual.md#terminal-location) is considered `signed` if
-the field that contains it is [SIGN_ONLY](structures.md#signonly)
-or [ENCRYPT_AND_SIGN](structures.md#encryptandsign).
+the field that contains it is [SIGN_ONLY](../structured-encryption/structures.md#sign_only)
+or [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign).
 
 A [terminal location](virtual.md#terminal-location) is considered `encrypted` if
-the field that contains it is [ENCRYPT_AND_SIGN](structures.md#encryptandsign).
+the field that contains it is [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign).
 
 A virtual field is considered `signed` if all of its
 [terminal locations](virtual.md#terminal-location) are `signed` or `encrypted`.
@@ -137,7 +140,7 @@ This defines two flavors of source.
 ### Single Key Store Initialization
 
 The single key store is intended to be used
-when all items in a DDB table use the same beacon key.
+when all items in a DDB table will use the same beacon key.
 This can also be described as single tenant.
 
 On initialization of a Single Key Store, the caller MUST provide:
@@ -149,7 +152,7 @@ On initialization of a Single Key Store, the caller MUST provide:
 ### Multi Key Store Initialization
 
 The multi key store is intended to be used
-when different items in a DDB table use the different beacon keys.
+when different items in a DDB table will use the different beacon keys.
 This can also be described as multi tenant.
 
 On initialization of a Multi Key Store, the caller MUST provide:
@@ -165,15 +168,17 @@ On initialization of a Multi Key Store, the caller MUST provide:
 
 A [Keystore](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md)
 used to obtain the configured Beacon Key.
-If being used with a Hierarchical Keyring to encrypt/decrypt items, this SHOULD be the same Keystore as configured to that Keyring.
+If being used with a Hierarchical Keyring to encrypt/decrypt items,
+this SHOULD be the same Keystore as configured to that Keyring.
 
 #### Beacon Key Id
 
-A single [Beacon Key Id](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md) that exists in the [keystore](####keystore).
+A single [Beacon Key Id](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md)
+that exists in the [keystore](####keystore).
 
 #### Beacon Key Field Name
 
-A attribute name that is used to identify the beacon key.
+A attribute name that is used to identify the beacon key id.
 This attribute can be passed in on the DDB item,
 but does not need to be stored in the table.
 It can be referenced in [compound beacons](./beacons.md#compound-beacon)
@@ -187,7 +192,7 @@ for how long a beacon key should exist locally before reauthorization.
 The [max cache size](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#entry-capacity)
 that the [Key Store Cache](#key-store-cache) will be configured to.
 
- ### Key Store Cache
+### Key Store Cache
 
  For a Beacon Key Source a [Local CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md)
  MUST be created.
@@ -229,15 +234,14 @@ Takes a [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-hea
 If the [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header)'s encrypted data keys
 do not contain only one encrypted data key
 this function MUST fail.
-If this single encrypted data key's 
-[Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
+
+If this single encrypted data key's
+[Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/../structured-encryption/structures.md#key-provider-id)
 does not equal the provider ID
 for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt)
 this function MUST fail.
 
-This function MUST return the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
-MUST match this value.
-
+This function MUST return the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/../structured-encryption/structures.md#key-provider-id).
 
 ### Get beacon key for query
 
@@ -253,11 +257,13 @@ with a `name` equal to the [Beacon Key Field Name](#beacon-key-field-name).
 If if this list of compound beacons is empty then get beacon key for query MUST fail.
 
 Construct a list of filter expression and key condition expression
-whose names are equal to the [compound beacons](./beacons.md#compound-beacon) names found.
+from the [Query Object]
+whose names are equal to the [compound beacons](./beacons.md#compound-beacon) found.
 If this list of expression is empty get beacon key for query MUST fail.
 
-For each value extract the value of the [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
-with the `name` of that part that equals [Beacon Key Field Name](#beacon-key-field-name)
+For each expression value
+extract the value of the [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
+with the `name` that equals [Beacon Key Field Name](#beacon-key-field-name)
 and construct a list of beacon key ids.
 
 If this list of beacon key ids is empty get beacon key for query MUST fail.

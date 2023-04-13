@@ -82,10 +82,8 @@ where NAME is the name of the beacon.
 The value of this attribute MUST be a string,
 and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value)
 
-The result of AddSensitiveBeacons MUST contain, unaltered, everything in the input AttributeMap
-unless the Beacon Key Source configuration
-is [multi key store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-in which case the Key Field Name MUST be removed.
+The result of AddSensitiveBeacons MUST contain, unaltered,
+everything in the [Encrypt Item Output](./encrypt-item.md#output) AttributeMap.
 
 ## RemoveBeacons
 
@@ -135,8 +133,7 @@ and the unaltered AttributeMap.
 
 If there is an [Attribute Action](./ddb-table-encryption-config.md#attribute-actions)
 configured for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
-and that action is either [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign)
-or [SIGN_ONLY](../structured-encryption/structures.md#sign_only)
+and that action is [SIGN_ONLY](../structured-encryption/structures.md#sign_only)
 HandleBeaconKeyFieldName MUST remove the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
 from the AttributeMap and return the `beacon key id` and the altered AttributeMap.
 
@@ -173,8 +170,8 @@ MUST be replaced by the beacon name. (i.e. aws_dbe_b_NAME replaced by NAME).
 
 Transform an unencrypted QueryInput object for searchable encryption.
 
-The [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source) for the configured table
-MUST be used to obtain the correct beacon key information needed for query.
+[Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
+MUST be obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query).
 
 For any operand in the KeyConditionExpression or FilterExpression which is a beacon name,
 the name MUST be replaced by the internal beacon name (i.e. NAME replaced by aws_dbe_b_NAME).
@@ -191,6 +188,11 @@ In this regard, each use of each operand is handled separately.
 
 Similarly, any values in ExpressionAttributeValues that are referred to by a beacon name
 MUST be changed to the beacon value, as calculated defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
+The [hmac key](./search-config.md#hmac-key-generation) used
+MUST be obtained from the [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
+[HMAC Keys map](../searchable-encryption/search-config.md#hmac-keys) using the beacon name
+as the key.
+
 For example if the query is
 "MyBeacon < :value" and ExpressionAttributeValues holds (:value = banana),
 then the ExpressionAttributeValues must be changed to (:value = 13fd),
@@ -203,17 +205,19 @@ Transform an unencrypted QueryOutput object for searchable encryption.
 We expect that the list of items returned will contain some extra records
 that matched the beacon values, but do not match the plaintext values.
 
-We currently only support beacon keys bound to branch keys in the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt).
-Therefore the [Parsed Header](./encrypt-item.md#parsed-header)'s encrypted data keys MUST contain only one encrypted data key.
-It's [Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
-MUST equal the provider ID for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt).
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source) for the configured table
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+the `expected beacon key id` MUST be the [Beacon Key Id](../searchable-encryption/search-config.md#beacon-key-materials)
+on materials obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query)
+These [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
+SHOULD then be discarded.
 
-Additionally if the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source) for the configured table
-is [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-we expect some extra records from other beacon keys.
-These values opaqued with a beacon key different from the beacon key used to search
-MUST be filtered out if the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
-does not match the beacon used to search.
+If we have an `expected beacon key id`,
+for each item the result
+from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header)
+MUST match the `expected beacon key id`.
+If [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header)
+fails or an item does not match it MUST be discarded.
 
 For each item, we MUST evaluate the query expressions supplied in the QueryInput
 against the decrypted field values returned by the query.

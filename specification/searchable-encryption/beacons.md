@@ -344,15 +344,15 @@ Both standard and compound beacons define two operations
  * [getPart](#getpart) - turn a plaintext query string into a beacon
 
 ### basicHash
- * basicHash MUST take an [hmac key](#hmac-key), a [beacon length](#beacon-length) and a sequence of bytes as input.
+ * basicHash MUST take an [hmac key](./search-config.md#hmac-key-generation), a [beacon length](#beacon-length) and a sequence of bytes as input.
  * basicHash MUST produce a non-empty string as output.
  * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-of the input bytes and the [hmac key](#hmac-key), and keep the first 8 bytes.
+of the input bytes and the [hmac key](./search-config.md#hmac-key-generation), and keep the first 8 bytes.
  * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
  * the length of the returned string MUST be (`beacon length`/4) rounded up.
 
 ### value for a standard beacon
- * This operation MUST take an [hmac key](#hmac-key), a record as input, and produce an optional string.
+ * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional string.
  * This operation MUST return no value if the associated field does not exist in the record
  * This operation MUST convert the attribute value of the associated field to
 a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
@@ -371,7 +371,7 @@ excluding parts that are not required and with a source field that is not availa
 
 ### getPart for a standard beacon
 
- * getPart MUST take an [hmac key](#hmac-key), a sequence of bytes as input, and produce a string.
+ * getPart MUST take an [hmac key](./search-config.md#hmac-key-generation), a sequence of bytes as input, and produce a string.
  * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
 
 ### getPart for a compound beacon
@@ -396,7 +396,7 @@ The `Part Value` is the [part value calculation](#part-value-calculation) of the
 
 ### Part Value Calculation
 
-Part Value Calculation MUST take an [hmac key](#hmac-key), a string, a prefix,
+Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string, a prefix,
 and an optional [beacon length](#beacon-length) as input, and return a string as output.
 
 The input string MUST begin with the provided prefix.
