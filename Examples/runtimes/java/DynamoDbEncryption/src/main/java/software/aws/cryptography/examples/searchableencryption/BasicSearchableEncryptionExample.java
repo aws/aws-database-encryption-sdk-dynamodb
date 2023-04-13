@@ -1,11 +1,17 @@
 package software.aws.cryptography.examples.searchableencryption;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.*;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
 import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKey;
@@ -20,13 +26,9 @@ import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsHierarchicalKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /*
   This example demonstrates how to set up a beacon on an encrypted attribute,
