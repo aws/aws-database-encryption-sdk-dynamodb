@@ -154,7 +154,7 @@ transpile_implementation:
 
 # Transpile the entire project's tests
 _transpile_test_all: TRANSPILE_TARGETS=$(if ${PROJECT_SERVICES}, $(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES)), `find ./test -name '*.dfy'`)
-_transpile_test_all: TRANSPILE_DEPENDENCIES=$(if ${PROJECT_INDEX}, $(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)), )
+_transpile_test_all: TRANSPILE_DEPENDENCIES=$(if ${PROJECT_INDEX}, $(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)), -library:src/Index.dfy)
 _transpile_test_all: transpile_test
 
 transpile_test:
@@ -171,6 +171,7 @@ transpile_test:
 		-useRuntimeLib \
 		-out $(OUT) \
 		$(TRANSPILE_TARGETS) \
+		-library:src/Index.dfy \
 		$(if $(strip $(STD_LIBRARY)) , -library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy, ) \
 		$(TRANSPILE_DEPENDENCIES)
 
@@ -363,7 +364,7 @@ local_transpile_impl_single: deps_var=SERVICE_DEPS_$(SERVICE)
 local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/src/$(FILE)
 local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
 		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $($(deps_var))) \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)) \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
 		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
 local_transpile_impl_single: transpile_implementation
 
@@ -385,6 +386,6 @@ local_transpile_test_net_single: local_transpile_test_single
 local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/test/$(FILE)
 local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
 		$(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES)) \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)) \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
 		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
 local_transpile_test_single: transpile_test
