@@ -1,0 +1,93 @@
+# This workflow performs tests in Java.
+name: Java Examples
+
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  testJava:
+    strategy:
+      matrix:
+        java-version: [ 8, 11, 16, 17 ]
+        os: [
+          # TODO just test on mac for now
+          #windows-latest,
+          #ubuntu-latest,
+          macos-latest
+        ]
+    runs-on: ${{ matrix.os }}
+    environment: "ESDK CI"
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Java-Tests
+
+      - uses: actions/checkout@v3
+
+      - name: Init Submodules
+        env:
+          # This secret is in the configured environment
+          # Token created on # 11/28/2022
+          # expires in ~30 days 12/28/2022
+          PRIVATE_ESDK_PAT: ${{ secrets.PRIVATE_ESDK_PAT }}
+        run: |
+          AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
+          git config --global --add url.https://github.com/.insteadOf git@github.com:
+          git submodule update --init --recursive submodules/MaterialProviders
+
+      # Set up env vars for CodeArtifact
+      # Necessary to build and deploy dependencies for examples locally
+      - name: Set Up Env Vars for CodeArtifact
+        run: |
+          export URL=`aws codeartifact get-repository-endpoint \
+            --domain github-polymorph \
+            --domain-owner "370957321024" \
+            --repository DafnyJavaConversion \
+            --format maven | jq -r .repositoryEndpoint`
+          export TOKEN=`aws codeartifact get-authorization-token \
+            --domain github-polymorph \
+            --domain-owner "370957321024" \
+            --query authorizationToken \
+            --output text`
+          echo "CODEARTIFACT_URL_JAVA_CONVERSION=$URL" >> $GITHUB_ENV
+          echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
+
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: ${{ matrix.java-version }}
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.6.1
+        with:
+          dafny-version: "nightly-2023-04-12-f4836e9"
+
+      - name: Build and locally deploy dependencies for examples
+        shell: bash
+        working-directory: ./DynamoDbEncryption
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          # This will recursively build and deploy MPL as well
+          make build_java CORES=$CORES
+          make mvn_local_deploy
+
+      - name: Test Examples
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          gradle -p runtimes/java/DynamoDbEncryption test 
+          # Run migration examples
+          # gradle -p runtimes/java/Migration test
+
