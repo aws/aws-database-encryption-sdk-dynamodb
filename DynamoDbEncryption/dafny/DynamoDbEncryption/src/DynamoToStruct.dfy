@@ -472,11 +472,7 @@ module DynamoToStruct {
       case N(n) => UTF8.Encode(n)
       case B(b) => Success(b)
       case SS(ss) =>
-        :- Need(|Seq.ToSet(ss)| == |ss|, "String Set had duplicate values");
-        Seq.LemmaNoDuplicatesCardinalityOfSet(ss);
-        var count :- U32ToBigEndian(|ss|);
-        var body :- CollectString(ss);
-        Success(count + body)
+        CollectStringSet(ss)
       case NS(ns) =>
         :- Need(|Seq.ToSet(ns)| == |ns|, "String Set had duplicate values");
         Seq.LemmaNoDuplicatesCardinalityOfSet(ns);
@@ -520,6 +516,16 @@ module DynamoToStruct {
       Success(AttrToTypeId(a) + len + baseBytes)
     else
       Success(baseBytes)
+  }
+
+  function method CollectStringSet(ss: StringSetAttributeValue): (ret: Result<seq<uint8>, string>)
+    ensures ret.Success? ==> Seq.HasNoDuplicates(ss)
+  {
+    :- Need(|Seq.ToSet(ss)| == |ss|, "String Set had duplicate values");
+    Seq.LemmaNoDuplicatesCardinalityOfSet(ss);
+    var count :- U32ToBigEndian(|ss|);
+    var body :- CollectString(ss);
+    Success(count + body)
   }
 
   function method MapAttrToBytes(bytes: map<AttributeName, Result<seq<uint8>, string>>): (ret: Result<seq<uint8>, string>) {
