@@ -19,7 +19,7 @@ module TransactGetItemsTransform {
     return Success(TransactGetItemsInputTransformOutput(transformedInput := input.sdkInput));
   }
 
-  method Output(config: Config, input: TransactGetItemsOutputTransformInput)
+  method {:vcs_split_on_every_assert} Output(config: Config, input: TransactGetItemsOutputTransformInput)
     returns (output: Result<TransactGetItemsOutputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
@@ -43,6 +43,7 @@ module TransactGetItemsTransform {
     var encryptedItems := input.sdkOutput.Responses.value;
     for x := 0 to |encryptedItems|
       invariant |decryptedItems| == x
+      invariant ValidConfig?(config)
     {
       var tableName := input.originalInput.TransactItems[x].Get.TableName;
       if tableName !in config.tableEncryptionConfigs {
