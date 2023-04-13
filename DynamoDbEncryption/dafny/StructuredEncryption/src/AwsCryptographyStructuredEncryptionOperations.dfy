@@ -370,12 +370,17 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       attributes := None
     );
 
-    Success(DecryptCanonData(
+    var c := DecryptCanonData(
       encFields_c,
       signedFields_c,
       data_c,
       cryptoSchema
-    ))
+    );
+
+    assert exists tableName ::
+      (forall k :: k in c.cryptoSchema.content.SchemaMap ==> Paths.SimpleCanon(tableName, k) in c.data_c);
+
+    Success(c)
   }
 
   method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)

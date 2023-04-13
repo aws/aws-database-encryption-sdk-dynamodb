@@ -356,20 +356,28 @@ module StructuredEncryptionHeader {
       && |ret.value| == CountAuthAttrs(schema.content.SchemaMap)
   {
     var data := schema.content.SchemaMap;
-    var authSchema := map k <- data.Keys | IsAuthAttr(data[k].content.Action) :: k := data[k];
-    assert (map k <- authSchema.Keys | IsAuthAttr(authSchema[k].content.Action) :: k := authSchema[k]) == authSchema;
-    assert CountAuthAttrs(data) == CountAuthAttrs(authSchema);
+    :- Need(forall k <- data :: ValidString(k), E("bad attribute name"));
+
+    var authSchema: map<GoodString, CryptoSchema> := (
+      var rawSchema := RestrictAuthAttrs(data);
+      // Ensure we get the expected number of auth attributes
+      LemmaRestrictAuthAttrsIdempotent(data);
+      assert CountAuthAttrs(data) == |rawSchema|;
+      // Can't use `k as GoodString` for some reason; instead assert validity and let inference handle the rest
+      assert forall k <- rawSchema :: ValidString(k);
+      rawSchema
+    );
     assert CountAuthAttrs(data) == |authSchema|;
+
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //# The Encrypt Legend Bytes MUST be serialized as follows:
     // 1. Order every authenticated attribute in the item by the Canonical Path
     // 2. For each authenticated terminal, in order,
     // append one of the byte values specified above to indicate whether
     // that field should be encrypted.
-    :- Need(forall x <- schema.content.SchemaMap.Keys :: ValidString(x), E("bad attribute name"));
     Paths.SimpleCanonUnique(tableName);
 
-    var fn := k => Paths.SimpleCanon(tableName, k);
+    var fn: GoodString -> CanonicalPath := (k: GoodString) => Paths.SimpleCanon(tableName, k);
     assert forall k :: true ==> fn(k) == Paths.SimpleCanon(tableName, k); // This is a bit silly to have to assert, but necessary when SimpleCanon is opaque
 
     MapKeepsCount(authSchema, fn);
@@ -436,8 +444,30 @@ module StructuredEncryptionHeader {
     : nat
     requires forall x <- data.Values :: x.content.Action?
   {
-    |set k <- data.Keys | IsAuthAttr(data[k].content.Action) :: k|
+    |RestrictAuthAttrs(data)|
   }
+
+  /*
+   * Restrict `data` to just the authenticated attributes.
+   */
+  function method RestrictAuthAttrs(data: CryptoSchemaMap)
+    : (authData: CryptoSchemaMap)
+    requires forall x <- data.Values :: x.content.Action?
+    ensures authData.Keys <= data.Keys
+    ensures forall k <- data :: IsAuthAttr(data[k].content.Action) <==> k in authData
+    ensures forall k <- authData :: authData[k] == data[k]
+    ensures forall k <- authData :: IsAuthAttr(authData[k].content.Action)
+  {
+    map k <- data | IsAuthAttr(data[k].content.Action) :: k := data[k]
+  }
+
+  /*
+   * Lemma: RestrictAuthAttrs is idempotent.
+   */
+  lemma LemmaRestrictAuthAttrsIdempotent(data: CryptoSchemaMap)
+    requires forall x <- data.Values :: x.content.Action?
+    ensures var authData := RestrictAuthAttrs(data); authData == RestrictAuthAttrs(authData)
+  {}
 
   // Legend to Bytes
   function method {:opaque} SerializeLegend(x : Legend)
@@ -637,7 +667,7 @@ module StructuredEncryptionHeader {
   }
   
   // Bytes to Data Key
-  function method GetOneDataKey(data : Bytes)
+  function method {:vcs_split_on_every_assert} GetOneDataKey(data : Bytes)
     : (ret : Result<(CMPEncryptedDataKey, nat), Error>)
     ensures ret.Success? ==>
       && ret.value.1 <= |data|

@@ -43,7 +43,7 @@ module
     !(ReservedPrefix <= attr)
   }
 
-  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
+  method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<DynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
       && res.value.config.tableName == config.tableName
@@ -227,7 +227,10 @@ module
       internalLegacyConfig := internalLegacyConfig,
       plaintextPolicy := plaintextPolicy
     );
-    assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
+
+    // Dafny needs some extra help here
+    assert (forall attribute <- internalConfig.attributeActions.Keys :: !(ReservedPrefix <= attribute));
+    assert Operations.ValidInternalConfig?(internalConfig);
 
     var client := new DynamoDbItemEncryptorClient(internalConfig);
     return Success(client);

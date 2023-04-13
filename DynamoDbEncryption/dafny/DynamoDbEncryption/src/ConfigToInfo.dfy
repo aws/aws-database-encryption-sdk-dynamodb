@@ -80,7 +80,7 @@ module SearchConfigToInfo {
   {
     :- Need(config.version == 1, E("Version number in BeaconVersion must be '1'."));
     :- Need((config.standardBeacons.Some? && 0 < |config.standardBeacons.value|)
-         && (config.compoundBeacons.Some? && 0 < |config.compoundBeacons.value|),
+         || (config.compoundBeacons.Some? && 0 < |config.compoundBeacons.value|),
          E("At least one beacon must be configured."));
     var key :- GetPersistentKey(config.key);
     output := ConvertVersionWithKey(outer, config, key);
