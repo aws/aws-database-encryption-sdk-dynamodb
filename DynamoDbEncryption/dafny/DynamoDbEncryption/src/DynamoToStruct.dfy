@@ -522,8 +522,7 @@ module DynamoToStruct {
       Success(baseBytes)
   }
 
-  function method MapAttrToBytes(bytes: map<AttributeName, Result<seq<uint8>, string>>): Result<seq<uint8>, string>
-  {
+  function method MapAttrToBytes(bytes: map<AttributeName, Result<seq<uint8>, string>>): (ret: Result<seq<uint8>, string>) {
     var bytes :- SimplifyMapValue(bytes);
     CollectMap(bytes)
   }

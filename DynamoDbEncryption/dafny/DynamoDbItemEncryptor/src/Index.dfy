@@ -43,7 +43,7 @@ module
     !(ReservedPrefix <= attr)
   }
 
-  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
+  method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<DynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
       && res.value.config.tableName == config.tableName
