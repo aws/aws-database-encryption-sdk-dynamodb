@@ -902,6 +902,8 @@ module DynamoToStruct {
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
     decreases |serialized|
   {
+    ghost var serializedInitial := serialized;
+
     if remainingCount == 0 then
       Success(resultMap)
     else
@@ -918,6 +920,8 @@ module DynamoToStruct {
       var key :- UTF8.Decode(serialized[..len]);
       var serialized := serialized[len..];
 
+      assert |serialized| + 6 + len == |serializedInitial|;
+
       // get typeId of value
       :- Need(2 <= |serialized|, "Out of bytes reading Map Value");
       :- Need(IsValid_AttributeName(key), "Key is not valid AttributeName");
@@ -926,6 +930,7 @@ module DynamoToStruct {
 
       // get value and construct result
       var nval :- BytesToAttr(serialized, TerminalTypeId_value, true);
+      var serialized := serialized[nval.len..];
 
       //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
       //# This sequence MUST NOT contain duplicate [Map Keys](#map-key).
@@ -934,7 +939,9 @@ module DynamoToStruct {
       //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
       :- Need(key !in resultMap.val.M, "Duplicate key in map.");
       var nattr := AttributeValue.M(resultMap.val.M[key := nval.val]);
-      DeserializeMap(serialized[nval.len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultMap.len + nval.len + 8 + len))
+      var newResultMap := AttrValueAndLength(nattr, resultMap.len + nval.len + 8 + len);
+      assert |serialized| + newResultMap.len == origSerializedSize;
+      DeserializeMap(serialized, remainingCount - 1, origSerializedSize, newResultMap)
   }
   
   // Bytes to AttributeValue
