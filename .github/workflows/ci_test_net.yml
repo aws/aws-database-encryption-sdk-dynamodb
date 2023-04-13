@@ -51,7 +51,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
-          dafny-version: "4.0.0"
+          dafny-version: "nightly-2023-04-12-f4836e9"
 
       - name: Download Dependencies 
         working-directory: ./${{ matrix.library }}
