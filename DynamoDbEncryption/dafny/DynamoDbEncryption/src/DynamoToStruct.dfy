@@ -504,10 +504,8 @@ module DynamoToStruct {
         //# A Map MAY hold any DynamoDB Attribute Value data type,
         //# and MAY hold values of different types.
         var bytes := map kv <- m.Items | true :: kv.0 := AttrToBytes(kv.1, true);
-        var bytes :- SimplifyMapValue(bytes);
-        var keys := SortedSets.ComputeSetToOrderedSequence2(bytes.Keys, CharLess);
         var count :- U32ToBigEndian(|m|);
-        var body :- CollectMap(keys, bytes);
+        var body :- MapAttrToBytes(bytes);
         Success(count + body)
      case L(l) =>
         var count :- U32ToBigEndian(|l|);
@@ -522,6 +520,11 @@ module DynamoToStruct {
       Success(AttrToTypeId(a) + len + baseBytes)
     else
       Success(baseBytes)
+  }
+
+  function method MapAttrToBytes(bytes: map<AttributeName, Result<seq<uint8>, string>>): (ret: Result<seq<uint8>, string>) {
+    var bytes :- SimplifyMapValue(bytes);
+    CollectMap(bytes)
   }
 
   lemma BigEndianLemma()
@@ -712,6 +715,18 @@ module DynamoToStruct {
   // Map to Bytes
   // input sequence is already serialized
   function method {:tailrecursion} {:opaque} CollectMap(
+    mapToSerialize : map<AttributeName, seq<uint8>>,
+    serialized : seq<uint8> := []
+  )
+    : (ret : Result<seq<uint8>, string>)
+    ensures (ret.Success? && |mapToSerialize| == 0) ==> (ret.value == serialized)
+    ensures (ret.Success? && |mapToSerialize| == 0) ==> (|ret.value| == |serialized|)
+  {
+    var keys := SortedSets.ComputeSetToOrderedSequence2(mapToSerialize.Keys, CharLess);
+    CollectOrderedMapSubset(keys, mapToSerialize, serialized)
+  }
+
+  function method {:tailrecursion} {:opaque} CollectOrderedMapSubset(
     keys : seq<AttributeName>,
     mapToSerialize : map<AttributeName, seq<uint8>>,
     serialized : seq<uint8> := []
@@ -725,7 +740,7 @@ module DynamoToStruct {
       Success(serialized)
     else
       var data :- SerializeMapItem(keys[0], mapToSerialize[keys[0]]);
-      CollectMap(keys[1..], mapToSerialize, serialized + data)
+      CollectOrderedMapSubset(keys[1..], mapToSerialize, serialized + data)
   }
   
   function method BoolToUint8(b : bool) : uint8
