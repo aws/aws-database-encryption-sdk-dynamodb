@@ -343,24 +343,6 @@ Both standard and compound beacons define two operations
  * [hash](#hash) - turn a plaintext record into a beacon
  * [getPart](#getpart) - turn a plaintext query string into a beacon
 
-The key material used to hash MUST be obtained
-from the [Beacon Key Source](./search-config.md#beacon-key-source)
-in the configured [Beacon Version](./search-config.md#beacon-version-initialization) for this beacon.
-
-If the configured [Beacon Key Source](./search-config.md#beacon-key-source)
-is [Single Key Store](./search-config.md#single-key-store-initialization)
-then the beacon key id MUST be passed to the configured `KeyStore`'s `GetBeaconKey` operation.
-
-If the configured [Beacon Key Source](./search-config.md#beacon-key-source)
-is [Multi Key Store](./search-config.md#multi-key-store-initialization)
-then the beacon key id passed to the configured `KeyStore`'s `GetBeaconKey` operation
-MUST be the [terminal location](virtual.md#terminal-location) configured in `Key Field Name`.
-
-This result SHOULD be stored in a [Local CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md).
-This Local CMC SHOULD be queried first
-and if the materials exist they should be used
-to avoid going to the `KeyStore` for every beacon.
-
 ### basicHash
  * basicHash MUST take an [hmac key](#hmac-key), a [beacon length](#beacon-length) and a sequence of bytes as input.
  * basicHash MUST produce a non-empty string as output.
@@ -370,7 +352,7 @@ of the input bytes and the [hmac key](#hmac-key), and keep the first 8 bytes.
  * the length of the returned string MUST be (`beacon length`/4) rounded up.
 
 ### value for a standard beacon
- * This operation MUST take a record as input, and produce an optional string.
+ * This operation MUST take an [hmac key](#hmac-key), a record as input, and produce an optional string.
  * This operation MUST return no value if the associated field does not exist in the record
  * This operation MUST convert the attribute value of the associated field to
 a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
@@ -389,7 +371,7 @@ excluding parts that are not required and with a source field that is not availa
 
 ### getPart for a standard beacon
 
- * getPart MUST take a sequence of bytes as input, and produce a string.
+ * getPart MUST take an [hmac key](#hmac-key), a sequence of bytes as input, and produce a string.
  * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
 
 ### getPart for a compound beacon
@@ -397,7 +379,8 @@ excluding parts that are not required and with a source field that is not availa
  * getPart MUST take a string as input and produce a string.
  * The returned string MUST NOT be empty.
  * The string MUST be split on the `split character` into pieces.
- * For each piece, a [part](#part) MUST be identified by matching the prefix of a [part](#part)
+ * For each piece, a [part](#part) MUST be identified 
+ by matching the prefix of a [part](#part)
 to the beginning of the piece.
  * If no such part exists, this operation MUST fail.
  * The [Part Value](#part-value-calculation) MUST be calculated for each piece,
@@ -413,12 +396,13 @@ The `Part Value` is the [part value calculation](#part-value-calculation) of the
 
 ### Part Value Calculation
 
-Part Value Calculation MUST take a string, a prefix, and an optional [beacon length](#beacon-length) as input, and return a string as output.
+Part Value Calculation MUST take an [hmac key](#hmac-key), a string, a prefix,
+and an optional [beacon length](#beacon-length) as input, and return a string as output.
 
 The input string MUST begin with the provided prefix.
 
 If the [beacon length](#beacon-length) is provided, 
-the part value MUST be the concatenation
-of the prefix and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
+the part value MUST be the concatenation of the prefix
+and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
 
 If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.

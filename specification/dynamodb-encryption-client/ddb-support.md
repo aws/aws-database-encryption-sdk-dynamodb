@@ -19,6 +19,7 @@ The first category is for general support, used across multiple DynamoDB API tra
  * [AddSensitiveBeacons](#addsensitivebeacons) - Add attributes to an item to enable searchable encryption
  * [RemoveBeacons](#removebeacons) - Remove all private attributes from an item,
  e.g. the ones added in [AddNonSensitiveBeacons](#addnonsensitivebeacons) and [AddSensitiveBeacons](#addsensitivebeacons)
+ * [HandleBeaconKeyFieldName](#handlebeaconkeyfieldname) - 
 
 The second category is support for specific interceptors, where the whole input or output structure is modified.
  * [CreateTableInputForBeacons](#createtableinputforbeacons)
@@ -65,24 +66,11 @@ The result of AddNonSensitiveBeacons MUST contain, unaltered, everything in the 
 
 ## AddSensitiveBeacons
 
-AddSensitiveBeacons examines the [Encrypt Item Input](./encrypt-item.md#input) and [Encrypt Item Output](./encrypt-item.md#output).
+AddSensitiveBeacons examines the [Encrypt Item Input](./encrypt-item.md#input)
+and [Encrypt Item Output](./encrypt-item.md#output).
 
-The [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source) for the configured table
-MUST be used to obtain the correct beacon key information needed to add sensitive beacons.
-
-The [Parsed Header](./encrypt-item.md#parsed-header)'s encrypted data keys MUST contain only one encrypted data key.
-It's [Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
-MUST equal the provider ID for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt).
-
-If the Beacon Key Source configuration is [multi key store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-and an attribute exists with the name of the configured Key Field Name
-then the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
-MUST match this value.
-
-AddSensitiveBeacons examines [DynamoDB Item](./encrypt-item.md#dynamodb-item) AttributeMap
-and modifies the [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
-it to be appropriate for Searchable Encryption,
-returning a replacement AttributeMap.
+To obtain [Beacon Key Materials] AddSensitiveBeacons
+MUST call [Get beacon key after encrypt](../searchable-encryption/search-config.md#get-beacon-key-after-encrypt).
 
 AddSensitiveBeacons MUST NOT operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
 that only have [non-sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
@@ -104,8 +92,53 @@ in which case the Key Field Name MUST be removed.
 RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
 returning a replacement AttributeMap.
 
-AddBeacons MUST remove any attributes whose name begins with `aws_dbe_`,
+RemoveBeacons MUST remove any attributes whose name begins with `aws_dbe_`,
 and leave all other attributes unchanged.
+
+## HandleBeaconKeyFieldName
+
+HandleBeaconKeyFieldName examines an AttributeMap
+the [Search Config](../searchable-encryption/search-config.md),
+a [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name),
+and the [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
+to determine how this field should be handled.
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Single Key Store](../searchable-encryption/search-config.md#single-key-store-initialization)
+HandleBeaconKeyFieldName MUST return a `beacon key id` of None
+and the unaltered AttributeMap.
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+then [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+MUST be used to find the `beacon key id`.
+
+If the AttributeMap does not have a key
+equal to [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+HandleBeaconKeyFieldName MUST return a `beacon key id` of None
+and the unaltered AttributeMap.
+
+If the AttributeMap does have a key
+equal to [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+then the `beacon key id` MUST be the value of this Attribute.
+
+If there is not an [Attribute Action](./ddb-table-encryption-config.md#attribute-actions)
+configured for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+HandleBeaconKeyFieldName MUST return the `beacon key id`
+and the unaltered AttributeMap.
+
+If there is an [Attribute Action](./ddb-table-encryption-config.md#attribute-actions)
+configured for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+and that action is [DO_NOTHING](../structured-encryption/structures.md#do_nothing)
+HandleBeaconKeyFieldName MUST return the `beacon key id`
+and the unaltered AttributeMap.
+
+If there is an [Attribute Action](./ddb-table-encryption-config.md#attribute-actions)
+configured for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+and that action is either [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign)
+or [SIGN_ONLY](../structured-encryption/structures.md#sign_only)
+HandleBeaconKeyFieldName MUST remove the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+from the AttributeMap and return the `beacon key id` and the altered AttributeMap.
 
 ## CreateTableInputForBeacons
 

@@ -155,7 +155,7 @@ This can also be described as multi tenant.
 On initialization of a Multi Key Store, the caller MUST provide:
 
  - [Keystore](#keystore)
- - [Key Field Name](#key-field-name)
+ - [Beacon Key Field Name](#beacon-key-field-name)
  - [cacheTTL](#cachettl)
  - [max cache size](#max-cache-size)
 
@@ -171,11 +171,11 @@ If being used with a Hierarchical Keyring to encrypt/decrypt items, this SHOULD 
 
 A single [Beacon Key Id](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md) that exists in the [keystore](####keystore).
 
-#### Key Field Name
+#### Beacon Key Field Name
 
 A attribute name that is used to identify the beacon key.
 This attribute can be passed in on the DDB item,
-but will not be stored in the table.
+but does not need to be stored in the table.
 It can be referenced in [compound beacons](./beacons.md#compound-beacon)
 and used to extract a beacon key id from a query.
 
@@ -209,21 +209,35 @@ Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key
 
 ### Get beacon key after encrypt
 
-Takes a [Search Config](#search-config) and a [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header).
-
-The [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header)'s encrypted data keys MUST contain only one encrypted data key.
-It's [Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
-MUST equal the provider ID for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt).
+Takes a [Search Config](#search-config)
+and a [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header).
 
 If the [Beacon Key Source](#beacon-key-source) is a [Single Key Store](#single-key-store-initialization)
 then `beacon key id` MUST be the configured [beacon key id](#beacon-key-id)
 
 If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key-store-initialization)
-then `beacon key id` MUST be the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
+then `beacon key id` MUST be obtained from [Get beacon key id from parsed header](#get-beacon-key-id-from-parsed-header).
+
+The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`
+MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
+and the result returned for Get beacon key after encrypt.
+
+### Get beacon key id from Parsed Header
+
+Takes a [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header).
+
+If the [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header)'s encrypted data keys
+do not contain only one encrypted data key
+this function MUST fail.
+If this single encrypted data key's 
+[Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
+does not equal the provider ID
+for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt)
+this function MUST fail.
+
+This function MUST return the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-id)
 MUST match this value.
 
-The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore` MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
-and the result returned.
 
 ### Get beacon key for query
 
@@ -235,7 +249,7 @@ then `beacon key id` MUST be the configured [beacon key id](#beacon-key-id)
 If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key-store-initialization)
 then construct a list of all [compound beacons](./beacons.md#compound-beacon)
 that have a [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
-with a `name` equal to the [Key Field Name](#key-field-name).
+with a `name` equal to the [Beacon Key Field Name](#beacon-key-field-name).
 If if this list of compound beacons is empty then get beacon key for query MUST fail.
 
 Construct a list of filter expression and key condition expression
@@ -243,7 +257,7 @@ whose names are equal to the [compound beacons](./beacons.md#compound-beacon) na
 If this list of expression is empty get beacon key for query MUST fail.
 
 For each value extract the value of the [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
-with the `name` of that part that equals [Key Field Name](#key-field-name)
+with the `name` of that part that equals [Beacon Key Field Name](#beacon-key-field-name)
 and construct a list of beacon key ids.
 
 If this list of beacon key ids is empty get beacon key for query MUST fail.
@@ -252,8 +266,9 @@ then get beacon key for query MUST fail.
 
 This unique value MUST be the `beacon key id`.
 
-The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore` MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
-and the result returned.
+The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`
+MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
+and the result returned for Get beacon key for query.
 
 ### Get Beacon Key Materials
 

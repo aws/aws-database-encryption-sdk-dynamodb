@@ -166,11 +166,18 @@ The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
 
 Non-Sensitive Beacons MUST be [added](ddb-support.md#addnonsensitivebeacons).
 
+The [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+MUST be [handled](./ddb-support.md#handlebeaconkeyfieldname).
+
 If the request is validated,
 the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [Encrypt Item](./encrypt-item.md),
 where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-is output of the [add beacons](ddb-support.md#addnonsensitivebeacons) operation.
+is output of [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname) operation.
+
+If the output of [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
+contained a `branch key id` this value
+MUST match the value returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
 
 Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
 
