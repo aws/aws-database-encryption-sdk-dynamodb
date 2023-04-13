@@ -197,14 +197,13 @@ module DynamoToStruct {
     ensures ret.Success? ==> s.attributes.None?
   {
     :- Need(s.attributes.None?, "attributes must be None");
-    match s.content {
-      case Terminal(s) => 
-        :- Need(|s.typeId| == 2, "Type ID must be two bytes");
-        var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
-        :- Need(attrValueAndLength.len == |s.value|, "Mismatch between length of encoded data and length of data");
-        Success(attrValueAndLength.val)
-      case _ => Failure("StructuredData to AttributeValue only works on Terminal data")
-    }
+    :- Need(s.content.Terminal?, "StructuredData to AttributeValue only works on Terminal data");
+
+    var data := s.content.Terminal;
+    :- Need(|data.typeId| == 2, "Type ID must be two bytes");
+    var attrValueAndLength :- BytesToAttr(data.value, data.typeId, false);
+    :- Need(attrValueAndLength.len == |data.value|, "Mismatch between length of encoded data and length of data");
+    Success(attrValueAndLength.val)
   }
 
     const BOOL_LEN : nat := 1;   // number of bytes in an encoded boolean
