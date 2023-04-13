@@ -244,7 +244,6 @@ public class BasicSearchableEncryptionExample {
 
   public static void main(final String[] args) {
     if (args.length != 5) {
-      System.out.println(args.length);
       throw new IllegalArgumentException("To run this example, kmsKeyId as args[0], ddbTableName as args[1], branchKeyId as args[2], branchKeyWrappingKmsKeyId as args[3], and branchKeyDdbTableName as args[4]");
     }
     final String gsiName = args[0];
