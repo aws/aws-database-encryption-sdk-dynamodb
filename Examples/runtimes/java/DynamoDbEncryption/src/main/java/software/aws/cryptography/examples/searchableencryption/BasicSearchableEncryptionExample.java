@@ -32,8 +32,8 @@ import java.util.Map;
   This example demonstrates how to set up a beacon on an encrypted attribute,
   put an item with the beacon, and query against that beacon.
 
-  Running this example requires access to a DDBTable named `ddbTableName`
-  with the following primary key configuration:
+  Running this example requires access to a DDB table  with the
+  following primary key configuration:
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
   and the following GSI:
@@ -54,22 +54,22 @@ public class BasicSearchableEncryptionExample {
   public static void PutItemQueryItemWithBeacon(String gsiName, String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyId, String branchKeyDdbTableName) {
 
     // 1. Create Beacons.
-    //    The beacon name must be a table attribute that is encrypted.
-    //    To use the beacon in queries, the table must have an index configured
+    //    The beacon name must be the name of a table attribute that will be encrypted.
+    //    To use the beacon in DDB queries or scans, the table must have an index configured
     //        on the beaconized attribute name: i.e. aws_dbe_b_[beacon_name]
-    //    The value stored inside the attribute represented by the beaconized attribute name
-    //        must be of `binary` attribute type.
+    //    Since the attribute is encrypted, the attribute must have DDB attribute type `binary`.
+    //    The beaconized attribute must have DDB attribute type `string`.
     //    The `length` parameter dictates how many bits are in the beacon attribute value.
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
     // The configured DDB table has a GSI on the `aws_dbe_b_beacon_str_attr` AttributeName
-    // Values stored in aws_dbe_b_beacon_str_attr will be of 4 bits (0x0 - 0xf)
+    // Values stored in aws_dbe_b_beacon_str_attr will be 4 bits long (0x0 - 0xf)
     StandardBeacon stringBeacon = StandardBeacon.builder()
         .name("beacon_str_attr")
         .length(4)
         .build();
     standardBeaconList.add(stringBeacon);
     // The configured DDB table has a GSI on the `aws_dbe_b_beacon_num_attr` AttributeName
-    // Values stored in aws_dbe_b_beacon_num_attr will be of 8 bits (0x00 - 0xff)
+    // Values stored in aws_dbe_b_beacon_num_attr will be 8 bits long (0x00 - 0xff)
     StandardBeacon numberBeacon = StandardBeacon.builder()
         .name("beacon_num_attr")
         .length(8)
@@ -78,10 +78,12 @@ public class BasicSearchableEncryptionExample {
 
     // 2. Create BeaconVersion.
     //    The BeaconVersions list MUST be of length 1; i.e. a list containing a single BeaconVersion.
-    //    The BeaconVersion inside the list holds the list of beacons created above.
-    //    It also stores information about the branch keystore.
-    //    The branch keystore is a separate DDB table outlined in TODO: add spec
-    //    BeaconVersion must be given:
+    //    The BeaconVersion inside the list holds the list of beacons on the table.
+    //    The BeaconVersion also stores information about the branch keystore.
+    //    The branch keystore is a separate DDB table outlined in:
+    //        https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/master/framework/branch-key-store.md
+    //    In order to configure beacons on the DDB client, you must configure a branch keystore.
+    //    BeaconVersion must be provided:
     //      - branchKeyId: The value contained in the `branch-key-id` attribute in the branch keystore
     //      - keyArn: The ARN of the KMS key used to create the branch key
     //      - tableArn: The ARN of the branch keystore DDB table
@@ -99,6 +101,7 @@ public class BasicSearchableEncryptionExample {
     );
 
     // 3. Create a Hierarchical Keyring
+    //    This is a KMS keyring that utilizes the branch keystore.
     final MaterialProviders matProv = MaterialProviders.builder()
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
         .build();
@@ -127,6 +130,7 @@ public class BasicSearchableEncryptionExample {
     //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
     //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
     //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
+    //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
     final Map<String, CryptoAction> attributeActions = new HashMap<>();
     attributeActions.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActions.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
@@ -164,7 +168,7 @@ public class BasicSearchableEncryptionExample {
     final String unauthAttrPrefix = ":";
 
     // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
-    //    The beaconVersions are added to the configuration.
+    //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .partitionKeyName("partition_key")
@@ -173,7 +177,7 @@ public class BasicSearchableEncryptionExample {
         .keyring(kmsKeyring)
         .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
         .search(SearchConfig.builder()
-            .writeVersion(1)
+            .writeVersion(1) // MUST be 1
             .versions(beaconVersions)
             .build())
         .build();
@@ -199,7 +203,8 @@ public class BasicSearchableEncryptionExample {
     //        client-side, according to our configuration.
     //    Since our configuration includes beacons for `beacon_str_attr` and `beacon_num_attr`,
     //        the client will add two additional attributes to the item. These attributes will have names
-    //        `aws_dbe_b_beacon_str_attr` and `aws_dbe_b_beacon_num_attr`.
+    //        `aws_dbe_b_beacon_str_attr` and `aws_dbe_b_beacon_num_attr`. Their values will be HMACs
+    //        truncated to the beacon's `length` parameter.
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("partition_key", AttributeValue.builder().s("PutItemWithBeaconExample").build());
     item.put("sort_key", AttributeValue.builder().n("34").build());
@@ -217,8 +222,10 @@ public class BasicSearchableEncryptionExample {
     // 10. Query for the item we just put.
     //     Note that we are constructing the query as if we were querying on plaintext values.
     //     However, the DDB encryption client will detect that this attribute name has a beacon configured.
-    //     It will add the beaconized attribute name and attribute value to the query,
+    //     The client will add the beaconized attribute name and attribute value to the query,
     //         and transform the query to use the beaconized name and value.
+    //     The client will receive the item with a matching HMAC value, then decrypt the encrypted field
+    //         to validate the encrypted value matches the plaintext value.
     Map<String,String> expressionAttributesNames = new HashMap<>();
     expressionAttributesNames.put("#s", "beacon_str_attr");
 

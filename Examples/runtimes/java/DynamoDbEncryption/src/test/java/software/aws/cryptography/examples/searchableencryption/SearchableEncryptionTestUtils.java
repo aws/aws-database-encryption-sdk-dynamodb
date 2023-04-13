@@ -2,7 +2,7 @@ package software.aws.cryptography.examples.searchableencryption;
 
 public class SearchableEncryptionTestUtils {
 
-  // This is a public KMS Key that MUST only be used for testing, and MUST NOT be used for any production data
+  // This is the name of a GSI that must be configured on the table with name TEST_DDB_TABLE_NAME
   public static String TEST_BEACON_GSI = "Example-Beacon-Index-On-Beacons";
 
   // Our tests require access to DDB Table with this name
