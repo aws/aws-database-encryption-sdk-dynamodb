@@ -251,7 +251,7 @@ module BaseBeacon {
       [HexChar(TruncateNibble(bytes[0] % 16, topBits))] + ToHexString(bytes[1..])
   }
 
-  lemma CheckBytesToHex()
+  lemma {:vcs_split_on_every_assert} CheckBytesToHex()
     ensures
       && var bytes := [1,2,3,4,5,6,7,0xb7];
       && BytesToHex(bytes, 1) == "1"
