@@ -154,7 +154,7 @@ transpile_implementation:
 
 # Transpile the entire project's tests
 _transpile_test_all: TRANSPILE_TARGETS=$(if ${PROJECT_SERVICES}, $(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES)), `find ./test -name '*.dfy'`)
-_transpile_test_all: TRANSPILE_DEPENDENCIES=$(if ${PROJECT_INDEX}, $(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)), -library:src/Index.dfy)
+_transpile_test_all: TRANSPILE_DEPENDENCIES=$(if ${PROJECT_SERVICES}, $(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES)), -library:src/Index.dfy)
 _transpile_test_all: transpile_test
 
 transpile_test:
@@ -171,7 +171,6 @@ transpile_test:
 		-useRuntimeLib \
 		-out $(OUT) \
 		$(TRANSPILE_TARGETS) \
-		-library:src/Index.dfy \
 		$(if $(strip $(STD_LIBRARY)) , -library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy, ) \
 		$(TRANSPILE_DEPENDENCIES)
 
