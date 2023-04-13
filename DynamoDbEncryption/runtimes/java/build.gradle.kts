@@ -164,7 +164,7 @@ tasks.test {
     })
 }
 
-tasks.register<JavaExec>("runDafnyTests") {
+tasks.register<JavaExec>("runTests") {
     mainClass.set("TestsFromDafny")
     classpath = sourceSets["test"].runtimeClasspath
 }
