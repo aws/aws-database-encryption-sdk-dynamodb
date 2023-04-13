@@ -112,6 +112,8 @@ module ScanTransform {
         && item.output.Success?
         && item.input.encryptedItem == input.sdkOutput.Items.value[i-historySize]
         && item.output.value.plaintextItem == decryptedItems[i-historySize])
+
+      invariant ValidConfig?(config)
     {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
       //# Each of these entries on the original response MUST be replaced
