@@ -83,7 +83,7 @@ module
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
         assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
-        var searchR := SearchConfigToInfo.Convert(inputConfig, inputConfig.search);
+        var searchR := SearchConfigToInfo.Convert(inputConfig);
         var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
         assert search.None? || search.value.ValidState();
         var internalConfig := DdbMiddlewareConfig.TableConfig(

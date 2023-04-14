@@ -32,20 +32,21 @@ module SearchConfigToInfo {
   import Aws.Cryptography.Primitives
 
   // convert configured SearchConfig to internal SearchInfo
-  method Convert(outer : DynamoDbTableEncryptionConfig, config : Option<SearchConfig>)
+  method Convert(outer : DynamoDbTableEncryptionConfig)
     returns (output : Result<Option<I.ValidSearchInfo>, Error>)
-    requires ValidSearchConfig(config)
+    requires ValidSearchConfig(outer.search)
+    modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
     ensures output.Success? && output.value.Some? ==>
       && output.value.value.ValidState()
       && fresh(output.value.value.versions[0].keySource.cache)
       && fresh(output.value.value.versions[0].keySource.client)
   {
-    if config.None? {
+    if outer.search.None? {
       return Success(None);
     } else {
-      :- Need(config.value.writeVersion == 1, E("writeVersion must be '1'."));
-      :- Need(|config.value.versions| == 1, E("search config must be have exactly one version."));
-      var version :- ConvertVersion(outer, config.value.versions[0]);
+      :- Need(outer.search.value.writeVersion == 1, E("writeVersion must be '1'."));
+      :- Need(|outer.search.value.versions| == 1, E("search config must be have exactly one version."));
+      var version :- ConvertVersion(outer, outer.search.value.versions[0]);
       var info := I.SearchInfo(versions := [version], currWrite := 0);
       var _ :- info.CheckValid();
       return Success(Some(info));
@@ -77,6 +78,7 @@ module SearchConfigToInfo {
       && output.value.ValidState()
       && fresh(output.value.cache)
       && output.value.client == client
+      && output.value.store == keyStore
   {
     if config.multi? {
       var cache := new I.DumbCache();
@@ -91,6 +93,7 @@ module SearchConfigToInfo {
   method ConvertVersion(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion)
     returns (output : Result<I.BeaconVersion, Error>)
     requires ValidBeaconVersion(config)
+    modifies config.keyStore.Modifies
     ensures output.Success? ==>
       && output.value.ValidState()
       && fresh(output.value.keySource.cache)
