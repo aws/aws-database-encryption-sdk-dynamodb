@@ -12,12 +12,13 @@ module TransactGetItemsTransformTest {
 
   method {:test} TestTransactGetItemsInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("no_such_table");
     var input := DDB.TransactGetItemsInput(
       TransactItems := [
         DDB.TransactGetItem(
           Get := DDB.Get(
             Key := map[],
-            TableName := "no_such_table",
+            TableName := tableName,
             ProjectionExpression := None(),
             ExpressionAttributeNames := None()
           )

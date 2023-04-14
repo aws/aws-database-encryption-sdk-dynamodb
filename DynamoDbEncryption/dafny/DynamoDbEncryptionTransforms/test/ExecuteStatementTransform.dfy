@@ -12,8 +12,9 @@ module ExecuteStatementTransformTest {
 
   method {:test} TestExecuteStatementInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var statement := GetStatement("update \"no_such_table\"");
     var good_input := DDB.ExecuteStatementInput(
-      Statement := "update \"no_such_table\"",
+      Statement := statement,
       Parameters := None(),
       ConsistentRead := None(),
       NextToken := None(),
@@ -32,8 +33,9 @@ module ExecuteStatementTransformTest {
 
   method {:test} TestExecuteStatementInputEncrypted() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
-    var bad_input := DDB.ExecuteStatementInput(
-      Statement := "update \"foo\"",
+      var statement := GetStatement("update \"foo\"");
+      var bad_input := DDB.ExecuteStatementInput(
+      Statement := statement,
       Parameters := None(),
       ConsistentRead := None(),
       NextToken := None(),
@@ -59,8 +61,9 @@ module ExecuteStatementTransformTest {
       ConsumedCapacity := None(),
       LastEvaluatedKey := None()
     );
-    var input := DDB.ExecuteStatementInput(
-      Statement := "foo",
+      var statement := GetStatement("foo");
+      var input := DDB.ExecuteStatementInput(
+      Statement := statement,
       Parameters := None(),
       ConsistentRead := None(),
       NextToken := None(),

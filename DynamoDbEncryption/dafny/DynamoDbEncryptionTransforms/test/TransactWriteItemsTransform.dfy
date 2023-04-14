@@ -12,6 +12,7 @@ module TransactWriteItemsTransformTest {
 
   method {:test} TestTransactWriteItemsInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("bar");
     var input := DDB.TransactWriteItemsInput(
       TransactItems := [
         DDB.TransactWriteItem(
@@ -19,7 +20,7 @@ module TransactWriteItemsTransformTest {
           Put := None(),
           Delete := Some(DDB.Delete(
             Key := map["this" := DDB.AttributeValue.S("that")],
-            TableName := "bar",
+            TableName := tableName,
             ConditionExpression := None,
             ExpressionAttributeNames := None,
             ExpressionAttributeValues := None,

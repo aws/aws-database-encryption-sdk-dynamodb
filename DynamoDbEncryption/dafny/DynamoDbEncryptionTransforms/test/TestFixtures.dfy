@@ -14,7 +14,19 @@ module TestFixtures {
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
   import CSE = AwsCryptographyStructuredEncryptionTypes
-  
+  import DDB = ComAmazonawsDynamodbTypes
+
+  method GetTableName(s : string) returns (output : DDB.TableName)
+  {
+    expect DDB.IsValid_TableName(s);
+    return s;
+  }
+  method GetStatement(s : string) returns (output : DDB.PartiQLStatement)
+  {
+    expect DDB.IsValid_PartiQLStatement(s);
+    return s;
+  }
+
   const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
   function method GetAttributeActions() : AttributeActions {
@@ -27,8 +39,9 @@ module TestFixtures {
 
   method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
     var keyring := GetKmsKeyring();
+    var tableName := GetTableName("foo");
     output := DynamoDbItemEncryptorConfig(
-      tableName := "foo",
+      tableName := tableName,
       partitionKeyName := "bar",
       sortKeyName := None(),
       attributeActions := GetAttributeActions(),
