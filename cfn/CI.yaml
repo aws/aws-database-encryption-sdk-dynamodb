@@ -86,6 +86,10 @@ Resources:
           AttributeType: "S"
         - AttributeName: "SK"
           AttributeType: "S"
+        - AttributeName: "aws_dbe_b_PK"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_SK"
+          AttributeType: "S"
         - AttributeName: "aws_dbe_b_PK1"
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_SK1"
@@ -99,6 +103,17 @@ Resources:
         - AttributeName: "aws_dbe_b_SK3"
           AttributeType: "S"
       GlobalSecondaryIndexes:
+        - IndexName: "GSI-0"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_PK"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_SK"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
         - IndexName: "GSI-1"
           KeySchema:
             - AttributeName: "aws_dbe_b_PK1"
