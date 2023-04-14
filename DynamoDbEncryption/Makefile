@@ -5,6 +5,8 @@ CORES=2
 
 include ../SharedMakefile.mk
 
+DIR_STRUCTURE_V2=V2
+
 PROJECT_SERVICES := \
 	DynamoDbEncryption \
 	DynamoDbItemEncryptor \
