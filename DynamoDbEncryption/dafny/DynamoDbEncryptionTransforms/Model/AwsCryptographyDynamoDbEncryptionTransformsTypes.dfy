@@ -13,7 +13,6 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import AwsCryptographyDynamoDbEncryptionTypes
  import AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
  import ComAmazonawsDynamodbTypes
- import Sets
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
  
@@ -895,23 +894,6 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  tmp10Modifies in tmps9FlattenedModifiesSet 
  && tmp10ModifyEntry in tmp10Modifies 
  :: tmp10ModifyEntry)
-
-modifies
-  set versions <- 
-    set configValue <- 
-      config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions,
-        keyStore <- set version <-
-          versions :: version.keyStore, obj <-
-            keyStore.Modifies | obj in keyStore.Modifies :: obj
-
-/*
-modifies
-  var xxx := set versions <- 
-    set configValue <- 
-      config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions[0].keyStore.Modifies;
-  set x, y | x in xxx && y in x :: x
-*/
-
  modifies var tmps11 := set t11 | t11 in config.tableEncryptionConfigs.Values
   && t11.search.Some? 
   :: set t12 | t12 in t11.search.value.versions :: t12.keyStore;
@@ -921,8 +903,6 @@ modifies
  tmp13Modifies in tmps11FlattenedModifiesSet 
  && tmp13ModifyEntry in tmp13Modifies 
  :: tmp13ModifyEntry)
-
- 
  ensures res.Success? ==> 
  && fresh(res.value)
  && fresh(res.value.Modifies

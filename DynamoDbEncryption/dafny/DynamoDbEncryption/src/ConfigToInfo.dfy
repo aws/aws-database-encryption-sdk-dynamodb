@@ -163,7 +163,7 @@ module SearchConfigToInfo {
   {
     && var name := loc[0].key;
     && name in outer.attributeActions
-    && outer.attributeActions[name] != SE.SIGN_ONLY
+    && outer.attributeActions[name] == SE.SIGN_ONLY
   }
 
   // is this terminal location encrypted

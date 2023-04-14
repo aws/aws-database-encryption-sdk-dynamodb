@@ -30,6 +30,30 @@ module
     forall t <- config.tableEncryptionConfigs :: SearchConfigToInfo.ValidSearchConfig(config.tableEncryptionConfigs[t].search)
   }
 
+  function TheModifies(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig) : set<object>
+  {
+  var tmps11 := set t11 | t11 in config.tableEncryptionConfigs.Values
+    && t11.search.Some? 
+    :: set t12 | t12 in t11.search.value.versions :: t12.keyStore;
+  var tmps11FlattenedModifiesSet: set<set<object>> := set t0
+  , t1 | t0 in tmps11 && t1 in t0 :: t1.Modifies;
+  (set tmp13ModifyEntry, tmp13Modifies | 
+  tmp13Modifies in tmps11FlattenedModifiesSet 
+  && tmp13ModifyEntry in tmp13Modifies 
+  :: tmp13ModifyEntry)
+  }
+
+  function SearchModifies(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig, tableName : string)
+    : set<object>
+    requires tableName in config.tableEncryptionConfigs
+  {
+    var inputConfig := config.tableEncryptionConfigs[tableName];
+    if inputConfig.search.Some? then inputConfig.search.value.versions[0].keyStore.Modifies else {}
+  }
+  lemma {:axiom} SearchInModifies(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig, tableName : string)
+    requires tableName in config.tableEncryptionConfigs
+    ensures SearchModifies(config, tableName) <= TheModifies(config)
+
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
   {
@@ -83,26 +107,7 @@ module
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
         assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
-        /*
-        modifies
-          set versions <- 
-            set configValue <- 
-              config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions,
-                keyStore <- set version <-
-                  versions :: version.keyStore, obj <-
-                    keyStore.Modifies | obj in keyStore.Modifies :: obj
-            */
-        var s1 :=
-          set versions <- 
-            set configValue <- 
-              config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions,
-                keyStore <- set version <-
-                  versions :: version.keyStore, obj <-
-                    keyStore.Modifies | obj in keyStore.Modifies :: obj;
-
-        // modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
-        var s2 := if inputConfig.search.Some? then inputConfig.search.value.versions[0].keyStore.Modifies else {};
-        assume {:axiom} s2 <= s1;
+        SearchInModifies(config, tableName);
         var searchR := SearchConfigToInfo.Convert(inputConfig);
         var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
         assert search.None? || search.value.ValidState();
