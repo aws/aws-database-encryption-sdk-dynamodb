@@ -467,12 +467,16 @@ module TestDynamoDBFilterExpr {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var newItems :- expect FilterResults(bv, [SimpleItem], None, Some("std2 = :val2"), None, Some(values));
+    expect |newItems| == 1;
     expect_equal(newItems, [SimpleItem]);
     newItems :- expect FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val3"), None, Some(values));
+    expect |newItems| == 1;
     expect_equal(newItems, [SimpleItem]);
     newItems :- expect FilterResults(bv, [SimpleItem], None, Some("contains(NameTitle, :val4)"), None, Some(values));
+    expect |newItems| == 1;
     expect_equal(newItems, [SimpleItem]);
     newItems :- expect FilterResults(bv, [SimpleItem], None, Some("NameTitleField = :val5)"), None, Some(values));
+    expect |newItems| == 1;
     expect_equal(newItems, [SimpleItem]);
   }
 

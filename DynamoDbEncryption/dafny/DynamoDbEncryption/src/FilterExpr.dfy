@@ -1166,6 +1166,9 @@ module DynamoDBFilterExpr {
       return Success([]);
     }
     var newAttrs :- b.GenerateBeacons(ItemList[0], false);
+    var _ := printFromFunction("==============");
+    var _ := printFromFunction(newAttrs);
+    var _ := printFromFunction("==============");
     var doesMatch :- EvalExpr(parsed, ItemList[0] + newAttrs, names, values);
     var rest :- FilterItems(b, parsed, ItemList[1..], names, values);
     if doesMatch {
@@ -1188,6 +1191,7 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
+    var _ := printFromFunction(ItemList);
     if |ItemList| == 0 || (KeyExpression.None? && FilterExpression.None?) {
       return Success(ItemList);
     } else {
@@ -1203,10 +1207,14 @@ module DynamoDBFilterExpr {
           afterKeys := ItemList;
         }
       if FilterExpression.Some? {
+        var _ := printFromFunction(FilterExpression.value);
         var parsed := ParseExpr(FilterExpression.value);
         var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, None);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
+        var _ := printFromFunction(expr2);
+        var _ := printFromFunction(expr.names);
+        var _ := printFromFunction(expr.values);
         output := FilterItems(b, expr2, afterKeys, expr.names, expr.values);
       } else {
         return Success(afterKeys);

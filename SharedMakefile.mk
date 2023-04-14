@@ -363,7 +363,7 @@ local_transpile_impl_single: deps_var=SERVICE_DEPS_$(SERVICE)
 local_transpile_impl_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/src/$(FILE)
 local_transpile_impl_single: TRANSPILE_DEPENDENCIES= \
 		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $($(deps_var))) \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)) \
 		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
 local_transpile_impl_single: transpile_implementation
 
@@ -385,6 +385,6 @@ local_transpile_test_net_single: local_transpile_test_single
 local_transpile_test_single: TRANSPILE_TARGETS=./dafny/$(SERVICE)/test/$(FILE)
 local_transpile_test_single: TRANSPILE_DEPENDENCIES= \
 		$(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES)) \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES)) \
+		$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)) \
 		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
 local_transpile_test_single: transpile_test
