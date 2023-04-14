@@ -199,10 +199,10 @@ module DynamoToStruct {
     :- Need(s.attributes.None?, "attributes must be None");
     :- Need(s.content.Terminal?, "StructuredData to AttributeValue only works on Terminal data");
 
-    var data := s.content.Terminal;
-    :- Need(|data.typeId| == 2, "Type ID must be two bytes");
-    var attrValueAndLength :- BytesToAttr(data.value, data.typeId, false);
-    :- Need(attrValueAndLength.len == |data.value|, "Mismatch between length of encoded data and length of data");
+    var Terminal(s) := s.content;
+    :- Need(|s.typeId| == 2, "Type ID must be two bytes");
+    var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
+    :- Need(attrValueAndLength.len == |s.value|, "Mismatch between length of encoded data and length of data");
     Success(attrValueAndLength.val)
   }
 
