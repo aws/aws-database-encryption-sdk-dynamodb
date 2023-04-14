@@ -139,7 +139,8 @@ module SearchableEncryptionInfo {
       var maybeKey := store.GetBeaconKey(
         KeyStore.GetBeaconKeyInput(
           branchKeyIdentifier := keyId,
-          awsKmsKeyArn := None
+          awsKmsKeyArn := None,
+          grantTokens := None
         )
       );
       var key :- maybeKey.MapFailure(e => AwsCryptographyKeyStore(e));
