@@ -104,26 +104,32 @@ Dafny decided it can't do this anymore
     var tableConfig := config.tableEncryptionConfigs[tableName];
     var decryptedItems : DDB.ItemList := [];
     var encryptedItems := input.sdkOutput.Items.value;
-    ghost var historySize := |tableConfig.itemEncryptor.History.DecryptItem|;
+    ghost var originalHistory := tableConfig.itemEncryptor.History.DecryptItem;
+    ghost var historySize := |originalHistory|;
     for x := 0 to |encryptedItems|
       invariant |decryptedItems| == x
 
-      invariant
-        && (|tableConfig.itemEncryptor.History.DecryptItem| ==
-            |old(tableConfig.itemEncryptor.History.DecryptItem)| + |decryptedItems|)
+      invariant (|tableConfig.itemEncryptor.History.DecryptItem| == |originalHistory| + |decryptedItems|)
 
       invariant (forall i : nat | historySize <= i < |decryptedItems|+historySize ::
         var item := tableConfig.itemEncryptor.History.DecryptItem[i];
         && item.output.Success?
-        && item.input.encryptedItem == input.sdkOutput.Items.value[i-historySize]
+        && item.input.encryptedItem == encryptedItems[i-historySize]
         && item.output.value.plaintextItem == decryptedItems[i-historySize])
+
+      invariant ValidConfig?(config)
     {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
       //# Each of these entries on the original response MUST be replaced
       //# with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
-      var decryptRes := tableConfig.itemEncryptor.DecryptItem(EncTypes.DecryptItemInput(encryptedItem:=encryptedItems[x]));
+      var decryptInput := EncTypes.DecryptItemInput(encryptedItem := encryptedItems[x]);
+      var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
+      ghost var newHistoryEvent := tableConfig.itemEncryptor.History.DecryptItem[historySize + x];
+      assert newHistoryEvent == EncTypes.DafnyCallEvent(decryptInput, decryptRes);
+
       var decrypted :- MapError(decryptRes);
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
+      assert newHistoryEvent.output.value.plaintextItem == decrypted.plaintextItem;
     }
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
@@ -133,4 +139,3 @@ Dafny decided it can't do this anymore
     return Success(QueryOutputTransformOutput(transformedOutput := finalResult));
   }
 }
-

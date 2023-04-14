@@ -21,8 +21,10 @@ import java.util.Map;
   putting a client-side encrypted item into DynamoDb
   and then retrieving and decrypting that item from DynamoDb. 
 
-  Running this examples requires access to a DDBTable named `ddbTableName`
-  with the following primary key configuration:
+  Running this example requires access to the DDB Table whose name
+  is provided in CLI arguments.
+  This table must be configured with the following
+  primary key configuration:
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
  */

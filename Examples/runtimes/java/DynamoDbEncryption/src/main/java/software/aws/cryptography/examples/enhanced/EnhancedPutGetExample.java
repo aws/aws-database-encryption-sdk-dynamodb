@@ -19,6 +19,19 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+  This example sets up DynamoDb Encryption for the DynamoDb Enhanced Client
+  and uses the high level putItem() and getItem() APIs to demonstrate
+  putting a client-side encrypted item into DynamoDb
+  and then retrieving and decrypting that item from DynamoDb. 
+
+  Running this example requires access to the DDB Table whose name
+  is provided in CLI arguments.
+  This table must be configured with the following
+  primary key configuration:
+    - Partition key is named "partition_key" with type (S)
+    - Sort key is named "sort_key" with type (S)
+ */
 public class EnhancedPutGetExample {
 
     public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
