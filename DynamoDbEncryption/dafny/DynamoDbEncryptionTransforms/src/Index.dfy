@@ -83,6 +83,26 @@ module
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
         assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
+        /*
+        modifies
+          set versions <- 
+            set configValue <- 
+              config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions,
+                keyStore <- set version <-
+                  versions :: version.keyStore, obj <-
+                    keyStore.Modifies | obj in keyStore.Modifies :: obj
+            */
+        var s1 :=
+          set versions <- 
+            set configValue <- 
+              config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions,
+                keyStore <- set version <-
+                  versions :: version.keyStore, obj <-
+                    keyStore.Modifies | obj in keyStore.Modifies :: obj;
+
+        // modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
+        var s2 := if inputConfig.search.Some? then inputConfig.search.value.versions[0].keyStore.Modifies else {};
+        assume {:axiom} s2 <= s1;
         var searchR := SearchConfigToInfo.Convert(inputConfig);
         var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
         assert search.None? || search.value.ValidState();
