@@ -172,5 +172,6 @@ module TestFixtures {
         ]
       )
     );
+    assume {:axiom} fresh(encryption.Modifies);
   }
 }
