@@ -26,8 +26,7 @@ PROJECT_DEPENDENCIES := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders
 STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
 SMITHY_DEPS=submodules/MaterialProviders/model
 
