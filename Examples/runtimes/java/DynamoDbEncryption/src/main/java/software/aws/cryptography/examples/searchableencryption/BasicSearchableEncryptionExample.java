@@ -39,16 +39,16 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
   following primary key configuration:
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
-  This table must a GSI named "Example-Beacon-Index":
+  This table must have a Global Secondary Index (GSI) configured named "Example-Beacon-Index":
     - Partition key is named "aws_dbe_b_beacon_str_attr" with type (S)
     - Sort key is named "aws_dbe_b_beacon_num_attr" with type (S)
 
-  In this example, this schema is utilized for the data:
+  In this example for storing customer location data, this schema is utilized for the data:
    - "partition_key" stores a unique customer identifier
    - "sort_key" stores a Unix timestamp
    - "beacon_str_attr" stores an encrypted 2-letter US state or territory abbreviation
          (https://www.faa.gov/air_traffic/publications/atpubs/cnt_html/appendix_a.html)
-   - "beacon_str_attr" stores an encrypted 5-digit US zipcode (00000 - 99999)
+   - "beacon_num_attr" stores an encrypted 5-digit US zipcode (00000 - 99999)
 
   The example requires the following ordered input command line parameters:
     1. Index name for GSI configured on beacon attributes
@@ -61,7 +61,7 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
 public class BasicSearchableEncryptionExample {
 
-  static String GSI_NAME = "Example-Beacon-Index-On-Beacons";
+  static String GSI_NAME = "Example-Beacon-Index";
 
   public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyId, String branchKeyDdbTableName) {
 
@@ -110,7 +110,7 @@ public class BasicSearchableEncryptionExample {
     // As an example, we will choose 10.
     // Values stored in aws_dbe_b_beacon_num_attr will be 10 bits long (0x000 - 0x3ff).
     // There will be 2^10 = 1024 possible HMAC values.
-    // With well-distributed plaintext data (100,000 values), we expect (100,000/10) = 3.5 zipcodes sharing the same
+    // With well-distributed plaintext data (100,000 values), we expect (100,000/1024) = 100 zipcodes sharing the same
     //   beacon value.
     StandardBeacon numberBeacon = StandardBeacon.builder()
         .name("beacon_num_attr")
@@ -269,7 +269,7 @@ public class BasicSearchableEncryptionExample {
 
   public static void main(final String[] args) {
     if (args.length != 4) {
-      throw new IllegalArgumentException("To run this example, kmsKeyId as args[0], ddbTableName as args[1], branchKeyId as args[2], branchKeyWrappingKmsKeyId as args[3], and branchKeyDdbTableName as args[4]");
+      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyId as args[1], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
     }
     final String ddbTableName = args[0];
     final String branchKeyId = args[1];

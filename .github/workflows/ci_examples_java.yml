@@ -62,7 +62,6 @@ jobs:
           echo "CODEARTIFACT_URL_JAVA_CONVERSION=$URL" >> $GITHUB_ENV
           echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
 
-
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v3
         with:
