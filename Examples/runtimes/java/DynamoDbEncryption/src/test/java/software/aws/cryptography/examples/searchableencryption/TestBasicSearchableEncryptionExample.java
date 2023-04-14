@@ -7,7 +7,6 @@ public class TestBasicSearchableEncryptionExample {
   @Test
   public void TestItemEncryptDecrypt() {
     BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(
-        SearchableEncryptionTestUtils.TEST_BEACON_GSI,
         SearchableEncryptionTestUtils.TEST_DDB_TABLE_NAME,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEY_ID,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ID,
