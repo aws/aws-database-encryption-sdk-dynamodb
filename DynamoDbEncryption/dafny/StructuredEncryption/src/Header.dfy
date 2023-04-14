@@ -667,7 +667,7 @@ module StructuredEncryptionHeader {
   }
   
   // Bytes to Data Key
-  function method GetOneDataKey(data : Bytes)
+  function method {:vcs_split_on_every_assert} GetOneDataKey(data : Bytes)
     : (ret : Result<(CMPEncryptedDataKey, nat), Error>)
     ensures ret.Success? ==>
       && ret.value.1 <= |data|

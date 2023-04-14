@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
-include "../../../../submodules/MaterialProviders//AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/CMMs/ExpectedEncryptionContextCMM.dfy"
+include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/CMMs/ExpectedEncryptionContextCMM.dfy"
 include "../../DynamoDbEncryption/src/DynamoToStruct.dfy"
 include "../../DynamoDbEncryption/src/SearchInfo.dfy"
 include "Util.dfy"

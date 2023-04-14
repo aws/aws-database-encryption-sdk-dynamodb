@@ -116,7 +116,7 @@ module TestDynamoDBFilterExpr {
     var exprString := ParsedExprToString(newContext.expr);
     expect exprString == "aws_dbe_b_std2 < :A AND #Field4 = :B";
   }
-  method {:test} TestBasicBeacons() {
+  method {:test} {:vcs_split_on_every_assert} TestBasicBeacons() {
     var context := ExprContext (
       expr := Some("std2 < :A AND #Field4 = :B"),
       values:= Some(map[
@@ -134,7 +134,8 @@ module TestDynamoDBFilterExpr {
     expect_equal(newContext.expr, Some("aws_dbe_b_std2 < :A AND #Field4 = :B"));
     var newName := "aws_dbe_b_std4";
     expect IsValid_AttributeName(newName);
-    expect_equal(newContext.names, Some(map["#Field4" := newName]));
+    var expectedNames: DDB.ExpressionAttributeNameMap := map["#Field4" := newName];
+    expect_equal(newContext.names, Some(expectedNames));
     var itemBeacons :- expect beaconVersion.GenerateBeacons(SimpleItem);
     expect "aws_dbe_b_std2" in itemBeacons;
     expect "aws_dbe_b_std4" in itemBeacons;
