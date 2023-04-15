@@ -10,7 +10,7 @@ plugins {
 
 group = "software.amazon.cryptography"
 version = "1.0-SNAPSHOT"
-description = "DynamoDbEncryptionExamples"
+description = "DynamoDbEncryptionClientExamples"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
@@ -56,13 +56,11 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.cryptography:AwsCryptographyDynamoDbEncryption:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")
+    implementation("com.amazonaws:aws-dynamodb-encryption-java:2.0.3")
 
-    implementation(platform("software.amazon.awssdk:bom:2.19.1"))
-    implementation("software.amazon.awssdk:dynamodb")
-    implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:kms")
+    implementation("com.amazonaws:aws-java-sdk-bom:1.11.1000")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb")
+    implementation("com.amazonaws:aws-java-sdk-kms")
 
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
