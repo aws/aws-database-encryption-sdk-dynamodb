@@ -63,61 +63,6 @@ public class OtherTests {
         assertNotNull(itemEncryptor);
     }
 
-  /*
-    @Test
-    public void TestCreateBranchKeyStore() {
-        MaterialProviders materialProviders = MaterialProviders.builder()
-                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-                .build();
-
-        CreateBranchKeyStoreOutput out = materialProviders.CreateBranchKeyStore(
-                CreateBranchKeyStoreInput.builder()
-                        .tableName("my-branch-keys")
-                        .ddbClient(DynamoDbClient.builder().build())
-                        .build()
-        );
-        TableDescription desc = out.tableDescription();
-        assertNotNull(desc);
-    }
-
-    @Test
-    public void TestCreateBranchKey() {
-        MaterialProviders materialProviders = MaterialProviders.builder()
-                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-                .build();
-
-        CreateBranchKeyOutput out = materialProviders.CreateBranchKey(
-                CreateBranchKeyInput.builder()
-                        .tableName("my-branch-keys")
-                        .kmsKeyId("<regional-kms-key-id>")
-                        .kmsClient(KmsClient.create())
-                        .ddbClient(DynamoDbClient.builder().build())
-                        .build()
-        );
-
-        assertEquals("a89b547a-7062-4048-b455-d850e32ef808", out.branchKeyId());
-    }
-
-    @Test
-    public void TestVersionBranchKey() {
-        MaterialProviders materialProviders = MaterialProviders.builder()
-                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-                .build();
-
-        VersionBranchKeyOutput out = materialProviders.VersionBranchKey(
-                VersionBranchKeyInput.builder()
-                        .tableName("my-branch-keys")
-                        .branchKeyId("a89b547a-7062-4048-b455-d850e32ef808")
-                        .kmsKeyId("<regional-kms-key-id>")
-                        .kmsClient(KmsClient.builder().build())
-                        .ddbClient(DynamoDbClient.builder().build())
-                        .build()
-        );
-
-        assertEquals(1, out.versionCreated());
-    }
-   */
-
     @Test
     public void TestHierarchyKeyringWithSupplier() {
         MaterialProviders matProv = MaterialProviders.builder()

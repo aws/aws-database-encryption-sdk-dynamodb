@@ -65,44 +65,6 @@ public class DynamoDbEncryptionInterceptorTest {
         assertEquals(oldRequest.item().get(TEST_SORT_NAME), ((PutItemRequest) newRequest).item().get(TEST_SORT_NAME));
     }
 
-    @Test
-    public void TestInterceptorBuilderAcceptsLegacyEncryptor() {
-        Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-        Map<String, CryptoAction> actions = new HashMap<>();
-        actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
-        actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
-        actions.put(TEST_ATTR_NAME, CryptoAction.ENCRYPT_AND_SIGN);
-
-        // Legacy Encryptor creation
-        AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
-        final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(kmsClient, "kmsKeyARN");
-        final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
-        final Map<String, Set<EncryptionFlags>> oldActions = new HashMap<>();
-
-        DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
-                .partitionKeyName(TEST_PARTITION_NAME)
-                .sortKeyName(TEST_SORT_NAME)
-                .attributeActions(actions)
-                .keyring(createKmsKeyring())
-                /*.legacyConfig(
-                    LegacyConfig.builder()
-                        .legacyEncryptor(LegacyDynamoDbItemEncryptor.builder()
-                                .encryptor(oldEncryptor)
-                                .attributeFlags(oldActions)
-                                .build())
-                        .legacyPolicy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
-                        .build())*/
-                .build();
-        tableConfigs.put(TEST_TABLE_NAME, config);
-
-        DynamoDbEncryptionInterceptor interceptor = DynamoDbEncryptionInterceptor.builder()
-                .config(DynamoDbTablesEncryptionConfig.builder()
-                        .tableEncryptionConfigs(tableConfigs)
-                        .build())
-                .build();
-        assertNotNull(interceptor);
-    }
-
     @Test(
             expectedExceptions = DynamoDbEncryptionTransformsException.class,
             expectedExceptionsMessageRegExp = "^Condition Expressions forbidden on encrypted attributes : attr1$"
