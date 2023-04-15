@@ -10,20 +10,19 @@ module BatchWriteItemTransformTest {
   import DDB = ComAmazonawsDynamodbTypes
   import AwsCryptographyDynamoDbEncryptionTransformsTypes
 
-
   method {:test} TestBatchWriteItemInputTransform() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var tableName := GetTableName("foo");
     var request := DDB.WriteRequest (
-      PutRequest := None(),
-      DeleteRequest := None()
+      PutRequest := None,
+      DeleteRequest := None
     );
     var requests := GetWriteRequests([request]);
     var theMap := GetBatchWriteItemRequestMap(map[tableName := requests]);
     var input := DDB.BatchWriteItemInput(
       RequestItems := theMap,
-      ReturnConsumedCapacity := None(),
-      ReturnItemCollectionMetrics := None()
+      ReturnConsumedCapacity := None,
+      ReturnItemCollectionMetrics := None
     );
     var transformed := middlewareUnderTest.BatchWriteItemInputTransform(
       AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchWriteItemInputTransformInput(
@@ -38,22 +37,22 @@ module BatchWriteItemTransformTest {
   method {:test} TestBatchWriteItemOutputTransform() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.BatchWriteItemOutput(
-      UnprocessedItems := None(),
-      ItemCollectionMetrics := None(),
-      ConsumedCapacity := None()
+      UnprocessedItems := None,
+      ItemCollectionMetrics := None,
+      ConsumedCapacity := None
     );
     var tableName := GetTableName("foo");
     var request := DDB.WriteRequest (
-      PutRequest := None(),
-      DeleteRequest := None()
+      PutRequest := None,
+      DeleteRequest := None
     );
     var requests := GetWriteRequests([request]);
     var theMap := GetBatchWriteItemRequestMap(map[tableName := requests]);
 
     var input := DDB.BatchWriteItemInput(
       RequestItems := theMap,
-      ReturnConsumedCapacity := None(),
-      ReturnItemCollectionMetrics := None()
+      ReturnConsumedCapacity := None,
+      ReturnItemCollectionMetrics := None
     );
     var transformed := middlewareUnderTest.BatchWriteItemOutputTransform(
       AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchWriteItemOutputTransformInput(

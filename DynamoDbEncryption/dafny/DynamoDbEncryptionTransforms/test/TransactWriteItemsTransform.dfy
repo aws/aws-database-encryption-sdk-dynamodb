@@ -15,17 +15,17 @@ module TransactWriteItemsTransformTest {
     var tableName := GetTableName("bar");
     var thisAttr := GetAttrName("this");
     var item := DDB.TransactWriteItem(
-          ConditionCheck := None(),
-          Put := None(),
-          Delete := Some(DDB.Delete(
-            Key := map[thisAttr := DDB.AttributeValue.S("that")],
-            TableName := tableName,
-            ConditionExpression := None,
-            ExpressionAttributeNames := None,
-            ExpressionAttributeValues := None,
-            ReturnValuesOnConditionCheckFailure := None)),
-          Update := None()
-        );
+      ConditionCheck := None(),
+      Put := None(),
+      Delete := Some(DDB.Delete(
+                       Key := map[thisAttr := DDB.AttributeValue.S("that")],
+                       TableName := tableName,
+                       ConditionExpression := None,
+                       ExpressionAttributeNames := None,
+                       ExpressionAttributeValues := None,
+                       ReturnValuesOnConditionCheckFailure := None)),
+      Update := None()
+    );
     var items := GetTransactWriteItemList([item]);
     var input := DDB.TransactWriteItemsInput(
       TransactItems := items,
@@ -46,11 +46,11 @@ module TransactWriteItemsTransformTest {
   method {:test} TestTransactWriteItemsInputEmpty() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var item := DDB.TransactWriteItem(
-          ConditionCheck := None,
-          Put := None,
-          Delete := None,
-          Update := None
-        );
+      ConditionCheck := None,
+      Put := None,
+      Delete := None,
+      Update := None
+    );
     var items := GetTransactWriteItemList([item]);
     var input := DDB.TransactWriteItemsInput(
       TransactItems := items,
@@ -72,15 +72,15 @@ module TransactWriteItemsTransformTest {
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
     );
+    var item := DDB.TransactWriteItem(
+      ConditionCheck := None,
+      Put := None,
+      Delete := None,
+      Update := None
+    );
+    var items := GetTransactWriteItemList([item]);
     var input := DDB.TransactWriteItemsInput(
-      TransactItems := [
-        DDB.TransactWriteItem(
-          ConditionCheck := None(),
-          Put := None(),
-          Delete := None(),
-          Update := None()
-        )
-      ],
+      TransactItems := items,
       ReturnConsumedCapacity := None(),
       ReturnItemCollectionMetrics := None(),
       ClientRequestToken := None()

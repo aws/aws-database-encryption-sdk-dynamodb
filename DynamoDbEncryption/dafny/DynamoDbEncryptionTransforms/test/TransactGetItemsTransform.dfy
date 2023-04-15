@@ -13,17 +13,16 @@ module TransactGetItemsTransformTest {
   method {:test} TestTransactGetItemsInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var tableName := GetTableName("no_such_table");
+    var item := DDB.TransactGetItem(
+      Get := DDB.Get(
+        Key := map[],
+        TableName := tableName,
+        ProjectionExpression := None(),
+        ExpressionAttributeNames := None()
+      ));
+    var items := GetTransactGetItemList([item]);
     var input := DDB.TransactGetItemsInput(
-      TransactItems := [
-        DDB.TransactGetItem(
-          Get := DDB.Get(
-            Key := map[],
-            TableName := tableName,
-            ProjectionExpression := None(),
-            ExpressionAttributeNames := None()
-          )
-        )
-      ],
+      TransactItems := items,
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.TransactGetItemsInputTransform(
@@ -43,17 +42,16 @@ module TransactGetItemsTransformTest {
       Responses := None()
     );
     var tableName := GetTableName("no_such_table");
+    var item := DDB.TransactGetItem(
+      Get := DDB.Get(
+        Key := map[],
+        TableName := tableName,
+        ProjectionExpression := None(),
+        ExpressionAttributeNames := None()
+      ));
+    var items := GetTransactGetItemList([item]);
     var input := DDB.TransactGetItemsInput(
-      TransactItems := [
-        DDB.TransactGetItem(
-          Get := DDB.Get(
-            Key := map[],
-            TableName := tableName,
-            ProjectionExpression := None(),
-            ExpressionAttributeNames := None()
-          )
-        )
-      ],
+      TransactItems := items,
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.TransactGetItemsOutputTransform(

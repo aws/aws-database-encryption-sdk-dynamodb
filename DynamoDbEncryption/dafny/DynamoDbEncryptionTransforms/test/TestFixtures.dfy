@@ -62,6 +62,16 @@ module TestFixtures {
     expect DDB.IsValid_KeyList(s);
     return s;
   }
+  method GetTransactGetItemList(s : seq<DDB.TransactGetItem>) returns (output : DDB.TransactGetItemList)
+  {
+    expect DDB.IsValid_TransactGetItemList(s);
+    return s;
+  }
+  method GetPartiQLBatchRequest(s : seq<DDB.BatchStatementRequest>) returns (output : DDB.PartiQLBatchRequest)
+  {
+    expect DDB.IsValid_PartiQLBatchRequest(s);
+    return s;
+  }
 
   const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
