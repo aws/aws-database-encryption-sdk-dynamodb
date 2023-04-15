@@ -32,15 +32,13 @@ module DdbMiddlewareConfig {
   }
   function SearchModifies(config: Config) : set<object>
   {
-    set x, y | y in config.tableEncryptionConfigs && x in OneSearchModifies(config.tableEncryptionConfigs[y]) :: x
+    //set x, y | y in config.tableEncryptionConfigs && x in OneSearchModifies(config.tableEncryptionConfigs[y]) :: x
+    set versions <- set configValue <- config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions,
+    keyStore <- set version <- versions :: version.keySource.store,
+    obj <- keyStore.Modifies | obj in keyStore.Modifies :: obj
+
   }
-  function SearchModifiesTable(config: Config, tableName : string) : set<object>
-  {
-    if tableName in config.tableEncryptionConfigs then
-      OneSearchModifies(config.tableEncryptionConfigs[tableName])
-    else
-      {}
-  }
+
   predicate OneSearchValidState(config : ValidTableConfig)
   {
     if config.search.Some? then config.search.value.ValidState() else true

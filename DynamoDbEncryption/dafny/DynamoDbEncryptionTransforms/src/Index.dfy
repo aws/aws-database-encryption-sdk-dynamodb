@@ -54,6 +54,7 @@ module
     requires tableName in config.tableEncryptionConfigs
     ensures SearchModifies(config, tableName) <= TheModifies(config)
 
+
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
   {
@@ -168,22 +169,24 @@ module
         :: tmp22ModifyEntry)
         ) );
 
-      assert forall tableName <- internalConfigs ::
-        var tableConfig := internalConfigs[tableName];
-        && tableConfig.itemEncryptor.config.tableName == tableName
-        && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
-        && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
-        && tableConfig.itemEncryptor.ValidState()
-        && OneSearchValidState(tableConfig);
+    assert forall tableName <- internalConfigs ::
+      var tableConfig := internalConfigs[tableName];
+      && tableConfig.itemEncryptor.config.tableName == tableName
+      && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
+      && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
+      && tableConfig.itemEncryptor.ValidState()
+      && OneSearchValidState(tableConfig);
 
-    var client := new DynamoDbEncryptionTransformsClient(
-      DdbMiddlewareConfig.Config(
-        tableEncryptionConfigs := internalConfigs
-      )
-    );
+    var newConfig := DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs);
+    assert Operations.ValidInternalConfig?(newConfig);
+    var client := new DynamoDbEncryptionTransformsClient(newConfig);
 
     return Success(client);
   }
+
+  // lemma ConstructionOK(config : DdbMiddlewareConfig.Config)
+  //   requires Operations.ValidInternalConfig?(config)
+  //   ensures new DynamoDbEncryptionTransformsClient(newConfig).ValidState()
 
   class DynamoDbEncryptionTransformsClient... {
 
