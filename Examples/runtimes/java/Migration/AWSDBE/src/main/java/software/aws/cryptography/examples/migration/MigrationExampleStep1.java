@@ -69,8 +69,8 @@ public class MigrationExampleStep1 {
 
         // 2. Create a Table Schema over your annotated class.
         //    See SimpleClass.java in this directory for the update to use the new DynamoDb Enhanced Client annotations.
-        //    By default, all primary key attributes will be signed but not encrypted (SIGN_ONLY)
-        //    and all non-primary key attributes will be encrypted and signed (ENCRYPT_AND_SIGN).
+        //    All primary key attributes will be signed but not encrypted (SIGN_ONLY)
+        //    and by default all non-primary key attributes will be encrypted and signed (ENCRYPT_AND_SIGN).
         //    If you want a particular non-primary key attribute to be signed but not encrypted,
         //    use the `DynamoDbEncryptionSignOnly` annotation.
         //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
