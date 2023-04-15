@@ -14,7 +14,65 @@ module TestFixtures {
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
   import CSE = AwsCryptographyStructuredEncryptionTypes
-  
+  import DDB = ComAmazonawsDynamodbTypes
+
+  method GetTableName(s : string) returns (output : DDB.TableName)
+  {
+    expect DDB.IsValid_TableName(s);
+    return s;
+  }
+  method GetAttrName(s : string) returns (output : DDB.AttributeName)
+  {
+    expect DDB.IsValid_AttributeName(s);
+    return s;
+  }
+  method GetStatement(s : string) returns (output : DDB.PartiQLStatement)
+  {
+    expect DDB.IsValid_PartiQLStatement(s);
+    return s;
+  }
+  method GetPStatements(s : seq<DDB.ParameterizedStatement>) returns (output : DDB.ParameterizedStatements)
+  {
+    expect DDB.IsValid_ParameterizedStatements(s);
+    return s;
+  }
+
+  method GetTransactWriteItemList(s : seq<DDB.TransactWriteItem>) returns (output : DDB.TransactWriteItemList)
+  {
+    expect DDB.IsValid_TransactWriteItemList(s);
+    return s;
+  }
+  method GetBatchWriteItemRequestMap(s : map<DDB.TableName, DDB.WriteRequests>) returns (output : DDB.BatchWriteItemRequestMap)
+  {
+    expect DDB.IsValid_BatchWriteItemRequestMap(s);
+    return s;
+  }
+  method GetWriteRequests(s : seq<DDB.WriteRequest>) returns (output : DDB.WriteRequests)
+  {
+    expect DDB.IsValid_WriteRequests(s);
+    return s;
+  }
+  method GetBatchGetRequestMap(s : map<DDB.TableName, DDB.KeysAndAttributes>) returns (output : DDB.BatchGetRequestMap)
+  {
+    expect DDB.IsValid_BatchGetRequestMap(s);
+    return s;
+  }
+  method GetKeyList(s : seq<DDB.Key>) returns (output : DDB.KeyList)
+  {
+    expect DDB.IsValid_KeyList(s);
+    return s;
+  }
+  method GetTransactGetItemList(s : seq<DDB.TransactGetItem>) returns (output : DDB.TransactGetItemList)
+  {
+    expect DDB.IsValid_TransactGetItemList(s);
+    return s;
+  }
+  method GetPartiQLBatchRequest(s : seq<DDB.BatchStatementRequest>) returns (output : DDB.PartiQLBatchRequest)
+  {
+    expect DDB.IsValid_PartiQLBatchRequest(s);
+    return s;
+  }
+
   const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
   function method GetAttributeActions() : AttributeActions {
@@ -27,8 +85,9 @@ module TestFixtures {
 
   method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
     var keyring := GetKmsKeyring();
+    var tableName := GetTableName("foo");
     output := DynamoDbItemEncryptorConfig(
-      tableName := "foo",
+      tableName := tableName,
       partitionKeyName := "bar",
       sortKeyName := None(),
       attributeActions := GetAttributeActions(),
@@ -172,5 +231,6 @@ module TestFixtures {
         ]
       )
     );
+    assume {:axiom} fresh(encryption.Modifies);
   }
 }

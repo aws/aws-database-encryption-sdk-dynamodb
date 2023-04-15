@@ -14,7 +14,7 @@ import java.lang.IllegalArgumentException;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
-import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKey;
+import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKeySource;
 import software.amazon.cryptography.dynamoDbEncryption.model.BeaconVersion;
 import software.amazon.cryptography.dynamoDbEncryption.model.CollectionOfErrors;
 import software.amazon.cryptography.dynamoDbEncryption.model.CompoundBeacon;
@@ -37,12 +37,14 @@ import software.amazon.cryptography.dynamoDbEncryption.model.Insert;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
 import software.amazon.cryptography.dynamoDbEncryption.model.Lower;
+import software.amazon.cryptography.dynamoDbEncryption.model.MultiKeyStore;
 import software.amazon.cryptography.dynamoDbEncryption.model.NativeError;
 import software.amazon.cryptography.dynamoDbEncryption.model.NonSensitivePart;
 import software.amazon.cryptography.dynamoDbEncryption.model.OpaqueError;
 import software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy;
 import software.amazon.cryptography.dynamoDbEncryption.model.SearchConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.SensitivePart;
+import software.amazon.cryptography.dynamoDbEncryption.model.SingleKeyStore;
 import software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon;
 import software.amazon.cryptography.dynamoDbEncryption.model.Upper;
 import software.amazon.cryptography.dynamoDbEncryption.model.VirtualField;
@@ -126,7 +128,9 @@ public class ToNative {
     CompoundBeacon.Builder nativeBuilder = CompoundBeacon.builder();
     nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
     nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
-    nativeBuilder.sensitive(ToNative.SensitivePartsList(dafnyValue.dtor_sensitive()));
+    if (dafnyValue.dtor_sensitive().is_Some()) {
+      nativeBuilder.sensitive(ToNative.SensitivePartsList(dafnyValue.dtor_sensitive().dtor_value()));
+    }
     if (dafnyValue.dtor_nonSensitive().is_Some()) {
       nativeBuilder.nonSensitive(ToNative.NonSensitivePartsList(dafnyValue.dtor_nonSensitive().dtor_value()));
     }
@@ -165,15 +169,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static BeaconKey BeaconKey(
-      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.BeaconKey dafnyValue) {
-    BeaconKey.Builder nativeBuilder = BeaconKey.builder();
-    nativeBuilder.keyArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyArn()));
-    nativeBuilder.tableArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableArn()));
-    nativeBuilder.branchKeyID(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyID()));
-    return nativeBuilder.build();
-  }
-
   public static GetPrefix GetPrefix(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.GetPrefix dafnyValue) {
     GetPrefix.Builder nativeBuilder = GetPrefix.builder();
@@ -185,10 +180,9 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.BeaconVersion dafnyValue) {
     BeaconVersion.Builder nativeBuilder = BeaconVersion.builder();
     nativeBuilder.version((dafnyValue.dtor_version()));
-    nativeBuilder.key(ToNative.BeaconKey(dafnyValue.dtor_key()));
-    if (dafnyValue.dtor_standardBeacons().is_Some()) {
-      nativeBuilder.standardBeacons(ToNative.StandardBeaconList(dafnyValue.dtor_standardBeacons().dtor_value()));
-    }
+    nativeBuilder.keyStore(software.amazon.cryptography.keyStore.ToNative.KeyStore(dafnyValue.dtor_keyStore()));
+    nativeBuilder.keySource(ToNative.BeaconKeySource(dafnyValue.dtor_keySource()));
+    nativeBuilder.standardBeacons(ToNative.StandardBeaconList(dafnyValue.dtor_standardBeacons()));
     if (dafnyValue.dtor_compoundBeacons().is_Some()) {
       nativeBuilder.compoundBeacons(ToNative.CompoundBeaconList(dafnyValue.dtor_compoundBeacons().dtor_value()));
     }
@@ -208,6 +202,14 @@ public class ToNative {
     GetSegment.Builder nativeBuilder = GetSegment.builder();
     nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
     nativeBuilder.index((dafnyValue.dtor_index()));
+    return nativeBuilder.build();
+  }
+
+  public static SingleKeyStore SingleKeyStore(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.SingleKeyStore dafnyValue) {
+    SingleKeyStore.Builder nativeBuilder = SingleKeyStore.builder();
+    nativeBuilder.keyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyId()));
+    nativeBuilder.cacheTTL((dafnyValue.dtor_cacheTTL()));
     return nativeBuilder.build();
   }
 
@@ -317,6 +319,15 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static MultiKeyStore MultiKeyStore(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.MultiKeyStore dafnyValue) {
+    MultiKeyStore.Builder nativeBuilder = MultiKeyStore.builder();
+    nativeBuilder.keyFieldName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyFieldName()));
+    nativeBuilder.cacheTTL((dafnyValue.dtor_cacheTTL()));
+    nativeBuilder.maxCacheSize((dafnyValue.dtor_maxCacheSize()));
+    return nativeBuilder.build();
+  }
+
   public static VirtualField VirtualField(
       Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualField dafnyValue) {
     VirtualField.Builder nativeBuilder = VirtualField.builder();
@@ -368,6 +379,18 @@ public class ToNative {
       return PlaintextPolicy.FORBID_WRITE_FORBID_READ;
     }
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.dynamoDbEncryption.model.PlaintextPolicy matches the input : " + dafnyValue);
+  }
+
+  public static BeaconKeySource BeaconKeySource(
+      Dafny.Aws.Cryptography.DynamoDbEncryption.Types.BeaconKeySource dafnyValue) {
+    BeaconKeySource.Builder nativeBuilder = BeaconKeySource.builder();
+    if (dafnyValue.is_single()) {
+      nativeBuilder.single(ToNative.SingleKeyStore(dafnyValue.dtor_single()));
+    }
+    if (dafnyValue.is_multi()) {
+      nativeBuilder.multi(ToNative.MultiKeyStore(dafnyValue.dtor_multi()));
+    }
+    return nativeBuilder.build();
   }
 
   public static VirtualTransform VirtualTransform(

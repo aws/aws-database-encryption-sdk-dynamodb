@@ -57,8 +57,7 @@ Initialization MUST fail if the [version number](#version number) is not `1`.
 
 Initialization MUST fail if the keyring is not a Hierarchy Keyring.
 
-Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon) or
-[compound beacon](beacons.md#compound-beacon) is not provided.
+Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon) is not provided.
 
 Initialization MUST fail if the name of any [virtual fields](virtual.md#virtual-field) matches that
 of any [configured field](#configured-field).
