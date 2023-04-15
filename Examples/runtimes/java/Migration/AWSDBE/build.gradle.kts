@@ -10,7 +10,7 @@ plugins {
 
 group = "software.amazon.cryptography"
 version = "1.0-SNAPSHOT"
-description = "DynamoDbEncryptionExamples"
+description = "AWSDatabaseEncryptionSDKMigrationExamples"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
@@ -63,6 +63,10 @@ dependencies {
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
+
+    // To support legacy configuration
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.409")
+    implementation("com.amazonaws:aws-java-sdk-kms")
 
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")

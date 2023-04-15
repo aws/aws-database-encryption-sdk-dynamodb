@@ -144,7 +144,7 @@ public class EnhancedPutGetExample {
     }
 
     public static void main(final String[] args) {
-        if (args.length <= 0) {
+        if (args.length < 2) {
             throw new IllegalArgumentException("To run this example, include the kmsKeyId as args[0] and ddbTableName as args[1]");
         }
         final String kmsKeyId = args[0];
