@@ -197,7 +197,7 @@ module
       && Modifies == Operations.ModifiesInternalConfig(config) + {History}
     }
 
-    constructor(config: Operations.InternalConfig)
+    constructor {:vcs_split_on_every_assert} (config: Operations.InternalConfig)
     {
       this.config := config;
       History := new IDynamoDbEncryptionTransformsClientCallHistory();
