@@ -168,6 +168,14 @@ module
         :: tmp22ModifyEntry)
         ) );
 
+      assert forall tableName <- internalConfigs ::
+        var tableConfig := internalConfigs[tableName];
+        && tableConfig.itemEncryptor.config.tableName == tableName
+        && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
+        && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
+        && tableConfig.itemEncryptor.ValidState()
+        && OneSearchValidState(tableConfig);
+
     var client := new DynamoDbEncryptionTransformsClient(
       DdbMiddlewareConfig.Config(
         tableEncryptionConfigs := internalConfigs

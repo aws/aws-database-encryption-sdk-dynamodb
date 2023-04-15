@@ -21,9 +21,45 @@ module TestFixtures {
     expect DDB.IsValid_TableName(s);
     return s;
   }
+  method GetAttrName(s : string) returns (output : DDB.AttributeName)
+  {
+    expect DDB.IsValid_AttributeName(s);
+    return s;
+  }
   method GetStatement(s : string) returns (output : DDB.PartiQLStatement)
   {
     expect DDB.IsValid_PartiQLStatement(s);
+    return s;
+  }
+  method GetPStatements(s : seq<DDB.ParameterizedStatement>) returns (output : DDB.ParameterizedStatements)
+  {
+    expect DDB.IsValid_ParameterizedStatements(s);
+    return s;
+  }
+
+  method GetTransactWriteItemList(s : seq<DDB.TransactWriteItem>) returns (output : DDB.TransactWriteItemList)
+  {
+    expect DDB.IsValid_TransactWriteItemList(s);
+    return s;
+  }
+  method GetBatchWriteItemRequestMap(s : map<DDB.TableName, DDB.WriteRequests>) returns (output : DDB.BatchWriteItemRequestMap)
+  {
+    expect DDB.IsValid_BatchWriteItemRequestMap(s);
+    return s;
+  }
+  method GetWriteRequests(s : seq<DDB.WriteRequest>) returns (output : DDB.WriteRequests)
+  {
+    expect DDB.IsValid_WriteRequests(s);
+    return s;
+  }
+  method GetBatchGetRequestMap(s : map<DDB.TableName, DDB.KeysAndAttributes>) returns (output : DDB.BatchGetRequestMap)
+  {
+    expect DDB.IsValid_BatchGetRequestMap(s);
+    return s;
+  }
+  method GetKeyList(s : seq<DDB.Key>) returns (output : DDB.KeyList)
+  {
+    expect DDB.IsValid_KeyList(s);
     return s;
   }
 

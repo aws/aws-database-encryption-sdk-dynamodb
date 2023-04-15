@@ -14,13 +14,14 @@ module ExecuteTransactionTransformTest {
   method {:test} TestExecuteTransactionInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var statement := GetStatement("update \"no_such_table\"");
+    var pstatement := DDB.ParameterizedStatement (
+      Statement := statement,
+      Parameters := None()
+    );
+    var pstatements := GetPStatements([pstatement]);
+
     var good_input := DDB.ExecuteTransactionInput(
-      TransactStatements :=  [
-        DDB.ParameterizedStatement (
-          Statement := statement,
-          Parameters := None()
-        )
-      ],
+      TransactStatements := pstatements,
       ClientRequestToken := None(),
       ReturnConsumedCapacity := None()
     );
@@ -37,13 +38,13 @@ module ExecuteTransactionTransformTest {
   method {:test} TestExecuteTransactionInput() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var statement := GetStatement("update foo");
+    var pstatement := DDB.ParameterizedStatement (
+      Statement := statement,
+      Parameters := None()
+    );
+    var pstatements := GetPStatements([pstatement]);
     var bad_input := DDB.ExecuteTransactionInput(
-      TransactStatements :=  [
-        DDB.ParameterizedStatement (
-          Statement := "update foo",
-          Parameters := None()
-        )
-      ],
+      TransactStatements :=  pstatements,
       ClientRequestToken := None(),
       ReturnConsumedCapacity := None()
     );

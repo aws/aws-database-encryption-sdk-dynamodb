@@ -13,15 +13,15 @@ module BatchWriteItemTransformTest {
 
   method {:test} TestBatchWriteItemInputTransform() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("foo");
+    var request := DDB.WriteRequest (
+      PutRequest := None(),
+      DeleteRequest := None()
+    );
+    var requests := GetWriteRequests([request]);
+    var theMap := GetBatchWriteItemRequestMap(map[tableName := requests]);
     var input := DDB.BatchWriteItemInput(
-      RequestItems := map[
-        "foo" := [
-          DDB.WriteRequest (
-            PutRequest := None(),
-            DeleteRequest := None()
-          )
-        ]
-      ],
+      RequestItems := theMap,
       ReturnConsumedCapacity := None(),
       ReturnItemCollectionMetrics := None()
     );
@@ -42,15 +42,16 @@ module BatchWriteItemTransformTest {
       ItemCollectionMetrics := None(),
       ConsumedCapacity := None()
     );
+    var tableName := GetTableName("foo");
+    var request := DDB.WriteRequest (
+      PutRequest := None(),
+      DeleteRequest := None()
+    );
+    var requests := GetWriteRequests([request]);
+    var theMap := GetBatchWriteItemRequestMap(map[tableName := requests]);
+
     var input := DDB.BatchWriteItemInput(
-      RequestItems := map[
-        "foo" := [
-          DDB.WriteRequest (
-            PutRequest := None(),
-            DeleteRequest := None()
-          )
-        ]
-      ],
+      RequestItems := theMap,
       ReturnConsumedCapacity := None(),
       ReturnItemCollectionMetrics := None()
     );

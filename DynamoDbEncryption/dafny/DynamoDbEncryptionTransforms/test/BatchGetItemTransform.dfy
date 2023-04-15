@@ -13,18 +13,18 @@ module BatchGetItemTransformTest {
 
   method {:test} TestBatchGetItemInputTransform() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
-    var input := DDB.BatchGetItemInput(
-      RequestItems := map[
-        "foo" := DDB.KeysAndAttributes(
-          Keys := [
-            map[]
-          ],
+    var tableName := GetTableName("foo");
+    var keyList := GetKeyList([map[]]);
+    var val := DDB.KeysAndAttributes(
+          Keys := keyList,
           AttributesToGet := None(),
           ConsistentRead := None(),
           ProjectionExpression := None(),
           ExpressionAttributeNames := None()
-        )
-      ],
+        );
+    var theMap := GetBatchGetRequestMap(map[tableName := val]);
+    var input := DDB.BatchGetItemInput(
+      RequestItems := theMap,
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.BatchGetItemInputTransform(

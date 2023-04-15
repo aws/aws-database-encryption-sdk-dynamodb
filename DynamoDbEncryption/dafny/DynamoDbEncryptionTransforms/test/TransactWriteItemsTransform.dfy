@@ -13,21 +13,22 @@ module TransactWriteItemsTransformTest {
   method {:test} TestTransactWriteItemsInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var tableName := GetTableName("bar");
-    var input := DDB.TransactWriteItemsInput(
-      TransactItems := [
-        DDB.TransactWriteItem(
+    var thisAttr := GetAttrName("this");
+    var item := DDB.TransactWriteItem(
           ConditionCheck := None(),
           Put := None(),
           Delete := Some(DDB.Delete(
-            Key := map["this" := DDB.AttributeValue.S("that")],
+            Key := map[thisAttr := DDB.AttributeValue.S("that")],
             TableName := tableName,
             ConditionExpression := None,
             ExpressionAttributeNames := None,
             ExpressionAttributeValues := None,
             ReturnValuesOnConditionCheckFailure := None)),
           Update := None()
-        )
-      ],
+        );
+    var items := GetTransactWriteItemList([item]);
+    var input := DDB.TransactWriteItemsInput(
+      TransactItems := items,
       ReturnConsumedCapacity := None(),
       ReturnItemCollectionMetrics := None(),
       ClientRequestToken := None()
@@ -44,15 +45,15 @@ module TransactWriteItemsTransformTest {
 
   method {:test} TestTransactWriteItemsInputEmpty() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
-    var input := DDB.TransactWriteItemsInput(
-      TransactItems := [
-        DDB.TransactWriteItem(
+    var item := DDB.TransactWriteItem(
           ConditionCheck := None,
           Put := None,
           Delete := None,
           Update := None
-        )
-      ],
+        );
+    var items := GetTransactWriteItemList([item]);
+    var input := DDB.TransactWriteItemsInput(
+      TransactItems := items,
       ReturnConsumedCapacity := None(),
       ReturnItemCollectionMetrics := None(),
       ClientRequestToken := None()
