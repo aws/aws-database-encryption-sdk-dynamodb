@@ -16,7 +16,7 @@ module BatchExecuteStatementTransformTest {
       var good_input := DDB.BatchExecuteStatementInput(
       Statements := [
         DDB.BatchStatementRequest(
-          Statement := statement
+          Statement := statement,
           Parameters := None(),
           ConsistentRead := None()
         )

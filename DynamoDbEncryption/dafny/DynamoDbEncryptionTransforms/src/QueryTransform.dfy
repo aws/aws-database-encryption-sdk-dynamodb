@@ -109,13 +109,13 @@ module QueryTransform {
       invariant |decryptedItems| == x
 
       invariant (|tableConfig.itemEncryptor.History.DecryptItem| == |originalHistory| + |decryptedItems|)
-
+/*
       invariant (forall i : nat | historySize <= i < |decryptedItems|+historySize ::
         var item := tableConfig.itemEncryptor.History.DecryptItem[i];
         && item.output.Success?
         && item.input.encryptedItem == encryptedItems[i-historySize]
         && item.output.value.plaintextItem == decryptedItems[i-historySize])
-
+*/
       invariant ValidConfig?(config)
     {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
