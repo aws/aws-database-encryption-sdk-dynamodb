@@ -124,7 +124,7 @@ public class BeaconVersion {
     }
 
     public Builder keyStore(KeyStore keyStore) {
-      this.keyStore = keyStore;
+      this.keyStore = new KeyStore(keyStore);
       return this;
     }
 
