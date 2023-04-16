@@ -67,6 +67,12 @@ import java.util.Map;
   primary key configuration:
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
+
+  This example also requires using a KMS Key whose ARN
+  is provided in CLI arguments. You need the following access
+  on this key:
+    - GenerateDataKeyWithoutPlaintext
+    - Decrypt
  */
 public class HierarchicalKeyringExample {
 
