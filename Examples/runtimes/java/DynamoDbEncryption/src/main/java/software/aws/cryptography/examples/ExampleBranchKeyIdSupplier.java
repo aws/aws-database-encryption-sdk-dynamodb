@@ -10,6 +10,8 @@ import java.util.Map;
 // Used in the 'HierarchicalKeyringExample'.
 // In that example, we have a table where we distinguish multiple tenants
 // by a tenant ID that is stored in our partition attribute.
+// The expectation is that this does not produce a confused deputy
+// because the tenants are separated by partition.
 // In order to create a Hierarchical Keyring that is capable of encrypting or
 // decrypting data for either tenant, we implement this interface
 // to map the correct branch key ID to the correct tenant ID.

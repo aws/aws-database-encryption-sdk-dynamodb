@@ -53,7 +53,9 @@ import java.util.Map;
 
   This example first creates the DynamoDb-backed KeyStore,
   and creates two branch keys. These are control plane operations that
-  only need to occur once.
+  only need to occur once. While not demonstrated in this example,
+  you should additionally use the `VersionKey` API on the KeyStore
+  to periodically rotate your branch key material.
 
   This example then demonstrates configuring a Hierarchical Keyring
   with a Branch Key ID Supplier to encrypt and decrypt data for
