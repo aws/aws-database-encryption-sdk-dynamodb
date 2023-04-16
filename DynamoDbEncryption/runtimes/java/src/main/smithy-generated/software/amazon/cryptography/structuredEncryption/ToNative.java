@@ -61,6 +61,9 @@ public class ToNative {
     if (dafnyValue.is_StructuredEncryptionException()) {
       return ToNative.Error((Error_StructuredEncryptionException) dafnyValue);
     }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return software.amazon.cryptography.materialProviders.ToNative.Error(dafnyValue.dtor_AwsCryptographyMaterialProviders());
+    }
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }

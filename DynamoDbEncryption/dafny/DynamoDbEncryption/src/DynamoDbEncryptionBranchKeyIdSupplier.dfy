@@ -121,11 +121,11 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
   function method ConvertToMplError(err: Error)
     :(ret: MPL.Error)
   {
-    if err.DynamoDbEncryptionException? then
-      MPL.AwsCryptographicMaterialProvidersException(message:=err.message)
+    // We expect this interface to be implemented in the native language,
+    // so any errors thrown by the native implementation will appear as Opaque errors
+    if err.Opaque? then
+      MPL.Opaque(obj:=err.obj)
     else
-      // We expect this interface to be implemented in the native language,
-      // so any other error is unexpected.
       MPL.AwsCryptographicMaterialProvidersException(message:="Unexpected error while getting Branch Key ID.")
   }
 }

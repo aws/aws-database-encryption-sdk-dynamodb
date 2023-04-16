@@ -41,15 +41,19 @@ public class TestUtils {
         return matProv.CreateRawAesKeyring(keyringInput);
     }
 
-    public static IKeyring createKmsKeyring() {
+    public static IKeyring createKmsKeyring(String kmsKeyId) {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
         CreateAwsKmsKeyringInput keyringInput = CreateAwsKmsKeyringInput.builder()
-                .kmsKeyId(KMS_TEST_KEY_ID)
+                .kmsKeyId(kmsKeyId)
                 .kmsClient(KmsClient.create())
                 .build();
         return matProv.CreateAwsKmsKeyring(keyringInput);
+    }
+
+    public static IKeyring createKmsKeyring() {
+        return createKmsKeyring(KMS_TEST_KEY_ID);
     }
 
     public static IKeyring createHierarchicalKeyring() {
