@@ -400,7 +400,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     @Test
     public void TestPlaintextRead() {
         // Put plaintext item into table
-        String partitionValue = "get";
+        String partitionValue = "plaintextRead";
         String sortValue = "42";
         String attrValue = "bar";
         String attrValue2 = "hello world";
@@ -447,7 +447,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     @Test
     public void TestPlaintextWrite() {
         // Put plaintext item into table using client with REQUIRE_WRITE* policy
-        String partitionValue = "get";
+        String partitionValue = "plaintextWrite";
         String sortValue = "42";
         String attrValue = "bar";
         String attrValue2 = "hello world";
@@ -473,7 +473,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         PutItemResponse putResponse = clientWithPolicy.putItem(putRequest);
         assertEquals(200, putResponse.sdkHttpResponse().statusCode());
 
-        // Get Item back from table, using *ALLOW_READ Plaintext policy
+        // Get Item back from table, using regular client policy
         DynamoDbClient regularClient = DynamoDbClient.builder().build();
 
         Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
