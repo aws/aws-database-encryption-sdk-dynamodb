@@ -12,7 +12,8 @@ jobs:
     strategy:
       matrix:
         library: [
-          DynamoDbEncryption,
+          # Reintroduce once MPL builds with .NET
+          # DynamoDbEncryption,
         ]
         dotnet-version: [ '6.0.x' ]
         os: [

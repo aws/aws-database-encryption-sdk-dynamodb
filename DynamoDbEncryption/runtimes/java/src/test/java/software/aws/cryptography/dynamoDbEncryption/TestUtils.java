@@ -10,6 +10,9 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.kms.KmsClientBuilder;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
+import software.amazon.cryptography.keyStore.KeyStore;
+import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
+import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
@@ -25,7 +28,22 @@ public class TestUtils {
     public static final String TEST_ATTR_NAME = "attr1";
     public static final String TEST_ATTR2_NAME = "attr2";
 
+    public static final String TEST_KEY_STORE_NAME = "KeyStoreTestTable";
+    public static final String TEST_KEY_STORE_KMS_KEY = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
+    public static final String BRANCH_KEY_ID = "ef31c535-7436-406e-be37-371aea99b298";
+    public static final String ACTIVE_ACTIVE_BRANCH_KEY_ID = "7039dc82-03ff-4914-988e-681c09180a2d";
+
     public static final String KMS_TEST_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+
+    public static KeyStore createKeyStore() {
+        return KeyStore.builder().KeyStoreConfig(
+                KeyStoreConfig.builder()
+                        .ddbClient(DynamoDbClient.create())
+                        .ddbTableName(TEST_KEY_STORE_NAME)
+                        .kmsClient(KmsClient.create())
+                        .build()
+        ).build();
+    }
 
     public static IKeyring createStaticKeyring() {
         MaterialProviders matProv = MaterialProviders.builder()
@@ -52,22 +70,30 @@ public class TestUtils {
         return matProv.CreateAwsKmsKeyring(keyringInput);
     }
 
-    public static IKeyring createHierarchicalKeyring() {
+    public static IKeyring createHierarchicalKeyring(KeyStore keystore, String branchKeyId) {
+        return createHierarchicalKeyring(keystore, branchKeyId, null);
+    }
+
+    public static IKeyring createHierarchicalKeyring(KeyStore keystore, IBranchKeyIdSupplier supplier) {
+        return createHierarchicalKeyring(keystore, null, supplier);
+    }
+
+    public static IKeyring createHierarchicalKeyring(KeyStore keystore, String branchKeyId, IBranchKeyIdSupplier keyIdSupplier) {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
-        // TODO for now these inputs are just to pass initial validation,
-        // no actual hierarchical logic is exercised.
-        CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-                .kmsClient(KmsClient.create())
-                .kmsKeyId(KMS_TEST_KEY_ID)
-                .branchKeyId("guid")
-                .branchKeyStoreArn("branch-keys-table")
-                .ddbClient(DynamoDbClient.create())
+        CreateAwsKmsHierarchicalKeyringInput.Builder keyringInputBuilder = CreateAwsKmsHierarchicalKeyringInput.builder()
+                .kmsKeyId(TEST_KEY_STORE_KMS_KEY)
+                .keyStore(keystore)
                 .ttlSeconds(600)
-                .maxCacheSize(100)
-                .build();
-        return matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
+                .maxCacheSize(100);
+        if (branchKeyId != null) {
+            keyringInputBuilder = keyringInputBuilder.branchKeyId(branchKeyId);
+        }
+        if (keyIdSupplier != null) {
+            keyringInputBuilder = keyringInputBuilder.branchKeyIdSupplier(keyIdSupplier);
+        }
+        return matProv.CreateAwsKmsHierarchicalKeyring(keyringInputBuilder.build());
     }
 
     public static DynamoDbEncryptionInterceptor createInterceptor(
