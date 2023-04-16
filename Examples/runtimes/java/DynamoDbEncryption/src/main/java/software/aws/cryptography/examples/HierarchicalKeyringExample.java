@@ -39,7 +39,7 @@ import java.util.Map;
   you limit how often you need to call back to KMS to protect your data.
   This is a performance/security tradeoff, where your authentication, audit, and
   logging from KMS is no longer one-to-one with every encrypt or decrypt call.
-  However, the benefit is that you no longer have to make an expensive
+  However, the benefit is that you no longer have to make a
   network call to KMS for every encrypt or decrypt.
 
   Second, this key hierarchy makes it easy to hold multi-tenant data
@@ -119,7 +119,7 @@ public class HierarchicalKeyringExample {
                 .keyStore(keystore)
                 .branchKeyIdSupplier(branchKeyIdSupplier)
                 .ttlSeconds(600) // This dictates how often we call back to KMS to authorize use of the branch keys
-                .maxCacheSize(100)
+                .maxCacheSize(100) // This dictates how many branch keys will be held stored on the host 
                 .build();
         final IKeyring hierarchicalKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
