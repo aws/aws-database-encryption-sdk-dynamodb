@@ -45,6 +45,20 @@ public class ToNative {
     if (dafnyValue.is_DynamoDbItemEncryptorException()) {
       return ToNative.Error((Error_DynamoDbItemEncryptorException) dafnyValue);
     }
+    // BEGIN MANUAL EDIT
+    if (dafnyValue.is_AwsCryptographyDynamoDbEncryption()) {
+      return software.amazon.cryptography.dynamoDbEncryption.ToNative.Error(dafnyValue.dtor_AwsCryptographyDynamoDbEncryption());
+    }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return software.amazon.cryptography.materialProviders.ToNative.Error(dafnyValue.dtor_AwsCryptographyMaterialProviders());
+    }
+    if (dafnyValue.is_AwsCryptographyPrimitives()) {
+      return software.amazon.cryptography.primitives.ToNative.Error(dafnyValue.dtor_AwsCryptographyPrimitives());
+    }
+    if (dafnyValue.is_ComAmazonawsDynamodb()) {
+      return Dafny.Com.Amazonaws.Dynamodb.ToNative.Error(dafnyValue.dtor_ComAmazonawsDynamodb());
+    }
+    // END MANUAL EDIT
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }
