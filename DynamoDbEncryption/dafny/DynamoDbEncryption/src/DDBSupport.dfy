@@ -120,7 +120,7 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method AddBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
+  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : Option<string>)
     returns (output : Result<DDB.AttributeMap, Error>)
     requires if search.Some? then search.value.ValidState() else true
     ensures if search.Some? then search.value.ValidState() else true
@@ -129,7 +129,22 @@ module DynamoDBSupport {
     if search.None? {
       return Success(item);
     } else {
-      var newAttrs :- search.value.GenerateBeacons(item);
+      output := search.value.GenerateEncryptedBeacons(item, keyId);
+    }
+  }
+
+  // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
+  // returning a replacement AttributeMap.
+  method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
+    returns (output : Result<DDB.AttributeMap, Error>)
+    requires if search.Some? then search.value.ValidState() else true
+    ensures if search.Some? then search.value.ValidState() else true
+    modifies if search.Some? then search.value.Modifies() else {}
+  {
+    if search.None? {
+      return Success(item);
+    } else {
+      var newAttrs :- search.value.GenerateSignedBeacons(item);
       var version : DDB.AttributeMap := map[VersionPrefix + "1" := DS(" ")];
       return Success(item + newAttrs + version);
     }
@@ -244,10 +259,11 @@ module DynamoDBSupport {
     if search.None? {
       return Success(req);
     } else {
+      // TODO - calculate KeyID for Multi
       var context1 := Filter.ExprContext(req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var context2 :- Filter.Beaconize(search.value.curr(), context1);
+      var context2 :- Filter.Beaconize(search.value.curr(), context1, None);
       var context3 := context2.(expr := req.FilterExpression);
-      var context4 :- Filter.Beaconize(search.value.curr(), context3);
+      var context4 :- Filter.Beaconize(search.value.curr(), context3, None);
       return Success(req.(
         KeyConditionExpression := context2.expr,
         FilterExpression := context4.expr,
@@ -296,8 +312,9 @@ module DynamoDBSupport {
     if search.None? {
       return Success(req);
     } else {
+      // TODO - find KeyID if Multi
       var context := Filter.ExprContext(req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.Beaconize(search.value.curr(), context);
+      var newContext :- Filter.Beaconize(search.value.curr(), context, None);
       return Success(req.(
         FilterExpression := newContext.expr,
         ExpressionAttributeNames := newContext.names,

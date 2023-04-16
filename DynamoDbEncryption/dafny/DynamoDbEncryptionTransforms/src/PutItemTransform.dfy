@@ -92,12 +92,14 @@ module PutItemTransform {
       input.sdkInput.ConditionExpression,
       input.sdkInput.ExpressionAttributeNames,
       input.sdkInput.ExpressionAttributeValues);
-    var item :- AddBeacons(tableConfig, input.sdkInput.Item);
+    var item :- AddSignedBeacons(tableConfig, input.sdkInput.Item);
     var encryptRes := tableConfig.itemEncryptor.EncryptItem(
       EncTypes.EncryptItemInput(plaintextItem:=item)
     );
     var encrypted :- MapError(encryptRes);
-    return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem)));
+    // TODO - extract KeyId from encryption output if Multi
+    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, None);
+    return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem + beacons)));
   }
 
   method Output(config: Config, input: PutItemOutputTransformInput)

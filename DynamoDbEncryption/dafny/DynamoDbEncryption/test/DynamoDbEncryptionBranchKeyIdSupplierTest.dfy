@@ -5,6 +5,7 @@ include "../src/Index.dfy"
 module DynamoDbEncryptionBranchKeyIdSupplierTest {
   import opened Wrappers
   import opened StandardLibrary.UInt
+  import opened KeyStore
   import MaterialProviders
   import DynamoDbEncryption
   import Types = AwsCryptographyDynamoDbEncryptionTypes
@@ -15,6 +16,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   import CSE = AwsCryptographyStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
   import Base64
+  import KTypes = AwsCryptographyKeyStoreTypes
 
   const TEST_DBE_ALG_SUITE_ID := MPL.AlgorithmSuiteId.DBE(MPL.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384);
 
@@ -56,14 +58,21 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     var mpl :- expect MaterialProviders.MaterialProviders();
     var kmsClient :- expect KMS.KMSClient();
     var dynamodbClient :- expect DDB.DynamoDBClient();
+    var keyStoreConfig := KTypes.KeyStoreConfig(
+      id := None,
+      ddbTableName := Some("KeyStoreTestTable"),
+      ddbClient := Some(dynamodbClient),
+      kmsClient := Some(kmsClient)
+    );
+
+    var store :- expect KeyStore.KeyStore(keyStoreConfig);
+
     var hierarchyKeyring :- expect mpl.CreateAwsKmsHierarchicalKeyring(
       MPL.CreateAwsKmsHierarchicalKeyringInput(
         branchKeyId := None,
         branchKeyIdSupplier := Some(branchKeyIdSupplier),
         kmsKeyId := keyArn,
-        kmsClient := kmsClient,
-        ddbClient := dynamodbClient,
-        branchKeyStoreArn := branchKeyStoreArn,
+        keyStore := store,
         ttlSeconds := ttl,
         maxCacheSize := Option.Some(10),
         grantTokens := Option.None

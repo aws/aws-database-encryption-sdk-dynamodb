@@ -22,6 +22,7 @@ module SearchConfigToInfo {
   import opened StandardLibrary.UInt
   import opened DynamoDbEncryptionUtil
   import opened TermLoc
+  import opened LocalCMC
   import SortedSets
 
   import I = SearchableEncryptionInfo
@@ -38,7 +39,6 @@ module SearchConfigToInfo {
     modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
     ensures output.Success? && output.value.Some? ==>
       && output.value.value.ValidState()
-      && fresh(output.value.value.versions[0].keySource.cache)
       && fresh(output.value.value.versions[0].keySource.client)
   {
     if outer.search.None? {
@@ -76,16 +76,18 @@ module SearchConfigToInfo {
     ensures client.ValidState()
     ensures output.Success? ==>
       && output.value.ValidState()
-      && fresh(output.value.cache)
       && output.value.client == client
       && output.value.store == keyStore
   {
     if config.multi? {
-      var cache := new I.DumbCache();
-      output := Success(I.KeySource(client, cache, keyStore, I.MultiLoc(config.multi.keyFieldName)));
+      :- Need(0 < config.multi.maxCacheSize, E("maxCacheSize must be at least 1."));
+      :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
+      var cache := new LocalCMC(config.multi.maxCacheSize as nat, 1);
+      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, cache), config.multi.cacheTTL as uint32));
     } else {
-      var cache := new I.DumbCache();
-      output := Success(I.KeySource(client, cache, keyStore, I.SingleLoc(config.single.keyId)));
+      :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
+      var cache := new I.SingleCache();
+      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId, cache), config.single.cacheTTL as uint32));
     }
   }
 
@@ -96,7 +98,6 @@ module SearchConfigToInfo {
     modifies config.keyStore.Modifies
     ensures output.Success? ==>
       && output.value.ValidState()
-      && fresh(output.value.keySource.cache)
       && fresh(output.value.keySource.client)
   {
     :- Need(config.version == 1, E("Version number in BeaconVersion must be '1'."));

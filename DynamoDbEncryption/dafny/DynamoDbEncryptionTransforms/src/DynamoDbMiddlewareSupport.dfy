@@ -59,18 +59,32 @@ module DynamoDbMiddlewareSupport {
       .MapFailure(e => E(e))
   }
 
-  // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
+  // AddSignedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method AddBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
+  method AddSignedBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
     returns (output : Result<DDB.AttributeMap, Error>)
     requires AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.AddBeacons(config.search, item);
+    var ret := BS.AddSignedBeacons(config.search, item);
     return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
   }
+
+  // GetEncryptedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
+  // returning just the new items.
+  method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Option<string>)
+    returns (output : Result<DDB.AttributeMap, Error>)
+    requires AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
+    requires OneSearchValidState(config)
+    ensures OneSearchValidState(config)
+    modifies OneSearchModifies(config)
+  {
+    var ret := BS.GetEncryptedBeacons(config.search, item, keyId);
+    return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+  }
+
 
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
   // returning a replacement AttributeMap.

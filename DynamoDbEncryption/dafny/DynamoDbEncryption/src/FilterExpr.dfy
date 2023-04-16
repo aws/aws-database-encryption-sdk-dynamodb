@@ -1165,7 +1165,7 @@ module DynamoDBFilterExpr {
     if |ItemList| == 0 {
       return Success([]);
     }
-    var newAttrs :- b.GenerateBeacons(ItemList[0], true);
+    var newAttrs :- b.GeneratePlainBeacons(ItemList[0]);
     var doesMatch :- EvalExpr(parsed, ItemList[0] + newAttrs, names, values);
     var rest :- FilterItems(b, parsed, ItemList[1..], names, values);
     if doesMatch {
@@ -1246,6 +1246,7 @@ module DynamoDBFilterExpr {
   method Beaconize(
     b : SI.BeaconVersion,
     context : ExprContext,
+    keyId : Option<string>,
     naked : bool := false
   )
     returns (output : Result<ExprContext, Error>)
@@ -1259,7 +1260,7 @@ module DynamoDBFilterExpr {
       var parsed := ParseExpr(context.expr.value);
       var keys := None;
       if !naked {
-        var k :- b.getKeyMap();
+        var k :- b.getKeyMap(keyId);
         keys := Some(k);
       }
       var context :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, context.names, keys);

@@ -12,6 +12,7 @@ module BeaconTestFixtures {
   import DDB = ComAmazonawsDynamodbTypes
   import SE = AwsCryptographyStructuredEncryptionTypes
   import KeyStore
+  import Seq
   import KMS = Com.Amazonaws.Kms
   import DDBC = Com.Amazonaws.Dynamodb
   import KTypes = AwsCryptographyKeyStoreTypes
@@ -105,6 +106,7 @@ module BeaconTestFixtures {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDBC.DynamoDBClient();
     var keyStoreConfig := KTypes.KeyStoreConfig(
+      id := Some("foo"),
       ddbTableName := Some("foo"),
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -175,11 +177,11 @@ module BeaconTestFixtures {
     ensures output.ValidState()
     ensures version.keyStore == output.store
     ensures fresh(output.client.Modifies)
-    ensures fresh(output.cache)
   {
-    var cache := new SI.DumbCache();
     var client :- expect Primitives.AtomicPrimitives();
-    return SI.KeySource(client, cache, version.keyStore, SI.LiteralKey([1,2,3,4,5]));
+    var keyNames := Seq.Map((b : StandardBeacon) => b.name, version.standardBeacons);
+    var keys :- expect SI.GetHmacKeys(client, keyNames, key);
+    return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), 0);
   }
 
   const SimpleItem : DDB.AttributeMap := map[
