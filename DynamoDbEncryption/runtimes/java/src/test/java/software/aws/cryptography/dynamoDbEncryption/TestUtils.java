@@ -29,6 +29,7 @@ public class TestUtils {
     public static final String TEST_ATTR2_NAME = "attr2";
 
     public static final String TEST_KEY_STORE_NAME = "KeyStoreTestTable";
+    public static final String TEST_KEY_STORE_KMS_KEY = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
     public static final String BRANCH_KEY_ID = "ef31c535-7436-406e-be37-371aea99b298";
     public static final String ACTIVE_ACTIVE_BRANCH_KEY_ID = "7039dc82-03ff-4914-988e-681c09180a2d";
 
@@ -69,21 +70,21 @@ public class TestUtils {
         return matProv.CreateAwsKmsKeyring(keyringInput);
     }
 
-    public static IKeyring createHierarchicalKeyring(String branchKeyId) {
-        return createHierarchicalKeyring(branchKeyId, null);
+    public static IKeyring createHierarchicalKeyring(KeyStore keystore, String branchKeyId) {
+        return createHierarchicalKeyring(keystore, branchKeyId, null);
     }
 
-    public static IKeyring createHierarchicalKeyring(IBranchKeyIdSupplier supplier) {
-        return createHierarchicalKeyring(null, supplier);
+    public static IKeyring createHierarchicalKeyring(KeyStore keystore, IBranchKeyIdSupplier supplier) {
+        return createHierarchicalKeyring(keystore, null, supplier);
     }
 
-    public static IKeyring createHierarchicalKeyring(String branchKeyId, IBranchKeyIdSupplier keyIdSupplier) {
+    public static IKeyring createHierarchicalKeyring(KeyStore keystore, String branchKeyId, IBranchKeyIdSupplier keyIdSupplier) {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
         CreateAwsKmsHierarchicalKeyringInput.Builder keyringInputBuilder = CreateAwsKmsHierarchicalKeyringInput.builder()
-                .kmsKeyId(KMS_TEST_KEY_ID)
-                .keyStore(createKeyStore())
+                .kmsKeyId(TEST_KEY_STORE_KMS_KEY)
+                .keyStore(keystore)
                 .ttlSeconds(600)
                 .maxCacheSize(100);
         if (branchKeyId != null) {
