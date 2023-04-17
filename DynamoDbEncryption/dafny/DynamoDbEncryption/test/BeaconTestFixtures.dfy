@@ -18,6 +18,8 @@ module BeaconTestFixtures {
   import KTypes = AwsCryptographyKeyStoreTypes
   import SI = SearchableEncryptionInfo
   import Aws.Cryptography.Primitives
+  import MaterialProviders
+  import MPT = AwsCryptographyMaterialProvidersTypes
 
   method expect_equal<T(==)>(a: T, b: T)
     ensures a == b
@@ -181,7 +183,13 @@ module BeaconTestFixtures {
     var client :- expect Primitives.AtomicPrimitives();
     var keyNames := Seq.Map((b : StandardBeacon) => b.name, version.standardBeacons);
     var keys :- expect SI.GetHmacKeys(client, keyNames, key);
-    return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), 0);
+    var mpl :- expect MaterialProviders.MaterialProviders();
+    var input := MPT.CreateCryptographicMaterialsCacheInput(
+      entryCapacity := 3,
+      entryPruningTailSize := None
+    );
+    var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
+    return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0);
   }
 
   const SimpleItem : DDB.AttributeMap := map[
