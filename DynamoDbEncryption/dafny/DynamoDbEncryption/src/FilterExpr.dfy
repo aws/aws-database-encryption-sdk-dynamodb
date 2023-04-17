@@ -38,6 +38,7 @@ module DynamoDBFilterExpr {
   import opened TermLoc
   import Seq
   import StandardLibrary.String
+  import CompoundBeacon
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
@@ -183,12 +184,12 @@ module DynamoDBFilterExpr {
       None
   }
 
-  // expr[pos] is a value; return the beacon t which that value refers
+  // expr[pos] is a value; return the beacon to which that value refers
+  // TODO - implement with AttrForValue
   function method BeaconForValue(
     b : SI.BeaconVersion,
     expr : seq<Token>,
     pos : nat,
-    value: DDB.AttributeValue,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
     : Option<SI.Beacon>
@@ -222,6 +223,43 @@ module DynamoDBFilterExpr {
         None
     else
       None
+  }
+
+  // expr[pos] is a value; return the Attr to which that value refers
+  function method AttrForValue(
+    expr : seq<Token>,
+    pos : nat
+  )
+    : (ret : Option<Token>)
+    requires pos < |expr|
+    requires expr[pos].Value?
+    ensures ret.Some? ==> ret.value.Attr?
+  {
+    // value < ATTR
+    if pos+2 < |expr| && IsComp(expr[pos+1]) && expr[pos+2].Attr? then
+      Some(expr[pos+2])
+    // ATTR < value
+    else if 2 <= pos && IsComp(expr[pos-1]) && expr[pos-2].Attr? then
+      Some(expr[pos-2])
+    // contains(ATTR, value .or. begins_with(ATTR, value
+    else if 4 <= pos && (expr[pos-4].Contains? || expr[pos-4].BeginsWith?) && expr[pos-3].Open?
+          && expr[pos-2].Attr? && expr[pos-1].Comma? then
+      Some(expr[pos-2])
+    // ATTR BETWEEN value
+    else if 2 <= pos && expr[pos-1].Between? && expr[pos-2].Attr? then
+      Some(expr[pos-2])
+    // ATTR BETWEEN * and value
+    else if 4 <= pos && expr[pos-1].And? && expr[pos-3].Between? && expr[pos-4].Attr? then
+      Some(expr[pos-4])
+    // ATTR IN value, value, value, ...
+    else
+      var in_pos := GetInPos(expr, pos);
+      if in_pos.None? then
+        None
+      else if expr[in_pos.value-1].Attr? then
+        Some(expr[in_pos.value-1])
+      else
+        None
   }
 
   // expr[pos] is an argument to a function, which is an Attr which is a beacon
@@ -320,7 +358,7 @@ module DynamoDBFilterExpr {
     else if expr[pos].Value? then
       :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
       var oldValue := values[expr[pos].s];
-      var bec := BeaconForValue(b, expr, pos, oldValue, names);
+      var bec := BeaconForValue(b, expr, pos, names);
       if bec.None? then
         BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [expr[pos]])
       else
@@ -1227,6 +1265,123 @@ module DynamoDBFilterExpr {
       ExpressionAttributeNames.value[s]
     else
       s[1..]
+  }
+
+  // Find the KeyId for in this Value
+  function method KeyIdFromPart(bv : SI.BeaconVersion, keyIdField : string, attr : string, value : string)
+    : Option<string>
+  {
+    if attr !in bv.beacons || bv.beacons[attr].Standard? then
+      None
+    else
+      var parts := bv.beacons[attr].cmp.parts;
+      var theParts := Seq.Filter((p : CompoundBeacon.BeaconPart) => p.NonSensitive? && p.loc[0].key == keyIdField, parts);
+      if |theParts| != 1 then
+        None
+      else
+        var pieces := Split(value, bv.beacons[attr].cmp.split);
+        var piece := Seq.Filter((s : string) => theParts[0].prefix <= s, pieces);
+        if |piece| != 1 then
+          None
+        else
+          var p := piece[0];
+          assert theParts[0].prefix <= p;
+          Some(p[|theParts[0].prefix|..])
+  }
+
+  // Find the KeyId for the Attribute Value pair
+  function method KeyIdFromAttr(bv : SI.BeaconVersion, attr : Option<Token>, value : string, names : Option<DDB.ExpressionAttributeNameMap>)
+    : Option<string>
+    requires bv.keySource.keyLoc.MultiLoc?
+    requires attr.None? || attr.value.Attr?
+  {
+    if attr.None? then
+      None
+    else
+      var name := if names.Some? && attr.value.s in names.value then names.value[attr.value.s] else attr.value.s;
+      var keyIdField := bv.keySource.keyLoc.keyName;
+      if keyIdField == attr.value.s then
+        Some(value)
+      else
+       KeyIdFromPart(bv, keyIdField, attr.value.s, value)
+  }
+
+  // search through each token of a query expression, looking for KeyIds
+  function method {:tailrecursion} GetBeaconKeyIds2(
+    pos : nat,
+    bv : SI.BeaconVersion,
+    expr : seq<Token>,
+    values: DDB.ExpressionAttributeValueMap,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    soFar : seq<string>
+  )
+    : Result<seq<string>, Error>
+    requires bv.keySource.keyLoc.MultiLoc?
+    requires pos <= |expr|
+    decreases |expr| - pos
+  {
+    if pos == |expr| then
+      Success(soFar)
+    else if expr[pos].Value? then
+      :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
+      var oldValue := values[expr[pos].s];
+      if oldValue.S? then
+        var attr := AttrForValue(expr, pos);
+        var keyId := KeyIdFromAttr(bv, attr, oldValue.S, names);
+        if keyId.None? || keyId.value in soFar then
+          GetBeaconKeyIds2(pos+1, bv, expr, values, names, soFar)
+        else
+          GetBeaconKeyIds2(pos+1, bv, expr, values, names, soFar + [keyId.value])
+      else
+        GetBeaconKeyIds2(pos+1, bv, expr, values, names, soFar)
+    else
+      GetBeaconKeyIds2(pos+1, bv, expr, values, names, soFar)
+  }
+
+  // Search through the query expression to find any Multi-Tenant KeyIds
+  function method GetBeaconKeyIds(
+    bv : SI.BeaconVersion,
+    expr : Option<DDB.ConditionExpression>,
+    values: DDB.ExpressionAttributeValueMap,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    soFar : seq<string>
+  )
+    : Result<seq<string>, Error>
+    requires bv.keySource.keyLoc.MultiLoc?
+  {
+    if expr.None? then
+      Success(soFar)
+    else
+      var parsed := ParseExpr(expr.value);
+      GetBeaconKeyIds2(0, bv, parsed, values, names, soFar)
+  }
+
+  // Search through the query expressions to find the Multi-Tenant KeyId
+  // if not multi-tenant, return None
+  // if multi-tenant, and there's exactly one KeyId, return Some(keyId)
+  // else fail
+  function method GetBeaconKeyId(
+    bv : SI.BeaconVersion,
+    keyExpr : Option<DDB.ConditionExpression>,
+    filterExpr : Option<DDB.ConditionExpression>,
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    : Result<Option<string>, Error>
+  {
+    if !bv.keySource.keyLoc.MultiLoc? then
+      Success(None)
+    else if values.None? then
+        Failure(E("No values found for " + bv.keySource.keyLoc.keyName + " in query."))
+    else
+      var soFar :- GetBeaconKeyIds(bv, keyExpr, values.value, names, []);
+      var final :- GetBeaconKeyIds(bv, filterExpr, values.value, names, soFar);
+      if |final| == 1 then
+        Success(Some(final[0]))
+      else if |final| == 0 then
+        Failure(E("No values found for " + bv.keySource.keyLoc.keyName + " in query."))
+      else
+        Failure(E("Multiple values found for " + bv.keySource.keyLoc.keyName + " in query : " + Join(final, ", ")))
   }
 
   datatype ExprContext = ExprContext (

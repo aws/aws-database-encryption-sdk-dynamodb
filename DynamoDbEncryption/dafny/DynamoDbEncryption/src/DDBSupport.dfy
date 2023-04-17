@@ -259,11 +259,11 @@ module DynamoDBSupport {
     if search.None? {
       return Success(req);
     } else {
-      // TODO - calculate KeyID for Multi
+      var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var context1 := Filter.ExprContext(req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var context2 :- Filter.Beaconize(search.value.curr(), context1, None);
+      var context2 :- Filter.Beaconize(search.value.curr(), context1, keyId);
       var context3 := context2.(expr := req.FilterExpression);
-      var context4 :- Filter.Beaconize(search.value.curr(), context3, None);
+      var context4 :- Filter.Beaconize(search.value.curr(), context3, keyId);
       return Success(req.(
         KeyConditionExpression := context2.expr,
         FilterExpression := context4.expr,
@@ -312,9 +312,9 @@ module DynamoDBSupport {
     if search.None? {
       return Success(req);
     } else {
-      // TODO - find KeyID if Multi
+      var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var context := Filter.ExprContext(req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.Beaconize(search.value.curr(), context, None);
+      var newContext :- Filter.Beaconize(search.value.curr(), context, keyId);
       return Success(req.(
         FilterExpression := newContext.expr,
         ExpressionAttributeNames := newContext.names,
