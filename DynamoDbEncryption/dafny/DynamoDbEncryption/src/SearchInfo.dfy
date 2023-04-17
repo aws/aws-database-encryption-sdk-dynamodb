@@ -58,31 +58,6 @@ module SearchableEncryptionInfo {
     }
   }
 
-  /* Is true if there are no duplicate values in the sequence. */
-  predicate method MyHasNoDuplicates<T(==)>(xs: seq<T>)
-  {
-    forall i, j :: 0 <= i < |xs| && 0 <= j < |xs| && i != j ==> xs[i] != xs[j]
-  }
-
-  function method HmacKeyMapToList(m : HmacKeyMap, beacons : BeaconMap) : Result<MP.HmacKeyList, Error>
-  {
-    var beaconKeys := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
-    var stdKeys := Seq.Filter((k : string) => k in beacons && beacons[k].Standard?, beaconKeys);
-    :- Need(|stdKeys| == |m|, E("Mismatch between HMAC map and number of standard beacons."));
-    :- Need(forall k <- stdKeys :: k in m, E("Internal error, ComputeSetToOrderedSequence2 failed"));
-    Success(Seq.Map((s : string) requires s in m => m[s], stdKeys))
-  }
-
-  function method HmacKeyListToMap(list : MP.HmacKeyList, beacons : BeaconMap) : Result<HmacKeyMap, Error>
-  {
-    var beaconKeys := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
-    assert Seq.HasNoDuplicates(beaconKeys);
-    var stdKeys := Seq.Filter((k : string) => k in beacons && beacons[k].Standard?, beaconKeys);
-    :- Need(MyHasNoDuplicates(stdKeys), E(""));
-    :- Need(|stdKeys| == |list|, E("Mismatch between HMAC list and number of standard beacons."));
-    Success(map x : nat | 0 <= x < |stdKeys| :: stdKeys[x] := list[x])
-  }
-
   type ValidStore = x : KeyStoreTypes.IKeyStoreClient | x.ValidState() witness *
 
   method GetAllKeys(client : Primitives.AtomicPrimitivesClient, beacons : BeaconMap, key : Bytes) returns (output : Result<HmacKeyMap, Error>)
@@ -136,13 +111,14 @@ module SearchableEncryptionInfo {
 
   datatype KeyLocation =
     | LiteralLoc (keys: HmacKeyMap)
-    | SingleLoc (keyId: string, single : SingleCache)
-    | MultiLoc (keyName : string, cache : MP.ICryptographicMaterialsCache)
+    | SingleLoc (keyId: string)
+    | MultiLoc (keyName : string)
 
   datatype KeySource = KeySource(
     client : Primitives.AtomicPrimitivesClient,
     store : ValidStore,
     keyLoc : KeyLocation,
+    cache : MP.ICryptographicMaterialsCache,
     cacheTTL : uint32
   ) {
     function Modifies() : set<object> {
@@ -158,13 +134,13 @@ module SearchableEncryptionInfo {
     {
       if keyLoc.SingleLoc? {
         :- Need(keyId.None?, E("KeyID should not be supplied with a SingleKeyStore"));
-        output := getKeysSingle(beacons);
+        output := getKeysCache(beacons, keyLoc.keyId);
       } else if keyLoc.LiteralLoc? {
         :- Need(keyId.None?, E("KeyID should not be supplied with a LiteralKeyStore"));
         output := getKeysLiteral();
       } else {
         :- Need(keyId.Some?, E("KeyID must not be supplied with a MultiKeyStore"));
-        output := getKeysMulti(beacons, keyId.value);
+        output := getKeysCache(beacons, keyId.value);
       }
     }
 
@@ -180,32 +156,11 @@ module SearchableEncryptionInfo {
       return Success(keyLoc.keys);
     }
 
-    method getKeysSingle(
-      beacons : BeaconMap
-    )
-      returns (output : Result<HmacKeyMap, Error>)
-      requires keyLoc.SingleLoc?
-      requires ValidState() 
-      modifies Modifies()
-      ensures ValidState()
-    {
-      var keys := keyLoc.single.get();
-      if keys.Some? {
-        return Success(keys.value);
-      }
-      var key :- getKeyFromStore(keyLoc.keyId);
-      var keyMap :- getAllKeys(beacons, key);
-      assume {:axiom} fresh(keyLoc.single);
-      keyLoc.single.put(keyMap, cacheTTL);
-      return Success(keyMap);
-    }
-
-    method getKeysMulti(
+    method getKeysCache(
       beacons : BeaconMap,
       keyId : string
     )
       returns (output : Result<HmacKeyMap, Error>)
-      requires keyLoc.MultiLoc?
       requires ValidState() 
       modifies Modifies()
       ensures ValidState()
@@ -213,9 +168,9 @@ module SearchableEncryptionInfo {
       var keyIdBytesR := UTF8.Encode(keyId);
       var keyIdBytes :- keyIdBytesR.MapFailure(e => E(e));
       var getCacheInput := MP.GetCacheEntryInput(identifier := keyIdBytes, bytesUsed := None);
-      verifyValidStateCache(keyLoc.cache);
-      assume {:axiom} keyLoc.cache.Modifies == {};
-      var getCacheOutput := keyLoc.cache.GetCacheEntry(getCacheInput);
+      verifyValidStateCache(cache);
+      assume {:axiom} cache.Modifies == {};
+      var getCacheOutput := cache.GetCacheEntry(getCacheInput);
 
       if getCacheOutput.Failure? {
         var maybeRawBranchKeyMaterials := store.GetBeaconKey(
@@ -230,11 +185,10 @@ module SearchableEncryptionInfo {
 
         var key := rawBranchKeyMaterials.beaconKey;
         var keyMap :- getAllKeys(beacons, key);
-        var keyList :- HmacKeyMapToList(keyMap, beacons);
         var beaconKeyMaterials := MP.BeaconKeyMaterials(
           beaconKeyIdentifier := keyId,
           beaconKey := Some(rawBranchKeyMaterials.beaconKey),
-          hmacKeys := Some(keyList)
+          hmacKeys := Some(keyMap)
         );
 
         var now := Time.GetCurrent();
@@ -247,9 +201,9 @@ module SearchableEncryptionInfo {
           bytesUsed := None
         );
 
-        verifyValidStateCache(keyLoc.cache);
-        assume {:axiom} keyLoc.cache.Modifies == {};
-        var _ := keyLoc.cache.PutCacheEntry(putCacheEntryInput);
+        verifyValidStateCache(cache);
+        assume {:axiom} cache.Modifies == {};
+        var _ := cache.PutCacheEntry(putCacheEntryInput);
         return Success(keyMap);
       } else {
         :- Need(
@@ -259,7 +213,7 @@ module SearchableEncryptionInfo {
           && getCacheOutput.value.materials.BeaconKey.hmacKeys.Some?,
           E("Invalid Material Type.")
         );
-        return HmacKeyListToMap(getCacheOutput.value.materials.BeaconKey.hmacKeys.value, beacons);
+        return Success(getCacheOutput.value.materials.BeaconKey.hmacKeys.value);
       }
     }
   

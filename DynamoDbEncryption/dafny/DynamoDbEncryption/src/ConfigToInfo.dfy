@@ -81,21 +81,23 @@ module SearchConfigToInfo {
       && output.value.client == client
       && output.value.store == keyStore
   {
+    var mplR := MaterialProviders.MaterialProviders();
+    var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var cacheSize := if config.multi? then config.multi.maxCacheSize else 3;
+    :- Need(0 < cacheSize, E("maxCacheSize must be at least 1."));
+    var input := MPT.CreateCryptographicMaterialsCacheInput(
+      entryCapacity := cacheSize,
+      entryPruningTailSize := None
+    );
+    var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
+    var cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
+
     if config.multi? {
-      :- Need(0 < config.multi.maxCacheSize, E("maxCacheSize must be at least 1."));
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
-      var input := MPT.CreateCryptographicMaterialsCacheInput(
-        entryCapacity := config.multi.maxCacheSize,
-        entryPruningTailSize := None
-      );
-      var mpl :- expect MaterialProviders.MaterialProviders();
-      var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
-      var cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
-      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, cache), config.multi.cacheTTL as uint32));
+      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName), cache, config.multi.cacheTTL as uint32));
     } else {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
-      var cache := new I.SingleCache();
-      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId, cache), config.single.cacheTTL as uint32));
+      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32));
     }
   }
 
