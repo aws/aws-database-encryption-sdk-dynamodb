@@ -18,116 +18,182 @@ module SearchableEncryptionInfo {
   import opened StandardLibrary.UInt
   import SortedSets
   import Sets
+  import UTF8
+  import opened Time
   import KeyStore = AwsCryptographyKeyStoreTypes
   import Aws.Cryptography.Primitives
   import Prim = AwsCryptographyPrimitivesTypes
+  import MP = AwsCryptographyMaterialProvidersTypes
+  import KeyStoreTypes = AwsCryptographyKeyStoreTypes
 
   newtype VersionNumber = uint64
   type ValidSearchInfo = x : SearchInfo | x.ValidState?() witness *
 
-  class DumbCache {
-    var keyId : string
-    var keys : HmacKeyMap
+  type ValidStore = x : KeyStoreTypes.IKeyStoreClient | x.ValidState() witness *
 
-    constructor()
-    {
-      this.keyId := "";
-      this.keys := map[];
-    }
+  method GetAllKeys(client : Primitives.AtomicPrimitivesClient, beacons : BeaconMap, key : Bytes) returns (output : Result<HmacKeyMap, Error>)
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    var beaconKeys := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+    var stdKeys := Seq.Filter((k : string) => k in beacons && beacons[k].Standard?, beaconKeys);
+    var newKeys :- GetHmacKeys(client, stdKeys, key);
+    return Success(newKeys);
+  }
 
-    method get(s : string) returns (output : Option<HmacKeyMap>)
-    {
-      if keyId == s {
-        return Some(keys);
-      }
-      return None;
-    }
-    method put(s : string, k : HmacKeyMap)
-      modifies this
-    {
-      keyId := s;
-      keys := k;
+  method {:tailrecursion} GetHmacKeys(
+    client : Primitives.AtomicPrimitivesClient,
+    beaconKeys : seq<string>,
+    key : Bytes,
+    acc : HmacKeyMap := map[]
+  )
+    returns (output : Result<HmacKeyMap, Error>)
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    if |beaconKeys| == 0 {
+      return Success(acc);
+    } else {
+      var key :- GetBeaconKey(client, key, beaconKeys[0]);
+      output := GetHmacKeys(client, beaconKeys[1..], key, acc[beaconKeys[0] := key]);
     }
   }
-  type ValidStore = x : AwsCryptographyKeyStoreTypes.IKeyStoreClient | x.ValidState() witness *
+
+  // convert persistent key to the derived key for this beacon
+  method GetBeaconKey(client : Primitives.AtomicPrimitivesClient, key : Bytes, name : string)
+    returns (output : Result<Bytes, Error>)
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    var info :- UTF8.Encode("AWS_DBE_SCAN_BEACON" + name).MapFailure(e => E(e));
+    var keyR := client.Hkdf(Prim.HkdfInput(
+                              digestAlgorithm := Prim.SHA_512,
+                              salt := None,
+                              ikm := key,
+                              info := info,
+                              expectedLength := 64
+                            ));
+    var key :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
+    return Success(key);
+  }
 
   datatype KeyLocation =
-    | LiteralKey (key: Bytes)
+    | LiteralLoc (keys: HmacKeyMap)
     | SingleLoc (keyId: string)
     | MultiLoc (keyName : string)
 
   datatype KeySource = KeySource(
     client : Primitives.AtomicPrimitivesClient,
-    cache : DumbCache,
     store : ValidStore,
-    keyLoc : KeyLocation
+    keyLoc : KeyLocation,
+    cache : MP.ICryptographicMaterialsCache,
+    cacheTTL : uint32
   ) {
     function Modifies() : set<object> {
-      client.Modifies + store.Modifies + {cache}
+      client.Modifies + store.Modifies
     }
     predicate ValidState() {
       client.ValidState() && store.ValidState()
     }
-    method getKeyMap(beacons : BeaconMap) returns (output : Result<HmacKeyMap, Error>)
+    method getKeyMap(beacons : BeaconMap, keyId : Option<string>) returns (output : Result<HmacKeyMap, Error>)
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
     {
       if keyLoc.SingleLoc? {
-        output := getKeys(beacons, keyLoc.keyId);
-      } else if keyLoc.LiteralKey? {
-        output := getAllKeys(beacons, "Literal", keyLoc.key);
+        :- Need(keyId.None?, E("KeyID should not be supplied with a SingleKeyStore"));
+        output := getKeysCache(beacons, keyLoc.keyId);
+      } else if keyLoc.LiteralLoc? {
+        :- Need(keyId.None?, E("KeyID should not be supplied with a LiteralKeyStore"));
+        output := getKeysLiteral();
       } else {
-        output := Failure(E("Multi Tenant not yet implemented"));
+        :- Need(keyId.Some?, E("KeyID must not be supplied with a MultiKeyStore"));
+        output := getKeysCache(beacons, keyId.value);
       }
     }
 
-    method getKeys(beacons : BeaconMap, keyId : string) returns (output : Result<HmacKeyMap, Error>)
-      requires ValidState()
-      ensures ValidState()
-      modifies Modifies()
+    // We add this axiom here because verifying the mutability of the share state of the
+    // cache. Dafny does not support concurrency and proving the state of mutable frames
+    // is complicated.
+    lemma {:axiom} verifyValidStateCache (cmc: MP.ICryptographicMaterialsCache) ensures cmc.ValidState()
+
+    method getKeysLiteral()
+      returns (output : Result<HmacKeyMap, Error>)
+      requires keyLoc.LiteralLoc?
     {
-      var k := cache.get(keyId);
-      if k.Some? {
-        return Success(k.value);
-      }
-      var key :- getKeyFromStore(keyId);
-      output := getAllKeys(beacons, keyId, key);
+      return Success(keyLoc.keys);
     }
 
-    method getAllKeys(beacons : BeaconMap, keyId : string, key : Bytes) returns (output : Result<HmacKeyMap, Error>)
-      requires ValidState()
-      ensures ValidState()
-      modifies Modifies()
-    {
-      var beaconKeys := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
-      var stdKeys := Seq.Filter((k : string) => k in beacons && beacons[k].Standard?, beaconKeys);
-      var newKeys :- getHmacKeys(stdKeys, key, beacons);
-      cache.put(keyId, newKeys);
-      return Success(newKeys);
-    }
-
-    method {:tailrecursion} getHmacKeys(
-      beaconKeys : seq<string>,
-      key : Bytes,
+    method getKeysCache(
       beacons : BeaconMap,
-      acc : HmacKeyMap := map[]
+      keyId : string
     )
       returns (output : Result<HmacKeyMap, Error>)
-      requires forall k <- beaconKeys :: k in beacons
-      requires forall k <- acc :: k in beacons
-      ensures output.Success? ==> forall k <- output.value :: k in beacons
+      requires ValidState()
+      modifies Modifies()
+      ensures ValidState()
+    {
+      var keyIdBytesR := UTF8.Encode(keyId);
+      var keyIdBytes :- keyIdBytesR.MapFailure(e => E(e));
+      var getCacheInput := MP.GetCacheEntryInput(identifier := keyIdBytes, bytesUsed := None);
+      verifyValidStateCache(cache);
+      assume {:axiom} cache.Modifies == {};
+      var getCacheOutput := cache.GetCacheEntry(getCacheInput);
 
+      if getCacheOutput.Failure? {
+        var maybeRawBranchKeyMaterials := store.GetBeaconKey(
+          KeyStore.GetBeaconKeyInput(
+            branchKeyIdentifier := keyId,
+            awsKmsKeyArn := None,
+            grantTokens := None
+          )
+        );
+        var rawBranchKeyMaterials :- maybeRawBranchKeyMaterials
+        .MapFailure(e => AwsCryptographyKeyStore(AwsCryptographyKeyStore := e));
+
+        var key := rawBranchKeyMaterials.beaconKey;
+        var keyMap :- getAllKeys(beacons, key);
+        var beaconKeyMaterials := MP.BeaconKeyMaterials(
+          beaconKeyIdentifier := keyId,
+          beaconKey := Some(rawBranchKeyMaterials.beaconKey),
+          hmacKeys := Some(keyMap)
+        );
+
+        var now := Time.GetCurrent();
+        var putCacheEntryInput:= MP.PutCacheEntryInput(
+          identifier := keyIdBytes,
+          materials := MP.Materials.BeaconKey(beaconKeyMaterials),
+          creationTime := now,
+          expiryTime := now+cacheTTL as MP.PositiveLong,
+          messagesUsed := None,
+          bytesUsed := None
+        );
+
+        verifyValidStateCache(cache);
+        assume {:axiom} cache.Modifies == {};
+        var _ := cache.PutCacheEntry(putCacheEntryInput);
+        return Success(keyMap);
+      } else {
+        :- Need(
+          && getCacheOutput.value.materials.BeaconKey?
+          && getCacheOutput.value.materials.BeaconKey.hmacKeys.Some?
+          && getCacheOutput.value.materials.BeaconKey.beaconKeyIdentifier == keyId
+          && getCacheOutput.value.materials.BeaconKey.hmacKeys.Some?,
+          E("Invalid Material Type.")
+        );
+        return Success(getCacheOutput.value.materials.BeaconKey.hmacKeys.value);
+      }
+    }
+
+    method getAllKeys(beacons : BeaconMap, key : Bytes) returns (output : Result<HmacKeyMap, Error>)
       modifies client.Modifies
       requires client.ValidState()
       ensures client.ValidState()
     {
-      if |beaconKeys| == 0 {
-        return Success(acc);
-      } else {
-        var key :- getBeaconKey(key, beaconKeys[0]);
-        output := getHmacKeys(beaconKeys[1..], key, beacons, acc[beaconKeys[0] := key]);
-      }
+      output := GetAllKeys(client, beacons, key);
     }
 
     method getKeyFromStore(keyId : string)
@@ -147,24 +213,6 @@ module SearchableEncryptionInfo {
       output := Success(key.beaconKey);
     }
 
-    // convert persistent key to the derived key for this beacon
-    method getBeaconKey(key : Bytes, name : string)
-      returns (output : Result<Bytes, Error>)
-      modifies client.Modifies
-      requires client.ValidState()
-      ensures client.ValidState()
-    {
-      var info :- UTF8.Encode("AWS_DBE_SCAN_BEACON" + name).MapFailure(e => E(e));
-      var keyR := client.Hkdf(Prim.HkdfInput(
-        digestAlgorithm := Prim.SHA_512,
-        salt := None,
-        ikm := key,
-        info := info,
-        expectedLength := 64
-      ));
-      var key :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
-      return Success(key);
-    }
   }
 
   datatype SearchInfo = SearchInfo(
@@ -212,7 +260,7 @@ module SearchableEncryptionInfo {
     {
       versions[currWrite].IsBeacon(field)
     }
-    
+
     predicate method IsVirtualField(field : string)
       requires ValidState?()
     {
@@ -225,20 +273,41 @@ module SearchableEncryptionInfo {
       versions[currWrite].GenerateClosure(fields)
     }
 
-    method GenerateBeacons(item : DDB.AttributeMap) returns (output : Result<DDB.AttributeMap, Error>)
+    method GeneratePlainBeacons(item : DDB.AttributeMap) returns (output : Result<DDB.AttributeMap, Error>)
+      requires ValidState?()
+    {
+      output := versions[currWrite].GeneratePlainBeacons(item);
+    }
+
+    method GenerateSignedBeacons(item : DDB.AttributeMap) returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState?()
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
     {
-      output := versions[currWrite].GenerateBeacons(item);
+      output := versions[currWrite].GenerateSignedBeacons(item);
+    }
+    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : Option<string>) returns (output : Result<DDB.AttributeMap, Error>)
+      requires ValidState?()
+      requires ValidState()
+      ensures ValidState()
+      modifies Modifies()
+    {
+      output := versions[currWrite].GenerateEncryptedBeacons(item, keyId);
     }
   }
 
-  datatype Beacon = 
+  datatype Beacon =
     | Standard(std : BaseBeacon.StandardBeacon)
     | Compound(cmp : CompoundBeacon.CompoundBeacon)
   {
+    predicate method isEncrypted()
+    {
+      if Standard? then
+        true
+      else
+        cmp.isEncrypted()
+    }
     function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : Result<Option<string>, Error>
     {
       if Standard? then
@@ -324,6 +393,19 @@ module SearchableEncryptionInfo {
 
   type BeaconMap = map<string, Beacon>
 
+  datatype BeaconType =
+    | AnyBeacon
+    | SignedBeacon
+    | EncryptedBeacon
+
+  predicate method IsBeaconOfType(b : Beacon, t : BeaconType)
+  {
+    match t {
+      case AnyBeacon => true
+      case SignedBeacon => !b.isEncrypted()
+      case EncryptedBeacon => b.isEncrypted()
+    }
+  }
   datatype BeaconVersion = BeaconVersion (
     version : VersionNumber,
     keySource : KeySource,
@@ -381,27 +463,40 @@ module SearchableEncryptionInfo {
       SortedSets.ComputeSetToOrderedSequence2(fieldSet, CharLess)
     }
 
-    method getKeyMap() returns (output : Result<HmacKeyMap, Error>)
+    method getKeyMap(keyId : Option<string>) returns (output : Result<HmacKeyMap, Error>)
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
     {
-      output := keySource.getKeyMap(beacons);
+      output := keySource.getKeyMap(beacons, keyId);
     }
 
-    method GenerateBeacons(item : DDB.AttributeMap, naked : bool := false)
+    method GeneratePlainBeacons(item : DDB.AttributeMap)
+      returns (output : Result<DDB.AttributeMap, Error>)
+    {
+      var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+      output := GenerateBeacons2(beaconNames, item, None, AnyBeacon);
+    }
+
+    method GenerateSignedBeacons(item : DDB.AttributeMap)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
     {
       var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
-      if naked { 
-        output := GenerateBeacons2(beaconNames, item, None);
-      } else {
-        var hmacKeys :- getKeyMap();
-        output := GenerateBeacons2(beaconNames, item, Some(hmacKeys));
-      }
+      output := GenerateBeacons2(beaconNames, item, None, SignedBeacon);
+    }
+
+    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : Option<string>)
+      returns (output : Result<DDB.AttributeMap, Error>)
+      requires ValidState()
+      ensures ValidState()
+      modifies Modifies()
+    {
+      var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+      var hmacKeys :- getKeyMap(keyId);
+      output := GenerateBeacons2(beaconNames, item, Some(hmacKeys), EncryptedBeacon);
     }
 
     function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : Option<HmacKeyMap>) : Result<Option<DDB.AttributeValue>, Error>
@@ -414,6 +509,7 @@ module SearchableEncryptionInfo {
       names : seq<string>,
       item : DDB.AttributeMap,
       keys : Option<HmacKeyMap>,
+      bType : BeaconType,
       acc : DDB.AttributeMap := map[]
     )
       : Result<DDB.AttributeMap, Error>
@@ -421,12 +517,14 @@ module SearchableEncryptionInfo {
     {
       if |names| == 0 then
         Success(acc)
-      else
+      else if IsBeaconOfType(beacons[names[0]], bType) then
         var value :- GenerateBeacon(names[0], item, keys);
         if value.Some? then
-          GenerateBeacons2(names[1..], item, keys, acc[beacons[names[0]].getBeaconName() := value.value])
+          GenerateBeacons2(names[1..], item, keys, bType, acc[beacons[names[0]].getBeaconName() := value.value])
         else
-          GenerateBeacons2(names[1..], item, keys, acc)
+          GenerateBeacons2(names[1..], item, keys, bType, acc)
+      else
+        GenerateBeacons2(names[1..], item, keys, bType, acc)
     }
   }
 }

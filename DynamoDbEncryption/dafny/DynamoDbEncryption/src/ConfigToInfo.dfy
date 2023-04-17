@@ -22,6 +22,7 @@ module SearchConfigToInfo {
   import opened StandardLibrary.UInt
   import opened DynamoDbEncryptionUtil
   import opened TermLoc
+  import MaterialProviders
   import SortedSets
 
   import I = SearchableEncryptionInfo
@@ -29,6 +30,7 @@ module SearchConfigToInfo {
   import B = BaseBeacon
   import CB = CompoundBeacon
   import SE = AwsCryptographyStructuredEncryptionTypes
+  import MPT = AwsCryptographyMaterialProvidersTypes
   import Aws.Cryptography.Primitives
 
   // convert configured SearchConfig to internal SearchInfo
@@ -37,9 +39,8 @@ module SearchConfigToInfo {
     requires ValidSearchConfig(outer.search)
     modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
     ensures output.Success? && output.value.Some? ==>
-      && output.value.value.ValidState()
-      && fresh(output.value.value.versions[0].keySource.cache)
-      && fresh(output.value.value.versions[0].keySource.client)
+              && output.value.value.ValidState()
+              && fresh(output.value.value.versions[0].keySource.client)
   {
     if outer.search.None? {
       return Success(None);
@@ -75,17 +76,27 @@ module SearchConfigToInfo {
     requires client.ValidState()
     ensures client.ValidState()
     ensures output.Success? ==>
-      && output.value.ValidState()
-      && fresh(output.value.cache)
-      && output.value.client == client
-      && output.value.store == keyStore
+              && output.value.ValidState()
+              && output.value.client == client
+              && output.value.store == keyStore
   {
+    var mplR := MaterialProviders.MaterialProviders();
+    var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var cacheSize := if config.multi? then config.multi.maxCacheSize else 3;
+    :- Need(0 < cacheSize, E("maxCacheSize must be at least 1."));
+    var input := MPT.CreateCryptographicMaterialsCacheInput(
+      entryCapacity := cacheSize,
+      entryPruningTailSize := None
+    );
+    var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
+    var cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
+
     if config.multi? {
-      var cache := new I.DumbCache();
-      output := Success(I.KeySource(client, cache, keyStore, I.MultiLoc(config.multi.keyFieldName)));
+      :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
+      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName), cache, config.multi.cacheTTL as uint32));
     } else {
-      var cache := new I.DumbCache();
-      output := Success(I.KeySource(client, cache, keyStore, I.SingleLoc(config.single.keyId)));
+      :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
+      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32));
     }
   }
 
@@ -95,9 +106,8 @@ module SearchConfigToInfo {
     requires ValidBeaconVersion(config)
     modifies config.keyStore.Modifies
     ensures output.Success? ==>
-      && output.value.ValidState()
-      && fresh(output.value.keySource.cache)
-      && fresh(output.value.keySource.client)
+              && output.value.ValidState()
+              && fresh(output.value.keySource.client)
   {
     :- Need(config.version == 1, E("Version number in BeaconVersion must be '1'."));
     :- Need(0 < |config.standardBeacons|, E("At least one standard beacon must be configured."));
@@ -118,8 +128,8 @@ module SearchConfigToInfo {
     modifies source.Modifies()
     requires source.ValidState()
     ensures output.Success? ==>
-      && output.value.ValidState()
-      && output.value.keySource == source
+              && output.value.ValidState()
+              && output.value.keySource == source
   {
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
     var beacons :- ConvertBeacons(outer, source.client, virtualFields, config.standardBeacons, config.compoundBeacons);
@@ -133,11 +143,11 @@ module SearchConfigToInfo {
       }
     }
     return Success(I.BeaconVersion(
-      version := config.version as I.VersionNumber,
-      keySource := source,
-      beacons := beacons,
-      virtualFields := virtualFields
-    ));
+                     version := config.version as I.VersionNumber,
+                     keySource := source,
+                     beacons := beacons,
+                     virtualFields := virtualFields
+                   ));
   }
 
   // convert configured VirtualFieldList to internal VirtualFieldMap
@@ -238,9 +248,9 @@ module SearchConfigToInfo {
 
   // convert configured VirtualFields to internal VirtualFields
   function method {:tailrecursion} AddVirtualFields(
-      vf : seq<AwsCryptographyDynamoDbEncryptionTypes.VirtualField>,
-      outer : DynamoDbTableEncryptionConfig,
-      converted : V.VirtualFieldMap := map[])
+    vf : seq<AwsCryptographyDynamoDbEncryptionTypes.VirtualField>,
+    outer : DynamoDbTableEncryptionConfig,
+    converted : V.VirtualFieldMap := map[])
     : Result<V.VirtualFieldMap, Error>
   {
     if |vf| == 0 then
@@ -251,7 +261,7 @@ module SearchConfigToInfo {
       var newField :- V.ParseVirtualFieldConfig(vf[0]);
       // need all parts signed
       :- Need(!newField.examine((t : TermLoc) => !IsSigned(outer, t)),
-        E("VirtualField " + vf[0].name + " must be defined on signed fields."));
+              E("VirtualField " + vf[0].name + " must be defined on signed fields."));
       var badField := FindVirtualFieldWithThisLocation(converted, newField.GetLocs());
       if badField.Some? then
         Failure(E("Virtual field " + vf[0].name + " is defined on the same locations as " + badField.value + "."))
@@ -285,11 +295,11 @@ module SearchConfigToInfo {
 
   // convert configured StandardBeacons to internal Beacons
   method {:tailrecursion} AddStandardBeacons(
-      beacons : seq<StandardBeacon>,
-      outer : DynamoDbTableEncryptionConfig,
-      client: Primitives.AtomicPrimitivesClient,
-      virtualFields : V.VirtualFieldMap,
-      converted : I.BeaconMap := map[])
+    beacons : seq<StandardBeacon>,
+    outer : DynamoDbTableEncryptionConfig,
+    client: Primitives.AtomicPrimitivesClient,
+    virtualFields : V.VirtualFieldMap,
+    converted : I.BeaconMap := map[])
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
     requires client.ValidState()
@@ -306,12 +316,12 @@ module SearchConfigToInfo {
     var badBeacon := FindBeaconWithThisLocation(converted, newBeacon.loc);
     if badBeacon.Some? {
       return Failure(E("Beacon " + beacons[0].name + " is defined on location " + TermLocToString(newBeacon.loc)
-      + ", but beacon " + badBeacon.value + " is already defined on that location."));
+                       + ", but beacon " + badBeacon.value + " is already defined on that location."));
     }
     var badField := FindVirtualFieldWithThisLocation(virtualFields, {newBeacon.loc});
     if badField.Some? {
       return Failure(E("Beacon " + beacons[0].name + " is defined on location " + TermLocToString(newBeacon.loc)
-      + ", but virtual field " + badField.value + " is already defined on that single location."));
+                       + ", but virtual field " + badField.value + " is already defined on that single location."));
     }
 
     output := AddStandardBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
@@ -353,7 +363,7 @@ module SearchConfigToInfo {
       var loc :- GetLoc(parts[0].name, parts[0].loc);
       var newPart := CB.NonSensitive(parts[0].prefix, parts[0].name, loc);
       :- Need(IsSignOnly(outer, newPart.loc), E("NonSensitive Part " + newPart.name
-        + " is built from " + GetLocStr(parts[0].name, parts[0].loc) + " which is not SIGN_ONLY."));
+                                                + " is built from " + GetLocStr(parts[0].name, parts[0].loc) + " which is not SIGN_ONLY."));
       AddNonSensitiveParts(parts[1..], outer,origSize, converted + [newPart])
   }
 
@@ -366,11 +376,11 @@ module SearchConfigToInfo {
     if |parts| == 0 then
       Success(converted)
     else
-      if parts[0].name in std && std[parts[0].name].Standard? then
-        var newPart := CB.Sensitive(parts[0].prefix, std[parts[0].name].std);
-        AddSensitiveParts(parts[1..], origSize, converted + [newPart], std)
-      else
-        Failure(E("Sensitive part needs standard beacon " + parts[0].name + " which is not configured."))
+    if parts[0].name in std && std[parts[0].name].Standard? then
+      var newPart := CB.Sensitive(parts[0].prefix, std[parts[0].name].std);
+      AddSensitiveParts(parts[1..], origSize, converted + [newPart], std)
+    else
+      Failure(E("Sensitive part needs standard beacon " + parts[0].name + " which is not configured."))
   }
 
   // create the default constructor, if not constructor is specified
@@ -378,8 +388,8 @@ module SearchConfigToInfo {
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts| + |converted|
     ensures ret.Success? ==>
-      && |ret.value| == 1
-      && |ret.value[0].parts| == |parts| + |converted|
+              && |ret.value| == 1
+              && |ret.value[0].parts| == |parts| + |converted|
   {
     if |parts| == 0 then
       Success([CB.Constructor(converted)])
@@ -407,12 +417,12 @@ module SearchConfigToInfo {
     : (ret : Result<CB.Constructor, Error>)
     requires 0 < |c.parts|
     ensures ret.Success? ==>
-      |ret.value.parts| == |c.parts|
+              |ret.value.parts| == |c.parts|
   {
     var newParts :- MakeConstructor2(c.parts, parts, |c.parts|);
     Success(CB.Constructor(newParts))
   }
-  
+
   // convert configured Constructors to internal Constructors
   function method AddConstructors2(constructors : seq<Constructor>, parts : seq<CB.BeaconPart>, origSize : nat, converted : seq<CB.Constructor> := [])
     : (ret : Result<seq<CB.Constructor>, Error>)
@@ -434,8 +444,8 @@ module SearchConfigToInfo {
     requires 0 < |parts|
     requires constructors.Some? ==> 0 < |constructors.value|
     ensures ret.Success? ==>
-      && (constructors.None? ==> |ret.value| == 1)
-      && (constructors.Some? ==> |ret.value| == |constructors.value|)
+              && (constructors.None? ==> |ret.value| == 1)
+              && (constructors.Some? ==> |ret.value| == |constructors.value|)
   {
     if constructors.None? then
       MakeDefaultConstructor(parts)
@@ -445,11 +455,11 @@ module SearchConfigToInfo {
 
   // convert configured CompoundBeacons to internal BeaconMap
   method {:tailrecursion} AddCompoundBeacons(
-      beacons : seq<CompoundBeacon>,
-      outer : DynamoDbTableEncryptionConfig,
-      client: Primitives.AtomicPrimitivesClient,
-      virtualFields : V.VirtualFieldMap,
-      converted : I.BeaconMap := map[])
+    beacons : seq<CompoundBeacon>,
+    outer : DynamoDbTableEncryptionConfig,
+    client: Primitives.AtomicPrimitivesClient,
+    virtualFields : V.VirtualFieldMap,
+    converted : I.BeaconMap := map[])
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
     requires client.ValidState()
