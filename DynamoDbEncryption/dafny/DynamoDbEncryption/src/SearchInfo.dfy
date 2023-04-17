@@ -29,35 +29,6 @@ module SearchableEncryptionInfo {
   newtype VersionNumber = uint64
   type ValidSearchInfo = x : SearchInfo | x.ValidState?() witness *
 
-  class SingleCache {
-    var endTime : int64
-    var keys : HmacKeyMap
- 
-    constructor()
-    {
-      this.keys := map[];
-      this.endTime := 0;
-    }
- 
-    method get() returns (output : Option<HmacKeyMap>)
-    {
-      var now := Time.GetCurrent();
-      if now < endTime && 0 < |keys| {
-        return Some(keys);
-      } else {
-        return None;        
-      }
-    }
-
-    method put(k : HmacKeyMap, ttl : uint32)
-      modifies this
-    {
-      keys := k;
-      var now := Time.GetCurrent();
-      endTime := if (now as int + ttl as int) < INT64_MAX_LIMIT then ((now as int + ttl as int) as int64) else 0;
-    }
-  }
-
   type ValidStore = x : KeyStoreTypes.IKeyStoreClient | x.ValidState() witness *
 
   method GetAllKeys(client : Primitives.AtomicPrimitivesClient, beacons : BeaconMap, key : Bytes) returns (output : Result<HmacKeyMap, Error>)
@@ -71,43 +42,43 @@ module SearchableEncryptionInfo {
     return Success(newKeys);
   }
 
-    method {:tailrecursion} GetHmacKeys(
-      client : Primitives.AtomicPrimitivesClient,
-      beaconKeys : seq<string>,
-      key : Bytes,
-      acc : HmacKeyMap := map[]
-    )
-      returns (output : Result<HmacKeyMap, Error>)
-      modifies client.Modifies
-      requires client.ValidState()
-      ensures client.ValidState()
-    {
-      if |beaconKeys| == 0 {
-        return Success(acc);
-      } else {
-        var key :- GetBeaconKey(client, key, beaconKeys[0]);
-        output := GetHmacKeys(client, beaconKeys[1..], key, acc[beaconKeys[0] := key]);
-      }
+  method {:tailrecursion} GetHmacKeys(
+    client : Primitives.AtomicPrimitivesClient,
+    beaconKeys : seq<string>,
+    key : Bytes,
+    acc : HmacKeyMap := map[]
+  )
+    returns (output : Result<HmacKeyMap, Error>)
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    if |beaconKeys| == 0 {
+      return Success(acc);
+    } else {
+      var key :- GetBeaconKey(client, key, beaconKeys[0]);
+      output := GetHmacKeys(client, beaconKeys[1..], key, acc[beaconKeys[0] := key]);
     }
+  }
 
-    // convert persistent key to the derived key for this beacon
-    method GetBeaconKey(client : Primitives.AtomicPrimitivesClient, key : Bytes, name : string)
-      returns (output : Result<Bytes, Error>)
-      modifies client.Modifies
-      requires client.ValidState()
-      ensures client.ValidState()
-    {
-      var info :- UTF8.Encode("AWS_DBE_SCAN_BEACON" + name).MapFailure(e => E(e));
-      var keyR := client.Hkdf(Prim.HkdfInput(
-        digestAlgorithm := Prim.SHA_512,
-        salt := None,
-        ikm := key,
-        info := info,
-        expectedLength := 64
-      ));
-      var key :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
-      return Success(key);
-    }
+  // convert persistent key to the derived key for this beacon
+  method GetBeaconKey(client : Primitives.AtomicPrimitivesClient, key : Bytes, name : string)
+    returns (output : Result<Bytes, Error>)
+    modifies client.Modifies
+    requires client.ValidState()
+    ensures client.ValidState()
+  {
+    var info :- UTF8.Encode("AWS_DBE_SCAN_BEACON" + name).MapFailure(e => E(e));
+    var keyR := client.Hkdf(Prim.HkdfInput(
+                              digestAlgorithm := Prim.SHA_512,
+                              salt := None,
+                              ikm := key,
+                              info := info,
+                              expectedLength := 64
+                            ));
+    var key :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
+    return Success(key);
+  }
 
   datatype KeyLocation =
     | LiteralLoc (keys: HmacKeyMap)
@@ -144,9 +115,9 @@ module SearchableEncryptionInfo {
       }
     }
 
-    // We add this axiom here because verifying the mutability of the share state of the 
-    // cache. Dafny does not support concurrency and proving the state of mutable frames 
-    // is complicated.  
+    // We add this axiom here because verifying the mutability of the share state of the
+    // cache. Dafny does not support concurrency and proving the state of mutable frames
+    // is complicated.
     lemma {:axiom} verifyValidStateCache (cmc: MP.ICryptographicMaterialsCache) ensures cmc.ValidState()
 
     method getKeysLiteral()
@@ -161,7 +132,7 @@ module SearchableEncryptionInfo {
       keyId : string
     )
       returns (output : Result<HmacKeyMap, Error>)
-      requires ValidState() 
+      requires ValidState()
       modifies Modifies()
       ensures ValidState()
     {
@@ -181,7 +152,7 @@ module SearchableEncryptionInfo {
           )
         );
         var rawBranchKeyMaterials :- maybeRawBranchKeyMaterials
-          .MapFailure(e => AwsCryptographyKeyStore(AwsCryptographyKeyStore := e));
+        .MapFailure(e => AwsCryptographyKeyStore(AwsCryptographyKeyStore := e));
 
         var key := rawBranchKeyMaterials.beaconKey;
         var keyMap :- getAllKeys(beacons, key);
@@ -216,7 +187,7 @@ module SearchableEncryptionInfo {
         return Success(getCacheOutput.value.materials.BeaconKey.hmacKeys.value);
       }
     }
-  
+
     method getAllKeys(beacons : BeaconMap, key : Bytes) returns (output : Result<HmacKeyMap, Error>)
       modifies client.Modifies
       requires client.ValidState()
@@ -289,7 +260,7 @@ module SearchableEncryptionInfo {
     {
       versions[currWrite].IsBeacon(field)
     }
-    
+
     predicate method IsVirtualField(field : string)
       requires ValidState?()
     {
@@ -326,7 +297,7 @@ module SearchableEncryptionInfo {
     }
   }
 
-  datatype Beacon = 
+  datatype Beacon =
     | Standard(std : BaseBeacon.StandardBeacon)
     | Compound(cmp : CompoundBeacon.CompoundBeacon)
   {
@@ -422,11 +393,11 @@ module SearchableEncryptionInfo {
 
   type BeaconMap = map<string, Beacon>
 
-  datatype BeaconType = 
+  datatype BeaconType =
     | AnyBeacon
     | SignedBeacon
     | EncryptedBeacon
-  
+
   predicate method IsBeaconOfType(b : Beacon, t : BeaconType)
   {
     match t {
