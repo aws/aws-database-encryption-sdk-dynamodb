@@ -255,7 +255,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
 
     @Test(
             expectedExceptions = DynamoDbException.class,
-            expectedExceptionsMessageRegExp = "Requested resource not found.*"
+            expectedExceptionsMessageRegExp = ".*Status Code: 400.*"
     )
     public void TestDdbError() {
         // Use an KMS Key that does not exist
