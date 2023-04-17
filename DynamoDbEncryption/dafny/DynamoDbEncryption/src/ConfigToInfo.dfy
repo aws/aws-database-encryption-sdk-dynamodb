@@ -23,6 +23,7 @@ module SearchConfigToInfo {
   import opened DynamoDbEncryptionUtil
   import opened TermLoc
   import opened LocalCMC
+  import MaterialProviders
   import SortedSets
 
   import I = SearchableEncryptionInfo
@@ -30,6 +31,7 @@ module SearchConfigToInfo {
   import B = BaseBeacon
   import CB = CompoundBeacon
   import SE = AwsCryptographyStructuredEncryptionTypes
+  import MPT = AwsCryptographyMaterialProvidersTypes
   import Aws.Cryptography.Primitives
 
   // convert configured SearchConfig to internal SearchInfo
@@ -82,7 +84,13 @@ module SearchConfigToInfo {
     if config.multi? {
       :- Need(0 < config.multi.maxCacheSize, E("maxCacheSize must be at least 1."));
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
-      var cache := new LocalCMC(config.multi.maxCacheSize as nat, 1);
+      var input := MPT.CreateCryptographicMaterialsCacheInput(
+        entryCapacity := config.multi.maxCacheSize,
+        entryPruningTailSize := None
+      );
+      var mpl :- expect MaterialProviders.MaterialProviders();
+      var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
+      var cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
       output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, cache), config.multi.cacheTTL as uint32));
     } else {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));

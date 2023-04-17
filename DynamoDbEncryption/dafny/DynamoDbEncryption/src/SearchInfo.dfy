@@ -5,7 +5,6 @@ include "Util.dfy"
 include "Beacon.dfy"
 include "CompoundBeacon.dfy"
 include "Virtual.dfy"
-include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/CMCs/LocalCMC.dfy"
 
 module SearchableEncryptionInfo {
   import opened AwsCryptographyDynamoDbEncryptionTypes
@@ -20,11 +19,12 @@ module SearchableEncryptionInfo {
   import SortedSets
   import Sets
   import UTF8
+  import opened Time
   import KeyStore = AwsCryptographyKeyStoreTypes
   import Aws.Cryptography.Primitives
   import Prim = AwsCryptographyPrimitivesTypes
   import MP = AwsCryptographyMaterialProvidersTypes
-  import opened LocalCMC
+  import KeyStoreTypes = AwsCryptographyKeyStoreTypes
 
   newtype VersionNumber = uint64
   type ValidSearchInfo = x : SearchInfo | x.ValidState?() witness *
@@ -83,7 +83,7 @@ module SearchableEncryptionInfo {
     Success(map x : nat | 0 <= x < |stdKeys| :: stdKeys[x] := list[x])
   }
 
-  type ValidStore = x : AwsCryptographyKeyStoreTypes.IKeyStoreClient | x.ValidState() witness *
+  type ValidStore = x : KeyStoreTypes.IKeyStoreClient | x.ValidState() witness *
 
   method GetAllKeys(client : Primitives.AtomicPrimitivesClient, beacons : BeaconMap, key : Bytes) returns (output : Result<HmacKeyMap, Error>)
     modifies client.Modifies
@@ -137,7 +137,7 @@ module SearchableEncryptionInfo {
   datatype KeyLocation =
     | LiteralLoc (keys: HmacKeyMap)
     | SingleLoc (keyId: string, single : SingleCache)
-    | MultiLoc (keyName : string, cache : LocalCMC)
+    | MultiLoc (keyName : string, cache : MP.ICryptographicMaterialsCache)
 
   datatype KeySource = KeySource(
     client : Primitives.AtomicPrimitivesClient,
@@ -171,7 +171,7 @@ module SearchableEncryptionInfo {
     // We add this axiom here because verifying the mutability of the share state of the 
     // cache. Dafny does not support concurrency and proving the state of mutable frames 
     // is complicated.  
-    lemma {:axiom} verifyValidStateCache (cmc: LocalCMC) ensures cmc.ValidState()
+    lemma {:axiom} verifyValidStateCache (cmc: MP.ICryptographicMaterialsCache) ensures cmc.ValidState()
 
     method getKeysLiteral()
       returns (output : Result<HmacKeyMap, Error>)
@@ -212,7 +212,7 @@ module SearchableEncryptionInfo {
     {
       var keyIdBytesR := UTF8.Encode(keyId);
       var keyIdBytes :- keyIdBytesR.MapFailure(e => E(e));
-      var getCacheInput := Types.GetCacheEntryInput(identifier := keyIdBytes, bytesUsed := None);
+      var getCacheInput := MP.GetCacheEntryInput(identifier := keyIdBytes, bytesUsed := None);
       verifyValidStateCache(keyLoc.cache);
       assume {:axiom} keyLoc.cache.Modifies == {};
       var getCacheOutput := keyLoc.cache.GetCacheEntry(getCacheInput);
@@ -231,16 +231,16 @@ module SearchableEncryptionInfo {
         var key := rawBranchKeyMaterials.beaconKey;
         var keyMap :- getAllKeys(beacons, key);
         var keyList :- HmacKeyMapToList(keyMap, beacons);
-        var beaconKeyMaterials := Types.BeaconKeyMaterials(
+        var beaconKeyMaterials := MP.BeaconKeyMaterials(
           beaconKeyIdentifier := keyId,
           beaconKey := Some(rawBranchKeyMaterials.beaconKey),
           hmacKeys := Some(keyList)
         );
 
         var now := Time.GetCurrent();
-        var putCacheEntryInput:= Types.PutCacheEntryInput(
+        var putCacheEntryInput:= MP.PutCacheEntryInput(
           identifier := keyIdBytes,
-          materials := Types.Materials.BeaconKey(beaconKeyMaterials),
+          materials := MP.Materials.BeaconKey(beaconKeyMaterials),
           creationTime := now,
           expiryTime := now+cacheTTL as MP.PositiveLong,
           messagesUsed := None,
