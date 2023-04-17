@@ -66,7 +66,7 @@ module BatchWriteItemTransform {
             //# with a value that is equivalent to
             //# the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
             //# calculated above.
-            encryptedItems := encryptedItems + [req.(PutRequest := Some(DDB.PutRequest(Item := encrypted.encryptedItem)))];
+            encryptedItems := encryptedItems + [req.(PutRequest := Some(DDB.PutRequest(Item := encrypted.encryptedItem + beaconAttrs)))];
           }
         }
         writeRequests := encryptedItems;

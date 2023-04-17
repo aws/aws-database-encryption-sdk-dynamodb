@@ -127,7 +127,7 @@ module DynamoDBSupport {
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
-      return Success(item);
+      return Success(map[]);
     } else {
       output := search.value.GenerateEncryptedBeacons(item, keyId);
     }
