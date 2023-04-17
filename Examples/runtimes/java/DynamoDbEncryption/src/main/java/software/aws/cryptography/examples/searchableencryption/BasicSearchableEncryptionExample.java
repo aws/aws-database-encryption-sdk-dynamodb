@@ -109,7 +109,7 @@ public class BasicSearchableEncryptionExample {
     // As an example, we will choose 10.
     // Values stored in aws_dbe_b_beacon_num_attr will be 10 bits long (0x000 - 0x3ff).
     // There will be 2^10 = 1024 possible HMAC values.
-    // With well-distributed plaintext data (100,000 values), we expect (100,000/1024) = 100 zipcodes sharing the same
+    // With well-distributed plaintext data (100,000 values), we expect (100,000/1024) ~= 98 zipcodes sharing the same
     //   beacon value.
     StandardBeacon numberBeacon = StandardBeacon.builder()
         .name("beacon_num_attr")
