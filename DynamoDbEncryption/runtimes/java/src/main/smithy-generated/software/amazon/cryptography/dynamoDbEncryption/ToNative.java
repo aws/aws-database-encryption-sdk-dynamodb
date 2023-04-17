@@ -78,6 +78,23 @@ public class ToNative {
     if (dafnyValue.is_DynamoDbEncryptionException()) {
       return ToNative.Error((Error_DynamoDbEncryptionException) dafnyValue);
     }
+    // BEING MANUAL EDIT
+    if (dafnyValue.is_AwsCryptographyStructuredEncryption()) {
+      return software.amazon.cryptography.structuredEncryption.ToNative.Error(dafnyValue.dtor_AwsCryptographyStructuredEncryption());
+    }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return software.amazon.cryptography.materialProviders.ToNative.Error(dafnyValue.dtor_AwsCryptographyMaterialProviders());
+    }
+    if (dafnyValue.is_AwsCryptographyPrimitives()) {
+      return software.amazon.cryptography.primitives.ToNative.Error(dafnyValue.dtor_AwsCryptographyPrimitives());
+    }
+    if (dafnyValue.is_AwsCryptographyKeyStore()) {
+      return software.amazon.cryptography.keyStore.ToNative.Error(dafnyValue.dtor_AwsCryptographyKeyStore());
+    }
+    if (dafnyValue.is_ComAmazonawsDynamodb()) {
+      return Dafny.Com.Amazonaws.Dynamodb.ToNative.Error(dafnyValue.dtor_ComAmazonawsDynamodb());
+    }
+    // END MANUAL EDIT
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }

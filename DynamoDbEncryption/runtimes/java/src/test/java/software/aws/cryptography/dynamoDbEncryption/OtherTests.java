@@ -3,43 +3,29 @@ package software.aws.cryptography.dynamoDbEncryption;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
 import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbKeyBranchKeyIdSupplier;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
-import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput;
-import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
+import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.keyStore.KeyStore;
-import software.amazon.cryptography.keyStore.model.CreateKeyInput;
-import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.*;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.*;
-import static software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1;
 import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
 import org.testng.annotations.Test;
-import org.testng.annotations.BeforeTest;
 
 // Here we are testing some manually generated interfaces that don't technically belong to this package,
 // but exist alongside this package as a deliverable, and it is easiest to test them here for now.
 // TODO these should be moved appropriately when they are properly being generated.
 public class OtherTests {
-  // These tests require a keystore populated with a key with this Id
     @Test
     public void TestItemEncryptorBuild() {
         Map<String, CryptoAction> actions = new HashMap<>();
@@ -188,7 +174,10 @@ public class OtherTests {
         assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
     }
 
-    @Test
+    @Test(
+            expectedExceptions = software.amazon.cryptography.materialProviders.model.OpaqueError.class,
+            expectedExceptionsMessageRegExp = "Item invalid, does not contain expected attributes."
+    )
     public void TestHierarchyKeyringWithSupplierReturnsExpectedError() {
         // Create client with keyring that uses branch key supplier that errors on "caseC"
         KeyStore keystore = createKeyStore();
@@ -222,11 +211,7 @@ public class OtherTests {
                 .item(item)
                 .build();
 
-        // TODO: Exception SHOULD be `DynamoDbEncryptionException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            ddbAB.putItem(putRequestA);
-        });
+        ddbAB.putItem(putRequestA);
     }
 
     // DynamoDbKeyBranchKeyIdSupplier to be used with test items produced from TestUtils.java
