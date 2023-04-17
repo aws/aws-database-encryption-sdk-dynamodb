@@ -69,8 +69,7 @@ public class BasicSearchableEncryptionExample {
     //    The beacon name must be the name of a table attribute that will be encrypted.
     //    To use the beacon in DDB queries or scans, the table must have an index configured
     //        on the beaconized attribute name: i.e. aws_dbe_b_[beacon_name]
-    //    Since the attribute is encrypted, the attribute must have DDB attribute type `binary`.
-    //    The beaconized attribute must have DDB attribute type `string`.
+    //    The beaconized attribute must have DDB attribute type `string`, as configured in the GSI.
     //    The `length` parameter dictates how many bits are in the beacon attribute value.
     //    The following link provides guidance on choosing a beacon length:
     //    TODO: add link
