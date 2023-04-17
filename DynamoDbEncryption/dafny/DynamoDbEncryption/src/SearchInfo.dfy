@@ -228,7 +228,7 @@ module SearchableEncryptionInfo {
         var rawBranchKeyMaterials :- maybeRawBranchKeyMaterials
           .MapFailure(e => AwsCryptographyKeyStore(AwsCryptographyKeyStore := e));
 
-        var key :- getKeyFromStore(keyId);
+        var key := rawBranchKeyMaterials.beaconKey;
         var keyMap :- getAllKeys(beacons, key);
         var keyList :- HmacKeyMapToList(keyMap, beacons);
         var beaconKeyMaterials := Types.BeaconKeyMaterials(
