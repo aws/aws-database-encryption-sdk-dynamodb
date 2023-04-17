@@ -16,6 +16,8 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+import software.amazon.awssdk.services.kms.model.KmsException;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
@@ -205,6 +207,93 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
        return DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
+    }
 
+    @Test(
+            expectedExceptions = KmsException.class,
+            expectedExceptionsMessageRegExp = "Service returned error code AccessDeniedException.*"
+    )
+    public void TestKmsError() {
+        // Use an KMS Key that does not exist
+        String invalidKey = "arn:aws:kms:us-west-2:658956600833:key/ffffffff-ffff-ffff-ffff-ffffffffffff";
+        TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+                DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .keyring(createKmsKeyring(invalidKey))
+                        .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
+                        .tableSchema(tableSchema)
+                        .build());
+        DynamoDbEncryptionInterceptor interceptor =
+                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                        CreateDynamoDbEncryptionInterceptorInput.builder()
+                                .tableEncryptionConfigs(tableConfigs)
+                                .build()
+                );
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
+                .dynamoDbClient(ddb)
+                .build();
+
+        DynamoDbTable<SimpleClass> table = enhancedClient.table(TEST_TABLE_NAME, tableSchema);
+
+        SimpleClass record = new SimpleClass();
+        record.setPartitionKey("foo");
+        record.setSortKey(777);
+        record.setEncryptAndSign("lorem");
+        record.setSignOnly("ipsum");
+        record.setDoNothing("fizzbuzz");
+
+        // Put an item into an Amazon DynamoDB table.
+        table.putItem(record);
+    }
+
+    @Test(
+            expectedExceptions = DynamoDbException.class,
+            expectedExceptionsMessageRegExp = ".*Status Code: 400.*"
+    )
+    public void TestDdbError() {
+        // Use an KMS Key that does not exist
+        String badTableName = "tableDoesNotExist";
+        TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put("badTableName",
+                DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .keyring(createKmsKeyring())
+                        .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
+                        .tableSchema(tableSchema)
+                        .build());
+        DynamoDbEncryptionInterceptor interceptor =
+                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                        CreateDynamoDbEncryptionInterceptorInput.builder()
+                                .tableEncryptionConfigs(tableConfigs)
+                                .build()
+                );
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
+                .dynamoDbClient(ddb)
+                .build();
+
+        DynamoDbTable<SimpleClass> table = enhancedClient.table(badTableName, tableSchema);
+
+        SimpleClass record = new SimpleClass();
+        record.setPartitionKey("foo");
+        record.setSortKey(777);
+        record.setEncryptAndSign("lorem");
+        record.setSignOnly("ipsum");
+        record.setDoNothing("fizzbuzz");
+
+        // Put an item into an Amazon DynamoDB table.
+        table.putItem(record);
     }
 }
