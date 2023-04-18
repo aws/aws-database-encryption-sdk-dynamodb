@@ -171,7 +171,7 @@ public class ComplexSearchableEncryptionExample {
         .build();
     SensitivePart meetingStartSensitivePart = SensitivePart.builder()
         .name("MeetingStart")
-        .prefix("S-")
+        .prefix("MS-")
         .build();
     SensitivePart timeCardStartSensitivePart = SensitivePart.builder()
         .name("TimeCardStart")
@@ -187,7 +187,7 @@ public class ComplexSearchableEncryptionExample {
         .build();
     SensitivePart projectStatusSensitivePart = SensitivePart.builder()
         .name("ProjectStatus")
-        .prefix("S-")
+        .prefix("PSts-")
         .build();
     SensitivePart organizerEmailSensitivePart = SensitivePart.builder()
         .name("OrganizerEmail")
@@ -195,7 +195,7 @@ public class ComplexSearchableEncryptionExample {
         .build();
     SensitivePart projectStartSensitivePart = SensitivePart.builder()
         .name("ProjectStart")
-        .prefix("S-")
+        .prefix("PS-")
         .build();
     SensitivePart managerEmailSensitivePart = SensitivePart.builder()
         .name("ManagerEmail")
@@ -447,7 +447,6 @@ public class ComplexSearchableEncryptionExample {
     List<ConstructorPart> buildingFloorDeskConstructorPartList = new ArrayList();
     buildingFloorDeskConstructorPartList.add(buildingConstructorPart);
     buildingFloorDeskConstructorPartList.add(floorConstructorPart);
-    buildingFloorDeskConstructorPartList.add(roomConstructorPart);
     Constructor buildingFloorDeskConstructor = Constructor.builder()
         .parts(buildingFloorDeskConstructorPartList)
         .build();
@@ -458,35 +457,35 @@ public class ComplexSearchableEncryptionExample {
     pk0ConstructorList.add(projectNameConstructor);
 
     List<Constructor> sk0ConstructorList = new ArrayList<>();
-    pk0ConstructorList.add(employeeIdConstructor);
-    pk0ConstructorList.add(ticketModTimeConstructor);
-    pk0ConstructorList.add(meetingStartFloorRoomConstructor);
-    pk0ConstructorList.add(projectNameConstructor);
-    pk0ConstructorList.add(timeCardStartEmployeeEmailConstructor);
+    sk0ConstructorList.add(employeeIdConstructor);
+    sk0ConstructorList.add(ticketModTimeConstructor);
+    sk0ConstructorList.add(meetingStartFloorRoomConstructor);
+    sk0ConstructorList.add(projectNameConstructor);
+    sk0ConstructorList.add(timeCardStartEmployeeEmailConstructor);
 
     List<Constructor> pk1ConstructorList = new ArrayList<>();
-    pk0ConstructorList.add(creatorEmailConstructor);
-    pk0ConstructorList.add(employeeEmailConstructor);
-    pk0ConstructorList.add(projectStatusConstructor);
-    pk0ConstructorList.add(organizerEmailConstructor);
+    pk1ConstructorList.add(creatorEmailConstructor);
+    pk1ConstructorList.add(employeeEmailConstructor);
+    pk1ConstructorList.add(projectStatusConstructor);
+    pk1ConstructorList.add(organizerEmailConstructor);
 
     List<Constructor> sk1ConstructorList = new ArrayList<>();
-    pk0ConstructorList.add(employeeIdConstructor);
-    pk0ConstructorList.add(ticketModTimeConstructor);
-    pk0ConstructorList.add(meetingStartFloorRoomConstructor);
-    pk0ConstructorList.add(projectStartConstructor);
+    sk1ConstructorList.add(employeeIdConstructor);
+    sk1ConstructorList.add(ticketModTimeConstructor);
+    sk1ConstructorList.add(meetingStartFloorRoomConstructor);
+    sk1ConstructorList.add(projectStartConstructor);
 
     List<Constructor> pk2ConstructorList = new ArrayList<>();
-    pk0ConstructorList.add(managerEmailConstructor);
-    pk0ConstructorList.add(assigneeEmailConstructor);
+    pk2ConstructorList.add(managerEmailConstructor);
+    pk2ConstructorList.add(assigneeEmailConstructor);
 
     List<Constructor> pk3ConstructorList = new ArrayList<>();
-    pk0ConstructorList.add(cityConstructor);
-    pk0ConstructorList.add(severityConstructor);
+    pk3ConstructorList.add(cityConstructor);
+    pk3ConstructorList.add(severityConstructor);
 
     List<Constructor> sk3ConstructorList = new ArrayList<>();
-    pk0ConstructorList.add(buildingFloorDeskConstructor);
-    pk0ConstructorList.add(ticketModTimeConstructor);
+    sk3ConstructorList.add(buildingFloorDeskConstructor);
+    sk3ConstructorList.add(ticketModTimeConstructor);
 
     CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
         .name("PK0")
@@ -650,10 +649,29 @@ public class ComplexSearchableEncryptionExample {
     final Map<String, CryptoAction> attributeActions = new HashMap<>();
     attributeActions.put("PK", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActions.put("SK", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("PK0", CryptoAction.ENCRYPT_AND_SIGN); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("EmployeeID", CryptoAction.ENCRYPT_AND_SIGN); // Our partition attribute must be SIGN_ONLY
+    attributeActions.put("PK0", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("SK0", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("PK1", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("SK1", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("PK2", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("PK3", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("SK3", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("EmployeeID", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("TicketNumber", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("ProjectName", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("TicketModTime", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("MeetingStart", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("TimeCardStart", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("EmployeeEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("CreatorEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("ProjectStatus", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("OrganizerEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("ProjectStart", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("ManagerEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("AssigneeEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("City", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("Severity", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("Location", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
