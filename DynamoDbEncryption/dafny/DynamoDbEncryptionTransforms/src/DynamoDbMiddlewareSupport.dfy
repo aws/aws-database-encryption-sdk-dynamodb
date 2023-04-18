@@ -85,6 +85,17 @@ module DynamoDbMiddlewareSupport {
     return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
   }
 
+  function method GetBeaconKeyId(config : ValidTableConfig,
+    keyExpr : Option<DDB.ConditionExpression>,
+    filterExpr : Option<DDB.ConditionExpression>,
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    : Result<Option<string>, Error>
+  {
+    BS.GetBeaconKeyId(config.search, keyExpr, filterExpr, values, names)
+      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+  }
 
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
   // returning a replacement AttributeMap.
