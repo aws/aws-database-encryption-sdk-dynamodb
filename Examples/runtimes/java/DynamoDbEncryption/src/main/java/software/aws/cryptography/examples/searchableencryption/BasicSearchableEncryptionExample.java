@@ -13,16 +13,17 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
-import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKey;
+import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKeySource;
 import software.amazon.cryptography.dynamoDbEncryption.model.BeaconVersion;
-import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.SearchConfig;
+import software.amazon.cryptography.dynamoDbEncryption.model.SingleKeyStore;
 import software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon;
-import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
+import software.amazon.cryptography.keyStore.KeyStore;
+import software.amazon.cryptography.keyStore.model.CreateKeyInput;
+import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
+import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsHierarchicalKeyringInput;
@@ -63,7 +64,7 @@ public class BasicSearchableEncryptionExample {
 
   static String GSI_NAME = "Example-Beacon-Index";
 
-  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyId, String branchKeyDdbTableName) {
+  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 1. Create Beacons.
     //    The beacon name must be the name of a table attribute that will be encrypted.
@@ -117,7 +118,27 @@ public class BasicSearchableEncryptionExample {
         .build();
     standardBeaconList.add(numberBeacon);
 
-    // 2. Create BeaconVersion.
+    // 2. Create Keystore.
+    //    The keystore is a separate DDB table where the client stores encryption and decryption materials.
+    //    For more information, see:
+    //    TODO: Add link
+    KeyStore keyStore = KeyStore.builder()
+        .KeyStoreConfig(KeyStoreConfig.builder()
+            .kmsClient(KmsClient.create())
+            .ddbClient(DynamoDbClient.create())
+            .ddbTableName(branchKeyDdbTableName)
+            .build())
+        .build();
+
+    // 3. Create a branch key.
+    //    The branch key stores information required to encrypt and decrypt items on the main table.
+    //    This key lives as an item inside the keystore DDB table.
+    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
+        .awsKmsKeyArn(branchKeyWrappingKmsKeyArn)
+        .build());
+    String branchKeyId = output.branchKeyIdentifier();
+
+    // 4. Create BeaconVersion.
     //    The BeaconVersion inside the list holds the list of beacons on the table.
     //    The BeaconVersion also stores information about the branch keystore.
     //    The branch keystore is a separate DDB table that stores encryption and decryption information. See:
@@ -132,36 +153,33 @@ public class BasicSearchableEncryptionExample {
         BeaconVersion.builder()
             .standardBeacons(standardBeaconList)
             .version(1) // MUST be 1
-            .key(BeaconKey.builder()
-                .branchKeyID(branchKeyId)
-                .keyArn(branchKeyWrappingKmsKeyId)
-                .tableArn(branchKeyDdbTableName)
-                .build())
-            .build()
+            .keyStore(keyStore)
+            .keySource(BeaconKeySource.builder()
+                .single(SingleKeyStore.builder()
+                    .keyId(branchKeyId)
+                    .cacheTTL(6000)
+                    .build())
+            .build())
+          .build()
     );
 
-    // 3. Create a Hierarchical Keyring
+    // 5. Create a Hierarchical Keyring
     //    This is a KMS keyring that utilizes the branch keystore table.
     //    This config defines how items are encrypted and decrypted.
     //    NOTE: You should configure this to use the same keystore as your search config.
     final MaterialProviders matProv = MaterialProviders.builder()
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
         .build();
-    DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
-        .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
-        .build();
     CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-        .kmsKeyId(branchKeyWrappingKmsKeyId)
-        .kmsClient(KmsClient.create())
+        .kmsKeyId(branchKeyWrappingKmsKeyArn)
         .branchKeyId(branchKeyId)
-        .branchKeyStoreArn(branchKeyDdbTableName)
-        .ddbClient(DynamoDbClient.create())
+        .keyStore(keyStore)
         .ttlSeconds(6000l)
         .maxCacheSize(100)
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
-    // 4. Configure which attributes are encrypted and/or signed when writing new items.
+    // 6. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
     //    we must explicitly configure how they should be treated during item encryption:
     //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
@@ -174,7 +192,7 @@ public class BasicSearchableEncryptionExample {
     attributeActions.put("beacon_str_attr", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("beacon_num_attr", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
-    // 5. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    // 7. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
@@ -189,14 +207,14 @@ public class BasicSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 6. Create the DynamoDb Encryption Interceptor
+    // 8. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
         .config(DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build())
         .build();
 
-    // 7. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 9. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
@@ -204,15 +222,15 @@ public class BasicSearchableEncryptionExample {
                 .build())
         .build();
 
-    // 8. Put an item into our table using the above client.
-    //    Before the item gets sent to DynamoDb, it will be encrypted
-    //        client-side, according to our configuration.
-    //    Since our configuration includes beacons for `beacon_str_attr` and `beacon_num_attr`,
-    //        the client will add two additional attributes to the item. These attributes will have names
-    //        `aws_dbe_b_beacon_str_attr` and `aws_dbe_b_beacon_num_attr`. Their values will be HMACs
-    //        truncated to the beacon's `length` parameter; e.g.
-    //    aws_dbe_b_beacon_str_attr = truncate(HMAC("WA"), 4)
-    //    aws_dbe_b_beacon_num_attr = truncate(HMAC("98101"), 10)
+    // 10. Put an item into our table using the above client.
+    //     Before the item gets sent to DynamoDb, it will be encrypted
+    //         client-side, according to our configuration.
+    //     Since our configuration includes beacons for `beacon_str_attr` and `beacon_num_attr`,
+    //         the client will add two additional attributes to the item. These attributes will have names
+    //         `aws_dbe_b_beacon_str_attr` and `aws_dbe_b_beacon_num_attr`. Their values will be HMACs
+    //         truncated to the beacon's `length` parameter; e.g.
+    //     aws_dbe_b_beacon_str_attr = truncate(HMAC("WA"), 4)
+    //     aws_dbe_b_beacon_num_attr = truncate(HMAC("98101"), 10)
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("partition_key", AttributeValue.builder().s("ABCD-1234").build());
     item.put("sort_key", AttributeValue.builder().n("1681495205").build());
@@ -227,7 +245,7 @@ public class BasicSearchableEncryptionExample {
     final PutItemResponse putResponse = ddb.putItem(putRequest);
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    //  9. Query for the item we just put.
+    // 11. Query for the item we just put.
     //     Note that we are constructing the query as if we were querying on plaintext values.
     //     However, the DDB encryption client will detect that this attribute name has a beacon configured.
     //     The client will add the beaconized attribute name and attribute value to the query,
@@ -271,9 +289,8 @@ public class BasicSearchableEncryptionExample {
       throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyId as args[1], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
     }
     final String ddbTableName = args[0];
-    final String branchKeyId = args[1];
-    final String branchKeyWrappingKmsKeyId = args[2];
-    final String branchKeyDdbTableName = args[3];
-    PutItemQueryItemWithBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
+    final String branchKeyWrappingKmsKeyArn = args[1];
+    final String branchKeyDdbTableName = args[2];
+    PutItemQueryItemWithBeacon(ddbTableName, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName);
   }
 }
