@@ -120,16 +120,34 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  function method AddBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
-    : Result<DDB.AttributeMap, string>
+  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : Option<string>)
+    returns (output : Result<DDB.AttributeMap, Error>)
+    requires if search.Some? then search.value.ValidState() else true
+    ensures if search.Some? then search.value.ValidState() else true
+    modifies if search.Some? then search.value.Modifies() else {}
   {
-    if search.None? then
-      Success(item)
-    else
-      var newAttrs :- search.value.GenerateBeacons(item)
-        .MapFailure(e => "Error generating beacons");
+    if search.None? {
+      return Success(map[]);
+    } else {
+      output := search.value.GenerateEncryptedBeacons(item, keyId);
+    }
+  }
+
+  // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
+  // returning a replacement AttributeMap.
+  method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
+    returns (output : Result<DDB.AttributeMap, Error>)
+    requires if search.Some? then search.value.ValidState() else true
+    ensures if search.Some? then search.value.ValidState() else true
+    modifies if search.Some? then search.value.Modifies() else {}
+  {
+    if search.None? {
+      return Success(item);
+    } else {
+      var newAttrs :- search.value.GenerateSignedBeacons(item);
       var version : DDB.AttributeMap := map[VersionPrefix + "1" := DS(" ")];
-      Success(item + newAttrs + version)
+      return Success(item + newAttrs + version);
+    }
   }
 
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
@@ -232,33 +250,41 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryInput object for searchable encryption.
-  function method QueryInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput)
-    : Result<DDB.QueryInput, Error>
+  method QueryInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput)
+    returns (output : Result<DDB.QueryInput, Error>)
+    requires if search.Some? then search.value.ValidState() else true
+    ensures if search.Some? then search.value.ValidState() else true
+    modifies if search.Some? then search.value.Modifies() else {}
   {
-    if search.None? then
-      Success(req)
-    else
+    if search.None? {
+      return Success(req);
+    } else {
+      var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var context1 := Filter.ExprContext(req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var context2 :- Filter.Beaconize(search.value.curr(), context1);
+      var context2 :- Filter.Beaconize(search.value.curr(), context1, keyId);
       var context3 := context2.(expr := req.FilterExpression);
-      var context4 :- Filter.Beaconize(search.value.curr(), context3);
-      Success(req.(
+      var context4 :- Filter.Beaconize(search.value.curr(), context3, keyId);
+      return Success(req.(
         KeyConditionExpression := context2.expr,
         FilterExpression := context4.expr,
         ExpressionAttributeNames := context4.names,
         ExpressionAttributeValues := context4.values
-      ))
+      ));
+    }
   }
 
   // Transform a QueryOutput object for searchable encryption.
-  function method QueryOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput, resp : DDB.QueryOutput)
-    : (ret : Result<DDB.QueryOutput, Error>)
+  method QueryOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput, resp : DDB.QueryOutput)
+    returns (output : Result<DDB.QueryOutput, Error>)
     requires resp.Items.Some?
-    ensures ret.Success? ==> ret.value.Items.Some?
+    ensures output.Success? ==> output.value.Items.Some?
+    requires if search.Some? then search.value.ValidState() else true
+    ensures if search.Some? then search.value.ValidState() else true
+    modifies if search.Some? then search.value.Modifies() else {}
   {
-    if search.None? || resp.Items.None? then
-      Success(resp)
-    else
+    if search.None? || resp.Items.None? {
+      return Success(resp);
+    } else {
       var newItems :- Filter.FilterResults(
         search.value.curr(),
         resp.Items.value,
@@ -272,34 +298,43 @@ module DynamoDBSupport {
           Some(|newItems| as DDB.Integer)
         else
           None;
-      Success(resp.(Items := Some(newItems), Count := count))
+      return Success(resp.(Items := Some(newItems), Count := count));
+    }
   }
 
   // Transform a ScanInput object for searchable encryption.
-  function method ScanInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput)
-    : Result<DDB.ScanInput, Error>
+  method ScanInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput)
+    returns (output : Result<DDB.ScanInput, Error>)
+    requires if search.Some? then search.value.ValidState() else true
+    ensures if search.Some? then search.value.ValidState() else true
+    modifies if search.Some? then search.value.Modifies() else {}
   {
-    if search.None? then
-      Success(req)
-    else
+    if search.None? {
+      return Success(req);
+    } else {
+      var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var context := Filter.ExprContext(req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.Beaconize(search.value.curr(), context);
-      Success(req.(
+      var newContext :- Filter.Beaconize(search.value.curr(), context, keyId);
+      return Success(req.(
         FilterExpression := newContext.expr,
         ExpressionAttributeNames := newContext.names,
         ExpressionAttributeValues := newContext.values
-      ))
+      ));
+    }
   }
 
   // Transform a ScanOutput object for searchable encryption.
-  function method ScanOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput, resp : DDB.ScanOutput)
-    : (ret : Result<DDB.ScanOutput, Error>)
+  method ScanOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput, resp : DDB.ScanOutput)
+    returns (ret : Result<DDB.ScanOutput, Error>)
     requires resp.Items.Some?
     ensures ret.Success? ==> ret.value.Items.Some?
+    requires if search.Some? then search.value.ValidState() else true
+    ensures if search.Some? then search.value.ValidState() else true
+    modifies if search.Some? then search.value.Modifies() else {}
   {
-    if search.None? then
-      Success(resp)
-    else
+    if search.None? {
+      return Success(resp);
+    } else {
       var newItems :- Filter.FilterResults(
         search.value.curr(),
         resp.Items.value,
@@ -313,6 +348,7 @@ module DynamoDBSupport {
           Some(|newItems| as DDB.Integer)
         else
           None;
-      Success(resp.(Items := Some(newItems), Count := count))
+      return Success(resp.(Items := Some(newItems), Count := count));
+    }
   }
 }

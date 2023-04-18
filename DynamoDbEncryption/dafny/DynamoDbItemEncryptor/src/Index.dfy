@@ -229,6 +229,7 @@ module
     );
 
     // Dafny needs some extra help here
+    assert (forall attribute <- internalConfig.attributeActions.Keys :: UnreservedPrefix(attribute));
     assert (forall attribute <- internalConfig.attributeActions.Keys :: !(ReservedPrefix <= attribute));
     assert Operations.ValidInternalConfig?(internalConfig);
 

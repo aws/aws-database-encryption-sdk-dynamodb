@@ -197,14 +197,13 @@ module DynamoToStruct {
     ensures ret.Success? ==> s.attributes.None?
   {
     :- Need(s.attributes.None?, "attributes must be None");
-    match s.content {
-      case Terminal(s) => 
-        :- Need(|s.typeId| == 2, "Type ID must be two bytes");
-        var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
-        :- Need(attrValueAndLength.len == |s.value|, "Mismatch between length of encoded data and length of data");
-        Success(attrValueAndLength.val)
-      case _ => Failure("StructuredData to AttributeValue only works on Terminal data")
-    }
+    :- Need(s.content.Terminal?, "StructuredData to AttributeValue only works on Terminal data");
+
+    var Terminal(s) := s.content;
+    :- Need(|s.typeId| == 2, "Type ID must be two bytes");
+    var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
+    :- Need(attrValueAndLength.len == |s.value|, "Mismatch between length of encoded data and length of data");
+    Success(attrValueAndLength.val)
   }
 
     const BOOL_LEN : nat := 1;   // number of bytes in an encoded boolean
@@ -471,47 +470,11 @@ module DynamoToStruct {
       case S(s) => UTF8.Encode(s)
       case N(n) => UTF8.Encode(n)
       case B(b) => Success(b)
-      case SS(ss) =>
-        :- Need(|Seq.ToSet(ss)| == |ss|, "String Set had duplicate values");
-        Seq.LemmaNoDuplicatesCardinalityOfSet(ss);
-        var count :- U32ToBigEndian(|ss|);
-        var body :- CollectString(ss);
-        Success(count + body)
-      case NS(ns) =>
-        :- Need(|Seq.ToSet(ns)| == |ns|, "String Set had duplicate values");
-        Seq.LemmaNoDuplicatesCardinalityOfSet(ns);
-        var count :- U32ToBigEndian(|ns|);
-        var body :- CollectString(ns);
-        Success(count + body)
-      case BS(bs) =>
-        :- Need(|Seq.ToSet(bs)| == |bs|, "String Set had duplicate values");
-        Seq.LemmaNoDuplicatesCardinalityOfSet(bs);
-        var count :- U32ToBigEndian(|bs|);
-        var body :- CollectBinary(bs);
-        Success(count + body)
-      case M(m) =>
-        //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
-        //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
-
-        //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-length
-        //# Value Length MUST be a big-endian unsigned integer
-        //# equal to the length of [Map Value](#map-value).
-
-        //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
-        //# Map Value MUST be a [Value](#value).
-
-        //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
-        //# A Map MAY hold any DynamoDB Attribute Value data type,
-        //# and MAY hold values of different types.
-        var bytes := map kv <- m.Items | true :: kv.0 := AttrToBytes(kv.1, true);
-        var count :- U32ToBigEndian(|m|);
-        var body :- MapAttrToBytes(bytes);
-        Success(count + body)
-     case L(l) =>
-        var count :- U32ToBigEndian(|l|);
-        var body :- CollectList(l);
-        Success(count + body)
- 
+      case SS(ss) => StringSetAttrToBytes(ss)
+      case NS(ns) => NumberSetAttrToBytes(ns)
+      case BS(bs) => BinarySetAttrToBytes(bs)
+      case M(m) => MapAttrToBytes(a, m)
+      case L(l) => ListAttrToBytes(l)
       case NULL(n) => Success([])
       case BOOL(b) => Success([BoolToUint8(b)])
     };
@@ -522,9 +485,68 @@ module DynamoToStruct {
       Success(baseBytes)
   }
 
-  function method MapAttrToBytes(bytes: map<AttributeName, Result<seq<uint8>, string>>): (ret: Result<seq<uint8>, string>) {
-    var bytes :- SimplifyMapValue(bytes);
-    CollectMap(bytes)
+  function method StringSetAttrToBytes(ss: StringSetAttributeValue): (ret: Result<seq<uint8>, string>)
+    ensures ret.Success? ==> Seq.HasNoDuplicates(ss)
+  {
+    :- Need(|Seq.ToSet(ss)| == |ss|, "String Set had duplicate values");
+    Seq.LemmaNoDuplicatesCardinalityOfSet(ss);
+    var count :- U32ToBigEndian(|ss|);
+    var body :- CollectString(ss);
+    Success(count + body)
+  }
+
+  function method NumberSetAttrToBytes(ns: NumberSetAttributeValue): (ret: Result<seq<uint8>, string>)
+    ensures ret.Success? ==> Seq.HasNoDuplicates(ns)
+  {
+    :- Need(|Seq.ToSet(ns)| == |ns|, "Number Set had duplicate values");
+    Seq.LemmaNoDuplicatesCardinalityOfSet(ns);
+    var count :- U32ToBigEndian(|ns|);
+    var body :- CollectString(ns);
+    Success(count + body)
+  }
+
+  function method BinarySetAttrToBytes(bs: BinarySetAttributeValue): (ret: Result<seq<uint8>, string>)
+    ensures ret.Success? ==> Seq.HasNoDuplicates(bs)
+  {
+    :- Need(|Seq.ToSet(bs)| == |bs|, "Binary Set had duplicate values");
+    Seq.LemmaNoDuplicatesCardinalityOfSet(bs);
+    var count :- U32ToBigEndian(|bs|);
+    var body :- CollectBinary(bs);
+    Success(count + body)
+  }
+
+  // Specifying the parent (particularly, as the first parameter),
+  // along with the corresponding precondition,
+  // lets Dafny find the correct termination metric.
+  // See "The Parent Trick" for details: <https://leino.science/papers/krml283.html>.
+  function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue): (ret: Result<seq<uint8>, string>)
+    requires forall kv <- m.Items :: kv.1 < parent
+  {
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
+    //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-length
+    //# Value Length MUST be a big-endian unsigned integer
+    //# equal to the length of [Map Value](#map-value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
+    //# Map Value MUST be a [Value](#value).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
+    //# A Map MAY hold any DynamoDB Attribute Value data type,
+    //# and MAY hold values of different types.
+    var bytesResults := map kv <- m.Items :: kv.0 := AttrToBytes(kv.1, true);
+    var count :- U32ToBigEndian(|m|);
+    var bytes :- SimplifyMapValue(bytesResults);
+    var body :- CollectMap(bytes);
+    Success(count + body)
+  }
+
+  function method ListAttrToBytes(l: ListAttributeValue): (ret: Result<seq<uint8>, string>)
+  {
+    var count :- U32ToBigEndian(|l|);
+    var body :- CollectList(l);
+    Success(count + body)
   }
 
   lemma BigEndianLemma()

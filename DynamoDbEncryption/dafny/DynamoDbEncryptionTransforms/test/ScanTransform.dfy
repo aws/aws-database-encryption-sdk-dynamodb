@@ -12,8 +12,9 @@ module ScanTransformTest {
 
   method {:test} TestScanInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("no_such_table");
     var input := DDB.ScanInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       IndexName := None(),
       AttributesToGet := None(),
       Limit := None(),
@@ -49,8 +50,9 @@ module ScanTransformTest {
       LastEvaluatedKey := None(),
       ConsumedCapacity := None()
     );
+    var tableName := GetTableName("no_such_table");
     var input := DDB.ScanInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       IndexName := None(),
       AttributesToGet := None(),
       Limit := None(),

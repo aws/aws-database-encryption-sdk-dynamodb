@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.Direc
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
 import software.amazon.cryptography.dynamoDbEncryption.transforms.model.OpaqueError;
@@ -136,8 +137,11 @@ public class DynamoDbEnhancedClientEncryptionTest {
                         .build());
     }
 
-    @Test
-    public void TestInconsistentSignatureScope() {
+    @Test(
+            expectedExceptions = DynamoDbItemEncryptorException.class,
+            expectedExceptionsMessageRegExp = "Attribute doNothing is configured as DO_NOTHING but it must also be in unauthenticatedAttributes or begin with the unauthenticatedPrefix."
+    )
+    public void TestInconsistentSignatureScopeMissing() {
         TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
         // Do not specify Unauthenticated attributes when you should
@@ -147,33 +151,31 @@ public class DynamoDbEnhancedClientEncryptionTest {
                         .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-                    CreateDynamoDbEncryptionInterceptorInput.builder()
-                            .tableEncryptionConfigs(tableConfigs)
-                            .build());
-        });
-        //assertTrue(exception.getMessage().contains("Attribute: doNothing configuration not compatible with unauthenticated configuration."));
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                CreateDynamoDbEncryptionInterceptorInput.builder()
+                        .tableEncryptionConfigs(tableConfigs)
+                        .build());
+    }
+
+    @Test(
+            expectedExceptions = DynamoDbItemEncryptorException.class,
+            expectedExceptionsMessageRegExp = "Attribute partition_key is configured as SIGN_ONLY but it is also in unauthenticatedAttributes."
+    )
+    public void TestInconsistentSignatureScopeIncorrect() {
+        TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
         // Specify Unauthenticated attributes when you should not
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs2 = new HashMap<>();
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing", "partition_key"))
                         .tableSchema(tableSchema)
                         .build());
-        // TODO: Exception SHOULD be `DynamoDbItemEncryptorException.class`
-        // https://sim.amazon.com/issues/4bde0b7b-12fd-4d05-8f8c-a9f1dbda01da
-        assertThrows(OpaqueError.class, () -> {
-            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-                    CreateDynamoDbEncryptionInterceptorInput.builder()
-                            .tableEncryptionConfigs(tableConfigs)
-                            .build());
-        });
-        //assertTrue(exception2.getMessage().contains("Attribute: partition_key configuration not compatible with unauthenticated configuration."));
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                CreateDynamoDbEncryptionInterceptorInput.builder()
+                        .tableEncryptionConfigs(tableConfigs)
+                        .build());
     }
 
     @Test(

@@ -1,6 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../StructuredEncryption/src/Paths.dfy"
+include "../src/Paths.dfy"
 
 module PathsTests {
   import opened Wrappers

@@ -55,10 +55,6 @@ repositories {
     }
 }
 
-// Configuration to hold SQLLite information.
-// DynamoDB-Local needs to have access to native sqllite4java.
-val dynamodb by configurations.creating
-
 dependencies {
     implementation("software.amazon.cryptography:AwsCryptographyDynamoDbEncryption:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")

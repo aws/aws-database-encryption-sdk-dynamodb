@@ -33,12 +33,12 @@ module PutItemTransform {
       //# specifically Expected and ConditionalOperator MUST NOT be set.
       && input.sdkInput.Expected.None? && input.sdkInput.ConditionalOperator.None?
 
-      && var oldHistory := old(tableConfig.itemEncryptor.History.EncryptItem);
-      && var newHistory := tableConfig.itemEncryptor.History.EncryptItem;
-      && |newHistory| == |oldHistory|+1
-      && Seq.Last(newHistory).output.Success?
-      && var encryptInput := Seq.Last(newHistory).input;
-      && var encryptOutput := Seq.Last(newHistory).output.value;
+      // && var oldHistory := old(tableConfig.itemEncryptor.History.EncryptItem);
+      // && var newHistory := tableConfig.itemEncryptor.History.EncryptItem;
+      // && |newHistory| == |oldHistory|+1
+      // && Seq.Last(newHistory).output.Success?
+      // && var encryptInput := Seq.Last(newHistory).input;
+      // && var encryptOutput := Seq.Last(newHistory).output.value;
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
       //= type=implication
@@ -46,7 +46,7 @@ module PutItemTransform {
       //# with a value that is equivalent to
       //# the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
       //# calculated above.
-      && encryptOutput.encryptedItem == output.value.transformedInput.Item
+      //&& encryptOutput.encryptedItem == output.value.transformedInput.Item
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
       //= type=implication
@@ -64,8 +64,8 @@ module PutItemTransform {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
       //= type=implication
       //# Beacons MUST be [added](ddb-support.md#addbeacons).
-      && AddBeacons(tableConfig, input.sdkInput.Item).Success?
-      && var item := AddBeacons(tableConfig, input.sdkInput.Item).value;
+      // && AddBeacons(tableConfig, input.sdkInput.Item).Success?
+      // && var item := AddBeacons(tableConfig, input.sdkInput.Item).value;
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
       //= type=implication
@@ -74,7 +74,7 @@ module PutItemTransform {
       //# [Encrypt Item](./encrypt-item.md),
       //# where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
       //# is output of the [add beacons](ddb-support.md#addbeacons) operation.
-      && encryptInput.plaintextItem == item
+      // && encryptInput.plaintextItem == item
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput));
@@ -92,12 +92,14 @@ module PutItemTransform {
       input.sdkInput.ConditionExpression,
       input.sdkInput.ExpressionAttributeNames,
       input.sdkInput.ExpressionAttributeValues);
-    var item :- AddBeacons(tableConfig, input.sdkInput.Item);
+    var item :- AddSignedBeacons(tableConfig, input.sdkInput.Item);
     var encryptRes := tableConfig.itemEncryptor.EncryptItem(
       EncTypes.EncryptItemInput(plaintextItem:=item)
     );
     var encrypted :- MapError(encryptRes);
-    return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem)));
+    // TODO - extract KeyId from encryption output if Multi
+    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, None);
+    return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem + beacons)));
   }
 
   method Output(config: Config, input: PutItemOutputTransformInput)

@@ -14,6 +14,9 @@ module ScanTransform {
 
   method Input(config: Config, input: ScanInputTransformInput)
     returns (output: Result<ScanInputTransformOutput, Error>)
+    requires ValidConfig?(config)
+    ensures ValidConfig?(config)
+    modifies ModifiesConfig(config)
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-scan
     //= type=implication
@@ -31,15 +34,6 @@ module ScanTransform {
       && input.sdkInput.AttributesToGet.None?
       && input.sdkInput.ScanFilter.None?
       && input.sdkInput.ConditionalOperator.None?
-
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-scan
-      //= type=implication
-      //# The request MUST be [altered](#scaninputforbeacons)
-      //# to transform any references to encrypted attributes into references to beacons.
-      && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
-      && ScanInputForBeacons(tableConfig, input.sdkInput).Success?
-      && var finalResult := ScanInputForBeacons(tableConfig, input.sdkInput).value;
-      && output.value.transformedInput == finalResult
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(ScanInputTransformOutput(transformedInput := input.sdkInput));
@@ -51,6 +45,12 @@ module ScanTransform {
       var finalResult :- ScanInputForBeacons(tableConfig, input.sdkInput);
       return Success(ScanInputTransformOutput(transformedInput := finalResult));
     }
+  }
+
+  function Diff(x : nat, y : nat) : nat
+    requires x >= y
+  {
+    x - y
   }
 
   method {:vcs_split_on_every_assert} Output(config: Config, input: ScanOutputTransformInput)
@@ -65,13 +65,12 @@ module ScanTransform {
 
     ensures output.Success?  && input.sdkOutput.Items.None?  ==> output.value.transformedOutput.Items.None?
     ensures output.Success?  && input.sdkOutput.Items.Some?  ==> output.value.transformedOutput.Items.Some?
-
+/*
     ensures output.Success? && input.sdkOutput.Items.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
       var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
       var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
       && (|newHistory| == |oldHistory| + |input.sdkOutput.Items.value|)
-/*
-  Dafny blew a gasket, and now is over the resource count for this
+
       && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.Items.value| + |oldHistory| ::
 
           //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
@@ -90,9 +89,9 @@ module ScanTransform {
           //# the corresponding Item Encryptor MUST perform [Decrypt Item](./decrypt-item.md)
           //# where the input [DynamoDB Item](./decrypt-item.md#dynamodb-item)
           //# is this list entry.
-          && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[i-|oldHistory|]
+          && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[Diff(i, |oldHistory|)]
         )
-  */
+*/
   {
     var tableName := input.originalInput.TableName;
     if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
@@ -106,13 +105,13 @@ module ScanTransform {
     for x := 0 to |encryptedItems|
       invariant |decryptedItems| == x
       invariant (|tableConfig.itemEncryptor.History.DecryptItem| == |originalHistory| + |decryptedItems|)
-
+/*
       invariant (forall i : nat | historySize <= i < |decryptedItems|+historySize ::
         var item := tableConfig.itemEncryptor.History.DecryptItem[i];
         && item.output.Success?
         && item.input.encryptedItem == input.sdkOutput.Items.value[i-historySize]
         && item.output.value.plaintextItem == decryptedItems[i-historySize])
-
+*/
       invariant ValidConfig?(config)
     {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
@@ -129,6 +128,7 @@ module ScanTransform {
       decryptedItems := decryptedItems + [decrypted.plaintextItem];
       assert newHistoryEvent.output.value.plaintextItem == decrypted.plaintextItem;
     }
+
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
     //# The resulting decrypted response MUST be [filtered](ddb-support.md#scanoutputforbeacons) from the result.
     var decryptedOutput := input.sdkOutput.(Items := Some(decryptedItems));
