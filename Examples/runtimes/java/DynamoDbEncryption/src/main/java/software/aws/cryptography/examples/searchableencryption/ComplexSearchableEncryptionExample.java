@@ -50,7 +50,6 @@ public class ComplexSearchableEncryptionExample {
         .build());
     String branchKeyId = output.branchKeyIdentifier();
 
-    List<StandardBeacon> standardBeaconList = new ArrayList<>();
     // PK beacons
     StandardBeacon employeeIDStandardBeacon = StandardBeacon.builder()
         .name("EmployeeID")
@@ -133,7 +132,28 @@ public class ComplexSearchableEncryptionExample {
         .length(4)
         .build();
 
-    SensitivePart employeeSensitivePart = SensitivePart.builder()
+    List<StandardBeacon> standardBeaconList = new ArrayList<>();
+    standardBeaconList.add(employeeIDStandardBeacon);
+    standardBeaconList.add(ticketNumberStandardBeacon);
+    standardBeaconList.add(projectNameStandardBeacon);
+    standardBeaconList.add(ticketModTimeStandardBeacon);
+    standardBeaconList.add(meetingStartStandardBeacon);
+    standardBeaconList.add(timeCardStartStandardBeacon);
+    standardBeaconList.add(employeeEmailStandardBeacon);
+    standardBeaconList.add(creatorEmailStandardBeacon);
+    standardBeaconList.add(projectStatusStandardBeacon);
+    standardBeaconList.add(organizerEmailStandardBeacon);
+    standardBeaconList.add(projectStartStandardBeacon);
+    standardBeaconList.add(managerEmailStandardBeacon);
+    standardBeaconList.add(assigneeEmailStandardBeacon);
+    standardBeaconList.add(cityStandardBeacon);
+    standardBeaconList.add(severityStandardBeacon);
+    standardBeaconList.add(buildingStandardBeacon);
+    standardBeaconList.add(floorStandardBeacon);
+    standardBeaconList.add(roomStandardBeacon);
+    standardBeaconList.add(deskStandardBeacon);
+
+    SensitivePart employeeIDSensitivePart = SensitivePart.builder()
         .name("EmployeeID")
         .prefix("E-")
         .build();
@@ -210,13 +230,49 @@ public class ComplexSearchableEncryptionExample {
         .prefix("D-")
         .build();
 
-
-
     List<SensitivePart> pk0SensitivePartList = new ArrayList<>();
-    pk0SensitivePartList.add(employeeSensitivePart);
+    pk0SensitivePartList.add(employeeIDSensitivePart);
     pk0SensitivePartList.add(ticketNumberSensitivePart);
     pk0SensitivePartList.add(projectNameSensitivePart);
     pk0SensitivePartList.add(buildingSensitivePart);
+
+    List<SensitivePart> sk0SensitivePartList = new ArrayList<>();
+    sk0SensitivePartList.add(employeeIDSensitivePart);
+    sk0SensitivePartList.add(ticketModTimeSensitivePart);
+    sk0SensitivePartList.add(meetingStartSensitivePart);
+    sk0SensitivePartList.add(floorSensitivePart);
+    sk0SensitivePartList.add(roomSensitivePart);
+    sk0SensitivePartList.add(projectNameSensitivePart);
+    sk0SensitivePartList.add(timeCardStartSensitivePart);
+    sk0SensitivePartList.add(employeeEmailSensitivePart);
+
+    List<SensitivePart> pk1SensitivePartList = new ArrayList<>();
+    pk1SensitivePartList.add(employeeEmailSensitivePart);
+    pk1SensitivePartList.add(creatorEmailSensitivePart);
+    pk1SensitivePartList.add(projectStatusSensitivePart);
+    pk1SensitivePartList.add(organizerEmailSensitivePart);
+
+    List<SensitivePart> sk1SensitivePartList = new ArrayList<>();
+    sk1SensitivePartList.add(employeeIDSensitivePart);
+    sk1SensitivePartList.add(ticketModTimeSensitivePart);
+    sk1SensitivePartList.add(meetingStartSensitivePart);
+    sk1SensitivePartList.add(floorSensitivePart);
+    sk1SensitivePartList.add(roomSensitivePart);
+    sk1SensitivePartList.add(projectStartSensitivePart);
+
+    List<SensitivePart> pk2SensitivePartList = new ArrayList<>();
+    pk2SensitivePartList.add(managerEmailSensitivePart);
+    pk2SensitivePartList.add(assigneeEmailSensitivePart);
+
+    List<SensitivePart> pk3SensitivePartList = new ArrayList<>();
+    pk3SensitivePartList.add(citySensitivePart);
+    pk3SensitivePartList.add(severitySensitivePart);
+
+    List<SensitivePart> sk3SensitivePartList = new ArrayList<>();
+    sk3SensitivePartList.add(buildingSensitivePart);
+    sk3SensitivePartList.add(floorSensitivePart);
+    sk3SensitivePartList.add(deskSensitivePart);
+    sk3SensitivePartList.add(ticketModTimeSensitivePart);
 
     ConstructorPart employeeIdConstructorPart = ConstructorPart.builder()
         .name("EmployeeID")
@@ -297,57 +353,192 @@ public class ComplexSearchableEncryptionExample {
 
     List<ConstructorPart> employeeIdConstructorPartList = new ArrayList<>();
     employeeIdConstructorPartList.add(employeeIdConstructorPart);
+    Constructor employeeIdConstructor = Constructor.builder()
+        .parts(employeeIdConstructorPartList)
+        .build();
 
     List<ConstructorPart> ticketNumberConstructorPartList = new ArrayList<>();
     ticketNumberConstructorPartList.add(ticketNumberConstructorPart);
+    Constructor ticketNumberConstructor = Constructor.builder()
+        .parts(ticketNumberConstructorPartList)
+        .build();
 
     List<ConstructorPart> projectNameConstructorPartList = new ArrayList<>();
     projectNameConstructorPartList.add(projectNameConstructorPart);
+    Constructor projectNameConstructor = Constructor.builder()
+        .parts(projectNameConstructorPartList)
+        .build();
 
     List<ConstructorPart> ticketModTimeConstructorPartList = new ArrayList();
     ticketModTimeConstructorPartList.add(ticketModTimeConstructorPart);
+    Constructor ticketModTimeConstructor = Constructor.builder()
+        .parts(ticketModTimeConstructorPartList)
+        .build();
 
     List<ConstructorPart> meetingStartFloorRoomConstructorPartList = new ArrayList();
     meetingStartFloorRoomConstructorPartList.add(meetingStartConstructorPart);
     meetingStartFloorRoomConstructorPartList.add(floorConstructorPart);
     meetingStartFloorRoomConstructorPartList.add(roomConstructorPart);
+    Constructor meetingStartFloorRoomConstructor = Constructor.builder()
+        .parts(meetingStartFloorRoomConstructorPartList)
+        .build();
 
     List<ConstructorPart> timeCardStartEmployeeEmailConstructorPartList = new ArrayList();
     timeCardStartEmployeeEmailConstructorPartList.add(timeCardStartConstructorPart);
     timeCardStartEmployeeEmailConstructorPartList.add(employeeEmailConstructorPart);
+    Constructor timeCardStartEmployeeEmailConstructor = Constructor.builder()
+        .parts(timeCardStartEmployeeEmailConstructorPartList)
+        .build();
 
     List<ConstructorPart> creatorEmailConstructorPartList = new ArrayList();
     creatorEmailConstructorPartList.add(creatorEmailConstructorPart);
+    Constructor creatorEmailConstructor = Constructor.builder()
+        .parts(creatorEmailConstructorPartList)
+        .build();
 
     List<ConstructorPart> projectStatusConstructorPartList = new ArrayList();
     projectStatusConstructorPartList.add(projectStatusConstructorPart);
+    Constructor projectStatusConstructor = Constructor.builder()
+        .parts(projectStatusConstructorPartList)
+        .build();
 
     List<ConstructorPart> employeeEmailConstructorPartList = new ArrayList();
     employeeEmailConstructorPartList.add(employeeEmailConstructorPart);
+    Constructor employeeEmailConstructor = Constructor.builder()
+        .parts(employeeEmailConstructorPartList)
+        .build();
 
     List<ConstructorPart> organizerEmailConstructorPartList = new ArrayList();
     organizerEmailConstructorPartList.add(organizerEmailConstructorPart);
+    Constructor organizerEmailConstructor = Constructor.builder()
+        .parts(organizerEmailConstructorPartList)
+        .build();
 
     List<ConstructorPart> projectStartConstructorPartList = new ArrayList();
     projectStartConstructorPartList.add(projectStartConstructorPart);
+    Constructor projectStartConstructor = Constructor.builder()
+        .parts(projectStartConstructorPartList)
+        .build();
 
     List<ConstructorPart> managerEmailConstructorPartList = new ArrayList();
     managerEmailConstructorPartList.add(managerEmailConstructorPart);
+    Constructor managerEmailConstructor = Constructor.builder()
+        .parts(managerEmailConstructorPartList)
+        .build();
 
     List<ConstructorPart> assigneeEmailConstructorPartList = new ArrayList();
     assigneeEmailConstructorPartList.add(assigneeEmailConstructorPart);
+    Constructor assigneeEmailConstructor = Constructor.builder()
+        .parts(assigneeEmailConstructorPartList)
+        .build();
 
     List<ConstructorPart> cityConstructorPartList = new ArrayList();
     cityConstructorPartList.add(cityConstructorPart);
+    Constructor cityConstructor = Constructor.builder()
+        .parts(cityConstructorPartList)
+        .build();
 
     List<ConstructorPart> severityConstructorPartList = new ArrayList();
     severityConstructorPartList.add(severityConstructorPart);
+    Constructor severityConstructor = Constructor.builder()
+        .parts(severityConstructorPartList)
+        .build();
 
     List<ConstructorPart> buildingFloorDeskConstructorPartList = new ArrayList();
     buildingFloorDeskConstructorPartList.add(buildingConstructorPart);
     buildingFloorDeskConstructorPartList.add(floorConstructorPart);
     buildingFloorDeskConstructorPartList.add(roomConstructorPart);
+    Constructor buildingFloorDeskConstructor = Constructor.builder()
+        .parts(buildingFloorDeskConstructorPartList)
+        .build();
 
+    List<Constructor> pk0ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(employeeIdConstructor);
+    pk0ConstructorList.add(ticketNumberConstructor);
+    pk0ConstructorList.add(projectNameConstructor);
+
+    List<Constructor> sk0ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(employeeIdConstructor);
+    pk0ConstructorList.add(ticketModTimeConstructor);
+    pk0ConstructorList.add(meetingStartFloorRoomConstructor);
+    pk0ConstructorList.add(projectNameConstructor);
+    pk0ConstructorList.add(timeCardStartEmployeeEmailConstructor);
+
+    List<Constructor> pk1ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(creatorEmailConstructor);
+    pk0ConstructorList.add(employeeEmailConstructor);
+    pk0ConstructorList.add(projectStatusConstructor);
+    pk0ConstructorList.add(organizerEmailConstructor);
+
+    List<Constructor> sk1ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(employeeIdConstructor);
+    pk0ConstructorList.add(ticketModTimeConstructor);
+    pk0ConstructorList.add(meetingStartFloorRoomConstructor);
+    pk0ConstructorList.add(projectStartConstructor);
+
+    List<Constructor> pk2ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(managerEmailConstructor);
+    pk0ConstructorList.add(assigneeEmailConstructor);
+
+    List<Constructor> pk3ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(cityConstructor);
+    pk0ConstructorList.add(severityConstructor);
+
+    List<Constructor> sk3ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(buildingFloorDeskConstructor);
+    pk0ConstructorList.add(ticketModTimeConstructor);
+
+    CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
+        .name("PK0")
+        .split(".")
+        .sensitive(pk0SensitivePartList)
+        .constructors(pk0ConstructorList)
+        .build();
+    CompoundBeacon sk0CompoundBeacon = CompoundBeacon.builder()
+        .name("SK0")
+        .split(".")
+        .sensitive(sk0SensitivePartList)
+        .constructors(sk0ConstructorList)
+        .build();
+    CompoundBeacon pk1CompoundBeacon = CompoundBeacon.builder()
+        .name("PK1")
+        .split(".")
+        .sensitive(pk1SensitivePartList)
+        .constructors(pk1ConstructorList)
+        .build();
+    CompoundBeacon sk1CompoundBeacon = CompoundBeacon.builder()
+        .name("SK1")
+        .split(".")
+        .sensitive(sk1SensitivePartList)
+        .constructors(sk1ConstructorList)
+        .build();
+    CompoundBeacon pk2CompoundBeacon = CompoundBeacon.builder()
+        .name("PK2")
+        .split(".")
+        .sensitive(pk2SensitivePartList)
+        .constructors(pk2ConstructorList)
+        .build();
+    CompoundBeacon pk3CompoundBeacon = CompoundBeacon.builder()
+        .name("PK3")
+        .split(".")
+        .sensitive(pk3SensitivePartList)
+        .constructors(pk3ConstructorList)
+        .build();
+    CompoundBeacon sk3CompoundBeacon = CompoundBeacon.builder()
+        .name("SK3")
+        .split(".")
+        .sensitive(sk3SensitivePartList)
+        .constructors(sk3ConstructorList)
+        .build();
+
+    List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
+    compoundBeaconList.add(pk0CompoundBeacon);
+    compoundBeaconList.add(sk0CompoundBeacon);
+    compoundBeaconList.add(pk1CompoundBeacon);
+    compoundBeaconList.add(sk1CompoundBeacon);
+    compoundBeaconList.add(pk2CompoundBeacon);
+    compoundBeaconList.add(pk3CompoundBeacon);
+    compoundBeaconList.add(sk3CompoundBeacon);
 
 
 //    pk0ConstructorList.add(Constructor.builder()
@@ -381,47 +572,47 @@ public class ComplexSearchableEncryptionExample {
 //        .parts(projectNameConstructorPartList)
 //        .build());
 
-    List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
-    CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
-        .name("PK0")
-        .split(".")
-        .sensitive(pk0SensitivePartList)
-        .constructors(pk0ConstructorList)
-        .build();
-    compoundBeaconList.add(pk0CompoundBeacon);
-
-    List<SensitivePart> sk0SensitivePartList = new ArrayList<>();
-    sk0SensitivePartList.add(employeeSensitivePart);
-    sk0SensitivePartList.add(projectNameSensitivePart);
-
-    List<Constructor> sk0ConstructorList = new ArrayList<>();
-    List<ConstructorPart> employeeConstructorPartList = new ArrayList<>();
-    ConstructorPart employeeConstructorPart = ConstructorPart.builder()
-        .name("EmployeeID")
-        .required(true)
-        .build();
-    employeeConstructorPartList.add(employeeConstructorPart);
-    sk0ConstructorList.add(Constructor.builder()
-        .parts(employeeConstructorPartList)
-        .build());
-    List<ConstructorPart> ticketNumberConstructorPartList = new ArrayList<>();
-    ConstructorPart ticketNumberConstructorPart = ConstructorPart.builder()
-        .name("TicketNumber")
-        .required(true)
-        .build();
-    ticketNumberConstructorPartList.add(ticketNumberConstructorPart);
-    sk0ConstructorList.add(Constructor.builder()
-        .parts(ticketNumberConstructorPartList)
-        .build());
-    List<ConstructorPart> projectNameConstructorPartList = new ArrayList<>();
-    ConstructorPart projectNameConstructorPart = ConstructorPart.builder()
-        .name("ProjectName")
-        .required(true)
-        .build();
-    projectNameConstructorPartList.add(projectNameConstructorPart);
-    sk0ConstructorList.add(Constructor.builder()
-        .parts(projectNameConstructorPartList)
-        .build());
+//    List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
+//    CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
+//        .name("PK0")
+//        .split(".")
+//        .sensitive(pk0SensitivePartList)
+//        .constructors(pk0ConstructorList)
+//        .build();
+//    compoundBeaconList.add(pk0CompoundBeacon);
+//
+//    List<SensitivePart> sk0SensitivePartList = new ArrayList<>();
+//    sk0SensitivePartList.add(employeeIDSensitivePart);
+//    sk0SensitivePartList.add(projectNameSensitivePart);
+//
+//    List<Constructor> sk0ConstructorList = new ArrayList<>();
+//    List<ConstructorPart> employeeConstructorPartList = new ArrayList<>();
+//    ConstructorPart employeeConstructorPart = ConstructorPart.builder()
+//        .name("EmployeeID")
+//        .required(true)
+//        .build();
+//    employeeConstructorPartList.add(employeeConstructorPart);
+//    sk0ConstructorList.add(Constructor.builder()
+//        .parts(employeeConstructorPartList)
+//        .build());
+//    List<ConstructorPart> ticketNumberConstructorPartList = new ArrayList<>();
+//    ConstructorPart ticketNumberConstructorPart = ConstructorPart.builder()
+//        .name("TicketNumber")
+//        .required(true)
+//        .build();
+//    ticketNumberConstructorPartList.add(ticketNumberConstructorPart);
+//    sk0ConstructorList.add(Constructor.builder()
+//        .parts(ticketNumberConstructorPartList)
+//        .build());
+//    List<ConstructorPart> projectNameConstructorPartList = new ArrayList<>();
+//    ConstructorPart projectNameConstructorPart = ConstructorPart.builder()
+//        .name("ProjectName")
+//        .required(true)
+//        .build();
+//    projectNameConstructorPartList.add(projectNameConstructorPart);
+//    sk0ConstructorList.add(Constructor.builder()
+//        .parts(projectNameConstructorPartList)
+//        .build());
 
     // 5. Create BeaconVersion.
     //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
