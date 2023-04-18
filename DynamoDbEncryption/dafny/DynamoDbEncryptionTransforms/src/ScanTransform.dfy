@@ -65,33 +65,6 @@ module ScanTransform {
 
     ensures output.Success?  && input.sdkOutput.Items.None?  ==> output.value.transformedOutput.Items.None?
     ensures output.Success?  && input.sdkOutput.Items.Some?  ==> output.value.transformedOutput.Items.Some?
-/*
-    ensures output.Success? && input.sdkOutput.Items.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
-      var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
-      var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
-      && (|newHistory| == |oldHistory| + |input.sdkOutput.Items.value|)
-
-      && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.Items.value| + |oldHistory| ::
-
-          //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
-          //= type=implication
-          //# If any [Decrypt Item](./decrypt-item.md) operation fails,
-          //# Scan MUST yield an error.
-          && newHistory[i].output.Success?
-
-          //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
-          //= type=implication
-          //# For each list entry in `Items` in the response,
-          //# if there exists an Item Encryptor specified within the
-          //# [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
-          //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
-          //# equal to the `TableName` on the request,
-          //# the corresponding Item Encryptor MUST perform [Decrypt Item](./decrypt-item.md)
-          //# where the input [DynamoDB Item](./decrypt-item.md#dynamodb-item)
-          //# is this list entry.
-          && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[Diff(i, |oldHistory|)]
-        )
-*/
   {
     var tableName := input.originalInput.TableName;
     if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
@@ -100,19 +73,12 @@ module ScanTransform {
     var tableConfig := config.tableEncryptionConfigs[tableName];
     var decryptedItems : DDB.ItemList := [];
     var encryptedItems := input.sdkOutput.Items.value;
-    ghost var originalHistory := tableConfig.itemEncryptor.History.DecryptItem;
-    ghost var historySize := |originalHistory|;
+    var keyId :- GetBeaconKeyId(tableConfig, None, input.originalInput.FilterExpression, input.originalInput.ExpressionAttributeValues, input.originalInput.ExpressionAttributeNames);
+    var keyIdUtf8 := [];
+    if keyId.Some? {
+      keyIdUtf8 :- UTF8.Encode(keyId.value).MapFailure(e => E(e));
+    }
     for x := 0 to |encryptedItems|
-      invariant |decryptedItems| == x
-      invariant (|tableConfig.itemEncryptor.History.DecryptItem| == |originalHistory| + |decryptedItems|)
-/*
-      invariant (forall i : nat | historySize <= i < |decryptedItems|+historySize ::
-        var item := tableConfig.itemEncryptor.History.DecryptItem[i];
-        && item.output.Success?
-        && item.input.encryptedItem == input.sdkOutput.Items.value[i-historySize]
-        && item.output.value.plaintextItem == decryptedItems[i-historySize])
-*/
-      invariant ValidConfig?(config)
     {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
       //# Each of these entries on the original response MUST be replaced
@@ -121,12 +87,17 @@ module ScanTransform {
 
       var decryptInput := EncTypes.DecryptItemInput(encryptedItem := encryptedItems[x]);
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
-      ghost var newHistoryEvent := tableConfig.itemEncryptor.History.DecryptItem[historySize + x];
-      assert newHistoryEvent == EncTypes.DafnyCallEvent(decryptInput, decryptRes);
 
       var decrypted :- MapError(decryptRes);
-      decryptedItems := decryptedItems + [decrypted.plaintextItem];
-      assert newHistoryEvent.output.value.plaintextItem == decrypted.plaintextItem;
+      if keyId.Some? {
+        :- Need(decrypted.parsedHeader.Some?, E("Decrypted scan result has no parsed header."));
+        :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Scan result has more than one Encrypted Data Key"));
+        if decrypted.parsedHeader.value.encryptedDataKeys[0].keyProviderInfo == keyIdUtf8 {
+          decryptedItems := decryptedItems + [decrypted.plaintextItem];
+        }
+      } else {
+        decryptedItems := decryptedItems + [decrypted.plaintextItem];
+      }
     }
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
