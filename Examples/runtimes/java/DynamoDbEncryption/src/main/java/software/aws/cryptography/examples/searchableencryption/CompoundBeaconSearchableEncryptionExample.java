@@ -94,7 +94,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     // In practice, it is suggested to have a short value distinguishable from other parts served on the prefix.
     // For this example, we will choose "S-" as the prefix for "State abbreviation".
     // With this prefix and the standard beacon's length definition, a state abbreviation beacon will appear
-    //     as `Z-0` to `Z-f` inside a compound beacon.
+    //     as `S-0` to `S-f` inside a compound beacon.
     SensitivePart sensitivePartEmployee = SensitivePart.builder()
         .name("beacon_str_attr")
         .prefix("S-")
@@ -147,9 +147,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     //     - sensitive: A list of sensitive parts. This is effectively a list of beacons.
     //    A compound beacon may also receive:
     //     - constructors: A list of constructors. This is an ordered list of possible ways to create a beacon.
-    //       We have defined our constructor above. If we had not done this, a default constructor would be provided,
-    //           which is all of the configured parts, in their configured order, non-sensitive parts followed by
-    //           sensitive parts, all parts required.
+    //       We have defined our constructor above. If we had not provided this, a default constructor would be
+    //           provided: all non-sensitive parts in order, followed by sensitive parts in order, all parts required.
     //     - nonSensitive: A list of non-sensitive parts, i.e. plaintext attributes. This would be provided if we
     //           wanted to use plaintext values as part of constructing our compound beacon.
     List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
