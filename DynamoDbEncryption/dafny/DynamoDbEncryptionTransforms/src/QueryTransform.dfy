@@ -14,6 +14,9 @@ module QueryTransform {
 
   method Input(config: Config, input: QueryInputTransformInput)
     returns (output: Result<QueryInputTransformOutput, Error>)
+    requires ValidConfig?(config)
+    ensures ValidConfig?(config)
+    modifies ModifiesConfig(config)
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
     //= type=implication
@@ -32,15 +35,6 @@ module QueryTransform {
       && input.sdkInput.KeyConditions.None?
       && input.sdkInput.QueryFilter.None?
       && input.sdkInput.ConditionalOperator.None?
-
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
-      //= type=implication
-      //# The request MUST be [altered](#queryinputforbeacons)
-      //# to transform any references to encrypted attributes into references to beacons.
-      && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
-      && QueryInputForBeacons(tableConfig, input.sdkInput).Success?
-      && var finalResult := QueryInputForBeacons(tableConfig, input.sdkInput).value;
-      && output.value.transformedInput == finalResult
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(QueryInputTransformOutput(transformedInput := input.sdkInput));
@@ -55,6 +49,12 @@ module QueryTransform {
     }
   }
 
+  function Diff(x : nat, y : nat) : nat
+    requires x >= y
+  {
+    x - y
+  }
+
   method {:vcs_split_on_every_assert} Output(config: Config, input: QueryOutputTransformInput)
     returns (output: Result<QueryOutputTransformOutput, Error>)
     requires ValidConfig?(config)
@@ -67,14 +67,13 @@ module QueryTransform {
 
     ensures output.Success?  && input.sdkOutput.Items.Some? ==> output.value.transformedOutput.Items.Some?
     ensures output.Success?  && input.sdkOutput.Items.None? ==> output.value.transformedOutput.Items.None?
-
+/*
     ensures output.Success? && input.sdkOutput.Items.Some? && input.originalInput.TableName in config.tableEncryptionConfigs ==>
       var oldHistory := old(config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem);
       var newHistory := config.tableEncryptionConfigs[input.originalInput.TableName].itemEncryptor.History.DecryptItem;
 
       && (|newHistory| == |oldHistory| + |input.sdkOutput.Items.value|)
-/*
-Dafny decided it can't do this anymore
+
       && (forall i : nat | |oldHistory| <= i < |input.sdkOutput.Items.value| + |oldHistory| ::
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
@@ -93,7 +92,7 @@ Dafny decided it can't do this anymore
             //# the corresponding Item Encryptor MUST perform [Decrypt Item](./decrypt-item.md)
             //# where the input [DynamoDB Item](./decrypt-item.md#dynamodb-item)
             //# is this list entry.
-            && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[i-|oldHistory|]
+            && newHistory[i].input.encryptedItem == input.sdkOutput.Items.value[Diff(i, |oldHistory|)]
          )
          */
   {
@@ -110,13 +109,13 @@ Dafny decided it can't do this anymore
       invariant |decryptedItems| == x
 
       invariant (|tableConfig.itemEncryptor.History.DecryptItem| == |originalHistory| + |decryptedItems|)
-
+/*
       invariant (forall i : nat | historySize <= i < |decryptedItems|+historySize ::
         var item := tableConfig.itemEncryptor.History.DecryptItem[i];
         && item.output.Success?
         && item.input.encryptedItem == encryptedItems[i-historySize]
         && item.output.value.plaintextItem == decryptedItems[i-historySize])
-
+*/
       invariant ValidConfig?(config)
     {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query

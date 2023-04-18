@@ -88,12 +88,28 @@ module CompoundBeacon {
 
   type ConstructorList = x : seq<Constructor> | 0 < |x| witness *
   
+  predicate method {:opaque} Any<T>(f: (T ~> bool), xs: seq<T>)
+    requires forall i :: 0 <= i < |xs| ==> f.requires(xs[i])
+    reads set i, o | 0 <= i < |xs| && o in f.reads(xs[i]) :: o
+  {
+    if |xs| == 0 then
+      false
+    else if f(xs[0]) then
+      true
+    else
+      Any(f, xs[1..])
+  }  
+
   datatype CompoundBeacon = CompoundBeacon(
     base : BeaconBase,
     split : char,
     parts : seq<BeaconPart>, // Non-Sensitive followed by Sensitive
     construct : ConstructorList
   ) {
+
+    predicate method isEncrypted() {
+      Any((p : BeaconPart) => p.Sensitive?, parts)
+    }
 
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {

@@ -12,8 +12,9 @@ module DeleteItemTransformTest {
 
   method {:test} TestDeleteItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("no_such_table");
     var input := DDB.DeleteItemInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       Key := map[],
       Expected := None(),
       ConditionalOperator := None(),
@@ -41,8 +42,9 @@ module DeleteItemTransformTest {
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
     );
+    var tableName := GetTableName("no_such_table");
     var input := DDB.DeleteItemInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       Key := map[],
       Expected := None(),
       ConditionalOperator := None(),

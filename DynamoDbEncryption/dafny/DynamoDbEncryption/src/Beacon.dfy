@@ -100,7 +100,6 @@ module BaseBeacon {
   function method MakeStandardBeacon(
     client: Primitives.AtomicPrimitivesClient,
     name: string,
-    key: Bytes,
     length : BeaconLength,
     loc : string
   ) : Result<StandardBeacon, Error>

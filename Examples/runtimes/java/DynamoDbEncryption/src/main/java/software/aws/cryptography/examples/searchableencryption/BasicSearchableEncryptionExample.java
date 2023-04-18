@@ -69,8 +69,7 @@ public class BasicSearchableEncryptionExample {
     //    The beacon name must be the name of a table attribute that will be encrypted.
     //    To use the beacon in DDB queries or scans, the table must have an index configured
     //        on the beaconized attribute name: i.e. aws_dbe_b_[beacon_name]
-    //    Since the attribute is encrypted, the attribute must have DDB attribute type `binary`.
-    //    The beaconized attribute must have DDB attribute type `string`.
+    //    The beaconized attribute must have DDB attribute type `string`, as configured in the GSI.
     //    The `length` parameter dictates how many bits are in the beacon attribute value.
     //    The following link provides guidance on choosing a beacon length:
     //    TODO: add link
@@ -110,7 +109,7 @@ public class BasicSearchableEncryptionExample {
     // As an example, we will choose 10.
     // Values stored in aws_dbe_b_beacon_num_attr will be 10 bits long (0x000 - 0x3ff).
     // There will be 2^10 = 1024 possible HMAC values.
-    // With well-distributed plaintext data (100,000 values), we expect (100,000/1024) = 100 zipcodes sharing the same
+    // With well-distributed plaintext data (100,000 values), we expect (100,000/1024) ~= 98 zipcodes sharing the same
     //   beacon value.
     StandardBeacon numberBeacon = StandardBeacon.builder()
         .name("beacon_num_attr")

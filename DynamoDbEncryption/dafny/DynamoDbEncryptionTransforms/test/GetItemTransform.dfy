@@ -12,8 +12,9 @@ module GetItemTransformTest {
 
   method {:test} TestGetItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("no_such_table");
     var input := DDB.GetItemInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       Key := map[],
       AttributesToGet := None(),
       ConsistentRead := None(),
@@ -32,8 +33,9 @@ module GetItemTransformTest {
 
   method {:test} TestGetItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("no_such_table");
     var input := DDB.GetItemInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       Key := map[],
       AttributesToGet := None(),
       ConsistentRead := None(),

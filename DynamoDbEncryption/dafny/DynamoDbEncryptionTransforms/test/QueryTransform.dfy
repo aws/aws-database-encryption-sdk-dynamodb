@@ -12,8 +12,9 @@ module QueryTransformTest {
 
   method {:test} TestQueryInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("no_such_table");
     var input := DDB.QueryInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       IndexName := None(),
       Select := None(),
       AttributesToGet := None(),
@@ -50,8 +51,9 @@ module QueryTransformTest {
       LastEvaluatedKey := None(),
       ConsumedCapacity := None()
     );
+    var tableName := GetTableName("no_such_table");
     var input := DDB.QueryInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       IndexName := None(),
       Select := None(),
       AttributesToGet := None(),

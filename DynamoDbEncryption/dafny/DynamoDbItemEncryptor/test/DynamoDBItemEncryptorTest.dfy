@@ -20,7 +20,7 @@ module DynamoDbItemEncryptorTest {
   import AlgorithmSuites
 
   // round trip
-  // encrypt => ecrypted fields changed, others did not
+  // encrypt => encrypted fields changed, others did not
   // various errors
 
   function method DDBS(x : string) : DDB.AttributeValue {
