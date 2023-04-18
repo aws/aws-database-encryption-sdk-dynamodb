@@ -122,20 +122,24 @@ then the `beacon key id` MUST be the value of this Attribute.
 
 If there is not an [Attribute Action](./ddb-table-encryption-config.md#attribute-actions)
 configured for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
-HandleBeaconKeyFieldName MUST return the `beacon key id`
-and the unaltered AttributeMap.
+HandleBeaconKeyFieldName MUST remove the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+from the AttributeMap and return the `beacon key id` and the altered AttributeMap.
 
 If there is an [Attribute Action](./ddb-table-encryption-config.md#attribute-actions)
 configured for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
 and that action is [DO_NOTHING](../structured-encryption/structures.md#do_nothing)
-HandleBeaconKeyFieldName MUST return the `beacon key id`
-and the unaltered AttributeMap.
+HandleBeaconKeyFieldName MUST remove the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+from the AttributeMap and return the `beacon key id` and the altered AttributeMap.
 
 If there is an [Attribute Action](./ddb-table-encryption-config.md#attribute-actions)
 configured for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
 and that action is [SIGN_ONLY](../structured-encryption/structures.md#sign_only)
-HandleBeaconKeyFieldName MUST remove the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
-from the AttributeMap and return the `beacon key id` and the altered AttributeMap.
+HandleBeaconKeyFieldName MUST return the `beacon key id`
+and the unaltered AttributeMap.
+
+Having an attribute action of [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign)
+for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+is [not a valid configuration](../searchable-encryption/search-config.md#beacon-version-initialization).
 
 ## CreateTableInputForBeacons
 
