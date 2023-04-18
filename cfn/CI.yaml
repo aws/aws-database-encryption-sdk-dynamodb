@@ -66,6 +66,15 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
+        - IndexName: "Example-Compound-Beacon-Index"
+            KeySchema:
+              - AttributeName: "aws_dbe_b_compound_beacon_attr"
+                KeyType: "HASH"
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: "5"
+              WriteCapacityUnits: "5"
       KeySchema:
         - AttributeName: "partition_key"
           KeyType: "HASH"
