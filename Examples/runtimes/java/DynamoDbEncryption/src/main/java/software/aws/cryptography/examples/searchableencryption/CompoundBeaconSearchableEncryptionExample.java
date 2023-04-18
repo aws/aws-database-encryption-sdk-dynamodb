@@ -13,18 +13,21 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
-import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKey;
+import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKeySource;
 import software.amazon.cryptography.dynamoDbEncryption.model.BeaconVersion;
 import software.amazon.cryptography.dynamoDbEncryption.model.CompoundBeacon;
 import software.amazon.cryptography.dynamoDbEncryption.model.Constructor;
 import software.amazon.cryptography.dynamoDbEncryption.model.ConstructorPart;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.SearchConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.SensitivePart;
+import software.amazon.cryptography.dynamoDbEncryption.model.SingleKeyStore;
 import software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon;
+import software.amazon.cryptography.keyStore.KeyStore;
+import software.amazon.cryptography.keyStore.model.CreateKeyInput;
+import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
+import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsHierarchicalKeyringInput;
@@ -65,7 +68,7 @@ public class CompoundBeaconSearchableEncryptionExample {
 
   static String GSI_NAME = "Example-Compound-Beacon-Index";
 
-  public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyId, String branchKeyDdbTableName) {
+  public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 1. Create Beacons.
     //    These are the same beacons as in the "BasicSearchableEncryptionExample" in this directory.
@@ -160,6 +163,20 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     compoundBeaconList.add(cpbeacon1);
 
+    // 2. Create Keystore and branch key.
+    //    These are the same constructions as in the Basic example, which describes these in more detail.
+    KeyStore keyStore = KeyStore.builder()
+        .KeyStoreConfig(KeyStoreConfig.builder()
+            .kmsClient(KmsClient.create())
+            .ddbClient(DynamoDbClient.create())
+            .ddbTableName(branchKeyDdbTableName)
+            .build())
+        .build();
+    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
+        .awsKmsKeyArn(branchKeyWrappingKmsKeyArn)
+        .build());
+    String branchKeyId = output.branchKeyIdentifier();
+
     // 5. Create BeaconVersion.
     //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
     //    We must also continue to provide all of the standard beacons that compose a compound beacon list.
@@ -169,10 +186,12 @@ public class CompoundBeaconSearchableEncryptionExample {
             .standardBeacons(standardBeaconList)
             .compoundBeacons(compoundBeaconList)
             .version(1) // MUST be 1
-            .key(BeaconKey.builder()
-                .branchKeyID(branchKeyId)
-                .keyArn(branchKeyWrappingKmsKeyId)
-                .tableArn(branchKeyDdbTableName)
+            .keyStore(keyStore)
+            .keySource(BeaconKeySource.builder()
+                .single(SingleKeyStore.builder()
+                    .keyId(branchKeyId)
+                    .cacheTTL(6000)
+                    .build())
                 .build())
             .build()
     );
@@ -182,15 +201,10 @@ public class CompoundBeaconSearchableEncryptionExample {
     final MaterialProviders matProv = MaterialProviders.builder()
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
         .build();
-    DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
-        .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
-        .build();
     CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-        .kmsKeyId(branchKeyWrappingKmsKeyId)
-        .kmsClient(KmsClient.create())
+        .kmsKeyId(branchKeyWrappingKmsKeyArn)
         .branchKeyId(branchKeyId)
-        .branchKeyStoreArn(branchKeyDdbTableName)
-        .ddbClient(DynamoDbClient.create())
+        .keyStore(keyStore)
         .ttlSeconds(6000l)
         .maxCacheSize(100)
         .build();
@@ -335,12 +349,11 @@ public class CompoundBeaconSearchableEncryptionExample {
 
   public static void main(final String[] args) {
     if (args.length != 4) {
-      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyId as args[1], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
+      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
     }
     final String ddbTableName = args[0];
-    final String branchKeyId = args[1];
-    final String branchKeyWrappingKmsKeyId = args[2];
-    final String branchKeyDdbTableName = args[3];
-    PutItemQueryItemWithCompoundBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
+    final String branchKeyWrappingKmsKeyId = args[1];
+    final String branchKeyDdbTableName = args[2];
+    PutItemQueryItemWithCompoundBeacon(ddbTableName, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
   }
 }
