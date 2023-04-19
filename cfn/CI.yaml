@@ -54,8 +54,10 @@ Resources:
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_beacon_num_attr"
           AttributeType: "S"
+        - AttributeName: "aws_dbe_b_compound_beacon_attr"
+          AttributeType: "S"
       GlobalSecondaryIndexes:
-        - IndexName: "Example-Beacon-Index"
+        - IndexName: "Example-Standard-Beacon-Index"
           KeySchema:
             - AttributeName: "aws_dbe_b_beacon_str_attr"
               KeyType: "HASH"
@@ -91,9 +93,7 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: "PK"
-          AttributeType: "S"
-        - AttributeName: "SK"
+        - AttributeName: "partition_key"
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_PK"
           AttributeType: "S"
@@ -138,8 +138,6 @@ Resources:
           KeySchema:
             - AttributeName: "aws_dbe_b_PK2"
               KeyType: "HASH"
-            - AttributeName: "aws_dbe_b_SK2"
-              KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
@@ -157,10 +155,8 @@ Resources:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
       KeySchema:
-        - AttributeName: "PK"
+        - AttributeName: "partition_key"
           KeyType: "HASH"
-        - AttributeName: "SK"
-          KeyType: "RANGE"
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
