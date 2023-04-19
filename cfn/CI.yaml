@@ -14,6 +14,10 @@ Parameters:
     Type: String
     Description: Complex Beacons Test Table Name
     Default: ComplexBeaconTestTable
+  KeystoreTableName:
+    Type: String
+    Description: Testing Keystore Table Name
+    Default: CiKeystoreTestTable
   ProjectName:
     Type: String
     Description: A prefix that will be applied to any names
@@ -89,6 +93,7 @@ Resources:
 
   # This schema is modeled off of
   # https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
+  # Under "Changes for Encryption".
   TestTableWithComplexBeaconIndex:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -162,6 +167,38 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Ref TableWithComplexBeaconIndexName
 
+  TestKeystoreTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "branch-key-id"
+          AttributeType: "S"
+        - AttributeName: "status"
+          AttributeType: "S"
+        - AttributeName: "type"
+          AttributeType: "S"
+      GlobalSecondaryIndexes:
+        - IndexName: !Sub "Active-Keys-${KeystoreTestTable}"
+          KeySchema:
+            - AttributeName: "branch-key-id"
+              KeyType: "HASH"
+            - AttributeName: "status"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+      KeySchema:
+        - AttributeName: "branch-key-id"
+          KeyType: "HASH"
+        - AttributeName: "type"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref KeystoreTestTable
+
   # This policy SHOULD be given to:
   #  - awslabs/aws-dynamodb-encryption-dafny
   #  - ToolsDevelopment
@@ -191,6 +228,8 @@ Resources:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithSimpleBeaconIndexName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithComplexBeaconIndexName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithComplexBeaconIndexName}/index/*"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeystoreTableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeystoreTableName}/index/*"
 
   KMSUsage:
     Type: "AWS::IAM::ManagedPolicy"
