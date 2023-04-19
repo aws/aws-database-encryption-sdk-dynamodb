@@ -73,6 +73,13 @@ module BeaconTestFixtures {
     nonSensitive := Some([Nothing]),
     constructors := None
   )
+  const JustSigned := CompoundBeacon (
+    name := "JustSigned",
+    split := ".",
+    sensitive := None,
+    nonSensitive := Some([Year,Month]),
+    constructors := None
+  )
   const Mixed := CompoundBeacon (
     name := "Mixed",
     split := ".",
@@ -143,7 +150,7 @@ module BeaconTestFixtures {
       keyStore := store,
       keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
       standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
-      compoundBeacons := Some([NameTitle, YearName, Mixed]),
+      compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
       virtualFields := Some([NameTitleField])
     );
   }
