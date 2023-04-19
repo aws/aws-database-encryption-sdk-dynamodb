@@ -37,7 +37,7 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
 public class ComplexSearchableEncryptionExample {
 
-  public static void QueryItemsWithCompoundBeacons(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
+  public static void SetupBeaconConfig(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 2. Create Keystore and branch key.
     //    These are the same constructions as in the Basic example, which describes these in more detail.
@@ -778,6 +778,8 @@ public class ComplexSearchableEncryptionExample {
     assert returnedItem.get("EmployeeEmail").n().equals("able@gmail.com");
   }
 
+  public static void putToTable(final HashMap<String, AttributeValue> toPut, )
+
   public static void loadTable() {
     // meeting.json
     final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
@@ -828,6 +830,16 @@ public class ComplexSearchableEncryptionExample {
     reservation1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
     reservation1.put("Decription", AttributeValue.builder().s("Turbo Crypto").build());
     reservation1.put("ProjectTarget", AttributeValue.builder().s("2024-01-01").build());
+
+    // ticket.json
+    final HashMap<String, AttributeValue> ticket1 = new HashMap<>();;
+    reservation1.put("PK", AttributeValue.builder().s("project1").build());
+    reservation1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    reservation1.put("ProjectName", AttributeValue.builder().s("project_001").build());
+    reservation1.put("ProjectStatus", AttributeValue.builder().s("Pending").build());
+    reservation1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
+    reservation1.put("Decription", AttributeValue.builder().s("Turbo Crypto").build());
+    reservation1.put("ProjectTarget", AttributeValue.builder().s("2024-01-01").build());
   }
 
   public static void query(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
@@ -841,7 +853,8 @@ public class ComplexSearchableEncryptionExample {
     final String ddbTableName = "ComplexBeaconTestTable";
     final String branchKeyWrappingKmsKeyId = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
     final String branchKeyDdbTableName = "KeyStoreTestTable";
-    QueryItemsWithCompoundBeacons(ddbTableName, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
+    SetupBeaconConfig(ddbTableName, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
+
   }
 
 
