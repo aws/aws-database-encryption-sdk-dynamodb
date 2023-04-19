@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "DDB Table and IAM Managed Policies/Role for DynamoDbEncryption testing"
 
 Parameters:
-  TableWithNoBeaconIndexName:
+  TableName:
     Type: String
     Description: Test Table Name
     Default: DynamoDbEncryptionInterceptorTestTable
@@ -44,7 +44,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableWithNoBeaconIndexName: !Ref TableWithNoBeaconIndexName
+      TableName: !Ref TableName
 
   TestTableWithSimpleBeaconIndex:
     Type: AWS::DynamoDB::Table
@@ -89,7 +89,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableWithNoBeaconIndexName: !Ref TableWithSimpleBeaconIndexName
+      TableName: !Ref TableWithSimpleBeaconIndexName
 
   # This schema is modeled off of
   # https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
@@ -163,7 +163,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableWithNoBeaconIndexName: !Ref TableWithComplexBeaconIndexName
+      TableName: !Ref TableWithComplexBeaconIndexName
 
   TestKeystoreTable:
     Type: AWS::DynamoDB::Table
@@ -195,7 +195,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableWithNoBeaconIndexName: !Ref KeystoreTableName
+      TableName: !Ref KeystoreTableName
 
   # This policy SHOULD be given to:
   #  - awslabs/aws-dynamodb-encryption-dafny
@@ -220,8 +220,8 @@ Resources:
               - dynamodb:Query
               - dynamodb:UpdateItem
             Resource:
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithNoBeaconIndexName}"
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithNoBeaconIndexName}/index/*"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithSimpleBeaconIndexName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithSimpleBeaconIndexName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithComplexBeaconIndexName}"
