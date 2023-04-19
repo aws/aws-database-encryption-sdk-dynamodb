@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../../../../submodules/MaterialProviders/libraries/src/Collections/Maps/Maps.dfy"
 
 include "Header.dfy"
 include "Footer.dfy"
@@ -29,6 +30,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   import Defaults
   import HKDF
   import AlgorithmSuites
+  import Maps
 
   datatype Config = Config(
     primitives : Primitives.AtomicPrimitivesClient,
@@ -55,17 +57,17 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.DataMap? ==> output.value.encryptedStructure.content.DataMap?)
     && (output.Success? && input.plaintextStructure.content.DataList? ==> output.value.encryptedStructure.content.DataList?)
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
-    // Ensure the CryptoSchema in the ParsedHeader matches the input crypto Schema
+    // Ensure the CryptoSchema in the ParsedHeader matches the input crypto Schema, minus any DO_NOTHING terminals
     && (output.Success? ==>
       // For now we only support encrypting flat maps
       && output.value.parsedHeader.cryptoSchema.content.SchemaMap?
-      && var cryptoMap := output.value.parsedHeader.cryptoSchema.content.SchemaMap;
-      && CryptoSchemaMapIsFlat(cryptoMap)
+      && var headerSchema := output.value.parsedHeader.cryptoSchema.content.SchemaMap;
+      && CryptoSchemaMapIsFlat(headerSchema)
       && input.cryptoSchema.content.SchemaMap?
       && var inputSchema := input.cryptoSchema.content.SchemaMap;
       && CryptoSchemaMapIsFlat(inputSchema)
-      && (forall k :: k in cryptoMap ==> k in inputSchema && inputSchema[k] == cryptoMap[k])
-      && (forall v :: v in cryptoMap.Values ==>
+      && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
+      && (forall v :: v in headerSchema.Values ==>
         (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?))
     )
   }
@@ -225,9 +227,10 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (forall k :: k in c.signedFields_c ==> k in c.data_c)
     && (forall k :: k in c.data_c ==> k in c.signedFields_c)
     && c.cryptoSchema.content.SchemaMap?
-    && var actionMap := c.cryptoSchema.content.SchemaMap;
-    && (exists tableName :: (forall k :: k in actionMap ==> Paths.SimpleCanon(tableName, k) in c.data_c))
-    && (forall v :: v in actionMap.Values ==>
+    && var headerSchema := c.cryptoSchema.content.SchemaMap;
+    && |c.data_c| == |headerSchema|
+    && (exists tableName :: (forall k :: k in headerSchema ==> Paths.SimpleCanon(tableName, k) in c.data_c))
+    && (forall v :: v in headerSchema.Values ==>
       v.content.Action? && (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?))
   }
 
@@ -253,6 +256,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && |c.encFields_c| < (UINT32_LIMIT / 3)
     && c.cryptoSchema.content.SchemaMap?
     && var actionMap := c.cryptoSchema.content.SchemaMap;
+    && |c.data_c| == |actionMap|
     && (exists tableName :: (forall k :: k in actionMap ==> Paths.SimpleCanon(tableName, k) in c.data_c))
   }
 
@@ -277,7 +281,9 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     : (ret : map<Bytes,GoodString>)
     requires schema.Keys == data.Keys
     ensures forall k <- data :: schema[k].content.Action == DO_NOTHING || Paths.SimpleCanon(tableName, k) in ret
+    ensures Maps.Injective(ret)
   {
+    reveal Maps.Injective();
     Paths.SimpleCanonUnique(tableName);
     map k <- data.Keys | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k
   }
@@ -309,25 +315,33 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && (forall k <- ret.value.data_c :: (exists x :: x in data && k == Paths.SimpleCanon(tableName, x)))
 
       && ret.value.cryptoSchema.content.SchemaMap?
-      && (forall k :: k in ret.value.cryptoSchema.content.SchemaMap ==> k in schema && ret.value.cryptoSchema.content.SchemaMap[k] == schema[k]);
+      && var trimmedSchema := ret.value.cryptoSchema.content.SchemaMap;
+      && (forall k :: k in trimmedSchema ==> k in schema && trimmedSchema[k] == schema[k]);
   {
     var fieldMap := GetFieldMap(tableName, data, schema);
+
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
     var encFields_c := FilterEncrypt(signedFields_c, fieldMap, schema);
-    
-    var authedSchema := map k <- fieldMap.Values :: k := schema[k];
-    var headerSchema := CryptoSchema(
-      content := CryptoSchemaContent.SchemaMap(authedSchema),
-      attributes := None
-    );
+    var trimmedSchema := map k <- fieldMap.Values :: k := schema[k];
 
-    Success(EncryptCanonData(
-      encFields_c,
-      signedFields_c,
-      data_c,
-      headerSchema
-    ))
+    assert |data_c| == |trimmedSchema| by {
+      assert data_c.Keys == fieldMap.Keys;
+      assert trimmedSchema.Keys == fieldMap.Values;
+      LemmaInjectiveImpliesUniqueValues(fieldMap);
+    }
+
+    Success(
+      EncryptCanonData(
+        encFields_c,
+        signedFields_c,
+        data_c,
+        CryptoSchema(
+          content := CryptoSchemaContent.SchemaMap(trimmedSchema),
+          attributes := None
+        )
+      )
+    )
   }
 
   // TODO this is a workaround for a very silly issue with case sensitivity between package names,
@@ -363,10 +377,13 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# of [SIGN](./structures.md#SIGN) for that field,
     //# sorted by the [Canonical Path](header.md.#canonical-path).
 
+    reveal Maps.Injective();
     Paths.SimpleCanonUnique(input.tableName);
-    var data_c := map k <- input.data.Keys | input.authSchema[k].content.Action == SIGN ::
-      Paths.SimpleCanon(input.tableName, k) := input.data[k];
+    var fieldMap := map k <- input.data.Keys | input.authSchema[k].content.Action == SIGN ::
+      Paths.SimpleCanon(input.tableName, k) := k;
+    assert Maps.Injective(fieldMap);
 
+    var data_c := map k <- fieldMap :: k := input.data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
 
     if |input.legend| < |signedFields_c| then
@@ -384,8 +401,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, input.legend);
     :- Need(|encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
 
-    var actionMap := map k <- input.data.Keys | Paths.SimpleCanon(input.tableName, k) in data_c.Keys ::
-      k := if Paths.SimpleCanon(input.tableName, k) in encFields_c then
+    var actionMap := map v <- fieldMap.Values ::
+      v := if Paths.SimpleCanon(input.tableName, v) in encFields_c then
         CryptoSchema(
           content := CryptoSchemaContent.Action(ENCRYPT_AND_SIGN),
           attributes := None
@@ -406,6 +423,12 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       data_c,
       cryptoSchema
     );
+
+    assert |data_c| == |actionMap| by {
+      assert data_c.Keys == fieldMap.Keys;
+      assert actionMap.Keys == fieldMap.Values;
+      LemmaInjectiveImpliesUniqueValues(fieldMap);
+    }
 
     assert exists tableName ::
       (forall k :: k in c.cryptoSchema.content.SchemaMap ==> Paths.SimpleCanon(tableName, k) in c.data_c);
@@ -574,17 +597,6 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         attributes := None),
       parsedHeader := parsedHeader
     );
-
-    // help dafny
-    assert encryptOutput.parsedHeader.cryptoSchema.content.SchemaMap?;
-    var cryptoMap := encryptOutput.parsedHeader.cryptoSchema.content.SchemaMap;
-    assert CryptoSchemaMapIsFlat(cryptoMap);
-    assert input.cryptoSchema.content.SchemaMap?;
-    var inputSchema := input.cryptoSchema.content.SchemaMap;
-    assert CryptoSchemaMapIsFlat(inputSchema);
-    assert (forall k :: k in cryptoMap ==> k in inputSchema && inputSchema[k] == cryptoMap[k]);
-    assert (forall v :: v in cryptoMap.Values ==>
-      (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?));
 
     return Success(encryptOutput);
   }
@@ -882,5 +894,39 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     assert forall k <- decryptOutput.plaintextStructure.content.DataMap :: k in encRecord;
 
     output := Success(decryptOutput);
+  }
+
+  // TODO This is here temporarially until it gets merged into the standard library
+  predicate {:opaque} Contains<X, Y>(big: map<X, Y>, small: map<X, Y>)
+  {
+    && small.Keys <= big.Keys
+    && forall x <- small :: small[x] == big[x]
+  }
+
+  lemma LemmaContainsPreservesInjectivity<X, Y>(big: map<X, Y>, small: map<X, Y>)
+    requires Contains(big, small)
+    requires Maps.Injective(big)
+    ensures Maps.Injective(small)
+  {
+    reveal Contains();
+    reveal Maps.Injective();
+  }
+
+  lemma LemmaInjectiveImpliesUniqueValues<X(!new), Y>(m: map<X, Y>)
+    requires Maps.Injective(m)
+    ensures |m.Keys| == |m.Values|
+  {
+    if |m| > 0 {
+      var x: X :| x in m;
+      var y := m[x];
+      var m' := Maps.Remove(m, x);
+      reveal Contains();
+      assert Contains(m, m');
+
+      reveal Maps.Injective();
+      assert m'.Values == m.Values - {y};
+      LemmaContainsPreservesInjectivity(m, m');
+      LemmaInjectiveImpliesUniqueValues(m');
+    }
   }
 }

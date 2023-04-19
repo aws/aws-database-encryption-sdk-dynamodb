@@ -695,25 +695,6 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       encryptedItem := ddbKey,
       parsedHeader := Some(parsedHeader)
     ));
-    
-    assert  output.value.parsedHeader.Some?;
-    var structuredEncParsed := Seq.Last(config.structuredEncryption.History.EncryptStructure).output.value.parsedHeader;
-    assert  structuredEncParsed.cryptoSchema.content.SchemaMap?;
-    assert (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
-       && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
-       && (structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.ENCRYPT_AND_SIGN? || structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.SIGN_ONLY?));
-    var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
-    assert  maybeCryptoSchema.Success?;
-    assert (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
-        && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
-        && (structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.ENCRYPT_AND_SIGN? || structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.SIGN_ONLY?));
-    assert  output.value.parsedHeader.value == ParsedHeader(
-          attributeActions := maybeCryptoSchema.value,
-          algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
-          storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
-          encryptedDataKeys := structuredEncParsed.encryptedDataKeys
-        );
-
   }
 
   predicate DecryptItemEnsuresPublicly(input: DecryptItemInput, output: Result<DecryptItemOutput, Error>)
