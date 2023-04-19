@@ -73,14 +73,14 @@ Resources:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
         - IndexName: "Example-Compound-Beacon-Index"
-            KeySchema:
-              - AttributeName: "aws_dbe_b_compound_beacon_attr"
-                KeyType: "HASH"
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: "5"
-              WriteCapacityUnits: "5"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_compound_beacon_attr"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
       KeySchema:
         - AttributeName: "partition_key"
           KeyType: "HASH"
@@ -178,7 +178,7 @@ Resources:
         - AttributeName: "type"
           AttributeType: "S"
       GlobalSecondaryIndexes:
-        - IndexName: !Sub "Active-Keys-${KeystoreTestTable}"
+        - IndexName: !Sub "Active-Keys-${KeystoreTableName}"
           KeySchema:
             - AttributeName: "branch-key-id"
               KeyType: "HASH"
@@ -197,7 +197,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableName: !Ref KeystoreTestTable
+      TableName: !Ref KeystoreTableName
 
   # This policy SHOULD be given to:
   #  - awslabs/aws-dynamodb-encryption-dafny
