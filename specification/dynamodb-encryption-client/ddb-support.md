@@ -68,7 +68,7 @@ the existing attribute value AddNonSensitiveBeacons MUST fail.
 
 AddNonSensitiveBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
 
-The result of AddNonSensitiveBeacons MUST contain, unaltered, everything in the input AttributeMap.
+The result of AddNonSensitiveBeacons MUST be a super set of everything in the input AttributeMap.
 
 ## AddSensitiveBeacons
 
