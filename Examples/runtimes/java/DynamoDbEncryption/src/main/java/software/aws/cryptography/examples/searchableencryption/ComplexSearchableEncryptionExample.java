@@ -48,10 +48,10 @@ public class ComplexSearchableEncryptionExample {
             .ddbTableName(branchKeyDdbTableName)
             .build())
         .build();
-//    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
-//        .awsKmsKeyArn(branchKeyWrappingKmsKeyArn)
-//        .build());
-    String branchKeyId = "46611ecd-d5fc-4e65-abc2-f5bcae2d971e"; //output.branchKeyIdentifier();
+    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
+        .awsKmsKeyArn(branchKeyWrappingKmsKeyArn)
+        .build());
+    String branchKeyId = output.branchKeyIdentifier();
     System.out.println(branchKeyId);
 
     // PK beacons
@@ -71,10 +71,10 @@ public class ComplexSearchableEncryptionExample {
 //        .name("TicketModTime")
 //        .length(4)
 //        .build();
-//    StandardBeacon meetingStartStandardBeacon = StandardBeacon.builder()
-//        .name("MeetingStart")
-//        .length(4)
-//        .build();
+    StandardBeacon meetingStartStandardBeacon = StandardBeacon.builder()
+        .name("MeetingStart")
+        .length(4)
+        .build();
 //    StandardBeacon timeCardStartStandardBeacon = StandardBeacon.builder()
 //        .name("TimeCardStart")
 //        .length(4)
@@ -141,7 +141,7 @@ public class ComplexSearchableEncryptionExample {
     standardBeaconList.add(ticketNumberStandardBeacon);
     standardBeaconList.add(projectNameStandardBeacon);
 //    standardBeaconList.add(ticketModTimeStandardBeacon);
-//    standardBeaconList.add(meetingStartStandardBeacon);
+    standardBeaconList.add(meetingStartStandardBeacon);
 //    standardBeaconList.add(timeCardStartStandardBeacon);
     standardBeaconList.add(employeeEmailStandardBeacon);
     standardBeaconList.add(creatorEmailStandardBeacon);
@@ -173,7 +173,7 @@ public class ComplexSearchableEncryptionExample {
         .name("TicketModTime")
         .prefix("M-")
         .build();
-    NonSensitivePart meetingStartNonSensitivePart = NonSensitivePart.builder()
+    SensitivePart meetingStartSensitivePart = SensitivePart.builder()
         .name("MeetingStart")
         .prefix("MS-")
         .build();
@@ -247,10 +247,11 @@ public class ComplexSearchableEncryptionExample {
     sk0SensitivePartList.add(roomSensitivePart);
     sk0SensitivePartList.add(projectNameSensitivePart);
     sk0SensitivePartList.add(employeeEmailSensitivePart);
+    sk0SensitivePartList.add(meetingStartSensitivePart);
     List<NonSensitivePart> sk0NonSensitivePartList = new ArrayList<>();
     sk0NonSensitivePartList.add(timeCardStartNonSensitivePart);
     sk0NonSensitivePartList.add(ticketModTimeNonSensitivePart);
-    sk0NonSensitivePartList.add(meetingStartNonSensitivePart);
+    //sk0NonSensitivePartList.add(meetingStartSensitivePart);
 
 
     List<SensitivePart> pk1SensitivePartList = new ArrayList<>();
@@ -263,9 +264,10 @@ public class ComplexSearchableEncryptionExample {
     sk1SensitivePartList.add(employeeIDSensitivePart);
     sk1SensitivePartList.add(floorSensitivePart);
     sk1SensitivePartList.add(roomSensitivePart);
+    sk1SensitivePartList.add(meetingStartSensitivePart);
     List<NonSensitivePart> sk1NonSensitivePartList = new ArrayList<>();
     sk1NonSensitivePartList.add(ticketModTimeNonSensitivePart);
-    sk1NonSensitivePartList.add(meetingStartNonSensitivePart);
+    //sk1NonSensitivePartList.add(meetingStartNonSensitivePart);
     sk1NonSensitivePartList.add(projectStartNonSensitivePart);
 
     List<SensitivePart> pk2SensitivePartList = new ArrayList<>();
@@ -497,13 +499,13 @@ public class ComplexSearchableEncryptionExample {
     sk3ConstructorList.add(ticketModTimeConstructor);
 
     CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
-        .name("PK0")
+        .name("PK")
         .split("~")
         .sensitive(pk0SensitivePartList)
         .constructors(pk0ConstructorList)
         .build();
     CompoundBeacon sk0CompoundBeacon = CompoundBeacon.builder()
-        .name("SK0")
+        .name("SK")
         .split("~")
         .sensitive(sk0SensitivePartList)
         .nonSensitive(sk0NonSensitivePartList)
@@ -659,8 +661,9 @@ public class ComplexSearchableEncryptionExample {
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
     final Map<String, CryptoAction> attributeActions = new HashMap<>();
-    attributeActions.put("PK", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("SK", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActions.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActions.put("PK", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("SK", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("PK0", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("SK0", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("PK1", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
@@ -672,7 +675,7 @@ public class ComplexSearchableEncryptionExample {
     attributeActions.put("TicketNumber", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("ProjectName", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("TicketModTime", CryptoAction.SIGN_ONLY); // TODO clean up comments for SIGN_ONLY NS parts Beaconized attributes must be encrypted
-    attributeActions.put("MeetingStart", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
+    attributeActions.put("MeetingStart", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("TimeCardStart", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
     attributeActions.put("EmployeeEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("CreatorEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
@@ -691,7 +694,7 @@ public class ComplexSearchableEncryptionExample {
 
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
-        .partitionKeyName("PK")
+        .partitionKeyName("partition_key")
         .attributeActions(attributeActions)
         .keyring(kmsKeyring)
         .search(SearchConfig.builder()
@@ -720,8 +723,7 @@ public class ComplexSearchableEncryptionExample {
     final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
     meeting1Location.put("Floor", AttributeValue.builder().s("12").build());
     meeting1Location.put("Room", AttributeValue.builder().s("403").build());
-    meeting1.put("PK", AttributeValue.builder().s("meeting1").build());
-    meeting1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    meeting1.put("partition_key", AttributeValue.builder().s("HMAC(meeting1)").build());
     meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
     meeting1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
     meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
@@ -757,7 +759,7 @@ public class ComplexSearchableEncryptionExample {
 
     QueryRequest queryRequest = QueryRequest.builder()
         .tableName(ddbTableName)
-        .indexName("GSI-1-Beacons")
+        .indexName("GSI-1")
         .keyConditionExpression("#p = :e AND #sk1 BETWEEN :date1 AND :date2")
         .filterExpression("#dur > :dur")
         .expressionAttributeNames(expressionAttributesNames)
@@ -778,22 +780,22 @@ public class ComplexSearchableEncryptionExample {
     assert returnedItem.get("EmployeeEmail").n().equals("able@gmail.com");
   }
 
-  public static void putToTable(final HashMap<String, AttributeValue> toPut, )
+//  public static void putToTable(final HashMap<String, AttributeValue> toPut, )
 
   public static void loadTable() {
     // meeting.json
     final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
     final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
-    meeting1Location.put("Room", AttributeValue.builder().s("12.403").build());
-    meeting1.put("PK", AttributeValue.builder().s("meeting1").build());
-    meeting1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    meeting1Location.put("Floor", AttributeValue.builder().s("12").build());
+    meeting1Location.put("Room", AttributeValue.builder().s("403").build());
+    meeting1.put("partition_key", AttributeValue.builder().s("meeting1").build());
     meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
     meeting1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
     meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
+    meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
     meeting1.put("Duration", AttributeValue.builder().s("30").build());
     meeting1.put("Attendees", AttributeValue.builder().s("SomeList").build());
     meeting1.put("Subject", AttributeValue.builder().s("Scan Beacons").build());
-    meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
 
     // employee.json
     final HashMap<String, AttributeValue> employee1 = new HashMap<>();
@@ -801,8 +803,7 @@ public class ComplexSearchableEncryptionExample {
     employee1Location.put("Building", AttributeValue.builder().s("44").build());
     employee1Location.put("Floor", AttributeValue.builder().s("12").build());
     employee1Location.put("Desk", AttributeValue.builder().s("3").build());
-    employee1.put("PK", AttributeValue.builder().s("employee1").build());
-    employee1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    employee1.put("partition_key", AttributeValue.builder().s("employee1").build());
     employee1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
     employee1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
     employee1.put("ManagerEmail", AttributeValue.builder().s("zorro@gmail.com").build());
@@ -813,8 +814,7 @@ public class ComplexSearchableEncryptionExample {
 
     // project.json
     final HashMap<String, AttributeValue> project1 = new HashMap<>();;
-    project1.put("PK", AttributeValue.builder().s("project1").build());
-    project1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    project1.put("partition_key", AttributeValue.builder().s("project1").build());
     project1.put("ProjectName", AttributeValue.builder().s("project_001").build());
     project1.put("ProjectStatus", AttributeValue.builder().s("Pending").build());
     project1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
@@ -823,8 +823,7 @@ public class ComplexSearchableEncryptionExample {
 
     // reservation.json
     final HashMap<String, AttributeValue> reservation1 = new HashMap<>();;
-    reservation1.put("PK", AttributeValue.builder().s("project1").build());
-    reservation1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    reservation1.put("partition_key", AttributeValue.builder().s("project1").build());
     reservation1.put("ProjectName", AttributeValue.builder().s("project_001").build());
     reservation1.put("ProjectStatus", AttributeValue.builder().s("Pending").build());
     reservation1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
@@ -833,13 +832,14 @@ public class ComplexSearchableEncryptionExample {
 
     // ticket.json
     final HashMap<String, AttributeValue> ticket1 = new HashMap<>();;
-    reservation1.put("PK", AttributeValue.builder().s("project1").build());
-    reservation1.put("SK", AttributeValue.builder().s("needtodelete").build());
-    reservation1.put("ProjectName", AttributeValue.builder().s("project_001").build());
-    reservation1.put("ProjectStatus", AttributeValue.builder().s("Pending").build());
-    reservation1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
-    reservation1.put("Decription", AttributeValue.builder().s("Turbo Crypto").build());
-    reservation1.put("ProjectTarget", AttributeValue.builder().s("2024-01-01").build());
+    ticket1.put("partition_key", AttributeValue.builder().s("ticket_001").build());
+    ticket1.put("TicketModTime", AttributeValue.builder().s("2022-10-07T14:32:25~").build());
+    ticket1.put("CreatorEmail", AttributeValue.builder().s("zorro@gmail.com").build());
+    ticket1.put("AssigneeEmail", AttributeValue.builder().s("able@gmail.com").build());
+    ticket1.put("Severity", AttributeValue.builder().s("3").build());
+    ticket1.put("Subject", AttributeValue.builder().s("Bad bug").build());
+    ticket1.put("Message", AttributeValue.builder().s("This bug looks pretty bad").build());
+
   }
 
   public static void query(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
@@ -852,7 +852,7 @@ public class ComplexSearchableEncryptionExample {
 //    }
     final String ddbTableName = "ComplexBeaconTestTable";
     final String branchKeyWrappingKmsKeyId = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-    final String branchKeyDdbTableName = "KeyStoreTestTable";
+    final String branchKeyDdbTableName = "CiKeystoreTestTable";
     SetupBeaconConfig(ddbTableName, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
 
   }
