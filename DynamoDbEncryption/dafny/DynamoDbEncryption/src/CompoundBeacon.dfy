@@ -33,7 +33,7 @@ module CompoundBeacon {
 
   type Prefix = x : string | 0 < |x| witness *
 
-  datatype BeaconPart = 
+  datatype BeaconPart =
     | Sensitive(prefix : Prefix, beacon : BaseBeacon.StandardBeacon)
     | NonSensitive(prefix : Prefix, name : string, loc : TermLoc)
   {
@@ -87,7 +87,7 @@ module CompoundBeacon {
   )
 
   type ConstructorList = x : seq<Constructor> | 0 < |x| witness *
-  
+
   predicate method {:opaque} Any<T>(f: (T ~> bool), xs: seq<T>)
     requires forall i :: 0 <= i < |xs| ==> f.requires(xs[i])
     reads set i, o | 0 <= i < |xs| && o in f.reads(xs[i]) :: o
@@ -98,7 +98,7 @@ module CompoundBeacon {
       true
     else
       Any(f, xs[1..])
-  }  
+  }
 
   datatype CompoundBeacon = CompoundBeacon(
     base : BeaconBase,
@@ -111,6 +111,31 @@ module CompoundBeacon {
       Any((p : BeaconPart) => p.Sensitive?, parts)
     }
 
+    function method {:tailrecursion} getPartFromPrefix(value : string)
+      : (ret : Result<BeaconPart, Error>)
+      ensures ret.Success? ==> ret.value.prefix <= value
+    {
+      partFromPrefix(parts, value)
+    }
+
+    function method {:tailrecursion} partFromPrefix(p : seq<BeaconPart>, value : string)
+      : (ret : Result<BeaconPart, Error>)
+      ensures ret.Success? ==> ret.value.prefix <= value
+    {
+      if |p| == 0 then
+        Failure(E("Value " + value + " for beacon " + base.name + " does not match the prefix of any configured part."))
+      else if p[0].prefix <= value then
+        Success(p[0])
+      else
+        partFromPrefix(p[1..], value)
+    }
+
+    function method startsWithSigned(value : string) : Result<bool, Error>
+    {
+      var p :- partFromPrefix(parts, value);
+      Success(p.NonSensitive?)
+    }
+
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
       Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
@@ -118,13 +143,8 @@ module CompoundBeacon {
 
     function method FindAndCalcPart(value : string, keys : HmacKeyMap) : Result<string, Error>
     {
-      var part := Seq.Filter((b : BeaconPart) => b.prefix <= value, parts);
-      if |part| == 0 then
-        Failure(E("Value " + value + " for beacon " + base.name + " does not match the prefix of any configured part."))
-      else if 1 < |part| then
-        Failure(E("Internal error. Value " + value + " for beacon " + base.name + " somehow matched multiple prefixes."))
-      else
-        PartValueCalc(value, part[0].prefix, keys, part[0])
+      var part :- partFromPrefix(parts, value);
+      PartValueCalc(value, part.prefix, keys, part)
     }
 
     function method GetBeaconValue(value : DDB.AttributeValue, keys : HmacKeyMap) : Result<DDB.AttributeValue, Error>
@@ -192,15 +212,15 @@ module CompoundBeacon {
     }
 
     function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : (res : Result<Option<string>, Error>)
-      ensures res.Success? && res.value.Some? ==> 
-        && |res.value.value| > 0
+      ensures res.Success? && res.value.Some? ==>
+                && |res.value.value| > 0
     {
       TryConstructors(construct, item, vf, Some(keys))
     }
 
     function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : (res : Result<Option<string>, Error>)
-      ensures res.Success? && res.value.Some? ==> 
-        && |res.value.value| > 0
+      ensures res.Success? && res.value.Some? ==>
+                && |res.value.value| > 0
     {
       TryConstructors(construct, item, vf, None)
     }
@@ -209,11 +229,11 @@ module CompoundBeacon {
       : (ret : Result<BeaconPart, Error>)
       ensures |Seq.Filter((x : BeaconPart) => (x.prefix <= val), parts)| == 0 ==> ret.Failure?
       ensures ret.Success? ==>
-        //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
-        //= type=implication
-        //# * For each piece, a [part](#part) MUST be identified by matching the prefix of a [part](#part)
-        //# to the beginning of the piece.        
-        ret.value.prefix <= val
+                //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
+                //= type=implication
+                //# * For each piece, a [part](#part) MUST be identified by matching the prefix of a [part](#part)
+                //# to the beginning of the piece.
+                ret.value.prefix <= val
 
       //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
       //= type=implication
@@ -240,34 +260,34 @@ module CompoundBeacon {
       //# * The returned string MUST NOT be empty.
       requires 0 < |val|
 
-      ensures ret.Success? ==> 
-        && |ret.value| > 0
+      ensures ret.Success? ==>
+                && |ret.value| > 0
 
-        //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
-        //= type=implication
-        //# * The string MUST be split on the `split character` into pieces.
-        && var pieces := Split(val, split);
-        && calcParts(pieces, keys).Success?
-        && ret.value == calcParts(pieces, keys).value
+                //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
+                //= type=implication
+                //# * The string MUST be split on the `split character` into pieces.
+                && var pieces := Split(val, split);
+                && calcParts(pieces, keys).Success?
+                && ret.value == calcParts(pieces, keys).value
     {
-        var pieces := Split(val, split);
-        calcParts(pieces, keys)
+      var pieces := Split(val, split);
+      calcParts(pieces, keys)
     }
 
     function method calcPart(piece : string, keys : HmacKeyMap)
       : (ret : Result<string, Error>)
 
       ensures ret.Success? ==>
-        && findPart(piece).Success?
-        && |ret.value| > 0
+                && findPart(piece).Success?
+                && |ret.value| > 0
 
-        //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
-        //= type=implication
-        //# * The [Part Value](#part-value-calculation) MUST be calculated for each piece,
-        //# using the prefix and length from the discovered part.
-        && var thePart := findPart(piece).value;
-        && PartValueCalc(piece, thePart.prefix, keys, thePart).Success?
-        && ret.value == PartValueCalc(piece, thePart.prefix, keys, thePart).value
+                //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
+                //= type=implication
+                //# * The [Part Value](#part-value-calculation) MUST be calculated for each piece,
+                //# using the prefix and length from the discovered part.
+                && var thePart := findPart(piece).value;
+                && PartValueCalc(piece, thePart.prefix, keys, thePart).Success?
+                && ret.value == PartValueCalc(piece, thePart.prefix, keys, thePart).value
 
       ensures findPart(piece).Failure? ==> ret.Failure?
     {
@@ -301,7 +321,7 @@ module CompoundBeacon {
       requires pos1 < |parts|
       requires pos2 < |parts|
     {
-      || pos1 == pos2 
+      || pos1 == pos2
       || OkPrefixStringPair(parts[pos1].prefix, parts[pos2].prefix)
     }
 
@@ -319,7 +339,7 @@ module CompoundBeacon {
     {
       if !OkPrefixPair(pos1, pos2) then
         Failure(E("Compound beacon " + base.name + " defines part " + parts[pos1].getName() + " with prefix " + parts[pos1].prefix
-        + " which is incompatible with part " + parts[pos2].getName() + " which has a prefix of " + parts[pos2].prefix + "."))
+                  + " which is incompatible with part " + parts[pos2].getName() + " which has a prefix of " + parts[pos2].prefix + "."))
       else
         Success(true)
     }
@@ -350,11 +370,11 @@ module CompoundBeacon {
     function method ValidState()
       : (ret : bool)
       ensures ret ==>
-        //= specification/searchable-encryption/beacons.md#initialization-failure
-        //= type=implication
-        //# Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
-        //# the `prefix` of any other [part](#part).
-        && ValidPrefixSet()
+                //= specification/searchable-encryption/beacons.md#initialization-failure
+                //= type=implication
+                //# Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
+                //# the `prefix` of any other [part](#part).
+                && ValidPrefixSet()
     {
       ValidPrefixSet()
     }
@@ -381,9 +401,9 @@ module CompoundBeacon {
       //= type=implication
       //# If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.
       ensures part.NonSensitive? && ret.Success? ==>
-        && ret.value == data
-        && 0 < |ret.value|
-        && split !in data
+                && ret.value == data
+                && 0 < |ret.value|
+                && split !in data
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
@@ -391,17 +411,17 @@ module CompoundBeacon {
       //# the part value MUST be the concatenation
       //# of the prefix and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
       ensures part.Sensitive? && ret.Success? ==>
-        && 0 < |ret.value|
-        && part.beacon.hashStr(data, keys).Success?
-        && ret.value == prefix + part.beacon.hashStr(data, keys).value
-        && split !in data
+                && 0 < |ret.value|
+                && part.beacon.hashStr(data, keys).Success?
+                && ret.value == prefix + part.beacon.hashStr(data, keys).value
+                && split !in data
     {
       :- Need(split !in data, E("Value '" + data + "' for beacon part " + part.getName() + " contains the split character '" + [split] + "'."));
       match part {
-        case Sensitive(p, b) => 
+        case Sensitive(p, b) =>
           var hash :- b.hashStr(data, keys);
           Success(prefix + hash)
-        case NonSensitive => 
+        case NonSensitive =>
           Success(data)
       }
     }

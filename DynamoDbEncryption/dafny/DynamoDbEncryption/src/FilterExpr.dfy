@@ -94,6 +94,7 @@ module DynamoDBFilterExpr {
     | Contains
     | Size
 
+
   function method TokenToString(t : Token) : string
   {
     match t {
@@ -164,65 +165,187 @@ module DynamoDBFilterExpr {
       false
   }
 
-  function method GetBeacon(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
-    : Option<SI.Beacon>
+  function method GetBeacon2(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
+    : SI.Beacon
     requires HasBeacon(b, t, names)
   {
-    if t.Attr? then
-      var name := RealName(t.s);
-      if name in b.beacons then
-        Some(b.beacons[name])
-      else if names.Some? && name in names.value then
-        var name2 := RealName(names.value[name]);
-        if name2 in b.beacons then
-          Some(b.beacons[name2])
-        else
-          None
-      else
-        None
+    var name := RealName(t.s);
+    if name in b.beacons then
+      b.beacons[name]
     else
-      None
+      var name2 := RealName(names.value[name]);
+      b.beacons[name2]
   }
 
+  function method GetBeacon(
+    bv : SI.BeaconVersion,
+    t : Token,
+    op : Token,
+    value : Token,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    values : DDB.ExpressionAttributeValueMap
+  )
+    : Result<Option<SI.Beacon>, Error>
+    requires HasBeacon(bv, t, names)
+    requires value.Value?
+  {
+    var b := GetBeacon2(bv, t, names);
+    var _ :- CanBeacon(b, op, value.s, values);
+    Success(Some(b))
+  }
+
+  function method GetBetweenBeacon(
+    bv : SI.BeaconVersion,
+    t : Token,
+    op : Token,
+    leftValue : Token,
+    rightValue : Token,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    values : DDB.ExpressionAttributeValueMap
+  )
+    : Result<Option<SI.Beacon>, Error>
+    requires HasBeacon(bv, t, names)
+    requires leftValue.Value?
+    requires rightValue.Value?
+  {
+    var b := GetBeacon2(bv, t, names);
+    var _ :- CanBetween(b, op, leftValue.s, rightValue.s, values);
+    Success(Some(b))
+  }
+
+  function method CanStandardBeacon(op : Token) : (ret : Result<bool, Error>)
+    ensures ret.Success? ==> ret.value
+  {
+    match op {
+      case Lt | Gt | Le | Ge | Between | BeginsWith | Contains =>
+        Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a standard beacon."))
+      case _ => Success(true)
+    }
+  }
+  function method CanCompoundBeacon(b : SI.Beacon, op : Token, value : string) : (ret : Result<bool, Error>)
+    requires b.Compound?
+    ensures ret.Success? ==> ret.value
+  {
+    match op {
+      case Lt | Gt | Le | Ge =>
+        var startsWithSigned :- b.cmp.startsWithSigned(value);
+        if startsWithSigned then
+          Success(true)
+        else
+          Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a compound beacon, unless the value begins with a nonsensitive part."))
+      // BeginsWith and Contains are dicey, but no way to distinguish good from bad
+      case _ => Success(true)
+    }
+  }
+
+  function method GetStringFromValue(value : string, values : DDB.ExpressionAttributeValueMap, b : SI.Beacon)
+    : (ret : Result<string, Error>)
+    requires b.Compound?
+  {
+    if value in values then
+      var val := values[value];
+      if val.S? then
+        Success(val.S)
+      else
+        Failure(E("Value " + value + " supplied for compound beacon " + b.cmp.base.name +
+                  " is of type " + AttrTypeToStr(val) + " but must be of type S (string)."))
+    else
+      Failure(E("Value " + value + " used in query string, but not supplied in value map."))
+  }
+  function method CanBeacon(
+    b : SI.Beacon,
+    op : Token,
+    value : string,
+    values : DDB.ExpressionAttributeValueMap
+  )
+    : (ret : Result<bool, Error>)
+    ensures ret.Success? ==> ret.value
+  {
+    if b.Standard? then
+      CanStandardBeacon(op)
+    else
+      var val :- GetStringFromValue(value, values, b);
+      CanCompoundBeacon(b, op, val)
+  }
+
+  function method {:tailrecursion} RemoveCommonPrefix(x : seq<string>, y : seq<string>) : (seq<string>, seq<string>)
+  {
+    if |x| == 0 || |y| == 0 || x[0] != y[0] then
+      (x, y)
+    else
+      RemoveCommonPrefix(x[1..], y[1..])
+  }
+
+  // Would return Outcome, if Outcome actually worked.
+  function method CanBetween(
+    b : SI.Beacon,
+    op : Token,
+    leftValue : string,
+    rightValue : string,
+    values : DDB.ExpressionAttributeValueMap
+  )
+    : (ret : Result<bool, Error>)
+    ensures ret.Success? ==> ret.value
+  {
+    if b.Standard? then
+      Failure(E("The operation BETWEEN cannot be used with a standard beacon."))
+    else
+      // between is ok if both limits have a matching prefix followed by a nonsensitive part.
+      var leftVal :- GetStringFromValue(leftValue, values, b);
+      var rightVal :- GetStringFromValue(rightValue, values, b);
+      var leftParts := Split(leftVal, b.cmp.split);
+      var rightParts := Split(rightVal, b.cmp.split);
+      var (newLeft, newRight) := RemoveCommonPrefix(leftParts, rightParts);
+      if 0 < |newLeft| && 0 < |newRight| then
+        var leftPart :- b.cmp.getPartFromPrefix(newLeft[0]);
+        var rightPart :- b.cmp.getPartFromPrefix(newRight[0]);
+        :- Need(leftPart.NonSensitive? && rightPart.NonSensitive?,
+                E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive."));
+        Success(true)
+      else
+        Success(true)
+  }
+
+
   // expr[pos] is a value; return the beacon to which that value refers
-  // TODO - implement with AttrForValue
   function method BeaconForValue(
     b : SI.BeaconVersion,
     expr : seq<Token>,
     pos : nat,
-    names : Option<DDB.ExpressionAttributeNameMap>
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    values : DDB.ExpressionAttributeValueMap
   )
-    : Option<SI.Beacon>
+    : Result<Option<SI.Beacon>, Error>
     requires pos < |expr|
     requires expr[pos].Value?
   {
     // value < ATTR
     if pos+2 < |expr| && IsComp(expr[pos+1]) && HasBeacon(b, expr[pos+2], names) then
-      GetBeacon(b, expr[pos+2], names)
+      GetBeacon(b, expr[pos+2], expr[pos+1], expr[pos], names, values)
     // ATTR < value
     else if 2 <= pos && IsComp(expr[pos-1]) && HasBeacon(b, expr[pos-2], names) then
-      GetBeacon(b, expr[pos-2], names)
+      GetBeacon(b, expr[pos-2], expr[pos-1], expr[pos], names, values)
     // contains(ATTR, value .or. begins_with(ATTR, value
     else if 4 <= pos && (expr[pos-4].Contains? || expr[pos-4].BeginsWith?) && expr[pos-3].Open?
-    && HasBeacon(b, expr[pos-2], names) && expr[pos-1].Comma? then
-      GetBeacon(b, expr[pos-2], names)
-    // ATTR BETWEEN value
-    else if 2 <= pos && expr[pos-1].Between? && HasBeacon(b, expr[pos-2], names) then
-      GetBeacon(b, expr[pos-2], names)
+            && HasBeacon(b, expr[pos-2], names) && expr[pos-1].Comma? then
+      GetBeacon(b, expr[pos-2], expr[pos-4], expr[pos], names, values)
+    // ATTR BETWEEN value AND *
+    else if 2 <= pos < |expr|-2 && expr[pos-1].Between? && HasBeacon(b, expr[pos-2], names) && expr[pos+2].Value? then
+      GetBetweenBeacon(b, expr[pos-2], expr[pos-1], expr[pos], expr[pos+2], names, values)
     // ATTR BETWEEN * and value
-    else if 4 <= pos && expr[pos-1].And? && expr[pos-3].Between? && HasBeacon(b, expr[pos-4], names) then
-      GetBeacon(b, expr[pos-4], names)
+    else if 4 <= pos && expr[pos-1].And? && expr[pos-3].Between? && HasBeacon(b, expr[pos-4], names) && expr[pos-2].Value? then
+      GetBetweenBeacon(b, expr[pos-4], expr[pos-3], expr[pos-2], expr[pos], names, values)
     // ATTR IN value, value, value, ...
     else if expr[pos].Value? then
       var in_pos := GetInPos(expr, pos);
       if in_pos.None? then
-        None
+        Success(None)
       else if HasBeacon(b, expr[in_pos.value-1], names) then
-        GetBeacon(b, expr[in_pos.value-1], names)
+        GetBeacon(b, expr[in_pos.value-1], expr[in_pos.value], expr[pos], names, values)
       else
-        None
+        Success(None)
     else
-      None
+      Success(None)
   }
 
   // expr[pos] is a value; return the Attr to which that value refers
@@ -243,7 +366,7 @@ module DynamoDBFilterExpr {
       Some(expr[pos-2])
     // contains(ATTR, value .or. begins_with(ATTR, value
     else if 4 <= pos && (expr[pos-4].Contains? || expr[pos-4].BeginsWith?) && expr[pos-3].Open?
-          && expr[pos-2].Attr? && expr[pos-1].Comma? then
+            && expr[pos-2].Attr? && expr[pos-1].Comma? then
       Some(expr[pos-2])
     // ATTR BETWEEN value
     else if 2 <= pos && expr[pos-1].Between? && expr[pos-2].Attr? then
@@ -358,7 +481,7 @@ module DynamoDBFilterExpr {
     else if expr[pos].Value? then
       :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
       var oldValue := values[expr[pos].s];
-      var bec := BeaconForValue(b, expr, pos, names);
+      var bec :- BeaconForValue(b, expr, pos, names, values);
       if bec.None? then
         BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [expr[pos]])
       else
@@ -684,7 +807,7 @@ module DynamoDBFilterExpr {
     else if between.Some? then
       var b := between.value;
       [Between, Open] + input[0..b.0] + [Comma] + input[b.0+1..b.0+b.1+1] + [Comma]
-        + input[b.0+b.1+2..b.0+b.1+b.2+2] + [Close] + ConvertToPrefix(input[b.0+b.1+b.2+2..])
+      + input[b.0+b.1+2..b.0+b.1+b.2+2] + [Close] + ConvertToPrefix(input[b.0+b.1+b.2+2..])
     else
       [input[0]] + ConvertToPrefix(input[1..])
   }
@@ -783,7 +906,7 @@ module DynamoDBFilterExpr {
   function method StackValueFromValue(
     s : string,
     values : DDB.ExpressionAttributeValueMap
-) : StackValue
+  ) : StackValue
   {
     if s in values then
       Str(values[s])
@@ -1230,16 +1353,16 @@ module DynamoDBFilterExpr {
       return Success(ItemList);
     } else {
       var afterKeys;
-        if KeyExpression.Some? {
-          var parsed :- GetParsedExpr(KeyExpression.value);
-          var parsed2 := ParseExpr(KeyExpression.value);
-          var expr :- BeaconizeParsedExpr(b, parsed2, 0, values.UnwrapOr(map[]), names, None);
-          var expr1 := ConvertToPrefix(expr.expr);
-          var expr2 := ConvertToRpn(expr1);
-          afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values);
-        } else {
-          afterKeys := ItemList;
-        }
+      if KeyExpression.Some? {
+        var parsed :- GetParsedExpr(KeyExpression.value);
+        var parsed2 := ParseExpr(KeyExpression.value);
+        var expr :- BeaconizeParsedExpr(b, parsed2, 0, values.UnwrapOr(map[]), names, None);
+        var expr1 := ConvertToPrefix(expr.expr);
+        var expr2 := ConvertToRpn(expr1);
+        afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values);
+      } else {
+        afterKeys := ItemList;
+      }
       if FilterExpression.Some? {
         var parsed := ParseExpr(FilterExpression.value);
         var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, None);
@@ -1303,7 +1426,7 @@ module DynamoDBFilterExpr {
       if keyIdField == attr.value.s then
         Some(value)
       else
-       KeyIdFromPart(bv, keyIdField, attr.value.s, value)
+        KeyIdFromPart(bv, keyIdField, attr.value.s, value)
   }
 
   // search through each token of a query expression, looking for KeyIds
@@ -1372,7 +1495,7 @@ module DynamoDBFilterExpr {
     if !bv.keySource.keyLoc.MultiLoc? then
       Success(None)
     else if values.None? then
-        Failure(E("No values found for " + bv.keySource.keyLoc.keyName + " in query."))
+      Failure(E("No values found for " + bv.keySource.keyLoc.keyName + " in query."))
     else
       var soFar :- GetBeaconKeyIds(bv, keyExpr, values.value, names, []);
       var final :- GetBeaconKeyIds(bv, filterExpr, values.value, names, soFar);
