@@ -55,10 +55,16 @@ that do not have any [sensitive parts](../searchable-encryption/beacons.md#compo
 
 For every configured compound beacons which only contains non sensitive parts
 that can be successfully built from the attributes in the input AttributeMap,
-AddNonSensitiveBeacons MUST add an attribute named aws_dbe_b_NAME,
+AddNonSensitiveBeacons MUST add an attribute named NAME,
 where NAME is the name of the beacon.
 The value of this attribute MUST be a string,
-and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value)
+and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
+This new NonSensitiveBeacons MUST be added to [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
+as a [SIGN_ONLY](../structured-encryption/structures.md#sign_only) action.
+
+If the attribute NAME already exists,
+if the constructed compound beacon does not match
+the existing attribute value AddNonSensitiveBeacons MUST fail.
 
 AddNonSensitiveBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
 
@@ -115,6 +121,8 @@ If the AttributeMap does not have a key
 equal to [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
 HandleBeaconKeyFieldName MUST return a `beacon key id` of None
 and the unaltered AttributeMap.
+This case is because a specific item
+may not have any beacons that need to be constructed.
 
 If the AttributeMap does have a key
 equal to [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
