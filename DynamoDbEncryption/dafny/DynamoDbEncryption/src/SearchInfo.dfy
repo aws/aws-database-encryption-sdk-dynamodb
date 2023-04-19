@@ -83,7 +83,7 @@ module SearchableEncryptionInfo {
   datatype KeyLocation =
     | LiteralLoc (keys: HmacKeyMap)
     | SingleLoc (keyId: string)
-    | MultiLoc (keyName : string)
+    | MultiLoc (keyName : string, deleteKey : bool)
 
   datatype KeySource = KeySource(
     client : Primitives.AtomicPrimitivesClient,
@@ -195,24 +195,6 @@ module SearchableEncryptionInfo {
     {
       output := GetAllKeys(client, beacons, key);
     }
-
-    method getKeyFromStore(keyId : string)
-      returns (output : Result<Bytes, Error>)
-      modifies store.Modifies
-      requires store.ValidState()
-      ensures store.ValidState()
-    {
-      var maybeKey := store.GetBeaconKey(
-        KeyStore.GetBeaconKeyInput(
-          branchKeyIdentifier := keyId,
-          awsKmsKeyArn := None,
-          grantTokens := None
-        )
-      );
-      var key :- maybeKey.MapFailure(e => AwsCryptographyKeyStore(e));
-      output := Success(key.beaconKey);
-    }
-
   }
 
   datatype SearchInfo = SearchInfo(
@@ -406,11 +388,25 @@ module SearchableEncryptionInfo {
       case EncryptedBeacon => b.isEncrypted()
     }
   }
-  datatype BeaconVersion = BeaconVersion (
+
+  function method MakeBeaconVersion(
     version : VersionNumber,
     keySource : KeySource,
     beacons : BeaconMap,
     virtualFields : VirtualFieldMap
+  )
+    : Result<BeaconVersion, Error>
+  {
+    Success(BeaconVersion.BeaconVersion(
+              version, keySource, virtualFields, beacons
+            ))
+  }
+
+  datatype BeaconVersion = BeaconVersion (
+    version : VersionNumber,
+    keySource : KeySource,
+    virtualFields : VirtualFieldMap,
+    beacons : BeaconMap
   ) {
 
     function Modifies() : set<object>
@@ -471,6 +467,14 @@ module SearchableEncryptionInfo {
       output := keySource.getKeyMap(beacons, keyId);
     }
 
+    function method ListSignedBeacons()
+      : seq<string>
+    {
+      var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+      Seq.Filter((s : string) requires s in beacons => IsBeaconOfType(beacons[s], SignedBeacon), beaconNames)
+    }
+
+    // Get all beacons with plaintext values
     method GeneratePlainBeacons(item : DDB.AttributeMap)
       returns (output : Result<DDB.AttributeMap, Error>)
     {
@@ -478,6 +482,7 @@ module SearchableEncryptionInfo {
       output := GenerateBeacons2(beaconNames, item, None, AnyBeacon);
     }
 
+    // Get all beacons on fields that are signed, but not encrypted
     method GenerateSignedBeacons(item : DDB.AttributeMap)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
@@ -488,6 +493,7 @@ module SearchableEncryptionInfo {
       output := GenerateBeacons2(beaconNames, item, None, SignedBeacon);
     }
 
+    // Get all beacons on encrypted fields
     method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : Option<string>)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()

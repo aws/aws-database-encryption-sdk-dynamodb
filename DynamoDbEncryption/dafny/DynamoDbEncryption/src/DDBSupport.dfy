@@ -146,7 +146,18 @@ module DynamoDBSupport {
     } else {
       var newAttrs :- search.value.GenerateSignedBeacons(item);
       var version : DDB.AttributeMap := map[VersionPrefix + "1" := DS(" ")];
-      return Success(item + newAttrs + version);
+      var both := newAttrs.Keys * item.Keys;
+      var bad := set k <- both | newAttrs[k] != item[k];
+      if 0 < |bad| {
+        var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, CharLess);
+        return Failure(E("Supplied Beacons do not match calculated beacons : " + Join(badSeq, ", ")));
+      }
+      if search.value.curr().keySource.keyLoc.MultiLoc? && search.value.curr().keySource.keyLoc.deleteKey {
+        var newItem := map k <- item | k != search.value.curr().keySource.keyLoc.keyName :: k := item[k];
+        return Success(newItem + newAttrs + version);
+      } else {
+        return Success(item + newAttrs + version);
+      }
     }
   }
 
