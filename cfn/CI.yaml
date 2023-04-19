@@ -110,8 +110,6 @@ Resources:
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_PK2"
           AttributeType: "S"
-        - AttributeName: "aws_dbe_b_SK2"
-          AttributeType: "S"
         - AttributeName: "aws_dbe_b_PK3"
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_SK3"
