@@ -200,11 +200,11 @@ Resources:
   # This policy SHOULD be given to:
   #  - awslabs/aws-dynamodb-encryption-dafny
   #  - ToolsDevelopment
-  TestTableUsage:
+  DDBUsage:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
       Description: "Allow Read, Write, and Delete of Items in Test Tables"
-      ManagedPolicyName: !Sub "${ProjectName}-DDB-ReadWriteDelete-${AWS::Region}"
+      ManagedPolicyName: !Sub "${ProjectName}-DDB-ReadWriteDelete-Policy-${AWS::Region}"
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -255,7 +255,7 @@ Resources:
         - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
         - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
         - !Ref KMSUsage
-        - !Ref TestTableUsage
+        - !Ref DDBUsage
       AssumeRolePolicyDocument: !Sub |
         {
           "Version": "2012-10-17",   
