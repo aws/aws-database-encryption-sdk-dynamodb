@@ -112,10 +112,6 @@ is a [Single Key Store](../searchable-encryption/search-config.md#single-key-sto
 HandleBeaconKeyFieldName MUST return a `beacon key id` of None
 and the unaltered AttributeMap.
 
-If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
-is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-then [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
-MUST be used to find the `beacon key id`.
 
 If the AttributeMap does not have a key
 equal to [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
