@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "DDB Table and IAM Managed Policies/Role for DynamoDbEncryption testing"
 
 Parameters:
-  TableName:
+  TableWithNoBeaconIndexName:
     Type: String
     Description: Test Table Name
     Default: DynamoDbEncryptionInterceptorTestTable
@@ -44,7 +44,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableName: !Ref TableName
+      TableWithNoBeaconIndexName: !Ref TableWithNoBeaconIndexName
 
   TestTableWithSimpleBeaconIndex:
     Type: AWS::DynamoDB::Table
@@ -89,7 +89,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableName: !Ref TableWithSimpleBeaconIndexName
+      TableWithNoBeaconIndexName: !Ref TableWithSimpleBeaconIndexName
 
   # This schema is modeled off of
   # https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
@@ -163,7 +163,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableName: !Ref TableWithComplexBeaconIndexName
+      TableWithNoBeaconIndexName: !Ref TableWithComplexBeaconIndexName
 
   TestKeystoreTable:
     Type: AWS::DynamoDB::Table
@@ -195,15 +195,15 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableName: !Ref KeystoreTableName
+      TableWithNoBeaconIndexName: !Ref KeystoreTableName
 
   # This policy SHOULD be given to:
   #  - awslabs/aws-dynamodb-encryption-dafny
   #  - ToolsDevelopment
-  TestTableUsage:
+  DDBUsage:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
-      Description: "Allow Read, Write, and Delete of Items in Test Table"
+      Description: "Allow Read, Write, and Delete of Items in Test Tables"
       ManagedPolicyName: !Sub "${ProjectName}-DDB-ReadWriteDelete-${AWS::Region}"
       PolicyDocument:
         Version: '2012-10-17'
@@ -220,8 +220,8 @@ Resources:
               - dynamodb:Query
               - dynamodb:UpdateItem
             Resource:
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithNoBeaconIndexName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithNoBeaconIndexName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithSimpleBeaconIndexName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithSimpleBeaconIndexName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithComplexBeaconIndexName}"
@@ -255,7 +255,7 @@ Resources:
         - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
         - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
         - !Ref KMSUsage
-        - !Ref TestTableUsage
+        - !Ref DDBUsage
       AssumeRolePolicyDocument: !Sub |
         {
           "Version": "2012-10-17",   
