@@ -101,7 +101,7 @@ and leave all other attributes unchanged.
 
 ## HandleBeaconKeyFieldName
 
-HandleBeaconKeyFieldName examines an AttributeMap
+HandleBeaconKeyFieldName examines an AttributeMap,
 the [Search Config](../searchable-encryption/search-config.md),
 a [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name),
 and the [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
