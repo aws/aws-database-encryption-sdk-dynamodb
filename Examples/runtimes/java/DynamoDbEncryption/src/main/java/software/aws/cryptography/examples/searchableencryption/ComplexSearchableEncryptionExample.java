@@ -489,43 +489,43 @@ public class ComplexSearchableEncryptionExample {
 
     CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
         .name("PK0")
-        .split(".")
+        .split("~")
         .sensitive(pk0SensitivePartList)
         .constructors(pk0ConstructorList)
         .build();
     CompoundBeacon sk0CompoundBeacon = CompoundBeacon.builder()
         .name("SK0")
-        .split(".")
+        .split("~")
         .sensitive(sk0SensitivePartList)
         .constructors(sk0ConstructorList)
         .build();
     CompoundBeacon pk1CompoundBeacon = CompoundBeacon.builder()
         .name("PK1")
-        .split(".")
+        .split("~")
         .sensitive(pk1SensitivePartList)
         .constructors(pk1ConstructorList)
         .build();
     CompoundBeacon sk1CompoundBeacon = CompoundBeacon.builder()
         .name("SK1")
-        .split(".")
+        .split("~")
         .sensitive(sk1SensitivePartList)
         .constructors(sk1ConstructorList)
         .build();
     CompoundBeacon pk2CompoundBeacon = CompoundBeacon.builder()
         .name("PK2")
-        .split(".")
+        .split("~")
         .sensitive(pk2SensitivePartList)
         .constructors(pk2ConstructorList)
         .build();
     CompoundBeacon pk3CompoundBeacon = CompoundBeacon.builder()
         .name("PK3")
-        .split(".")
+        .split("~")
         .sensitive(pk3SensitivePartList)
         .constructors(pk3ConstructorList)
         .build();
     CompoundBeacon sk3CompoundBeacon = CompoundBeacon.builder()
         .name("SK3")
-        .split(".")
+        .split("~")
         .sensitive(sk3SensitivePartList)
         .constructors(sk3ConstructorList)
         .build();
@@ -672,6 +672,10 @@ public class ComplexSearchableEncryptionExample {
     attributeActions.put("City", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("Severity", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("Location", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("Attendees", CryptoAction.ENCRYPT_AND_SIGN); // These are not in beacons, but are sensitive
+                                                                      //     and should be encrypted
+    attributeActions.put("Duration", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("Subject", CryptoAction.ENCRYPT_AND_SIGN);
 
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
@@ -700,20 +704,84 @@ public class ComplexSearchableEncryptionExample {
                 .build())
         .build();
 
-    final HashMap<String, AttributeValue> itemOnlyZip = new HashMap<>();
-    itemOnlyZip.put("PK", AttributeValue.builder().s("ABCD_1234").build());
-    itemOnlyZip.put("SK", AttributeValue.builder().s("EABCD_1234").build());
-    itemOnlyZip.put("EmployeeID", AttributeValue.builder().s("ABCD_1234").build());
+    final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
+    final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
+    meeting1Location.put("Room", AttributeValue.builder().s("12.403").build());
+    meeting1.put("PK", AttributeValue.builder().s("meeting1").build());
+    meeting1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
+    meeting1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
+    meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
+    meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
+    meeting1.put("Duration", AttributeValue.builder().s("30").build());
+    meeting1.put("Attendees", AttributeValue.builder().s("SomeList").build());
+    meeting1.put("Subject", AttributeValue.builder().s("Scan Beacons").build());
 
     final PutItemRequest putRequestOnlyZip = PutItemRequest.builder()
         .tableName(ddbTableName)
-        .item(itemOnlyZip)
+        .item(meeting1)
         .build();
 
     final PutItemResponse putResponseOnlyZip = ddb.putItem(putRequestOnlyZip);
     // Validate item put successfully
     assert 200 == putResponseOnlyZip.sdkHttpResponse().statusCode();
 
+
+  }
+
+  public static void loadTable() {
+    // meeting.json
+    final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
+    final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
+    meeting1Location.put("Room", AttributeValue.builder().s("12.403").build());
+    meeting1.put("PK", AttributeValue.builder().s("meeting1").build());
+    meeting1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
+    meeting1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
+    meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
+    meeting1.put("Duration", AttributeValue.builder().s("30").build());
+    meeting1.put("Attendees", AttributeValue.builder().s("SomeList").build());
+    meeting1.put("Subject", AttributeValue.builder().s("Scan Beacons").build());
+    meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
+
+    // employee.json
+    final HashMap<String, AttributeValue> employee1 = new HashMap<>();
+    final HashMap<String, AttributeValue> employee1Location = new HashMap<>();
+    employee1Location.put("Building", AttributeValue.builder().s("44").build());
+    employee1Location.put("Floor", AttributeValue.builder().s("12").build());
+    employee1Location.put("Desk", AttributeValue.builder().s("3").build());
+    employee1.put("PK", AttributeValue.builder().s("employee1").build());
+    employee1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    employee1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
+    employee1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
+    employee1.put("ManagerEmail", AttributeValue.builder().s("zorro@gmail.com").build());
+    employee1.put("Location", AttributeValue.builder().m(meeting1Location).build());
+    employee1.put("EmployeeName", AttributeValue.builder().s("Able Jones").build());
+    employee1.put("EmployeeTitle", AttributeValue.builder().s("SDE9").build());
+    employee1.put("Location", AttributeValue.builder().m(employee1Location).build());
+
+    // project.json
+    final HashMap<String, AttributeValue> project1 = new HashMap<>();;
+    project1.put("PK", AttributeValue.builder().s("project1").build());
+    project1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    project1.put("ProjectName", AttributeValue.builder().s("project_001").build());
+    project1.put("ProjectStatus", AttributeValue.builder().s("Pending").build());
+    project1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
+    project1.put("Decription", AttributeValue.builder().s("Turbo Crypto").build());
+    project1.put("ProjectTarget", AttributeValue.builder().s("2024-01-01").build());
+
+    // reservation.json
+    final HashMap<String, AttributeValue> reservation1 = new HashMap<>();;
+    reservation1.put("PK", AttributeValue.builder().s("project1").build());
+    reservation1.put("SK", AttributeValue.builder().s("needtodelete").build());
+    reservation1.put("ProjectName", AttributeValue.builder().s("project_001").build());
+    reservation1.put("ProjectStatus", AttributeValue.builder().s("Pending").build());
+    reservation1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
+    reservation1.put("Decription", AttributeValue.builder().s("Turbo Crypto").build());
+    reservation1.put("ProjectTarget", AttributeValue.builder().s("2024-01-01").build());
+  }
+
+  public static void query() {
 
   }
 
