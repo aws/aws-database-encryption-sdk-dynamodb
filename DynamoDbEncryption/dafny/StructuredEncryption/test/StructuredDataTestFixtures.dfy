@@ -1,7 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../StructuredEncryption/src/Index.dfy"
-include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
+include "../src/Index.dfy"
 
 module StructuredDataTestFixtures {
   import opened Wrappers

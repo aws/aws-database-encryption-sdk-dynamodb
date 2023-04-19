@@ -36,7 +36,7 @@ module TransactWriteItemsTransform {
     :- Need(forall item <- input.sdkInput.TransactItems :: IsValid(item), E("Each item in TransactWriteItems must specify at least one supported operation"));
     var result : seq<DDB.TransactWriteItem> := [];
     for x := 0 to |input.sdkInput.TransactItems|
-      invariant |result| == x
+     // invariant |result| == x
     {
       var item := input.sdkInput.TransactItems[x];
 
@@ -90,7 +90,7 @@ module TransactWriteItemsTransform {
 
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - Beacons MUST be [added](ddb-support.md#addbeacons).
-        var beaconItem :- AddBeacons(tableConfig, item.Put.value.Item);
+        var beaconItem :- AddSignedBeacons(tableConfig, item.Put.value.Item);
 
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - If the request is validated,
@@ -102,16 +102,19 @@ module TransactWriteItemsTransform {
           EncTypes.EncryptItemInput(plaintextItem:=beaconItem)
         );
         var encrypted :- MapError(encryptRes);
+        // TODO - extract KeyId from encryption output if Multi
+        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, None);
 
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The PutItem request's `Item` field MUST be replaced
         //# with a value that is equivalent to
         //# the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
         //# calculated above.
-        var put := Some(item.Put.value.(Item := encrypted.encryptedItem));
+        var put := Some(item.Put.value.(Item := encrypted.encryptedItem + beaconAttrs));
         var newItem := item.(Put := put);
+        ghost var oldResult := result;
         result := result + [newItem];
-        assert |old(result)| == x +1;
+        assert |result| == |oldResult| + 1;
       } else {
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# Any actions other than `Put, MUST be unchanged.
@@ -119,10 +122,12 @@ module TransactWriteItemsTransform {
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# Any `Put` actions  with a `TableName` that does not refer to an [encrypted-table](#encrypted-table),
         //# MUST be unchanged.
+        ghost var oldResult := result;
         result := result + [item];
-        assert |old(result)| == x +1;
+        assert |result| == |oldResult| + 1;
       }
     }
+    :- Need(|input.sdkInput.TransactItems| == |result|, E(""));
     var finalResult := result; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
     return Success(TransactWriteItemsInputTransformOutput(transformedInput := input.sdkInput.(TransactItems := finalResult)));
   }

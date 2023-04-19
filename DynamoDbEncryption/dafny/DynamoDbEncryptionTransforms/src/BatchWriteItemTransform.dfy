@@ -17,7 +17,6 @@ module BatchWriteItemTransform {
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
-
   {
     var tableNames := input.sdkInput.RequestItems.Keys;
     var result : map<DDB.TableName, DDB.WriteRequests> := map[];
@@ -49,7 +48,7 @@ module BatchWriteItemTransform {
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
             //# Beacons MUST be [added](ddb-support.md#addbeacons).
-            var item :- AddBeacons(tableConfig, req.PutRequest.value.Item);
+            var item :- AddSignedBeacons(tableConfig, req.PutRequest.value.Item);
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
             //# If the request is validated,
@@ -59,13 +58,15 @@ module BatchWriteItemTransform {
             //# is output of the [add beacons](ddb-support.md#addbeacons) operation.
             var encryptRes := tableConfig.itemEncryptor.EncryptItem(EncTypes.EncryptItemInput(plaintextItem:=item));
             var encrypted :- MapError(encryptRes);
+            // TODO - extract KeyId from encryption output if Multi
+            var beaconAttrs :- GetEncryptedBeacons(tableConfig, req.PutRequest.value.Item, None);
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
             //# The PutRequest request's `Item` field MUST be replaced
             //# with a value that is equivalent to
             //# the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
             //# calculated above.
-            encryptedItems := encryptedItems + [req.(PutRequest := Some(DDB.PutRequest(Item := encrypted.encryptedItem)))];
+            encryptedItems := encryptedItems + [req.(PutRequest := Some(DDB.PutRequest(Item := encrypted.encryptedItem + beaconAttrs)))];
           }
         }
         writeRequests := encryptedItems;

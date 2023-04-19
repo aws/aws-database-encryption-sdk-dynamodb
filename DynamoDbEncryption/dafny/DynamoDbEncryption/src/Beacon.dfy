@@ -100,7 +100,6 @@ module BaseBeacon {
   function method MakeStandardBeacon(
     client: Primitives.AtomicPrimitivesClient,
     name: string,
-    key: Bytes,
     length : BeaconLength,
     loc : string
   ) : Result<StandardBeacon, Error>
@@ -147,13 +146,17 @@ module BaseBeacon {
         hash(str.value, keys[base.name])
     }
 
-    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : Result<string, Error>
+    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : Result<Option<string>, Error>
     {
       var bytes :- VirtToBytes(loc, item, vf);
-      hash(bytes, key)
+      if bytes.None? then
+        Success(None)
+      else
+        var res :- hash(bytes.value, key);
+        Success(Some(res))
     }
     
-    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<DDB.AttributeValue, Error>
+    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<DDB.AttributeValue>, Error>
     {
       VirtToAttr(loc, item, vf)
     }
@@ -247,7 +250,7 @@ module BaseBeacon {
       [HexChar(TruncateNibble(bytes[0] % 16, topBits))] + ToHexString(bytes[1..])
   }
 
-  lemma CheckBytesToHex()
+  lemma {:vcs_split_on_every_assert} CheckBytesToHex()
     ensures
       && var bytes := [1,2,3,4,5,6,7,0xb7];
       && BytesToHex(bytes, 1) == "1"

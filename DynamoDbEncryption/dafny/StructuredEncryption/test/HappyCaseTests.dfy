@@ -1,8 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../StructuredEncryption/src/Index.dfy"
+include "../src/Index.dfy"
 include "StructuredDataTestFixtures.dfy"
-include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
 
 // TODO -- add a test with only signed attributes, no encrypted attributes.
 

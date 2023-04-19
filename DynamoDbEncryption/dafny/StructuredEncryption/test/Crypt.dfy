@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../src/Crypt.dfy"
-include "../../../../submodules/MaterialProviders/StandardLibrary/src/HexStrings.dfy"
 
 module TestStructuredEncryptionCrypt {
   import opened StructuredEncryptionCrypt

@@ -12,15 +12,16 @@ module BatchExecuteStatementTransformTest {
 
   method {:test} TestBatchExecuteStatementInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var statement := GetStatement("update \"no_such_table\"");
+    var request := DDB.BatchStatementRequest(
+      Statement := statement,
+      Parameters := None,
+      ConsistentRead := None
+    );
+    var requests := GetPartiQLBatchRequest([request]);
     var good_input := DDB.BatchExecuteStatementInput(
-      Statements := [
-        DDB.BatchStatementRequest(
-          Statement := "update \"no_such_table\"",
-          Parameters := None(),
-          ConsistentRead := None()
-        )
-      ],
-      ReturnConsumedCapacity := None()
+      Statements := requests,
+      ReturnConsumedCapacity := None
     );
     var good_transformed := middlewareUnderTest.BatchExecuteStatementInputTransform(
       AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementInputTransformInput(
@@ -34,15 +35,16 @@ module BatchExecuteStatementTransformTest {
 
   method {:test} TestBatchExecuteStatementInputEncrypted() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var statement := GetStatement("update \"foo\"");
+    var request := DDB.BatchStatementRequest(
+      Statement := statement,
+      Parameters := None,
+      ConsistentRead := None
+    );
+    var requests := GetPartiQLBatchRequest([request]);
     var bad_input := DDB.BatchExecuteStatementInput(
-      Statements := [
-        DDB.BatchStatementRequest(
-          Statement := "update \"foo\"",
-          Parameters := None(),
-          ConsistentRead := None()
-        )
-      ],
-      ReturnConsumedCapacity := None()
+      Statements := requests,
+      ReturnConsumedCapacity := None
     );
     var bad_transformed := middlewareUnderTest.BatchExecuteStatementInputTransform(
       AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementInputTransformInput(
@@ -58,18 +60,19 @@ module BatchExecuteStatementTransformTest {
   method {:test} TestBatchExecuteStatementOutputTransform() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.BatchExecuteStatementOutput(
-      Responses := None(),
-      ConsumedCapacity := None()
+      Responses := None,
+      ConsumedCapacity := None
     );
+    var statement := GetStatement("foo");
+    var request := DDB.BatchStatementRequest(
+      Statement := statement,
+      Parameters := None,
+      ConsistentRead := None
+    );
+    var requests := GetPartiQLBatchRequest([request]);
     var input := DDB.BatchExecuteStatementInput(
-      Statements := [
-        DDB.BatchStatementRequest(
-          Statement := "foo",
-          Parameters := None(),
-          ConsistentRead := None()
-        )
-      ],
-      ReturnConsumedCapacity := None()
+      Statements := requests,
+      ReturnConsumedCapacity := None
     );
     var transformed := middlewareUnderTest.BatchExecuteStatementOutputTransform(
       AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementOutputTransformInput(
