@@ -60,7 +60,8 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     var dynamodbClient :- expect DDB.DynamoDBClient();
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
-      ddbTableName := Some(branchKeyStoreName),
+      ddbTableName := branchKeyStoreName,
+      kmsKeyArn := keyArn,
       kmsClient := Some(kmsClient),
       ddbClient := Some(dynamodbClient)
     );
@@ -69,7 +70,6 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
       MPL.CreateAwsKmsHierarchicalKeyringInput(
         branchKeyId := None,
         branchKeyIdSupplier := Some(branchKeyIdSupplier),
-        kmsKeyId := keyArn,
         keyStore := keyStore,
         ttlSeconds := ttl,
         maxCacheSize := Option.Some(10),

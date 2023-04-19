@@ -147,7 +147,6 @@ module SearchableEncryptionInfo {
         var maybeRawBranchKeyMaterials := store.GetBeaconKey(
           KeyStore.GetBeaconKeyInput(
             branchKeyIdentifier := keyId,
-            awsKmsKeyArn := None,
             grantTokens := None
           )
         );

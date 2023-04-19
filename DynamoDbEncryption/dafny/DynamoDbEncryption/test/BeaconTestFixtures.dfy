@@ -116,7 +116,8 @@ module BeaconTestFixtures {
     var ddbClient :- expect DDBC.DynamoDBClient();
     var keyStoreConfig := KTypes.KeyStoreConfig(
       id := None,
-      ddbTableName := Some("foo"),
+      ddbTableName := "foo",
+      kmsKeyArn := "",
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );

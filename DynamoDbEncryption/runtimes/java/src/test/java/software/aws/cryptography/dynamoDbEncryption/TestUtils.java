@@ -86,7 +86,6 @@ public class TestUtils {
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
         CreateAwsKmsHierarchicalKeyringInput.Builder keyringInputBuilder = CreateAwsKmsHierarchicalKeyringInput.builder()
-                .kmsKeyId(TEST_KEY_STORE_KMS_KEY)
                 .keyStore(keystore)
                 .ttlSeconds(600)
                 .maxCacheSize(100);
