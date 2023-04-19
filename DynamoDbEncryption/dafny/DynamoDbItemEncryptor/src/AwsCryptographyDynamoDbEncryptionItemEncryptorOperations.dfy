@@ -507,7 +507,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   {true}
 
   // public Encrypt method
-  method EncryptItem(config: InternalConfig, input: EncryptItemInput)
+  method {:vcs_split_on_every_assert} EncryptItem(config: InternalConfig, input: EncryptItemInput)
     returns (output: Result<EncryptItemOutput, Error>)
     //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item
     //= type=implication
@@ -570,6 +570,21 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.encryptionContext
         == Some(MakeEncryptionContext(config, plaintextStructure).value)
 
+      && output.value.parsedHeader.Some?
+      && var structuredEncParsed := Seq.Last(config.structuredEncryption.History.EncryptStructure).output.value.parsedHeader;
+      && structuredEncParsed.cryptoSchema.content.SchemaMap?
+      && (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
+        && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
+        && (structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.ENCRYPT_AND_SIGN? || structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.SIGN_ONLY?))
+      && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
+      && maybeCryptoSchema.Success?
+      && output.value.parsedHeader.value == ParsedHeader(
+          attributeActions := maybeCryptoSchema.value,
+          algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
+          storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
+          encryptedDataKeys := structuredEncParsed.encryptedDataKeys
+        )
+
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
     //# If a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) of
@@ -581,6 +596,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
         && output.Success?
       ==>
         && output.value.encryptedItem == input.plaintextItem
+        && output.value.parsedHeader == None
   {
     :- Need(
       && config.partitionKeyName in input.plaintextItem
@@ -604,7 +620,10 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     }
 
     if (config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?) {
-      var passthroughOutput := EncryptItemOutput(encryptedItem := input.plaintextItem);
+      var passthroughOutput := EncryptItemOutput(
+        encryptedItem := input.plaintextItem,
+        parsedHeader := None
+      );
       return Success(passthroughOutput);
     }
 
@@ -663,7 +682,38 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     var encryptedData := encryptVal.encryptedStructure;
     var ddbKey :- DynamoToStruct.StructuredToItem(encryptedData.content.DataMap)
         .MapFailure(e => Error.AwsCryptographyDynamoDbEncryption(e));
-    output := Success(EncryptItemOutput(encryptedItem := ddbKey));
+
+    var parsedActions :- ConvertCryptoSchemaToAttributeActions(config, encryptVal.parsedHeader.cryptoSchema);
+    var parsedHeader := ParsedHeader(
+      attributeActions := parsedActions,
+      algorithmSuiteId := encryptVal.parsedHeader.algorithmSuiteId,
+      storedEncryptionContext := encryptVal.parsedHeader.storedEncryptionContext,
+      encryptedDataKeys := encryptVal.parsedHeader.encryptedDataKeys
+    );
+
+    output := Success(EncryptItemOutput(
+      encryptedItem := ddbKey,
+      parsedHeader := Some(parsedHeader)
+    ));
+    
+    assert  output.value.parsedHeader.Some?;
+    var structuredEncParsed := Seq.Last(config.structuredEncryption.History.EncryptStructure).output.value.parsedHeader;
+    assert  structuredEncParsed.cryptoSchema.content.SchemaMap?;
+    assert (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
+       && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
+       && (structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.ENCRYPT_AND_SIGN? || structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.SIGN_ONLY?));
+    var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
+    assert  maybeCryptoSchema.Success?;
+    assert (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
+        && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
+        && (structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.ENCRYPT_AND_SIGN? || structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.SIGN_ONLY?));
+    assert  output.value.parsedHeader.value == ParsedHeader(
+          attributeActions := maybeCryptoSchema.value,
+          algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
+          storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
+          encryptedDataKeys := structuredEncParsed.encryptedDataKeys
+        );
+
   }
 
   predicate DecryptItemEnsuresPublicly(input: DecryptItemInput, output: Result<DecryptItemOutput, Error>)

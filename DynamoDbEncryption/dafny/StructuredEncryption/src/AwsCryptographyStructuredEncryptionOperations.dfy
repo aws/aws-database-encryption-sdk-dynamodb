@@ -55,6 +55,19 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.DataMap? ==> output.value.encryptedStructure.content.DataMap?)
     && (output.Success? && input.plaintextStructure.content.DataList? ==> output.value.encryptedStructure.content.DataList?)
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
+    // Ensure the CryptoSchema in the ParsedHeader matches the input crypto Schema
+    && (output.Success? ==>
+      // For now we only support encrypting flat maps
+      && output.value.parsedHeader.cryptoSchema.content.SchemaMap?
+      && var cryptoMap := output.value.parsedHeader.cryptoSchema.content.SchemaMap;
+      && CryptoSchemaMapIsFlat(cryptoMap)
+      && input.cryptoSchema.content.SchemaMap?
+      && var inputSchema := input.cryptoSchema.content.SchemaMap;
+      && CryptoSchemaMapIsFlat(inputSchema)
+      && (forall k :: k in cryptoMap ==> k in inputSchema && inputSchema[k] == cryptoMap[k])
+      && (forall v :: v in cryptoMap.Values ==>
+        (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?))
+    )
   }
 
   // given a list of fields, return only those that should be encrypted, according to the legend
@@ -201,14 +214,21 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
                                         // i.e. a Crypto Action of ENCRYPT_AND_SIGN
     signedFields_c : seq<CanonicalPath>,// these fields should be signed, sorted
                                         // i.e. a Crypto Action other than DO_NOTHING
-    data_c : StructuredDataCanon        // all signed fields with canonized paths
+    data_c : StructuredDataCanon,       // all signed fields with canonized paths
                                         // i.e. the Intermediate Encrypted Structured Data, but unencrypted
+    cryptoSchema : CryptoSchema         // the crypto schema for this structure,
+                                        // with all extraneous DO_NOTHING actions removed
   )
 
   predicate ValidEncryptCanon?(c: EncryptCanonData) {
     && (forall k :: k in c.encFields_c ==> k in c.signedFields_c)
     && (forall k :: k in c.signedFields_c ==> k in c.data_c)
-    && (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c)
+    && (forall k :: k in c.data_c ==> k in c.signedFields_c)
+    && c.cryptoSchema.content.SchemaMap?
+    && var actionMap := c.cryptoSchema.content.SchemaMap;
+    && (exists tableName :: (forall k :: k in actionMap ==> Paths.SimpleCanon(tableName, k) in c.data_c))
+    && (forall v :: v in actionMap.Values ==>
+      v.content.Action? && (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?))
   }
 
   type DecryptCanon = c: DecryptCanonData | ValidDecryptCanon?(c)
@@ -287,16 +307,26 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
       //# in the [input Structured Data](#structured-data).
       && (forall k <- ret.value.data_c :: (exists x :: x in data && k == Paths.SimpleCanon(tableName, x)))
+
+      && ret.value.cryptoSchema.content.SchemaMap?
+      && (forall k :: k in ret.value.cryptoSchema.content.SchemaMap ==> k in schema && ret.value.cryptoSchema.content.SchemaMap[k] == schema[k]);
   {
     var fieldMap := GetFieldMap(tableName, data, schema);
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
     var encFields_c := FilterEncrypt(signedFields_c, fieldMap, schema);
+    
+    var authedSchema := map k <- fieldMap.Values :: k := schema[k];
+    var headerSchema := CryptoSchema(
+      content := CryptoSchemaContent.SchemaMap(authedSchema),
+      attributes := None
+    );
 
     Success(EncryptCanonData(
       encFields_c,
       signedFields_c,
-      data_c
+      data_c,
+      headerSchema
     ))
   }
 
@@ -383,7 +413,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     Success(c)
   }
 
-  method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
+  method {:vcs_split_on_every_assert} EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
     ensures output.Success? ==>
       //= specification/structured-encryption/encrypt-structure.md#structured-data
@@ -527,13 +557,35 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     result := result[FooterField := footerAttribute];
     assert HeaderField in result;
     assert FooterField in result;
+
+    var headerAlgorithmSuite :- head.GetAlgorithmSuite(config.materialProviders);
+    var parsedHeader := ParsedHeader(
+        cryptoSchema := canonData.cryptoSchema,
+        algorithmSuiteId := headerAlgorithmSuite.id.DBE,
+        encryptedDataKeys := head.dataKeys,
+        storedEncryptionContext := head.encContext
+    );
     
-    var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
-      content := StructuredDataContent.DataMap(
-        DataMap := result
-      ),
-      attributes := None
-    ));
+    var encryptOutput := EncryptStructureOutput(
+      encryptedStructure := StructuredData(
+        content := StructuredDataContent.DataMap(
+          DataMap := result
+        ),
+        attributes := None),
+      parsedHeader := parsedHeader
+    );
+
+    // help dafny
+    assert encryptOutput.parsedHeader.cryptoSchema.content.SchemaMap?;
+    var cryptoMap := encryptOutput.parsedHeader.cryptoSchema.content.SchemaMap;
+    assert CryptoSchemaMapIsFlat(cryptoMap);
+    assert input.cryptoSchema.content.SchemaMap?;
+    var inputSchema := input.cryptoSchema.content.SchemaMap;
+    assert CryptoSchemaMapIsFlat(inputSchema);
+    assert (forall k :: k in cryptoMap ==> k in inputSchema && inputSchema[k] == cryptoMap[k]);
+    assert (forall v :: v in cryptoMap.Values ==>
+      (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?));
+
     return Success(encryptOutput);
   }
 
