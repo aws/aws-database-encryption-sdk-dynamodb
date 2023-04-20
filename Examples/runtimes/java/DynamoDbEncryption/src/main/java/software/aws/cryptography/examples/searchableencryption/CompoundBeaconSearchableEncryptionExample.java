@@ -208,6 +208,7 @@ public class CompoundBeaconSearchableEncryptionExample {
             .kmsClient(KmsClient.create())
             .ddbClient(DynamoDbClient.create())
             .ddbTableName(branchKeyDdbTableName)
+            .kmsKeyArn(branchKeyWrappingKmsKeyArn)
             .build())
         .build();
     CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
