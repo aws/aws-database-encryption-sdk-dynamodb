@@ -117,7 +117,7 @@ module BeaconTestFixtures {
     var keyStoreConfig := KTypes.KeyStoreConfig(
       id := None,
       ddbTableName := "foo",
-      kmsKeyArn := "",
+      kmsKeyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126",
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
