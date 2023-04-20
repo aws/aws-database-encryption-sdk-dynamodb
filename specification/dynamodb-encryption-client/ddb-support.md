@@ -181,6 +181,11 @@ MUST be replaced by the beacon name. (i.e. aws_dbe_b_NAME replaced by NAME).
 
 Transform an unencrypted QueryInput object for searchable encryption.
 
+If the query does not use any beacon names
+either directly in the KeyConditionExpression or FilterExpression
+or indirectly through the ExpressionAttributeNames mapping
+the function MUST return an not attempt to obtain beacon key materials.
+
 [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
 MUST be obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query).
 

@@ -295,7 +295,7 @@ If `GetBeaconKey` fails get beacon key MUST fail.
 
 For every [standard beacons](beacons.md#standard-beacon-initialization) an HMAC key
 MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
-[Beacon Key Materials](#beacon-key-materials) MUST be generated
+[Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
 with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
 and the [HMAC Keys](#hmac-keys) equal to a map
 of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
@@ -315,40 +315,3 @@ to calculate the key for individual beacon,
 using the beacon key retrieved above as the initial key material with no salt.
 The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" and the beacon name.
 The `expectedLength` MUST be 64 bytes.
-
-
-
-
-
-
-
-// This needs to be moved to the ESDK specification,
-// but is here to facilitate development.
-## Beacon Key Materials
-
-#### Implementations
-
-| Language | Confirmed Compatible with Spec Version | Minimum Version Confirmed | Implementation |
-| -------- | -------------------------------------- | ------------------------- | -------------- |
-
-#### Structure
-
-Beacon Key materials are a structure containing materials
-that are used in structured encryption.
-They contain HMAC keys derived from a Beacon Key
-stored in the [Key Store](branch-key-store.md)
-
-This structure MUST include the following fields:
-
-- [Beacon Key Id](#beacon-key-id)
-- [HMAC Keys](#hmac-keys)
-
-##### Beacon Key Id
-
-The Beacon key id that was used to obtain
-the beacon key from a [Key Store](branch-key-store.md)
-
-##### HMAC Keys
-
-The a key-value mapping of arbitrary, UTF-8 encoded strings
-to HMAC Keys derived from the beacon key material.
