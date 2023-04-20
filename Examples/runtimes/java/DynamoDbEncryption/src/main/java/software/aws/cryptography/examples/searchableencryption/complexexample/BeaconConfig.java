@@ -143,6 +143,7 @@ public class BeaconConfig {
     // 3. Define sensitive parts
     //    Note that some of the prefixes are modified from the suggested prefixes in Demo.md.
     //    This is because all prefixes must be unique in a configuration.
+    //    Sensitive parts are described in more detail in the CompoundBeaconSearcbaleEncryptionExample.
     SensitivePart employeeIDSensitivePart = SensitivePart.builder()
         .name("EmployeeID")
         .prefix("E-")
@@ -277,11 +278,17 @@ public class BeaconConfig {
     List<NonSensitivePart> sk3NonSensitivePartList = new ArrayList<>();
     sk3NonSensitivePartList.add(ticketModTimeNonSensitivePart);
 
-    // 6. Create constructor parts
-    //    These are defined working backwards from the constructors in "PK Constructors",
-    //        "SK constructors", etc. sections in Demo.md.
+    // 6. Create constructor parts.
+    //    Constructor parts are used to assemble constructors (constructors described more in next step).
     //    For each attribute that will be used in a constructor, there must be a corresponding constructor part.
+    //    A constructor part must receive:
+    //     - name: Name of a standard beacon
+    //     - required: Whether this attribute must be present in the item to match a constructor
+    //    In this example, we will define each constructor part once and re-use it across multiple constructors.
+    //    The parts below are defined by working backwards from the constructors in "PK Constructors",
+    //        "SK constructors", etc. sections in Demo.md.
     ConstructorPart employeeIdConstructorPart = ConstructorPart.builder()
+        // This name comes from the "EmployeeID" standard beacon.
         .name("EmployeeID")
         .required(true)
         .build();
@@ -359,7 +366,13 @@ public class BeaconConfig {
         .build();
 
     // 7. Define constructors
-    //    These are based off of the "PK Constructors", "SK constructors", etc. sections in Demo.md.
+    //    Constructors define how sensitive and non-sensitive parts are assembled into compound beacons.
+    //    The constructors below are based off of the "PK Constructors", "SK constructors", etc. sections in Demo.md.
+
+    // The employee ID constructor only requires an employee ID.
+    // If an item has an attribute with name "EmployeeID", it will match this constructor.
+    // If this is the first matching constructor in the constructor list (constructor list described more below),
+    //     the compound beacon will use this constructor, and the compound beacon will be written as `E-X`.
     List<ConstructorPart> employeeIdConstructorPartList = new ArrayList<>();
     employeeIdConstructorPartList.add(employeeIdConstructorPart);
     Constructor employeeIdConstructor = Constructor.builder()
@@ -384,6 +397,13 @@ public class BeaconConfig {
         .parts(ticketModTimeConstructorPartList)
         .build();
 
+    // This constructor requires all of "MeetingStart", "Location.Floor", and "Location.Room" attributes.
+    // If an item has all of these attributes, it will match this constructor.
+    // If this is the first matching constructor in the constructor list (constructor list described more below),
+    //     the compound beacon will use this constructor, and the compound beacon will be written as `MS-X~F-Y~R-Z`.
+    // In a constructor with multiple constructor parts, the order the constructor parts are added to
+    //     the constructor part list defines how the compound beacon is written.
+    // We can rearrange the beacon parts by changing the order the constructors were added to the list.
     List<ConstructorPart> meetingStartFloorRoomConstructorPartList = new ArrayList();
     meetingStartFloorRoomConstructorPartList.add(meetingStartConstructorPart);
     meetingStartFloorRoomConstructorPartList.add(floorConstructorPart);
@@ -460,10 +480,15 @@ public class BeaconConfig {
         .parts(buildingFloorDeskConstructorPartList)
         .build();
 
-    // 8. Create constructor lists for each GSI key
-    //    Note that the order in which constructors are added determines their priority.
+    // 5. Add constructors to the compound beacon constructor list in desired construction order.
+    //    In a compound beacon with multiple constructors, the order the constructors are added to
+    //        the constructor list determines their priority.
     //    The first constructor added to a constructor list will be the first constructor that is executed.
-    //    If an item matches multiple constructors, the first matching constructor will be used.
+    //    The client will evaluate constructors until one matches, and will use the first one that matches.
+    //    If no constructors match, an attribute value is not written for that beacon.
+    //    A general strategy is to add constructors with unique conditions at the beginning of the list,
+    //       and add constructors with general conditions at the end of the list. This would allow a given
+    //       item would trigger the constructor most specific to its attributes.
     List<Constructor> pk0ConstructorList = new ArrayList<>();
     pk0ConstructorList.add(employeeIdConstructor);
     pk0ConstructorList.add(ticketNumberConstructor);
@@ -501,6 +526,7 @@ public class BeaconConfig {
     sk3ConstructorList.add(ticketModTimeConstructor);
 
     // 9. Define compound beacons
+    //    Compound beacon construction is defined in more detail in CompoundBeaconSearchableEncryptionExample.
     //    Note that the split character must be a character that is not used in any attribute value.
     CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
         .name("PK")
@@ -590,16 +616,7 @@ public class BeaconConfig {
     final Map<String, CryptoAction> attributeActions = new HashMap<>();
     // Our partition key must be configured as SIGN_ONLY
     attributeActions.put("partition_key", CryptoAction.SIGN_ONLY);
-    // Beaconized attributes must be configured as ENCRYPT_AND_SIGN
-    attributeActions.put("PK", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("SK", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("PK0", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("SK0", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("PK1", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("SK1", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("PK2", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("PK3", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("SK3", CryptoAction.ENCRYPT_AND_SIGN);
+    // Attributes used in beacons must be configured as ENCRYPT_AND_SIGN
     attributeActions.put("EmployeeID", CryptoAction.ENCRYPT_AND_SIGN);
     attributeActions.put("TicketNumber", CryptoAction.ENCRYPT_AND_SIGN);
     attributeActions.put("ProjectName", CryptoAction.ENCRYPT_AND_SIGN);
@@ -618,7 +635,7 @@ public class BeaconConfig {
     attributeActions.put("Subject", CryptoAction.ENCRYPT_AND_SIGN);
     // Non-sensitive parts and unencrypted attributes can be configured as SIGN_ONLY or DO_NOTHING
     // For this example, we will set these to SIGN_ONLY to ensure authenticity
-    attributeActions.put("TicketModTime", CryptoAction.SIGN_ONLY); // TODO clean up comments for SIGN_ONLY NS parts Beaconized attributes must be encrypted
+    attributeActions.put("TicketModTime", CryptoAction.SIGN_ONLY);
     attributeActions.put("MeetingStart", CryptoAction.SIGN_ONLY);
     attributeActions.put("TimeCardStart", CryptoAction.SIGN_ONLY);
     attributeActions.put("EmployeeTitle", CryptoAction.SIGN_ONLY);

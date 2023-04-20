@@ -6,7 +6,7 @@ import software.aws.cryptography.examples.searchableencryption.SearchableEncrypt
 public class TestComplexSearchableEncryptionExample {
 
   @Test
-  public void TestItemEncryptDecrypt() {
+  public void TestComplexExample() {
     ComplexSearchableEncryptionExample.runExample(
         ComplexSearchableEncryptionTestUtils.TEST_DDB_TABLE_NAME,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN,

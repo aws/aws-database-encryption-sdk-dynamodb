@@ -1,6 +1,8 @@
 package software.aws.cryptography.examples.searchableencryption.complexexample;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
@@ -23,8 +25,12 @@ public class PutRequests {
     putAllTimecardItemsToTable(ddbTableName, ddb);
   }
 
-    // meeting.json
+  // meeting.json
   public static void putAllMeetingItemsToTable(String ddbTableName, DynamoDbClient ddb) {
+    final List<AttributeValue> meeting1AttendeeList = new ArrayList<>();
+    meeting1AttendeeList.add(AttributeValue.builder().s("able@gmail.com").build());
+    meeting1AttendeeList.add(AttributeValue.builder().s("zorro@gmail.com").build());
+
     final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
     meeting1Location.put("Floor", AttributeValue.builder().s("12").build());
     meeting1Location.put("Room", AttributeValue.builder().s("403").build());
@@ -36,7 +42,7 @@ public class PutRequests {
     meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
     meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
     meeting1.put("Duration", AttributeValue.builder().s("30").build());
-    meeting1.put("Attendees", AttributeValue.builder().s("SomeList").build());
+    meeting1.put("Attendees", AttributeValue.builder().l(meeting1AttendeeList).build());
     meeting1.put("Subject", AttributeValue.builder().s("Scan Beacons").build());
 
     ddb.putItem(PutItemRequest.builder()
@@ -58,7 +64,6 @@ public class PutRequests {
     employee1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
     employee1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
     employee1.put("ManagerEmail", AttributeValue.builder().s("zorro@gmail.com").build());
-    employee1.put("Location", AttributeValue.builder().m(employee1Location).build());
     employee1.put("EmployeeName", AttributeValue.builder().s("Able Jones").build());
     employee1.put("EmployeeTitle", AttributeValue.builder().s("SDE9").build());
     employee1.put("Location", AttributeValue.builder().m(employee1Location).build());
@@ -89,17 +94,23 @@ public class PutRequests {
 
   // reservation.json
   public static void putAllReservationItemsToTable(String ddbTableName, DynamoDbClient ddb) {
+    final List<AttributeValue> meeting1AttendeeList = new ArrayList<>();
+    meeting1AttendeeList.add(AttributeValue.builder().s("able@gmail.com").build());
+    meeting1AttendeeList.add(AttributeValue.builder().s("betty@gmail.com").build());
+
     final HashMap<String, AttributeValue> reservation1Location = new HashMap<>();
     reservation1Location.put("Building", AttributeValue.builder().s("SEA33").build());
+    reservation1Location.put("Floor", AttributeValue.builder().s("12").build());
+    reservation1Location.put("Room", AttributeValue.builder().s("403").build());
 
     final HashMap<String, AttributeValue> reservation1 = new HashMap<>();
     reservation1.put("partition_key", AttributeValue.builder().s("reservation1").build());
     reservation1.put("Location", AttributeValue.builder().m(reservation1Location).build());
-    reservation1.put("MeetingStart", AttributeValue.builder().s("Pending").build());
-    reservation1.put("OrganizerEmail", AttributeValue.builder().s("2022-11-01").build());
-    reservation1.put("Duration", AttributeValue.builder().s("Turbo Crypto").build());
-    reservation1.put("Attendees", AttributeValue.builder().s("2024-01-01").build());
-    reservation1.put("Subject", AttributeValue.builder().s("2024-01-01").build());
+    reservation1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
+    reservation1.put("OrganizerEmail", AttributeValue.builder().s("able@gmail.com").build());
+    reservation1.put("Duration", AttributeValue.builder().s("30").build());
+    reservation1.put("Attendees", AttributeValue.builder().l(meeting1AttendeeList).build());
+    reservation1.put("Subject", AttributeValue.builder().s("Scan beacons").build());
 
     ddb.putItem(PutItemRequest.builder()
         .tableName(ddbTableName)
