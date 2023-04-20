@@ -273,7 +273,7 @@ If this list of beacon key ids is empty get beacon key for query MUST fail.
 If this list of beacon key ids has more than one unique beacon key id
 then get beacon key for query MUST fail.
 
-This unique value MUST be the `beacon key id`.
+`beacon key id` MUST be this unique value.
 
 The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`
 MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
