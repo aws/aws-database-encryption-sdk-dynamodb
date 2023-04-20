@@ -125,6 +125,7 @@ public class BasicSearchableEncryptionExample {
             .kmsClient(KmsClient.create())
             .ddbClient(DynamoDbClient.create())
             .ddbTableName(branchKeyDdbTableName)
+            .kmsKeyArn(branchKeyWrappingKmsKeyArn)
             .build())
         .build();
 
