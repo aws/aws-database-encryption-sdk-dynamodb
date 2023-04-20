@@ -50,8 +50,7 @@ public class BeaconConfig {
             .kmsKeyArn(branchKeyWrappingKmsKeyArn)
             .build())
         .build();
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
-        .build());
+    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
     String branchKeyId = output.branchKeyIdentifier();
 
     // 2. Create standard beacons
@@ -580,7 +579,6 @@ public class BeaconConfig {
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
         .build();
     CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-        .kmsKeyId(branchKeyWrappingKmsKeyArn)
         .branchKeyId(branchKeyId)
         .keyStore(keyStore)
         .ttlSeconds(6000l)
