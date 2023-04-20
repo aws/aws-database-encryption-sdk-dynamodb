@@ -40,6 +40,7 @@ public class TestUtils {
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(TEST_KEY_STORE_NAME)
                         .kmsClient(KmsClient.create())
+                        .kmsKeyArn(TEST_KEY_STORE_KMS_KEY)
                         .build()
         ).build();
     }
