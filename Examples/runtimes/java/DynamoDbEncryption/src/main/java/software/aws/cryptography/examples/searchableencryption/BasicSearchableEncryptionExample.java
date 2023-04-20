@@ -132,9 +132,7 @@ public class BasicSearchableEncryptionExample {
     //    The branch key stores information required to encrypt and decrypt items on the main table.
     //    This key lives as an item inside the keystore DDB table.
     //    After you create a branch key, you should persist its ID to decrypt items in the table.
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
-        .awsKmsKeyArn(branchKeyWrappingKmsKeyArn)
-        .build());
+    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
     String branchKeyId = output.branchKeyIdentifier();
 
     // 4. Create BeaconVersion.
@@ -166,7 +164,6 @@ public class BasicSearchableEncryptionExample {
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
         .build();
     CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-        .kmsKeyId(branchKeyWrappingKmsKeyArn)
         .branchKeyId(branchKeyId)
         .keyStore(keyStore)
         .ttlSeconds(6000l)
