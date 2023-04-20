@@ -218,7 +218,7 @@ that matched the beacon values, but do not match the plaintext values.
 
 If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source) for the configured table
 is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-the `expected beacon key id` MUST be the [Beacon Key Id](../searchable-encryption/search-config.md#beacon-key-materials)
+you MUST construct an `expected beacon key id` equal to the [Beacon Key Id](../searchable-encryption/search-config.md#beacon-key-materials)
 on materials obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query)
 These [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
 SHOULD then be discarded.
