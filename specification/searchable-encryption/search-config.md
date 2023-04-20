@@ -180,7 +180,9 @@ that exists in the [keystore](####keystore).
 
 A attribute name that is used to identify the beacon key id.
 This attribute can be passed in on the DDB item,
-but does not need to be stored in the table.
+by default it will not be stored in the table
+but will be stored if an attribute action of SIGN_ONLY
+is configured.
 It can be referenced in [compound beacons](./beacons.md#compound-beacon)
 and used to extract a beacon key id from a query.
 
