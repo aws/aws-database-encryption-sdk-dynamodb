@@ -66,7 +66,22 @@ module SearchConfigToInfo {
       forall b <- config.value.versions :: ValidBeaconVersion(b)
   }
 
+  // return true if, `keyFieldName` should be deleted from an item before writing
+  function method ShouldDeleteKeyField(outer : DynamoDbTableEncryptionConfig, keyFieldName : string)
+    : Result<bool, Error>
+  {
+    if keyFieldName !in outer.attributeActions then
+      Success(true)
+    else
+      match outer.attributeActions[keyFieldName] {
+        case DO_NOTHING => Success(true)
+        case SIGN_ONLY => Success(false)
+        case ENCRYPT_AND_SIGN => Failure(E("Beacon key field name " + keyFieldName + " is configured as ENCRYPT_AND_SIGN which is not allowed."))
+      }
+  }
+
   method MakeKeySource(
+    outer : DynamoDbTableEncryptionConfig,
     keyStore : I.ValidStore,
     config : BeaconKeySource,
     client: Primitives.AtomicPrimitivesClient
@@ -93,7 +108,8 @@ module SearchConfigToInfo {
 
     if config.multi? {
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
-      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName), cache, config.multi.cacheTTL as uint32));
+      var deleteKey :- ShouldDeleteKeyField(outer, config.multi.keyFieldName);
+      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32));
     } else {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
       output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32));
@@ -114,7 +130,7 @@ module SearchConfigToInfo {
 
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
-    var source :- MakeKeySource(config.keyStore, config.keySource, primitives);
+    var source :- MakeKeySource(outer, config.keyStore, config.keySource, primitives);
     output := ConvertVersionWithSource(outer, config, source);
   }
 
@@ -142,12 +158,12 @@ module SearchConfigToInfo {
         return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
       }
     }
-    return Success(I.BeaconVersion(
-                     version := config.version as I.VersionNumber,
-                     keySource := source,
-                     beacons := beacons,
-                     virtualFields := virtualFields
-                   ));
+    return I.MakeBeaconVersion(
+        config.version as I.VersionNumber,
+        source,
+        beacons,
+        virtualFields
+      );
   }
 
   // convert configured VirtualFieldList to internal VirtualFieldMap
@@ -479,7 +495,9 @@ module SearchConfigToInfo {
     :- Need(0 < |parts|, E("For beacon " + beacons[0].name + " no parts were supplied."));
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
     var constructors :- AddConstructors(beacons[0].constructors, parts);
-    var beaconName := BeaconPrefix + beacons[0].name;
+
+    var beaconName := if beacons[0].sensitive.Some? && 0 < |beacons[0].sensitive.value| then
+      BeaconPrefix + beacons[0].name else beacons[0].name;
     :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
 
     var newBeacon := CB.CompoundBeacon(

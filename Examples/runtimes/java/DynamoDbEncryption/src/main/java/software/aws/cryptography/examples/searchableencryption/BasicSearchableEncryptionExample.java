@@ -52,17 +52,14 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
    - "beacon_num_attr" stores an encrypted 5-digit US zipcode (00000 - 99999)
 
   The example requires the following ordered input command line parameters:
-    1. Index name for GSI configured on beacon attributes
-    2. DDB table name for table to put/query data from
-    3. Branch key ID containing the value of the "branch-key-id" attribute in the branch keystore
-       for the key that should be used
-    4. Branch key wrapping KMS key ARN for the KMS key used to create the branch key
-    5. Branch key DDB table ARN for the DDB table representing the branch key store
+    1. DDB table name for table to put/query data from
+    2. Branch key wrapping KMS key ARN for the KMS key used to create the branch key
+    3. Branch key DDB table ARN for the DDB table representing the branch key store
  */
 
 public class BasicSearchableEncryptionExample {
 
-  static String GSI_NAME = "Example-Beacon-Index";
+  static String GSI_NAME = "Example-Standard-Beacon-Index";
 
   public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
@@ -120,6 +117,7 @@ public class BasicSearchableEncryptionExample {
 
     // 2. Create Keystore.
     //    The keystore is a separate DDB table where the client stores encryption and decryption materials.
+    //    In order to configure beacons on the DDB client, you must configure a keystore.
     //    For more information, see:
     //    TODO: Add link
     KeyStore keyStore = KeyStore.builder()
@@ -133,6 +131,7 @@ public class BasicSearchableEncryptionExample {
     // 3. Create a branch key.
     //    The branch key stores information required to encrypt and decrypt items on the main table.
     //    This key lives as an item inside the keystore DDB table.
+    //    After you create a branch key, you should persist its ID to decrypt items in the table.
     CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
         .awsKmsKeyArn(branchKeyWrappingKmsKeyArn)
         .build());
@@ -140,14 +139,10 @@ public class BasicSearchableEncryptionExample {
 
     // 4. Create BeaconVersion.
     //    The BeaconVersion inside the list holds the list of beacons on the table.
-    //    The BeaconVersion also stores information about the branch keystore.
-    //    The branch keystore is a separate DDB table that stores encryption and decryption information. See:
-    //    TODO: Add link
-    //    In order to configure beacons on the DDB client, you must configure a branch keystore.
+    //    The BeaconVersion also stores information about the keystore.
     //    BeaconVersion must be provided:
-    //      - branchKeyId: The value contained in the `branch-key-id` attribute in the branch keystore
-    //      - keyArn: The ARN of the KMS key used to create the branch key
-    //      - tableArn: The ARN of the branch keystore DDB table
+    //      - keyStore: The keystore configured in step 2
+    //      - keySource: A configuration for the key source
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()
@@ -164,7 +159,7 @@ public class BasicSearchableEncryptionExample {
     );
 
     // 5. Create a Hierarchical Keyring
-    //    This is a KMS keyring that utilizes the branch keystore table.
+    //    This is a KMS keyring that utilizes the keystore table.
     //    This config defines how items are encrypted and decrypted.
     //    NOTE: You should configure this to use the same keystore as your search config.
     final MaterialProviders matProv = MaterialProviders.builder()
@@ -228,7 +223,7 @@ public class BasicSearchableEncryptionExample {
     //     Since our configuration includes beacons for `beacon_str_attr` and `beacon_num_attr`,
     //         the client will add two additional attributes to the item. These attributes will have names
     //         `aws_dbe_b_beacon_str_attr` and `aws_dbe_b_beacon_num_attr`. Their values will be HMACs
-    //         truncated to the beacon's `length` parameter; e.g.
+    //         truncated to as many bits as the beacon's `length` parameter; e.g.
     //     aws_dbe_b_beacon_str_attr = truncate(HMAC("WA"), 4)
     //     aws_dbe_b_beacon_num_attr = truncate(HMAC("98101"), 10)
     final HashMap<String, AttributeValue> item = new HashMap<>();
@@ -285,8 +280,8 @@ public class BasicSearchableEncryptionExample {
   }
 
   public static void main(final String[] args) {
-    if (args.length != 4) {
-      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyId as args[1], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
+    if (args.length != 3) {
+      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyWrappingKmsKeyId as args[1], and branchKeyDdbTableName as args[2]");
     }
     final String ddbTableName = args[0];
     final String branchKeyWrappingKmsKeyArn = args[1];
