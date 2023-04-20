@@ -573,7 +573,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
       && output.value.parsedHeader.Some?
       && var structuredEncParsed := Seq.Last(config.structuredEncryption.History.EncryptStructure).output.value.parsedHeader;
       && structuredEncParsed.cryptoSchema.content.SchemaMap?
-      && var parsedHeaderMap := structuredEncParsed.cryptoSchema.content.SchemaMap
+      && var parsedHeaderMap := structuredEncParsed.cryptoSchema.content.SchemaMap;
       && (forall k <- parsedHeaderMap ::
         && parsedHeaderMap[k].content.Action?
         && (parsedHeaderMap[k].content.Action.ENCRYPT_AND_SIGN? || parsedHeaderMap[k].content.Action.SIGN_ONLY?))
