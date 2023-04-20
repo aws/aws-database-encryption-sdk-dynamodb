@@ -107,23 +107,9 @@ a [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-f
 and the [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
 to determine how this field should be handled.
 
-
-// Remove the None and hoist the if statement.
-
-
-If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
-is a [Single Key Store](../searchable-encryption/search-config.md#single-key-store-initialization)
-HandleBeaconKeyFieldName MUST return a `beacon key id` of None
-and the unaltered AttributeMap.
-The specific `beacon key id` is not returned in this case
-because it is statically configured in the Single Key Store.
-If it was returned his would mean that the same branch key
-would need to encrypt this record.
-This is not the intended use of a Single Key Store.
-
-If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
-is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-then it MUST check the following conditions.
+The [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+MUST be [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+or HandleBeaconKeyFieldName MUST fail.
 
 If the AttributeMap does not have a key
 equal to [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)

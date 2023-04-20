@@ -208,17 +208,28 @@ The Item MUST be [writable](ddb-support.md#writable).
 
 Non-Sensitive Beacons MUST be [added](ddb-support.md#addnonsensitivebeacons).
 
-The [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
 MUST be [handled](./ddb-support.md#handlebeaconkeyfieldname).
 
-If the request is validated,
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
 the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [Encrypt Item](./encrypt-item.md),
 where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
 is output of [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname) operation.
 
-If the output of [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
-contained a `branch key id` this value
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Single Key Store](../searchable-encryption/search-config.md#single-key-store-initialization)
+the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Encrypt Item](./encrypt-item.md),
+where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
+is output of [adding the non-sensitive beacons](ddb-support.md#addnonsensitivebeacons) operation.
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+the `branch key id` from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
 MUST match the value returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
 
 Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
