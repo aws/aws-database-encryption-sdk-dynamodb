@@ -58,8 +58,6 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
-    2. Branch key ID containing the value of the "branch-key-id" attribute in the branch keystore
-       for the key that should be used
     3. Branch key wrapping KMS key ARN for the KMS key used to create the branch key
     4. Branch key DDB table ARN for the DDB table representing the branch key store
  */
@@ -73,6 +71,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     // 1. Create Beacons.
     //    These are the same beacons as in the "BasicSearchableEncryptionExample" in this directory.
     //    See that file to see details on beacon construction and parameters.
+    //    While we will not query against these beacons, you must create standard beacons on fields
+    //        that you wish to use in compound beacons.
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
     StandardBeacon stringBeacon = StandardBeacon.builder()
         .name("beacon_str_attr")
@@ -92,11 +92,11 @@ public class CompoundBeaconSearchableEncryptionExample {
     // A sensitive part must receive:
     //  - name: Name of a standard beacon
     //  - prefix: Any string. This is plaintext that prefixes the beaconized value in the compound beacon.
-    //            Prefixes must not be a prefix of another prefix;
+    //            Prefixes must be unique across the configuration, and must not be a prefix of another prefix;
     //            i.e. for all configured prefixes, the first N characters of a prefix must not equal another prefix.
     // In practice, it is suggested to have a short value distinguishable from other parts served on the prefix.
     // For this example, we will choose "S-" as the prefix for "State abbreviation".
-    // With this prefix and the standard beacon's length definition, a state abbreviation beacon will appear
+    // With this prefix and the standard beacon's bit length definition (4), a state abbreviation beacon will appear
     //     as `S-0` to `S-f` inside a compound beacon.
     SensitivePart sensitivePartEmployee = SensitivePart.builder()
         .name("beacon_str_attr")
@@ -104,7 +104,7 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     sensitivePartList.add(sensitivePartEmployee);
     // For this example, we will choose "Z-" as the prefix for "Zipcode".
-    // With this prefix and the standard beacon's length definition, a zipcode beacon will appear
+    // With this prefix and the standard beacon's bit length definition (10), a zipcode beacon will appear
     //     as `Z-000` to `Z-3ff` inside a compound beacon.
     SensitivePart sensitivePartRoom = SensitivePart.builder()
         .name("beacon_num_attr")
@@ -112,35 +112,71 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     sensitivePartList.add(sensitivePartRoom);
 
-    // 3. Create constructors.
-    //    Constructors define how sensitive and non-sensitive parts are assembled into compound beacons.
-    List<ConstructorPart> constructorPartList = new ArrayList<>();
-    // A constructor part must receive:
-    //  - name: Name of a standard beacon
-    //  - required: Whether this attribute must be present in the item
-    // We will name this constructor `beacon_str_attr` after our standard beacon.
-    // As an example, this will not be required.
+    // 3. Create constructor parts.
+    //    Constructor parts are used to assemble constructors.
+    //    A constructor part must receive:
+    //     - name: Name of a standard beacon
+    //     - required: Whether this attribute must be present for the constructor
+    //    We will name this constructor `beacon_str_attr` after our standard beacon.
+    //    As an example, this will be required.
     ConstructorPart constructorPartStr = ConstructorPart.builder()
         .name("beacon_str_attr")
-        .required(false)
+        .required(true)
         .build();
-    constructorPartList.add(constructorPartStr);
     // We will name this constructor `beacon_num_attr` after our standard beacon.
-    // As an example, this will not be required.
+    // As an example, this will be required.
     ConstructorPart constructorPartNum = ConstructorPart.builder()
         .name("beacon_num_attr")
-        .required(false)
+        .required(true)
         .build();
-    constructorPartList.add(constructorPartNum);
-    // The order constructors are added to the constructor part list matters.
+
+    // 4. Create constructors.
+    //    Constructors define how sensitive and non-sensitive parts are assembled into compound beacons.
+    //    We will define 3 constructors:
+    //     1. Only zipcode
+    //     2. Only state abbreviation
+    //     3. Both state and zipcode abbreviation
+    //   See that we re-use the constructor parts across multiple constructors.
+    List<ConstructorPart> onlyZipcodeConstructorPartList = new ArrayList<>();
+    onlyZipcodeConstructorPartList.add(constructorPartNum);
+    Constructor onlyZipcodeConstructor = Constructor.builder()
+        .parts(onlyZipcodeConstructorPartList)
+        .build();
+
+    List<ConstructorPart> onlyStateConstructorPartList = new ArrayList<>();
+    onlyStateConstructorPartList.add(constructorPartStr);
+    Constructor onlyStateConstructor = Constructor.builder()
+        .parts(onlyStateConstructorPartList)
+        .build();
+
+    // In a constructor with multiple constructor parts, the order the constructor parts are added to
+    //     the constructor part list matters.
     // By adding beacon_str_attr first and beacon_num_attr second, this compound beacon will be
     //     constructed as [beacon_str_attr][split character][beacon_num_attr].
     // We can reverse the placements by swapping the order the constructors were added to the list.
-    List<Constructor> constructorList = new ArrayList<>();
-    Constructor constructor = Constructor.builder()
-        .parts(constructorPartList)
+    List<ConstructorPart> bothZipcodeAndStateConstructorPartList = new ArrayList<>();
+    bothZipcodeAndStateConstructorPartList.add(constructorPartStr);
+    bothZipcodeAndStateConstructorPartList.add(constructorPartNum);
+    Constructor bothZipcodeAndStateConstructor = Constructor.builder()
+        .parts(bothZipcodeAndStateConstructorPartList)
         .build();
-    constructorList.add(constructor);
+
+    // 5. Add constructors to the compound beacon constructor list in desired construction order.
+    //    In a compound beacon with multiple constructors, the order the constructors are added to
+    //        the constructor list matters.
+    //    The client will use the first matching constructor in the list to create a beacon.
+    //    In our case, this forces us to add the "bothZipcodeAndStateConstructor" first. Since it requires
+    //        both zipcode and state, and the other two constructors only require one or the other,
+    //        it would never be constructed if it were placed behind one of the other constructors,
+    //        as an item with both a zipcode and a state abbreviation attribute would always match the
+    //        first matching constructor.
+    //    A general strategy is to add constructors with unique conditions at the beginning of the list,
+    //       and add constructors with general conditions at the end of the list. This would allow a given
+    //       item would trigger the constructor most specific to its attributes.
+    List<Constructor> constructorList = new ArrayList<>();
+    constructorList.add(bothZipcodeAndStateConstructor);
+    constructorList.add(onlyStateConstructor);
+    constructorList.add(onlyZipcodeConstructor);
 
     // 4. Define compound beacon.
     //    A compound beacon allows one to serve multiple beacons or attributes from a single index.
