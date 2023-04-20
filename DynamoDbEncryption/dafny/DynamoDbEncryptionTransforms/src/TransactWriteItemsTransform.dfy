@@ -102,8 +102,8 @@ module TransactWriteItemsTransform {
           EncTypes.EncryptItemInput(plaintextItem:=beaconItem)
         );
         var encrypted :- MapError(encryptRes);
-        // TODO - extract KeyId from encryption output if Multi
-        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, None);
+        var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
+        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, keyId);
 
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The PutItem request's `Item` field MUST be replaced
