@@ -204,6 +204,7 @@ that the [Key Store Cache](#key-store-cache) will be configured to.
  MUST be key store's max cache size.
 
  The Key Store Cache MUST be bound to the Beacon Key Source.
+ This is currently invariant because we construct the cache for each search config
  It is easy for beacon key ids to be unique within a single key source,
  this may not be true across all key sources.
 
