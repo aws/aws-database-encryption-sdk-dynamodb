@@ -117,6 +117,7 @@ public class BasicSearchableEncryptionExample {
 
     // 2. Create Keystore.
     //    The keystore is a separate DDB table where the client stores encryption and decryption materials.
+    //    In order to configure beacons on the DDB client, you must configure a keystore.
     //    For more information, see:
     //    TODO: Add link
     KeyStore keyStore = KeyStore.builder()
@@ -138,13 +139,10 @@ public class BasicSearchableEncryptionExample {
 
     // 4. Create BeaconVersion.
     //    The BeaconVersion inside the list holds the list of beacons on the table.
-    //    The BeaconVersion also stores information about the branch keystore.
-    //    The branch keystore is a separate DDB table that stores encryption and decryption information. See:
-    //    TODO: Add link
-    //    In order to configure beacons on the DDB client, you must configure a branch keystore.
+    //    The BeaconVersion also stores information about the keystore.
     //    BeaconVersion must be provided:
-    //      - keystore: The keystore configured in step 2
-    //      -
+    //      - keyStore: The keystore configured in step 2
+    //      - keySource: A configuration for the key source
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()
@@ -161,7 +159,7 @@ public class BasicSearchableEncryptionExample {
     );
 
     // 5. Create a Hierarchical Keyring
-    //    This is a KMS keyring that utilizes the branch keystore table.
+    //    This is a KMS keyring that utilizes the keystore table.
     //    This config defines how items are encrypted and decrypted.
     //    NOTE: You should configure this to use the same keystore as your search config.
     final MaterialProviders matProv = MaterialProviders.builder()
