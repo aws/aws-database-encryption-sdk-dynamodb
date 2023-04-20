@@ -181,14 +181,6 @@ MUST be replaced by the beacon name. (i.e. aws_dbe_b_NAME replaced by NAME).
 
 Transform an unencrypted QueryInput object for searchable encryption.
 
-If the query does not use any beacon names
-either directly in the KeyConditionExpression or FilterExpression
-or indirectly through the ExpressionAttributeNames mapping
-the function MUST return an not attempt to obtain beacon key materials.
-
-[Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
-MUST be obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query).
-
 For any operand in the KeyConditionExpression or FilterExpression which is a beacon name,
 the name MUST be replaced by the internal beacon name (i.e. NAME replaced by aws_dbe_b_NAME).
 
@@ -201,6 +193,13 @@ the name MUST be changed in the ExpressionAttributeNames. For example if the que
 the query must remain unchanged and ExpressionAttributeNames changed to (#Beacon = aws_dbe_b_MyBeacon).
 
 In this regard, each use of each operand is handled separately.
+
+[Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
+MUST be obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query)
+if a beacon value must be calculated.
+But [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
+MUST NOT be obtained the query is only over SIGN_ONLY fields.
+An item may be written that contains no beacons over an encrypted field.
 
 Similarly, any values in ExpressionAttributeValues that are referred to by a beacon name
 MUST be changed to the beacon value, as calculated defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
@@ -219,7 +218,13 @@ where "13fd" is the calculated beacon value.
 Transform an unencrypted QueryOutput object for searchable encryption.
 
 We expect that the list of items returned will contain some extra records
-that matched the beacon values, but do not match the plaintext values.
+that matched the beacon values, but do not match the plaintext values
+if the customer has made a query over any encrypted fields.
+
+If the query only involves SIGN_ONLY fields
+then QueryOutputForBeacons MUST not filter the results
+and MUST return.
+This is because the query may not have a beacon key id filed.
 
 If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source) for the configured table
 is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
@@ -227,8 +232,7 @@ you MUST construct an `expected beacon key id` equal to the [Beacon Key Id](../s
 on materials obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query)
 These [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
 SHOULD then be discarded.
-
-If we have an `expected beacon key id`,
+Using the constructed `expected beacon key id`,
 for each item the result
 from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header)
 MUST match the `expected beacon key id`.
