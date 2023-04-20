@@ -19,7 +19,7 @@ The first category is for general support, used across multiple DynamoDB API tra
  * [AddSensitiveBeacons](#addsensitivebeacons) - Add attributes to an item to enable searchable encryption
  * [RemoveBeacons](#removebeacons) - Remove all private attributes from an item,
  e.g. the ones added in [AddNonSensitiveBeacons](#addnonsensitivebeacons) and [AddSensitiveBeacons](#addsensitivebeacons)
- * [HandleBeaconKeyFieldName](#handlebeaconkeyfieldname) - 
+ * [HandleBeaconKeyFieldName](#handlebeaconkeyfieldname) - Handle the beacon key field name for Multi Key Store configurations
 
 The second category is support for specific interceptors, where the whole input or output structure is modified.
  * [CreateTableInputForBeacons](#createtableinputforbeacons)
@@ -107,12 +107,17 @@ a [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-f
 and the [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
 to determine how this field should be handled.
 
+
+// Remove the None and hoist the if statement.
+
+
 If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
 is a [Single Key Store](../searchable-encryption/search-config.md#single-key-store-initialization)
 HandleBeaconKeyFieldName MUST return a `beacon key id` of None
 and the unaltered AttributeMap.
 The specific `beacon key id` is not returned in this case
-because this would mean that the same branch key
+because it is statically configured in the Single Key Store.
+If it was returned his would mean that the same branch key
 would need to encrypt this record.
 This is not the intended use of a Single Key Store.
 
@@ -185,6 +190,15 @@ MUST be replaced by the beacon name. (i.e. aws_dbe_b_NAME replaced by NAME).
 
 Transform an unencrypted QueryInput object for searchable encryption.
 
+The KeyConditions property MUST NOT be defined on QueryInput.
+
+If [QueryObject has sensitive values](#queryobject-has-sensitive-values) is true 
+then QueryInputForBeacons MUST obtain [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
+from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query).
+If there are not any ExpressionAttributeValues that are referred to by
+a beacon name that contain sensitive values
+then QueryInputForBeacons MUST NOT attempt to obtain [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials).
+
 For any operand in the KeyConditionExpression or FilterExpression which is a beacon name,
 the name MUST be replaced by the internal beacon name (i.e. NAME replaced by aws_dbe_b_NAME).
 
@@ -198,13 +212,6 @@ the query must remain unchanged and ExpressionAttributeNames changed to (#Beacon
 
 In this regard, each use of each operand is handled separately.
 
-[Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
-MUST be obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query)
-if a beacon value must be calculated.
-But [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
-MUST NOT be obtained the query not involve any ENCRYPT_AND_SIGN fields.
-An item may be written that contains no beacons over an encrypted field.
-
 Similarly, any values in ExpressionAttributeValues that are referred to by a beacon name
 MUST be changed to the beacon value, as calculated defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
 The [hmac key](./search-config.md#hmac-key-generation) used
@@ -217,6 +224,15 @@ For example if the query is
 then the ExpressionAttributeValues must be changed to (:value = 13fd),
 where "13fd" is the calculated beacon value.
 
+### QueryObject has sensitive values
+
+Determines if a Query Object has sensitive values (ENCRYPT_AND_SIGN fields)
+
+If there are any ExpressionAttributeValues that are referred to by
+a beacon name that contain sensitive values (ENCRYPT_AND_SIGN field)
+then QueryObject has sensitive values MUST return true.
+Otherwise it MUST return false.
+
 ## QueryOutputForBeacons
 
 Transform an unencrypted QueryOutput object for searchable encryption.
@@ -225,7 +241,7 @@ We expect that the list of items returned will contain some extra records
 that matched the beacon values, but do not match the plaintext values
 if the customer has made a query over any encrypted fields.
 
-If the query does not involves any ENCRYPT_AND_SIGN fields
+If [QueryObject has sensitive values](#queryobject-has-sensitive-values) is true 
 then QueryOutputForBeacons MUST not filter the results
 and MUST return.
 This is because the query may not have a beacon key id filed.
