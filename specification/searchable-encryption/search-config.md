@@ -248,7 +248,7 @@ This function MUST return the [Key Provider Information](../../submodules/Materi
 
 ### Get beacon key for query
 
-Takes a [Search Config](#search-config) and a [Query Object]
+Takes a [Search Config](#search-config) and a Query Object
 
 If the [Beacon Key Source](#beacon-key-source) is a [Single Key Store](#single-key-store-initialization)
 then `beacon key id` MUST be the configured [beacon key id](#beacon-key-id)
