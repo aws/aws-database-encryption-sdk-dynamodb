@@ -97,8 +97,8 @@ module PutItemTransform {
       EncTypes.EncryptItemInput(plaintextItem:=item)
     );
     var encrypted :- MapError(encryptRes);
-    // TODO - extract KeyId from encryption output if Multi
-    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, None);
+    var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
+    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, keyId);
     return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem + beacons)));
   }
 
