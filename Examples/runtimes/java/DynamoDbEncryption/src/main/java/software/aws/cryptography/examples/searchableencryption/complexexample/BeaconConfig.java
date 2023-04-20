@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.searchableencryption;
+package software.aws.cryptography.examples.searchableencryption.complexexample;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,11 +6,6 @@ import java.util.List;
 import java.util.Map;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
-import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKeySource;
 import software.amazon.cryptography.dynamoDbEncryption.model.BeaconVersion;
@@ -35,9 +30,9 @@ import software.amazon.cryptography.materialProviders.model.MaterialProvidersCon
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
 
-public class ComplexSearchableEncryptionExample {
+public class BeaconConfig {
 
-  public static void SetupBeaconConfig(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
+  public static DynamoDbClient SetupBeaconConfig(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 2. Create Keystore and branch key.
     //    These are the same constructions as in the Basic example, which describes these in more detail.
@@ -71,10 +66,10 @@ public class ComplexSearchableEncryptionExample {
 //        .name("TicketModTime")
 //        .length(4)
 //        .build();
-    StandardBeacon meetingStartStandardBeacon = StandardBeacon.builder()
-        .name("MeetingStart")
-        .length(4)
-        .build();
+//    StandardBeacon meetingStartStandardBeacon = StandardBeacon.builder()
+//        .name("MeetingStart")
+//        .length(4)
+//        .build();
 //    StandardBeacon timeCardStartStandardBeacon = StandardBeacon.builder()
 //        .name("TimeCardStart")
 //        .length(4)
@@ -141,7 +136,7 @@ public class ComplexSearchableEncryptionExample {
     standardBeaconList.add(ticketNumberStandardBeacon);
     standardBeaconList.add(projectNameStandardBeacon);
 //    standardBeaconList.add(ticketModTimeStandardBeacon);
-    standardBeaconList.add(meetingStartStandardBeacon);
+//    standardBeaconList.add(meetingStartStandardBeacon);
 //    standardBeaconList.add(timeCardStartStandardBeacon);
     standardBeaconList.add(employeeEmailStandardBeacon);
     standardBeaconList.add(creatorEmailStandardBeacon);
@@ -173,7 +168,7 @@ public class ComplexSearchableEncryptionExample {
         .name("TicketModTime")
         .prefix("M-")
         .build();
-    SensitivePart meetingStartSensitivePart = SensitivePart.builder()
+    NonSensitivePart meetingStartNonSensitivePart = NonSensitivePart.builder()
         .name("MeetingStart")
         .prefix("MS-")
         .build();
@@ -247,11 +242,10 @@ public class ComplexSearchableEncryptionExample {
     sk0SensitivePartList.add(roomSensitivePart);
     sk0SensitivePartList.add(projectNameSensitivePart);
     sk0SensitivePartList.add(employeeEmailSensitivePart);
-    sk0SensitivePartList.add(meetingStartSensitivePart);
     List<NonSensitivePart> sk0NonSensitivePartList = new ArrayList<>();
     sk0NonSensitivePartList.add(timeCardStartNonSensitivePart);
     sk0NonSensitivePartList.add(ticketModTimeNonSensitivePart);
-    //sk0NonSensitivePartList.add(meetingStartSensitivePart);
+    sk0NonSensitivePartList.add(meetingStartNonSensitivePart);
 
 
     List<SensitivePart> pk1SensitivePartList = new ArrayList<>();
@@ -264,10 +258,9 @@ public class ComplexSearchableEncryptionExample {
     sk1SensitivePartList.add(employeeIDSensitivePart);
     sk1SensitivePartList.add(floorSensitivePart);
     sk1SensitivePartList.add(roomSensitivePart);
-    sk1SensitivePartList.add(meetingStartSensitivePart);
     List<NonSensitivePart> sk1NonSensitivePartList = new ArrayList<>();
     sk1NonSensitivePartList.add(ticketModTimeNonSensitivePart);
-    //sk1NonSensitivePartList.add(meetingStartNonSensitivePart);
+    sk1NonSensitivePartList.add(meetingStartNonSensitivePart);
     sk1NonSensitivePartList.add(projectStartNonSensitivePart);
 
     List<SensitivePart> pk2SensitivePartList = new ArrayList<>();
@@ -468,11 +461,11 @@ public class ComplexSearchableEncryptionExample {
     pk0ConstructorList.add(projectNameConstructor);
 
     List<Constructor> sk0ConstructorList = new ArrayList<>();
-    sk0ConstructorList.add(employeeIdConstructor);
     sk0ConstructorList.add(ticketModTimeConstructor);
     sk0ConstructorList.add(meetingStartFloorRoomConstructor);
     sk0ConstructorList.add(projectNameConstructor);
     sk0ConstructorList.add(timeCardStartEmployeeEmailConstructor);
+    sk0ConstructorList.add(employeeIdConstructor);
 
     List<Constructor> pk1ConstructorList = new ArrayList<>();
     pk1ConstructorList.add(creatorEmailConstructor);
@@ -482,9 +475,9 @@ public class ComplexSearchableEncryptionExample {
 
     List<Constructor> sk1ConstructorList = new ArrayList<>();
     sk1ConstructorList.add(meetingStartFloorRoomConstructor);
-    sk1ConstructorList.add(employeeIdConstructor);
     sk1ConstructorList.add(ticketModTimeConstructor);
     sk1ConstructorList.add(projectStartConstructor);
+    sk1ConstructorList.add(employeeIdConstructor);
 
     List<Constructor> pk2ConstructorList = new ArrayList<>();
     pk2ConstructorList.add(managerEmailConstructor);
@@ -675,9 +668,16 @@ public class ComplexSearchableEncryptionExample {
     attributeActions.put("TicketNumber", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("ProjectName", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("TicketModTime", CryptoAction.SIGN_ONLY); // TODO clean up comments for SIGN_ONLY NS parts Beaconized attributes must be encrypted
-    attributeActions.put("MeetingStart", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("MeetingStart", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
     attributeActions.put("TimeCardStart", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
+    attributeActions.put("EmployeeName", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("EmployeeTitle", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
     attributeActions.put("EmployeeEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("Description", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
+    attributeActions.put("ProjectTarget", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
+    attributeActions.put("Hours", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
+    attributeActions.put("Role", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
+    attributeActions.put("Message", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
     attributeActions.put("CreatorEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("ProjectStatus", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("OrganizerEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
@@ -688,7 +688,7 @@ public class ComplexSearchableEncryptionExample {
     attributeActions.put("Severity", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("Location", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("Attendees", CryptoAction.ENCRYPT_AND_SIGN); // These are not in beacons, but are sensitive
-                                                                      //     and should be encrypted
+    //     and should be encrypted
     attributeActions.put("Duration", CryptoAction.SIGN_ONLY);
     attributeActions.put("Subject", CryptoAction.ENCRYPT_AND_SIGN);
 
@@ -719,142 +719,71 @@ public class ComplexSearchableEncryptionExample {
                 .build())
         .build();
 
-    final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
-    final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
-    meeting1Location.put("Floor", AttributeValue.builder().s("12").build());
-    meeting1Location.put("Room", AttributeValue.builder().s("403").build());
-    meeting1.put("partition_key", AttributeValue.builder().s("HMAC(meeting1)").build());
-    meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
-    meeting1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
-    meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
-    meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
-    meeting1.put("Duration", AttributeValue.builder().s("30").build());
-    meeting1.put("Attendees", AttributeValue.builder().s("SomeList").build());
-    meeting1.put("Subject", AttributeValue.builder().s("Scan Beacons").build());
+    return ddb;
 
-    final PutItemRequest putRequestOnlyZip = PutItemRequest.builder()
-        .tableName(ddbTableName)
-        .item(meeting1)
-        .build();
+//    loadTable(ddbTableName, ddb);
+//
+//    queryTable(ddbTableName, ddb);
 
-    final PutItemResponse putResponseOnlyZip = ddb.putItem(putRequestOnlyZip);
-    // Validate item put successfully
-    assert 200 == putResponseOnlyZip.sdkHttpResponse().statusCode();
+//    final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
+//    final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
+//    meeting1Location.put("Floor", AttributeValue.builder().s("12").build());
+//    meeting1Location.put("Room", AttributeValue.builder().s("403").build());
+//    meeting1.put("partition_key", AttributeValue.builder().s("HMAC(meeting1)").build());
+//    meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
+//    meeting1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
+//    meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
+//    meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
+//    meeting1.put("Duration", AttributeValue.builder().s("30").build());
+//    meeting1.put("Attendees", AttributeValue.builder().s("SomeList").build());
+//    meeting1.put("Subject", AttributeValue.builder().s("Scan Beacons").build());
+//
+//    final PutItemRequest putRequestOnlyZip = PutItemRequest.builder()
+//        .tableName(ddbTableName)
+//        .item(meeting1)
+//        .build();
+//
+//    final PutItemResponse putResponseOnlyZip = ddb.putItem(putRequestOnlyZip);
+//    // Validate item put successfully
+//    assert 200 == putResponseOnlyZip.sdkHttpResponse().statusCode();
 
-    // 12. Query for the item we just put.
-    Map<String,String> expressionAttributesNames = new HashMap<>();
-    expressionAttributesNames.put("#p", "PK1");
-    expressionAttributesNames.put("#sk1", "SK1");
-    expressionAttributesNames.put("#dur", "Duration");
-
-    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
-    // The expression below queries against zipcodes of 98109.
-    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
-    //     except we must add the prefix.
-    Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
-    expressionAttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
-    expressionAttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
-    expressionAttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
-    expressionAttributeValues.put(":dur", AttributeValue.builder().s("0").build());
-
-    QueryRequest queryRequest = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#p = :e AND #sk1 BETWEEN :date1 AND :date2")
-        .filterExpression("#dur > :dur")
-        .expressionAttributeNames(expressionAttributesNames)
-        .expressionAttributeValues(expressionAttributeValues)
-        .build();
-
-    System.out.println(queryRequest);
-
-    QueryResponse queryResponse = ddb.query(queryRequest);
-    List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
-    // Validate query was returned successfully
-    assert 200 == queryResponse.sdkHttpResponse().statusCode();
-    // Validate only 1 item was returned: the item we just put
-    assert attributeValues.size() == 1;
-    Map<String, AttributeValue> returnedItem = attributeValues.get(0);
-    // Validate the item has the expected attributes
-    System.out.println(returnedItem);
-    assert returnedItem.get("EmployeeEmail").n().equals("able@gmail.com");
-  }
-
-//  public static void putToTable(final HashMap<String, AttributeValue> toPut, )
-
-  public static void loadTable() {
-    // meeting.json
-    final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
-    final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
-    meeting1Location.put("Floor", AttributeValue.builder().s("12").build());
-    meeting1Location.put("Room", AttributeValue.builder().s("403").build());
-    meeting1.put("partition_key", AttributeValue.builder().s("meeting1").build());
-    meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
-    meeting1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
-    meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
-    meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
-    meeting1.put("Duration", AttributeValue.builder().s("30").build());
-    meeting1.put("Attendees", AttributeValue.builder().s("SomeList").build());
-    meeting1.put("Subject", AttributeValue.builder().s("Scan Beacons").build());
-
-    // employee.json
-    final HashMap<String, AttributeValue> employee1 = new HashMap<>();
-    final HashMap<String, AttributeValue> employee1Location = new HashMap<>();
-    employee1Location.put("Building", AttributeValue.builder().s("44").build());
-    employee1Location.put("Floor", AttributeValue.builder().s("12").build());
-    employee1Location.put("Desk", AttributeValue.builder().s("3").build());
-    employee1.put("partition_key", AttributeValue.builder().s("employee1").build());
-    employee1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
-    employee1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
-    employee1.put("ManagerEmail", AttributeValue.builder().s("zorro@gmail.com").build());
-    employee1.put("Location", AttributeValue.builder().m(meeting1Location).build());
-    employee1.put("EmployeeName", AttributeValue.builder().s("Able Jones").build());
-    employee1.put("EmployeeTitle", AttributeValue.builder().s("SDE9").build());
-    employee1.put("Location", AttributeValue.builder().m(employee1Location).build());
-
-    // project.json
-    final HashMap<String, AttributeValue> project1 = new HashMap<>();;
-    project1.put("partition_key", AttributeValue.builder().s("project1").build());
-    project1.put("ProjectName", AttributeValue.builder().s("project_001").build());
-    project1.put("ProjectStatus", AttributeValue.builder().s("Pending").build());
-    project1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
-    project1.put("Decription", AttributeValue.builder().s("Turbo Crypto").build());
-    project1.put("ProjectTarget", AttributeValue.builder().s("2024-01-01").build());
-
-    // reservation.json
-    final HashMap<String, AttributeValue> reservation1 = new HashMap<>();;
-    reservation1.put("partition_key", AttributeValue.builder().s("project1").build());
-    reservation1.put("ProjectName", AttributeValue.builder().s("project_001").build());
-    reservation1.put("ProjectStatus", AttributeValue.builder().s("Pending").build());
-    reservation1.put("ProjectStart", AttributeValue.builder().s("2022-11-01").build());
-    reservation1.put("Decription", AttributeValue.builder().s("Turbo Crypto").build());
-    reservation1.put("ProjectTarget", AttributeValue.builder().s("2024-01-01").build());
-
-    // ticket.json
-    final HashMap<String, AttributeValue> ticket1 = new HashMap<>();;
-    ticket1.put("partition_key", AttributeValue.builder().s("ticket_001").build());
-    ticket1.put("TicketModTime", AttributeValue.builder().s("2022-10-07T14:32:25~").build());
-    ticket1.put("CreatorEmail", AttributeValue.builder().s("zorro@gmail.com").build());
-    ticket1.put("AssigneeEmail", AttributeValue.builder().s("able@gmail.com").build());
-    ticket1.put("Severity", AttributeValue.builder().s("3").build());
-    ticket1.put("Subject", AttributeValue.builder().s("Bad bug").build());
-    ticket1.put("Message", AttributeValue.builder().s("This bug looks pretty bad").build());
-
-  }
-
-  public static void query(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
-
-  }
-
-  public static void main(final String[] args) {
-//    if (args.length != 3) {
-//      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyWrappingKmsKeyId as args[1], and branchKeyDdbTableName as args[2]");
-//    }
-    final String ddbTableName = "ComplexBeaconTestTable";
-    final String branchKeyWrappingKmsKeyId = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-    final String branchKeyDdbTableName = "CiKeystoreTestTable";
-    SetupBeaconConfig(ddbTableName, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
-
+//    // 12. Query for the item we just put.
+//    Map<String,String> expressionAttributesNames = new HashMap<>();
+//    expressionAttributesNames.put("#p", "PK1");
+//    expressionAttributesNames.put("#sk1", "SK1");
+//    expressionAttributesNames.put("#dur", "Duration");
+//
+//    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
+//    // The expression below queries against zipcodes of 98109.
+//    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
+//    //     except we must add the prefix.
+//    Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
+//    expressionAttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
+//    expressionAttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
+//    expressionAttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
+//    expressionAttributeValues.put(":dur", AttributeValue.builder().s("0").build());
+//
+//    QueryRequest queryRequest = QueryRequest.builder()
+//        .tableName(ddbTableName)
+//        .indexName("GSI-1")
+//        .keyConditionExpression("#p = :e AND #sk1 BETWEEN :date1 AND :date2")
+//        .filterExpression("#dur > :dur")
+//        .expressionAttributeNames(expressionAttributesNames)
+//        .expressionAttributeValues(expressionAttributeValues)
+//        .build();
+//
+//    System.out.println(queryRequest);
+//
+//    QueryResponse queryResponse = ddb.query(queryRequest);
+//    List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
+//    // Validate query was returned successfully
+//    assert 200 == queryResponse.sdkHttpResponse().statusCode();
+//    // Validate only 1 item was returned: the item we just put
+//    assert attributeValues.size() == 1;
+//    Map<String, AttributeValue> returnedItem = attributeValues.get(0);
+//    // Validate the item has the expected attributes
+//    System.out.println(returnedItem);
+//    assert returnedItem.get("EmployeeEmail").n().equals("able@gmail.com");
   }
 
 
