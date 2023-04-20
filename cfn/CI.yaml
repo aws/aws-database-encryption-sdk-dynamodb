@@ -50,31 +50,31 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: "partition_key"
+        - AttributeName: "customer_id"
           AttributeType: "S"
-        - AttributeName: "sort_key"
+        - AttributeName: "create_time"
           AttributeType: "N"
-        - AttributeName: "aws_dbe_b_beacon_str_attr"
+        - AttributeName: "aws_dbe_b_state"
           AttributeType: "S"
-        - AttributeName: "aws_dbe_b_beacon_num_attr"
+        - AttributeName: "aws_dbe_b_zip"
           AttributeType: "S"
-        - AttributeName: "aws_dbe_b_compound_beacon_attr"
+        - AttributeName: "aws_dbe_b_location"
           AttributeType: "S"
       GlobalSecondaryIndexes:
-        - IndexName: "Example-Standard-Beacon-Index"
+        - IndexName: "state-zip-index"
           KeySchema:
-            - AttributeName: "aws_dbe_b_beacon_str_attr"
+            - AttributeName: "aws_dbe_b_state"
               KeyType: "HASH"
-            - AttributeName: "aws_dbe_b_beacon_num_attr"
+            - AttributeName: "aws_dbe_b_zip"
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
-        - IndexName: "Example-Compound-Beacon-Index"
+        - IndexName: "location-index"
           KeySchema:
-            - AttributeName: "aws_dbe_b_compound_beacon_attr"
+            - AttributeName: "aws_dbe_b_location"
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
@@ -82,9 +82,9 @@ Resources:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
       KeySchema:
-        - AttributeName: "partition_key"
+        - AttributeName: "customer_id"
           KeyType: "HASH"
-        - AttributeName: "sort_key"
+        - AttributeName: "create_time"
           KeyType: "RANGE"
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
