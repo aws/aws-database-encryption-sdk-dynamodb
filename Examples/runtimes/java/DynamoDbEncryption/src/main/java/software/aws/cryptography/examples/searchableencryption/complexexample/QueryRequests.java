@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 /*
  * This class implements query access patterns from
  * https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
- * The queries in this file are more complicated than in other examples,
- *   and should demonstrate how to use queries in more practical applications.
+ * The queries in this file are more complicated than in other searchable encryption examples,
+ *   and should demonstrate how one can structure queries on beacons in a broader variety of applications.
  */
 
 public class QueryRequests {

@@ -32,24 +32,33 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
 public class BeaconConfig {
 
+  /*
+   * This file sets up all the searchable encryption configuration required to execute the examples from
+   * https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
+   * using the encryption client.
+   */
+
   public static DynamoDbClient SetupBeaconConfig(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
-    // 2. Create Keystore and branch key.
-    //    These are the same constructions as in the Basic example, which describes these in more detail.
+    // 1. Create Keystore and branch key.
+    //    These are the same constructions as in the Basic examples, which describe this in more detail.
     KeyStore keyStore = KeyStore.builder()
         .KeyStoreConfig(KeyStoreConfig.builder()
             .kmsClient(KmsClient.create())
             .ddbClient(DynamoDbClient.create())
             .ddbTableName(branchKeyDdbTableName)
+            .kmsKeyArn(branchKeyWrappingKmsKeyArn)
             .build())
         .build();
     CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
-        .awsKmsKeyArn(branchKeyWrappingKmsKeyArn)
         .build());
     String branchKeyId = output.branchKeyIdentifier();
-    System.out.println(branchKeyId);
 
-    // PK beacons
+    // 2. Create standard beacons
+    //    For this example, we use a standard beacon length of 4.
+    //    The BasicSearchableEncryptionExample gives a more thorough consideration of beacon length.
+    //    For production applications, one should always exercise rigor when deciding beacon length, including
+    //        examining population size and considering performance.
     StandardBeacon employeeIDStandardBeacon = StandardBeacon.builder()
         .name("EmployeeID")
         .length(4)
@@ -62,18 +71,6 @@ public class BeaconConfig {
         .name("ProjectName")
         .length(4)
         .build();
-//    StandardBeacon ticketModTimeStandardBeacon = StandardBeacon.builder()
-//        .name("TicketModTime")
-//        .length(4)
-//        .build();
-//    StandardBeacon meetingStartStandardBeacon = StandardBeacon.builder()
-//        .name("MeetingStart")
-//        .length(4)
-//        .build();
-//    StandardBeacon timeCardStartStandardBeacon = StandardBeacon.builder()
-//        .name("TimeCardStart")
-//        .length(4)
-//        .build();
     StandardBeacon employeeEmailStandardBeacon = StandardBeacon.builder()
         .name("EmployeeEmail")
         .length(4)
@@ -90,10 +87,6 @@ public class BeaconConfig {
         .name("OrganizerEmail")
         .length(4)
         .build();
-//    StandardBeacon projectStartStandardBeacon = StandardBeacon.builder()
-//        .name("ProjectStart")
-//        .length(4)
-//        .build();
     StandardBeacon managerEmailStandardBeacon = StandardBeacon.builder()
         .name("ManagerEmail")
         .length(4)
@@ -135,14 +128,10 @@ public class BeaconConfig {
     standardBeaconList.add(employeeIDStandardBeacon);
     standardBeaconList.add(ticketNumberStandardBeacon);
     standardBeaconList.add(projectNameStandardBeacon);
-//    standardBeaconList.add(ticketModTimeStandardBeacon);
-//    standardBeaconList.add(meetingStartStandardBeacon);
-//    standardBeaconList.add(timeCardStartStandardBeacon);
     standardBeaconList.add(employeeEmailStandardBeacon);
     standardBeaconList.add(creatorEmailStandardBeacon);
     standardBeaconList.add(projectStatusStandardBeacon);
     standardBeaconList.add(organizerEmailStandardBeacon);
-//    standardBeaconList.add(projectStartStandardBeacon);
     standardBeaconList.add(managerEmailStandardBeacon);
     standardBeaconList.add(assigneeEmailStandardBeacon);
     standardBeaconList.add(cityStandardBeacon);
@@ -152,6 +141,9 @@ public class BeaconConfig {
     standardBeaconList.add(roomStandardBeacon);
     standardBeaconList.add(deskStandardBeacon);
 
+    // 3. Define sensitive parts
+    //    Note that some of the prefixes are modified from the suggested prefixes in Demo.md.
+    //    This is because all prefixes must be unique in a configuration.
     SensitivePart employeeIDSensitivePart = SensitivePart.builder()
         .name("EmployeeID")
         .prefix("E-")
@@ -163,18 +155,6 @@ public class BeaconConfig {
     SensitivePart projectNameSensitivePart = SensitivePart.builder()
         .name("ProjectName")
         .prefix("P-")
-        .build();
-    NonSensitivePart ticketModTimeNonSensitivePart = NonSensitivePart.builder()
-        .name("TicketModTime")
-        .prefix("M-")
-        .build();
-    NonSensitivePart meetingStartNonSensitivePart = NonSensitivePart.builder()
-        .name("MeetingStart")
-        .prefix("MS-")
-        .build();
-    NonSensitivePart timeCardStartNonSensitivePart = NonSensitivePart.builder()
-        .name("TimeCardStart")
-        .prefix("T-")
         .build();
     SensitivePart employeeEmailSensitivePart = SensitivePart.builder()
         .name("EmployeeEmail")
@@ -191,10 +171,6 @@ public class BeaconConfig {
     SensitivePart organizerEmailSensitivePart = SensitivePart.builder()
         .name("OrganizerEmail")
         .prefix("OE-")
-        .build();
-    NonSensitivePart projectStartNonSensitivePart = NonSensitivePart.builder()
-        .name("ProjectStart")
-        .prefix("PS-")
         .build();
     SensitivePart managerEmailSensitivePart = SensitivePart.builder()
         .name("ManagerEmail")
@@ -229,6 +205,29 @@ public class BeaconConfig {
         .prefix("D-")
         .build();
 
+    // 4. Define non-sensitive parts.
+    //    These are unencrypted attributes we would like to use in beacon queries.
+    //    In this example, all of these represent dates or times.
+    //    Keeping these attributes unencrypted allows us to use them in comparison-based queries. If a non-sensitive
+    //        part is the first part in a compound beacon, then that part can be used in comparison for sorting.
+    NonSensitivePart ticketModTimeNonSensitivePart = NonSensitivePart.builder()
+        .name("TicketModTime")
+        .prefix("M-")
+        .build();
+    NonSensitivePart meetingStartNonSensitivePart = NonSensitivePart.builder()
+        .name("MeetingStart")
+        .prefix("MS-")
+        .build();
+    NonSensitivePart timeCardStartNonSensitivePart = NonSensitivePart.builder()
+        .name("TimeCardStart")
+        .prefix("T-")
+        .build();
+    NonSensitivePart projectStartNonSensitivePart = NonSensitivePart.builder()
+        .name("ProjectStart")
+        .prefix("PS-")
+        .build();
+
+    // 5. Create lists of sensitive and non-sensitive parts for each GSI key
     List<SensitivePart> pk0SensitivePartList = new ArrayList<>();
     pk0SensitivePartList.add(employeeIDSensitivePart);
     pk0SensitivePartList.add(ticketNumberSensitivePart);
@@ -237,16 +236,15 @@ public class BeaconConfig {
 
     List<SensitivePart> sk0SensitivePartList = new ArrayList<>();
     sk0SensitivePartList.add(employeeIDSensitivePart);
-
     sk0SensitivePartList.add(floorSensitivePart);
     sk0SensitivePartList.add(roomSensitivePart);
     sk0SensitivePartList.add(projectNameSensitivePart);
     sk0SensitivePartList.add(employeeEmailSensitivePart);
+
     List<NonSensitivePart> sk0NonSensitivePartList = new ArrayList<>();
     sk0NonSensitivePartList.add(timeCardStartNonSensitivePart);
     sk0NonSensitivePartList.add(ticketModTimeNonSensitivePart);
     sk0NonSensitivePartList.add(meetingStartNonSensitivePart);
-
 
     List<SensitivePart> pk1SensitivePartList = new ArrayList<>();
     pk1SensitivePartList.add(employeeEmailSensitivePart);
@@ -258,6 +256,7 @@ public class BeaconConfig {
     sk1SensitivePartList.add(employeeIDSensitivePart);
     sk1SensitivePartList.add(floorSensitivePart);
     sk1SensitivePartList.add(roomSensitivePart);
+
     List<NonSensitivePart> sk1NonSensitivePartList = new ArrayList<>();
     sk1NonSensitivePartList.add(ticketModTimeNonSensitivePart);
     sk1NonSensitivePartList.add(meetingStartNonSensitivePart);
@@ -275,9 +274,14 @@ public class BeaconConfig {
     sk3SensitivePartList.add(buildingSensitivePart);
     sk3SensitivePartList.add(floorSensitivePart);
     sk3SensitivePartList.add(deskSensitivePart);
+
     List<NonSensitivePart> sk3NonSensitivePartList = new ArrayList<>();
     sk3NonSensitivePartList.add(ticketModTimeNonSensitivePart);
 
+    // 6. Create constructor parts
+    //    These are defined working backwards from the constructors in "PK Constructors",
+    //        "SK constructors", etc. sections in Demo.md.
+    //    For each attribute that will be used in a constructor, there must be a corresponding constructor part.
     ConstructorPart employeeIdConstructorPart = ConstructorPart.builder()
         .name("EmployeeID")
         .required(true)
@@ -355,6 +359,8 @@ public class BeaconConfig {
         .required(true)
         .build();
 
+    // 7. Define constructors
+    //    These are based off of the "PK Constructors", "SK constructors", etc. sections in Demo.md.
     List<ConstructorPart> employeeIdConstructorPartList = new ArrayList<>();
     employeeIdConstructorPartList.add(employeeIdConstructorPart);
     Constructor employeeIdConstructor = Constructor.builder()
@@ -455,6 +461,10 @@ public class BeaconConfig {
         .parts(buildingFloorDeskConstructorPartList)
         .build();
 
+    // 8. Create constructor lists for each GSI key
+    //    Note that the order in which constructors are added determines their priority.
+    //    The first constructor added to a constructor list will be the first constructor that is executed.
+    //    If an item matches multiple constructors, the first matching constructor will be used.
     List<Constructor> pk0ConstructorList = new ArrayList<>();
     pk0ConstructorList.add(employeeIdConstructor);
     pk0ConstructorList.add(ticketNumberConstructor);
@@ -491,6 +501,8 @@ public class BeaconConfig {
     sk3ConstructorList.add(buildingFloorDeskConstructor);
     sk3ConstructorList.add(ticketModTimeConstructor);
 
+    // 9. Define compound beacons
+    //    Note that the split character must be a character that is not used in any attribute value.
     CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
         .name("PK")
         .split("~")
@@ -546,83 +558,7 @@ public class BeaconConfig {
     compoundBeaconList.add(pk3CompoundBeacon);
     compoundBeaconList.add(sk3CompoundBeacon);
 
-
-//    pk0ConstructorList.add(Constructor.builder()
-//        .parts(employeeIdConstructorPartList)
-//        .build());
-//    List<ConstructorPart> ticketNumberConstructorPartList = new ArrayList<>();
-//    ConstructorPart ticketNumberConstructorPart = ConstructorPart.builder()
-//        .name("TicketNumber")
-//        .required(true)
-//        .build();
-//    ticketNumberConstructorPartList.add(ticketNumberConstructorPart);
-//    pk0ConstructorList.add(Constructor.builder()
-//        .parts(ticketNumberConstructorPartList)
-//        .build());
-//    List<ConstructorPart> projectNameConstructorPartList = new ArrayList<>();
-//    ConstructorPart projectNameConstructorPart = ConstructorPart.builder()
-//        .name("ProjectName")
-//        .required(true)
-//        .build();
-//    projectNameConstructorPartList.add(projectNameConstructorPart);
-//    pk0ConstructorList.add(Constructor.builder()
-//        .parts(projectNameConstructorPartList)
-//        .build());
-//    List<ConstructorPart> buildingConstructorPartList = new ArrayList<>();
-//    ConstructorPart buildingConstructorPart = ConstructorPart.builder()
-//        .name("Building")
-//        .required(true)
-//        .build();
-//    projectNameConstructorPartList.add(projectNameConstructorPart);
-//    pk0ConstructorList.add(Constructor.builder()
-//        .parts(projectNameConstructorPartList)
-//        .build());
-
-//    List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
-//    CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
-//        .name("PK0")
-//        .split(".")
-//        .sensitive(pk0SensitivePartList)
-//        .constructors(pk0ConstructorList)
-//        .build();
-//    compoundBeaconList.add(pk0CompoundBeacon);
-//
-//    List<SensitivePart> sk0SensitivePartList = new ArrayList<>();
-//    sk0SensitivePartList.add(employeeIDSensitivePart);
-//    sk0SensitivePartList.add(projectNameSensitivePart);
-//
-//    List<Constructor> sk0ConstructorList = new ArrayList<>();
-//    List<ConstructorPart> employeeConstructorPartList = new ArrayList<>();
-//    ConstructorPart employeeConstructorPart = ConstructorPart.builder()
-//        .name("EmployeeID")
-//        .required(true)
-//        .build();
-//    employeeConstructorPartList.add(employeeConstructorPart);
-//    sk0ConstructorList.add(Constructor.builder()
-//        .parts(employeeConstructorPartList)
-//        .build());
-//    List<ConstructorPart> ticketNumberConstructorPartList = new ArrayList<>();
-//    ConstructorPart ticketNumberConstructorPart = ConstructorPart.builder()
-//        .name("TicketNumber")
-//        .required(true)
-//        .build();
-//    ticketNumberConstructorPartList.add(ticketNumberConstructorPart);
-//    sk0ConstructorList.add(Constructor.builder()
-//        .parts(ticketNumberConstructorPartList)
-//        .build());
-//    List<ConstructorPart> projectNameConstructorPartList = new ArrayList<>();
-//    ConstructorPart projectNameConstructorPart = ConstructorPart.builder()
-//        .name("ProjectName")
-//        .required(true)
-//        .build();
-//    projectNameConstructorPartList.add(projectNameConstructorPart);
-//    sk0ConstructorList.add(Constructor.builder()
-//        .parts(projectNameConstructorPartList)
-//        .build());
-
-    // 5. Create BeaconVersion.
-    //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
-    //    We must also continue to provide all of the standard beacons that compose a compound beacon list.
+    // 10. Create BeaconVersion.
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()
@@ -639,8 +575,7 @@ public class BeaconConfig {
             .build()
     );
 
-    // 6. Create a Hierarchical Keyring
-    //    This is the same configuration as in the Basic example.
+    // 11. Create a Hierarchical Keyring
     final MaterialProviders matProv = MaterialProviders.builder()
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
         .build();
@@ -653,45 +588,51 @@ public class BeaconConfig {
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
+    // 12. Define crypto actions
     final Map<String, CryptoAction> attributeActions = new HashMap<>();
-    attributeActions.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("PK", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("SK", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("PK0", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("SK0", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("PK1", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("SK1", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("PK2", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("PK3", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("SK3", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("EmployeeID", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("TicketNumber", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("ProjectName", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("TicketModTime", CryptoAction.SIGN_ONLY); // TODO clean up comments for SIGN_ONLY NS parts Beaconized attributes must be encrypted
-    attributeActions.put("MeetingStart", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("TimeCardStart", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("EmployeeName", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("EmployeeTitle", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("EmployeeEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("Description", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("ProjectTarget", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("Hours", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("Role", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("Message", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("CreatorEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("ProjectStatus", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("OrganizerEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("ProjectStart", CryptoAction.SIGN_ONLY); // Beaconized attributes must be encrypted
-    attributeActions.put("ManagerEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("AssigneeEmail", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("City", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("Severity", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("Location", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("Attendees", CryptoAction.ENCRYPT_AND_SIGN); // These are not in beacons, but are sensitive
-    //     and should be encrypted
-    attributeActions.put("Duration", CryptoAction.SIGN_ONLY);
+    // Our partition key must be configured as SIGN_ONLY
+    attributeActions.put("partition_key", CryptoAction.SIGN_ONLY);
+    // Beaconized attributes must be configured as ENCRYPT_AND_SIGN
+    attributeActions.put("PK", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("SK", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("PK0", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("SK0", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("PK1", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("SK1", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("PK2", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("PK3", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("SK3", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("EmployeeID", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("TicketNumber", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("ProjectName", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("EmployeeName", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("EmployeeEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("CreatorEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("ProjectStatus", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("OrganizerEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("ManagerEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("AssigneeEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("City", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("Severity", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActions.put("Location", CryptoAction.ENCRYPT_AND_SIGN);
+    // These are not beaconized attributes, but are sensitive data that must be encrypted
+    attributeActions.put("Attendees", CryptoAction.ENCRYPT_AND_SIGN);
     attributeActions.put("Subject", CryptoAction.ENCRYPT_AND_SIGN);
+    // Non-sensitive parts and unencrypted attributes can be configured as SIGN_ONLY or DO_NOTHING
+    // For this example, we will set these to SIGN_ONLY to ensure authenticity
+    attributeActions.put("TicketModTime", CryptoAction.SIGN_ONLY); // TODO clean up comments for SIGN_ONLY NS parts Beaconized attributes must be encrypted
+    attributeActions.put("MeetingStart", CryptoAction.SIGN_ONLY);
+    attributeActions.put("TimeCardStart", CryptoAction.SIGN_ONLY);
+    attributeActions.put("EmployeeTitle", CryptoAction.SIGN_ONLY);
+    attributeActions.put("Description", CryptoAction.SIGN_ONLY);
+    attributeActions.put("ProjectTarget", CryptoAction.SIGN_ONLY);
+    attributeActions.put("Hours", CryptoAction.SIGN_ONLY);
+    attributeActions.put("Role", CryptoAction.SIGN_ONLY);
+    attributeActions.put("Message", CryptoAction.SIGN_ONLY);
+    attributeActions.put("ProjectStart", CryptoAction.SIGN_ONLY);
+    attributeActions.put("Duration", CryptoAction.SIGN_ONLY);
 
+    // 13. Set up table config
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .partitionKeyName("partition_key")
@@ -704,14 +645,14 @@ public class BeaconConfig {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 9. Create the DynamoDb Encryption Interceptor
+    // 14. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
         .config(DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build())
         .build();
 
-    // 10. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 15. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
@@ -720,71 +661,5 @@ public class BeaconConfig {
         .build();
 
     return ddb;
-
-//    loadTable(ddbTableName, ddb);
-//
-//    queryTable(ddbTableName, ddb);
-
-//    final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
-//    final HashMap<String, AttributeValue> meeting1Location = new HashMap<>();
-//    meeting1Location.put("Floor", AttributeValue.builder().s("12").build());
-//    meeting1Location.put("Room", AttributeValue.builder().s("403").build());
-//    meeting1.put("partition_key", AttributeValue.builder().s("HMAC(meeting1)").build());
-//    meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
-//    meeting1.put("EmployeeEmail", AttributeValue.builder().s("able@gmail.com").build());
-//    meeting1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
-//    meeting1.put("Location", AttributeValue.builder().m(meeting1Location).build());
-//    meeting1.put("Duration", AttributeValue.builder().s("30").build());
-//    meeting1.put("Attendees", AttributeValue.builder().s("SomeList").build());
-//    meeting1.put("Subject", AttributeValue.builder().s("Scan Beacons").build());
-//
-//    final PutItemRequest putRequestOnlyZip = PutItemRequest.builder()
-//        .tableName(ddbTableName)
-//        .item(meeting1)
-//        .build();
-//
-//    final PutItemResponse putResponseOnlyZip = ddb.putItem(putRequestOnlyZip);
-//    // Validate item put successfully
-//    assert 200 == putResponseOnlyZip.sdkHttpResponse().statusCode();
-
-//    // 12. Query for the item we just put.
-//    Map<String,String> expressionAttributesNames = new HashMap<>();
-//    expressionAttributesNames.put("#p", "PK1");
-//    expressionAttributesNames.put("#sk1", "SK1");
-//    expressionAttributesNames.put("#dur", "Duration");
-//
-//    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
-//    // The expression below queries against zipcodes of 98109.
-//    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
-//    //     except we must add the prefix.
-//    Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
-//    expressionAttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
-//    expressionAttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
-//    expressionAttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
-//    expressionAttributeValues.put(":dur", AttributeValue.builder().s("0").build());
-//
-//    QueryRequest queryRequest = QueryRequest.builder()
-//        .tableName(ddbTableName)
-//        .indexName("GSI-1")
-//        .keyConditionExpression("#p = :e AND #sk1 BETWEEN :date1 AND :date2")
-//        .filterExpression("#dur > :dur")
-//        .expressionAttributeNames(expressionAttributesNames)
-//        .expressionAttributeValues(expressionAttributeValues)
-//        .build();
-//
-//    System.out.println(queryRequest);
-//
-//    QueryResponse queryResponse = ddb.query(queryRequest);
-//    List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
-//    // Validate query was returned successfully
-//    assert 200 == queryResponse.sdkHttpResponse().statusCode();
-//    // Validate only 1 item was returned: the item we just put
-//    assert attributeValues.size() == 1;
-//    Map<String, AttributeValue> returnedItem = attributeValues.get(0);
-//    // Validate the item has the expected attributes
-//    System.out.println(returnedItem);
-//    assert returnedItem.get("EmployeeEmail").n().equals("able@gmail.com");
   }
-
-
 }
