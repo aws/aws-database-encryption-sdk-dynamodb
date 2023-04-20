@@ -111,6 +111,10 @@ If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-
 is a [Single Key Store](../searchable-encryption/search-config.md#single-key-store-initialization)
 HandleBeaconKeyFieldName MUST return a `beacon key id` of None
 and the unaltered AttributeMap.
+The specific `beacon key id` is not returned in this case
+because this would mean that the same branch key
+would need to encrypt this record.
+This is not the intended use of a Single Key Store.
 
 If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
 is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
@@ -234,7 +238,7 @@ These [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-ke
 SHOULD then be discarded.
 Using the constructed `expected beacon key id`,
 for each item the result
-from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header)
+the [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header)
 MUST match the `expected beacon key id`.
 If [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header)
 fails or an item does not match it MUST be discarded.
