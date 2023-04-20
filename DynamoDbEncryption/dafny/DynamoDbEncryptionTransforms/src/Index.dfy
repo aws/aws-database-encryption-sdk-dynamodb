@@ -10,11 +10,16 @@ module
   DynamoDbEncryptionTransforms refines AbstractAwsCryptographyDynamoDbEncryptionTransformsService
 {
   import opened DdbMiddlewareConfig
+  import opened StandardLibrary
   import AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import Operations = AwsCryptographyDynamoDbEncryptionTransformsOperations
   import DynamoDbItemEncryptor
   import SearchConfigToInfo
+  import Seq
   import ET = AwsCryptographyDynamoDbEncryptionTypes
+  import SET = AwsCryptographyStructuredEncryptionTypes
+  import DDB = ComAmazonawsDynamodbTypes
+
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
   // build a default config?
@@ -54,6 +59,14 @@ module
     requires tableName in config.tableEncryptionConfigs
     ensures SearchModifies(config, tableName) <= TheModifies(config)
 
+  function method {:tailrecursion} AddActions(names : seq<string>, actions : ET.AttributeActions) : ET.AttributeActions
+    requires forall k <- names :: DDB.IsValid_AttributeName(k)
+  {
+    if |names| == 0 then
+      actions
+    else
+      AddActions(names[1..], actions[names[0] := SET.SIGN_ONLY])
+  }
 
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
@@ -88,11 +101,26 @@ module
         var tableName: string :| tableName in m';
         var inputConfig := config.tableEncryptionConfigs[tableName];
 
+        assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
+        SearchInModifies(config, tableName);
+        var searchR := SearchConfigToInfo.Convert(inputConfig);
+        var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+        assert search.None? || search.value.ValidState();
+
+        // Add Signed Beacons to attributeActions
+        var signedBeacons := if search.None? then [] else search.value.curr().ListSignedBeacons();
+        var badBeacons := Seq.Filter(s => s in inputConfig.attributeActions, signedBeacons);
+        if 0 < |badBeacons| {
+          return Failure(E("Beacons cannot be configured with CryptoActions : " + Join(badBeacons, ", ")));
+        }
+        :- Need(forall k <- signedBeacons :: DDB.IsValid_AttributeName(k), E("Beacon configured with bad name"));
+        var newActions := AddActions(signedBeacons, inputConfig.attributeActions);
+
         var encryptorConfig := AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.DynamoDbItemEncryptorConfig(
           tableName := tableName,
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
-          attributeActions := inputConfig.attributeActions,
+          attributeActions := newActions,
           allowedUnauthenticatedAttributes := inputConfig.allowedUnauthenticatedAttributes,
           allowedUnauthenticatedAttributePrefix := inputConfig.allowedUnauthenticatedAttributePrefix,
           algorithmSuiteId := inputConfig.algorithmSuiteId,
@@ -107,11 +135,6 @@ module
 
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
-        assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
-        SearchInModifies(config, tableName);
-        var searchR := SearchConfigToInfo.Convert(inputConfig);
-        var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
-        assert search.None? || search.value.ValidState();
         var internalConfig := DdbMiddlewareConfig.TableConfig(
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,

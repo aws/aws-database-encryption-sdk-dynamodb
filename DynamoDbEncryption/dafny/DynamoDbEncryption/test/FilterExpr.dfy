@@ -14,16 +14,17 @@ module TestDynamoDBFilterExpr {
   import opened StandardLibrary.UInt
   import opened BeaconTestFixtures
   import opened SearchConfigToInfo
+  import opened DynamoDbEncryptionUtil
 
   method expect_contains(haystack : AttributeValue, needle : AttributeValue, negate : bool)
   {
     if does_contain(haystack, needle) != negate {
-        if negate {
-          print haystack, " should not have contained ", needle, "but it did\n";
-        }
-        else {
-          print haystack, " should have contained ", needle, "but it didn't\n";
-        }
+      if negate {
+        print haystack, " should not have contained ", needle, "but it did\n";
+      }
+      else {
+        print haystack, " should have contained ", needle, "but it didn't\n";
+      }
     }
     expect does_contain(haystack, needle) == negate;
   }
@@ -71,16 +72,16 @@ module TestDynamoDBFilterExpr {
     expect_equal(ExtractAttributes("size(A)", Some(attrMap)), []);
 
     expect_equal(ExtractAttributes("A < B or size(C) or D between E and F",
-      Some(attrMap)), ["A", "B", "D", "E", "F"]);
+                                   Some(attrMap)), ["A", "B", "D", "E", "F"]);
   }
 
   method {:test} TestNoBeacons() {
     var context := ExprContext (
       expr := Some("A < :A AND B = :B"),
       values:= Some(map[
-        ":A" := DDB.AttributeValue.N("1.23"),
-        ":B" := DDB.AttributeValue.S("abc")
-      ]),
+                      ":A" := DDB.AttributeValue.N("1.23"),
+                      ":B" := DDB.AttributeValue.S("abc")
+                    ]),
       names := None
     );
     var version := GetEmptyBeacons();
@@ -92,14 +93,14 @@ module TestDynamoDBFilterExpr {
 
   method {:test} TestBasicParse() {
     var context := ExprContext (
-      expr := Some("std2 < :A AND #Field4 = :B"),
+      expr := Some("std2 <> :A AND #Field4 = :B"),
       values:= Some(map[
-        ":A" := DDB.AttributeValue.N("1.23"),
-        ":B" := DDB.AttributeValue.S("abc")
-      ]),
+                      ":A" := DDB.AttributeValue.N("1.23"),
+                      ":B" := DDB.AttributeValue.S("abc")
+                    ]),
       names := Some(map[
-        "#Field4" := "std4"
-      ])
+                      "#Field4" := "std4"
+                    ])
     );
     var version := GetEmptyBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
@@ -114,24 +115,24 @@ module TestDynamoDBFilterExpr {
 
     var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, None);
     var exprString := ParsedExprToString(newContext.expr);
-    expect exprString == "aws_dbe_b_std2 < :A AND #Field4 = :B";
+    expect exprString == "aws_dbe_b_std2 <> :A AND #Field4 = :B";
   }
   method {:test} {:vcs_split_on_every_assert} TestBasicBeacons() {
     var context := ExprContext (
-      expr := Some("std2 < :A AND #Field4 = :B"),
+      expr := Some("std2 <> :A AND #Field4 = :B"),
       values:= Some(map[
-        ":A" := Std2String,
-        ":B" := Std4String
-      ]),
+                      ":A" := Std2String,
+                      ":B" := Std4String
+                    ]),
       names := Some(map[
-        "#Field4" := "std4"
-      ])
+                      "#Field4" := "std4"
+                    ])
     );
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var newContext :- expect Beaconize(beaconVersion, context, None);
-    expect_equal(newContext.expr, Some("aws_dbe_b_std2 < :A AND #Field4 = :B"));
+    expect_equal(newContext.expr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
     var newName := "aws_dbe_b_std4";
     expect IsValid_AttributeName(newName);
     var expectedNames: DDB.ExpressionAttributeNameMap := map["#Field4" := newName];
@@ -257,10 +258,10 @@ module TestDynamoDBFilterExpr {
       "three" := DN("185")
     ];
     var values : Option<DDB.ExpressionAttributeValueMap> := Some(map [
-      ":uno" := DN("1"),
-      ":dos" := DN("2"),
-      ":tres" := DN("3")
-    ]);
+                                                                   ":uno" := DN("1"),
+                                                                   ":dos" := DN("2"),
+                                                                   ":tres" := DN("3")
+                                                                 ]);
 
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
@@ -319,17 +320,17 @@ module TestDynamoDBFilterExpr {
     newItems :- expect FilterResults(bv, [item1], None, Some("begins_with(one, five)"), None, None);
     expect_equal(newItems, []);
   }
-    method {:test} TestFilterComplex() {
+  method {:test} TestFilterComplex() {
     var item1  : DDB.AttributeMap := map[
       "one" := DN("1"),
       "two" := DN("2"),
       "three" := DN("3")
     ];
     var values : Option<DDB.ExpressionAttributeValueMap> := Some(map [
-      ":four" := DN("4"),
-      ":five" := DN("5"),
-      ":six" := DN("6")
-    ]);
+                                                                   ":four" := DN("4"),
+                                                                   ":five" := DN("5"),
+                                                                   ":six" := DN("6")
+                                                                 ]);
 
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
@@ -427,7 +428,7 @@ module TestDynamoDBFilterExpr {
     newItems :- expect FilterResults(bv, [SimpleItem], None, Some("not attribute_exists(Date)"), Some(names), Some(values));
     expect_equal(newItems, []);
     newItems :- expect FilterResults(bv, [SimpleItem], None, Some("not attribute_exists(Nope)"), Some(names), Some(values));
-    expect_equal(newItems, [SimpleItem]);  
+    expect_equal(newItems, [SimpleItem]);
   }
   method {:test} TestFilterSizeIn() {
     var item1  : DDB.AttributeMap := map[
@@ -436,10 +437,10 @@ module TestDynamoDBFilterExpr {
       "three" := DN("185")
     ];
     var values : Option<DDB.ExpressionAttributeValueMap> := Some(map [
-      ":uno" := DN("1"),
-      ":dos" := DN("2"),
-      ":tres" := DN("3")
-    ]);
+                                                                   ":uno" := DN("1"),
+                                                                   ":dos" := DN("2"),
+                                                                   ":tres" := DN("3")
+                                                                 ]);
 
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
@@ -478,6 +479,21 @@ module TestDynamoDBFilterExpr {
     newItems :- expect FilterResults(bv, [SimpleItem], None, Some("NameTitleField = :val5)"), None, Some(values));
     expect |newItems| == 1;
     expect_equal(newItems, [SimpleItem]);
+  }
+
+  method {:test} TestBadBetween() {
+
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":val3" := DS("T_ATitle"),
+      ":val4" := DS("T_MyTitle")
+    ];
+
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val4"), None, Some(values));
+    expect newItems.Failure?;
+    expect newItems.error == E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive.");
   }
 
   /*

@@ -146,7 +146,18 @@ module DynamoDBSupport {
     } else {
       var newAttrs :- search.value.GenerateSignedBeacons(item);
       var version : DDB.AttributeMap := map[VersionPrefix + "1" := DS(" ")];
-      return Success(item + newAttrs + version);
+      var both := newAttrs.Keys * item.Keys;
+      var bad := set k <- both | newAttrs[k] != item[k];
+      if 0 < |bad| {
+        var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, CharLess);
+        return Failure(E("Supplied Beacons do not match calculated beacons : " + Join(badSeq, ", ")));
+      }
+      if search.value.curr().keySource.keyLoc.MultiLoc? && search.value.curr().keySource.keyLoc.deleteKey {
+        var newItem := map k <- item | k != search.value.curr().keySource.keyLoc.keyName :: k := item[k];
+        return Success(newItem + newAttrs + version);
+      } else {
+        return Success(item + newAttrs + version);
+      }
     }
   }
 
@@ -208,11 +219,11 @@ module DynamoDBSupport {
       var (newLsi, newAttrs) :- LsiOptWithAttrs(search.value, actions, req.LocalSecondaryIndexes, newAttrs);
       var (newGsi, newAttrs) :- GsiOptWithAttrs(search.value, actions, req.GlobalSecondaryIndexes, newAttrs);
       Success(req.(
-        KeySchema := newSchema,
-        AttributeDefinitions := newAttrs,
-        LocalSecondaryIndexes := newLsi,
-        GlobalSecondaryIndexes := newGsi
-      ))
+              KeySchema := newSchema,
+              AttributeDefinitions := newAttrs,
+              LocalSecondaryIndexes := newLsi,
+              GlobalSecondaryIndexes := newGsi
+              ))
   }
 
   // Transform a UpdateTableInput object for searchable encryption.
@@ -265,11 +276,11 @@ module DynamoDBSupport {
       var context3 := context2.(expr := req.FilterExpression);
       var context4 :- Filter.Beaconize(search.value.curr(), context3, keyId);
       return Success(req.(
-        KeyConditionExpression := context2.expr,
-        FilterExpression := context4.expr,
-        ExpressionAttributeNames := context4.names,
-        ExpressionAttributeValues := context4.values
-      ));
+                     KeyConditionExpression := context2.expr,
+                     FilterExpression := context4.expr,
+                     ExpressionAttributeNames := context4.names,
+                     ExpressionAttributeValues := context4.values
+                     ));
     }
   }
 
@@ -302,6 +313,21 @@ module DynamoDBSupport {
     }
   }
 
+  function method GetBeaconKeyId(
+    search : Option<ValidSearchInfo>,
+    keyExpr : Option<DDB.ConditionExpression>,
+    filterExpr : Option<DDB.ConditionExpression>,
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    : Result<Option<string>, Error>
+  {
+    if search.None? then
+      Success(None)
+    else
+      Filter.GetBeaconKeyId(search.value.curr(), keyExpr, filterExpr, values, names)
+  }
+
   // Transform a ScanInput object for searchable encryption.
   method ScanInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput)
     returns (output : Result<DDB.ScanInput, Error>)
@@ -316,10 +342,10 @@ module DynamoDBSupport {
       var context := Filter.ExprContext(req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var newContext :- Filter.Beaconize(search.value.curr(), context, keyId);
       return Success(req.(
-        FilterExpression := newContext.expr,
-        ExpressionAttributeNames := newContext.names,
-        ExpressionAttributeValues := newContext.values
-      ));
+                     FilterExpression := newContext.expr,
+                     ExpressionAttributeNames := newContext.names,
+                     ExpressionAttributeValues := newContext.values
+                     ));
     }
   }
 

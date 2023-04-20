@@ -73,6 +73,13 @@ module BeaconTestFixtures {
     nonSensitive := Some([Nothing]),
     constructors := None
   )
+  const JustSigned := CompoundBeacon (
+    name := "JustSigned",
+    split := ".",
+    sensitive := None,
+    nonSensitive := Some([Year,Month]),
+    constructors := None
+  )
   const Mixed := CompoundBeacon (
     name := "Mixed",
     split := ".",
@@ -109,7 +116,8 @@ module BeaconTestFixtures {
     var ddbClient :- expect DDBC.DynamoDBClient();
     var keyStoreConfig := KTypes.KeyStoreConfig(
       id := None,
-      ddbTableName := Some("foo"),
+      ddbTableName := "foo",
+      kmsKeyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126",
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
@@ -143,7 +151,7 @@ module BeaconTestFixtures {
       keyStore := store,
       keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
       standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
-      compoundBeacons := Some([NameTitle, YearName, Mixed]),
+      compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
       virtualFields := Some([NameTitleField])
     );
   }

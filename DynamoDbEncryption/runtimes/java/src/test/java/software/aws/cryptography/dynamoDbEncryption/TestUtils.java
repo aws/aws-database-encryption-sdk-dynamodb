@@ -29,8 +29,10 @@ public class TestUtils {
 
     public static final String TEST_KEY_STORE_NAME = "KeyStoreTestTable";
     public static final String TEST_KEY_STORE_KMS_KEY = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-    public static final String BRANCH_KEY_ID = "ef31c535-7436-406e-be37-371aea99b298";
-    public static final String ACTIVE_ACTIVE_BRANCH_KEY_ID = "7039dc82-03ff-4914-988e-681c09180a2d";
+    //    public static final String BRANCH_KEY_ID = "ef31c535-7436-406e-be37-371aea99b298";
+    public static final String BRANCH_KEY_ID = "71c83ce3-aad6-4aab-a4c4-d02bb9273305";
+    //    public static final String ACTIVE_ACTIVE_BRANCH_KEY_ID = "7039dc82-03ff-4914-988e-681c09180a2d";
+    public static final String ACTIVE_ACTIVE_BRANCH_KEY_ID = "9b5dea9b-6838-4af4-84a6-b48dca977b7a";
 
     public static final String KMS_TEST_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
@@ -40,6 +42,7 @@ public class TestUtils {
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(TEST_KEY_STORE_NAME)
                         .kmsClient(KmsClient.create())
+                        .kmsKeyArn(TEST_KEY_STORE_KMS_KEY)
                         .build()
         ).build();
     }
@@ -86,7 +89,6 @@ public class TestUtils {
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
         CreateAwsKmsHierarchicalKeyringInput.Builder keyringInputBuilder = CreateAwsKmsHierarchicalKeyringInput.builder()
-                .kmsKeyId(TEST_KEY_STORE_KMS_KEY)
                 .keyStore(keystore)
                 .ttlSeconds(600)
                 .maxCacheSize(100);

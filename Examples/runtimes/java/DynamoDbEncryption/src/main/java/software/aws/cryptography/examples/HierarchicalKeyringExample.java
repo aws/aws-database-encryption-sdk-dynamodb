@@ -88,6 +88,7 @@ public class HierarchicalKeyringExample {
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(keyStoreTableName)
                         .kmsClient(KmsClient.create())
+                        .kmsKeyArn(kmsKeyId)
                         .build()).build();
 
         // 2. Create the DynamoDb table to store the branch keys
@@ -96,9 +97,9 @@ public class HierarchicalKeyringExample {
         // 3. Create two branch keys for our two tenants.
         //    Use the same KMS Key to protect both keys.
         final String tenant1BranchKey = keystore.CreateKey(
-                CreateKeyInput.builder().awsKmsKeyArn(kmsKeyId).build()).branchKeyIdentifier();
+                CreateKeyInput.builder().build()).branchKeyIdentifier();
         final String tenant2BranchKey = keystore.CreateKey(
-                CreateKeyInput.builder().awsKmsKeyArn(kmsKeyId).build()).branchKeyIdentifier();
+                CreateKeyInput.builder().build()).branchKeyIdentifier();
 
         // Data Plane: Given the above setup done in our control plane, we have created
         // the resources required to encrypt and decrypt items for our two tenants by
@@ -123,7 +124,6 @@ public class HierarchicalKeyringExample {
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
         final CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-                .kmsKeyId(kmsKeyId) // Use the same KMS Key ID that you used to create the branch keys
                 .keyStore(keystore)
                 .branchKeyIdSupplier(branchKeyIdSupplier)
                 .ttlSeconds(600) // This dictates how often we call back to KMS to authorize use of the branch keys
