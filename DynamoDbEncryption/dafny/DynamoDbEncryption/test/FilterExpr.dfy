@@ -14,6 +14,7 @@ module TestDynamoDBFilterExpr {
   import opened StandardLibrary.UInt
   import opened BeaconTestFixtures
   import opened SearchConfigToInfo
+  import opened DynamoDbEncryptionUtil
 
   method expect_contains(haystack : AttributeValue, needle : AttributeValue, negate : bool)
   {
@@ -478,6 +479,21 @@ module TestDynamoDBFilterExpr {
     newItems :- expect FilterResults(bv, [SimpleItem], None, Some("NameTitleField = :val5)"), None, Some(values));
     expect |newItems| == 1;
     expect_equal(newItems, [SimpleItem]);
+  }
+
+  method {:test} TestBadBetween() {
+
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":val3" := DS("T_ATitle"),
+      ":val4" := DS("T_MyTitle")
+    ];
+
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val4"), None, Some(values));
+    expect newItems.Failure?;
+    expect newItems.error == E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive.");
   }
 
   /*
