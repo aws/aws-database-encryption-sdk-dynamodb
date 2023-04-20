@@ -116,9 +116,12 @@ public class CompoundBeaconSearchableEncryptionExample {
     //    Constructor parts are used to assemble constructors.
     //    A constructor part must receive:
     //     - name: Name of a standard beacon
-    //     - required: Whether this attribute must be present for the constructor
-    //    We will name this constructor `beacon_str_attr` after our standard beacon.
-    //    As an example, this will be required.
+    //     - required: Whether this attribute must be present in the item to match a constructor
+    //    In this example, we will use each constructor part in more than one constructor, and re-use
+    //        the constructor parts across multiple constructors.
+
+    // We will name this constructor `beacon_str_attr` after our standard beacon.
+    // As an example, this will be required.
     ConstructorPart constructorPartStr = ConstructorPart.builder()
         .name("beacon_str_attr")
         .required(true)
@@ -136,7 +139,6 @@ public class CompoundBeaconSearchableEncryptionExample {
     //     1. Only zipcode
     //     2. Only state abbreviation
     //     3. Both state and zipcode abbreviation
-    //   See that we re-use the constructor parts across multiple constructors.
     List<ConstructorPart> onlyZipcodeConstructorPartList = new ArrayList<>();
     onlyZipcodeConstructorPartList.add(constructorPartNum);
     Constructor onlyZipcodeConstructor = Constructor.builder()
@@ -178,7 +180,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     constructorList.add(onlyStateConstructor);
     constructorList.add(onlyZipcodeConstructor);
 
-    // 4. Define compound beacon.
+    // 6. Define compound beacon.
     //    A compound beacon allows one to serve multiple beacons or attributes from a single index.
     //    A compound beacon must receive:
     //     - name: The name of the beacon. Compound beacon values will be written to `aws_ddb_e_[name]`.
@@ -199,7 +201,7 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     compoundBeaconList.add(cpbeacon1);
 
-    // 2. Create Keystore and branch key.
+    // 7. Create Keystore and branch key.
     //    These are the same constructions as in the Basic example, which describes these in more detail.
     KeyStore keyStore = KeyStore.builder()
         .KeyStoreConfig(KeyStoreConfig.builder()
@@ -208,12 +210,10 @@ public class CompoundBeaconSearchableEncryptionExample {
             .ddbTableName(branchKeyDdbTableName)
             .build())
         .build();
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder()
-        .awsKmsKeyArn(branchKeyWrappingKmsKeyArn)
-        .build());
+    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
     String branchKeyId = output.branchKeyIdentifier();
 
-    // 5. Create BeaconVersion.
+    // 8. Create BeaconVersion.
     //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
     //    We must also continue to provide all of the standard beacons that compose a compound beacon list.
     List<BeaconVersion> beaconVersions = new ArrayList<>();
@@ -232,13 +232,12 @@ public class CompoundBeaconSearchableEncryptionExample {
             .build()
     );
 
-    // 6. Create a Hierarchical Keyring
+    // 9. Create a Hierarchical Keyring
     //    This is the same configuration as in the Basic example.
     final MaterialProviders matProv = MaterialProviders.builder()
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
         .build();
     CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-        .kmsKeyId(branchKeyWrappingKmsKeyArn)
         .branchKeyId(branchKeyId)
         .keyStore(keyStore)
         .ttlSeconds(6000l)
@@ -246,8 +245,8 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
-    // 7. Configure which attributes are encrypted and/or signed when writing new items.
-    //    This is similar to the Basic example, except we have added the "compound_beacon_attr".
+    // 10. Configure which attributes are encrypted and/or signed when writing new items.
+    //     This is similar to the Basic example, except we have added the "compound_beacon_attr".
     final Map<String, CryptoAction> attributeActions = new HashMap<>();
     attributeActions.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActions.put("sort_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
@@ -255,8 +254,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     attributeActions.put("beacon_num_attr", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("compound_beacon_attr", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
-    // 8. Create the DynamoDb Encryption configuration for the table we will be writing to.
-    //    The beaconVersions are added to the search configuration.
+    // 11. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    //     The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .partitionKeyName("partition_key")
@@ -269,14 +268,14 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 9. Create the DynamoDb Encryption Interceptor
+    // 12. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
         .config(DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build())
         .build();
 
-    // 10. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 13. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
@@ -284,7 +283,7 @@ public class CompoundBeaconSearchableEncryptionExample {
                 .build())
         .build();
 
-    // 11. Put an item with only a zipcode into the table.
+    // 14. Put an item with only a zipcode into the table.
     //     The client's standard beacon behavior is described in the Basic example.
     //     Adding a compound beacon extends this behavior.
     //     In addition to writing the standard beacon fields, the client will also write to the compound beacon field.
@@ -307,7 +306,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     // Validate item put successfully
     assert 200 == putResponseOnlyZip.sdkHttpResponse().statusCode();
 
-    // 12. Query for the item we just put.
+    // 15. Query for the item we just put.
     Map<String,String> expressionAttributesNames = new HashMap<>();
     expressionAttributesNames.put("#c", "compound_beacon_attr");
 
@@ -336,7 +335,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     // Validate the item has the expected attributes
     assert returnedItem.get("beacon_num_attr").n().equals("98109");
 
-    // 13. Put an item with both a state abbreviation and a zipcode into the table.
+    // 16. Put an item with both a state abbreviation and a zipcode into the table.
     final HashMap<String, AttributeValue> itemBoth = new HashMap<>();
     itemBoth.put("partition_key", AttributeValue.builder().s("Both-State-And-Zip").build());
     itemBoth.put("sort_key", AttributeValue.builder().n("1681495205").build());
@@ -352,7 +351,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     // Validate object put successfully
     assert 200 == putResponseBoth.sdkHttpResponse().statusCode();
 
-    // 14. Query for the item with both state abbreviation and zipcode.
+    // 17. Query for the item with both state abbreviation and zipcode.
     expressionAttributesNames = new HashMap<>();
     expressionAttributesNames.put("#c", "compound_beacon_attr");
 
