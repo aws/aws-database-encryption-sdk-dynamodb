@@ -95,19 +95,20 @@ public class BasicSearchableEncryptionExample {
     standardBeaconList.add(stringBeacon);
 
     // The configured DDB table has a GSI on the `aws_dbe_b_beacon_num_attr` AttributeName
-    // Since this field holds a well-distributed zipcode (100,000 possible values),
-    //   we follow the guidance in the link above to determine acceptable bounds for beacon length:
-    //    - min: log(sqrt(100,000))/log(2) ~= 8.3, round up to 9
-    //    - max: log((100,000/2))/log(2) ~= 15.6, round up to 16
-    // We can safely choose a beacon length between 9 and 16:
-    //  - Closer to 9, the underlying data is better obfuscated,
+    // Since this field holds a well-distributed zipcode (100,000 possible values, of which ~42,000 are valid;
+    //   see: https://facts.usps.com/42000-zip-codes/),
+    //  we follow the guidance in the link above to determine acceptable bounds for beacon length:
+    //    - min: log(sqrt(42,000))/log(2) ~= 7.7, round up to 8
+    //    - max: log((42,000/2))/log(2) ~= 14.3, round up to 15
+    // We can safely choose a beacon length between 8 and 15:
+    //  - Closer to 8, the underlying data is better obfuscated,
     //    but more "false positives" are returned in queries
-    //  - Closer to 16, fewer "false positives" are returned in queries,
+    //  - Closer to 15, fewer "false positives" are returned in queries,
     //    but it is easier to distinguish unique plaintext values
     // As an example, we will choose 10.
     // Values stored in aws_dbe_b_beacon_num_attr will be 10 bits long (0x000 - 0x3ff).
     // There will be 2^10 = 1024 possible HMAC values.
-    // With well-distributed plaintext data (100,000 values), we expect (100,000/1024) ~= 98 zipcodes sharing the same
+    // With well-distributed plaintext data (100,000 values), we expect (42,000/1024) ~= 41 zipcodes sharing the same
     //   beacon value.
     StandardBeacon numberBeacon = StandardBeacon.builder()
         .name("beacon_num_attr")
