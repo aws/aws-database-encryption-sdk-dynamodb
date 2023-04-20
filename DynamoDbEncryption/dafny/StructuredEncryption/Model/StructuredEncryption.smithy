@@ -83,7 +83,9 @@ structure EncryptStructureInput {
 
 structure EncryptStructureOutput {
     @required
-    encryptedStructure: StructuredData
+    encryptedStructure: StructuredData,
+    @required
+    parsedHeader: ParsedHeader,
 }
 
 structure DecryptStructureInput {

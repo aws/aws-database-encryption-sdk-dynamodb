@@ -48,7 +48,8 @@ SERVICE_DEPS_StructuredEncryption := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore
 SERVICE_DEPS_DynamoDbEncryption := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
