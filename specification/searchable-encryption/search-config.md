@@ -257,7 +257,7 @@ If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key
 then construct a list of all [compound beacons](./beacons.md#compound-beacon)
 that have a [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
 with a `name` equal to the [Beacon Key Field Name](#beacon-key-field-name).
-If if this list of compound beacons is empty then get beacon key for query MUST fail.
+If this list of compound beacons is empty then get beacon key for query MUST fail.
 
 Construct a list of filter expression and key condition expression
 from the [Query Object]
