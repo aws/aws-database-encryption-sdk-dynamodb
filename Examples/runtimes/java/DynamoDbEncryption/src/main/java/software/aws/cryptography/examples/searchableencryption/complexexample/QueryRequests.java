@@ -25,15 +25,14 @@ public class QueryRequests {
   }
 
   public static void runQueriesOnGsi0(String ddbTableName, DynamoDbClient ddb) {
+    // Query 2: Get meetings by date and employeeID
+    // Key condition: PK=employeeID SK between(date1, date2)
+    // Filter condition: duration > 0
     Map<String,String> query2AttributeNames = new HashMap<>();
     query2AttributeNames.put("#p", "PK");
     query2AttributeNames.put("#s", "SK");
     query2AttributeNames.put("#dur", "Duration");
 
-    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
-    // The expression below queries against zipcodes of 98109.
-    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
-    //     except we must add the prefix.
     Map<String,AttributeValue> query2AttributeValues = new HashMap<>();
     query2AttributeValues.put(":e", AttributeValue.builder().s("E-emp_001").build());
     query2AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
@@ -89,23 +88,21 @@ public class QueryRequests {
   }
 
   public static void runQueriesOnGsi1(String ddbTableName, DynamoDbClient ddb) {
-
-    Map<String,String> query1AttributeNames = new HashMap<>();
+    // Query 1: Get meetings by date and email
+    // Key condition: PK1=email SK1 between(date1, date2)
+    // Filter condition: duration > 0
+    final Map<String,String> query1AttributeNames = new HashMap<>();
     query1AttributeNames.put("#p", "PK1");
     query1AttributeNames.put("#sk1", "SK1");
     query1AttributeNames.put("#dur", "Duration");
 
-    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
-    // The expression below queries against zipcodes of 98109.
-    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
-    //     except we must add the prefix.
-    Map<String, AttributeValue> query1AttributeValues = new HashMap<>();
+    final Map<String, AttributeValue> query1AttributeValues = new HashMap<>();
     query1AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
     query1AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
     query1AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
     query1AttributeValues.put(":dur", AttributeValue.builder().s("0").build());
 
-    QueryRequest queryRequest = QueryRequest.builder()
+    final QueryRequest query1Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
         .keyConditionExpression("#p = :e AND #sk1 BETWEEN :date1 AND :date2")
@@ -114,23 +111,18 @@ public class QueryRequests {
         .expressionAttributeValues(query1AttributeValues)
         .build();
 
-    System.out.println(queryRequest);
-
-    QueryResponse queryResponse = ddb.query(queryRequest);
-    List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
+    final QueryResponse query1Response = ddb.query(query1Request);
+    final List<Map<String, AttributeValue>> attributeValuesQuery1Response = query1Response.items();
     // Validate query was returned successfully
-    assert 200 == queryResponse.sdkHttpResponse().statusCode();
-    System.out.println("query1 returned items: " + queryResponse.items().size());
+    assert 200 == query1Response.sdkHttpResponse().statusCode();
+    System.out.println("query1 returned items: " + query1Response.items().size());
 
-
+    // Query 4: Get employee data by email
+    // Key condition: PK1=email SK1 > 30 days ago
     Map<String,String> query4AttributeNames = new HashMap<>();
     query4AttributeNames.put("#p", "PK1");
     query4AttributeNames.put("#s", "SK1");
 
-    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
-    // The expression below queries against zipcodes of 98109.
-    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
-    //     except we must add the prefix.
     Map<String,AttributeValue> query4AttributeValues = new HashMap<>();
     query4AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
     query4AttributeValues.put(":s", AttributeValue.builder().s("E-emp_001").build());
@@ -150,14 +142,12 @@ public class QueryRequests {
     assert 200 == query4Response.sdkHttpResponse().statusCode();
     System.out.println("query4 returned items: " + query4Response.items().size());
 
+    // Query 5: Get employee data by email
+    // Key condition: PK1=email SK1 > 30 days ago
     Map<String,String> query5AttributeNames = new HashMap<>();
     query5AttributeNames.put("#p", "PK1");
     query5AttributeNames.put("#s", "SK1");
 
-    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
-    // The expression below queries against zipcodes of 98109.
-    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
-    //     except we must add the prefix.
     Map<String,AttributeValue> query5AttributeValues = new HashMap<>();
     query5AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
     query5AttributeValues.put(":s", AttributeValue.builder().s("MS-2023-03-20").build());
@@ -177,6 +167,8 @@ public class QueryRequests {
     assert 200 == query5Response.sdkHttpResponse().statusCode();
     System.out.println("query5 returned items: " + query5Response.items().size());
 
+    // Query 6: Get tickets by email
+    // Key condition: PK1=email SK1 > 30 days ago
     Map<String,String> query6AttributeNames = new HashMap<>();
     query6AttributeNames.put("#p", "PK1");
     query6AttributeNames.put("#s", "SK1");
