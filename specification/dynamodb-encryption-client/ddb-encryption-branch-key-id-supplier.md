@@ -38,8 +38,8 @@ This operation MUST return an implementation of the `BranchKeyIdSupplier` that b
 - It MUST check for the existence of "aws-crypto-sort-name" in the input encryption context.
   - If this key exists, it gets the serialized sort value by grabbing the `aws-crypto.attr:<sort_name>` from the encryption context.
     If this does not exist in the context, this operation MUST fail.
-- If MUST [deserialize the partition (and optionally sort) value](./ddb-attribute-serialization.md), and create a KeySchema with these values.
-- It passes this KeySchema to the supplied DynamoDbKeyBranchKeyIdSupplier via the `GetBranchKeyIdFromDdbKey` operation.
+- If MUST [deserialize the partition (and optionally sort) value](./ddb-attribute-serialization.md), and create a Key with these values.
+- It passes this Key to the supplied DynamoDbKeyBranchKeyIdSupplier via the `GetBranchKeyIdFromDdbKey` operation.
   - If successful, the resulting string MUST be outputted by this operation.
   - Otherwise, this operation MUST fail.
 
