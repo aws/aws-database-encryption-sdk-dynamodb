@@ -33,11 +33,22 @@ DynamoDB Items outside of DynamoDB API calls.
 
 ## Initialization
 
-On initialization of the DynamoDB Item Encryptor,
-the caller MUST provide all REQUIRED fields specified in
-[dynamodb encryption table config](./ddb-table-encryption-config.md).
-and the caller MAY provide any OPTIONAL field specified in
-[dynamodb encryption table config](./ddb-table-encryption-config.md).
+On initialization of the DynamoDB Item Encryptor
+the caller MUST provide:
+
+- [DynamoDB Table Name](./ddb-table-encryption-config.md#dynamodb-table-name)
+- [DynamoDB Partition Key Name](./ddb-table-encryption-config.md#dynamodb-partition-key-name)
+- [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
+- A [CMM](./ddb-table-encryption-config.md#cmm) or [Keyring](./ddb-table-encryption-config.md#keyring)
+
+The following are OPTIONAL for the DynamoDB Item Encryptor:
+
+- [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name)
+- [Unauthenticated Attributes](./ddb-table-encryption-config.md#unauthenticated-attributes)
+- [Unauthenticated Attribute Name Prefix](./ddb-table-encryption-config.md#unauthenticated-attribute-prefix)
+- [Algorithm Suite](./ddb-table-encryption-config.md#algorithm-suite)
+- [Legacy Config](./ddb-table-encryption-config.md#legacy-config)
+- [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy)
 
 ## Operation
 
