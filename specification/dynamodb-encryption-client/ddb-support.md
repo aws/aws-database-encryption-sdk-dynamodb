@@ -198,7 +198,7 @@ In this regard, each use of each operand is handled separately.
 MUST be obtained from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query)
 if a beacon value must be calculated.
 But [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
-MUST NOT be obtained the query is only over SIGN_ONLY fields.
+MUST NOT be obtained the query not involve any ENCRYPT_AND_SIGN fields.
 An item may be written that contains no beacons over an encrypted field.
 
 Similarly, any values in ExpressionAttributeValues that are referred to by a beacon name
@@ -221,7 +221,7 @@ We expect that the list of items returned will contain some extra records
 that matched the beacon values, but do not match the plaintext values
 if the customer has made a query over any encrypted fields.
 
-If the query only involves SIGN_ONLY fields
+If the query does not involves any ENCRYPT_AND_SIGN fields
 then QueryOutputForBeacons MUST not filter the results
 and MUST return.
 This is because the query may not have a beacon key id filed.
