@@ -364,7 +364,7 @@ public class QueryRequests {
   public static void runQuery13(String ddbTableName, DynamoDbClient ddb) {
     // Query 13: Get ticket history by assignee email
     // Key condition: PK=AssigneeEmail SK between(date1, date2)
-    // Filter condition: duration > 0
+    // Filter condition: PK=ticketNumber
     Map<String,String> query13AttributeNames = new HashMap<>();
     query13AttributeNames.put("#p", "PK2");
     query13AttributeNames.put("#pk", "PK");
@@ -400,22 +400,20 @@ public class QueryRequests {
   }
 
   public static void runQuery14(String ddbTableName, DynamoDbClient ddb) {
-    // Query 14: Get ticket history by assignee email
-    // Key condition: PK=AssigneeEmail SK between(date1, date2)
-    // Filter condition: duration > 0
+    // Query 14: Get employees by building.floor.desk
+    // Key condition: PK3=city SK3 begins_with(building.floor.desk)
     Map<String,String> query14AttributeNames = new HashMap<>();
-    query14AttributeNames.put("#p", "PK2");
-    query14AttributeNames.put("#pk", "PK");
+    query14AttributeNames.put("#p", "PK3");
+    query14AttributeNames.put("#s", "SK3");
 
     Map<String,AttributeValue> query14AttributeValues = new HashMap<>();
-    query14AttributeValues.put(":e", AttributeValue.builder().s("AE-able@gmail.com").build());
-    query14AttributeValues.put(":ticket", AttributeValue.builder().s("T-ticket_001").build());
+    query14AttributeValues.put(":c", AttributeValue.builder().s("C-Seattle").build());
+    query14AttributeValues.put(":l", AttributeValue.builder().s("B-44~F-12~D-3").build());
 
     QueryRequest query14Request = QueryRequest.builder()
         .tableName(ddbTableName)
-        .indexName("GSI-2")
-        .keyConditionExpression("#p = :e")
-        .filterExpression("#pk = :ticket")
+        .indexName("GSI-3")
+        .keyConditionExpression("#p = :c AND begins_with(#s, :l)")
         .expressionAttributeNames(query14AttributeNames)
         .expressionAttributeValues(query14AttributeValues)
         .build();
@@ -425,13 +423,15 @@ public class QueryRequests {
     assert 200 == query14Response.sdkHttpResponse().statusCode();
 
     // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    System.out.println(query14Response);
     assert query14Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery14 = false;
     for (Map<String, AttributeValue> item : query14Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals("employee1")) {
         foundKnownValueItemQuery14 = true;
-        assert item.get("Subject").s().equals("Bad bug");
+        assert item.get("EmployeeID").s().equals("emp_001");
+        assert item.get("Location").m().get("Desk").s().equals("3");
       }
     }
     assert foundKnownValueItemQuery14;

@@ -60,6 +60,7 @@ public class PutRequests {
     employee1Location.put("Building", AttributeValue.builder().s("44").build());
     employee1Location.put("Floor", AttributeValue.builder().s("12").build());
     employee1Location.put("Desk", AttributeValue.builder().s("3").build());
+    employee1Location.put("City", AttributeValue.builder().s("Seattle").build());
 
     final HashMap<String, AttributeValue> employee1 = new HashMap<>();
     employee1.put("partition_key", AttributeValue.builder().s("employee1").build());

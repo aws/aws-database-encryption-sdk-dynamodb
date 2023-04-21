@@ -96,6 +96,7 @@ public class BeaconConfig {
         .build();
     StandardBeacon cityStandardBeacon = StandardBeacon.builder()
         .name("City")
+        .loc("Location.City")
         .length(4)
         .build();
     StandardBeacon severityStandardBeacon = StandardBeacon.builder()
@@ -489,6 +490,7 @@ public class BeaconConfig {
     List<ConstructorPart> buildingFloorDeskConstructorPartList = new ArrayList();
     buildingFloorDeskConstructorPartList.add(buildingConstructorPart);
     buildingFloorDeskConstructorPartList.add(floorConstructorPart);
+    buildingFloorDeskConstructorPartList.add(deskConstructorPart);
     Constructor buildingFloorDeskConstructor = Constructor.builder()
         .parts(buildingFloorDeskConstructorPartList)
         .build();
