@@ -44,28 +44,28 @@ module BaseBeacon {
     //# * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.
     function method {:opaque} hash(val : Bytes, key : Bytes, length : BeaconLength)
       : (ret : Result<string, Error>)
-      ensures ret.Success? ==> 
-        //= specification/searchable-encryption/beacons.md#basichash
-        //= type=implication
-        //# * basicHash MUST produce a non-empty string as output.
-        && |ret.value| > 0
+      ensures ret.Success? ==>
+                //= specification/searchable-encryption/beacons.md#basichash
+                //= type=implication
+                //# * basicHash MUST produce a non-empty string as output.
+                && |ret.value| > 0
 
-        //= specification/searchable-encryption/beacons.md#basichash
-        //= type=implication
-        //# * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-        //# of the input bytes and the configured key, and keep the first 8 bytes.
-        && getHmac(val, key).Success?
-        && var hash := getHmac(val, key).value;
+                //= specification/searchable-encryption/beacons.md#basichash
+                //= type=implication
+                //# * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+                //# of the input bytes and the configured key, and keep the first 8 bytes.
+                && getHmac(val, key).Success?
+                && var hash := getHmac(val, key).value;
 
-        //= specification/searchable-encryption/beacons.md#basichash
-        //= type=implication
-        //# * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
-        && ret.value == BytesToHex(hash, length)
+                //= specification/searchable-encryption/beacons.md#basichash
+                //= type=implication
+                //# * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
+                && ret.value == BytesToHex(hash, length)
 
-        //= specification/searchable-encryption/beacons.md#basichash
-        //= type=implication
-        //# * the length of the returned string MUST be (`beacon length`/4) rounded up.
-        && |ret.value| == (((length as uint8) + 3) / 4) as nat
+                //= specification/searchable-encryption/beacons.md#basichash
+                //= type=implication
+                //# * the length of the returned string MUST be (`beacon length`/4) rounded up.
+                && |ret.value| == (((length as uint8) + 3) / 4) as nat
 
     {
       var hash :- getHmac(val, key);
@@ -88,15 +88,15 @@ module BaseBeacon {
       ensures res.Success? ==> |res.value| == 8
     {
       var input := Prim.HMacInput (
-        digestAlgorithm := Prim.SHA_384,
-        key := key,
-        message := data
-      );
+                     digestAlgorithm := Prim.SHA_384,
+                     key := key,
+                     message := data
+                   );
       var output :- client.HMac(input).MapFailure(e => AwsCryptographyPrimitives(e));
       Success(output[..8])
     }
   }
-  
+
   type ValidStandardBeacon = x : StandardBeacon | x.ValidState() witness *
 
   function method MakeStandardBeacon(
@@ -105,20 +105,20 @@ module BaseBeacon {
     length : BeaconLength,
     loc : string
   )
-    : (ret : Result<ValidStandardBeacon, Error>) 
+    : Result<ValidStandardBeacon, Error>
   {
     var termLoc :- TermLoc.MakeTermLoc(loc);
     var beaconName := BeaconPrefix + name;
     :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
     Success(StandardBeacon.StandardBeacon(
-      BeaconBase (
-        client := client,
-        name := name,
-        beaconName := beaconName
-      ),
-      length,
-      termLoc
-    ))
+              BeaconBase (
+                client := client,
+                name := name,
+                beaconName := beaconName
+              ),
+              length,
+              termLoc
+            ))
   }
   datatype StandardBeacon = StandardBeacon (
     base : BeaconBase,
@@ -128,11 +128,11 @@ module BaseBeacon {
     function method {:opaque} hash(val : Bytes, key : Bytes)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
-        && |ret.value| > 0
-        && base.hash(val, key, length).Success?
-        && ret.value == base.hash(val, key, length).value
+                && |ret.value| > 0
+                && base.hash(val, key, length).Success?
+                && ret.value == base.hash(val, key, length).value
 
-        && |ret.value| == (((length as uint8) + 3) / 4) as nat
+                && |ret.value| == (((length as uint8) + 3) / 4) as nat
     {
       base.hash(val, key, length)
     }
@@ -158,7 +158,7 @@ module BaseBeacon {
         var res :- hash(bytes.value, key);
         Success(Some(res))
     }
-    
+
     function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<DDB.AttributeValue>, Error>
     {
       VirtToAttr(loc, item, vf)
@@ -186,17 +186,17 @@ module BaseBeacon {
       : (ret : Result<string, Error>)
       requires 0 < |val|
 
-      ensures ret.Success? ==> 
-        && |ret.value| > 0
+      ensures ret.Success? ==>
+                && |ret.value| > 0
 
       ensures ret.Success? ==>
-        //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
-        //= type=implication
-        //# * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
-        && base.hash(val, key, length).Success?
-        && ret.value == base.hash(val, key, length).value
+                //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
+                //= type=implication
+                //# * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
+                && base.hash(val, key, length).Success?
+                && ret.value == base.hash(val, key, length).value
     {
-        base.hash(val, key, length)
+      base.hash(val, key, length)
     }
     predicate ValidState() {true}
   }
