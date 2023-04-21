@@ -128,8 +128,7 @@ module TransactWriteItemsTransform {
       }
     }
     :- Need(|input.sdkInput.TransactItems| == |result|, E(""));
-    var finalResult := result; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
-    return Success(TransactWriteItemsInputTransformOutput(transformedInput := input.sdkInput.(TransactItems := finalResult)));
+    return Success(TransactWriteItemsInputTransformOutput(transformedInput := input.sdkInput.(TransactItems := result)));
   }
 
   method Output(config: Config, input: TransactWriteItemsOutputTransformInput)
