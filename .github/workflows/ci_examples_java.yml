@@ -6,9 +6,24 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      nightly:
+        description: 'Run the nightly build'
+        required: false
+        type: boolean
+  schedule:
+    # Nightly build against Dafny's nightly prereleases,
+    # for early warning of verification issues or regressions.
+    # Timing chosen to be adequately after Dafny's own nightly build,
+    # but this might need to be tweaked:
+    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
+    - cron: "30 8 * * *"
 
 jobs:
   testJava:
+    # Don't run the nightly build on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'awslabs'
     strategy:
       matrix:
         java-version: [ 8, 11, 16, 17 ]
@@ -71,7 +86,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
-          dafny-version: "nightly-2023-04-12-f4836e9"
+          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || "nightly-2023-04-12-f4836e9" }}
 
       - name: Build and locally deploy dependencies for examples
         shell: bash
