@@ -400,7 +400,7 @@ public class QueryRequests {
   }
 
   public static void runQuery14(String ddbTableName, DynamoDbClient ddb) {
-    // Query 14: Get employees by building.floor.desk
+    // Query 14: Get employees by city.building.floor.desk
     // Key condition: PK3=city SK3 begins_with(building.floor.desk)
     Map<String,String> query14AttributeNames = new HashMap<>();
     query14AttributeNames.put("#p", "PK3");
