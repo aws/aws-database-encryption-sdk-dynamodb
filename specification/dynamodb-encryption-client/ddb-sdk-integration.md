@@ -68,11 +68,7 @@ the customer MUST provide in the process of creating a [DynamoDB Encryption Clie
 
 The client configuration consists of the following REQUIRED field:
 
-- [DynamoDb Table Encryption Configs](#dynamodb-tables-encryption-configs)
-
-The client configuration MAY include the following field:
-
-- TODO Searchable Encryption Config
+- [DynamoDb Table Encryption Configs](#dynamodb-table-encryption-configs)
 
 ### DynamoDb Table Encryption Configs
 
@@ -168,13 +164,34 @@ The Item MUST be [writable](ddb-support.md#writable).
 
 The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
 
-Beacons MUST be [added](ddb-support.md#addbeacons).
+Non-Sensitive Beacons MUST be [added](ddb-support.md#addnonsensitivebeacons).
 
-If the request is validated,
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+MUST be [handled](./ddb-support.md#handlebeaconkeyfieldname).
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
 the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [Encrypt Item](./encrypt-item.md),
 where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-is output of the [add beacons](ddb-support.md#addbeacons) operation.
+is output of [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname) operation.
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Single Key Store](../searchable-encryption/search-config.md#single-key-store-initialization)
+the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Encrypt Item](./encrypt-item.md),
+where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
+is output of [adding the non-sensitive beacons](ddb-support.md#addnonsensitivebeacons) operation.
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+and a `branch key id` was returned from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
+this `branch key id` MUST match the value
+returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
+
+Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
 
 If any of the above fails,
 the client MUST NOT make a network call to DynamoDB,
@@ -182,7 +199,7 @@ and PutItem MUST yield an error.
 
 The PutItem request's `Item` field MUST be replaced
 with a value that is equivalent to
-the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
+the output of the [add sensitive beacons](ddb-support.md#addsensitivebeacons) operation
 calculated above.
 
 ### Encrypt before BatchWriteItem
@@ -201,13 +218,34 @@ For each operation associated with the table name, if there is a PutRequest:
 
 The Item MUST be [writable](ddb-support.md#writable).
 
-Beacons MUST be [added](ddb-support.md#addbeacons).
+Non-Sensitive Beacons MUST be [added](ddb-support.md#addnonsensitivebeacons).
 
-If the request is validated,
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+MUST be [handled](./ddb-support.md#handlebeaconkeyfieldname).
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
 the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [Encrypt Item](./encrypt-item.md),
 where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-is output of the [add beacons](ddb-support.md#addbeacons) operation.
+is output of [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname) operation.
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Single Key Store](../searchable-encryption/search-config.md#single-key-store-initialization)
+the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Encrypt Item](./encrypt-item.md),
+where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
+is output of [adding the non-sensitive beacons](ddb-support.md#addnonsensitivebeacons) operation.
+
+If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+and a `branch key id` was returned from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
+this `branch key id` MUST match the value
+returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
+
+Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
 
 If any of the above fails,
 the client MUST NOT make a network call to DynamoDB,
@@ -248,12 +286,29 @@ If there is a `Put` that refers to a `TableName` that refers to an [encrypted-ta
 
  - The Item MUST be [writable](ddb-support.md#writable).
  - The ConditionExpression `Put` MUST be [valid](ddb-support.md#testconditionexpression).
- - Beacons MUST be [added](ddb-support.md#addbeacons).
- - If the request is validated,
+ - Non-Sensitive Beacons MUST be [added](ddb-support.md#addnonsensitivebeacons).
+- If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
+MUST be [handled](./ddb-support.md#handlebeaconkeyfieldname).
+- If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
 the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
 [Encrypt Item](./encrypt-item.md),
 where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-is output of the [add beacons](ddb-support.md#addbeacons) operation.
+is output of [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname) operation.
+- If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Single Key Store](../searchable-encryption/search-config.md#single-key-store-initialization)
+the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Encrypt Item](./encrypt-item.md),
+where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
+is output of [adding the non-sensitive beacons](ddb-support.md#addnonsensitivebeacons) operation.
+- If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
+is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
+and a `branch key id` was returned from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
+this `branch key id` MUST match the value
+returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
+ - Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
  - If any of the above fails,
 the client MUST NOT make a network call to DynamoDB,
 and PutItem MUST yield an error.
@@ -471,7 +526,7 @@ Otherwise
 The Scan request MUST NOT refer to any legacy parameters,
 specifically AttributesToGet, ScanFilter and ConditionalOperator MUST NOT be set.
 
-The request MUST be [altered](#scaninputforbeacons)
+The request MUST be [altered](./ddb-support.md#scaninputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
 ### Modify before Query
@@ -487,7 +542,7 @@ Otherwise
 The Query request MUST NOT refer to any legacy parameters,
 specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST NOT be set.
 
-The request MUST be [altered](#queryinputforbeacons)
+The request MUST be [altered](./ddb-support.md#queryinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
 ### Modify before CreateTable
@@ -498,7 +553,7 @@ call is made to DynamoDB :
 If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
 the CreateTable request MUST be unchanged.
 
-Otherwise, the response MUST be [altered](#createtableinputforbeacons)
+Otherwise, the response MUST be [altered](./ddb-support.md#createtableinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
 ### Modify before UpdateTable
@@ -509,7 +564,7 @@ call is made to DynamoDB :
 If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
 the UpdateTable request MUST be unchanged.
 
-Otherwise, the response MUST be [altered](#updatetableinputforbeacons)
+Otherwise, the response MUST be [altered](./ddb-support.md#updatetableinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
 ### Modify after DescribeTable
@@ -520,7 +575,7 @@ call is made to DynamoDB :
 If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
 the DescribeTable response MUST be unchanged.
 
-Otherwise, the response MUST be [altered](#describetableoutputforbeacons)
+Otherwise, the response MUST be [altered](./ddb-support.md#describetableoutputforbeacons)
 to transform references to beacons back into references to encrypted attributes.
 
 ## Allowed Passthrough DynamoDB APIs

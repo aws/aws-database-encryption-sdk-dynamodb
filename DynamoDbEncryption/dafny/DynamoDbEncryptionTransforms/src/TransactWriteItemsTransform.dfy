@@ -88,16 +88,8 @@ module TransactWriteItemsTransform {
           item.Put.value.ExpressionAttributeNames,
           item.Put.value.ExpressionAttributeValues);
 
-        //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
-        //# - Beacons MUST be [added](ddb-support.md#addbeacons).
         var beaconItem :- AddSignedBeacons(tableConfig, item.Put.value.Item);
 
-        //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
-        //# - If the request is validated,
-        //# the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
-        //# [Encrypt Item](./encrypt-item.md),
-        //# where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-        //# is output of the [add beacons](ddb-support.md#addbeacons) operation.
         var encryptRes := tableConfig.itemEncryptor.EncryptItem(
           EncTypes.EncryptItemInput(plaintextItem:=beaconItem)
         );

@@ -42,14 +42,6 @@ module PutItemTransform {
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
       //= type=implication
-      //# The PutItem request's `Item` field MUST be replaced
-      //# with a value that is equivalent to
-      //# the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
-      //# calculated above.
-      //&& encryptOutput.encryptedItem == output.value.transformedInput.Item
-
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-      //= type=implication
       //# The Item MUST be [writable](ddb-support.md#writable).
       && IsWriteable(tableConfig, input.sdkInput.Item).Success?
 
@@ -61,20 +53,6 @@ module PutItemTransform {
           input.sdkInput.ExpressionAttributeNames,
           input.sdkInput.ExpressionAttributeValues).Success?
 
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-      //= type=implication
-      //# Beacons MUST be [added](ddb-support.md#addbeacons).
-      // && AddBeacons(tableConfig, input.sdkInput.Item).Success?
-      // && var item := AddBeacons(tableConfig, input.sdkInput.Item).value;
-
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-      //= type=implication
-      //# If the request is validated,
-      //# the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
-      //# [Encrypt Item](./encrypt-item.md),
-      //# where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-      //# is output of the [add beacons](ddb-support.md#addbeacons) operation.
-      // && encryptInput.plaintextItem == item
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput));

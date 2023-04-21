@@ -11,7 +11,9 @@
 
 ## Overview
 
-Beacons use stable hashes of the plaintext values of encrypted fields to allow searches on client-side encrypted records and using truncation to provide some basic privacy protections.
+Beacons use stable hashes of plaintext values of encrypted fields
+to allow searches on client-side encrypted records
+using truncation to provide some basic privacy protections.
 
 ### Definitions
 
@@ -129,25 +131,26 @@ field, or [virtual field](virtual.md), or to attempt to write a field of this na
 The `split character` separates the parts of a compound beacon.
 In the examples below, we assume "`.`".
 
-Each [sensitive part](#sensitive-part) has a name and a prefix.
+Each [sensitive part](#sensitive-part-initialization) has a name and a prefix.
 The name MUST be the name of a configured standard beacon.
 
 For example :
 
 | Beacon Name | Prefix |
-|---|---|
-| social | S- |
-| phone | P- |
-| zipcode | Z- |
+|-------------|--------|
+| social      | S-     |
+| phone       | P-     |
+| zipcode     | Z-     |
 
 The first row should be interpreted as a literal `S-` followed by the "social" standard beacon.
 
-Each [nonsensitive part](#non-sensitive-part) has a field name, a [terminal location](virtual.md#terminal-location) and a prefix.
+Each [nonsensitive part](#non-sensitive-part-initialization) has a field name,
+a [terminal location](virtual.md#terminal-location) and a prefix.
 The values of these fields are stored in plaintext.
 
-| Field Name | Location | Prefix |
-|---|---|---|
-| timestamp | timestamp | T- |
+| Field Name | Location  | Prefix |
+|------------|-----------|--------|
+| timestamp  | timestamp | T-     |
 
 The first row should be interpreted as a literal `T-` followed by the plaintext
 of the "timestamp" field.
@@ -164,11 +167,11 @@ but you can't have both "A-" and "A--".
 
 To write a compound beacon, one generates the [virtual database field](#virtual-database-field),
 via a `constructor`,
-and then turns the sensitive parts into [standard beacons](#standard-beacon).
+and then combines the sensitive parts from the referenced [standard beacons](#standard-beacon).
 
 A single constructor has a name and an ordered list of parts.
 Each part can be required or optional.
-Every constructor must contain at least on required sensitive field.
+Every constructor must contain at least one required field.
 
 An example list of constructors might be :
 
@@ -245,7 +248,8 @@ On initialization of a Standard Beacon, the caller MUST provide:
 
  * a [terminal location](virtual.md#terminal-location) -- a string
 
-If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
+If no [terminal location](virtual.md#terminal-location) is provided,
+the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 Initialization MUST fail if two standard beacons are configured with the same location.
 
@@ -256,29 +260,30 @@ On initialization of a Compound Beacon, the caller MUST provide:
 
  * A name -- a string
  * A split character -- a character
- * A list of [sensitive parts](#sensitive-part)
-
+ 
  On initialization of a Compound Beacon, the caller MAY provide:
 
- * A list of [non-sensitive parts](#non-sensitive-part)
+ * A list of [sensitive parts](#sensitive-part-initialization)
+ * A list of [non-sensitive parts](#non-sensitive-part-initialization)
  * A list of constructors
 
 #### Non Sensitive Part Initialization
 
-On initialization of a [non-sensitive part](#non-sensitive-part), the caller MUST provide:
+On initialization of a [non-sensitive part](#non-sensitive-part-initialization), the caller MUST provide:
 
  * A name -- a string
  * A prefix -- a string
 
-On initialization of a [non-sensitive parts](#non-sensitive-part), the caller MAY provide:
+On initialization of a [non-sensitive parts](#non-sensitive-part-initialization), the caller MAY provide:
 
  * A [terminal location](virtual.md#terminal-location) -- a string
 
-If no [terminal location](virtual.md#terminal-location) is provided, the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
+If no [terminal location](virtual.md#terminal-location) is provided,
+the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 #### Sensitive Part Initialization
 
-On initialization of a [sensitive part](#sensitive-part), the caller MUST provide:
+On initialization of a [sensitive part](#sensitive-part-initialization), the caller MUST provide:
 
  * A name -- a string, the name of a standard beacon
  * A prefix -- a string
@@ -296,25 +301,25 @@ On initialization of a constructor part, the caller MUST provide:
  * A name -- a string
  * A required flag -- a boolean
 
-This name MUST match the name of one of the [sensitive](#sensitive-part) or [non-sensitive](#sensitive-part) parts.
+This name MUST match the name of one of the [sensitive](#sensitive-part-initialization) or [non-sensitive](#non-sensitive-part-initialization) parts.
 
 ### Default Construction
 
 * If no constructors are configured, a default constructor MUST be generated.
-* This default constructor MUST be all of the non-sensitive parts, followed by all the
-sensitive part, all parts being required.
+* This default constructor MUST be all of the non-sensitive parts,
+followed by all the sensitive part, all parts being required.
 
 ### Part
 
-The word `part` is used to refer to any [sensitive](#sensitive-part) or [non-sensitive](#sensitive-part) part.
+The word `part` is used to refer to any [sensitive](#sensitive-part-initialization) or [non-sensitive](#sensitive-part-initialization) part.
 
 ### Initialization Failure
 
 Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
 the `prefix` of any other [part](#part).
 
-Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part) contains
-any part of an encrypted field, or any [sensitive-part](#sensitive-part) fails to contain
+Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part-initialization) contains
+any part of an encrypted field, or any [sensitive-part](#sensitive-part-initialization) fails to contain
 some part of an encrypted field.
 
 Initialization MUST fail if any [constructor](#constructor) is configured with a field name
@@ -339,15 +344,15 @@ Both standard and compound beacons define two operations
  * [getPart](#getpart) - turn a plaintext query string into a beacon
 
 ### basicHash
- * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.
+ * basicHash MUST take an [hmac key](./search-config.md#hmac-key-generation), a [beacon length](#beacon-length) and a sequence of bytes as input.
  * basicHash MUST produce a non-empty string as output.
  * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-of the input bytes and the configured key, and keep the first 8 bytes.
+of the input bytes and the [hmac key](./search-config.md#hmac-key-generation), and keep the first 8 bytes.
  * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
  * the length of the returned string MUST be (`beacon length`/4) rounded up.
 
 ### value for a standard beacon
- * This operation MUST take a record as input, and produce an optional string.
+ * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional string.
  * This operation MUST return no value if the associated field does not exist in the record
  * This operation MUST convert the attribute value of the associated field to
 a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
@@ -366,7 +371,7 @@ excluding parts that are not required and with a source field that is not availa
 
 ### getPart for a standard beacon
 
- * getPart MUST take a sequence of bytes as input, and produce a string.
+ * getPart MUST take an [hmac key](./search-config.md#hmac-key-generation), a sequence of bytes as input, and produce a string.
  * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
 
 ### getPart for a compound beacon
@@ -374,7 +379,8 @@ excluding parts that are not required and with a source field that is not availa
  * getPart MUST take a string as input and produce a string.
  * The returned string MUST NOT be empty.
  * The string MUST be split on the `split character` into pieces.
- * For each piece, a [part](#part) MUST be identified by matching the prefix of a [part](#part)
+ * For each piece, a [part](#part) MUST be identified 
+ by matching the prefix of a [part](#part)
 to the beginning of the piece.
  * If no such part exists, this operation MUST fail.
  * The [Part Value](#part-value-calculation) MUST be calculated for each piece,
@@ -390,12 +396,13 @@ The `Part Value` is the [part value calculation](#part-value-calculation) of the
 
 ### Part Value Calculation
 
-Part Value Calculation MUST take a string, a prefix, and an optional [beacon length](#beacon-length) as input, and return a string as output.
+Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string, a prefix,
+and an optional [beacon length](#beacon-length) as input, and return a string as output.
 
 The input string MUST begin with the provided prefix.
 
 If the [beacon length](#beacon-length) is provided, 
-the part value MUST be the concatenation
-of the prefix and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
+the part value MUST be the concatenation of the prefix
+and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
 
 If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.

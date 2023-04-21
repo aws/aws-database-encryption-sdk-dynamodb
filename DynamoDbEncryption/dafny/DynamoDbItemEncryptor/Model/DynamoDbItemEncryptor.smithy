@@ -29,17 +29,6 @@ service DynamoDbItemEncryptor {
     errors: [DynamoDbItemEncryptorException],
 }
 
-//= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
-//= type=implication
-//# On initialization of the DynamoDB Item Encryptor,
-//# the caller MUST provide all REQUIRED fields specified in
-//# [dynamodb encryption table config](./ddb-table-encryption-config.md).
-
-//= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
-//= type=implication
-//# and the caller MAY provide any OPTIONAL field specified in
-//# [dynamodb encryption table config](./ddb-table-encryption-config.md).
-
 structure DynamoDbItemEncryptorConfig {
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
     //= type=implication

@@ -394,9 +394,6 @@ module CompoundBeacon {
       ValidPrefixSet()
     }
 
-    //= specification/searchable-encryption/beacons.md#part-value-calculation
-    //= type=implication
-    //# Part Value Calculation MUST take a string, a prefix, and an optional [beacon length](#beacon-length) as input, and return a string as output.
     function method {:opaque} PartValueCalc(data : string, prefix : string, keys : HmacKeyMap, part : BeaconPart)
       : (ret : Result<string, Error>)
       //= specification/searchable-encryption/beacons.md#part-value-calculation

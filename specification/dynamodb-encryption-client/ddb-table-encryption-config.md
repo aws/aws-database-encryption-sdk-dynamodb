@@ -45,10 +45,17 @@ The following are OPTIONAL for DynamoDb Table Encryption Configuration:
 - [Algorithm Suite](#algorithm-suite)
 - [Legacy Config](#legacy-config)
 - [Plaintext Policy](#plaintext-policy)
+- [Searchable Encryption Config](../searchable-encryption/search-config.md)
 
 A [Legacy Config](#legacy-config)
 and a [Plaintext Policy](#plaintext-policy)
 both specified on the same config is invalid,
+and MUST result in an error.
+
+A [Searchable Encryption Config](../searchable-encryption/search-config.md)
+and either a [Legacy Config](./ddb-table-encryption-config.md#legacy-config)
+or a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy)
+being specified on the same config is invalid,
 and MUST result in an error.
 
 ### DynamoDB Table Name

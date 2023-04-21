@@ -46,16 +46,8 @@ module BatchWriteItemTransform {
             //# The Item MUST be [writable](ddb-support.md#writable).
             var _ :- IsWriteable(tableConfig, req.PutRequest.value.Item);
 
-            //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
-            //# Beacons MUST be [added](ddb-support.md#addbeacons).
             var item :- AddSignedBeacons(tableConfig, req.PutRequest.value.Item);
 
-            //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
-            //# If the request is validated,
-            //# the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
-            //# [Encrypt Item](./encrypt-item.md),
-            //# where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
-            //# is output of the [add beacons](ddb-support.md#addbeacons) operation.
             var encryptRes := tableConfig.itemEncryptor.EncryptItem(EncTypes.EncryptItemInput(plaintextItem:=item));
             var encrypted :- MapError(encryptRes);
             var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
