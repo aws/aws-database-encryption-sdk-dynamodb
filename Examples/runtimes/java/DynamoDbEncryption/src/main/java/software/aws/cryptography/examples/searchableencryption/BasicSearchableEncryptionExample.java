@@ -38,15 +38,15 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
   Running this example requires access to a DDB table  with the
   following primary key configuration:
-    - Partition key is named "partition_key" with type (S)
-    - Sort key is named "sort_key" with type (S)
-  This table must have a Global Secondary Index (GSI) configured named "Example-Beacon-Index":
+    - Partition key is named "customer_id" with type (S)
+    - Sort key is named "create_time" with type (S)
+  This table must have a Global Secondary Index (GSI) configured named "state-zip-index":
     - Partition key is named "aws_dbe_b_state" with type (S)
     - Sort key is named "aws_dbe_b_zip" with type (S)
 
   In this example for storing customer location data, this schema is utilized for the data:
-   - "partition_key" stores a unique customer identifier
-   - "sort_key" stores a Unix timestamp
+   - "customer_id" stores a unique customer identifier
+   - "create_time" stores a Unix timestamp
    - "state" stores an encrypted 2-letter US state or territory abbreviation
          (https://www.faa.gov/air_traffic/publications/atpubs/cnt_html/appendix_a.html)
    - "zip" stores an encrypted 5-digit US zipcode (00000 - 99999)
@@ -197,8 +197,8 @@ public class BasicSearchableEncryptionExample {
     //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
     //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
     final Map<String, CryptoAction> attributeActions = new HashMap<>();
-    attributeActions.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
+    attributeActions.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActions.put("create_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
     attributeActions.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
@@ -206,8 +206,8 @@ public class BasicSearchableEncryptionExample {
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
-        .partitionKeyName("partition_key")
-        .sortKeyName("sort_key")
+        .partitionKeyName("customer_id")
+        .sortKeyName("create_time")
         .attributeActions(attributeActions)
         .keyring(kmsKeyring)
         .search(SearchConfig.builder()
