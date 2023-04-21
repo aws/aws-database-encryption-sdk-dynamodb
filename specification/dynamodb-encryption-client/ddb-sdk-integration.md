@@ -187,8 +187,9 @@ is output of [adding the non-sensitive beacons](ddb-support.md#addnonsensitivebe
 
 If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
 is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-the `branch key id` from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
-MUST match the value returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
+and a `branch key id` was returned from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
+this `branch key id` MUST match the value
+returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
 
 Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
 
@@ -240,8 +241,9 @@ is output of [adding the non-sensitive beacons](ddb-support.md#addnonsensitivebe
 
 If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
 is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-the `branch key id` from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
-MUST match the value returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
+and a `branch key id` was returned from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
+this `branch key id` MUST match the value
+returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
 
 Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
 
@@ -303,8 +305,9 @@ where the input [DynamoDB Item](./encrypt-item.md#dynamodb-item)
 is output of [adding the non-sensitive beacons](ddb-support.md#addnonsensitivebeacons) operation.
 - If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
 is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
-the `branch key id` from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
-MUST match the value returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
+and a `branch key id` was returned from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
+this `branch key id` MUST match the value
+returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
  - Sensitive Beacons MUST be [added](ddb-support.md#addsensitivebeacons).
  - If any of the above fails,
 the client MUST NOT make a network call to DynamoDB,
