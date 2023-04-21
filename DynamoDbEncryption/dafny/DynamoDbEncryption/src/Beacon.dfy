@@ -39,9 +39,6 @@ module BaseBeacon {
     nameonly beaconName: DDB.AttributeName
   ) {
 
-    //= specification/searchable-encryption/beacons.md#basichash
-    //= type=implication
-    //# * basicHash MUST take a [beacon length](#beacon-length) and a sequence of bytes as input.
     function method {:opaque} hash(val : Bytes, key : Bytes, length : BeaconLength)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
@@ -50,10 +47,6 @@ module BaseBeacon {
                 //# * basicHash MUST produce a non-empty string as output.
                 && |ret.value| > 0
 
-                //= specification/searchable-encryption/beacons.md#basichash
-                //= type=implication
-                //# * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-                //# of the input bytes and the configured key, and keep the first 8 bytes.
                 && getHmac(val, key).Success?
                 && var hash := getHmac(val, key).value;
 
@@ -179,9 +172,6 @@ module BaseBeacon {
       Success(DDB.AttributeValue.S(h))
     }
 
-    //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
-    //= type=implication
-    //# * getPart MUST take a sequence of bytes as input, and produce a string.
     function method {:opaque} getPart(val : Bytes, key : Bytes)
       : (ret : Result<string, Error>)
       requires 0 < |val|

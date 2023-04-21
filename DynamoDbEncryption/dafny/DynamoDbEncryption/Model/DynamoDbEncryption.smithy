@@ -50,11 +50,6 @@ structure DynamoDbTablesEncryptionConfig {
     @required
     tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
 
-    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-encryption-client-configuration
-    //= type=TODO
-    //# The client configuration MAY include the following field:
-    //# - TODO Searchable Encryption Config
-
     // TODO allowed passthrough tables
 }
 
