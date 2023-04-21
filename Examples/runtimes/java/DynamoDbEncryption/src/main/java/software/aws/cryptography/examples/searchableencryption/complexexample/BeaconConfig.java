@@ -257,64 +257,6 @@ public class BeaconConfig {
     sk1SensitivePartList.add(roomSensitivePart);
     sk1SensitivePartList.add(employeeIDSensitivePart);
 
-    /*
-    [{partition_key=AttributeValue(S=employee1),
-    aws_dbe_b_EmployeeID=AttributeValue(S=2),
-    aws_dbe_b_Floor=AttributeValue(S=a),
-    ManagerEmail=AttributeValue(S=zorro@gmail.com),
-     EmployeeEmail=AttributeValue(S=able@gmail.com),
-      aws_dbe_b_PK2=AttributeValue(S=ME-b),
-       aws_dbe_b_SK1=AttributeValue(S=E-5),
-       aws_dbe_b_Desk=AttributeValue(S=5),
-        aws_dbe_b_SK3=AttributeValue(S=B-a~F-1),
-        aws_dbe_b_Building=AttributeValue(S=1),
-         aws_dbe_b_PK=AttributeValue(S=B-a),
-         aws_dbe_b_EmployeeEmail=AttributeValue(S=7),
-          aws_dbe_v_1=AttributeValue(S= ),
-           EmployeeTitle=AttributeValue(S=SDE9),
-            aws_dbe_b_SK=AttributeValue(S=E-5),
-             aws_dbe_b_PK1=AttributeValue(S=EE-9),
-              aws_dbe_b_ManagerEmail=AttributeValue(S=7),
-              EmployeeID=AttributeValue(S=emp_001),
-               EmployeeName=AttributeValue(S=Able Jones),
-                Location=AttributeValue(M={Building=AttributeValue(S=44), Desk=AttributeValue(S=3), Floor=AttributeValue(S=12)})},
-
-     {partition_key=AttributeValue(S=meeting1),
-      aws_dbe_b_EmployeeID=AttributeValue(S=2),
-       aws_dbe_b_Floor=AttributeValue(S=a),
-        EmployeeEmail=AttributeValue(S=able@gmail.com),
-         Attendees=AttributeValue(L=[AttributeValue(S=able@gmail.com),
-          AttributeValue(S=zorro@gmail.com)]),
-           aws_dbe_b_SK1=AttributeValue(S=MS-2022-07-04T13:00~F-1~R-c),
-            Duration=AttributeValue(S=30),
-            aws_dbe_b_PK=AttributeValue(S=E-5),
-             Subject=AttributeValue(S=Scan Beacons),
-              aws_dbe_b_EmployeeEmail=AttributeValue(S=7),
-               aws_dbe_v_1=AttributeValue(S= ),
-               aws_dbe_b_Room=AttributeValue(S=e),
-               aws_dbe_b_SK=AttributeValue(S=MS-2022-07-04T13:00~F-1~R-c),
-                aws_dbe_b_PK1=AttributeValue(S=EE-9),
-                 EmployeeID=AttributeValue(S=emp_001),
-                 MeetingStart=AttributeValue(S=2022-07-04T13:00),
-                 Location=AttributeValue(M={Floor=AttributeValue(S=12),
-                  Room=AttributeValue(S=403)})},
-
-      {partition_key=AttributeValue(S=timecard1),
-       Hours=AttributeValue(S=40),
-        ProjectName=AttributeValue(S=project_002),
-        TimeCardStart=AttributeValue(S=2022-09-12),
-         EmployeeEmail=AttributeValue(S=able@gmail.com),
-         aws_dbe_b_SK1=AttributeValue(S=TC-2022-09-12),
-         aws_dbe_b_PK=AttributeValue(S=P-e),
-          aws_dbe_b_ProjectName=AttributeValue(S=6),
-           aws_dbe_b_EmployeeEmail=AttributeValue(S=7),
-            Role=AttributeValue(S=SDE3),
-            aws_dbe_v_1=AttributeValue(S= ),
-             aws_dbe_b_SK=AttributeValue(S=P-e),
-              aws_dbe_b_PK1=AttributeValue(S=EE-9)}]
-
-     */
-
     List<NonSensitivePart> sk1NonSensitivePartList = new ArrayList<>();
     sk1NonSensitivePartList.add(timeCardStartNonSensitivePart);
     sk1NonSensitivePartList.add(ticketModTimeNonSensitivePart);
