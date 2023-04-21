@@ -49,56 +49,72 @@ public class QueryRequests {
         .expressionAttributeValues(query2AttributeValues)
         .build();
 
-    System.out.println(query2Request);
-
     QueryResponse query2Response = ddb.query(query2Request);
     // Validate query was returned successfully
     assert 200 == query2Response.sdkHttpResponse().statusCode();
-    System.out.println("query2 returned items: " + query2Response.items().size());
+
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query2Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery2 = false;
+    for (Map<String, AttributeValue> item : query2Response.items()) {
+      if (item.get("partition_key").s().equals("meeting1")) {
+        foundKnownValueItemQuery2 = true;
+        assert item.get("Subject").s().equals("Scan Beacons");
+        assert item.get("Location").m().get("Floor").s().equals("12");
+        assert item.get("Attendees").l().contains(AttributeValue.builder().s("zorro@gmail.com").build());
+      }
+    }
+    assert foundKnownValueItemQuery2;
 
     // Query 3: Get meetings by date and building/floor/room
     // Key condition: PK=employeeID SK between(date1, date2)
     // Filter condition: SK contains building.floor.room (see NOTE)
-    // NOTE: This is an example where we omit the filter condition from the actual query.
-    //       The filter condition requires an operation that requires access to the unencrypted plaintext.
-    //       To preserve client-side encryption, we cannot perform this operation in the query.
-    //       Instead, we will filter within our code.
+    // NOTE: This query is modified from Demo.md.
+    //       Demo.md calls for a filter condition "SK contains building.floor.room"
+    //       However, one cannot use primary keys (partition nor sort) in a filter expression.
+    //       Instead, this query filters on the individual beacon attributes: building, floor, and room.
     Map<String,String> query3AttributeNames = new HashMap<>();
     query3AttributeNames.put("#p", "PK");
     query3AttributeNames.put("#s", "SK");
+    query3AttributeNames.put("#b", "Building");
+    query3AttributeNames.put("#f", "Floor");
+    query3AttributeNames.put("#r", "Room");
 
     Map<String,AttributeValue> query3AttributeValues = new HashMap<>();
-    query3AttributeValues.put(":b", AttributeValue.builder().s("B-SEA33").build());
+    query3AttributeValues.put(":bc", AttributeValue.builder().s("B-SEA33").build());
+    query3AttributeValues.put(":b", AttributeValue.builder().s("SEA33").build());
+    query3AttributeValues.put(":f", AttributeValue.builder().s("12").build());
+    query3AttributeValues.put(":r", AttributeValue.builder().s("403").build());
     query3AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
     query3AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
 
     QueryRequest query3Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-0")
-        .keyConditionExpression("#p = :b AND #s BETWEEN :date1 AND :date2")
+        .keyConditionExpression("#p = :bc AND #s BETWEEN :date1 AND :date2")
+        .filterExpression("#b = :b AND #f = :f AND #r = :r")
         .expressionAttributeNames(query3AttributeNames)
         .expressionAttributeValues(query3AttributeValues)
         .build();
 
-    System.out.println(query3Request);
-
     QueryResponse query3Response = ddb.query(query3Request);
     // Validate query was returned successfully
     assert 200 == query3Response.sdkHttpResponse().statusCode();
-    System.out.println("query3 returned items: " + query3Response.items().size());
 
-    List<Map<String, AttributeValue>> filteredItems = new ArrayList<>();
-    // Perform filter client-side
-    // Filter condition: SK contains building.floor.room
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query3Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery3 = false;
     for (Map<String, AttributeValue> item : query3Response.items()) {
-      if (item.get("Location").m().get("Building").s().equals("SEA33")
-          && item.get("Location").m().get("Floor").s().equals("12")
-          && item.get("Location").m().get("Room").s().equals("403") ) {
-        filteredItems.add(item);
+      if (item.get("partition_key").s().equals("reservation1")) {
+        foundKnownValueItemQuery3 = true;
+        assert item.get("Subject").s().equals("Scan beacons");
+        assert item.get("Location").m().get("Building").s().equals("SEA33");
+        assert item.get("Attendees").l().contains(AttributeValue.builder().s("betty@gmail.com").build());
       }
     }
-
-    System.out.println("after filtering query3, had items: " + filteredItems.size());
+    assert foundKnownValueItemQuery3;
   }
 
   public static void runQueriesOnGsi1(String ddbTableName, DynamoDbClient ddb) {
@@ -126,13 +142,25 @@ public class QueryRequests {
         .build();
 
     final QueryResponse query1Response = ddb.query(query1Request);
-    final List<Map<String, AttributeValue>> attributeValuesQuery1Response = query1Response.items();
     // Validate query was returned successfully
     assert 200 == query1Response.sdkHttpResponse().statusCode();
-    System.out.println("query1 returned items: " + query1Response.items().size());
+
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query1Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery1 = false;
+    for (Map<String, AttributeValue> item : query1Response.items()) {
+      if (item.get("partition_key").s().equals("meeting1")) {
+        foundKnownValueItemQuery1 = true;
+        assert item.get("Subject").s().equals("Scan Beacons");
+        assert item.get("Location").m().get("Floor").s().equals("12");
+        assert item.get("Attendees").l().contains(AttributeValue.builder().s("zorro@gmail.com").build());
+      }
+    }
+    assert foundKnownValueItemQuery1;
 
     // Query 4: Get employee data by email
-    // Key condition: PK1=email SK1 > 30 days ago
+    // Key condition: PK1=email SK1=employee ID
     Map<String,String> query4AttributeNames = new HashMap<>();
     query4AttributeNames.put("#p", "PK1");
     query4AttributeNames.put("#s", "SK1");
@@ -149,14 +177,24 @@ public class QueryRequests {
         .expressionAttributeValues(query4AttributeValues)
         .build();
 
-    System.out.println(query4Request);
-
     QueryResponse query4Response = ddb.query(query4Request);
     // Validate query was returned successfully
     assert 200 == query4Response.sdkHttpResponse().statusCode();
-    System.out.println("query4 returned items: " + query4Response.items().size());
 
-    // Query 5: Get employee data by email
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query4Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery4 = false;
+    for (Map<String, AttributeValue> item : query4Response.items()) {
+      if (item.get("partition_key").s().equals("employee1")) {
+        foundKnownValueItemQuery4 = true;
+        assert item.get("EmployeeID").s().equals("emp_001");
+        assert item.get("Location").m().get("Desk").s().equals("3");
+      }
+    }
+    assert foundKnownValueItemQuery4;
+
+    // Query 5: Get meetings by email
     // Key condition: PK1=email SK1 > 30 days ago
     Map<String,String> query5AttributeNames = new HashMap<>();
     query5AttributeNames.put("#p", "PK1");
@@ -174,12 +212,23 @@ public class QueryRequests {
         .expressionAttributeValues(query5AttributeValues)
         .build();
 
-    System.out.println(query5Request);
-
     QueryResponse query5Response = ddb.query(query5Request);
     // Validate query was returned successfully
     assert 200 == query5Response.sdkHttpResponse().statusCode();
-    System.out.println("query5 returned items: " + query5Response.items().size());
+
+    // Assert 2 items returned; only 2 items are expected until we add more items in PutRequests
+    assert query5Response.items().size() == 2;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery5 = false;
+    for (Map<String, AttributeValue> item : query5Response.items()) {
+      if (item.get("partition_key").s().equals("meeting1")) {
+        foundKnownValueItemQuery5 = true;
+        assert item.get("Subject").s().equals("Scan Beacons");
+        assert item.get("Location").m().get("Floor").s().equals("12");
+        assert item.get("Attendees").l().contains(AttributeValue.builder().s("zorro@gmail.com").build());
+      }
+    }
+    assert foundKnownValueItemQuery5;
 
     // Query 6: Get tickets by email
     // Key condition: PK1=email SK1 > 30 days ago
@@ -199,12 +248,21 @@ public class QueryRequests {
         .expressionAttributeValues(query6AttributeValues)
         .build();
 
-    System.out.println(query6Request);
-
     QueryResponse query6Response = ddb.query(query6Request);
     // Validate query was returned successfully
     assert 200 == query6Response.sdkHttpResponse().statusCode();
-    System.out.println("query6 returned items: " + query6Response.items().size());
+
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query6Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery6 = false;
+    for (Map<String, AttributeValue> item : query6Response.items()) {
+      if (item.get("partition_key").s().equals("ticket1")) {
+        foundKnownValueItemQuery6 = true;
+        assert item.get("TicketNumber").s().equals("ticket_001");
+      }
+    }
+    assert foundKnownValueItemQuery6;
   }
 
   public static void runQueriesOnGsi2(String ddbTableName, DynamoDbClient ddb) {

@@ -25,7 +25,7 @@ public class PutRequests {
     putAllTimecardItemsToTable(ddbTableName, ddb);
   }
 
-  // meeting.json
+  // emeeting.json
   public static void putAllMeetingItemsToTable(String ddbTableName, DynamoDbClient ddb) {
     final List<AttributeValue> meeting1AttendeeList = new ArrayList<>();
     meeting1AttendeeList.add(AttributeValue.builder().s("able@gmail.com").build());
