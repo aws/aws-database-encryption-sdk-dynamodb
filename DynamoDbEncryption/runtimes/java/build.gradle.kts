@@ -64,7 +64,7 @@ repositories {
 val dynamodb by configurations.creating
 
 dependencies {
-    implementation("dafny.lang:DafnyRuntime:3.10.0")
+    implementation("org.dafny:DafnyRuntime:4.0.0")
     implementation("software.amazon.dafny:conversion:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:StandardLibrary:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:AwsCryptographyPrimitives:1.0-SNAPSHOT")
@@ -76,10 +76,7 @@ dependencies {
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:core:2.19.1")
-    implementation("com.amazonaws:aws-dynamodb-encryption-java:2.0.3")
     implementation("software.amazon.awssdk:kms")
-
-    implementation("com.amazonaws:aws-dynamodb-encryption-java:2.0.3")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
@@ -164,7 +161,7 @@ tasks.test {
     })
 }
 
-tasks.register<JavaExec>("runDafnyTests") {
+tasks.register<JavaExec>("runTests") {
     mainClass.set("TestsFromDafny")
     classpath = sourceSets["test"].runtimeClasspath
 }

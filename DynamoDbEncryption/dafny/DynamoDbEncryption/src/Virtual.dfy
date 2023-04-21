@@ -40,14 +40,16 @@ module DdbVirtualFields {
       Success(VirtPart(loc, part.trans.value))
   }
 
-  type VirtualFieldMap = x : map<string, VirtField> | IsValidVirtualFieldMap(x)
+  type VirtualFieldMap = x : map<string, ValidVirtualField> | IsValidVirtualFieldMap(x)
 
-  predicate method IsValidVirtualFieldMap(m : map<string, VirtField>)
+  predicate IsValidVirtualFieldMap(m : map<string, VirtField>)
   {
     forall x <- m :: x == m[x].name
   }
 
   type Examiner = (TermLoc.TermLoc) -> bool
+
+  type ValidVirtualField = x : VirtField | x.ValidState() witness *
 
   // parsed VirtualField
   datatype VirtField = VirtField (
@@ -61,8 +63,7 @@ module DdbVirtualFields {
       Examine(parts, exam)
     }
 
-    predicate method ValidState() {true}
-    function method ValidStateResult() : Result<bool, Error> {Success(true)}
+    predicate ValidState() {true}
     function method GetFields() : seq<string>
     {
       Seq.Map((p : VirtPart) => p.loc[0].key, parts)
@@ -264,7 +265,7 @@ module DdbVirtualFields {
         Success(None)
       else
         var ustr :- UTF8.Encode(str.value).MapFailure(e => E(e));
-      Success(Some(ustr))
+        Success(Some(ustr))
     else
       TermLoc.TermToBytes(loc, item)
   }
@@ -284,31 +285,31 @@ module DdbVirtualFields {
     !field.examine(t => LacksAttribute(t, item))
   }
 */
- // convert string to DynamoDB Attribute
+  // convert string to DynamoDB Attribute
   function method DS(s : string)
     : DDB.AttributeValue
   {
     DDB.AttributeValue.S(s)
   }
-/*
-  // return an AttributeMap containing all of the virtual fields for which we have the appropriate attributes
-  function method {:tailrecursion} GetVirtualAttrs (
-    fields : seq<VirtualField>,
-    item : DDB.AttributeMap,
-    acc : DDB.AttributeMap := map[])
-    : (ret : Result<DDB.AttributeMap, string>)
-    requires AllStrings(acc)
-    ensures ret.Success? ==> AllStrings(ret.value)
-  {
-    if |fields| == 0 then
-      Success(acc)
-    else
-      :- Need(DDB.IsValid_AttributeName(fields[0].name), "Virtual field name '" + fields[0].name + "' is not a valid DynamoDB Attribute Name");
-      if ValueHasNeededAttrs(fields[0], item) then
-        var value :- fields[0].makeString(t => TermToString(t, item));
-        GetVirtualAttrs(fields[1..], item, acc[fields[0].name := DDB.AttributeValue.S(value)])
+  /*
+    // return an AttributeMap containing all of the virtual fields for which we have the appropriate attributes
+    function method {:tailrecursion} GetVirtualAttrs (
+      fields : seq<VirtualField>,
+      item : DDB.AttributeMap,
+      acc : DDB.AttributeMap := map[])
+      : (ret : Result<DDB.AttributeMap, string>)
+      requires AllStrings(acc)
+      ensures ret.Success? ==> AllStrings(ret.value)
+    {
+      if |fields| == 0 then
+        Success(acc)
       else
-        GetVirtualAttrs(fields[1..], item, acc)
-  }
-*/
+        :- Need(DDB.IsValid_AttributeName(fields[0].name), "Virtual field name '" + fields[0].name + "' is not a valid DynamoDB Attribute Name");
+        if ValueHasNeededAttrs(fields[0], item) then
+          var value :- fields[0].makeString(t => TermToString(t, item));
+          GetVirtualAttrs(fields[1..], item, acc[fields[0].name := DDB.AttributeValue.S(value)])
+        else
+          GetVirtualAttrs(fields[1..], item, acc)
+    }
+  */
 }

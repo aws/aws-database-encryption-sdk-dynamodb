@@ -151,6 +151,9 @@ structure EncryptItemInput {
 structure EncryptItemOutput {
     @required
     encryptedItem: AttributeMap,
+
+    // MAY be None if in plaintext/legacy mode
+    parsedHeader: ParsedHeader,
 }
 
 //= specification/dynamodb-encryption-client/decrypt-item.md#input

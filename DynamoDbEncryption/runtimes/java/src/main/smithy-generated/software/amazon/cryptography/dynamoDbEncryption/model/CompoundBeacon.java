@@ -157,9 +157,6 @@ public class CompoundBeacon {
       if (Objects.nonNull(this.split()) && this.split().length() > 1) {
         throw new IllegalArgumentException("The size of `split` must be less than or equal to 1");
       }
-      if (Objects.isNull(this.sensitive()))  {
-        throw new IllegalArgumentException("Missing value for required field `sensitive`");
-      }
       if (Objects.nonNull(this.sensitive()) && this.sensitive().size() < 1) {
         throw new IllegalArgumentException("The size of `sensitive` must be greater than or equal to 1");
       }

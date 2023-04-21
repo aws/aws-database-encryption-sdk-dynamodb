@@ -5,6 +5,8 @@ CORES=2
 
 include ../SharedMakefile.mk
 
+DIR_STRUCTURE_V2=V2
+
 PROJECT_SERVICES := \
 	DynamoDbEncryption \
 	DynamoDbItemEncryptor \
@@ -18,7 +20,7 @@ SERVICE_NAMESPACE_DynamoDbEncryption=aws.cryptography.dynamoDbEncryption
 SERVICE_NAMESPACE_DynamoDbItemEncryptor=aws.cryptography.dynamoDbEncryption.itemEncryptor
 SERVICE_NAMESPACE_DynamoDbEncryptionTransforms=aws.cryptography.dynamoDbEncryption.transforms
 
-MAX_RESOURCE_COUNT=10000000
+MAX_RESOURCE_COUNT=20000000
 # Order is important
 # In java they MUST be built
 # in the order they depend on each other
@@ -30,30 +32,45 @@ PROJECT_DEPENDENCIES := \
 STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
 SMITHY_DEPS=submodules/MaterialProviders/model
 
+# Since we are packaging projects differently, we cannot make assumptions
+# about where the files are located. 
+# This is here to get unblocked but should be removed once we have migrated packages
+# to the new packaging format.
+PROJECT_INDEX := \
+	submodules/MaterialProviders/AwsCryptographyPrimitives/src/Index.dfy \
+	submodules/MaterialProviders/ComAmazonawsKms/src/Index.dfy \
+	submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy
+
 # Dependencies for each local service
 SERVICE_DEPS_StructuredEncryption := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore
 SERVICE_DEPS_DynamoDbEncryption := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
 	DynamoDbEncryption/dafny/StructuredEncryption
 SERVICE_DEPS_DynamoDbItemEncryptor := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/StructuredEncryption
 SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/StructuredEncryption \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor

@@ -16,6 +16,7 @@ module TestBaseBeacon {
   import opened DynamoDbEncryptionUtil
   import C = SearchConfigToInfo
   import I = SearchableEncryptionInfo
+  import SI = SearchableEncryptionInfo
 
   //const Timestamp := BeaconPart("timestamp", TermLocMap("timestamp"), "T-", None);
   //const Secret := BeaconPart("secret", TermLocMap("secret"), "S-", Some(4));
@@ -56,25 +57,31 @@ module TestBaseBeacon {
   }
 
   method {:test} TestBadPrefix() {
+    var store := GetKeyStore();
     var version := T.BeaconVersion (
       version := 1,
-      key := T.BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-      standardBeacons := Some([NameB, TitleB, TooBadB]),
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [NameB, TitleB, TooBadB],
       compoundBeacons := Some([BadPrefix]),
       virtualFields := None
     );
-    var beaconVersion :- expect C.ConvertVersionWithKey(FullTableConfig, version, [1,2,3,4,5]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var res := C.ConvertVersionWithSource(FullTableConfig, version, src);
 
-    var res := beaconVersion.ValidStateResult();
     expect res.Failure?;
     expect_equal(res.error, E("Compound beacon BadPrefix defines part Title with prefix T_ which is incompatible with part TooBad which has a prefix of T."));
   }
+
+  
   method {:test} TestContainsSplit()
   {
-    var bv :- expect C.ConvertVersionWithKey(FullTableConfig, LotsaBeacons, [1,2,3,4,5]);
-    var goodAttrs :- expect bv.GenerateBeacons(SimpleItem);
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, None);
     var badItem := SimpleItem["Name" := DDB.AttributeValue.S("A.B")];
-    var badAttrs := bv.GenerateBeacons(badItem);
+    var badAttrs := bv.GenerateEncryptedBeacons(badItem, None);
     expect badAttrs.Failure?;
     expect_equal(badAttrs.error, E("Part Name for beacon Mixed has value 'A.B' which contains the split character .'."));
   }

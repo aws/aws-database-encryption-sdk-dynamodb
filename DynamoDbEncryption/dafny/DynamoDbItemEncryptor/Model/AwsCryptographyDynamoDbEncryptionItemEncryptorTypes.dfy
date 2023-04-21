@@ -3,7 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  include "../../DynamoDbEncryption/src/Index.dfy"
- include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/src/Index.dfy"
+ include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/AwsCryptographyPrimitives/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types" } AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
@@ -110,7 +110,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap
  )
  datatype EncryptItemOutput = | EncryptItemOutput (
- nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap
+ nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap ,
+ nameonly parsedHeader: Option<ParsedHeader>
  )
  datatype ParsedHeader = | ParsedHeader (
  nameonly attributeActions: AwsCryptographyDynamoDbEncryptionTypes.AttributeActions ,

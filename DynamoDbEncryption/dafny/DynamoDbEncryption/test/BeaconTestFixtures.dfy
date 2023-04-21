@@ -8,8 +8,19 @@ module BeaconTestFixtures {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened DynamoDbEncryptionUtil
   import DDB = ComAmazonawsDynamodbTypes
   import SE = AwsCryptographyStructuredEncryptionTypes
+  import KeyStore
+  import Seq
+  import KMS = Com.Amazonaws.Kms
+  import DDBC = Com.Amazonaws.Dynamodb
+  import KTypes = AwsCryptographyKeyStoreTypes
+  import SI = SearchableEncryptionInfo
+  import Aws.Cryptography.Primitives
+  import MaterialProviders
+  import MPT = AwsCryptographyMaterialProvidersTypes
+  import SortedSets
 
   method expect_equal<T(==)>(a: T, b: T)
     ensures a == b
@@ -36,43 +47,50 @@ module BeaconTestFixtures {
   const TooBad := SensitivePart(name := "TooBad", prefix := "T")
 
   const NameTitle := CompoundBeacon (
-    name := "NameTitle",
-    split := ".",
-    sensitive := [Name,Title],
-    nonSensitive := None,
-    constructors := None
-  )
+                       name := "NameTitle",
+                       split := ".",
+                       sensitive := Some([Name,Title]),
+                       nonSensitive := None,
+                       constructors := None
+                     )
   const YearName := CompoundBeacon (
-    name := "YearName",
-    split := ".",
-    sensitive := [Name],
-    nonSensitive := Some([Year]),
-    constructors := None
-  )
+                      name := "YearName",
+                      split := ".",
+                      sensitive := Some([Name]),
+                      nonSensitive := Some([Year]),
+                      constructors := None
+                    )
   const BadPrefix := CompoundBeacon (
-    name := "BadPrefix",
-    split := ".",
-    sensitive := [Name,Title,TooBad],
-    nonSensitive := None,
-    constructors := None
-  )
+                       name := "BadPrefix",
+                       split := ".",
+                       sensitive := Some([Name,Title,TooBad]),
+                       nonSensitive := None,
+                       constructors := None
+                     )
   const BadPrefix2 := CompoundBeacon (
-    name := "BadPrefix2",
-    split := ".",
-    sensitive := [Name],
-    nonSensitive := Some([Nothing]),
-    constructors := None
-  )
+                        name := "BadPrefix2",
+                        split := ".",
+                        sensitive := Some([Name]),
+                        nonSensitive := Some([Nothing]),
+                        constructors := None
+                      )
+  const JustSigned := CompoundBeacon (
+                        name := "JustSigned",
+                        split := ".",
+                        sensitive := None,
+                        nonSensitive := Some([Year,Month]),
+                        constructors := None
+                      )
   const Mixed := CompoundBeacon (
-    name := "Mixed",
-    split := ".",
-    sensitive := [Name,Title],
-    nonSensitive := Some([Year,Month]),
-    constructors := Some([
-      Constructor(parts := [ConstructorPart(name := "Name", required := true), ConstructorPart(name := "Year", required := true)]),
-      Constructor(parts := [ConstructorPart(name := "Title", required := true), ConstructorPart(name := "Month", required := false)])
-    ])
-  )
+                   name := "Mixed",
+                   split := ".",
+                   sensitive := Some([Name,Title]),
+                   nonSensitive := Some([Year,Month]),
+                   constructors := Some([
+                                          Constructor(parts := [ConstructorPart(name := "Name", required := true), ConstructorPart(name := "Year", required := true)]),
+                                          Constructor(parts := [ConstructorPart(name := "Title", required := true), ConstructorPart(name := "Month", required := false)])
+                                        ])
+                 )
 
   const Std2String := DDB.AttributeValue.N("1.23")
   const Std4String := DDB.AttributeValue.S("abc")
@@ -92,64 +110,107 @@ module BeaconTestFixtures {
   const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 8, loc := None)
   const NameVirtField := VirtualField(name := "NameVirtField", parts := [VPart1])
 
-  // erroneously empty
-  const VeryEmptyBeacons := BeaconVersion (
-    version := 1,
-    key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-    standardBeacons := None,
-    compoundBeacons := None,
-    virtualFields := None
-  )
+  method GetKeyStore() returns (output : SI.ValidStore)
+    ensures fresh(output.Modifies)
+  {
+    var kmsClient :- expect KMS.KMSClient();
+    var ddbClient :- expect DDBC.DynamoDBClient();
+    var keyStoreConfig := KTypes.KeyStoreConfig(
+      id := None,
+      ddbTableName := "foo",
+      kmsKeyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126",
+      ddbClient := Some(ddbClient),
+      kmsClient := Some(kmsClient)
+    );
 
-  // as empty as possible
-  const EmptyBeacons := BeaconVersion (
-    version := 1,
-    key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-    standardBeacons := Some([std2]),
-    compoundBeacons := None,
-    virtualFields := None
-  )
+    var store :- expect KeyStore.KeyStore(keyStoreConfig);
+    return store;
+  }
 
-  const LotsaBeacons := BeaconVersion (
-    version := 1,
-    key := BeaconKey(keyArn := "", tableArn := "", branchKeyID := ""),
-    standardBeacons := Some([std2, std4, std6, NameTitleBeacon, NameB, TitleB]),
-    compoundBeacons := Some([NameTitle, YearName, Mixed]),
-    virtualFields := Some([NameTitleField])
-  )
+  method GetEmptyBeacons() returns (output : BeaconVersion)
+    ensures output.keyStore.ValidState()
+    ensures fresh(output.keyStore.Modifies)
+    ensures output.version == 1
+  {
+    var store := GetKeyStore();
+    return BeaconVersion (
+        version := 1,
+        keyStore := store,
+        keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+        standardBeacons := [std2],
+        compoundBeacons := None,
+        virtualFields := None
+      );
+  }
+
+  method GetLotsaBeacons() returns (output : BeaconVersion)
+    ensures output.keyStore.ValidState()
+    ensures fresh(output.keyStore.Modifies)
+    ensures output.version == 1
+  {
+    var store := GetKeyStore();
+    return BeaconVersion (
+        version := 1,
+        keyStore := store,
+        keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+        standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
+        compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
+        virtualFields := Some([NameTitleField])
+      );
+  }
+
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
-    partitionKeyName := "foo",
-    sortKeyName := None,
-    search := None,
-    attributeActions := map[],
-    allowedUnauthenticatedAttributes := None,
-    allowedUnauthenticatedAttributePrefix := None,
-    algorithmSuiteId := None,
-    keyring := None,
-    cmm := None,
-    legacyConfig := None,
-    plaintextPolicy := None
-  );
+                              partitionKeyName := "foo",
+                              sortKeyName := None,
+                              search := None,
+                              attributeActions := map[],
+                              allowedUnauthenticatedAttributes := None,
+                              allowedUnauthenticatedAttributePrefix := None,
+                              algorithmSuiteId := None,
+                              keyring := None,
+                              cmm := None,
+                              legacyConfig := None,
+                              plaintextPolicy := None
+                            );
   const FullTableConfig := EmptyTableConfig.(
-    attributeActions := map[
-      "std2" := SE.ENCRYPT_AND_SIGN,
-      "std4" := SE.ENCRYPT_AND_SIGN,
-      "std6" := SE.ENCRYPT_AND_SIGN,
-      "Name" := SE.ENCRYPT_AND_SIGN,
-      "Title" := SE.ENCRYPT_AND_SIGN,
-      "TooBad" := SE.ENCRYPT_AND_SIGN,
-      "Year" := SE.SIGN_ONLY,
-      "Date" := SE.SIGN_ONLY
-    ]
-  );
+                           attributeActions := map[
+                             "std2" := SE.ENCRYPT_AND_SIGN,
+                             "std4" := SE.ENCRYPT_AND_SIGN,
+                             "std6" := SE.ENCRYPT_AND_SIGN,
+                             "Name" := SE.ENCRYPT_AND_SIGN,
+                             "Title" := SE.ENCRYPT_AND_SIGN,
+                             "TooBad" := SE.ENCRYPT_AND_SIGN,
+                             "Year" := SE.SIGN_ONLY,
+                             "Date" := SE.SIGN_ONLY
+                           ]
+                           );
+
+  method GetLiteralSource(key: Bytes, version : BeaconVersion) returns (output : SI.KeySource)
+    requires version.keyStore.ValidState()
+    ensures output.ValidState()
+    ensures version.keyStore == output.store
+    ensures fresh(output.client.Modifies)
+  {
+    var client :- expect Primitives.AtomicPrimitives();
+    var keyNameSet := set b <- version.standardBeacons :: b.name;
+    var keyNames := SortedSets.ComputeSetToOrderedSequence2(keyNameSet, CharLess);
+    var keys :- expect SI.GetHmacKeys(client, keyNames, keyNames, key);
+    var mpl :- expect MaterialProviders.MaterialProviders();
+    var input := MPT.CreateCryptographicMaterialsCacheInput(
+      entryCapacity := 3,
+      entryPruningTailSize := None
+    );
+    var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
+    return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0);
+  }
 
   const SimpleItem : DDB.AttributeMap := map[
-    "std2" := Std2String,
-    "std4" := Std4String,
-    "std6" := Std6List,
-    "Date" := DateMap,
-    "Year" := YearString,
-    "Name" := NameString,
-    "Title" := TitleString
-  ]
+                                           "std2" := Std2String,
+                                           "std4" := Std4String,
+                                           "std6" := Std6List,
+                                           "Date" := DateMap,
+                                           "Year" := YearString,
+                                           "Name" := NameString,
+                                           "Title" := TitleString
+                                         ]
 }

@@ -43,7 +43,7 @@ module
     !(ReservedPrefix <= attr)
   }
 
-  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
+  method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<DynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
       && res.value.config.tableName == config.tableName
@@ -72,53 +72,25 @@ module
       ==>
         res.value.config.plaintextPolicy.FORBID_WRITE_FORBID_READ?
   {
-    // TODO Fix this when the compile bug is fixed (https://t.corp.amazon.com/P78273149)
-    // :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
-    //   message := "Cannot provide both a keyring and a CMM"
-    // ));
-    if !(config.keyring.None? || config.cmm.None?) {
-      return Failure(DynamoDbItemEncryptorException(
-        message := "Cannot provide both a keyring and a CMM"
-      ));
-    }
-    // :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
-    //   message := "Must provide either a keyring or a CMM"
-    // ));
-    if !(config.keyring.Some? || config.cmm.Some?) {
-      return Failure(DynamoDbItemEncryptorException(
-        message := "Must provide either a keyring or a CMM"
-      ));
-    }
-    // :- Need(
-    //     && config.partitionKeyName in config.attributeActions
-    //     && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY,
-    //   DynamoDbItemEncryptorException(
-    //     message := "Partition key attribute action MUST be SIGN_ONLY"
-    //   ));
-    if 
-        !(&& config.partitionKeyName in config.attributeActions
-        && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY)
-    {
-      return Failure(DynamoDbItemEncryptorException(
+    :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
+      message := "Cannot provide both a keyring and a CMM"
+    ));
+    :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
+      message := "Must provide either a keyring or a CMM"
+    ));
+    :- Need(
+        && config.partitionKeyName in config.attributeActions
+        && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY,
+      DynamoDbItemEncryptorException(
         message := "Partition key attribute action MUST be SIGN_ONLY"
       ));
-    }
-    // :- Need(
-    //   (config.sortKeyName.Some? ==>
-    //     && config.sortKeyName.value in config.attributeActions
-    //     && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY),
-    //   DynamoDbItemEncryptorException(
-    //     message := "Sort key attribute action MUST be SIGN_ONLY"
-    //   ));
-    if !(
+    :- Need(
       (config.sortKeyName.Some? ==>
         && config.sortKeyName.value in config.attributeActions
-        && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY))
-    {
-      return Failure(DynamoDbItemEncryptorException(
+        && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY),
+      DynamoDbItemEncryptorException(
         message := "Sort key attribute action MUST be SIGN_ONLY"
       ));
-    }
 
     var attributeActions' := config.attributeActions;
     while attributeActions'.Keys != {}
@@ -133,15 +105,6 @@ module
     {
       var attribute :| attribute in attributeActions';
       var action := config.attributeActions[attribute];
-      // :- Need(Operations.ForwardCompatibleAttributeAction(
-      //       attribute,
-      //       action,
-      //       config.allowedUnauthenticatedAttributes,
-      //       config.allowedUnauthenticatedAttributePrefix
-      //     ),
-      //     DynamoDbItemEncryptorException(
-      //       message := "Attribute: " + attribute + " configuration not compatible with unauthenticated configuration."
-      //     ));
       if !(Operations.ForwardCompatibleAttributeAction(
           attribute,
           action,
@@ -227,7 +190,11 @@ module
       internalLegacyConfig := internalLegacyConfig,
       plaintextPolicy := plaintextPolicy
     );
-    assert Operations.ValidInternalConfig?(internalConfig); // Dafny needs some extra help here
+
+    // Dafny needs some extra help here
+    assert (forall attribute <- internalConfig.attributeActions.Keys :: UnreservedPrefix(attribute));
+    assert (forall attribute <- internalConfig.attributeActions.Keys :: !(ReservedPrefix <= attribute));
+    assert Operations.ValidInternalConfig?(internalConfig);
 
     var client := new DynamoDbItemEncryptorClient(internalConfig);
     return Success(client);

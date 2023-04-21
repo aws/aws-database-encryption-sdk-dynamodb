@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../../../../submodules/MaterialProviders/libraries/src/Collections/Maps/Maps.dfy"
 
 include "Header.dfy"
 include "Footer.dfy"
@@ -29,6 +30,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   import Defaults
   import HKDF
   import AlgorithmSuites
+  import Maps
 
   datatype Config = Config(
     primitives : Primitives.AtomicPrimitivesClient,
@@ -55,6 +57,19 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && (output.Success? && input.plaintextStructure.content.DataMap? ==> output.value.encryptedStructure.content.DataMap?)
     && (output.Success? && input.plaintextStructure.content.DataList? ==> output.value.encryptedStructure.content.DataList?)
     && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
+    // Ensure the CryptoSchema in the ParsedHeader matches the input crypto Schema, minus any DO_NOTHING terminals
+    && (output.Success? ==>
+      // For now we only support encrypting flat maps
+      && output.value.parsedHeader.cryptoSchema.content.SchemaMap?
+      && var headerSchema := output.value.parsedHeader.cryptoSchema.content.SchemaMap;
+      && CryptoSchemaMapIsFlat(headerSchema)
+      && input.cryptoSchema.content.SchemaMap?
+      && var inputSchema := input.cryptoSchema.content.SchemaMap;
+      && CryptoSchemaMapIsFlat(inputSchema)
+      && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
+      && (forall v :: v in headerSchema.Values ==>
+        (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?))
+    )
   }
 
   // given a list of fields, return only those that should be encrypted, according to the legend
@@ -201,14 +216,22 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
                                         // i.e. a Crypto Action of ENCRYPT_AND_SIGN
     signedFields_c : seq<CanonicalPath>,// these fields should be signed, sorted
                                         // i.e. a Crypto Action other than DO_NOTHING
-    data_c : StructuredDataCanon        // all signed fields with canonized paths
+    data_c : StructuredDataCanon,       // all signed fields with canonized paths
                                         // i.e. the Intermediate Encrypted Structured Data, but unencrypted
+    cryptoSchema : CryptoSchema         // the crypto schema for this structure,
+                                        // with all extraneous DO_NOTHING actions removed
   )
 
   predicate ValidEncryptCanon?(c: EncryptCanonData) {
     && (forall k :: k in c.encFields_c ==> k in c.signedFields_c)
     && (forall k :: k in c.signedFields_c ==> k in c.data_c)
-    && (forall k :: k in c.data_c.Keys ==> k in c.signedFields_c)
+    && (forall k :: k in c.data_c ==> k in c.signedFields_c)
+    && c.cryptoSchema.content.SchemaMap?
+    && var headerSchema := c.cryptoSchema.content.SchemaMap;
+    && |c.data_c| == |headerSchema|
+    && (exists tableName :: (forall k :: k in headerSchema ==> Paths.SimpleCanon(tableName, k) in c.data_c))
+    && (forall v :: v in headerSchema.Values ==>
+      v.content.Action? && (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?))
   }
 
   type DecryptCanon = c: DecryptCanonData | ValidDecryptCanon?(c)
@@ -233,6 +256,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     && |c.encFields_c| < (UINT32_LIMIT / 3)
     && c.cryptoSchema.content.SchemaMap?
     && var actionMap := c.cryptoSchema.content.SchemaMap;
+    && |c.data_c| == |actionMap|
     && (exists tableName :: (forall k :: k in actionMap ==> Paths.SimpleCanon(tableName, k) in c.data_c))
   }
 
@@ -257,7 +281,9 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     : (ret : map<Bytes,GoodString>)
     requires schema.Keys == data.Keys
     ensures forall k <- data :: schema[k].content.Action == DO_NOTHING || Paths.SimpleCanon(tableName, k) in ret
+    ensures Maps.Injective(ret)
   {
+    reveal Maps.Injective();
     Paths.SimpleCanonUnique(tableName);
     map k <- data.Keys | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k
   }
@@ -287,34 +313,62 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
       //# in the [input Structured Data](#structured-data).
       && (forall k <- ret.value.data_c :: (exists x :: x in data && k == Paths.SimpleCanon(tableName, x)))
+
+      && ret.value.cryptoSchema.content.SchemaMap?
+      && var trimmedSchema := ret.value.cryptoSchema.content.SchemaMap;
+      && (forall k :: k in trimmedSchema ==> k in schema && trimmedSchema[k] == schema[k]);
   {
     var fieldMap := GetFieldMap(tableName, data, schema);
+
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
     var encFields_c := FilterEncrypt(signedFields_c, fieldMap, schema);
+    var trimmedSchema := map k <- fieldMap.Values :: k := schema[k];
 
-    Success(EncryptCanonData(
-      encFields_c,
-      signedFields_c,
-      data_c
-    ))
+    assert |data_c| == |trimmedSchema| by {
+      assert data_c.Keys == fieldMap.Keys;
+      assert trimmedSchema.Keys == fieldMap.Values;
+      LemmaInjectiveImpliesUniqueValues(fieldMap);
+    }
+
+    Success(
+      EncryptCanonData(
+        encFields_c,
+        signedFields_c,
+        data_c,
+        CryptoSchema(
+          content := CryptoSchemaContent.SchemaMap(trimmedSchema),
+          attributes := None
+        )
+      )
+    )
   }
 
+  // TODO this is a workaround for a very silly issue with case sensitivity between package names,
+  // that prevents this code from always correctly finding `dafny.Function4`.
+  // For now, put all inputs into one datatype so we are only using `dafny.Function1` here.
+  datatype CanonizeForDecryptInput = CanonizeForDecryptInput(
+    tableName: GoodString,
+    data: StructuredDataPlain,
+    authSchema: AuthSchemaPlain,
+    legend: Header.Legend
+  )
+
   // construct the DecryptCanon
-  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(tableName : GoodString, data : StructuredDataPlain, authSchema : AuthSchemaPlain, legend: Header.Legend)
+  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(input: CanonizeForDecryptInput)
     : (ret : Result<DecryptCanon, Error>)
-    requires authSchema.Keys == data.Keys
+    requires input.authSchema.Keys == input.data.Keys
     ensures ret.Success? ==>
-      && |ret.value.signedFields_c| == |legend|
+      && |ret.value.signedFields_c| == |input.legend|
     ensures ret.Success? ==>
-      && (forall k :: k in data.Keys && authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(tableName, k) in ret.value.data_c.Keys)
+      && (forall k :: k in input.data.Keys && input.authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(input.tableName, k) in ret.value.data_c.Keys)
     ensures ret.Success? ==>
-      && (forall v :: v in ret.value.data_c.Values ==> v in data.Values)
+      && (forall v :: v in ret.value.data_c.Values ==> v in input.data.Values)
     ensures ret.Success? ==>
       && ret.value.cryptoSchema.content.SchemaMap?
       && CryptoSchemaMapIsFlat(ret.value.cryptoSchema.content.SchemaMap)
-      && AuthSchemaIsFlat(authSchema)
-      && ValidParsedCryptoSchema(ret.value.cryptoSchema.content.SchemaMap, authSchema, tableName)
+      && AuthSchemaIsFlat(input.authSchema)
+      && ValidParsedCryptoSchema(ret.value.cryptoSchema.content.SchemaMap, input.authSchema, input.tableName)
   {
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //# The `signed field list` MUST be all fields for which
@@ -323,16 +377,19 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# of [SIGN](./structures.md#SIGN) for that field,
     //# sorted by the [Canonical Path](header.md.#canonical-path).
 
-    Paths.SimpleCanonUnique(tableName);
-    var data_c := map k <- data.Keys | authSchema[k].content.Action == SIGN ::
-      Paths.SimpleCanon(tableName, k) := data[k];
+    reveal Maps.Injective();
+    Paths.SimpleCanonUnique(input.tableName);
+    var fieldMap := map k <- input.data.Keys | input.authSchema[k].content.Action == SIGN ::
+      Paths.SimpleCanon(input.tableName, k) := k;
+    assert Maps.Injective(fieldMap);
 
+    var data_c := map k <- fieldMap :: k := input.data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
 
-    if |legend| < |signedFields_c| then
+    if |input.legend| < |signedFields_c| then
       Failure(E("Schema changed : something that was unsigned is now signed."))
     else 
-    if |legend| > |signedFields_c| then
+    if |input.legend| > |signedFields_c| then
       Failure(E("Schema changed : something that was signed is now unsigned."))
     else
 
@@ -341,11 +398,11 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
     //# is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes),
     //# sorted by the field's [canonical path](./header.md#canonical-path).
-    var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, legend);
+    var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, input.legend);
     :- Need(|encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
 
-    var actionMap := map k <- data.Keys | Paths.SimpleCanon(tableName, k) in data_c.Keys ::
-      k := if Paths.SimpleCanon(tableName, k) in encFields_c then
+    var actionMap := map v <- fieldMap.Values ::
+      v := if Paths.SimpleCanon(input.tableName, v) in encFields_c then
         CryptoSchema(
           content := CryptoSchemaContent.Action(ENCRYPT_AND_SIGN),
           attributes := None
@@ -360,15 +417,26 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       attributes := None
     );
 
-    Success(DecryptCanonData(
+    var c := DecryptCanonData(
       encFields_c,
       signedFields_c,
       data_c,
       cryptoSchema
-    ))
+    );
+
+    assert |data_c| == |actionMap| by {
+      assert data_c.Keys == fieldMap.Keys;
+      assert actionMap.Keys == fieldMap.Values;
+      LemmaInjectiveImpliesUniqueValues(fieldMap);
+    }
+
+    assert exists tableName ::
+      (forall k :: k in c.cryptoSchema.content.SchemaMap ==> Paths.SimpleCanon(tableName, k) in c.data_c);
+
+    Success(c)
   }
 
-  method EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
+  method {:vcs_split_on_every_assert} EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
     ensures output.Success? ==>
       //= specification/structured-encryption/encrypt-structure.md#structured-data
@@ -512,13 +580,24 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     result := result[FooterField := footerAttribute];
     assert HeaderField in result;
     assert FooterField in result;
+
+    var headerAlgorithmSuite :- head.GetAlgorithmSuite(config.materialProviders);
+    var parsedHeader := ParsedHeader(
+        cryptoSchema := canonData.cryptoSchema,
+        algorithmSuiteId := headerAlgorithmSuite.id.DBE,
+        encryptedDataKeys := head.dataKeys,
+        storedEncryptionContext := head.encContext
+    );
     
-    var encryptOutput := EncryptStructureOutput(encryptedStructure := StructuredData(
-      content := StructuredDataContent.DataMap(
-        DataMap := result
-      ),
-      attributes := None
-    ));
+    var encryptOutput := EncryptStructureOutput(
+      encryptedStructure := StructuredData(
+        content := StructuredDataContent.DataMap(
+          DataMap := result
+        ),
+        attributes := None),
+      parsedHeader := parsedHeader
+    );
+
     return Success(encryptOutput);
   }
 
@@ -733,7 +812,8 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var ok :- head.verifyCommitment(config.primitives, postCMMAlg, commitKey, headerSerialized);
 
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
-    var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
+    var canonData :- CanonizeForDecrypt(
+      CanonizeForDecryptInput(input.tableName, encRecord, authSchema, head.legend));
 
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //= type=implication
@@ -814,5 +894,39 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     assert forall k <- decryptOutput.plaintextStructure.content.DataMap :: k in encRecord;
 
     output := Success(decryptOutput);
+  }
+
+  // TODO This is here temporarially until it gets merged into the standard library
+  predicate {:opaque} Contains<X, Y>(big: map<X, Y>, small: map<X, Y>)
+  {
+    && small.Keys <= big.Keys
+    && forall x <- small :: small[x] == big[x]
+  }
+
+  lemma LemmaContainsPreservesInjectivity<X, Y>(big: map<X, Y>, small: map<X, Y>)
+    requires Contains(big, small)
+    requires Maps.Injective(big)
+    ensures Maps.Injective(small)
+  {
+    reveal Contains();
+    reveal Maps.Injective();
+  }
+
+  lemma LemmaInjectiveImpliesUniqueValues<X(!new), Y>(m: map<X, Y>)
+    requires Maps.Injective(m)
+    ensures |m.Keys| == |m.Values|
+  {
+    if |m| > 0 {
+      var x: X :| x in m;
+      var y := m[x];
+      var m' := Maps.Remove(m, x);
+      reveal Contains();
+      assert Contains(m, m');
+
+      reveal Maps.Injective();
+      assert m'.Values == m.Values - {y};
+      LemmaContainsPreservesInjectivity(m, m');
+      LemmaInjectiveImpliesUniqueValues(m');
+    }
   }
 }

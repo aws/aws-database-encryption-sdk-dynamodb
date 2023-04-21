@@ -19,7 +19,7 @@ module TransactGetItemsTransform {
     return Success(TransactGetItemsInputTransformOutput(transformedInput := input.sdkInput));
   }
 
-  method Output(config: Config, input: TransactGetItemsOutputTransformInput)
+  method {:vcs_split_on_every_assert} Output(config: Config, input: TransactGetItemsOutputTransformInput)
     returns (output: Result<TransactGetItemsOutputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
@@ -43,6 +43,7 @@ module TransactGetItemsTransform {
     var encryptedItems := input.sdkOutput.Responses.value;
     for x := 0 to |encryptedItems|
       invariant |decryptedItems| == x
+      invariant ValidConfig?(config)
     {
       var tableName := input.originalInput.TransactItems[x].Get.TableName;
       if tableName !in config.tableEncryptionConfigs {
@@ -80,7 +81,6 @@ module TransactGetItemsTransform {
         }
       }
     }
-    var someItems := Some(decryptedItems); // TODO this needs to be done on its own line until we upgrade to Dafny 3.10.0
-    return Success(TransactGetItemsOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := someItems)));
+    return Success(TransactGetItemsOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := Some(decryptedItems))));
   }
 }

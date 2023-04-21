@@ -12,8 +12,9 @@ module UpdateItemTransformTest {
 
   method {:test} TestUpdateItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("no_such_table");
     var input := DDB.UpdateItemInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       Key := map[],
       AttributeUpdates := None(),
       Expected := None(),
@@ -38,8 +39,9 @@ module UpdateItemTransformTest {
 
     method {:test} TestUpdateItemInputUpdateExpressionSigned() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("foo");
     var input := DDB.UpdateItemInput(
-      TableName := "foo",
+      TableName := tableName,
       Key := map[],
       AttributeUpdates := None(),
       Expected := None(),
@@ -64,8 +66,9 @@ module UpdateItemTransformTest {
 
     method {:test} TestUpdateItemInputUpdateExpressionEncrypted() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("foo");
     var input := DDB.UpdateItemInput(
-      TableName := "foo",
+      TableName := tableName,
       Key := map[],
       AttributeUpdates := None(),
       Expected := None(),
@@ -90,8 +93,9 @@ module UpdateItemTransformTest {
 
     method {:test} TestUpdateItemInputUpdateExpressionPlain() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("no_such_table");
     var input := DDB.UpdateItemInput(
-      TableName := "foo",
+      TableName := tableName,
       Key := map[],
       AttributeUpdates := None(),
       Expected := None(),
@@ -121,8 +125,9 @@ module UpdateItemTransformTest {
       ConsumedCapacity := None(),
       ItemCollectionMetrics := None()
     );
+    var tableName := GetTableName("no_such_table");
     var input := DDB.UpdateItemInput(
-      TableName := "no_such_table",
+      TableName := tableName,
       Key := map[],
       AttributeUpdates := None(),
       Expected := None(),

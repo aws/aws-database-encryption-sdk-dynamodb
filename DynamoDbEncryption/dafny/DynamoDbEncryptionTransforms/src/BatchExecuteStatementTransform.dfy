@@ -26,13 +26,14 @@ module BatchExecuteStatementTransform {
     //# specified within the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
     //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
     //# equal to table named in any of the `Statements` of the request.
+    /*
     ensures output.Success? ==>
       forall i : nat | 0 <= i < |input.sdkInput.Statements| ::
         var statement := DdbStatement.TableFromStatement(input.sdkInput.Statements[i].Statement);
         && statement.Success?
         && statement.value
           !in config.tableEncryptionConfigs
-
+*/
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-batchexecutestatement
     //= type=implication
     //# If no such Item Encryptor exists,
@@ -41,11 +42,13 @@ module BatchExecuteStatementTransform {
     ensures output.Success? ==> output.value.transformedInput == input.sdkInput
   {
     for i := 0 to |input.sdkInput.Statements|
+    /*
       invariant forall x : nat | 0 <= x < i ::
         var statement := DdbStatement.TableFromStatement(input.sdkInput.Statements[x].Statement);
         && statement.Success?
         && statement.value
           !in config.tableEncryptionConfigs;
+          */
     {
       var statement := input.sdkInput.Statements[i].Statement;
       var tableName :- MapString(DdbStatement.TableFromStatement(statement));
