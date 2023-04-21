@@ -20,6 +20,7 @@ module BeaconTestFixtures {
   import Aws.Cryptography.Primitives
   import MaterialProviders
   import MPT = AwsCryptographyMaterialProvidersTypes
+  import SortedSets
 
   method expect_equal<T(==)>(a: T, b: T)
     ensures a == b
@@ -46,50 +47,50 @@ module BeaconTestFixtures {
   const TooBad := SensitivePart(name := "TooBad", prefix := "T")
 
   const NameTitle := CompoundBeacon (
-    name := "NameTitle",
-    split := ".",
-    sensitive := Some([Name,Title]),
-    nonSensitive := None,
-    constructors := None
-  )
+                       name := "NameTitle",
+                       split := ".",
+                       sensitive := Some([Name,Title]),
+                       nonSensitive := None,
+                       constructors := None
+                     )
   const YearName := CompoundBeacon (
-    name := "YearName",
-    split := ".",
-    sensitive := Some([Name]),
-    nonSensitive := Some([Year]),
-    constructors := None
-  )
+                      name := "YearName",
+                      split := ".",
+                      sensitive := Some([Name]),
+                      nonSensitive := Some([Year]),
+                      constructors := None
+                    )
   const BadPrefix := CompoundBeacon (
-    name := "BadPrefix",
-    split := ".",
-    sensitive := Some([Name,Title,TooBad]),
-    nonSensitive := None,
-    constructors := None
-  )
+                       name := "BadPrefix",
+                       split := ".",
+                       sensitive := Some([Name,Title,TooBad]),
+                       nonSensitive := None,
+                       constructors := None
+                     )
   const BadPrefix2 := CompoundBeacon (
-    name := "BadPrefix2",
-    split := ".",
-    sensitive := Some([Name]),
-    nonSensitive := Some([Nothing]),
-    constructors := None
-  )
+                        name := "BadPrefix2",
+                        split := ".",
+                        sensitive := Some([Name]),
+                        nonSensitive := Some([Nothing]),
+                        constructors := None
+                      )
   const JustSigned := CompoundBeacon (
-    name := "JustSigned",
-    split := ".",
-    sensitive := None,
-    nonSensitive := Some([Year,Month]),
-    constructors := None
-  )
+                        name := "JustSigned",
+                        split := ".",
+                        sensitive := None,
+                        nonSensitive := Some([Year,Month]),
+                        constructors := None
+                      )
   const Mixed := CompoundBeacon (
-    name := "Mixed",
-    split := ".",
-    sensitive := Some([Name,Title]),
-    nonSensitive := Some([Year,Month]),
-    constructors := Some([
-      Constructor(parts := [ConstructorPart(name := "Name", required := true), ConstructorPart(name := "Year", required := true)]),
-      Constructor(parts := [ConstructorPart(name := "Title", required := true), ConstructorPart(name := "Month", required := false)])
-    ])
-  )
+                   name := "Mixed",
+                   split := ".",
+                   sensitive := Some([Name,Title]),
+                   nonSensitive := Some([Year,Month]),
+                   constructors := Some([
+                                          Constructor(parts := [ConstructorPart(name := "Name", required := true), ConstructorPart(name := "Year", required := true)]),
+                                          Constructor(parts := [ConstructorPart(name := "Title", required := true), ConstructorPart(name := "Month", required := false)])
+                                        ])
+                 )
 
   const Std2String := DDB.AttributeValue.N("1.23")
   const Std4String := DDB.AttributeValue.S("abc")
@@ -133,13 +134,13 @@ module BeaconTestFixtures {
   {
     var store := GetKeyStore();
     return BeaconVersion (
-      version := 1,
-      keyStore := store,
-      keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
-      standardBeacons := [std2],
-      compoundBeacons := None,
-      virtualFields := None
-    );
+        version := 1,
+        keyStore := store,
+        keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+        standardBeacons := [std2],
+        compoundBeacons := None,
+        virtualFields := None
+      );
   }
 
   method GetLotsaBeacons() returns (output : BeaconVersion)
@@ -149,40 +150,40 @@ module BeaconTestFixtures {
   {
     var store := GetKeyStore();
     return BeaconVersion (
-      version := 1,
-      keyStore := store,
-      keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
-      standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
-      compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
-      virtualFields := Some([NameTitleField])
-    );
+        version := 1,
+        keyStore := store,
+        keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+        standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
+        compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
+        virtualFields := Some([NameTitleField])
+      );
   }
 
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
-    partitionKeyName := "foo",
-    sortKeyName := None,
-    search := None,
-    attributeActions := map[],
-    allowedUnauthenticatedAttributes := None,
-    allowedUnauthenticatedAttributePrefix := None,
-    algorithmSuiteId := None,
-    keyring := None,
-    cmm := None,
-    legacyConfig := None,
-    plaintextPolicy := None
-  );
+                              partitionKeyName := "foo",
+                              sortKeyName := None,
+                              search := None,
+                              attributeActions := map[],
+                              allowedUnauthenticatedAttributes := None,
+                              allowedUnauthenticatedAttributePrefix := None,
+                              algorithmSuiteId := None,
+                              keyring := None,
+                              cmm := None,
+                              legacyConfig := None,
+                              plaintextPolicy := None
+                            );
   const FullTableConfig := EmptyTableConfig.(
-    attributeActions := map[
-      "std2" := SE.ENCRYPT_AND_SIGN,
-      "std4" := SE.ENCRYPT_AND_SIGN,
-      "std6" := SE.ENCRYPT_AND_SIGN,
-      "Name" := SE.ENCRYPT_AND_SIGN,
-      "Title" := SE.ENCRYPT_AND_SIGN,
-      "TooBad" := SE.ENCRYPT_AND_SIGN,
-      "Year" := SE.SIGN_ONLY,
-      "Date" := SE.SIGN_ONLY
-    ]
-  );
+                           attributeActions := map[
+                             "std2" := SE.ENCRYPT_AND_SIGN,
+                             "std4" := SE.ENCRYPT_AND_SIGN,
+                             "std6" := SE.ENCRYPT_AND_SIGN,
+                             "Name" := SE.ENCRYPT_AND_SIGN,
+                             "Title" := SE.ENCRYPT_AND_SIGN,
+                             "TooBad" := SE.ENCRYPT_AND_SIGN,
+                             "Year" := SE.SIGN_ONLY,
+                             "Date" := SE.SIGN_ONLY
+                           ]
+                           );
 
   method GetLiteralSource(key: Bytes, version : BeaconVersion) returns (output : SI.KeySource)
     requires version.keyStore.ValidState()
@@ -191,8 +192,9 @@ module BeaconTestFixtures {
     ensures fresh(output.client.Modifies)
   {
     var client :- expect Primitives.AtomicPrimitives();
-    var keyNames := Seq.Map((b : StandardBeacon) => b.name, version.standardBeacons);
-    var keys :- expect SI.GetHmacKeys(client, keyNames, key);
+    var keyNameSet := set b <- version.standardBeacons :: b.name;
+    var keyNames := SortedSets.ComputeSetToOrderedSequence2(keyNameSet, CharLess);
+    var keys :- expect SI.GetHmacKeys(client, keyNames, keyNames, key);
     var mpl :- expect MaterialProviders.MaterialProviders();
     var input := MPT.CreateCryptographicMaterialsCacheInput(
       entryCapacity := 3,
@@ -203,12 +205,12 @@ module BeaconTestFixtures {
   }
 
   const SimpleItem : DDB.AttributeMap := map[
-    "std2" := Std2String,
-    "std4" := Std4String,
-    "std6" := Std6List,
-    "Date" := DateMap,
-    "Year" := YearString,
-    "Name" := NameString,
-    "Title" := TitleString
-  ]
+                                           "std2" := Std2String,
+                                           "std4" := Std4String,
+                                           "std6" := Std6List,
+                                           "Date" := DateMap,
+                                           "Year" := YearString,
+                                           "Name" := NameString,
+                                           "Title" := TitleString
+                                         ]
 }
