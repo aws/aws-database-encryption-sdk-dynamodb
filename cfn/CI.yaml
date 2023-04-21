@@ -176,7 +176,7 @@ Resources:
         - AttributeName: "type"
           AttributeType: "S"
       GlobalSecondaryIndexes:
-        - IndexName: !Sub "Active-Keys-${KeystoreTableName}"
+        - IndexName: !Sub "Active-Keys"
           KeySchema:
             - AttributeName: "branch-key-id"
               KeyType: "HASH"
