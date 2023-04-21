@@ -67,7 +67,11 @@ public class ToDafny {
       software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.EncryptItemOutput nativeValue) {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> encryptedItem;
     encryptedItem = Dafny.Com.Amazonaws.Dynamodb.ToDafny.AttributeMap(nativeValue.encryptedItem());
-    return new EncryptItemOutput(encryptedItem);
+    Option<ParsedHeader> parsedHeader;
+    parsedHeader = Objects.nonNull(nativeValue.parsedHeader()) ?
+        Option.create_Some(ToDafny.ParsedHeader(nativeValue.parsedHeader()))
+        : Option.create_None();
+    return new EncryptItemOutput(encryptedItem, parsedHeader);
   }
 
   public static DecryptItemInput DecryptItemInput(

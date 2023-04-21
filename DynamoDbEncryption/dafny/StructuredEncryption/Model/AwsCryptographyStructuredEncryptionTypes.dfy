@@ -65,7 +65,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
  )
  datatype EncryptStructureOutput = | EncryptStructureOutput (
- nameonly encryptedStructure: StructuredData
+ nameonly encryptedStructure: StructuredData ,
+ nameonly parsedHeader: ParsedHeader
  )
  datatype ParsedHeader = | ParsedHeader (
  nameonly cryptoSchema: CryptoSchema ,

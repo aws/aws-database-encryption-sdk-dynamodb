@@ -110,7 +110,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap
  )
  datatype EncryptItemOutput = | EncryptItemOutput (
- nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap
+ nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap ,
+ nameonly parsedHeader: Option<ParsedHeader>
  )
  datatype ParsedHeader = | ParsedHeader (
  nameonly attributeActions: AwsCryptographyDynamoDbEncryptionTypes.AttributeActions ,

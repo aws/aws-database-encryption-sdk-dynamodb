@@ -97,6 +97,20 @@ module DynamoDbMiddlewareSupport {
       .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
   }
 
+  // Return Beacon Key ID for use in beaconizing records to be written
+  function method GetKeyIdFromHeader(config : ValidTableConfig, output : AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.EncryptItemOutput) :
+    Result<Option<string>, Error>
+  {
+    if config.search.Some? && config.search.value.curr().keySource.keyLoc.MultiLoc? then
+      :- Need(output.parsedHeader.Some?, E("In multi-tenant mode, the parsed header is required."));
+      var keys := output.parsedHeader.value.encryptedDataKeys;
+      :- Need(|keys| == 1, E("Encrypt header has more than one Encrypted Data Key"));
+      var keyId :- UTF8.Decode(keys[0].keyProviderInfo).MapFailure(e => E(e));
+      Success(Some(keyId))
+    else
+      Success(None)
+  }
+
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
   // returning a replacement AttributeMap.
   function method {:opaque} RemoveBeacons(config : ValidTableConfig, item : DDB.AttributeMap)

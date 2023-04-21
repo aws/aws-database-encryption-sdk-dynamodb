@@ -81,6 +81,9 @@ public class ToNative {
       Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.EncryptItemOutput dafnyValue) {
     EncryptItemOutput.Builder nativeBuilder = EncryptItemOutput.builder();
     nativeBuilder.encryptedItem(Dafny.Com.Amazonaws.Dynamodb.ToNative.AttributeMap(dafnyValue.dtor_encryptedItem()));
+    if (dafnyValue.dtor_parsedHeader().is_Some()) {
+      nativeBuilder.parsedHeader(ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 

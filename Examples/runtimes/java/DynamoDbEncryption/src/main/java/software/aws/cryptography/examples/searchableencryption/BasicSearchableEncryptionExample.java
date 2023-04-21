@@ -52,9 +52,9 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
    - "zip" stores an encrypted 5-digit US zipcode (00000 - 99999)
 
   The example requires the following ordered input command line parameters:
-    1. DDB table ARN for table to put/query data from
+    1. DDB table name for table to put/query data from
     2. Branch key wrapping KMS key ARN for the KMS key used to create the branch key
-    3. Branch key DDB table ARN for the DDB table representing the branch key store
+    3. Branch key DDB table name for the DDB table representing the branch key store
  */
 
 public class BasicSearchableEncryptionExample {
@@ -289,7 +289,6 @@ public class BasicSearchableEncryptionExample {
     assert 200 == queryResponse.sdkHttpResponse().statusCode();
     // Validate only 1 item was returned: the item we just put
     assert attributeValues.size() == 1;
-    System.out.println(attributeValues);
     final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
     // Validate the item has the expected attributes
     assert returnedItem.get("state").s().equals("WA");

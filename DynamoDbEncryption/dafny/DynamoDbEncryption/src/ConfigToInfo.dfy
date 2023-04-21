@@ -48,8 +48,7 @@ module SearchConfigToInfo {
       :- Need(outer.search.value.writeVersion == 1, E("writeVersion must be '1'."));
       :- Need(|outer.search.value.versions| == 1, E("search config must be have exactly one version."));
       var version :- ConvertVersion(outer, outer.search.value.versions[0]);
-      var info := I.SearchInfo(versions := [version], currWrite := 0);
-      var _ :- info.CheckValid();
+      var info := I.MakeSearchInfo(version);
       return Success(Some(info));
     }
   }
@@ -118,7 +117,7 @@ module SearchConfigToInfo {
 
   // convert configured BeaconVersion to internal BeaconVersion
   method ConvertVersion(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion)
-    returns (output : Result<I.BeaconVersion, Error>)
+    returns (output : Result<I.ValidBeaconVersion, Error>)
     requires ValidBeaconVersion(config)
     modifies config.keyStore.Modifies
     ensures output.Success? ==>
@@ -140,7 +139,8 @@ module SearchConfigToInfo {
     config : BeaconVersion,
     source : I.KeySource
   )
-    returns (output : Result<I.BeaconVersion, Error>)
+    returns (output : Result<I.ValidBeaconVersion, Error>)
+    requires config.version == 1
     modifies source.Modifies()
     requires source.ValidState()
     ensures output.Success? ==>
@@ -241,25 +241,12 @@ module SearchConfigToInfo {
 
   function method FindVirtualFieldWithThisLocation(fields : V.VirtualFieldMap, locs : set<TermLoc>) : Option<string>
   {
-    var fieldNames := SortedSets.ComputeSetToOrderedSequence2(fields.Keys, CharLess);
-    FindVirtualFieldWithThisLocation2(fieldNames, fields, locs)
-  }
-  function method {:tailrecursion} FindVirtualFieldWithThisLocation2(
-    fieldNames : seq<string>,
-    fields : V.VirtualFieldMap,
-    locs : set<TermLoc>
-  )
-    : Option<string>
-    requires forall k <- fieldNames :: k in fields
-  {
-    if |fieldNames| == 0 then
+    var badNames := set b <- fields | fields[b].GetLocs() == locs :: b;
+    if |badNames| == 0 then
       None
     else
-      var f := fields[fieldNames[0]];
-      if f.GetLocs() == locs then
-        Some(fieldNames[0])
-      else
-        FindVirtualFieldWithThisLocation2(fieldNames[1..], fields, locs)
+      var badSeq := SortedSets.ComputeSetToOrderedSequence2(badNames, CharLess);
+      Some(badSeq[0])
   }
 
   // convert configured VirtualFields to internal VirtualFields
@@ -287,26 +274,12 @@ module SearchConfigToInfo {
 
   function method FindBeaconWithThisLocation(beacons : I.BeaconMap, loc : TermLoc) : Option<string>
   {
-    var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
-    FindBeaconWithThisLocation2(beaconNames, beacons, loc)
-  }
-
-  function method {:tailrecursion} FindBeaconWithThisLocation2(
-    beaconNames : seq<string>,
-    beacons : I.BeaconMap,
-    loc : TermLoc
-  )
-    : Option<string>
-    requires forall k <- beaconNames :: k in beacons
-  {
-    if |beaconNames| == 0 then
+    var badNames := set b <- beacons | beacons[b].Standard? && beacons[b].std.loc == loc :: b;
+    if |badNames| == 0 then
       None
     else
-      var b := beacons[beaconNames[0]];
-      if b.Standard? && b.std.loc == loc then
-        Some(beaconNames[0])
-      else
-        FindBeaconWithThisLocation2(beaconNames[1..], beacons, loc)
+      var badSeq := SortedSets.ComputeSetToOrderedSequence2(badNames, CharLess);
+      Some(badSeq[0])
   }
 
   // convert configured StandardBeacons to internal Beacons
@@ -500,7 +473,7 @@ module SearchConfigToInfo {
       BeaconPrefix + beacons[0].name else beacons[0].name;
     :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
 
-    var newBeacon := CB.CompoundBeacon(
+    var newBeacon :- CB.MakeCompoundBeacon(
       B.BeaconBase (
         client := client,
         name := beacons[0].name,
