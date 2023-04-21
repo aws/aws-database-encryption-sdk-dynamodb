@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
  * https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/plain_json
  * By providing a DynamoDbClient that is configured to use searchable encryption,
  *   this class will encrypt the data client side and add beacon attributes to the items.
+ * This only implements a single item of each of the 6 record types from Demo.md. Adding the remaining
+ *   items would extend the test and example coverage.
  */
 
 public class PutRequests {
