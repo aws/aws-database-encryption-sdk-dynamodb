@@ -289,7 +289,6 @@ public class BasicSearchableEncryptionExample {
     assert 200 == queryResponse.sdkHttpResponse().statusCode();
     // Validate only 1 item was returned: the item we just put
     assert attributeValues.size() == 1;
-    System.out.println(attributeValues);
     final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
     // Validate the item has the expected attributes
     assert returnedItem.get("state").s().equals("WA");
