@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
  * https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/plain_json
  * By providing a DynamoDbClient that is configured to use searchable encryption,
  *   this class will encrypt the data client side and add beacon attributes to the items.
+ * This only implements a single item of each of the 6 record types from Demo.md. Adding the remaining
+ *   items would extend the test and example coverage.
  */
 
 public class PutRequests {
@@ -58,6 +60,7 @@ public class PutRequests {
     employee1Location.put("Building", AttributeValue.builder().s("44").build());
     employee1Location.put("Floor", AttributeValue.builder().s("12").build());
     employee1Location.put("Desk", AttributeValue.builder().s("3").build());
+    employee1Location.put("City", AttributeValue.builder().s("Seattle").build());
 
     final HashMap<String, AttributeValue> employee1 = new HashMap<>();
     employee1.put("partition_key", AttributeValue.builder().s("employee1").build());

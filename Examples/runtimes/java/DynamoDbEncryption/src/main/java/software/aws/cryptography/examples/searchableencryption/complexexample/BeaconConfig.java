@@ -96,6 +96,7 @@ public class BeaconConfig {
         .build();
     StandardBeacon cityStandardBeacon = StandardBeacon.builder()
         .name("City")
+        .loc("Location.City")
         .length(4)
         .build();
     StandardBeacon severityStandardBeacon = StandardBeacon.builder()
@@ -220,7 +221,7 @@ public class BeaconConfig {
         .build();
     NonSensitivePart timeCardStartNonSensitivePart = NonSensitivePart.builder()
         .name("TimeCardStart")
-        .prefix("T-")
+        .prefix("TC-")
         .build();
     NonSensitivePart projectStartNonSensitivePart = NonSensitivePart.builder()
         .name("ProjectStart")
@@ -247,17 +248,18 @@ public class BeaconConfig {
     sk0NonSensitivePartList.add(meetingStartNonSensitivePart);
 
     List<SensitivePart> pk1SensitivePartList = new ArrayList<>();
-    pk1SensitivePartList.add(employeeEmailSensitivePart);
     pk1SensitivePartList.add(creatorEmailSensitivePart);
     pk1SensitivePartList.add(projectStatusSensitivePart);
     pk1SensitivePartList.add(organizerEmailSensitivePart);
+    pk1SensitivePartList.add(employeeEmailSensitivePart);
 
     List<SensitivePart> sk1SensitivePartList = new ArrayList<>();
-    sk1SensitivePartList.add(employeeIDSensitivePart);
     sk1SensitivePartList.add(floorSensitivePart);
     sk1SensitivePartList.add(roomSensitivePart);
+    sk1SensitivePartList.add(employeeIDSensitivePart);
 
     List<NonSensitivePart> sk1NonSensitivePartList = new ArrayList<>();
+    sk1NonSensitivePartList.add(timeCardStartNonSensitivePart);
     sk1NonSensitivePartList.add(ticketModTimeNonSensitivePart);
     sk1NonSensitivePartList.add(meetingStartNonSensitivePart);
     sk1NonSensitivePartList.add(projectStartNonSensitivePart);
@@ -425,6 +427,12 @@ public class BeaconConfig {
         .parts(timeCardStartEmployeeEmailConstructorPartList)
         .build();
 
+    List<ConstructorPart> timeCardStartConstructorPartList = new ArrayList();
+    timeCardStartConstructorPartList.add(timeCardStartConstructorPart);
+    Constructor timeCardStartConstructor = Constructor.builder()
+        .parts(timeCardStartConstructorPartList)
+        .build();
+
     List<ConstructorPart> creatorEmailConstructorPartList = new ArrayList();
     creatorEmailConstructorPartList.add(creatorEmailConstructorPart);
     Constructor creatorEmailConstructor = Constructor.builder()
@@ -482,6 +490,7 @@ public class BeaconConfig {
     List<ConstructorPart> buildingFloorDeskConstructorPartList = new ArrayList();
     buildingFloorDeskConstructorPartList.add(buildingConstructorPart);
     buildingFloorDeskConstructorPartList.add(floorConstructorPart);
+    buildingFloorDeskConstructorPartList.add(deskConstructorPart);
     Constructor buildingFloorDeskConstructor = Constructor.builder()
         .parts(buildingFloorDeskConstructorPartList)
         .build();
@@ -516,6 +525,7 @@ public class BeaconConfig {
 
     List<Constructor> sk1ConstructorList = new ArrayList<>();
     sk1ConstructorList.add(meetingStartFloorRoomConstructor);
+    sk1ConstructorList.add(timeCardStartConstructor);
     sk1ConstructorList.add(ticketModTimeConstructor);
     sk1ConstructorList.add(projectStartConstructor);
     sk1ConstructorList.add(employeeIdConstructor);
