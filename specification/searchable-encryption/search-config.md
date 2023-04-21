@@ -313,5 +313,6 @@ Each beacon requires a key for use in its HMAC calculation.
 For each beacon HKDF-SHA512 MUST be used
 to calculate the key for individual beacon,
 using the beacon key retrieved above as the initial key material with no salt.
-The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" and the beacon name.
+The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" encoded as UTF8
+and the beacon name.
 The `expectedLength` MUST be 64 bytes.
