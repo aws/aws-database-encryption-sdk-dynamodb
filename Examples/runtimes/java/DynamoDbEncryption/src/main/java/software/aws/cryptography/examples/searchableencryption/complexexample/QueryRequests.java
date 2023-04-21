@@ -1,5 +1,6 @@
 package software.aws.cryptography.examples.searchableencryption.complexexample;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,36 +56,49 @@ public class QueryRequests {
     assert 200 == query2Response.sdkHttpResponse().statusCode();
     System.out.println("query2 returned items: " + query2Response.items().size());
 
-//    Map<String,String> query3AttributeNames = new HashMap<>();
-//    query3AttributeNames.put("#p", "PK");
-//    query3AttributeNames.put("#s", "SK");
-//    query3AttributeNames.put("#dur", "Duration");
-//
-//    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
-//    // The expression below queries against zipcodes of 98109.
-//    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
-//    //     except we must add the prefix.
-//    Map<String,AttributeValue> query3AttributeValues = new HashMap<>();
-//    query3AttributeValues.put(":b", AttributeValue.builder().s("B-44").build());
-//    query3AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
-//    query3AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
-//    query3AttributeValues.put(":dur", AttributeValue.builder().s("0").build());
-//
-//    QueryRequest query3Request = QueryRequest.builder()
-//        .tableName(ddbTableName)
-//        .indexName("GSI-0")
-//        .keyConditionExpression("#p = :e AND #s BETWEEN :date1 AND :date2")
-//        .filterExpression("contains(#s, :")
-//        .expressionAttributeNames(query3AttributeNames)
-//        .expressionAttributeValues(query3AttributeValues)
-//        .build();
-//
-//    System.out.println(query3Request);
-//
-//    QueryResponse query3Response = ddb.query(query3Request);
-//    // Validate query was returned successfully
-//    assert 200 == query3Response.sdkHttpResponse().statusCode();
-//    System.out.println("query3 returned items: " + query3Response.items().size());
+    // Query 3: Get meetings by date and building/floor/room
+    // Key condition: PK=employeeID SK between(date1, date2)
+    // Filter condition: SK contains building.floor.room (see NOTE)
+    // NOTE: This is an example where we omit the filter condition from the actual query.
+    //       The filter condition requires an operation that requires access to the unencrypted plaintext.
+    //       To preserve client-side encryption, we cannot perform this operation in the query.
+    //       Instead, we will filter within our code.
+    Map<String,String> query3AttributeNames = new HashMap<>();
+    query3AttributeNames.put("#p", "PK");
+    query3AttributeNames.put("#s", "SK");
+
+    Map<String,AttributeValue> query3AttributeValues = new HashMap<>();
+    query3AttributeValues.put(":b", AttributeValue.builder().s("B-SEA33").build());
+    query3AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
+    query3AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
+
+    QueryRequest query3Request = QueryRequest.builder()
+        .tableName(ddbTableName)
+        .indexName("GSI-0")
+        .keyConditionExpression("#p = :b AND #s BETWEEN :date1 AND :date2")
+        .expressionAttributeNames(query3AttributeNames)
+        .expressionAttributeValues(query3AttributeValues)
+        .build();
+
+    System.out.println(query3Request);
+
+    QueryResponse query3Response = ddb.query(query3Request);
+    // Validate query was returned successfully
+    assert 200 == query3Response.sdkHttpResponse().statusCode();
+    System.out.println("query3 returned items: " + query3Response.items().size());
+
+    List<Map<String, AttributeValue>> filteredItems = new ArrayList<>();
+    // Perform filter client-side
+    // Filter condition: SK contains building.floor.room
+    for (Map<String, AttributeValue> item : query3Response.items()) {
+      if (item.get("Location").m().get("Building").s().equals("SEA33")
+          && item.get("Location").m().get("Floor").s().equals("12")
+          && item.get("Location").m().get("Room").s().equals("403") ) {
+        filteredItems.add(item);
+      }
+    }
+
+    System.out.println("after filtering query3, had items: " + filteredItems.size());
   }
 
   public static void runQueriesOnGsi1(String ddbTableName, DynamoDbClient ddb) {
@@ -173,10 +187,6 @@ public class QueryRequests {
     query6AttributeNames.put("#p", "PK1");
     query6AttributeNames.put("#s", "SK1");
 
-    // To query against a compound beacon, you must write the prefix, then the unencrypted value.
-    // The expression below queries against zipcodes of 98109.
-    // This is similar to the behavior in the Basic example, which also queries as if the beacon was plaintext,
-    //     except we must add the prefix.
     Map<String,AttributeValue> query6AttributeValues = new HashMap<>();
     query6AttributeValues.put(":e", AttributeValue.builder().s("CE-zorro@gmail.com").build());
     query6AttributeValues.put(":s", AttributeValue.builder().s("MS-2023-03-20").build());

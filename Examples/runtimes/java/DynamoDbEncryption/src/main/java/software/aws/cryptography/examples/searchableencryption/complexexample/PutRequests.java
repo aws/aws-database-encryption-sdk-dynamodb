@@ -94,9 +94,9 @@ public class PutRequests {
 
   // reservation.json
   public static void putAllReservationItemsToTable(String ddbTableName, DynamoDbClient ddb) {
-    final List<AttributeValue> meeting1AttendeeList = new ArrayList<>();
-    meeting1AttendeeList.add(AttributeValue.builder().s("able@gmail.com").build());
-    meeting1AttendeeList.add(AttributeValue.builder().s("betty@gmail.com").build());
+    final List<AttributeValue> reservation1AttendeeList = new ArrayList<>();
+    reservation1AttendeeList.add(AttributeValue.builder().s("able@gmail.com").build());
+    reservation1AttendeeList.add(AttributeValue.builder().s("betty@gmail.com").build());
 
     final HashMap<String, AttributeValue> reservation1Location = new HashMap<>();
     reservation1Location.put("Building", AttributeValue.builder().s("SEA33").build());
@@ -109,7 +109,7 @@ public class PutRequests {
     reservation1.put("MeetingStart", AttributeValue.builder().s("2022-07-04T13:00").build());
     reservation1.put("OrganizerEmail", AttributeValue.builder().s("able@gmail.com").build());
     reservation1.put("Duration", AttributeValue.builder().s("30").build());
-    reservation1.put("Attendees", AttributeValue.builder().l(meeting1AttendeeList).build());
+    reservation1.put("Attendees", AttributeValue.builder().l(reservation1AttendeeList).build());
     reservation1.put("Subject", AttributeValue.builder().s("Scan beacons").build());
 
     ddb.putItem(PutItemRequest.builder()
