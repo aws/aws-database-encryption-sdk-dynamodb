@@ -67,9 +67,8 @@ module TestBaseBeacon {
       virtualFields := None
     );
     var src := GetLiteralSource([1,2,3,4,5], version);
-    var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var res := C.ConvertVersionWithSource(FullTableConfig, version, src);
 
-    var res := beaconVersion.ValidStateResult();
     expect res.Failure?;
     expect_equal(res.error, E("Compound beacon BadPrefix defines part Title with prefix T_ which is incompatible with part TooBad which has a prefix of T."));
   }

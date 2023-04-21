@@ -129,6 +129,7 @@ module BeaconTestFixtures {
   method GetEmptyBeacons() returns (output : BeaconVersion)
     ensures output.keyStore.ValidState()
     ensures fresh(output.keyStore.Modifies)
+    ensures output.version == 1
   {
     var store := GetKeyStore();
     return BeaconVersion (
@@ -144,6 +145,7 @@ module BeaconTestFixtures {
   method GetLotsaBeacons() returns (output : BeaconVersion)
     ensures output.keyStore.ValidState()
     ensures fresh(output.keyStore.Modifies)
+    ensures output.version == 1
   {
     var store := GetKeyStore();
     return BeaconVersion (
