@@ -102,8 +102,8 @@ module TransactWriteItemsTransform {
           EncTypes.EncryptItemInput(plaintextItem:=beaconItem)
         );
         var encrypted :- MapError(encryptRes);
-        // TODO - extract KeyId from encryption output if Multi
-        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, None);
+        var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
+        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, keyId);
 
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The PutItem request's `Item` field MUST be replaced
@@ -128,8 +128,7 @@ module TransactWriteItemsTransform {
       }
     }
     :- Need(|input.sdkInput.TransactItems| == |result|, E(""));
-    var finalResult := result; // TODO we need to redeclare this in a "final" var until we upgrade to Dafny 3.10.0
-    return Success(TransactWriteItemsInputTransformOutput(transformedInput := input.sdkInput.(TransactItems := finalResult)));
+    return Success(TransactWriteItemsInputTransformOutput(transformedInput := input.sdkInput.(TransactItems := result)));
   }
 
   method Output(config: Config, input: TransactWriteItemsOutputTransformInput)

@@ -8,12 +8,19 @@ import java.util.Objects;
 public class EncryptStructureOutput {
   private final StructuredData encryptedStructure;
 
+  private final ParsedHeader parsedHeader;
+
   protected EncryptStructureOutput(BuilderImpl builder) {
     this.encryptedStructure = builder.encryptedStructure();
+    this.parsedHeader = builder.parsedHeader();
   }
 
   public StructuredData encryptedStructure() {
     return this.encryptedStructure;
+  }
+
+  public ParsedHeader parsedHeader() {
+    return this.parsedHeader;
   }
 
   public Builder toBuilder() {
@@ -29,17 +36,24 @@ public class EncryptStructureOutput {
 
     StructuredData encryptedStructure();
 
+    Builder parsedHeader(ParsedHeader parsedHeader);
+
+    ParsedHeader parsedHeader();
+
     EncryptStructureOutput build();
   }
 
   static class BuilderImpl implements Builder {
     protected StructuredData encryptedStructure;
 
+    protected ParsedHeader parsedHeader;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(EncryptStructureOutput model) {
       this.encryptedStructure = model.encryptedStructure();
+      this.parsedHeader = model.parsedHeader();
     }
 
     public Builder encryptedStructure(StructuredData encryptedStructure) {
@@ -51,9 +65,21 @@ public class EncryptStructureOutput {
       return this.encryptedStructure;
     }
 
+    public Builder parsedHeader(ParsedHeader parsedHeader) {
+      this.parsedHeader = parsedHeader;
+      return this;
+    }
+
+    public ParsedHeader parsedHeader() {
+      return this.parsedHeader;
+    }
+
     public EncryptStructureOutput build() {
       if (Objects.isNull(this.encryptedStructure()))  {
         throw new IllegalArgumentException("Missing value for required field `encryptedStructure`");
+      }
+      if (Objects.isNull(this.parsedHeader()))  {
+        throw new IllegalArgumentException("Missing value for required field `parsedHeader`");
       }
       return new EncryptStructureOutput(this);
     }

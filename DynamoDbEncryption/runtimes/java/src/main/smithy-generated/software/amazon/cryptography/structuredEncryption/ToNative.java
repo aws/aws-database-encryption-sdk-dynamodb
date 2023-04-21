@@ -91,6 +91,7 @@ public class ToNative {
       Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureOutput dafnyValue) {
     EncryptStructureOutput.Builder nativeBuilder = EncryptStructureOutput.builder();
     nativeBuilder.encryptedStructure(ToNative.StructuredData(dafnyValue.dtor_encryptedStructure()));
+    nativeBuilder.parsedHeader(ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader()));
     return nativeBuilder.build();
   }
 

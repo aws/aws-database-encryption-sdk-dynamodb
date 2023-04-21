@@ -81,7 +81,9 @@ public class ToDafny {
       software.amazon.cryptography.structuredEncryption.model.EncryptStructureOutput nativeValue) {
     StructuredData encryptedStructure;
     encryptedStructure = ToDafny.StructuredData(nativeValue.encryptedStructure());
-    return new EncryptStructureOutput(encryptedStructure);
+    ParsedHeader parsedHeader;
+    parsedHeader = ToDafny.ParsedHeader(nativeValue.parsedHeader());
+    return new EncryptStructureOutput(encryptedStructure, parsedHeader);
   }
 
   public static AuthenticateSchema AuthenticateSchema(

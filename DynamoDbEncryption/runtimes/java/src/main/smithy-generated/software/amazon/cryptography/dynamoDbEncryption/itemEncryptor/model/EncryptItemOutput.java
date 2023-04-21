@@ -10,12 +10,19 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 public class EncryptItemOutput {
   private final Map<String, AttributeValue> encryptedItem;
 
+  private final ParsedHeader parsedHeader;
+
   protected EncryptItemOutput(BuilderImpl builder) {
     this.encryptedItem = builder.encryptedItem();
+    this.parsedHeader = builder.parsedHeader();
   }
 
   public Map<String, AttributeValue> encryptedItem() {
     return this.encryptedItem;
+  }
+
+  public ParsedHeader parsedHeader() {
+    return this.parsedHeader;
   }
 
   public Builder toBuilder() {
@@ -31,17 +38,24 @@ public class EncryptItemOutput {
 
     Map<String, AttributeValue> encryptedItem();
 
+    Builder parsedHeader(ParsedHeader parsedHeader);
+
+    ParsedHeader parsedHeader();
+
     EncryptItemOutput build();
   }
 
   static class BuilderImpl implements Builder {
     protected Map<String, AttributeValue> encryptedItem;
 
+    protected ParsedHeader parsedHeader;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(EncryptItemOutput model) {
       this.encryptedItem = model.encryptedItem();
+      this.parsedHeader = model.parsedHeader();
     }
 
     public Builder encryptedItem(Map<String, AttributeValue> encryptedItem) {
@@ -51,6 +65,15 @@ public class EncryptItemOutput {
 
     public Map<String, AttributeValue> encryptedItem() {
       return this.encryptedItem;
+    }
+
+    public Builder parsedHeader(ParsedHeader parsedHeader) {
+      this.parsedHeader = parsedHeader;
+      return this;
+    }
+
+    public ParsedHeader parsedHeader() {
+      return this.parsedHeader;
     }
 
     public EncryptItemOutput build() {

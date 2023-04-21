@@ -81,7 +81,6 @@ module TransactGetItemsTransform {
         }
       }
     }
-    var someItems := Some(decryptedItems); // TODO this needs to be done on its own line until we upgrade to Dafny 3.10.0
-    return Success(TransactGetItemsOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := someItems)));
+    return Success(TransactGetItemsOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := Some(decryptedItems))));
   }
 }
