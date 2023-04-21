@@ -6,6 +6,18 @@ Parameters:
     Type: String
     Description: Test Table Name
     Default: DynamoDbEncryptionInterceptorTestTable
+  TableWithSimpleBeaconIndexName:
+    Type: String
+    Description: Simple Beacons Test Table Name
+    Default: SimpleBeaconTestTable
+  TableWithComplexBeaconIndexName:
+    Type: String
+    Description: Complex Beacons Test Table Name
+    Default: ComplexBeaconTestTable
+  KeystoreTableName:
+    Type: String
+    Description: Testing Keystore Table Name
+    Default: CiKeystoreTestTable
   ProjectName:
     Type: String
     Description: A prefix that will be applied to any names
@@ -34,14 +46,165 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Ref TableName
 
+  TestTableWithSimpleBeaconIndex:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "customer_id"
+          AttributeType: "S"
+        - AttributeName: "create_time"
+          AttributeType: "N"
+        - AttributeName: "aws_dbe_b_state"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_zip"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_location"
+          AttributeType: "S"
+      GlobalSecondaryIndexes:
+        - IndexName: "state-zip-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_state"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_zip"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "location-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_location"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+      KeySchema:
+        - AttributeName: "customer_id"
+          KeyType: "HASH"
+        - AttributeName: "create_time"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref TableWithSimpleBeaconIndexName
+
+  # This schema is modeled off of
+  # https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
+  # Under "Changes for Encryption".
+  TestTableWithComplexBeaconIndex:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "partition_key"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_PK"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_SK"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_PK1"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_SK1"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_PK2"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_PK3"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_SK3"
+          AttributeType: "S"
+      GlobalSecondaryIndexes:
+        - IndexName: "GSI-0"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_PK"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_SK"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "GSI-1"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_PK1"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_SK1"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "GSI-2"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_PK2"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "GSI-3"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_PK3"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_SK3"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+      KeySchema:
+        - AttributeName: "partition_key"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref TableWithComplexBeaconIndexName
+
+  TestKeystoreTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "branch-key-id"
+          AttributeType: "S"
+        - AttributeName: "status"
+          AttributeType: "S"
+        - AttributeName: "type"
+          AttributeType: "S"
+      GlobalSecondaryIndexes:
+        - IndexName: "Active-Keys"
+          KeySchema:
+            - AttributeName: "branch-key-id"
+              KeyType: "HASH"
+            - AttributeName: "status"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+      KeySchema:
+        - AttributeName: "branch-key-id"
+          KeyType: "HASH"
+        - AttributeName: "type"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref KeystoreTableName
+
   # This policy SHOULD be given to:
   #  - awslabs/aws-dynamodb-encryption-dafny
   #  - ToolsDevelopment
-  TestTableUsage:
+  DDBUsage:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
-      Description: "Allow Read, Write, and Delete of Items in Test Table"
-      ManagedPolicyName: !Sub "${ProjectName}-DDB-ReadWriteDelete-${AWS::Region}"
+      Description: "Allow Read, Write, and Delete of Items in Test Tables"
+      ManagedPolicyName: !Sub "${ProjectName}-DDB-ReadWriteDelete-Policy-${AWS::Region}"
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -59,6 +222,12 @@ Resources:
             Resource:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithSimpleBeaconIndexName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithSimpleBeaconIndexName}/index/*"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithComplexBeaconIndexName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithComplexBeaconIndexName}/index/*"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeystoreTableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeystoreTableName}/index/*"
 
   KMSUsage:
     Type: "AWS::IAM::ManagedPolicy"
@@ -86,7 +255,7 @@ Resources:
         - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
         - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
         - !Ref KMSUsage
-        - !Ref TestTableUsage
+        - !Ref DDBUsage
       AssumeRolePolicyDocument: !Sub |
         {
           "Version": "2012-10-17",   
