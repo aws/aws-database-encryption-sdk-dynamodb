@@ -40,14 +40,16 @@ module DdbVirtualFields {
       Success(VirtPart(loc, part.trans.value))
   }
 
-  type VirtualFieldMap = x : map<string, VirtField> | IsValidVirtualFieldMap(x)
+  type VirtualFieldMap = x : map<string, ValidVirtualField> | IsValidVirtualFieldMap(x)
 
-  predicate method IsValidVirtualFieldMap(m : map<string, VirtField>)
+  predicate IsValidVirtualFieldMap(m : map<string, VirtField>)
   {
     forall x <- m :: x == m[x].name
   }
 
   type Examiner = (TermLoc.TermLoc) -> bool
+
+  type ValidVirtualField = x : VirtField | x.ValidState() witness *
 
   // parsed VirtualField
   datatype VirtField = VirtField (
@@ -62,7 +64,6 @@ module DdbVirtualFields {
     }
 
     predicate method ValidState() {true}
-    function method ValidStateResult() : Result<bool, Error> {Success(true)}
     function method GetFields() : seq<string>
     {
       Seq.Map((p : VirtPart) => p.loc[0].key, parts)

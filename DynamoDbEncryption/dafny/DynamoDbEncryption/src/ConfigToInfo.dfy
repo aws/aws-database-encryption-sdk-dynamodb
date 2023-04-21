@@ -48,8 +48,7 @@ module SearchConfigToInfo {
       :- Need(outer.search.value.writeVersion == 1, E("writeVersion must be '1'."));
       :- Need(|outer.search.value.versions| == 1, E("search config must be have exactly one version."));
       var version :- ConvertVersion(outer, outer.search.value.versions[0]);
-      var info := I.SearchInfo(versions := [version], currWrite := 0);
-      var _ :- info.CheckValid();
+      var info := I.MakeSearchInfo(version);
       return Success(Some(info));
     }
   }
@@ -118,7 +117,7 @@ module SearchConfigToInfo {
 
   // convert configured BeaconVersion to internal BeaconVersion
   method ConvertVersion(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion)
-    returns (output : Result<I.BeaconVersion, Error>)
+    returns (output : Result<I.ValidBeaconVersion, Error>)
     requires ValidBeaconVersion(config)
     modifies config.keyStore.Modifies
     ensures output.Success? ==>
@@ -140,7 +139,8 @@ module SearchConfigToInfo {
     config : BeaconVersion,
     source : I.KeySource
   )
-    returns (output : Result<I.BeaconVersion, Error>)
+    returns (output : Result<I.ValidBeaconVersion, Error>)
+    requires config.version == 1
     modifies source.Modifies()
     requires source.ValidState()
     ensures output.Success? ==>
@@ -500,7 +500,7 @@ module SearchConfigToInfo {
       BeaconPrefix + beacons[0].name else beacons[0].name;
     :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
 
-    var newBeacon := CB.CompoundBeacon(
+    var newBeacon :- CB.MakeCompoundBeacon(
       B.BeaconBase (
         client := client,
         name := beacons[0].name,

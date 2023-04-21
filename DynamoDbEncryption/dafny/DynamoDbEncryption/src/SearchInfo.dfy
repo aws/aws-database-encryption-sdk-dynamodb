@@ -27,7 +27,7 @@ module SearchableEncryptionInfo {
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
 
   newtype VersionNumber = uint64
-  type ValidSearchInfo = x : SearchInfo | x.ValidState?() witness *
+  type ValidSearchInfo = x : SearchInfo | x.ValidState() witness *
 
   type ValidStore = x : KeyStoreTypes.IKeyStoreClient | x.ValidState() witness *
 
@@ -196,72 +196,59 @@ module SearchableEncryptionInfo {
     }
   }
 
+  function method MakeSearchInfo(version : ValidBeaconVersion) : (ret : ValidSearchInfo)
+  {
+    SearchInfo([version], 0)
+  }
+
   datatype SearchInfo = SearchInfo(
     versions : seq<BeaconVersion>,
     currWrite : nat // index into `versions` for current version being written
   ) {
-    function method CheckValid() : (ret : Result<bool, Error>)
-      ensures ret.Success? ==> ValidState?()
-    {
-      var _ :- ValidStateResult();
-      :- Need(ValidState?(), E("State Invalid"));
-      Success(true)
-    }
 
     function Modifies() : set<object>
     {
       set x, y | y in versions && x in y.Modifies() :: x
     }
-    predicate method ValidState?()
-    {
-      && 0 < |versions|
-      && currWrite < |versions|
-      && forall v <- versions :: v.ValidState?()
-    }
+
     predicate ValidState()
     {
-      && forall v <- versions :: v.ValidState()
-    }
-
-    // produce nice error messages for common mistakes
-    function method ValidStateResult() : Result<bool, Error>
-    {
-      var _ :- Seq.MapWithResult((v : BeaconVersion) => v.ValidStateResult(), versions);
-      Success(true)
+      && |versions| == 1
+      && currWrite == 0
+      && versions[0].ValidState()
     }
 
     function method curr() : BeaconVersion
-      requires ValidState?()
+      requires ValidState()
     {
       versions[currWrite]
     }
 
     predicate method IsBeacon(field : string)
-      requires ValidState?()
+      requires ValidState()
     {
       versions[currWrite].IsBeacon(field)
     }
 
     predicate method IsVirtualField(field : string)
-      requires ValidState?()
+      requires ValidState()
     {
       versions[currWrite].IsVirtualField(field)
     }
 
     function method GenerateClosure(fields : seq<string>) : seq<string>
-      requires ValidState?()
+      requires ValidState()
     {
       versions[currWrite].GenerateClosure(fields)
     }
 
     method GeneratePlainBeacons(item : DDB.AttributeMap) returns (output : Result<DDB.AttributeMap, Error>)
-      requires ValidState?()
+      requires ValidState()
     {
       output := versions[currWrite].GeneratePlainBeacons(item);
     }
 
     method GenerateSignedBeacons(item : DDB.AttributeMap) returns (output : Result<DDB.AttributeMap, Error>)
-      requires ValidState?()
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
@@ -269,7 +256,6 @@ module SearchableEncryptionInfo {
       output := versions[currWrite].GenerateSignedBeacons(item);
     }
     method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : Option<string>) returns (output : Result<DDB.AttributeMap, Error>)
-      requires ValidState?()
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
@@ -279,8 +265,8 @@ module SearchableEncryptionInfo {
   }
 
   datatype Beacon =
-    | Standard(std : BaseBeacon.StandardBeacon)
-    | Compound(cmp : CompoundBeacon.CompoundBeacon)
+    | Standard(std : BaseBeacon.ValidStandardBeacon)
+    | Compound(cmp : CompoundBeacon.ValidCompoundBeacon)
   {
     predicate method isEncrypted()
     {
@@ -356,14 +342,7 @@ module SearchableEncryptionInfo {
         else
           cmp.GetBeaconValue(value, keys)
     }
-    function method ValidStateResult() : Result<bool, Error>
-    {
-      if Standard? then
-        std.ValidStateResult()
-      else
-        cmp.ValidStateResult()
-    }
-    predicate method ValidState()
+    predicate ValidState()
     {
       if Standard? then
         std.ValidState()
@@ -372,7 +351,12 @@ module SearchableEncryptionInfo {
     }
   }
 
-  type BeaconMap = map<string, Beacon>
+  type BeaconMap = x : map<string, Beacon> | IsValidBeaconMap(x) witness *
+
+  predicate IsValidBeaconMap(m : map<string, Beacon>)
+  {
+    forall x <- m :: x == m[x].getName()
+  }
 
   datatype BeaconType =
     | AnyBeacon
@@ -394,18 +378,24 @@ module SearchableEncryptionInfo {
     beacons : BeaconMap,
     virtualFields : VirtualFieldMap
   )
-    : Result<BeaconVersion, Error>
+    : (ret : Result<ValidBeaconVersion, Error>)
+    requires version == 1
+    requires keySource.ValidState()
   {
-    Success(BeaconVersion.BeaconVersion(
-              version, keySource, virtualFields, beacons
-            ))
+    var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
+    var bv := BeaconVersion.BeaconVersion(version, keySource, virtualFields, beacons, beaconNames);
+    assert bv.ValidState();
+    Success(bv)
   }
+
+  type ValidBeaconVersion = x : BeaconVersion | x.ValidState() witness *
 
   datatype BeaconVersion = BeaconVersion (
     version : VersionNumber,
     keySource : KeySource,
     virtualFields : VirtualFieldMap,
-    beacons : BeaconMap
+    beacons : BeaconMap,
+    beaconNames : seq<string>
   ) {
 
     function Modifies() : set<object>
@@ -413,24 +403,13 @@ module SearchableEncryptionInfo {
       keySource.Modifies()
     }
 
-    predicate method ValidState?()
-    {
-      && version == 1
-      && (forall k <- virtualFields :: virtualFields[k].name == k)
-      && (forall k <- beacons :: beacons[k].getName() == k)
-      && (forall k <- virtualFields :: virtualFields[k].ValidState())
-      && (forall k <- beacons :: beacons[k].ValidState())
-    }
     predicate ValidState()
     {
-      keySource.ValidState()
-    }
-
-    function method ValidStateResult() : Result<bool, Error>
-    {
-      var _ :- Seq.MapWithResult((k : Beacon) => k.ValidStateResult(), SortedSets.ComputeSetToSequence(beacons.Values));
-      var _ :- Seq.MapWithResult((k : VirtField) => k.ValidStateResult(), SortedSets.ComputeSetToSequence(virtualFields.Values));
-      Success(true)
+      && version == 1
+      && keySource.ValidState()
+      && (forall k <- beaconNames :: k in beacons)
+      && Seq.HasNoDuplicates(beaconNames)
+      && |beaconNames| == |beacons|
     }
 
     predicate method IsBeacon(field : string)
@@ -468,16 +447,16 @@ module SearchableEncryptionInfo {
 
     function method ListSignedBeacons()
       : seq<string>
+      requires ValidState()
     {
-      var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
       Seq.Filter((s : string) requires s in beacons => IsBeaconOfType(beacons[s], SignedBeacon), beaconNames)
     }
 
     // Get all beacons with plaintext values
     method GeneratePlainBeacons(item : DDB.AttributeMap)
       returns (output : Result<DDB.AttributeMap, Error>)
+      requires ValidState()
     {
-      var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
       output := GenerateBeacons2(beaconNames, item, None, AnyBeacon);
     }
 
@@ -488,7 +467,6 @@ module SearchableEncryptionInfo {
       ensures ValidState()
       modifies Modifies()
     {
-      var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
       output := GenerateBeacons2(beaconNames, item, None, SignedBeacon);
     }
 
@@ -499,7 +477,6 @@ module SearchableEncryptionInfo {
       ensures ValidState()
       modifies Modifies()
     {
-      var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
       var hmacKeys :- getKeyMap(keyId);
       output := GenerateBeacons2(beaconNames, item, Some(hmacKeys), EncryptedBeacon);
     }

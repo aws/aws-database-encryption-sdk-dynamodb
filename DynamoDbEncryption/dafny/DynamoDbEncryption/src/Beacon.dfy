@@ -97,12 +97,15 @@ module BaseBeacon {
     }
   }
   
+  type ValidStandardBeacon = x : StandardBeacon | x.ValidState() witness *
+
   function method MakeStandardBeacon(
     client: Primitives.AtomicPrimitivesClient,
     name: string,
     length : BeaconLength,
     loc : string
-  ) : Result<StandardBeacon, Error>
+  )
+    : (ret : Result<ValidStandardBeacon, Error>) 
   {
     var termLoc :- TermLoc.MakeTermLoc(loc);
     var beaconName := BeaconPrefix + name;
@@ -195,9 +198,7 @@ module BaseBeacon {
     {
         base.hash(val, key, length)
     }
-
-    function method ValidStateResult() : Result<bool, Error> {Success(true)}
-    predicate method ValidState() {true}
+    predicate ValidState() {true}
   }
 
   // For a given BeaconLength, how many chars in the associated hex string?

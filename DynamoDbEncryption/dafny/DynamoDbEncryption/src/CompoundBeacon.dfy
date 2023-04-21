@@ -100,6 +100,21 @@ module CompoundBeacon {
       Any(f, xs[1..])
   }
 
+  type ValidCompoundBeacon = x : CompoundBeacon | x.ValidState() witness *
+
+  function method MakeCompoundBeacon(
+    base : BeaconBase,
+    split : char,
+    parts : seq<BeaconPart>, // Non-Sensitive followed by Sensitive
+    construct : ConstructorList
+  )
+    : Result<ValidCompoundBeacon, Error>
+  {
+    var x := CompoundBeacon.CompoundBeacon(base, split, parts, construct);
+    var _ :- x.ValidPrefixSetResult();
+    Success(x)
+  }
+
   datatype CompoundBeacon = CompoundBeacon(
     base : BeaconBase,
     split : char,
@@ -325,13 +340,6 @@ module CompoundBeacon {
       || OkPrefixStringPair(parts[pos1].prefix, parts[pos2].prefix)
     }
 
-    predicate method ValidPrefixSet()
-    {
-      forall x : nat, y : nat
-        | 0 <= x < |parts| && x < y < |parts|
-        :: OkPrefixPair(x, y)
-    }
-
     function method CheckOnePrefixPart(pos1 : nat, pos2 : nat) : (ret : Result<bool, Error>)
       requires pos1 < |parts|
       requires pos2 < |parts|
@@ -352,6 +360,13 @@ module CompoundBeacon {
       Success(true)
     }
 
+    predicate ValidPrefixSet()
+    {
+      forall x : nat, y : nat
+        | 0 <= x < |parts| && x < y < |parts|
+        :: OkPrefixPair(x, y)
+    }
+
     function method ValidPrefixSetResultPos(index : nat) : (ret : Result<bool, Error>)
       decreases |parts| - index
     {
@@ -363,26 +378,20 @@ module CompoundBeacon {
     }
 
     function method ValidPrefixSetResult() : (ret : Result<bool, Error>)
+      ensures ret.Success? ==> ValidPrefixSet() && ret.value
     {
-      ValidPrefixSetResultPos(0)
+      var _ :- ValidPrefixSetResultPos(0);
+      if forall x : nat, y : nat
+        | 0 <= x < |parts| && x < y < |parts|
+        :: OkPrefixPair(x, y) then
+        Success(true)
+      else
+        Failure(E("Internal Error"))
     }
 
-    function method ValidState()
-      : (ret : bool)
-      ensures ret ==>
-                //= specification/searchable-encryption/beacons.md#initialization-failure
-                //= type=implication
-                //# Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
-                //# the `prefix` of any other [part](#part).
-                && ValidPrefixSet()
+    predicate ValidState()
     {
       ValidPrefixSet()
-    }
-
-    function method ValidStateResult() : Result<bool, Error>
-    {
-      var _ :- ValidPrefixSetResult();
-      Success(true)
     }
 
     //= specification/searchable-encryption/beacons.md#part-value-calculation
