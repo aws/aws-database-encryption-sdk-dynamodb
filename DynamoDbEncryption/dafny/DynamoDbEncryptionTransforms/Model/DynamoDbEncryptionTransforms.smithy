@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 namespace aws.cryptography.dynamoDbEncryption.transforms
 
+use aws.cryptography.dynamoDbEncryption#DynamoDbEncryption
 use aws.cryptography.dynamoDbEncryption#DynamoDbTablesEncryptionConfig
+
+use aws.cryptography.dynamoDbEncryption.itemEncryptor#DynamoDbItemEncryptor
+
+use com.amazonaws.dynamodb#DynamoDB_20120810
 
 use aws.polymorph#localService
 
@@ -24,6 +29,11 @@ use aws.polymorph#localService
 @localService(
   sdkId: "DynamoDbEncryptionTransforms",
   config: DynamoDbTablesEncryptionConfig,
+  dependencies: [
+    DynamoDbEncryption,
+    DynamoDbItemEncryptor,
+    DynamoDB_20120810
+  ]
 )
 service DynamoDbEncryptionTransforms {
     version: "2022-11-21",

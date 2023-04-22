@@ -9,19 +9,32 @@ use com.amazonaws.dynamodb#AttributeMap
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#KeySchemaAttributeName
+
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
+
+use aws.cryptography.dynamoDbEncryption#DynamoDbEncryption
 use aws.cryptography.dynamoDbEncryption#AttributeActions
 use aws.cryptography.dynamoDbEncryption#LegacyConfig
-use aws.cryptography.structuredEncryption#Version
 use aws.cryptography.dynamoDbEncryption#PlaintextPolicy
+
+use aws.cryptography.structuredEncryption#Version
 
 @localService(
   sdkId: "DynamoDbItemEncryptor",
   config: DynamoDbItemEncryptorConfig,
+  dependencies: [
+    DynamoDbEncryption,
+    AwsCryptographicMaterialProviders,
+    AwsCryptographicPrimitives,
+    DynamoDB_20120810
+  ]
 )
 service DynamoDbItemEncryptor {
     version: "2022-08-26",

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 namespace aws.cryptography.structuredEncryption
 
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
@@ -12,6 +13,9 @@ use aws.polymorph#localService
 @localService(
   sdkId: "StructuredEncryption",
   config: StructuredEncryptionConfig,
+  dependencies: [
+    AwsCryptographicMaterialProviders
+  ]
 )
 service StructuredEncryption {
     version: "2022-07-08",

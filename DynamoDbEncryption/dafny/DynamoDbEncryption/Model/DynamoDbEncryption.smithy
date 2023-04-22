@@ -17,6 +17,10 @@ use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.keyStore#KeyStore
 use aws.cryptography.structuredEncryption#CryptoAction
 
+use aws.cryptography.structuredEncryption#StructuredEncryption
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeName
@@ -28,6 +32,13 @@ use com.amazonaws.dynamodb#KeySchemaAttributeName
 @localService(
   sdkId: "DynamoDbEncryption",
   config: DynamoDbEncryptionConfig,
+  dependencies: [
+    StructuredEncryption,
+    AwsCryptographicMaterialProviders,
+    AwsCryptographicPrimitives,
+    KeyStore,
+    DynamoDB_20120810
+  ]
 )
 service DynamoDbEncryption {
     version: "2022-11-21",
