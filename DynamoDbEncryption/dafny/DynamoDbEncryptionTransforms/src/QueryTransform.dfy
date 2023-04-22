@@ -77,7 +77,7 @@ module QueryTransform {
     var encryptedItems := input.sdkOutput.Items.value;
     var keyId :- GetBeaconKeyId(tableConfig, input.originalInput.KeyConditionExpression, input.originalInput.FilterExpression, input.originalInput.ExpressionAttributeValues, input.originalInput.ExpressionAttributeNames);
     var keyIdUtf8 := [];
-    if keyId.Some? {
+    if keyId.KeyId? {
       keyIdUtf8 :- UTF8.Encode(keyId.value).MapFailure(e => E(e));
     }
     ghost var originalHistory := tableConfig.itemEncryptor.History.DecryptItem;
@@ -91,7 +91,7 @@ module QueryTransform {
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
 
       var decrypted :- MapError(decryptRes);
-      if keyId.Some? {
+      if keyId.KeyId? {
         :- Need(decrypted.parsedHeader.Some?, E("Decrypted query result has no parsed header."));
         :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Query result has more than one Encrypted Data Key"));
         if decrypted.parsedHeader.value.encryptedDataKeys[0].keyProviderInfo == keyIdUtf8 {

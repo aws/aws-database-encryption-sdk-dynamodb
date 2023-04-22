@@ -23,17 +23,17 @@ module ScanTransform {
     //# If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
     //# the Scan request MUST be unchanged.
     ensures input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
-      && output.Success?
-      && output.value.transformedInput == input.sdkInput
+              && output.Success?
+              && output.value.transformedInput == input.sdkInput
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-scan
     //= type=implication
     //# The Scan request MUST NOT refer to any legacy parameters,
     //# specifically AttributesToGet, ScanFilter and ConditionalOperator MUST NOT be set.
     ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
-      && input.sdkInput.AttributesToGet.None?
-      && input.sdkInput.ScanFilter.None?
-      && input.sdkInput.ConditionalOperator.None?
+              && input.sdkInput.AttributesToGet.None?
+              && input.sdkInput.ScanFilter.None?
+              && input.sdkInput.ConditionalOperator.None?
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(ScanInputTransformOutput(transformedInput := input.sdkInput));
@@ -60,8 +60,8 @@ module ScanTransform {
     modifies ModifiesConfig(config)
 
     ensures input.originalInput.TableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? ==>
-      && output.Success?
-      && output.value.transformedOutput == input.sdkOutput
+              && output.Success?
+              && output.value.transformedOutput == input.sdkOutput
 
     ensures output.Success?  && input.sdkOutput.Items.None?  ==> output.value.transformedOutput.Items.None?
     ensures output.Success?  && input.sdkOutput.Items.Some?  ==> output.value.transformedOutput.Items.Some?
@@ -75,7 +75,7 @@ module ScanTransform {
     var encryptedItems := input.sdkOutput.Items.value;
     var keyId :- GetBeaconKeyId(tableConfig, None, input.originalInput.FilterExpression, input.originalInput.ExpressionAttributeValues, input.originalInput.ExpressionAttributeNames);
     var keyIdUtf8 := [];
-    if keyId.Some? {
+    if keyId.KeyId? {
       keyIdUtf8 :- UTF8.Encode(keyId.value).MapFailure(e => E(e));
     }
     for x := 0 to |encryptedItems|
@@ -89,7 +89,7 @@ module ScanTransform {
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
 
       var decrypted :- MapError(decryptRes);
-      if keyId.Some? {
+      if keyId.KeyId? {
         :- Need(decrypted.parsedHeader.Some?, E("Decrypted scan result has no parsed header."));
         :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Scan result has more than one Encrypted Data Key"));
         if decrypted.parsedHeader.value.encryptedDataKeys[0].keyProviderInfo == keyIdUtf8 {

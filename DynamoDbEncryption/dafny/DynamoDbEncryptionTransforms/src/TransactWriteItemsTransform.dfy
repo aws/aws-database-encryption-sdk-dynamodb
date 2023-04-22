@@ -11,6 +11,7 @@ module TransactWriteItemsTransform {
   import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
   import EncTypes = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import Seq
+  import Util = DynamoDbEncryptionUtil
 
   predicate method {:opaque} IsValid(item : DDB.TransactWriteItem) {
     || item.Put.Some?
@@ -95,7 +96,7 @@ module TransactWriteItemsTransform {
         );
         var encrypted :- MapError(encryptRes);
         var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
-        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, keyId);
+        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, Util.MaybeFromOptionKeyId(keyId));
 
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The PutItem request's `Item` field MUST be replaced

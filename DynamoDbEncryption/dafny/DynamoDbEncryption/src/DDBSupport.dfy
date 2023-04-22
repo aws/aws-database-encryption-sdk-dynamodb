@@ -120,10 +120,8 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : Option<string>)
+  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : MaybeKeyId)
     returns (output : Result<DDB.AttributeMap, Error>)
-    requires if search.Some? then search.value.ValidState() else true
-    ensures if search.Some? then search.value.ValidState() else true
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
@@ -137,8 +135,6 @@ module DynamoDBSupport {
   // returning a replacement AttributeMap.
   method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
     returns (output : Result<DDB.AttributeMap, Error>)
-    requires if search.Some? then search.value.ValidState() else true
-    ensures if search.Some? then search.value.ValidState() else true
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
@@ -263,8 +259,6 @@ module DynamoDBSupport {
   // Transform a QueryInput object for searchable encryption.
   method QueryInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput)
     returns (output : Result<DDB.QueryInput, Error>)
-    requires if search.Some? then search.value.ValidState() else true
-    ensures if search.Some? then search.value.ValidState() else true
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
@@ -289,8 +283,6 @@ module DynamoDBSupport {
     returns (output : Result<DDB.QueryOutput, Error>)
     requires resp.Items.Some?
     ensures output.Success? ==> output.value.Items.Some?
-    requires if search.Some? then search.value.ValidState() else true
-    ensures if search.Some? then search.value.ValidState() else true
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? || resp.Items.None? {
@@ -320,10 +312,10 @@ module DynamoDBSupport {
     values: Option<DDB.ExpressionAttributeValueMap>,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
-    : Result<Option<string>, Error>
+    : Result<MaybeKeyId, Error>
   {
     if search.None? then
-      Success(None)
+      Success(DontUseKeyId)
     else
       Filter.GetBeaconKeyId(search.value.curr(), keyExpr, filterExpr, values, names)
   }
@@ -331,8 +323,6 @@ module DynamoDBSupport {
   // Transform a ScanInput object for searchable encryption.
   method ScanInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput)
     returns (output : Result<DDB.ScanInput, Error>)
-    requires if search.Some? then search.value.ValidState() else true
-    ensures if search.Some? then search.value.ValidState() else true
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
@@ -354,8 +344,6 @@ module DynamoDBSupport {
     returns (ret : Result<DDB.ScanOutput, Error>)
     requires resp.Items.Some?
     ensures ret.Success? ==> ret.value.Items.Some?
-    requires if search.Some? then search.value.ValidState() else true
-    ensures if search.Some? then search.value.ValidState() else true
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {

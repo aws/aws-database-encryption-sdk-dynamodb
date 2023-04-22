@@ -87,7 +87,7 @@ module TestDynamoDBFilterExpr {
     var version := GetEmptyBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
-    var newContext :- expect Beaconize(beaconVersion, context, None);
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
     expect newContext == context;
   }
 
@@ -113,7 +113,7 @@ module TestDynamoDBFilterExpr {
     expect OpNeedsBeacon(parsed, 0);
     expect beaconVersion.beacons[parsed[0].s].getBeaconName() == "aws_dbe_b_std2";
 
-    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, None);
+    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys);
     var exprString := ParsedExprToString(newContext.expr);
     expect exprString == "aws_dbe_b_std2 <> :A AND #Field4 = :B";
   }
@@ -131,13 +131,13 @@ module TestDynamoDBFilterExpr {
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
-    var newContext :- expect Beaconize(beaconVersion, context, None);
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
     expect_equal(newContext.expr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
     var newName := "aws_dbe_b_std4";
     expect IsValid_AttributeName(newName);
     var expectedNames: DDB.ExpressionAttributeNameMap := map["#Field4" := newName];
     expect_equal(newContext.names, Some(expectedNames));
-    var itemBeacons :- expect beaconVersion.GenerateEncryptedBeacons(SimpleItem, None);
+    var itemBeacons :- expect beaconVersion.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
     expect "aws_dbe_b_std2" in itemBeacons;
     expect "aws_dbe_b_std4" in itemBeacons;
     expect_equal(newContext.values, Some(map[":A" := itemBeacons["aws_dbe_b_std2"], ":B" := itemBeacons["aws_dbe_b_std4"]]));

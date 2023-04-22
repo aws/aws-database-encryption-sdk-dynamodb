@@ -79,9 +79,9 @@ module TestBaseBeacon {
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, None);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
     var badItem := SimpleItem["Name" := DDB.AttributeValue.S("A.B")];
-    var badAttrs := bv.GenerateEncryptedBeacons(badItem, None);
+    var badAttrs := bv.GenerateEncryptedBeacons(badItem, DontUseKeyId);
     expect badAttrs.Failure?;
     expect_equal(badAttrs.error, E("Part Name for beacon Mixed has value 'A.B' which contains the split character .'."));
   }
