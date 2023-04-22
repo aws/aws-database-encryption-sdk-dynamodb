@@ -131,17 +131,24 @@ module DynamoDBSupport {
     }
   }
 
+  const VersionTag : DDB.AttributeName := VersionPrefix + "1"
+
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
   method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
     returns (output : Result<DDB.AttributeMap, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
+
+    //= specification/searchable-encryption/search-config.md#versioning
+    //= type=implication
+    //# In addition to the configured beacons, a [version tag](#version-tag) MUST also be written.
+    ensures output.Success? && search.Some? ==> VersionTag in output.value
   {
     if search.None? {
       return Success(item);
     } else {
       var newAttrs :- search.value.GenerateSignedBeacons(item);
-      var version : DDB.AttributeMap := map[VersionPrefix + "1" := DS(" ")];
+      var version : DDB.AttributeMap := map[VersionTag := DS(" ")];
       var both := newAttrs.Keys * item.Keys;
       var bad := set k <- both | newAttrs[k] != item[k];
       if 0 < |bad| {

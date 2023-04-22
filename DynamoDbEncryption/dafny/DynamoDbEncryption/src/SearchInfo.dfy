@@ -26,7 +26,11 @@ module SearchableEncryptionInfo {
   import MP = AwsCryptographyMaterialProvidersTypes
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
 
-  newtype VersionNumber = uint64
+  //= specification/searchable-encryption/search-config.md#version-number
+  //= type=implication
+  //# A version number MUST be `1`.
+  newtype VersionNumber = x : uint64 | x == 1 witness 1
+
   type ValidSearchInfo = x : SearchInfo | x.ValidState() witness *
 
   type ValidStore = x : KeyStoreTypes.IKeyStoreClient | x.ValidState() witness *
@@ -61,8 +65,16 @@ module SearchableEncryptionInfo {
     if |keysLeft| == 0 {
       return Success(acc);
     } else {
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+      //# For every [standard beacons](beacons.md#standard-beacon-initialization) an HMAC key
+      //# MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
       var key :- GetBeaconKey(client, key, keysLeft[0]);
       reveal Seq.HasNoDuplicates();
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+      //# [Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
+      //# with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
+      //# and the [HMAC Keys](#hmac-keys) equal to a map
+      //# of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
       output := GetHmacKeys(client, allKeys, keysLeft[1..], key, acc[keysLeft[0] := key]);
     }
   }
@@ -73,6 +85,34 @@ module SearchableEncryptionInfo {
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+
+    ensures output.Success? ==>
+              && var fullName := "AWS_DBE_SCAN_BEACON" + name;
+              && UTF8.Encode(fullName).Success?
+              && var info := UTF8.Encode(fullName).value;
+              && var oldHistory := old(client.History.Hkdf);
+              && var newHistory := client.History.Hkdf;
+              && |newHistory| == |oldHistory|+1
+              && Seq.Last(newHistory).output.Success?
+              && var hkdfInput := Seq.Last(newHistory).input;
+              && var hkdfOutput := Seq.Last(newHistory).output;
+              //= specification/searchable-encryption/search-config.md#hmac-key-generation
+              //= type=implication
+              //# For each beacon HKDF-SHA512 MUST be used
+              //# to calculate the key for individual beacon,
+              //# using the beacon key retrieved above as the initial key material with no salt.
+              && hkdfInput.digestAlgorithm == Prim.SHA_512
+              && hkdfInput.salt == None
+              && hkdfInput.ikm == key
+                 //= specification/searchable-encryption/search-config.md#hmac-key-generation
+                 //= type=implication
+                 //# The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" encoded as UTF8
+                 //# and the beacon name.
+              && hkdfInput.info == info
+                 //= specification/searchable-encryption/search-config.md#hmac-key-generation
+                 //= type=implication
+                 //# The `expectedLength` MUST be 64 bytes.
+              && hkdfInput.expectedLength == 64
   {
     var info :- UTF8.Encode("AWS_DBE_SCAN_BEACON" + name).MapFailure(e => E(e));
     var keyR := client.Hkdf(Prim.HkdfInput(
@@ -148,6 +188,57 @@ module SearchableEncryptionInfo {
       requires ValidState()
       modifies Modifies()
       ensures ValidState()
+
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+      //= type=implication
+      //# Get beacon key MUST Call the associated [Key Store Cache](#key-store-cache)
+      //# [Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry)
+      //# with the `beacon key id`.
+      ensures output.Success? ==>
+                && var oldHistory := old(cache.History.GetCacheEntry);
+                && var newHistory := cache.History.GetCacheEntry;
+                && |newHistory| == |oldHistory|+1
+                && Seq.Last(newHistory).output.Success?
+                && var cacheInput := Seq.Last(newHistory).input;
+                && var cacheOutput := Seq.Last(newHistory).output;
+                && UTF8.Encode(keyId).Success?
+                && cacheInput.identifier == UTF8.Encode(keyId).value
+
+                //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+                //= type=implication
+                //# If a [cache entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-entry)
+                //# exists, get beacon key MUST return the [entry materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#materials).
+                && (cacheOutput.Success? ==>
+                      && cacheOutput.value.materials.BeaconKey?
+                      && cacheOutput.value.materials.BeaconKey.hmacKeys.Some?
+                      && output.value == cacheOutput.value.materials.BeaconKey.hmacKeys.value)
+
+                && (cacheOutput.Failure? ==>
+                      && var oldGetHistory := old(store.History.GetBeaconKey);
+                      && var newGetHistory := store.History.GetBeaconKey;
+                      && |newGetHistory| == |oldGetHistory|+1
+                         //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+                         //= type=implication
+                         //# If `GetBeaconKey` fails get beacon key MUST fail.
+                      && Seq.Last(newGetHistory).output.Success?
+                      && var storeInput := Seq.Last(newGetHistory).input;
+                      && var storeOutput := Seq.Last(newGetHistory).output;
+                      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+                      //= type=implication
+                      //# The `beacon key id` MUST be passed to the configured `KeyStore`'s `GetBeaconKey` operation.
+                      && storeInput.branchKeyIdentifier == keyId
+                      && var oldPutHistory := old(cache.History.PutCacheEntry);
+                      && var newPutHistory := cache.History.PutCacheEntry;
+                      && |newPutHistory| == |oldPutHistory|+1
+                      && Seq.Last(newPutHistory).output.Success?
+                      && var storeInput := Seq.Last(newPutHistory).input;
+                      && var storeOutput := Seq.Last(newPutHistory).output;
+                      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+                      //= type=implication
+                      //# These cached materials MUST be returned.
+                      && storeInput.materials.BeaconKey.hmacKeys == Some(output.value)
+
+                   )
     {
       var keyIdBytesR := UTF8.Encode(keyId);
       var keyIdBytes :- keyIdBytesR.MapFailure(e => E(e));
@@ -157,23 +248,29 @@ module SearchableEncryptionInfo {
       var getCacheOutput := cache.GetCacheEntry(getCacheInput);
 
       if getCacheOutput.Failure? {
-        var maybeRawBranchKeyMaterials := store.GetBeaconKey(
+        //= specification/searchable-encryption/search-config.md#beacon-keys
+        //# Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key-source).
+        var maybeRawBeaconKeyMaterials := store.GetBeaconKey(
           KeyStore.GetBeaconKeyInput(
             branchKeyIdentifier := keyId,
             grantTokens := None
           )
         );
-        var rawBranchKeyMaterials :- maybeRawBranchKeyMaterials
+        var rawBeaconKeyMaterials :- maybeRawBeaconKeyMaterials
         .MapFailure(e => AwsCryptographyKeyStore(AwsCryptographyKeyStore := e));
 
-        var key := rawBranchKeyMaterials.beaconKey;
+        var key := rawBeaconKeyMaterials.beaconKey;
         var keyMap :- getAllKeys(stdNames, key);
         var beaconKeyMaterials := MP.BeaconKeyMaterials(
           beaconKeyIdentifier := keyId,
-          beaconKey := Some(rawBranchKeyMaterials.beaconKey),
+          beaconKey := Some(rawBeaconKeyMaterials.beaconKey),
           hmacKeys := Some(keyMap)
         );
 
+        //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+        //# These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
+        //# with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
+        //# equal to now + configured [cacheTTL](#cachettl).
         var now := Time.GetCurrent();
         var putCacheEntryInput:= MP.PutCacheEntryInput(
           identifier := keyIdBytes,
@@ -289,8 +386,15 @@ module SearchableEncryptionInfo {
       else
         cmp.isEncrypted()
     }
-    function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap) : Result<Option<string>, Error>
+    function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap)
+      : (ret : Result<Option<string>, Error>)
       requires !keys.DontUseKeys?
+
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-for-query
+      //= type=implication
+      //# A query MUST fail if this flag is present, and any part of the query
+      //# requires a key; that is, needs to compute a standard beacon.
+      ensures Standard? && keys.ShouldHaveKeys? ==> ret.Failure?
     {
       if Standard? then
         :- Need(keys.Keys?, E("Need key for beacon " + std.base.name + " but no keyId found in query."));
@@ -349,15 +453,15 @@ module SearchableEncryptionInfo {
       if keys.DontUseKeys? then
         Success(value)
       else
-        if Standard? then
-          :- Need(!keys.ShouldHaveKeys?, E("Need KeyId because of beacon " + std.base.name + " but no KeyId found in query"));
-          var keys := keys.value;
-          if std.base.name in keys then
-            std.GetBeaconValue(value, keys[std.base.name])
-          else
-            Failure(E("Internal error. Beacon " + std.base.name + " has no key."))
+      if Standard? then
+        :- Need(!keys.ShouldHaveKeys?, E("Need KeyId because of beacon " + std.base.name + " but no KeyId found in query"));
+        var keys := keys.value;
+        if std.base.name in keys then
+          std.GetBeaconValue(value, keys[std.base.name])
         else
-          cmp.GetBeaconValue(value, keys)
+          Failure(E("Internal error. Beacon " + std.base.name + " has no key."))
+      else
+        cmp.GetBeaconValue(value, keys)
     }
     predicate ValidState()
     {
@@ -551,6 +655,10 @@ module SearchableEncryptionInfo {
       ensures ValidState()
       modifies Modifies()
     {
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-after-encrypt
+      //# The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`
+      //# MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
+      //# and the result returned for Get beacon key after encrypt.
       var hmacKeys :- getKeyMap(keyId);
       output := GenerateBeacons2(beaconNames, item, hmacKeys, EncryptedBeacon);
     }

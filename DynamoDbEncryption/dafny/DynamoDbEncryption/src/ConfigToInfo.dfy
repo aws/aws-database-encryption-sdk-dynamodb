@@ -41,6 +41,15 @@ module SearchConfigToInfo {
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
+    //= specification/searchable-encryption/search-config.md#initialization
+    //= type=implication
+    //# Initialization MUST fail if the [version number](#version-number) is not `1`.
+    ensures outer.search.Some? && outer.search.value.writeVersion != 1 ==> output.Failure?
+
+    //= specification/searchable-encryption/search-config.md#initialization
+    //= type=implication
+    //# Initialization MUST fail if the length of the list of [beacon versions](#beacon-version) is not 1.
+    ensures outer.search.Some? && |outer.search.value.versions| != 1 ==> output.Failure?
   {
     if outer.search.None? {
       return Success(None);
@@ -67,7 +76,11 @@ module SearchConfigToInfo {
 
   // return true if, `keyFieldName` should be deleted from an item before writing
   function method ShouldDeleteKeyField(outer : DynamoDbTableEncryptionConfig, keyFieldName : string)
-    : Result<bool, Error>
+    : (ret : Result<bool, Error>)
+    ensures
+      && keyFieldName in outer.attributeActions
+      && outer.attributeActions[keyFieldName] == SE.ENCRYPT_AND_SIGN
+      ==> ret.Failure?
   {
     if keyFieldName !in outer.attributeActions then
       Success(true)
@@ -93,11 +106,33 @@ module SearchConfigToInfo {
               && output.value.ValidState()
               && output.value.client == client
               && output.value.store == keyStore
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
+    //# and the [beacon key field name](#beacon-key-field-name)
+    //# is a [configured field](#configured-field)
+    //# with [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign).
+    ensures
+      && config.multi?
+      && config.multi.keyFieldName in outer.attributeActions
+      && outer.attributeActions[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
+      ==> output.Failure?
   {
     var mplR := MaterialProviders.MaterialProviders();
     var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
-    var cacheSize := if config.multi? then config.multi.maxCacheSize else 3;
+
+    //= specification/searchable-encryption/search-config.md#key-store-cache
+    //# For a [Single Key Store](#single-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# MUST be 1
+    //# For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# MUST be key store's max cache size.
+    var cacheSize := if config.multi? then config.multi.maxCacheSize else 1;
     :- Need(0 < cacheSize, E("maxCacheSize must be at least 1."));
+
+    //= specification/searchable-encryption/search-config.md#key-store-cache
+    //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
+    //# MUST be created.
     var input := MPT.CreateCryptographicMaterialsCacheInput(
       entryCapacity := cacheSize,
       entryPruningTailSize := None
@@ -123,6 +158,17 @@ module SearchConfigToInfo {
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if the [version number](#version number) is not `1`.
+    ensures config.version != 1 ==> output.Failure?
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon)
+    //# is not provided.
+    ensures |config.standardBeacons| == 0 ==> output.Failure?
   {
     :- Need(config.version == 1, E("Version number in BeaconVersion must be '1'."));
     :- Need(0 < |config.standardBeacons|, E("At least one standard beacon must be configured."));
@@ -149,6 +195,10 @@ module SearchConfigToInfo {
   {
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
     var beacons :- ConvertBeacons(outer, source.client, virtualFields, config.standardBeacons, config.compoundBeacons);
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //# Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
+    //# and the name of any of the following match the [beacon key field name](#beacon-key-field-name)
     if source.keyLoc.MultiLoc? {
       var name := source.keyLoc.keyName;
       if name in beacons {
@@ -208,8 +258,9 @@ module SearchConfigToInfo {
   }
 
   // does this name already exists as a configured attribute, or virtual field
-  function method BeaconNameAllowed(outer : DynamoDbTableEncryptionConfig, virtualFields : V.VirtualFieldMap, name : string, context : string)
-    : Result<bool, Error>
+  function method {:opaque} BeaconNameAllowed(outer : DynamoDbTableEncryptionConfig, virtualFields : V.VirtualFieldMap, name : string, context : string)
+    : (ret : Result<bool, Error>)
+    ensures name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN ==> ret.Failure?
   {
     if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
       Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
@@ -254,7 +305,21 @@ module SearchConfigToInfo {
     vf : seq<AwsCryptographyDynamoDbEncryptionTypes.VirtualField>,
     outer : DynamoDbTableEncryptionConfig,
     converted : V.VirtualFieldMap := map[])
-    : Result<V.VirtualFieldMap, Error>
+    : (ret : Result<V.VirtualFieldMap, Error>)
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if the name of any [virtual fields](virtual.md#virtual-field) matches that
+    //# of any [configured field](#configured-field).
+    ensures 0 < |vf| && VirtualFieldNameAllowed(outer, vf[0].name).Failure? ==> ret.Failure?
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if any [virtual field](virtual.md#virtual-field) is not signed.
+    ensures 0 < |vf| && (
+              || V.ParseVirtualFieldConfig(vf[0]).Failure?
+              || V.ParseVirtualFieldConfig(vf[0]).value.examine((t : TermLoc) => !IsSigned(outer, t))
+            ) ==> ret.Failure?
   {
     if |vf| == 0 then
       Success(converted)
@@ -293,15 +358,32 @@ module SearchConfigToInfo {
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if there is any duplicates among the names of the
+    //# [standard beacons](beacons.md#standard-beacon)
+    ensures 0 < |beacons| && beacons[0].name in converted ==> output.Failure?
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if the name of any [standard beacon](beacons.md#standard-beacon)
+    //# matches that of any unencrypted [configured field](#configured-field).
+    ensures 0 < |beacons| && beacons[0].name in outer.attributeActions && outer.attributeActions[beacons[0].name] != SE.ENCRYPT_AND_SIGN ==> output.Failure?
   {
     if |beacons| == 0 {
       return Success(converted);
     }
     :- Need(beacons[0].name !in converted, E("Duplicate StandardBeacon name : " + beacons[0].name));
     var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon");
-    var locString := if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name;
+    var locString := GetLocStr(beacons[0].name, beacons[0].loc);
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString);
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
+    //# reference by a [standard beacon](beacons.md#standard-beacon) is not `encrypted`.
     :- Need(IsEncryptedV(outer, virtualFields, newBeacon.loc), E("StandardBeacon " + beacons[0].name + " not defined on an encrypted field."));
+
     var badBeacon := FindBeaconWithThisLocation(converted, newBeacon.loc);
     if badBeacon.Some? {
       return Failure(E("Beacon " + beacons[0].name + " is defined on location " + TermLocToString(newBeacon.loc)
@@ -345,6 +427,18 @@ module SearchConfigToInfo {
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
     ensures ret.Success? ==> |ret.value| == origSize
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
+    //# reference by a [non-sensitive part](beacons.md#non-sensitive-part) is `encrypted`,
+    //# or is not `signed`.
+    ensures
+      (&& 0 < |parts|
+       && GetLoc(parts[0].name, parts[0].loc).Success?
+       && var loc := GetLoc(parts[0].name, parts[0].loc).value;
+       && !IsSignOnly(outer, CB.NonSensitive(parts[0].prefix, parts[0].name, loc).loc))
+      ==> ret.Failure?
   {
     if |parts| == 0 then
       Success(converted)
@@ -453,6 +547,25 @@ module SearchConfigToInfo {
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if there is any duplicates among the names of the
+    //# [compound beacons](beacons.md#compound-beacon)
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if the name of a
+    //# [compound beacons](beacons.md#compound-beacon)
+    //# matches the name of a
+    //# [standard beacons](beacons.md#standard-beacon)
+    ensures 0 < |beacons| && beacons[0].name in converted ==> output.Failure?
+
+    //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+    //= type=implication
+    //# Initialization MUST fail if the name of any [compound beacon](beacons.md#compound-beacon)
+    //# matches that of any unencrypted [configured field](#configured-field).
+    ensures 0 < |beacons| && beacons[0].name in outer.attributeActions && outer.attributeActions[beacons[0].name] != SE.ENCRYPT_AND_SIGN ==> output.Failure?
   {
     if |beacons| == 0 {
       return Success(converted);

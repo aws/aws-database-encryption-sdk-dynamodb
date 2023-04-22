@@ -13,7 +13,7 @@
 
 The search config holds the configuration for all of the searchable configuration functionality.
 
-It MUST be an optional part of the [item encryptor config](../dynamodb-encryption-client/ddb-item-encryptor.md).
+The search config MUST be an optional part of the [item encryptor config](../dynamodb-encryption-client/ddb-item-encryptor.md).
 
 Although [versioning](#versioning) is not yet supported, it exists in the configuration, so that the configuration will not need to change when we add versioning.
 
@@ -44,17 +44,18 @@ On initialization of a Beacon Version, the caller MUST provide:
 
  - A [version number](#version number)
  - A [Beacon Key Source](#beacon-key-source)
+ - A [Keystore](#keystore)
+ - A list of [standard beacons](beacons.md#standard-beacon-initialization)
 
 On initialization of the Beacon Version, the caller MAY provide:
 
- - a list of [standard beacons](beacons.md#standard-beacon-initialization)
- - a list of [compound beacons](beacons.md#compound-beacon-initialization)
- - a list of [virtual fields](virtual.md#virtual-field-initialization)
+ - A list of [compound beacons](beacons.md#compound-beacon-initialization)
+ - A list of [virtual fields](virtual.md#virtual-field-initialization)
 
 Initialization MUST fail if the [version number](#version number) is not `1`.
 
-Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon) or
-[compound beacon](beacons.md#compound-beacon) is not provided.
+Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon)
+is not provided.
 
 Initialization MUST fail if the name of any [virtual fields](virtual.md#virtual-field) matches that
 of any [configured field](#configured-field).
@@ -71,13 +72,21 @@ is a [configured field](#configured-field)
 with [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign).
 
 Initialization MUST fail if the name of any [standard beacon](beacons.md#standard-beacon)
-or [compound beacon](beacons.md#compound-beacon)
 matches that of any unencrypted [configured field](#configured-field).
 
-Initialization MUST fail if there is any overlap among the names of the
+Initialization MUST fail if the name of any [compound beacon](beacons.md#compound-beacon)
+matches that of any unencrypted [configured field](#configured-field).
+
+Initialization MUST fail if there is any duplicates among the names of the
 [standard beacons](beacons.md#standard-beacon)
+
+Initialization MUST fail if there is any duplicates among the names of the
 [compound beacons](beacons.md#compound-beacon)
-or [virtual fields](virtual.md#virtual-field).
+
+Initialization MUST fail if the name of a
+[compound beacons](beacons.md#compound-beacon)
+matches the name of a
+[standard beacons](beacons.md#standard-beacon)
 
 A [terminal location](virtual.md#terminal-location) is considered `signed` if
 the field that contains it is [SIGN_ONLY](../structured-encryption/structures.md#sign_only)
@@ -98,9 +107,6 @@ Initialization MUST fail if the [terminal location](virtual.md#terminal-location
 reference by a [standard beacon](beacons.md#standard-beacon) is not `encrypted`.
 
 Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
-reference by a [sensitive part](beacons.md#sensitive-part) is not `encrypted`.
-
-Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
 reference by a [non-sensitive part](beacons.md#non-sensitive-part) is `encrypted`,
 or is not `signed`.
 
@@ -119,7 +125,8 @@ using the new version.
 If such a change is necessary, one adds another [beacon versions](#beacon-version-initialization)
 with the next higher [version number](#version number).
 
-When a record is written, its beacons are generated using the version designated in the [search config](#initialization). In addition to the configured beacons, a [version tag](#version-tag) MUST also be written.
+When a record is written, its beacons are generated using the version designated in the [search config](#initialization).
+In addition to the configured beacons, a [version tag](#version-tag) MUST also be written.
 
 When a querying a database, it might be necessary to make multiple queries, one per version,
 to successfully find all the records.
@@ -134,8 +141,9 @@ For version `N`, the name of the version tag is `aws_dbe_vN` and the value of th
 
 ## Beacon Key Source
 
-A Beacon Version needs to be able to get beacon keys.
-This defines two flavors of source.
+On initialization of a Beacon Key Source, the caller MUST provide exactly one of
+ * a [Single Key Store](#single-key-store-initialization)
+ * a [Multi Key Store](#multi-key-store-initialization)
 
 ### Single Key Store Initialization
 
@@ -145,7 +153,6 @@ This can also be described as single tenant.
 
 On initialization of a Single Key Store, the caller MUST provide:
 
- - [Keystore](#keystore)
  - [Beacon Key Id](#beacon-key-id)
  - [cacheTTL](#cachettl)
 
@@ -157,7 +164,6 @@ This can also be described as multi tenant.
 
 On initialization of a Multi Key Store, the caller MUST provide:
 
- - [Keystore](#keystore)
  - [Beacon Key Field Name](#beacon-key-field-name)
  - [cacheTTL](#cachettl)
  - [max cache size](#max-cache-size)
@@ -196,11 +202,11 @@ that the [Key Store Cache](#key-store-cache) will be configured to.
 
 ### Key Store Cache
 
- For a Beacon Key Source a [Local CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md)
+ For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
  MUST be created.
- For a [Single Key Store](#single-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#entry-capacity)
+ For a [Single Key Store](#single-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
  MUST be 1
- For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#entry-capacity)
+ For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
  MUST be key store's max cache size.
 
  The Key Store Cache MUST be bound to the Beacon Key Source.
@@ -254,22 +260,18 @@ If the [Beacon Key Source](#beacon-key-source) is a [Single Key Store](#single-k
 then `beacon key id` MUST be the configured [beacon key id](#beacon-key-id)
 
 If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key-store-initialization)
-then construct a list of all [compound beacons](./beacons.md#compound-beacon)
-that have a [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
-with a `name` equal to the [Beacon Key Field Name](#beacon-key-field-name).
-If this list of compound beacons is empty then get beacon key for query MUST fail.
-
-Construct a list of filter expression and key condition expression
-from the [Query Object]
-whose names are equal to the [compound beacons](./beacons.md#compound-beacon) found.
-If this list of expression is empty get beacon key for query MUST fail.
-
-For each expression value
-extract the value of the [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
+then for each Key Condition Expression or Filter Expression,
+extract the value of any [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
+of any [compound beacons](beacons.md#compound-beacon)
 with the `name` that equals [Beacon Key Field Name](#beacon-key-field-name)
 and construct a list of beacon key ids.
 
-If this list of beacon key ids is empty get beacon key for query MUST fail.
+If this list of beacon key ids is empty get beacon key for query MUST
+return a flag indication this.
+
+A query MUST fail if this flag is present, and any part of the query
+requires a key; that is, needs to compute a standard beacon.
+
 If this list of beacon key ids has more than one unique beacon key id
 then get beacon key for query MUST fail.
 
@@ -288,7 +290,7 @@ Get beacon key MUST Call the associated [Key Store Cache](#key-store-cache)
 with the `beacon key id`.
 
 If a [cache entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-entry)
-exist get beacon key MUST return the [entry materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#materials).
+exists, get beacon key MUST return the [entry materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#materials).
 
 The `beacon key id` MUST be passed to the configured `KeyStore`'s `GetBeaconKey` operation.
 If `GetBeaconKey` fails get beacon key MUST fail.

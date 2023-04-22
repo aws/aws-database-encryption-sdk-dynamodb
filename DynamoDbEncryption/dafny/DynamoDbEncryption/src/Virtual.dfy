@@ -56,6 +56,8 @@ module DdbVirtualFields {
     name : string,
     parts : seq<VirtPart>
   ) {
+
+    // return true if exam(part) returns true for any part
     function method {:opaque} examine(exam: Examiner)
       : (ret : bool)
       ensures !ret ==> forall s <- parts :: !exam(s.loc)
@@ -78,6 +80,7 @@ module DdbVirtualFields {
     }
   }
 
+  // return true if exam(part) returns true for any part
   function method {:opaque} Examine(parts : seq<VirtPart>, exam : Examiner)
     : (ret : bool)
     ensures !ret ==> forall s <- parts :: !exam(s.loc)
