@@ -8,13 +8,13 @@ import software.amazon.cryptography.dynamoDbEncryption.DynamoDbKeyBranchKeyIdSup
 import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbKeyBranchKeyIdSupplier;
 
 public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
-  private final DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
+  private final IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
 
   protected CreateDynamoDbEncryptionBranchKeyIdSupplierInput(BuilderImpl builder) {
     this.ddbKeyBranchKeyIdSupplier = builder.ddbKeyBranchKeyIdSupplier();
   }
 
-  public DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier() {
+  public IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier() {
     return this.ddbKeyBranchKeyIdSupplier;
   }
 
@@ -29,13 +29,13 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
   public interface Builder {
     Builder ddbKeyBranchKeyIdSupplier(IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier);
 
-    DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier();
+    IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier();
 
     CreateDynamoDbEncryptionBranchKeyIdSupplierInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
+    protected IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
 
     protected BuilderImpl() {
     }
@@ -50,7 +50,7 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
       return this;
     }
 
-    public DynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier() {
+    public IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier() {
       return this.ddbKeyBranchKeyIdSupplier;
     }
 

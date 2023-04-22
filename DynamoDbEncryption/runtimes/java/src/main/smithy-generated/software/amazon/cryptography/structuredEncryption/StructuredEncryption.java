@@ -29,6 +29,10 @@ public class StructuredEncryption {
     this._impl = result.dtor_value();
   }
 
+  StructuredEncryption(IStructuredEncryptionClient impl) {
+    this._impl = impl;
+  }
+
   public static Builder builder() {
     return new BuilderImpl();
   }

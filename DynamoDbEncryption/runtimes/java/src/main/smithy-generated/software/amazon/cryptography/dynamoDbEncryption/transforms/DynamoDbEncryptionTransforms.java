@@ -89,6 +89,10 @@ public class DynamoDbEncryptionTransforms {
     this._impl = result.dtor_value();
   }
 
+  DynamoDbEncryptionTransforms(IDynamoDbEncryptionTransformsClient impl) {
+    this._impl = impl;
+  }
+
   public static Builder builder() {
     return new BuilderImpl();
   }

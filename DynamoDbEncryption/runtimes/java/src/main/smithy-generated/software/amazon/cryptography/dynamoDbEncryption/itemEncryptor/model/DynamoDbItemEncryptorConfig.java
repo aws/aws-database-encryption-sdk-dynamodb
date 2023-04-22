@@ -30,9 +30,9 @@ public class DynamoDbItemEncryptorConfig {
 
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
-  private final Keyring keyring;
+  private final IKeyring keyring;
 
-  private final CryptographicMaterialsManager cmm;
+  private final ICryptographicMaterialsManager cmm;
 
   private final LegacyConfig legacyConfig;
 
@@ -80,11 +80,11 @@ public class DynamoDbItemEncryptorConfig {
     return this.algorithmSuiteId;
   }
 
-  public Keyring keyring() {
+  public IKeyring keyring() {
     return this.keyring;
   }
 
-  public CryptographicMaterialsManager cmm() {
+  public ICryptographicMaterialsManager cmm() {
     return this.cmm;
   }
 
@@ -135,11 +135,11 @@ public class DynamoDbItemEncryptorConfig {
 
     Builder keyring(IKeyring keyring);
 
-    Keyring keyring();
+    IKeyring keyring();
 
     Builder cmm(ICryptographicMaterialsManager cmm);
 
-    CryptographicMaterialsManager cmm();
+    ICryptographicMaterialsManager cmm();
 
     Builder legacyConfig(LegacyConfig legacyConfig);
 
@@ -167,9 +167,9 @@ public class DynamoDbItemEncryptorConfig {
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
-    protected Keyring keyring;
+    protected IKeyring keyring;
 
-    protected CryptographicMaterialsManager cmm;
+    protected ICryptographicMaterialsManager cmm;
 
     protected LegacyConfig legacyConfig;
 
@@ -261,7 +261,7 @@ public class DynamoDbItemEncryptorConfig {
       return this;
     }
 
-    public Keyring keyring() {
+    public IKeyring keyring() {
       return this.keyring;
     }
 
@@ -270,7 +270,7 @@ public class DynamoDbItemEncryptorConfig {
       return this;
     }
 
-    public CryptographicMaterialsManager cmm() {
+    public ICryptographicMaterialsManager cmm() {
       return this.cmm;
     }
 

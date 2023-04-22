@@ -8,13 +8,13 @@ import software.amazon.cryptography.materialProviders.BranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 
 public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
-  private final BranchKeyIdSupplier branchKeyIdSupplier;
+  private final IBranchKeyIdSupplier branchKeyIdSupplier;
 
   protected CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(BuilderImpl builder) {
     this.branchKeyIdSupplier = builder.branchKeyIdSupplier();
   }
 
-  public BranchKeyIdSupplier branchKeyIdSupplier() {
+  public IBranchKeyIdSupplier branchKeyIdSupplier() {
     return this.branchKeyIdSupplier;
   }
 
@@ -29,13 +29,13 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
   public interface Builder {
     Builder branchKeyIdSupplier(IBranchKeyIdSupplier branchKeyIdSupplier);
 
-    BranchKeyIdSupplier branchKeyIdSupplier();
+    IBranchKeyIdSupplier branchKeyIdSupplier();
 
     CreateDynamoDbEncryptionBranchKeyIdSupplierOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BranchKeyIdSupplier branchKeyIdSupplier;
+    protected IBranchKeyIdSupplier branchKeyIdSupplier;
 
     protected BuilderImpl() {
     }
@@ -49,7 +49,7 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
       return this;
     }
 
-    public BranchKeyIdSupplier branchKeyIdSupplier() {
+    public IBranchKeyIdSupplier branchKeyIdSupplier() {
       return this.branchKeyIdSupplier;
     }
 

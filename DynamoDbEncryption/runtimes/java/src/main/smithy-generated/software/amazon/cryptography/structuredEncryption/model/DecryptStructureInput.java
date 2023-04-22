@@ -15,7 +15,7 @@ public class DecryptStructureInput {
 
   private final AuthenticateSchema authenticateSchema;
 
-  private final CryptographicMaterialsManager cmm;
+  private final ICryptographicMaterialsManager cmm;
 
   private final Map<String, String> encryptionContext;
 
@@ -39,7 +39,7 @@ public class DecryptStructureInput {
     return this.authenticateSchema;
   }
 
-  public CryptographicMaterialsManager cmm() {
+  public ICryptographicMaterialsManager cmm() {
     return this.cmm;
   }
 
@@ -70,7 +70,7 @@ public class DecryptStructureInput {
 
     Builder cmm(ICryptographicMaterialsManager cmm);
 
-    CryptographicMaterialsManager cmm();
+    ICryptographicMaterialsManager cmm();
 
     Builder encryptionContext(Map<String, String> encryptionContext);
 
@@ -86,7 +86,7 @@ public class DecryptStructureInput {
 
     protected AuthenticateSchema authenticateSchema;
 
-    protected CryptographicMaterialsManager cmm;
+    protected ICryptographicMaterialsManager cmm;
 
     protected Map<String, String> encryptionContext;
 
@@ -133,7 +133,7 @@ public class DecryptStructureInput {
       return this;
     }
 
-    public CryptographicMaterialsManager cmm() {
+    public ICryptographicMaterialsManager cmm() {
       return this.cmm;
     }
 

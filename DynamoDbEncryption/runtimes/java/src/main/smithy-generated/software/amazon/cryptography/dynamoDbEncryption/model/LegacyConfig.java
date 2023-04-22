@@ -12,7 +12,7 @@ import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 public class LegacyConfig {
   private final LegacyPolicy policy;
 
-  private final LegacyDynamoDbEncryptor encryptor;
+  private final ILegacyDynamoDbEncryptor encryptor;
 
   private final Map<String, CryptoAction> attributeFlags;
 
@@ -29,7 +29,7 @@ public class LegacyConfig {
     return this.policy;
   }
 
-  public LegacyDynamoDbEncryptor encryptor() {
+  public ILegacyDynamoDbEncryptor encryptor() {
     return this.encryptor;
   }
 
@@ -56,7 +56,7 @@ public class LegacyConfig {
 
     Builder encryptor(ILegacyDynamoDbEncryptor encryptor);
 
-    LegacyDynamoDbEncryptor encryptor();
+    ILegacyDynamoDbEncryptor encryptor();
 
     Builder attributeFlags(Map<String, CryptoAction> attributeFlags);
 
@@ -72,7 +72,7 @@ public class LegacyConfig {
   static class BuilderImpl implements Builder {
     protected LegacyPolicy policy;
 
-    protected LegacyDynamoDbEncryptor encryptor;
+    protected ILegacyDynamoDbEncryptor encryptor;
 
     protected Map<String, CryptoAction> attributeFlags;
 
@@ -102,7 +102,7 @@ public class LegacyConfig {
       return this;
     }
 
-    public LegacyDynamoDbEncryptor encryptor() {
+    public ILegacyDynamoDbEncryptor encryptor() {
       return this.encryptor;
     }
 

@@ -27,6 +27,10 @@ public class DynamoDbEncryption {
     this._impl = result.dtor_value();
   }
 
+  DynamoDbEncryption(IDynamoDbEncryptionClient impl) {
+    this._impl = impl;
+  }
+
   public static Builder builder() {
     return new BuilderImpl();
   }

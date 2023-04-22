@@ -16,7 +16,7 @@ public class EncryptStructureInput {
 
   private final CryptoSchema cryptoSchema;
 
-  private final CryptographicMaterialsManager cmm;
+  private final ICryptographicMaterialsManager cmm;
 
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -43,7 +43,7 @@ public class EncryptStructureInput {
     return this.cryptoSchema;
   }
 
-  public CryptographicMaterialsManager cmm() {
+  public ICryptographicMaterialsManager cmm() {
     return this.cmm;
   }
 
@@ -78,7 +78,7 @@ public class EncryptStructureInput {
 
     Builder cmm(ICryptographicMaterialsManager cmm);
 
-    CryptographicMaterialsManager cmm();
+    ICryptographicMaterialsManager cmm();
 
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
@@ -98,7 +98,7 @@ public class EncryptStructureInput {
 
     protected CryptoSchema cryptoSchema;
 
-    protected CryptographicMaterialsManager cmm;
+    protected ICryptographicMaterialsManager cmm;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -148,7 +148,7 @@ public class EncryptStructureInput {
       return this;
     }
 
-    public CryptographicMaterialsManager cmm() {
+    public ICryptographicMaterialsManager cmm() {
       return this.cmm;
     }
 
