@@ -156,13 +156,15 @@ module CompoundBeacon {
       Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
     }
 
-    function method FindAndCalcPart(value : string, keys : HmacKeyMap) : Result<string, Error>
+    function method FindAndCalcPart(value : string, keys : MaybeKeyMap) : Result<string, Error>
+      requires !keys.DontUseKeys?
     {
       var part :- partFromPrefix(parts, value);
       PartValueCalc(value, part.prefix, keys, part)
     }
 
-    function method GetBeaconValue(value : DDB.AttributeValue, keys : HmacKeyMap) : Result<DDB.AttributeValue, Error>
+    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap) : Result<DDB.AttributeValue, Error>
+      requires !keys.DontUseKeys?
     {
       if !value.S? then
         Failure(E("CompoundBeacon " + base.name + " can only be queried as a string, not as " + AttrTypeToStr(value)))
@@ -177,7 +179,7 @@ module CompoundBeacon {
       consFields : seq<ConstructorPart>,
       item : DDB.AttributeMap,
       vf : VirtualFieldMap,
-      keys : Option<HmacKeyMap>,
+      keys : MaybeKeyMap,
       acc : string := "")
       : (ret : Result<Option<string>, Error>)
       ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
@@ -193,10 +195,10 @@ module CompoundBeacon {
         if strValue.Some? then
           :- Need(split !in strValue.value, E("Part " + part.getName() + " for beacon " + base.name + " has value '" + strValue.value + "' which contains the split character " + [split] + "'."));
           var val :-
-            if keys.None? then
+            if keys.DontUseKeys? then
               Success(part.prefix + strValue.value)
             else
-              PartValueCalc(part.prefix + strValue.value, part.prefix, keys.value, part);
+              PartValueCalc(part.prefix + strValue.value, part.prefix, keys, part);
           if |acc| == 0 then
             TryConstructor(consFields[1..], item, vf, keys, val)
           else
@@ -211,7 +213,7 @@ module CompoundBeacon {
       construct : seq<Constructor>,
       item : DDB.AttributeMap,
       vf : VirtualFieldMap,
-      keys : Option<HmacKeyMap>
+      keys : MaybeKeyMap
     )
       : (ret : Result<Option<string>, Error>)
       ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
@@ -226,18 +228,18 @@ module CompoundBeacon {
           TryConstructors(construct[1..], item, vf, keys)
     }
 
-    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : HmacKeyMap) : (res : Result<Option<string>, Error>)
+    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 && |res.value.value| > 0
     {
-      TryConstructors(construct, item, vf, Some(keys))
+      TryConstructors(construct, item, vf, keys)
     }
 
     function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 && |res.value.value| > 0
     {
-      TryConstructors(construct, item, vf, None)
+      TryConstructors(construct, item, vf, DontUseKeys)
     }
 
     function method {:opaque} findPart(val : string)
@@ -301,13 +303,13 @@ module CompoundBeacon {
                 //# * The [Part Value](#part-value-calculation) MUST be calculated for each piece,
                 //# using the prefix and length from the discovered part.
                 && var thePart := findPart(piece).value;
-                && PartValueCalc(piece, thePart.prefix, keys, thePart).Success?
-                && ret.value == PartValueCalc(piece, thePart.prefix, keys, thePart).value
+                && PartValueCalc(piece, thePart.prefix, Keys(keys), thePart).Success?
+                && ret.value == PartValueCalc(piece, thePart.prefix, Keys(keys), thePart).value
 
       ensures findPart(piece).Failure? ==> ret.Failure?
     {
       var thePart :- findPart(piece);
-      PartValueCalc(piece, thePart.prefix, keys, thePart)
+      PartValueCalc(piece, thePart.prefix, Keys(keys), thePart)
     }
 
     function method calcParts(pieces : seq<string>, keys : HmacKeyMap, acc : string := [])
@@ -394,7 +396,7 @@ module CompoundBeacon {
       ValidPrefixSet()
     }
 
-    function method {:opaque} PartValueCalc(data : string, prefix : string, keys : HmacKeyMap, part : BeaconPart)
+    function method {:opaque} PartValueCalc(data : string, prefix : string, keys : MaybeKeyMap, part : BeaconPart)
       : (ret : Result<string, Error>)
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
@@ -402,6 +404,7 @@ module CompoundBeacon {
       requires prefix <= data
       requires 0 < |prefix|
       requires prefix == part.getPrefix()
+      requires !keys.DontUseKeys?
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
@@ -418,14 +421,16 @@ module CompoundBeacon {
       //# of the prefix and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
       ensures part.Sensitive? && ret.Success? ==>
                 && 0 < |ret.value|
-                && part.beacon.hashStr(data, keys).Success?
-                && ret.value == prefix + part.beacon.hashStr(data, keys).value
+                && keys.Keys?
+                && part.beacon.hashStr(data, keys.value).Success?
+                && ret.value == prefix + part.beacon.hashStr(data, keys.value).value
                 && split !in data
     {
       :- Need(split !in data, E("Value '" + data + "' for beacon part " + part.getName() + " contains the split character '" + [split] + "'."));
       match part {
         case Sensitive(p, b) =>
-          var hash :- b.hashStr(data, keys);
+          :- Need(keys.Keys?, E("Need KeyId for beacon " + b.base.name + " but no KeyId found in query."));
+          var hash :- b.hashStr(data, keys.value);
           Success(prefix + hash)
         case NonSensitive =>
           Success(data)

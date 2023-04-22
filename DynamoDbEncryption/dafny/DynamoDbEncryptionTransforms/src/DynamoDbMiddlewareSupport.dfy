@@ -19,6 +19,7 @@ module DynamoDbMiddlewareSupport {
   import opened BS = DynamoDBSupport
   import opened DdbMiddlewareConfig
   import AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
+  import Util = DynamoDbEncryptionUtil
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // Generally this means that no attribute names starts with "aws_dbe_"
@@ -74,7 +75,7 @@ module DynamoDbMiddlewareSupport {
 
   // GetEncryptedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning just the new items.
-  method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Option<string>)
+  method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Util.MaybeKeyId)
     returns (output : Result<DDB.AttributeMap, Error>)
     requires AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
@@ -91,7 +92,7 @@ module DynamoDbMiddlewareSupport {
     values: Option<DDB.ExpressionAttributeValueMap>,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
-    : Result<Option<string>, Error>
+    : Result<Util.MaybeKeyId, Error>
   {
     BS.GetBeaconKeyId(config.search, keyExpr, filterExpr, values, names)
       .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))

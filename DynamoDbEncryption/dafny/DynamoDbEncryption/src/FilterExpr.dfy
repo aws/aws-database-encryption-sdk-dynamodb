@@ -452,7 +452,7 @@ module DynamoDBFilterExpr {
     pos : nat,
     values: DDB.ExpressionAttributeValueMap,
     names : Option<DDB.ExpressionAttributeNameMap>,
-    keys : Option<HmacKeyMap>,
+    keys : MaybeKeyMap,
     acc : seq<Token> := []
   )
     : Result<ParsedContext, Error>
@@ -465,7 +465,7 @@ module DynamoDBFilterExpr {
       var isIndirectName := "#" <= expr[pos].s;
       :- Need(!isIndirectName || (names.Some? && expr[pos].s in names.value), E("Name " + expr[pos].s + " not in ExpressionAttributeNameMap."));
       var oldName := if isIndirectName then names.value[expr[pos].s] else expr[pos].s;
-      var exclude := keys.None? && !IsAllowedOnBeaconPred(expr, pos);
+      var exclude := keys.DontUseKeys? && !IsAllowedOnBeaconPred(expr, pos);
       if b.IsBeacon(oldName) && !exclude then
         var _ :- IsAllowedOnBeacon(expr, pos, oldName);
         if OpNeedsBeacon(expr, pos) then
@@ -1356,7 +1356,7 @@ module DynamoDBFilterExpr {
       if KeyExpression.Some? {
         var parsed :- GetParsedExpr(KeyExpression.value);
         var parsed2 := ParseExpr(KeyExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed2, 0, values.UnwrapOr(map[]), names, None);
+        var expr :- BeaconizeParsedExpr(b, parsed2, 0, values.UnwrapOr(map[]), names, DontUseKeys);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
         afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values);
@@ -1365,7 +1365,7 @@ module DynamoDBFilterExpr {
       }
       if FilterExpression.Some? {
         var parsed := ParseExpr(FilterExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, None);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
         output := FilterItems(b, expr2, afterKeys, expr.names, expr.values);
@@ -1490,19 +1490,19 @@ module DynamoDBFilterExpr {
     values: Option<DDB.ExpressionAttributeValueMap>,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
-    : Result<Option<string>, Error>
+    : Result<MaybeKeyId, Error>
   {
     if !bv.keySource.keyLoc.MultiLoc? then
-      Success(None)
+      Success(DontUseKeyId)
     else if values.None? then
-      Failure(E("No values found for " + bv.keySource.keyLoc.keyName + " in query."))
+      Success(ShouldHaveKeyId)
     else
       var soFar :- GetBeaconKeyIds(bv, keyExpr, values.value, names, []);
       var final :- GetBeaconKeyIds(bv, filterExpr, values.value, names, soFar);
       if |final| == 1 then
-        Success(Some(final[0]))
+        Success(KeyId(final[0]))
       else if |final| == 0 then
-        Failure(E("No values found for " + bv.keySource.keyLoc.keyName + " in query."))
+        Success(ShouldHaveKeyId)
       else
         Failure(E("Multiple values found for " + bv.keySource.keyLoc.keyName + " in query : " + Join(final, ", ")))
   }
@@ -1524,7 +1524,7 @@ module DynamoDBFilterExpr {
   method Beaconize(
     b : SI.BeaconVersion,
     context : ExprContext,
-    keyId : Option<string>,
+    keyId : MaybeKeyId,
     naked : bool := false
   )
     returns (output : Result<ExprContext, Error>)
@@ -1536,10 +1536,9 @@ module DynamoDBFilterExpr {
       return Success(context);
     } else {
       var parsed := ParseExpr(context.expr.value);
-      var keys := None;
+      var keys := DontUseKeys;
       if !naked {
-        var k :- b.getKeyMap(keyId);
-        keys := Some(k);
+        keys :- b.getKeyMap(keyId);
       }
       var context :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, context.names, keys);
       var exprString := ParsedExprToString(context.expr);
