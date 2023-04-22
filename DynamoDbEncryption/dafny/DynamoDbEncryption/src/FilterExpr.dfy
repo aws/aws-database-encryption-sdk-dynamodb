@@ -1538,7 +1538,7 @@ module DynamoDBFilterExpr {
       var parsed := ParseExpr(context.expr.value);
       var keys := DontUseKeys;
       if !naked {
-        var keys :- b.getKeyMap(keyId);
+        keys :- b.getKeyMap(keyId);
       }
       var context :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, context.names, keys);
       var exprString := ParsedExprToString(context.expr);
