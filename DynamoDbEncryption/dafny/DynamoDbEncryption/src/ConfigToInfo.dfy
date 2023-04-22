@@ -316,10 +316,20 @@ module SearchConfigToInfo {
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //= type=implication
     //# Initialization MUST fail if any [virtual field](virtual.md#virtual-field) is not signed.
-    ensures 0 < |vf| && (
+    ensures (0 < |vf| && (
               || V.ParseVirtualFieldConfig(vf[0]).Failure?
               || V.ParseVirtualFieldConfig(vf[0]).value.examine((t : TermLoc) => !IsSigned(outer, t))
-            ) ==> ret.Failure?
+            )) ==> ret.Failure?
+
+//= specification/searchable-encryption/virtual.md#virtual-field-initialization
+//= type=implication
+//# Initialization MUST fail if two virtual fields are defined with the same set of locations.
+    ensures ret.Success? && 0 < |vf| ==>
+      && vf[0].name !in converted
+      && V.ParseVirtualFieldConfig(vf[0]).Success?
+      && var newField := V.ParseVirtualFieldConfig(vf[0]).value;
+      && !newField.examine((t : TermLoc) => !IsSigned(outer, t))
+      && FindVirtualFieldWithThisLocation(converted, newField.GetLocs()).None?
   {
     if |vf| == 0 then
       Success(converted)
@@ -370,6 +380,18 @@ module SearchConfigToInfo {
     //# Initialization MUST fail if the name of any [standard beacon](beacons.md#standard-beacon)
     //# matches that of any unencrypted [configured field](#configured-field).
     ensures 0 < |beacons| && beacons[0].name in outer.attributeActions && outer.attributeActions[beacons[0].name] != SE.ENCRYPT_AND_SIGN ==> output.Failure?
+
+    ensures output.Success? && 0 < |beacons| ==>
+      && beacons[0].name !in converted
+      && var locString := GetLocStr(beacons[0].name, beacons[0].loc);
+      && MakeTermLoc(locString).Success?
+      && var loc := MakeTermLoc(locString).value;
+      && FindBeaconWithThisLocation(converted, loc).None?
+      //= specification/searchable-encryption/virtual.md#virtual-field-initialization
+      //= type=implication
+      //# Initialization MUST fail if a virtual field is defined with only one location,
+      //# and also a [standard beacon](beacons.md#standard-beacon) is defined with that same location.
+      && FindVirtualFieldWithThisLocation(virtualFields, {loc}).None?
   {
     if |beacons| == 0 {
       return Success(converted);

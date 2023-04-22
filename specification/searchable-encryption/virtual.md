@@ -53,7 +53,7 @@ The evaluation of a Virtual Part MUST be the value of its location,
 which is then transformed by each Virtual Transform,
 in the order they are configured.
 
-Evaluation MUST fail if the location does not exist,
+Evaluation MUST return no value if the location does not exist,
 or is not a plain string value.
 
  ### Virtual Transform Initialization
@@ -97,12 +97,16 @@ On initialization of a GetPrefix Transform, the caller MUST provide:
 
  * length : an integer
 
+If length is non-negative, the GetPrefix transform MUST return the first `length` characters of the input.
+
+If length is non-negative, and length exceeds the length of the string, the input string MUST be returned.
+
 If length is negative, then the GetPrefix transform MUST return
 all but the last `-length` character of the input.
 
-Otherwise, the GetPrefix transform MUST return the first `length` characters of the input.
+If length is negative and -length exceeds the length on the input,
+the empty string MUST be returned.
 
-In either case, if length exceeds the length of the string, an empty string MUST be returned.
 
 ### GetSuffix Transform Initialization
 
@@ -110,20 +114,23 @@ On initialization of a GetSuffix Transform, the caller MUST provide:
 
  * length : an integer
 
+If length is non-negative, the GetSuffix transform MUST return the last `length` characters of the input.
+
+If length is non-negative, and length exceeds the length of the string, the input string MUST be returned.
+
 If length is negative, then the GetSuffix transform MUST return
 all but the first `-length` character of the input.
 
-Otherwise, the GetSuffix transform MUST return the last `length` characters of the input.
-
-In either case, if length exceeds the length of the string, an empty string MUST be returned.
+If length is negative and -length exceeds the length on the input,
+the empty string MUST be returned.
 
 ### Position Definition
 
 The transforms below refer to positions within a list.
 
-If the position provided is positive, it is the zero-based index from the start of the list.
+If the position provided is positive, it MUST be the zero-based index from the start of the list.
 
-If the position provided is negative, it's absolute value is the
+If the position provided is negative, it's absolute value MUST be the
 one-based index from the start of the list, i.e. -1 refers to the last item in the list.
 
 Positions are always clamped to the bounds of the list. That is `-999999999` refers to the first item in the list, and `999999999` refers to the position just after the last item in the list.
@@ -165,7 +172,7 @@ The GetSegments transform MUST MUST split the input string on the given characte
 and return the range of parts from low (inclusive) to high (exclusive),
 joined on the `split` character.
 
-If high is less than or equal to low, an empty string is returned.
+If high is less than or equal to low, an empty string MUST be returned.
 
 ### Terminal Location
 

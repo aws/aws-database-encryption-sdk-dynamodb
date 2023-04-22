@@ -109,7 +109,25 @@ module DdbVirtualFields {
       x
   }
 
-  function method GetPrefix(s : string, length : int) : string
+  function method GetPrefix(s : string, length : int) : (ret : string)
+    //= specification/searchable-encryption/virtual.md#getprefix-transform-initialization
+    //= type=implication
+    //# If length is non-negative, the GetPrefix transform MUST return the first `length` characters of the input.
+    ensures 0 <= length <= |s| ==> ret == s[..length]
+    //= specification/searchable-encryption/virtual.md#getprefix-transform-initialization
+    //= type=implication
+    //# If length is non-negative, and length exceeds the length of the string, the input string MUST be returned.
+    ensures |s| < length ==> ret == s
+    //= specification/searchable-encryption/virtual.md#getprefix-transform-initialization
+    //= type=implication
+    //# If length is negative, then the GetPrefix transform MUST return
+    //# all but the last `-length` character of the input.
+    ensures length < 0 && 0 <= -length <= |s| ==> ret == s[..|s| + length]
+    //= specification/searchable-encryption/virtual.md#getprefix-transform-initialization
+    //= type=implication
+    //# If length is negative and -length exceeds the length on the input,
+    //# the empty string MUST be returned.
+    ensures length < 0 && |s| < -length ==> ret == ""
   {
     if length >= 0 then
       s[..Min(length, |s|)]
@@ -117,7 +135,25 @@ module DdbVirtualFields {
       s[..|s| - Min(-length, |s|)]
   }
 
-  function method GetSuffix(s : string, length : int) : string
+  function method GetSuffix(s : string, length : int) : (ret : string)
+    //= specification/searchable-encryption/virtual.md#getsuffix-transform-initialization
+    //= type=implication
+    //# If length is non-negative, the GetSuffix transform MUST return the last `length` characters of the input.
+    ensures 0 <= length <= |s| ==> ret == s[|s|-length..]
+    //= specification/searchable-encryption/virtual.md#getsuffix-transform-initialization
+    //= type=implication
+    //# If length is non-negative, and length exceeds the length of the string, the input string MUST be returned.
+    ensures |s| < length ==> ret == s
+    //= specification/searchable-encryption/virtual.md#getsuffix-transform-initialization
+    //= type=implication
+    //# If length is negative, then the GetSuffix transform MUST return
+    //# all but the first `-length` character of the input.
+    ensures length < 0 && 0 <= -length <= |s| ==> ret == s[-length..]
+    //= specification/searchable-encryption/virtual.md#getsuffix-transform-initialization
+    //= type=implication
+    //# If length is negative and -length exceeds the length on the input,
+    //# the empty string MUST be returned.
+    ensures length < 0 && |s| < -length ==> ret == ""
   {
     if length >= 0 then
       s[|s| - Min(length, |s|)..]
@@ -128,6 +164,19 @@ module DdbVirtualFields {
   // this returns the inclusive value
   function method GetPos(pos : int, limit : nat) : (ret : nat)
     ensures (limit == 0) || (ret < limit)
+    ensures limit == 0 ==> ret == 0
+    ensures 0 < limit ==>
+              //= specification/searchable-encryption/virtual.md#position-definition
+              //= type=implication
+              //# If the position provided is positive, it MUST be the zero-based index from the start of the list.
+              && (0 <= pos < limit ==> ret == pos)
+              && (limit <= pos ==> ret == limit-1)
+                 //= specification/searchable-encryption/virtual.md#position-definition
+                 //= type=implication
+                 //# If the position provided is negative, it's absolute value MUST be the
+                 //# one-based index from the start of the list, i.e.
+              && (0 < -pos < limit ==> ret == limit + pos)
+              && (limit <= -pos ==> ret == 0)
   {
     if limit == 0 then
       0
@@ -154,17 +203,23 @@ module DdbVirtualFields {
     ensures GetPos(-6,5) == 0
   {}
 
-  function method GetSubstring(s : string, low : int, high : int) : string
+  function method GetSubstring(s : string, low : int, high : int) : (ret : string)
+    //= specification/searchable-encryption/virtual.md#getsubstring-transform-initialization
+    //= type=implication
+    //# The GetSubstring transform MUST return the range of characters
+    //# from low (inclusive) to high (exclusive)
+    ensures
+      && var lo := GetPos(low, |s|);
+      && var hi := GetPos(high, |s|);
+      && (lo < hi ==> ret == s[lo..hi])
+      && (lo >= hi ==> ret == "")
   {
-    if |s| == 0 then
-      ""
+    var lo := GetPos(low, |s|);
+    var hi := GetPos(high, |s|);
+    if lo < hi then
+      s[lo..hi]
     else
-      var lo := GetPos(low, |s|);
-      var hi := GetPos(high, |s|);
-      if lo < hi then
-        s[lo..hi]
-      else
-        ""
+      ""
   }
   function method UpperChar(ch : char) : char
   {
@@ -173,7 +228,11 @@ module DdbVirtualFields {
     else
       ch
   }
-  function method UpperCase(s : string) : string
+  function method UpperCase(s : string) : (ret : string)
+    //= specification/searchable-encryption/virtual.md#upper-transform-initialization
+    //= type=implication
+    //# The Upper transform MUST convert all ascii lowercase characters into their uppercase equivalents.
+    ensures  ret == Seq.Map(c => UpperChar(c), s)
   {
     Seq.Map(c => UpperChar(c), s)
   }
@@ -184,11 +243,27 @@ module DdbVirtualFields {
     else
       ch
   }
-  function method LowerCase(s : string) : string
+  function method LowerCase(s : string) : (ret : string)
+    //= specification/searchable-encryption/virtual.md#lower-transform-initialization
+    //= type=implication
+    //# The Lower transform MUST convert all ascii uppercase characters into their lowercase equivalents.
+    ensures  ret == Seq.Map(c => LowerChar(c), s)
   {
     Seq.Map(c => LowerChar(c), s)
   }
-  function method GetSegment(s : string, split : char, index : int) : string
+
+  function method GetSegment(s : string, split : char, index : int) : (ret : string)
+    ensures
+      && var parts := Split(s, split);
+      //= specification/searchable-encryption/virtual.md#getsegment-transform-initialization
+      //= type=implication
+      //# If index is greater than the number of items in the list, and empty string MUST be returned.
+      && (index >= |parts| || -index > |parts| ==> ret == "")
+         //= specification/searchable-encryption/virtual.md#getsegment-transform-initialization
+         //= type=implication
+         //# The GetSegment transform MUST split the input string on the given character,
+         //# and return the item in the resulting list the corresponds to the given position.
+      && (index < |parts| && -index <= |parts| ==> ret == parts[GetPos(index, |parts|)])
   {
     var parts := Split(s, split);
     if index >= |parts| || -index > |parts| then
@@ -196,7 +271,23 @@ module DdbVirtualFields {
     else
       parts[GetPos(index, |parts|)]
   }
-  function method GetSegments(s : string, split : char, low : int, high : int) : string
+
+  function method GetSegments(s : string, split : char, low : int, high : int) : (ret : string)
+    ensures
+      && var parts := Split(s, split);
+      && var lo := GetPos(low, |parts|);
+      && var hi := GetPos(high, |parts|);
+      //= specification/searchable-encryption/virtual.md#getsegments-transform-initialization
+      //= type=implication
+      //# The GetSegment transform MUST split the input string on the `split` character,
+      //# The GetSegments transform MUST MUST split the input string on the given character,
+      //# and return the range of parts from low (inclusive) to high (exclusive),
+      //# joined on the `split` character.
+      && (lo < hi ==> ret == Join(parts[lo..hi], [split]))
+         //= specification/searchable-encryption/virtual.md#getsegments-transform-initialization
+         //= type=implication
+         //# If high is less than or equal to low, an empty string MUST be returned.
+      && (lo >= hi ==> ret == "")
   {
     var parts := Split(s, split);
     var lo := GetPos(low, |parts|);
@@ -206,7 +297,11 @@ module DdbVirtualFields {
     else
       ""
   }
-  function method DoTransform(t : VirtualTransform, s : string) : string
+  function method DoTransform(t : VirtualTransform, s : string) : (ret : string)
+    //= specification/searchable-encryption/virtual.md#insert-transform-initialization
+    //= type=implication
+    //# The Insert transform MUST append this string to its input
+    ensures t.insert? ==> ret == s + t.insert.literal
   {
     match t {
       case upper(up) => UpperCase(s)
@@ -219,6 +314,7 @@ module DdbVirtualFields {
       case segments(seg) => GetSegments(s, seg.split[0], seg.low as int, seg.high as int)
     }
   }
+
   function method FullTransform(t : seq<VirtualTransform>, s : string) : string
   {
     if |t| == 0 then
@@ -235,7 +331,15 @@ module DdbVirtualFields {
     item : DDB.AttributeMap,
     acc : string := ""
   )
-    : Result<Option<string>, Error>
+    : (ret : Result<Option<string>, Error>)
+    //= specification/searchable-encryption/virtual.md#virtual-part-initialization
+    //= type=implication
+    //# Evaluation MUST return no value if the location does not exist,
+    //# or is not a plain string value.
+    ensures ret.Success? && 0 < |parts| ==>
+              && TermLoc.TermToString(parts[0].loc, item).Success?
+              && (TermLoc.TermToString(parts[0].loc, item).value.None? ==> ret.value.None?)
+
   {
     if |parts| == 0 then
       Success(Some(acc))
@@ -244,7 +348,14 @@ module DdbVirtualFields {
       if value.None? then
         Success(None)
       else
+        //= specification/searchable-encryption/virtual.md#virtual-part-initialization
+        //# The evaluation of a Virtual Part MUST be the value of its location,
+        //# which is then transformed by each Virtual Transform,
+        //# in the order they are configured.
         var trans := FullTransform(parts[0].trans, value.value);
+        //= specification/searchable-encryption/virtual.md#virtual-field-initialization
+        //# The evaluation of a Virtual Field MUST be the concatenation of all of its parts,
+        //# in the order they are configured.
         GetVirtField2(parts[1..], item, acc + trans)
   }
 

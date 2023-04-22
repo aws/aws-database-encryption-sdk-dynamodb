@@ -64,13 +64,13 @@ module ExecuteTransactionTransformTest {
       ConsumedCapacity := None()
     );
     var statement := GetStatement("foo");
+    var pstatement := DDB.ParameterizedStatement (
+      Statement := statement,
+      Parameters := None()
+    );
+    var pstatements := GetPStatements([pstatement]);
     var input := DDB.ExecuteTransactionInput(
-      TransactStatements :=  [
-        DDB.ParameterizedStatement (
-          Statement := statement,
-          Parameters := None()
-        )
-      ],
+      TransactStatements := pstatements,
       ClientRequestToken := None(),
       ReturnConsumedCapacity := None()
     );

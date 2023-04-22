@@ -98,7 +98,10 @@ module BaseBeacon {
     length : BeaconLength,
     loc : string
   )
-    : Result<ValidStandardBeacon, Error>
+    : (ret : Result<ValidStandardBeacon, Error>)
+    ensures ret.Success? ==>
+      && TermLoc.MakeTermLoc(loc).Success?
+      && ret.value.loc == TermLoc.MakeTermLoc(loc).value
   {
     var termLoc :- TermLoc.MakeTermLoc(loc);
     var beaconName := BeaconPrefix + name;
