@@ -6,12 +6,14 @@ on:
   push:
     branches:
       - main
-
+  # TODO: pior to GA, enable Run once a day
+  # schedule:
+  #   - cron: '0 0 * * *'
+  
 jobs:
   testJava:
     strategy:
       matrix:
-        java-version: [ 8, 11, 16, 17 ]
         os: [
           # TODO just test on mac for now
           #windows-latest,
@@ -62,11 +64,11 @@ jobs:
           echo "CODEARTIFACT_URL_JAVA_CONVERSION=$URL" >> $GITHUB_ENV
           echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
 
-      - name: Setup Java ${{ matrix.java-version }}
+      - name: Setup Java 8 
         uses: actions/setup-java@v3
         with:
           distribution: 'corretto'
-          java-version: ${{ matrix.java-version }}
+          java-version: 8
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
@@ -83,7 +85,7 @@ jobs:
           make build_java CORES=$CORES
           make mvn_local_deploy
 
-      - name: Test Examples
+      - name: Test Java 8 Examples
         working-directory: ./Examples
         run: |
           # Run simple examples
@@ -92,3 +94,74 @@ jobs:
           gradle -p runtimes/java/Migration/AWSDBE test
           gradle -p runtimes/java/Migration/DDBEC test
 
+      - name: Setup Java 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: 11
+
+      - name: Clean Examples for next Java
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          gradle -p runtimes/java/DynamoDbEncryption clean
+          # Run migration examples
+          gradle -p runtimes/java/Migration/AWSDBE clean
+          gradle -p runtimes/java/Migration/DDBEC clean
+          
+      - name: Test Java 11 Examples
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          gradle -p runtimes/java/DynamoDbEncryption test 
+          # Run migration examples
+          gradle -p runtimes/java/Migration/AWSDBE test
+          gradle -p runtimes/java/Migration/DDBEC test
+
+      - name: Setup Java 16
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: 16
+
+      - name: Clean Examples for next Java
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          gradle -p runtimes/java/DynamoDbEncryption clean
+          # Run migration examples
+          gradle -p runtimes/java/Migration/AWSDBE clean
+          gradle -p runtimes/java/Migration/DDBEC clean
+          
+      - name: Test Java 16 Examples
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          gradle -p runtimes/java/DynamoDbEncryption test 
+          # Run migration examples
+          gradle -p runtimes/java/Migration/AWSDBE test
+          gradle -p runtimes/java/Migration/DDBEC test
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: 17
+
+      - name: Clean Examples for next Java
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          gradle -p runtimes/java/DynamoDbEncryption clean
+          # Run migration examples
+          gradle -p runtimes/java/Migration/AWSDBE clean
+          gradle -p runtimes/java/Migration/DDBEC clean
+          
+      - name: Test Java 17 Examples
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          gradle -p runtimes/java/DynamoDbEncryption test 
+          # Run migration examples
+          gradle -p runtimes/java/Migration/AWSDBE test
+          gradle -p runtimes/java/Migration/DDBEC test
