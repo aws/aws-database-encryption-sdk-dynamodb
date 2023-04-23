@@ -38,7 +38,7 @@ public class BeaconConfig {
    * using the encryption client.
    */
 
-  public static DynamoDbClient SetupBeaconConfig(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
+  public static DynamoDbClient SetupBeaconConfig(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 1. Create Keystore and branch key.
     //    These are the same constructions as in the Basic examples, which describe this in more detail.
@@ -50,8 +50,6 @@ public class BeaconConfig {
             .kmsKeyArn(branchKeyWrappingKmsKeyArn)
             .build())
         .build();
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
-    String branchKeyId = output.branchKeyIdentifier();
 
     // 2. Create standard beacons
     //    For this example, we use a standard beacon length of 4.

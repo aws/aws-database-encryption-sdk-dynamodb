@@ -68,7 +68,7 @@ public class CompoundBeaconSearchableEncryptionExample {
 
   static String GSI_NAME = "location-index";
 
-  public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
+  public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 1. Create Beacons.
     //    These are the same beacons as in the "BasicSearchableEncryptionExample" in this directory.
@@ -141,7 +141,7 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     compoundBeaconList.add(cpbeacon1);
 
-    // 4. Create Keystore and branch key.
+    // 4. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
     KeyStore keyStore = KeyStore.builder()
         .KeyStoreConfig(KeyStoreConfig.builder()
@@ -151,8 +151,6 @@ public class CompoundBeaconSearchableEncryptionExample {
             .kmsKeyArn(branchKeyWrappingKmsKeyArn)
             .build())
         .build();
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
-    String branchKeyId = output.branchKeyIdentifier();
 
     // 5. Create BeaconVersion.
     //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
@@ -281,11 +279,13 @@ public class CompoundBeaconSearchableEncryptionExample {
 
   public static void main(final String[] args) {
     if (args.length != 4) {
-      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
+      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyId as args[1], "
+              + "branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
     }
     final String ddbTableName = args[0];
-    final String branchKeyWrappingKmsKeyId = args[1];
-    final String branchKeyDdbTableName = args[2];
-    PutItemQueryItemWithCompoundBeacon(ddbTableName, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
+    final String branchKeyId = args[1];
+    final String branchKeyWrappingKmsKeyId = args[2];
+    final String branchKeyDdbTableName = args[3];
+    PutItemQueryItemWithCompoundBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
   }
 }
