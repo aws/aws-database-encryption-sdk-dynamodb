@@ -131,7 +131,7 @@ The transforms below refer to positions within a list.
 If the position provided is positive, it MUST be the zero-based index from the start of the list.
 
 If the position provided is negative, it's absolute value MUST be the
-one-based index from the start of the list, i.e. -1 refers to the last item in the list.
+one-based index from the end of the list, that is, -1 refers to the last item in the list.
 
 Positions are always clamped to the bounds of the list. That is `-999999999` refers to the first item in the list, and `999999999` refers to the position just after the last item in the list.
 
@@ -157,7 +157,7 @@ On initialization of a GetSegment Transform, the caller MUST provide:
 The GetSegment transform MUST split the input string on the given character,
 and return the item in the resulting list the corresponds to the given position.
 
-If index is greater than the number of items in the list, and empty string MUST be returned.
+If index is greater than the number of items in the list, an empty string MUST be returned.
 
 ### GetSegments Transform Initialization
 
@@ -167,9 +167,9 @@ On initialization of a GetSegments Transform, the caller MUST provide:
  * low : an integer [position](#position-definition)
  * high : an integer [position](#position-definition)
 
-The GetSegment transform MUST split the input string on the `split` character,
-The GetSegments transform MUST MUST split the input string on the given character,
-and return the range of parts from low (inclusive) to high (exclusive),
+The GetSegments transform MUST split the input string on the `split` character.
+
+GetSegments MUST return the range of parts from low (inclusive) to high (exclusive),
 joined on the `split` character.
 
 If high is less than or equal to low, an empty string MUST be returned.

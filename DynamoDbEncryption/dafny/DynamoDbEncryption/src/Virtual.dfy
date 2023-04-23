@@ -174,7 +174,7 @@ module DdbVirtualFields {
                  //= specification/searchable-encryption/virtual.md#position-definition
                  //= type=implication
                  //# If the position provided is negative, it's absolute value MUST be the
-                 //# one-based index from the start of the list, i.e.
+                 //# one-based index from the end of the list, that is, -1 refers to the last item in the list.
               && (0 < -pos < limit ==> ret == limit + pos)
               && (limit <= -pos ==> ret == 0)
   {
@@ -257,7 +257,7 @@ module DdbVirtualFields {
       && var parts := Split(s, split);
       //= specification/searchable-encryption/virtual.md#getsegment-transform-initialization
       //= type=implication
-      //# If index is greater than the number of items in the list, and empty string MUST be returned.
+      //# If index is greater than the number of items in the list, an empty string MUST be returned.
       && (index >= |parts| || -index > |parts| ==> ret == "")
          //= specification/searchable-encryption/virtual.md#getsegment-transform-initialization
          //= type=implication
@@ -274,19 +274,20 @@ module DdbVirtualFields {
 
   function method GetSegments(s : string, split : char, low : int, high : int) : (ret : string)
     ensures
+      //= specification/searchable-encryption/virtual.md#getsegments-transform-initialization
+      //= type=implication
+      //# The GetSegments transform MUST split the input string on the `split` character.
       && var parts := Split(s, split);
       && var lo := GetPos(low, |parts|);
       && var hi := GetPos(high, |parts|);
       //= specification/searchable-encryption/virtual.md#getsegments-transform-initialization
       //= type=implication
-      //# The GetSegment transform MUST split the input string on the `split` character,
-      //# The GetSegments transform MUST MUST split the input string on the given character,
-      //# and return the range of parts from low (inclusive) to high (exclusive),
+      //# GetSegments MUST return the range of parts from low (inclusive) to high (exclusive),
       //# joined on the `split` character.
       && (lo < hi ==> ret == Join(parts[lo..hi], [split]))
-         //= specification/searchable-encryption/virtual.md#getsegments-transform-initialization
-         //= type=implication
-         //# If high is less than or equal to low, an empty string MUST be returned.
+      //= specification/searchable-encryption/virtual.md#getsegments-transform-initialization
+      //= type=implication
+      //# If high is less than or equal to low, an empty string MUST be returned.
       && (lo >= hi ==> ret == "")
   {
     var parts := Split(s, split);

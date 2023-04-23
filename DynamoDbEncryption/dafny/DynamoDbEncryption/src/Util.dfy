@@ -20,6 +20,12 @@ module DynamoDbEncryptionUtil {
   // as long as nothing in the query needs a key
   // The two "ShouldHave" enums below indicate that case
   // The query MUST fail if the mode is "ShouldHave" and a standard beacon is used
+  //
+  // Counterintuitively, DontUseKeys and DontUseKeyId are very different things.
+  // DontUseKeyId is the usual thing for single tenant, meaning to use the pre-configured
+  // KeyId, rather than fnd a new one from somewhere.
+  // DontUseKeys means to not hash the values into beacons,
+  // but to leave them plaintext, which is necessary for the post-query filtering.
   datatype MaybeKeyMap =
     | DontUseKeys
     | ShouldHaveKeys

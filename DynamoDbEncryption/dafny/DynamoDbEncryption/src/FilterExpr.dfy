@@ -1499,27 +1499,27 @@ module DynamoDBFilterExpr {
     ensures !bv.keySource.keyLoc.MultiLoc? ==> ret == Success(DontUseKeyId)
 
     ensures ret.Success? && bv.keySource.keyLoc.MultiLoc? && values.Some? ==>
-      && GetBeaconKeyIds(bv, keyExpr, values.value, names, []).Success?
-      && var soFar := GetBeaconKeyIds(bv, keyExpr, values.value, names, []).value;
-      && GetBeaconKeyIds(bv, filterExpr, values.value, names, soFar).Success?
-      && var final := GetBeaconKeyIds(bv, filterExpr, values.value, names, soFar).value;
+              && GetBeaconKeyIds(bv, keyExpr, values.value, names, []).Success?
+              && var soFar := GetBeaconKeyIds(bv, keyExpr, values.value, names, []).value;
+              && GetBeaconKeyIds(bv, filterExpr, values.value, names, soFar).Success?
+              && var final := GetBeaconKeyIds(bv, filterExpr, values.value, names, soFar).value;
 
-//= specification/searchable-encryption/search-config.md#get-beacon-key-for-query
-//= type=implication
-//# If this list of beacon key ids is empty get beacon key for query MUST
-//# return a flag indication this.
-      && (|final| == 0 ==> ret == Success(ShouldHaveKeyId))
+              //= specification/searchable-encryption/search-config.md#get-beacon-key-for-query
+              //= type=implication
+              //# If this list of beacon key ids is empty get beacon key for query MUST
+              //# return a flag indicating this.
+              && (|final| == 0 ==> ret == Success(ShouldHaveKeyId))
 
-//= specification/searchable-encryption/search-config.md#get-beacon-key-for-query
-//= type=implication
-//# `beacon key id` MUST be this unique value.
-      && (|final| == 1 ==> ret == Success(KeyId(final[0])))
+              //= specification/searchable-encryption/search-config.md#get-beacon-key-for-query
+              //= type=implication
+              //# `beacon key id` MUST be this unique value.
+              && (|final| == 1 ==> ret == Success(KeyId(final[0])))
 
-//= specification/searchable-encryption/search-config.md#get-beacon-key-for-query
-//= type=implication
-//# If this list of beacon key ids has more than one unique beacon key id
-//# then get beacon key for query MUST fail.
-      && (|final| > 1 ==> ret.Failure?)
+              //= specification/searchable-encryption/search-config.md#get-beacon-key-for-query
+              //= type=implication
+              //# If this list of beacon key ids has more than one unique beacon key id
+              //# then get beacon key for query MUST fail.
+              && (|final| > 1 ==> ret.Failure?)
   {
     if !bv.keySource.keyLoc.MultiLoc? then
       Success(DontUseKeyId)

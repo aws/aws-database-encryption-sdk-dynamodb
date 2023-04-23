@@ -199,6 +199,9 @@ module SearchConfigToInfo {
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //# Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
     //# and the name of any of the following match the [beacon key field name](#beacon-key-field-name)
+    //# - [virtual fields](virtual.md#virtual-field)
+    //# - [standard beacons](beacons.md#standard-beacon)
+    //# - [compound beacons](beacons.md#compound-beacon)
     if source.keyLoc.MultiLoc? {
       var name := source.keyLoc.keyName;
       if name in beacons {

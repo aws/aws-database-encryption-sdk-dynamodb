@@ -267,7 +267,7 @@ with the `name` that equals [Beacon Key Field Name](#beacon-key-field-name)
 and construct a list of beacon key ids.
 
 If this list of beacon key ids is empty get beacon key for query MUST
-return a flag indication this.
+return a flag indicating this.
 
 A query MUST fail if this flag is present, and any part of the query
 requires a key; that is, needs to compute a standard beacon.
