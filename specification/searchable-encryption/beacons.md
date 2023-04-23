@@ -319,8 +319,7 @@ Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
 the `prefix` of any other [part](#part).
 
 Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part-initialization) contains
-any part of an encrypted field, or any [sensitive-part](#sensitive-part-initialization) fails to contain
-some part of an encrypted field.
+anything but SIGN_ONLY fields.
 
 Initialization MUST fail if any [constructor](#constructor) is configured with a field name
 that is not a defined [part](#part).
@@ -367,7 +366,7 @@ a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-cli
 on the `split character`,
 excluding parts that are not required and with a source field that is not available.
  * This operation MUST fail if any plaintext value used in the construction contains the split character.
- * If no constructor, this operation must return no value.
+ * If no constructor succeeds, this operation MUST return no value.
 
 ### getPart for a standard beacon
 

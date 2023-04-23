@@ -114,6 +114,9 @@ module
           return Failure(E("Beacons cannot be configured with CryptoActions : " + Join(badBeacons, ", ")));
         }
         :- Need(forall k <- signedBeacons :: DDB.IsValid_AttributeName(k), E("Beacon configured with bad name"));
+        //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+        //# This new NonSensitiveBeacons MUST be added to [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
+        //# as a [SIGN_ONLY](../structured-encryption/structures.md#sign_only) action.
         var newActions := AddActions(signedBeacons, inputConfig.attributeActions);
 
         var encryptorConfig := AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.DynamoDbItemEncryptorConfig(

@@ -39,6 +39,9 @@ module BaseBeacon {
     nameonly beaconName: DDB.AttributeName
   ) {
 
+    //= specification/searchable-encryption/beacons.md#basichash
+    //= type=implication
+    //# * basicHash MUST take an [hmac key](./search-config.md#hmac-key-generation), a [beacon length](#beacon-length) and a sequence of bytes as input.
     function method {:opaque} hash(val : Bytes, key : Bytes, length : BeaconLength)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
@@ -47,6 +50,10 @@ module BaseBeacon {
                 //# * basicHash MUST produce a non-empty string as output.
                 && |ret.value| > 0
 
+                //= specification/searchable-encryption/beacons.md#basichash
+                //= type=implication
+                //# * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+                //# of the input bytes and the [hmac key](./search-config.md#hmac-key-generation), and keep the first 8 bytes.
                 && getHmac(val, key).Success?
                 && var hash := getHmac(val, key).value;
 
@@ -100,8 +107,8 @@ module BaseBeacon {
   )
     : (ret : Result<ValidStandardBeacon, Error>)
     ensures ret.Success? ==>
-      && TermLoc.MakeTermLoc(loc).Success?
-      && ret.value.loc == TermLoc.MakeTermLoc(loc).value
+              && TermLoc.MakeTermLoc(loc).Success?
+              && ret.value.loc == TermLoc.MakeTermLoc(loc).value
   {
     var termLoc :- TermLoc.MakeTermLoc(loc);
     var beaconName := BeaconPrefix + name;
@@ -145,7 +152,25 @@ module BaseBeacon {
         hash(str.value, keys[base.name])
     }
 
-    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : Result<Option<string>, Error>
+    //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
+    //= type=implication
+    //# * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional string.
+    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : (ret : Result<Option<string>, Error>)
+      ensures ret.Success? ==>
+                && VirtToBytes(loc, item, vf).Success?
+                   //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
+                   //= type=implication
+                   //# * This operation MUST convert the attribute value of the associated field to
+                   //# a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
+                && var bytes := VirtToBytes(loc, item, vf).value;
+                //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
+                //= type=implication
+                //# * This operation MUST return no value if the associated field does not exist in the record
+                && (bytes.None? ==> ret.value.None?)
+                   //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
+                   //= type=implication
+                   //# * This operation MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
+                && (bytes.Some? ==> ret.value.Some? && hash(bytes.value, key).Success? && ret.value.value == hash(bytes.value, key).value)
     {
       var bytes :- VirtToBytes(loc, item, vf);
       if bytes.None? then
@@ -175,6 +200,9 @@ module BaseBeacon {
       Success(DDB.AttributeValue.S(h))
     }
 
+    //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
+    //= type=implication
+    //# * getPart MUST take an [hmac key](./search-config.md#hmac-key-generation), a sequence of bytes as input, and produce a string.
     function method {:opaque} getPart(val : Bytes, key : Bytes)
       : (ret : Result<string, Error>)
       requires 0 < |val|

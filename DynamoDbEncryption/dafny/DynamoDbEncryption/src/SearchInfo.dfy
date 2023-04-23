@@ -645,6 +645,19 @@ module SearchableEncryptionInfo {
       ensures ValidState()
       modifies Modifies()
     {
+      //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+      //# AddNonSensitiveBeacons MUST only operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
+      //# that do not have any [sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
+
+      //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+      //# For every configured compound beacons which only contains non sensitive parts
+      //# that can be successfully built from the attributes in the input AttributeMap,
+      //# AddNonSensitiveBeacons MUST add an attribute named NAME,
+      //# where NAME is the name of the beacon.
+
+      //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+      //# The value of this attribute MUST be a string,
+      //# and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
       output := GenerateBeacons2(beaconNames, item, DontUseKeys, SignedBeacon);
     }
 
@@ -659,7 +672,30 @@ module SearchableEncryptionInfo {
       //# The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`
       //# MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
       //# and the result returned for Get beacon key after encrypt.
+
+      //= specification/dynamodb-encryption-client/ddb-support.md#getsensitivebeacons
+      //# To obtain [Beacon Key Materials] GetSensitiveBeacons
+      //# MUST call [Get beacon key after encrypt](../searchable-encryption/search-config.md#get-beacon-key-after-encrypt).
       var hmacKeys :- getKeyMap(keyId);
+
+      //= specification/dynamodb-encryption-client/ddb-support.md#getsensitivebeacons
+      //# GetSensitiveBeacons MUST NOT operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
+      //# that only have [non-sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
+
+      //= specification/dynamodb-encryption-client/ddb-support.md#getsensitivebeacons
+      //# For all other configured beacons
+      //# that can be successfully built from the attributes in the input AttributeMap,
+      //# GetSensitiveBeacons MUST add an attribute named aws_dbe_b_NAME,
+      //# where NAME is the name of the beacon.
+
+      //= specification/dynamodb-encryption-client/ddb-support.md#getsensitivebeacons
+      //# The value of this attribute MUST be a string,
+      //# and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value)
+
+      //= specification/dynamodb-encryption-client/ddb-support.md#getsensitivebeacons
+      //# The result of GetSensitiveBeacons MUST NOT contain any keys
+      //# in the [Encrypt Item Output](./encrypt-item.md#output) AttributeMap.
+
       output := GenerateBeacons2(beaconNames, item, hmacKeys, EncryptedBeacon);
     }
 

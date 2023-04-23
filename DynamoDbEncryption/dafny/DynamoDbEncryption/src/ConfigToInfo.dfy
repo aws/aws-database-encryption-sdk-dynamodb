@@ -300,6 +300,20 @@ module SearchConfigToInfo {
       Some(badSeq[0])
   }
 
+  predicate method ExistsConstructorWithTheseRequired(cons : seq<CB.Constructor> , locs : set<CB.BeaconPart>)
+  {
+    0 < SeqCount((c : CB.Constructor) => c.getReqParts() == locs, cons)
+  }
+
+  function method getPartsString(c : CB.Constructor) : string
+  {
+    var req := Seq.Filter((p : CB.ConstructorPart) => p.required, c.parts);
+    var names := Seq.Map((p : CB.ConstructorPart) => p.part.getName(), req);
+    if |names| == 0 then
+      ""
+    else
+      Join(names, ", ")
+  }
   // convert configured VirtualFields to internal VirtualFields
   function method {:tailrecursion} AddVirtualFields(
     vf : seq<AwsCryptographyDynamoDbEncryptionTypes.VirtualField>,
@@ -317,19 +331,19 @@ module SearchConfigToInfo {
     //= type=implication
     //# Initialization MUST fail if any [virtual field](virtual.md#virtual-field) is not signed.
     ensures (0 < |vf| && (
-              || V.ParseVirtualFieldConfig(vf[0]).Failure?
-              || V.ParseVirtualFieldConfig(vf[0]).value.examine((t : TermLoc) => !IsSigned(outer, t))
-            )) ==> ret.Failure?
+               || V.ParseVirtualFieldConfig(vf[0]).Failure?
+               || V.ParseVirtualFieldConfig(vf[0]).value.examine((t : TermLoc) => !IsSigned(outer, t))
+             )) ==> ret.Failure?
 
-//= specification/searchable-encryption/virtual.md#virtual-field-initialization
-//= type=implication
-//# Initialization MUST fail if two virtual fields are defined with the same set of locations.
+    //= specification/searchable-encryption/virtual.md#virtual-field-initialization
+    //= type=implication
+    //# Initialization MUST fail if two virtual fields are defined with the same set of locations.
     ensures ret.Success? && 0 < |vf| ==>
-      && vf[0].name !in converted
-      && V.ParseVirtualFieldConfig(vf[0]).Success?
-      && var newField := V.ParseVirtualFieldConfig(vf[0]).value;
-      && !newField.examine((t : TermLoc) => !IsSigned(outer, t))
-      && FindVirtualFieldWithThisLocation(converted, newField.GetLocs()).None?
+              && vf[0].name !in converted
+              && V.ParseVirtualFieldConfig(vf[0]).Success?
+              && var newField := V.ParseVirtualFieldConfig(vf[0]).value;
+              && !newField.examine((t : TermLoc) => !IsSigned(outer, t))
+              && FindVirtualFieldWithThisLocation(converted, newField.GetLocs()).None?
   {
     if |vf| == 0 then
       Success(converted)
@@ -382,16 +396,24 @@ module SearchConfigToInfo {
     ensures 0 < |beacons| && beacons[0].name in outer.attributeActions && outer.attributeActions[beacons[0].name] != SE.ENCRYPT_AND_SIGN ==> output.Failure?
 
     ensures output.Success? && 0 < |beacons| ==>
-      && beacons[0].name !in converted
-      && var locString := GetLocStr(beacons[0].name, beacons[0].loc);
-      && MakeTermLoc(locString).Success?
-      && var loc := MakeTermLoc(locString).value;
-      && FindBeaconWithThisLocation(converted, loc).None?
-      //= specification/searchable-encryption/virtual.md#virtual-field-initialization
-      //= type=implication
-      //# Initialization MUST fail if a virtual field is defined with only one location,
-      //# and also a [standard beacon](beacons.md#standard-beacon) is defined with that same location.
-      && FindVirtualFieldWithThisLocation(virtualFields, {loc}).None?
+              && beacons[0].name !in converted
+              && var locString := GetLocStr(beacons[0].name, beacons[0].loc);
+              //= specification/searchable-encryption/beacons.md#standard-beacon-initialization
+              //= type=implication
+              //# If no [terminal location](virtual.md#terminal-location) is provided,
+              //# the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
+              && locString == (if beacons[0].loc.Some? then beacons[0].loc.value else beacons[0].name)
+              && MakeTermLoc(locString).Success?
+              && var loc := MakeTermLoc(locString).value;
+              //= specification/searchable-encryption/beacons.md#standard-beacon-initialization
+              //= type=implication
+              //# Initialization MUST fail if two standard beacons are configured with the same location.
+              && FindBeaconWithThisLocation(converted, loc).None?
+                 //= specification/searchable-encryption/virtual.md#virtual-field-initialization
+                 //= type=implication
+                 //# Initialization MUST fail if a virtual field is defined with only one location,
+                 //# and also a [standard beacon](beacons.md#standard-beacon) is defined with that same location.
+              && FindVirtualFieldWithThisLocation(virtualFields, {loc}).None?
   {
     if |beacons| == 0 {
       return Success(converted);
@@ -448,7 +470,9 @@ module SearchConfigToInfo {
   )
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
+    requires forall p <- converted :: p.NonSensitive?
     ensures ret.Success? ==> |ret.value| == origSize
+    ensures ret.Success? ==> forall p <- ret.value :: p.NonSensitive?
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //= type=implication
@@ -457,10 +481,23 @@ module SearchConfigToInfo {
     //# or is not `signed`.
     ensures
       (&& 0 < |parts|
+          //= specification/searchable-encryption/beacons.md#non-sensitive-part-initialization
+          //= type=implication
+          //# If no [terminal location](virtual.md#terminal-location) is provided,
+          //# the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
        && GetLoc(parts[0].name, parts[0].loc).Success?
        && var loc := GetLoc(parts[0].name, parts[0].loc).value;
        && !IsSignOnly(outer, CB.NonSensitive(parts[0].prefix, parts[0].name, loc).loc))
       ==> ret.Failure?
+
+    //= specification/searchable-encryption/beacons.md#initialization-failure
+    //= type=implication
+    //# Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part-initialization) contains
+    //# anything but SIGN_ONLY fields.
+    ensures ret.Success? && 0 < |parts| ==>
+              && GetLoc(parts[0].name, parts[0].loc).Success?
+              && var loc := GetLoc(parts[0].name, parts[0].loc).value;
+              && IsSignOnly(outer, loc)
   {
     if |parts| == 0 then
       Success(converted)
@@ -473,10 +510,19 @@ module SearchConfigToInfo {
   }
 
   // convert configured SensitivePart to internal BeaconPart
-  function method AddSensitiveParts(parts : seq<SensitivePart>, origSize : nat, converted : seq<CB.BeaconPart>, std : I.BeaconMap)
+  function method AddSensitiveParts(
+    parts : seq<SensitivePart>,
+    origSize : nat,
+    converted : seq<CB.BeaconPart>,
+    std : I.BeaconMap
+  )
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
     ensures ret.Success? ==> |ret.value| == origSize
+    //= specification/searchable-encryption/beacons.md#compound-beacon
+    //= type=implication
+    //# The name MUST be the name of a configured standard beacon.
+    ensures ret.Success? && 0 < |parts| ==> parts[0].name in std && std[parts[0].name].Standard?
   {
     if |parts| == 0 then
       Success(converted)
@@ -488,18 +534,58 @@ module SearchConfigToInfo {
       Failure(E("Sensitive part needs standard beacon " + parts[0].name + " which is not configured."))
   }
 
+  predicate OrderedParts(p : seq<CB.BeaconPart>)
+  {
+    exists i | 0 <= i <= |p| ::
+      && (forall x | 0 <= x < i :: p[x].NonSensitive?)
+      && (forall x | i <= x < |p| :: p[x].Sensitive?)
+  }
+
   // create the default constructor, if not constructor is specified
-  function method MakeDefaultConstructor(parts : seq<CB.BeaconPart>, converted : seq<CB.ConstructorPart> := [])
+  function method MakeDefaultConstructor(parts : seq<CB.BeaconPart>, ghost allParts : seq<CB.BeaconPart>, converted : seq<CB.ConstructorPart> := [])
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts| + |converted|
+    requires |allParts| == |parts| + |converted|
+    requires parts == allParts[|converted|..]
+    requires forall i | 0 <= i < |converted| ::
+               && converted[i].part == allParts[i]
+               && converted[i].required
     ensures ret.Success? ==>
               && |ret.value| == 1
               && |ret.value[0].parts| == |parts| + |converted|
+                 //= specification/searchable-encryption/beacons.md#default-construction
+                 //= type=implication
+                 //# * This default constructor MUST be all of the non-sensitive parts,
+                 //# followed by all the sensitive part, all parts being required.
+              && (forall i | 0 <= i < |ret.value[0].parts| ::
+                    && ret.value[0].parts[i].part == allParts[i]
+                    && ret.value[0].parts[i].required)
   {
     if |parts| == 0 then
       Success([CB.Constructor(converted)])
     else
-      MakeDefaultConstructor(parts[1..], converted + [CB.ConstructorPart(parts[0], true)])
+      MakeDefaultConstructor(parts[1..], allParts, converted + [CB.ConstructorPart(parts[0], true)])
+  }
+  /* Returns the subsequence consisting of those elements of a sequence that satisfy a given 
+     predicate. */
+  function method MyFilter<T>(f: (T ~> bool), xs: seq<T>): (result: seq<T>)
+    requires forall i :: 0 <= i < |xs| ==> f.requires(xs[i])
+    ensures |result| <= |xs|
+    ensures forall i: nat :: i < |result| && f.requires(result[i]) ==> f(result[i])
+    reads set i, o | 0 <= i < |xs| && o in f.reads(xs[i]) :: o
+    ensures forall x <- result :: x in xs
+  {
+    if |xs| == 0 then []
+    else (if f(xs[0]) then [xs[0]] else []) + MyFilter(f, xs[1..])
+  }
+
+  function method SeqCount<T>(f: (T ~> bool), xs: seq<T>): (result: nat)
+    requires forall i :: 0 <= i < |xs| ==> f.requires(xs[i])
+    ensures result <= |xs|
+    reads set i, o | 0 <= i < |xs| && o in f.reads(xs[i]) :: o
+  {
+    if |xs| == 0 then 0
+    else (if f(xs[0]) then 1 else 0) + SeqCount(f, xs[1..])
   }
 
   // convert configured ConstructorParts to internal ConstructorParts
@@ -507,12 +593,24 @@ module SearchConfigToInfo {
     : (ret : Result<seq<CB.ConstructorPart>, Error>)
     requires origSize == |c| + |converted|
     ensures ret.Success? ==> |ret.value| == origSize
+    //= specification/searchable-encryption/beacons.md#constructor-part-initialization
+    //= type=implication
+    //# This name MUST match the name of one of the [sensitive](#sensitive-part-initialization) or [non-sensitive](#non-sensitive-part-initialization) parts.
+
+    //= specification/searchable-encryption/beacons.md#initialization-failure
+    //= type=implication
+    //# Initialization MUST fail if any [constructor](#constructor) is configured with a field name
+    //# that is not a defined [part](#part).
+    ensures ret.Success? && 0 < |c| ==>
+              exists p : CB.BeaconPart | p in parts :: p.getName() == c[0].name
   {
     if |c| == 0 then
       Success(converted)
     else
-      var thePart := Seq.Filter((p : CB.BeaconPart) => p.getName() == c[0].name, parts);
+      var thePart := MyFilter((p : CB.BeaconPart) => p.getName() == c[0].name, parts);
       :- Need(0 < |thePart|, E("Constructor refers to part name " + c[0].name + " but there is no part by that name."));
+      assert thePart[0] in parts;
+      assert thePart[0].getName() == c[0].name;
       var newPart := CB.ConstructorPart(thePart[0], c[0].required);
       MakeConstructor2(c[1..], parts, origSize, converted + [newPart])
   }
@@ -529,33 +627,60 @@ module SearchConfigToInfo {
   }
 
   // convert configured Constructors to internal Constructors
-  function method AddConstructors2(constructors : seq<Constructor>, parts : seq<CB.BeaconPart>, origSize : nat, converted : seq<CB.Constructor> := [])
+  function method AddConstructors2(constructors : seq<Constructor>, name : string, parts : seq<CB.BeaconPart>, origSize : nat, converted : seq<CB.Constructor> := [])
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < origSize
     requires origSize == |constructors| + |converted|
     ensures ret.Success? ==> |ret.value| == origSize
+    //= specification/searchable-encryption/beacons.md#initialization-failure
+    //= type=implication
+    //# Initialization MUST fail if any [constructor](#constructor) is configured without at least one
+    //# required part.
+    ensures ret.Success? && 0 < |constructors| ==>
+              0 < SeqCount((p : ConstructorPart) => p.required, constructors[0].parts)
+
+    //= specification/searchable-encryption/beacons.md#initialization-failure
+    //= type=implication
+    //# Initialization MUST fail if two [constructors](#constructor) are configured
+    //# with the same set of required parts.
+    ensures ret.Success? && 0 < |constructors| ==>
+              && MakeConstructor(constructors[0], parts).Success?
+              && var c := MakeConstructor(constructors[0], parts).value;
+              && !ExistsConstructorWithTheseRequired(converted, c.getReqParts())
   {
     if |constructors| == 0 then
       Success(converted)
     else
       :- Need(0 < |constructors[0].parts|, E("Every constructor must have at least one part."));
+      :- Need(0 < SeqCount((p : ConstructorPart) => p.required, constructors[0].parts),
+              E("A Constructor for beacon " + name + " lacks any required parts"));
       var c :- MakeConstructor(constructors[0], parts);
-      AddConstructors2(constructors[1..], parts, origSize, converted + [c])
+      if ExistsConstructorWithTheseRequired(converted, c.getReqParts()) then
+        var p := getPartsString(c);
+        Failure(E("Multiple constructors for " + name + " have the same set of required parts : " + p))
+      else
+        AddConstructors2(constructors[1..], name, parts, origSize, converted + [c])
   }
 
   // convert configured Constructors to internal Constructors
-  function method AddConstructors(constructors : Option<ConstructorList>, parts : seq<CB.BeaconPart>)
+  function method AddConstructors(constructors : Option<ConstructorList>, name : string, parts : seq<CB.BeaconPart>)
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts|
     requires constructors.Some? ==> 0 < |constructors.value|
     ensures ret.Success? ==>
               && (constructors.None? ==> |ret.value| == 1)
               && (constructors.Some? ==> |ret.value| == |constructors.value|)
+
+    //= specification/searchable-encryption/beacons.md#default-construction
+    //= type=implication
+    //# * If no constructors are configured, a default constructor MUST be generated.
+    ensures ret.Success? && constructors.None? ==>
+              ret == MakeDefaultConstructor(parts, parts)
   {
     if constructors.None? then
-      MakeDefaultConstructor(parts)
+      MakeDefaultConstructor(parts, parts)
     else
-      AddConstructors2(constructors.value, parts, |constructors.value|)
+      AddConstructors2(constructors.value, name, parts, |constructors.value|)
   }
 
   // convert configured CompoundBeacons to internal BeaconMap
@@ -602,7 +727,7 @@ module SearchConfigToInfo {
     parts :- AddSensitiveParts(sensitive, |parts| + |sensitive|, parts, converted);
     :- Need(0 < |parts|, E("For beacon " + beacons[0].name + " no parts were supplied."));
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
-    var constructors :- AddConstructors(beacons[0].constructors, parts);
+    var constructors :- AddConstructors(beacons[0].constructors, beacons[0].name, parts);
 
     var beaconName := if beacons[0].sensitive.Some? && 0 < |beacons[0].sensitive.value| then
       BeaconPrefix + beacons[0].name else beacons[0].name;
