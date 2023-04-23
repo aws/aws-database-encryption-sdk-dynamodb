@@ -50,10 +50,6 @@ module BaseBeacon {
                 //# * basicHash MUST produce a non-empty string as output.
                 && |ret.value| > 0
 
-                //= specification/searchable-encryption/beacons.md#basichash
-                //= type=implication
-                //# * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
-                //# of the input bytes and the [hmac key](./search-config.md#hmac-key-generation), and keep the first 8 bytes.
                 && getHmac(val, key).Success?
                 && var hash := getHmac(val, key).value;
 
@@ -86,6 +82,15 @@ module BaseBeacon {
     // calculate the HMAC for some bytes
     function method {:opaque} getHmac(data : Bytes, key : Bytes) : (res : Result<Bytes, Error>)
       ensures res.Success? ==> |res.value| == 8
+
+      ensures res.Success? ==>
+                //= specification/searchable-encryption/beacons.md#basichash
+                //= type=implication
+                //# * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+                //# of the input bytes and the [hmac key](./search-config.md#hmac-key-generation), and keep the first 8 bytes.
+                && var input := Prim.HMacInput(digestAlgorithm := Prim.SHA_384, key := key, message := data);
+                && client.HMac(input).Success?
+                && res.value == client.HMac(input).value[..8]
     {
       var input := Prim.HMacInput (
                      digestAlgorithm := Prim.SHA_384,
@@ -171,6 +176,7 @@ module BaseBeacon {
                    //= type=implication
                    //# * This operation MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
                 && (bytes.Some? ==> ret.value.Some? && hash(bytes.value, key).Success? && ret.value.value == hash(bytes.value, key).value)
+                && (bytes.Some? ==> ret.value.Some? && base.hash(bytes.value, key, length).Success? && ret.value.value == base.hash(bytes.value, key, length).value)
     {
       var bytes :- VirtToBytes(loc, item, vf);
       if bytes.None? then

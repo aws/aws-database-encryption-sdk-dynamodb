@@ -307,7 +307,7 @@ This name MUST match the name of one of the [sensitive](#sensitive-part-initiali
 
 * If no constructors are configured, a default constructor MUST be generated.
 * This default constructor MUST be all of the non-sensitive parts,
-followed by all the sensitive part, all parts being required.
+followed by all the sensitive parts, all parts being required.
 
 ### Part
 
@@ -396,7 +396,7 @@ The `Part Value` is the [part value calculation](#part-value-calculation) of the
 ### Part Value Calculation
 
 Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string, a prefix,
-and an optional [beacon length](#beacon-length) as input, and return a string as output.
+and a [Part](#part) as input, and return a string as output.
 
 The input string MUST begin with the provided prefix.
 

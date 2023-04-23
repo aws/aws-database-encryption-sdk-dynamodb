@@ -199,8 +199,9 @@ module DynamoDBSupport {
     //= type=implication
     //# RemoveBeacons MUST remove any attributes whose name begins with `aws_dbe_`,
     //# and leave all other attributes unchanged.
-    ensures ret.Success? && search.Some? ==> 
-      forall k <- ret.value :: !(ReservedPrefix <= k)
+    ensures ret.Success? && search.Some? ==>
+              && (forall k <- ret.value :: !(ReservedPrefix <= k))
+              && (forall k <- item :: (ReservedPrefix <= k) || (k in ret.value && ret.value[k] == item[k]))
   {
     if search.None? then
       Success(item)

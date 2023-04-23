@@ -515,41 +515,45 @@ module SearchConfigToInfo {
   // convert configured SensitivePart to internal BeaconPart
   function method AddSensitiveParts(
     parts : seq<SensitivePart>,
-    origSize : nat,
+    ghost origSize : nat,
+    ghost numNonSensitive : nat,
     converted : seq<CB.BeaconPart>,
     std : I.BeaconMap
   )
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
+    requires numNonSensitive <= |converted|
+    requires CB.OrderedParts(converted, numNonSensitive)
     ensures ret.Success? ==> |ret.value| == origSize
     //= specification/searchable-encryption/beacons.md#compound-beacon
     //= type=implication
     //# The name MUST be the name of a configured standard beacon.
     ensures ret.Success? && 0 < |parts| ==> parts[0].name in std && std[parts[0].name].Standard?
+    ensures ret.Success? ==> CB.OrderedParts(ret.value, numNonSensitive)
   {
     if |parts| == 0 then
       Success(converted)
     else
     if parts[0].name in std && std[parts[0].name].Standard? then
       var newPart := CB.Sensitive(parts[0].prefix, std[parts[0].name].std);
-      AddSensitiveParts(parts[1..], origSize, converted + [newPart], std)
+      AddSensitiveParts(parts[1..], origSize, numNonSensitive, converted + [newPart], std)
     else
       Failure(E("Sensitive part needs standard beacon " + parts[0].name + " which is not configured."))
   }
 
-  predicate OrderedParts(p : seq<CB.BeaconPart>)
-  {
-    exists i | 0 <= i <= |p| ::
-      && (forall x | 0 <= x < i :: p[x].NonSensitive?)
-      && (forall x | i <= x < |p| :: p[x].Sensitive?)
-  }
-
   // create the default constructor, if not constructor is specified
-  function method MakeDefaultConstructor(parts : seq<CB.BeaconPart>, ghost allParts : seq<CB.BeaconPart>, converted : seq<CB.ConstructorPart> := [])
+  function method MakeDefaultConstructor(
+    parts : seq<CB.BeaconPart>,
+    ghost allParts : seq<CB.BeaconPart>,
+    ghost numNon : nat,
+    converted : seq<CB.ConstructorPart> := []
+  )
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts| + |converted|
     requires |allParts| == |parts| + |converted|
     requires parts == allParts[|converted|..]
+    requires numNon <= |allParts|;
+    requires CB.OrderedParts(allParts, numNon)
     requires forall i | 0 <= i < |converted| ::
                && converted[i].part == allParts[i]
                && converted[i].required
@@ -559,7 +563,8 @@ module SearchConfigToInfo {
                  //= specification/searchable-encryption/beacons.md#default-construction
                  //= type=implication
                  //# * This default constructor MUST be all of the non-sensitive parts,
-                 //# followed by all the sensitive part, all parts being required.
+                 //# followed by all the sensitive parts, all parts being required.
+              && CB.OrderedParts(allParts, numNon)
               && (forall i | 0 <= i < |ret.value[0].parts| ::
                     && ret.value[0].parts[i].part == allParts[i]
                     && ret.value[0].parts[i].required)
@@ -567,7 +572,7 @@ module SearchConfigToInfo {
     if |parts| == 0 then
       Success([CB.Constructor(converted)])
     else
-      MakeDefaultConstructor(parts[1..], allParts, converted + [CB.ConstructorPart(parts[0], true)])
+      MakeDefaultConstructor(parts[1..], allParts, numNon, converted + [CB.ConstructorPart(parts[0], true)])
   }
   /* Returns the subsequence consisting of those elements of a sequence that satisfy a given 
      predicate. */
@@ -666,10 +671,17 @@ module SearchConfigToInfo {
   }
 
   // convert configured Constructors to internal Constructors
-  function method AddConstructors(constructors : Option<ConstructorList>, name : string, parts : seq<CB.BeaconPart>)
+  function method AddConstructors(
+    constructors : Option<ConstructorList>,
+    name : string,
+    parts : seq<CB.BeaconPart>,
+    ghost numNonSensitive : nat
+  )
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts|
     requires constructors.Some? ==> 0 < |constructors.value|
+    requires numNonSensitive <= |parts|
+    requires CB.OrderedParts(parts, numNonSensitive)
     ensures ret.Success? ==>
               && (constructors.None? ==> |ret.value| == 1)
               && (constructors.Some? ==> |ret.value| == |constructors.value|)
@@ -678,10 +690,10 @@ module SearchConfigToInfo {
     //= type=implication
     //# * If no constructors are configured, a default constructor MUST be generated.
     ensures ret.Success? && constructors.None? ==>
-              ret == MakeDefaultConstructor(parts, parts)
+              ret == MakeDefaultConstructor(parts, parts, numNonSensitive)
   {
     if constructors.None? then
-      MakeDefaultConstructor(parts, parts)
+      MakeDefaultConstructor(parts, parts, numNonSensitive)
     else
       AddConstructors2(constructors.value, name, parts, |constructors.value|)
   }
@@ -726,11 +738,14 @@ module SearchConfigToInfo {
     // because UnwrapOr doesn't verify when used on a list with a minimum size
     var nonSensitive := if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else [];
     var parts :- AddNonSensitiveParts(nonSensitive, outer);
+    var numNon := |parts|;
+    assert CB.OrderedParts(parts, numNon);
     var sensitive := if beacons[0].sensitive.Some? then beacons[0].sensitive.value else [];
-    parts :- AddSensitiveParts(sensitive, |parts| + |sensitive|, parts, converted);
+    parts :- AddSensitiveParts(sensitive, |parts| + |sensitive|, numNon, parts, converted);
+    assert CB.OrderedParts(parts, numNon);
     :- Need(0 < |parts|, E("For beacon " + beacons[0].name + " no parts were supplied."));
     :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
-    var constructors :- AddConstructors(beacons[0].constructors, beacons[0].name, parts);
+    var constructors :- AddConstructors(beacons[0].constructors, beacons[0].name, parts, numNon);
 
     var beaconName := if beacons[0].sensitive.Some? && 0 < |beacons[0].sensitive.value| then
       BeaconPrefix + beacons[0].name else beacons[0].name;
@@ -744,6 +759,7 @@ module SearchConfigToInfo {
       ),
       beacons[0].split[0],
       parts,
+      numNon,
       constructors
     );
     output := AddCompoundBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Compound(newBeacon)]);

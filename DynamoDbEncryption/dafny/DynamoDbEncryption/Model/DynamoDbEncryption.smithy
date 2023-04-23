@@ -275,14 +275,16 @@ structure VirtualPart {
 
 //= specification/searchable-encryption/virtual.md#upper-transform-initialization
 //= type=implication
-//# On initialization of an Upper Transform, the caller MUST NOT provide any further information
+//# On initialization of an Upper Transform, the caller MUST NOT provide any
+//# additional parameters to the Upper Transform.
 
 // Convert ASCII characters to upper case
 structure Upper {}
 
 //= specification/searchable-encryption/virtual.md#lower-transform-initialization
 //= type=implication
-//# On initialization of a Lower Transform, the caller MUST NOT provide any further information
+//# On initialization of a Lower Transform, the caller MUST NOT provide any
+//# additional parameters to the Lower Transform.
 
 // Convert ASCII characters to lower case
 structure Lower {}
@@ -367,7 +369,7 @@ structure GetSegment {
 //#  * low : an integer [position](#position-definition)
 //#  * high : an integer [position](#position-definition)
 
-//# split string on character, then return range of pieces.
+// split string on character, then return range of pieces.
 // 'low' and 'high' have the same semantics as GetSubstring
 structure GetSegments {
   @required

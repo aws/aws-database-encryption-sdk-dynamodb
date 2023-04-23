@@ -73,13 +73,15 @@ All transforms take a string as input and produce a string as output.
 
 ### Upper Transform Initialization
 
-On initialization of an Upper Transform, the caller MUST NOT provide any further information
+On initialization of an Upper Transform, the caller MUST NOT provide any
+additional parameters to the Upper Transform.
 
 The Upper transform MUST convert all ascii lowercase characters into their uppercase equivalents. 
 
 ### Lower Transform Initialization
 
-On initialization of a Lower Transform, the caller MUST NOT provide any further information
+On initialization of a Lower Transform, the caller MUST NOT provide any
+additional parameters to the Lower Transform.
 
 The Lower transform MUST convert all ascii uppercase characters into their lowercase equivalents. 
 

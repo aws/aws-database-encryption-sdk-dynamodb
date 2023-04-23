@@ -111,26 +111,52 @@ module CompoundBeacon {
     base : BeaconBase,
     split : char,
     parts : seq<BeaconPart>, // Non-Sensitive followed by Sensitive
+    numNonSensitive : nat,
     construct : ConstructorList
   )
     : (ret : Result<ValidCompoundBeacon, Error>)
+    requires numNonSensitive <= |parts|
+    requires OrderedParts(parts, numNonSensitive)
+
     //= specification/searchable-encryption/beacons.md#initialization-failure
     //= type=implication
     //# Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
     //# the `prefix` of any other [part](#part).
     ensures ret.Success? ==> ret.value.ValidPrefixSet()
   {
-    var x := CompoundBeacon.CompoundBeacon(base, split, parts, construct);
+    var x := CompoundBeacon.CompoundBeacon(base, split, parts, numNonSensitive, construct);
     var _ :- x.ValidPrefixSetResult();
     Success(x)
+  }
+
+  predicate OrderedParts(p : seq<BeaconPart>, n : nat)
+    requires n <= |p|
+  {
+    && (forall x | 0 <= x < n :: p[x].NonSensitive?)
+    && (forall x | n <= x < |p| :: p[x].Sensitive?)
   }
 
   datatype CompoundBeacon = CompoundBeacon(
     base : BeaconBase,
     split : char,
-    parts : seq<BeaconPart>, // Non-Sensitive followed by Sensitive
+    parts : seq<BeaconPart>,
+    numNonSensitive : nat,
     construct : ConstructorList
   ) {
+
+    predicate ValidState()
+    {
+      && ValidPrefixSet()
+      && numNonSensitive <= |parts|
+      && OrderedParts(parts, numNonSensitive)
+    }
+
+    predicate ValidPrefixSet()
+    {
+      forall x : nat, y : nat
+        | 0 <= x < |parts| && x < y < |parts|
+        :: OkPrefixPair(x, y)
+    }
 
     predicate method isEncrypted() {
       Any((p : BeaconPart) => p.Sensitive?, parts)
@@ -388,13 +414,6 @@ module CompoundBeacon {
       Success(true)
     }
 
-    predicate ValidPrefixSet()
-    {
-      forall x : nat, y : nat
-        | 0 <= x < |parts| && x < y < |parts|
-        :: OkPrefixPair(x, y)
-    }
-
     function method ValidPrefixSetResultPos(index : nat) : (ret : Result<bool, Error>)
       decreases |parts| - index
     {
@@ -417,15 +436,12 @@ module CompoundBeacon {
         Failure(E("Internal Error"))
     }
 
-    predicate ValidState()
-    {
-      ValidPrefixSet()
-    }
+
 
     //= specification/searchable-encryption/beacons.md#part-value-calculation
     //= type=implication
     //# Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string, a prefix,
-    //# and an optional [beacon length](#beacon-length) as input, and return a string as output.
+    //# and a [Part](#part) as input, and return a string as output.
     function method {:opaque} PartValueCalc(data : string, prefix : string, keys : MaybeKeyMap, part : BeaconPart)
       : (ret : Result<string, Error>)
       //= specification/searchable-encryption/beacons.md#part-value-calculation
