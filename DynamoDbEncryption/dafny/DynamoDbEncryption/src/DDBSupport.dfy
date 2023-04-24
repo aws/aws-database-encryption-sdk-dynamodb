@@ -36,7 +36,11 @@ module DynamoDBSupport {
   // as all other attribute names would need to be configured, and all the
   // other weird constraints were checked at configuration time.
   function method IsWriteable(item : DDB.AttributeMap)
-    : Result<bool, string>
+    : (ret : Result<bool, string>)
+    //= specification/dynamodb-encryption-client/ddb-support.md#writable
+    //= type=implication
+    //# Writeable MUST reject any item containing an attribute which begins with `aws_dbe_`.
+    ensures ret.Success? ==> forall k <- item :: !(ReservedPrefix <= k)
   {
     if forall k <- item :: !(ReservedPrefix <= k) then
       Success(true)
@@ -72,7 +76,11 @@ module DynamoDBSupport {
     attrNames: Option<DDB.ExpressionAttributeNameMap>,
     attrValues: Option<DDB.ExpressionAttributeValueMap>
   )
-    : Result<bool, string>
+    : (ret : Result<bool, string>)
+    //= specification/dynamodb-encryption-client/ddb-support.md#testconditionexpression
+    //= type=implication
+    //# TestConditionExpression MUST fail if any operand in the condition expression is an encrypted attribute name.
+    ensures ret.Success? ==> |GetEncryptedAttributes(actions, expr, attrNames)| == 0
   {
     if expr.Some? then
       var attrs := GetEncryptedAttributes(actions, expr, attrNames);
@@ -105,7 +113,11 @@ module DynamoDBSupport {
     attrNames: Option<DDB.ExpressionAttributeNameMap>,
     attrValues: Option<DDB.ExpressionAttributeValueMap>
   )
-    : Result<bool, string>
+    : (ret : Result<bool, string>)
+    //= specification/dynamodb-encryption-client/ddb-support.md#testupdateexpression
+    //= type=implication
+    //# TestUpdateExpression MUST fail if any operand in the update expression is a signed attribute name.
+    ensures ret.Success? ==> expr.None? || |Seq.Filter(s => IsSigned(actions, s), Update.ExtractAttributes(expr.value, attrNames))| == 0
   {
     if expr.Some? then
       var attrs := Update.ExtractAttributes(expr.value, attrNames);
@@ -131,23 +143,44 @@ module DynamoDBSupport {
     }
   }
 
+  const VersionTag : DDB.AttributeName := VersionPrefix + "1"
+
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
   method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
     returns (output : Result<DDB.AttributeMap, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
+
+    //= specification/searchable-encryption/search-config.md#versioning
+    //= type=implication
+    //# In addition to the configured beacons, a [version tag](#version-tag) MUST also be written.
+
+    //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+    //= type=implication
+    //# AddNonSensitiveBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
+    ensures output.Success? && search.Some? ==> VersionTag in output.value
   {
     if search.None? {
       return Success(item);
     } else {
       var newAttrs :- search.value.GenerateSignedBeacons(item);
-      var version : DDB.AttributeMap := map[VersionPrefix + "1" := DS(" ")];
+
+      //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+      //# If the attribute NAME already exists,
+      //# if the constructed compound beacon does not match
+      //# the existing attribute value AddNonSensitiveBeacons MUST fail.
+      var badAttrs := set k <- newAttrs | k in item && item[k] != newAttrs[k] :: k;
+      :- Need(|badAttrs| == 0, E("Signed beacons have generated values different from supplied values."));
+      // TODO - more specific error message
+      var version : DDB.AttributeMap := map[VersionTag := DS(" ")];
       var both := newAttrs.Keys * item.Keys;
       var bad := set k <- both | newAttrs[k] != item[k];
       if 0 < |bad| {
         var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, CharLess);
         return Failure(E("Supplied Beacons do not match calculated beacons : " + Join(badSeq, ", ")));
       }
+      //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+      //# The result of AddNonSensitiveBeacons MUST be a super set of everything in the input AttributeMap.
       if search.value.curr().keySource.keyLoc.MultiLoc? && search.value.curr().keySource.keyLoc.deleteKey {
         var newItem := map k <- item | k != search.value.curr().keySource.keyLoc.keyName :: k := item[k];
         return Success(newItem + newAttrs + version);
@@ -160,7 +193,15 @@ module DynamoDBSupport {
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
   // returning a replacement AttributeMap.
   function method RemoveBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
-    : Result<DDB.AttributeMap, string>
+    : (ret : Result<DDB.AttributeMap, string>)
+
+    //= specification/dynamodb-encryption-client/ddb-support.md#removebeacons
+    //= type=implication
+    //# RemoveBeacons MUST remove any attributes whose name begins with `aws_dbe_`,
+    //# and leave all other attributes unchanged.
+    ensures ret.Success? && search.Some? ==>
+              && (forall k <- ret.value :: !(ReservedPrefix <= k))
+              && (forall k <- item :: (ReservedPrefix <= k) || (k in ret.value && ret.value[k] == item[k]))
   {
     if search.None? then
       Success(item)

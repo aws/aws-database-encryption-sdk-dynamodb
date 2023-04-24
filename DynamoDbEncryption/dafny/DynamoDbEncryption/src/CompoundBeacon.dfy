@@ -84,7 +84,12 @@ module CompoundBeacon {
 
   datatype Constructor = Constructor(
     parts : ConstructorPartList
-  )
+  ) {
+    function method getReqParts() : set<BeaconPart>
+    {
+      set k <- parts | k.required :: k.part
+    }
+  }
 
   type ConstructorList = x : seq<Constructor> | 0 < |x| witness *
 
@@ -106,21 +111,52 @@ module CompoundBeacon {
     base : BeaconBase,
     split : char,
     parts : seq<BeaconPart>, // Non-Sensitive followed by Sensitive
+    numNonSensitive : nat,
     construct : ConstructorList
   )
-    : Result<ValidCompoundBeacon, Error>
+    : (ret : Result<ValidCompoundBeacon, Error>)
+    requires numNonSensitive <= |parts|
+    requires OrderedParts(parts, numNonSensitive)
+
+    //= specification/searchable-encryption/beacons.md#initialization-failure
+    //= type=implication
+    //# Initialization MUST fail if any `prefix` in any [part](#part) is a prefix of
+    //# the `prefix` of any other [part](#part).
+    ensures ret.Success? ==> ret.value.ValidPrefixSet()
   {
-    var x := CompoundBeacon.CompoundBeacon(base, split, parts, construct);
+    var x := CompoundBeacon.CompoundBeacon(base, split, parts, numNonSensitive, construct);
     var _ :- x.ValidPrefixSetResult();
     Success(x)
+  }
+
+  predicate OrderedParts(p : seq<BeaconPart>, n : nat)
+    requires n <= |p|
+  {
+    && (forall x | 0 <= x < n :: p[x].NonSensitive?)
+    && (forall x | n <= x < |p| :: p[x].Sensitive?)
   }
 
   datatype CompoundBeacon = CompoundBeacon(
     base : BeaconBase,
     split : char,
-    parts : seq<BeaconPart>, // Non-Sensitive followed by Sensitive
+    parts : seq<BeaconPart>,
+    numNonSensitive : nat,
     construct : ConstructorList
   ) {
+
+    predicate ValidState()
+    {
+      && ValidPrefixSet()
+      && numNonSensitive <= |parts|
+      && OrderedParts(parts, numNonSensitive)
+    }
+
+    predicate ValidPrefixSet()
+    {
+      forall x : nat, y : nat
+        | 0 <= x < |parts| && x < y < |parts|
+        :: OkPrefixPair(x, y)
+    }
 
     predicate method isEncrypted() {
       Any((p : BeaconPart) => p.Sensitive?, parts)
@@ -192,6 +228,10 @@ module CompoundBeacon {
       else
         var part := consFields[0].part;
         var strValue :- part.getString(item, vf);
+        //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+        //# * For that constructor, hash MUST join the [part value](#part-value) for each part
+        //# on the `split character`,
+        //# excluding parts that are not required and with a source field that is not available.
         if strValue.Some? then
           :- Need(split !in strValue.value, E("Part " + part.getName() + " for beacon " + base.name + " has value '" + strValue.value + "' which contains the split character " + [split] + "'."));
           var val :-
@@ -219,6 +259,8 @@ module CompoundBeacon {
       ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
     {
       if |construct| == 0 then
+        //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+        //# * If no constructor succeeds, this operation MUST return no value.
         Success(None)
       else
         var x :- TryConstructor(construct[0].parts, item, vf, keys);
@@ -228,9 +270,19 @@ module CompoundBeacon {
           TryConstructors(construct[1..], item, vf, keys)
     }
 
+    //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+    //= type=implication
+    //# * This operation MUST take a record as input, and produce an optional string.
     function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
+                //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+                //= type=implication
+                //# * If a string is returned, it MUST NOT be empty.
                 && |res.value.value| > 0
+                   //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+                   //= type=implication
+                   //# * This operation MUST iterate through all constructors, in order, using the first that succeeds.
+                && TryConstructors(construct, item, vf, keys).Success?
     {
       TryConstructors(construct, item, vf, keys)
     }
@@ -362,13 +414,6 @@ module CompoundBeacon {
       Success(true)
     }
 
-    predicate ValidPrefixSet()
-    {
-      forall x : nat, y : nat
-        | 0 <= x < |parts| && x < y < |parts|
-        :: OkPrefixPair(x, y)
-    }
-
     function method ValidPrefixSetResultPos(index : nat) : (ret : Result<bool, Error>)
       decreases |parts| - index
     {
@@ -384,18 +429,19 @@ module CompoundBeacon {
     {
       var _ :- ValidPrefixSetResultPos(0);
       if forall x : nat, y : nat
-        | 0 <= x < |parts| && x < y < |parts|
-        :: OkPrefixPair(x, y) then
+           | 0 <= x < |parts| && x < y < |parts|
+           :: OkPrefixPair(x, y) then
         Success(true)
       else
         Failure(E("Internal Error"))
     }
 
-    predicate ValidState()
-    {
-      ValidPrefixSet()
-    }
 
+
+    //= specification/searchable-encryption/beacons.md#part-value-calculation
+    //= type=implication
+    //# Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string, a prefix,
+    //# and a [Part](#part) as input, and return a string as output.
     function method {:opaque} PartValueCalc(data : string, prefix : string, keys : MaybeKeyMap, part : BeaconPart)
       : (ret : Result<string, Error>)
       //= specification/searchable-encryption/beacons.md#part-value-calculation
@@ -412,6 +458,9 @@ module CompoundBeacon {
       ensures part.NonSensitive? && ret.Success? ==>
                 && ret.value == data
                 && 0 < |ret.value|
+                   //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+                   //= type=implication
+                   //# * This operation MUST fail if any plaintext value used in the construction contains the split character.
                 && split !in data
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
@@ -424,6 +473,9 @@ module CompoundBeacon {
                 && keys.Keys?
                 && part.beacon.hashStr(data, keys.value).Success?
                 && ret.value == prefix + part.beacon.hashStr(data, keys.value).value
+                   //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+                   //= type=implication
+                   //# * This operation MUST fail if any plaintext value used in the construction contains the split character.
                 && split !in data
     {
       :- Need(split !in data, E("Value '" + data + "' for beacon part " + part.getName() + " contains the split character '" + [split] + "'."));
