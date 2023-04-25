@@ -3,7 +3,7 @@
 
 include "../../DynamoDbEncryption/src/NormalizeNumber.dfy"
 
-module TestUpdateExpr {
+module TestNormalizeNumber {
 
   import opened DynamoDbNormalizeNumber
 
