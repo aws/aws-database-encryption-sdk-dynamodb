@@ -41,7 +41,25 @@ module TestDynamoDBConfigToInfo {
     expect beaconVersion.Failure?;
     expect beaconVersion.error == E("Beacon Name is defined on location Name, but virtual field NameVirtField is already defined on that single location.");
   }
-  /*
-    If primary or sort keys of table are beacons, they must be strictly NonSensitive
-  */
+  method {:test} TestNSwithEB() {
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+
+    var DupNameNS := CompoundBeacon (
+      name := "Name",
+      split := ".",
+      sensitive := None,
+      nonSensitive := Some([Year,Month]),
+      constructors := None
+    );
+    var DupNameS := DupNameNS.(sensitive := Some([Title]));
+    var newBeacons := version.(compoundBeacons := Some([DupNameS]), standardBeacons := [std2, std4, std6, NameTitleBeacon, TitleB]);
+    var beaconVersion := ConvertVersionWithSource(FullTableConfig, newBeacons, src);
+    expect beaconVersion.Success?;
+
+    newBeacons := newBeacons.(compoundBeacons := Some([DupNameNS]));
+    beaconVersion := ConvertVersionWithSource(FullTableConfig, newBeacons, src);
+    expect beaconVersion.Failure?;
+    expect beaconVersion.error == E("Name not allowed as a CompoundBeacon because a fully nonsensitive beacon cannot have the same name as an encrypted attribute.");
+  }
 }

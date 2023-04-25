@@ -159,7 +159,7 @@ module CompoundBeacon {
     }
 
     predicate method isEncrypted() {
-      Any((p : BeaconPart) => p.Sensitive?, parts)
+      numNonSensitive < |parts|
     }
 
     function method {:tailrecursion} getPartFromPrefix(value : string)
