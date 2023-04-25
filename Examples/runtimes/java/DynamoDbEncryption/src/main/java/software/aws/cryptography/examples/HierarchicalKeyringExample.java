@@ -96,10 +96,8 @@ public class HierarchicalKeyringExample {
 
         // 3. Create two branch keys for our two tenants.
         //    Use the same KMS Key to protect both keys.
-        final String tenant1BranchKey = keystore.CreateKey(
-                CreateKeyInput.builder().build()).branchKeyIdentifier();
-        final String tenant2BranchKey = keystore.CreateKey(
-                CreateKeyInput.builder().build()).branchKeyIdentifier();
+        final String tenant1BranchKey = keystore.CreateKey().branchKeyIdentifier();
+        final String tenant2BranchKey = keystore.CreateKey().branchKeyIdentifier();
 
         // Data Plane: Given the above setup done in our control plane, we have created
         // the resources required to encrypt and decrypt items for our two tenants by

@@ -50,7 +50,7 @@ public class BeaconConfig {
             .kmsKeyArn(branchKeyWrappingKmsKeyArn)
             .build())
         .build();
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
+    CreateKeyOutput output = keyStore.CreateKey();
     String branchKeyId = output.branchKeyIdentifier();
 
     // 2. Create standard beacons

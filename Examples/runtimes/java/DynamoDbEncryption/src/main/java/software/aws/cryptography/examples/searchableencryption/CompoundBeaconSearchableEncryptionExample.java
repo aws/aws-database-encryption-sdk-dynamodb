@@ -151,7 +151,7 @@ public class CompoundBeaconSearchableEncryptionExample {
             .kmsKeyArn(branchKeyWrappingKmsKeyArn)
             .build())
         .build();
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
+    CreateKeyOutput output = keyStore.CreateKey();
     String branchKeyId = output.branchKeyIdentifier();
 
     // 5. Create BeaconVersion.
