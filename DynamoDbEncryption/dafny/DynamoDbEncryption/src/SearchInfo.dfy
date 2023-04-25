@@ -252,8 +252,7 @@ module SearchableEncryptionInfo {
         //# Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key-source).
         var maybeRawBeaconKeyMaterials := store.GetBeaconKey(
           KeyStore.GetBeaconKeyInput(
-            branchKeyIdentifier := keyId,
-            grantTokens := None
+            branchKeyIdentifier := keyId
           )
         );
         var rawBeaconKeyMaterials :- maybeRawBeaconKeyMaterials
