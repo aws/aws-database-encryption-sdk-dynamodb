@@ -261,12 +261,19 @@ module SearchConfigToInfo {
   }
 
   // does this name already exists as a configured attribute, or virtual field
-  function method {:opaque} BeaconNameAllowed(outer : DynamoDbTableEncryptionConfig, virtualFields : V.VirtualFieldMap, name : string, context : string)
+  function method {:opaque} BeaconNameAllowed(
+    outer : DynamoDbTableEncryptionConfig,
+    virtualFields : V.VirtualFieldMap,
+    name : string,
+    context : string,
+    isFullyNon : bool)
     : (ret : Result<bool, Error>)
     ensures name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN ==> ret.Failure?
   {
     if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
       Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
+    else if isFullyNon && name in outer.attributeActions then
+      Failure(E(name + " not allowed as a " + context + " because a fully nonsensitive beacon cannot have the same name as an encrypted attribute."))
     else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
       Failure(E(name + " not allowed as a " + context + " because it is already an allowed unauthenticated attribute."))
     else if outer.allowedUnauthenticatedAttributePrefix.Some? && outer.allowedUnauthenticatedAttributePrefix.value <= name then
@@ -422,7 +429,7 @@ module SearchConfigToInfo {
       return Success(converted);
     }
     :- Need(beacons[0].name !in converted, E("Duplicate StandardBeacon name : " + beacons[0].name));
-    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon");
+    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon", false);
     var locString := GetLocStr(beacons[0].name, beacons[0].loc);
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString);
 
@@ -733,7 +740,7 @@ module SearchConfigToInfo {
       return Success(converted);
     }
     :- Need(beacons[0].name !in converted, E("Duplicate CompoundBeacon name : " + beacons[0].name));
-    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "CompoundBeacon");
+    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "CompoundBeacon", beacons[0].sensitive.None? || |beacons[0].sensitive.value| == 0);
 
     // because UnwrapOr doesn't verify when used on a list with a minimum size
     var nonSensitive := if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else [];
