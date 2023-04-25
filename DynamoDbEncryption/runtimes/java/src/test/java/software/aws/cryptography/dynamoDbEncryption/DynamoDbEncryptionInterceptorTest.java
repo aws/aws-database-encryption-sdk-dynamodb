@@ -1,6 +1,7 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
 import org.testng.annotations.BeforeTest;
+import software.amazon.awssdk.core.ClientType;
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.interceptor.*;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -19,10 +20,16 @@ import org.testng.annotations.Test;
 
 public class DynamoDbEncryptionInterceptorTest {
     static DynamoDbEncryptionInterceptor interceptor;
+    static ExecutionAttributes validAttributes;
 
     @BeforeTest
     public static void setup() {
         interceptor = createInterceptor(createKmsKeyring(), null, null);
+        validAttributes = ExecutionAttributes.builder()
+                .put(SdkExecutionAttribute.OPERATION_NAME, "PutItem")
+                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
+                .put(SdkExecutionAttribute.CLIENT_TYPE, ClientType.SYNC)
+                .build();
     }
 
     @Test
@@ -42,12 +49,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "PutItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        SdkRequest newRequest = interceptor.modifyRequest(context, validAttributes);
         assertTrue(newRequest instanceof PutItemRequest);
 
         // ENCRYPT_AND_SIGN results in changed attribute
@@ -72,12 +75,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "PutItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test
@@ -91,12 +90,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "UpdateItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        SdkRequest newRequest = interceptor.modifyRequest(context, validAttributes);
         assertEquals(oldRequest, newRequest);
     }
 
@@ -114,12 +109,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "UpdateItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test
@@ -132,12 +123,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "UpdateItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        SdkRequest newRequest = interceptor.modifyRequest(context, validAttributes);
         assertEquals(oldRequest, newRequest);
     }
 
@@ -162,12 +149,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "TransactWriteItems")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test(
@@ -188,12 +171,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "TransactWriteItems")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test(
@@ -214,12 +193,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "TransactWriteItems")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test
@@ -238,12 +213,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "TransactWriteItems")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        SdkRequest newRequest = interceptor.modifyRequest(context, validAttributes);
         assertEquals(oldRequest, newRequest);
     }
 
@@ -266,12 +237,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "TransactWriteItems")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test(
@@ -287,12 +254,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "DeleteItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test
@@ -306,21 +269,13 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "DeleteItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        SdkRequest newRequest = interceptor.modifyRequest(context, validAttributes);
         assertEquals(oldRequest, newRequest);
     }
 
     @Test
     public void TestExecuteStatementOnEncryptedTable() {
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "ExecuteStatement")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
         List<String> statementsWithEncryptedTable = Arrays.asList(
                 String.format("EXISTS( SELECT * FROM \"%s\" WHERE \"Artist\" = 'Acme Band' AND \"SongTitle\" = 'PartiQL Rocks')", TEST_TABLE_NAME),
                 String.format("INSERT INTO \"%s\" value {'Artist' : 'Acme Band','SongTitle' : 'PartiQL Rocks'}", TEST_TABLE_NAME),
@@ -338,7 +293,7 @@ public class DynamoDbEncryptionInterceptorTest {
                     .request(oldRequest)
                     .build();
             try {
-                interceptor.modifyRequest(context, attributes);
+                interceptor.modifyRequest(context, validAttributes);
             } catch (DynamoDbEncryptionTransformsException e) {
                 assertTrue(e.getMessage().contains("ExecuteStatement not Supported on encrypted tables."));
             }
@@ -354,12 +309,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "ExecuteStatement")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        SdkRequest newRequest = interceptor.modifyRequest(context, validAttributes);
         assertEquals(oldRequest, newRequest);
     }
 
@@ -371,28 +322,41 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(PutItemRequest.builder().build())
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
+        ExecutionAttributes badAttributes = validAttributes.toBuilder()
                 .put(SdkExecutionAttribute.OPERATION_NAME, "UnknownOperation")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
                 .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, badAttributes);
+    }
+
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "DynamoDbEncryptionInterceptor does not support use with unrecognized operation: UnknownOperation"
+    )
+    public void TestNonSyncClientRequest() {
+        Context.ModifyRequest context = InterceptorContext.builder()
+                .request(PutItemRequest.builder().build())
+                .build();
+        ExecutionAttributes badAttributes = validAttributes.toBuilder()
+                .put(SdkExecutionAttribute.CLIENT_TYPE, ClientType.ASYNC)
+                .build();
+
+        interceptor.modifyRequest(context, badAttributes);
     }
 
     @Test(
             expectedExceptions = DynamoDbEncryptionTransformsException.class,
             expectedExceptionsMessageRegExp = "DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb."
     )
-    public void TestUnknownServiceRequest() {
+    public void TestNonDDBServiceRequest() {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(PutItemRequest.builder().build())
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "PutItem")
+        ExecutionAttributes badAttributes = validAttributes.toBuilder()
                 .put(SdkExecutionAttribute.SERVICE_NAME, "OtherService")
                 .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, badAttributes);
     }
 
     @Test(
@@ -476,12 +440,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "PutItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test(
@@ -500,12 +460,8 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "PutItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 
     @Test(
@@ -524,11 +480,7 @@ public class DynamoDbEncryptionInterceptorTest {
         Context.ModifyRequest context = InterceptorContext.builder()
                 .request(oldRequest)
                 .build();
-        ExecutionAttributes attributes = ExecutionAttributes.builder()
-                .put(SdkExecutionAttribute.OPERATION_NAME, "PutItem")
-                .put(SdkExecutionAttribute.SERVICE_NAME, "DynamoDb")
-                .build();
 
-        interceptor.modifyRequest(context, attributes);
+        interceptor.modifyRequest(context, validAttributes);
     }
 }
