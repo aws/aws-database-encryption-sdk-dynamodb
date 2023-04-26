@@ -21,6 +21,10 @@ module DynamoDbNormalizeNumber {
   }
 
   // return the input string with trailing zeros removed
+  // this assumes a `.` in the input, and removes it
+  // if it would otherwise be the last character of the string
+  // Use this if he string is mostly valid already
+  // requires valid number, ensures valid number
   function method {:tailrecursion} SkipTrailingZeros(val : string) : (ret : string)
     requires '.' in val
   {
@@ -34,6 +38,7 @@ module DynamoDbNormalizeNumber {
   }
 
   // return the input string with trailing zeros removed
+  // makes no assumptions about the input string.
   function method {:tailrecursion} SkipAllTrailingZeros(val : string) : (ret : string)
     ensures |ret| == 0 || ret[|ret|-1] != '0'
   {
@@ -70,16 +75,19 @@ module DynamoDbNormalizeNumber {
     if |s| == 0 then
       Failure("An empty string is not a valid number.")
     else if s[0] == '-' then
+      :- Need(1 < |s|, "An empty string is not a valid number.");
       var x :- StrToIntInner(s[1..]);
       Success(-(x as int))
     else if s[0] == '+' then
+      :- Need(1 < |s|, "An empty string is not a valid number.");
       StrToIntInner(s[1..])
     else
       StrToIntInner(s)
   }
 
   // Return a string of this many zeros
-  function method Zeros(n : nat) : string
+  function method Zeros(n : nat) : (ret : string)
+    ensures AllDecimalDigits(ret)
   {
     seq(n, i => '0')
   }
@@ -145,8 +153,13 @@ module DynamoDbNormalizeNumber {
   }
 
   // remove leading zeros before pos and trailing zeros after pos
+  // that is, trims 000000123.45600000 down to 123.456, or more specifically
+  // trims (00000012345600000, 9) down to (123456, 3)
+  // e.g.
+  // ("1000", 2) -> ("10", 2) (because "10.00" is equivalent to "10.")
+  // ("0001", 2) -> ("01", 0) (because "00.01" is equivalent to ".01")
   function method NormalizeValue(value : string, pos : nat) : (ret : (string, nat))
-    requires pos <= |value| 
+    requires pos <= |value|
     requires AllDecimalDigits(value)
     ensures ret.1 <= |ret.0|
     ensures AllDecimalDigits(ret.0)
@@ -170,15 +183,21 @@ module DynamoDbNormalizeNumber {
   {
     var (value, pos, exp) :- ParseNumber(n);
     var (value, pos) := NormalizeValue(value, pos);
-    var newValue := SkipAllTrailingZeros(SkipLeadingZeros(value));
-    :- Need(|newValue| <= 38, "Attempting to store more than 38 significant digits in a Number.");
+
+    // The Number 1230000000000 has only 3 digits of precision, as does .0000000000123
+    // so we need to delete all leading and trailing zeros to find digits of precision
+    var digitsOfPrecision := SkipAllTrailingZeros(SkipLeadingZeros(value));
+    :- Need(|digitsOfPrecision| <= 38, "Attempting to store more than 38 significant digits in a Number.");
+
     var newPos := pos + exp;
-    if |newValue| == 0 then
+    if |digitsOfPrecision| == 0 then
       Success("0")
     else if newPos <= 0 then
+      // 1.0e-130 maps to -129 digits because we're counting the '1' as a digit
       :- Need(newPos - CountZeros(value) >= -129, "Attempting to store a number with magnitude smaller than supported range.");
       Success("0." + Zeros(-newPos) + value)
     else if newPos >= |value| then
+      // 1.0e125 maps to 126 digits, because we're counting the '1' as a digit
       :- Need(newPos - CountZeros(value) <= 126, "Attempting to store a number with magnitude larger than supported range.");
       Success(value + Zeros(newPos - |value|))
     else
@@ -186,7 +205,10 @@ module DynamoDbNormalizeNumber {
   }
 
   // remove leading and trailing zeros as necessary
-  function method TrimNumber(n : string) : string
+  // requires valid number, ensures valid number
+  // only trims trailing zeros if the number has a decimal point
+  // doesn't trim leading zero if it's the only number before the decimal point.
+  function method TrimZerosFromValidNumber(n : string) : (ret : string)
   {
     var n := SkipLeadingZeros(n);
     if '.' in n then
@@ -207,7 +229,7 @@ module DynamoDbNormalizeNumber {
                       (false, n);
     :- Need(0 < |n|, "An empty string is not a valid number.");
     var n :- NormalizePositive(n);
-    var n := TrimNumber(n);
+    var n := TrimZerosFromValidNumber(n);
     if neg && n != "0" then
       Success(['-'] + n)
     else
