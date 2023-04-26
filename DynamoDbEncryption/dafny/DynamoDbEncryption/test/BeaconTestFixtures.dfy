@@ -31,7 +31,7 @@ module BeaconTestFixtures {
     expect a == b;
   }
 
-  const std2 := StandardBeacon(name := "std2", length := 2, loc := None)
+  const std2 := StandardBeacon(name := "std2", length := 24, loc := None)
   const std4 := StandardBeacon(name := "std4", length := 4, loc := Some("std4"))
   const std6 := StandardBeacon(name := "std6", length := 6, loc := Some("std6[0]"))
   const NameB := StandardBeacon(name := "Name", length := 12, loc := None)
@@ -119,6 +119,7 @@ module BeaconTestFixtures {
       id := None,
       ddbTableName := "foo",
       kmsKeyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126",
+      grantTokens := None,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );

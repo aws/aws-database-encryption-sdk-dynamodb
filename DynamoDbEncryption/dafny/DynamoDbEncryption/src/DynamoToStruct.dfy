@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "NormalizeNumber.dfy"
 
 module DynamoToStruct {
 
@@ -14,6 +15,7 @@ module DynamoToStruct {
   import UTF8
   import SortedSets
   import Seq
+  import Norm = DynamoDbNormalizeNumber
 
   type Error = AwsCryptographyDynamoDbEncryptionTypes.Error
 
@@ -323,15 +325,19 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#number
     //= type=implication
     //# Number MUST be serialized as UTF-8 encoded bytes.
-    ensures a.N? && ret.Success? && !prefix ==> 
-      UTF8.Decode(ret.value).Success? && UTF8.Decode(ret.value).value == a.N
+    ensures a.N? && ret.Success? && !prefix ==>
+      && Norm.NormalizeNumber(a.N).Success?
+      && var nn := Norm.NormalizeNumber(a.N).value;
+      && UTF8.Decode(ret.value).Success? && UTF8.Decode(ret.value).value == nn
     ensures a.N? && ret.Success? && prefix ==> 
+      && Norm.NormalizeNumber(a.N).Success?
+      && var nn := Norm.NormalizeNumber(a.N).value;
       && UTF8.Decode(ret.value[PREFIX_LEN..]).Success?
-      && UTF8.Decode(ret.value[PREFIX_LEN..]).value == a.N
+      && UTF8.Decode(ret.value[PREFIX_LEN..]).value == nn
       && ret.value[0..TYPEID_LEN] == NUMBER
-      && UTF8.Encode(a.N).Success?
-      && U32ToBigEndian(|UTF8.Encode(a.N).value|).Success?
-      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(a.N).value|).value
+      && UTF8.Encode(nn).Success?
+      && U32ToBigEndian(|UTF8.Encode(nn).value|).Success?
+      && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(nn).value|).value
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
@@ -468,7 +474,7 @@ module DynamoToStruct {
   {
     var baseBytes :- match a {
       case S(s) => UTF8.Encode(s)
-      case N(n) => UTF8.Encode(n)
+      case N(n) => var nn :- Norm.NormalizeNumber(n); UTF8.Encode(nn)
       case B(b) => Success(b)
       case SS(ss) => StringSetAttrToBytes(ss)
       case NS(ns) => NumberSetAttrToBytes(ns)
