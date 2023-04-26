@@ -12,13 +12,12 @@ jobs:
     strategy:
       matrix:
         library: [
-          # Reintroduce once MPL builds with .NET
-          # DynamoDbEncryption,
+          DynamoDbEncryption,
         ]
         dotnet-version: [ '6.0.x' ]
         os: [
-          # TODO windows-latest,
-          # ubuntu-latest,
+          windows-latest,
+          ubuntu-latest,
           macos-latest,
         ]
     runs-on: ${{ matrix.os }}
