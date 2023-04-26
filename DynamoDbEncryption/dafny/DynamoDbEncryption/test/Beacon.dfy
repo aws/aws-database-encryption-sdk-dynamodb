@@ -92,8 +92,11 @@ module TestBaseBeacon {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
     var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    assert "std2" in SimpleItem;
+    assert SimpleItem["std2"] == Std2String;
     assert Std2String == DDB.AttributeValue.N("1.23");
     expect "aws_dbe_b_std2" in goodAttrs;
+    // b1eb7a is the beaconization of "1.23" for beacon "std2"
     expect goodAttrs["aws_dbe_b_std2"] == DDB.AttributeValue.S("b1eb7a");
     var newItem := SimpleItem["std2" := DDB.AttributeValue.N("000001.23000000")];
     var newAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
