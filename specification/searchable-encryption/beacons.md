@@ -391,17 +391,16 @@ using the prefix and length from the discovered part.
 Calculate the `plain string` :
 the concatenation of the prefix and the field value.
 
-The `Part Value` is the [part value calculation](#part-value-calculation) of the `plain string`, the part's prefix, and the [beacon length](#beacon-length), if any.
+The `Part Value` is the [part value calculation](#part-value-calculation) of the `plain string` and the part.
 
 ### Part Value Calculation
 
-Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string, a prefix,
+Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string
 and a [Part](#part) as input, and return a string as output.
 
-The input string MUST begin with the provided prefix.
-
-If the [beacon length](#beacon-length) is provided, 
+If the part is a [sensitive part](#sensitive-part-initialization),
 the part value MUST be the concatenation of the prefix
-and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
+and the [basicHash](#basichash) of the input string with the configured [standard beacon](#beacon).
 
-If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.
+If the part is a [nonsensitive part](#non-sensitive-part-initialization),
+the part value MUST be the concatenation of the prefix and the input string.

@@ -53,7 +53,7 @@ module TestBaseBeacon {
     expect_equal(res.error, E("Compound beacon BadPrefix defines part Title with prefix T_ which is incompatible with part TooBad which has a prefix of T."));
   }
 
-  
+
   method {:test} TestContainsSplit()
   {
     var version := GetLotsaBeacons();
@@ -77,7 +77,7 @@ module TestBaseBeacon {
     assert Std2String == DDB.AttributeValue.N("1.23");
     expect "aws_dbe_b_std2" in goodAttrs;
     // b1eb7a is the beaconization of "1.23" for beacon "std2"
-    expect goodAttrs["aws_dbe_b_std2"] == DDB.AttributeValue.S("b1eb7a");
+    expect goodAttrs["aws_dbe_b_std2"] == DDB.AttributeValue.S("ac6f5d");
     var newItem := SimpleItem["std2" := DDB.AttributeValue.N("000001.23000000")];
     var newAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
     expect "aws_dbe_b_std2" in newAttrs;
@@ -93,16 +93,16 @@ module TestBaseBeacon {
     expect attrs == map["JustSigned" := DDB.AttributeValue.S("Y_1984.M_May")];
     attrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
     expect attrs == map[
-      "aws_dbe_b_Mixed" := DDB.AttributeValue.S("N_4fe1622c.Y_1984"),
-      "aws_dbe_b_Name" := DDB.AttributeValue.S("7d9bfa40"),
-      "aws_dbe_b_NameTitle" := DDB.AttributeValue.S("N_4fe1622c.T_61adc978"),
-      "aws_dbe_b_NameTitleField" := DDB.AttributeValue.S("6000a92"),
-      "aws_dbe_b_std2" := DDB.AttributeValue.S("b1eb7a"),
-      "aws_dbe_b_Title" := DDB.AttributeValue.S("df822013"),
-      "aws_dbe_b_std6" := DDB.AttributeValue.S("335edce"),
-      "aws_dbe_b_std4" := DDB.AttributeValue.S("e001eb"),
-      "aws_dbe_b_YearName" := DDB.AttributeValue.S("Y_1984.N_4fe1622c")
-    ];
+                      "aws_dbe_b_Mixed" := DDB.AttributeValue.S("N_7d9bfa40.Y_1984"),
+                      "aws_dbe_b_Name" := DDB.AttributeValue.S("7d9bfa40"),
+                      "aws_dbe_b_NameTitle" := DDB.AttributeValue.S("N_7d9bfa40.T_e4feb833"),
+                      "aws_dbe_b_NameTitleField" := DDB.AttributeValue.S("4c577d7"),
+                      "aws_dbe_b_std2" := DDB.AttributeValue.S("ac6f5d"),
+                      "aws_dbe_b_Title" := DDB.AttributeValue.S("e4feb833"),
+                      "aws_dbe_b_std6" := DDB.AttributeValue.S("2d99222"),
+                      "aws_dbe_b_std4" := DDB.AttributeValue.S("0e9064"),
+                      "aws_dbe_b_YearName" := DDB.AttributeValue.S("Y_1984.N_7d9bfa40")
+                    ];
   }
 
   method {:test} TestOneBeaconValue()
@@ -111,21 +111,22 @@ module TestBaseBeacon {
     var client :- expect Primitives.AtomicPrimitives();
 
     var key :- expect client.Hkdf(Prim.HkdfInput(
-                              digestAlgorithm := Prim.SHA_512,
-                              salt := None,
-                              ikm := [1,2,3,4,5],
-                              info := info,
-                              expectedLength := 64
-                            ));
-    var value := expect UTF8.Encode("1.23");
+                                    digestAlgorithm := Prim.SHA_512,
+                                    salt := None,
+                                    ikm := [1,2,3,4,5],
+                                    info := info,
+                                    expectedLength := 64
+                                  ));
+
+    var data :- expect UTF8.Encode("1.23");
     var input := Prim.HMacInput (
-                     digestAlgorithm := Prim.SHA_384,
-                     key := key,
-                     message := data
-                   );
-      var hmac48 :- expect client.HMac(input);
-      var hmac8 := hmac48[..8];
-
+      digestAlgorithm := Prim.SHA_384,
+      key := key,
+      message := data
+    );
+    var hmac48 :- expect client.HMac(input);
+    var hmac8 := hmac48[..8];
+    var beacon := BytesToHex(hmac8, 24);
+    expect beacon == "ac6f5d";
   }
-
 }

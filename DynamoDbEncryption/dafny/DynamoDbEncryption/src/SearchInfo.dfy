@@ -68,14 +68,14 @@ module SearchableEncryptionInfo {
       //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
       //# For every [standard beacons](beacons.md#standard-beacon-initialization) an HMAC key
       //# MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
-      var key :- GetBeaconKey(client, key, keysLeft[0]);
+      var newKey :- GetBeaconKey(client, key, keysLeft[0]);
       reveal Seq.HasNoDuplicates();
       //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
       //# [Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
       //# with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
       //# and the [HMAC Keys](#hmac-keys) equal to a map
       //# of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
-      output := GetHmacKeys(client, allKeys, keysLeft[1..], key, acc[keysLeft[0] := key]);
+      output := GetHmacKeys(client, allKeys, keysLeft[1..], key, acc[keysLeft[0] := newKey]);
     }
   }
 
@@ -122,8 +122,8 @@ module SearchableEncryptionInfo {
                               info := info,
                               expectedLength := 64
                             ));
-    var key :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
-    return Success(key);
+    var newKey :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
+    return Success(newKey);
   }
 
   datatype KeyLocation =

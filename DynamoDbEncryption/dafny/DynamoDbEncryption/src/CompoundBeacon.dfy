@@ -196,7 +196,7 @@ module CompoundBeacon {
       requires !keys.DontUseKeys?
     {
       var part :- partFromPrefix(parts, value);
-      PartValueCalc(value, part.prefix, keys, part)
+      PartValueCalc(value, keys, part)
     }
 
     function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap) : Result<DDB.AttributeValue, Error>
@@ -238,7 +238,7 @@ module CompoundBeacon {
             if keys.DontUseKeys? then
               Success(part.prefix + strValue.value)
             else
-              PartValueCalc(part.prefix + strValue.value, part.prefix, keys, part);
+              PartValueCalc(strValue.value, keys, part);
           if |acc| == 0 then
             TryConstructor(consFields[1..], item, vf, keys, val)
           else
@@ -355,13 +355,13 @@ module CompoundBeacon {
                 //# * The [Part Value](#part-value-calculation) MUST be calculated for each piece,
                 //# using the prefix and length from the discovered part.
                 && var thePart := findPart(piece).value;
-                && PartValueCalc(piece, thePart.prefix, Keys(keys), thePart).Success?
-                && ret.value == PartValueCalc(piece, thePart.prefix, Keys(keys), thePart).value
+                && PartValueCalc(piece, Keys(keys), thePart).Success?
+                && ret.value == PartValueCalc(piece, Keys(keys), thePart).value
 
       ensures findPart(piece).Failure? ==> ret.Failure?
     {
       var thePart :- findPart(piece);
-      PartValueCalc(piece, thePart.prefix, Keys(keys), thePart)
+      PartValueCalc(piece, Keys(keys), thePart)
     }
 
     function method calcParts(pieces : seq<string>, keys : HmacKeyMap, acc : string := [])
@@ -440,23 +440,18 @@ module CompoundBeacon {
 
     //= specification/searchable-encryption/beacons.md#part-value-calculation
     //= type=implication
-    //# Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string, a prefix,
+    //# Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string,
     //# and a [Part](#part) as input, and return a string as output.
-    function method {:opaque} PartValueCalc(data : string, prefix : string, keys : MaybeKeyMap, part : BeaconPart)
+    function method {:opaque} PartValueCalc(data : string, keys : MaybeKeyMap, part : BeaconPart)
       : (ret : Result<string, Error>)
-      //= specification/searchable-encryption/beacons.md#part-value-calculation
-      //= type=implication
-      //# The input string MUST begin with the provided prefix.
-      requires prefix <= data
-      requires 0 < |prefix|
-      requires prefix == part.getPrefix()
       requires !keys.DontUseKeys?
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
-      //# If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.
+      //# If the part is a [nonsensitive part](#non-sensitive-part-initialization),
+      //# the part value MUST be the concatenation of the prefix and the input string.
       ensures part.NonSensitive? && ret.Success? ==>
-                && ret.value == data
+                && ret.value == part.prefix + data
                 && 0 < |ret.value|
                    //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                    //= type=implication
@@ -465,14 +460,14 @@ module CompoundBeacon {
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
-      //# If the [beacon length](#beacon-length) is provided,
-      //# the part value MUST be the concatenation
-      //# of the prefix and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
+      //# If the part is a [sensitive part](#sensitive-part-initialization),
+      //# the part value MUST be the concatenation of the prefix
+      //# and the [basicHash](#basichash) of the input string with the configured [standard beacon](#beacon).
       ensures part.Sensitive? && ret.Success? ==>
                 && 0 < |ret.value|
                 && keys.Keys?
                 && part.beacon.hashStr(data, keys.value).Success?
-                && ret.value == prefix + part.beacon.hashStr(data, keys.value).value
+                && ret.value == part.prefix + part.beacon.hashStr(data, keys.value).value
                    //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                    //= type=implication
                    //# * This operation MUST fail if any plaintext value used in the construction contains the split character.
@@ -483,9 +478,9 @@ module CompoundBeacon {
         case Sensitive(p, b) =>
           :- Need(keys.Keys?, E("Need KeyId for beacon " + b.base.name + " but no KeyId found in query."));
           var hash :- b.hashStr(data, keys.value);
-          Success(prefix + hash)
+          Success(part.prefix + hash)
         case NonSensitive =>
-          Success(data)
+          Success(part.prefix + data)
       }
     }
   }
