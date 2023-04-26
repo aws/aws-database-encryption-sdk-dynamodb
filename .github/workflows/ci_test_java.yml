@@ -36,6 +36,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Init Submodules
+        shell: bash
         env:
           # This secret is in the configured environment
           # Token created on # 11/28/2022
@@ -49,6 +50,7 @@ jobs:
 
       # Set up env vars for CodeArtifact
       - name: Set Up Env Vars for CodeArtifact
+        shell: bash
         run: |
           export URL=`aws codeartifact get-repository-endpoint \
             --domain github-polymorph \
@@ -83,6 +85,7 @@ jobs:
           make build_java CORES=$CORES
 
       - name: Test ${{ matrix.library }}
+        shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
           make test_java
