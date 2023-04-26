@@ -18,27 +18,7 @@ module TestBaseBeacon {
   import I = SearchableEncryptionInfo
   import SI = SearchableEncryptionInfo
 
-  //const Timestamp := BeaconPart("timestamp", TermLocMap("timestamp"), "T-", None);
-  //const Secret := BeaconPart("secret", TermLocMap("secret"), "S-", Some(4));
-/*
-  method {:test} TestCompoundBeacon() {
-    var primitives :- expect Primitives.AtomicPrimitives();
 
-    var b := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo");
-    var parts := [Timestamp, Secret];
-    var cons := MakeDefaultConstructor(parts);
-    var b1 := CompoundBeacon(b, '.', parts, [cons]);
-    var data := map["timestamp" := "1234", "secret" := "abcd"];
-    var bytes :- expect b.getHmac(UTF8.EncodeAscii("S-abcd"), key := [1,2]);
-    expect bytes[7] == 0x42;
-
-   // var str :- expect b1.hash(t => StringifyMap(t, data));
-   // expect str == "T-1234.S-2";
-
-    var query :-  expect b1.getPart("T-1234.S-abcd", key := [1,2]);
-    expect query == "T-1234.S-2";
-  }
-*/
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
@@ -92,12 +72,60 @@ module TestBaseBeacon {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
     var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    assert "std2" in SimpleItem;
+    assert SimpleItem["std2"] == Std2String;
     assert Std2String == DDB.AttributeValue.N("1.23");
     expect "aws_dbe_b_std2" in goodAttrs;
+    // b1eb7a is the beaconization of "1.23" for beacon "std2"
     expect goodAttrs["aws_dbe_b_std2"] == DDB.AttributeValue.S("b1eb7a");
     var newItem := SimpleItem["std2" := DDB.AttributeValue.N("000001.23000000")];
     var newAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
     expect "aws_dbe_b_std2" in newAttrs;
     expect goodAttrs["aws_dbe_b_std2"] == newAttrs["aws_dbe_b_std2"];
   }
+
+  method {:test} TestBeaconValues()
+  {
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var attrs :- expect bv.GenerateSignedBeacons(SimpleItem);
+    expect attrs == map["JustSigned" := DDB.AttributeValue.S("Y_1984.M_May")];
+    attrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    expect attrs == map[
+      "aws_dbe_b_Mixed" := DDB.AttributeValue.S("N_4fe1622c.Y_1984"),
+      "aws_dbe_b_Name" := DDB.AttributeValue.S("7d9bfa40"),
+      "aws_dbe_b_NameTitle" := DDB.AttributeValue.S("N_4fe1622c.T_61adc978"),
+      "aws_dbe_b_NameTitleField" := DDB.AttributeValue.S("6000a92"),
+      "aws_dbe_b_std2" := DDB.AttributeValue.S("b1eb7a"),
+      "aws_dbe_b_Title" := DDB.AttributeValue.S("df822013"),
+      "aws_dbe_b_std6" := DDB.AttributeValue.S("335edce"),
+      "aws_dbe_b_std4" := DDB.AttributeValue.S("e001eb"),
+      "aws_dbe_b_YearName" := DDB.AttributeValue.S("Y_1984.N_4fe1622c")
+    ];
+  }
+
+  method {:test} TestOneBeaconValue()
+  {
+    var info :- expect UTF8.Encode("AWS_DBE_SCAN_BEACONstd2");
+    var client :- expect Primitives.AtomicPrimitives();
+
+    var key :- expect client.Hkdf(Prim.HkdfInput(
+                              digestAlgorithm := Prim.SHA_512,
+                              salt := None,
+                              ikm := [1,2,3,4,5],
+                              info := info,
+                              expectedLength := 64
+                            ));
+    var value := expect UTF8.Encode("1.23");
+    var input := Prim.HMacInput (
+                     digestAlgorithm := Prim.SHA_384,
+                     key := key,
+                     message := data
+                   );
+      var hmac48 :- expect client.HMac(input);
+      var hmac8 := hmac48[..8];
+
+  }
+
 }
