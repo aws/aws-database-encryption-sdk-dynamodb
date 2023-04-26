@@ -145,7 +145,7 @@ public class BasicSearchableEncryptionExample {
     //    (for example if your table holds data for multiple tenants, and you want to use
     //    a different beacon key per tenant), look into configuring a Multi Beacon Key.
     //    Source: TODO example
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
+    CreateKeyOutput output = keyStore.CreateKey();
     String branchKeyId = output.branchKeyIdentifier();
 
     // 4. Create BeaconVersion.

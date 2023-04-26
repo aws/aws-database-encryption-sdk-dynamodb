@@ -62,6 +62,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
       id := None,
       ddbTableName := branchKeyStoreName,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       kmsClient := Some(kmsClient),
       ddbClient := Some(dynamodbClient)
     );
@@ -72,8 +73,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
         branchKeyIdSupplier := Some(branchKeyIdSupplier),
         keyStore := keyStore,
         ttlSeconds := ttl,
-        maxCacheSize := Option.Some(10),
-        grantTokens := Option.None
+        maxCacheSize := Option.Some(10)
       )
     );
 
