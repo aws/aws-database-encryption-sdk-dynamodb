@@ -32,7 +32,6 @@ import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
 import org.testng.annotations.Test;
 
-// TODO test various schema updates
 public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     @Test
     public void TestPutAndGet() {

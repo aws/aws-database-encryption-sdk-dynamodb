@@ -132,7 +132,7 @@ public class DynamoDbEncryptionInterceptorTest {
     public void TestUpdateItemOnNonEncryptedTable() {
         UpdateItemRequest oldRequest = UpdateItemRequest.builder()
                 .tableName("otherTable")
-                .key(Collections.EMPTY_MAP) // TODO another case where 'key' is required by the server but not checked client side
+                .key(Collections.EMPTY_MAP)
                 .build();
 
         Context.ModifyRequest context = InterceptorContext.builder()
@@ -305,7 +305,7 @@ public class DynamoDbEncryptionInterceptorTest {
     public void TestDeleteItemWithConditionExpressionNonEncryptedTable() {
         DeleteItemRequest oldRequest = DeleteItemRequest.builder()
                 .tableName("otherTable")
-                .key(Collections.EMPTY_MAP) // TODO another case where 'key' is required by the server but not checked client side
+                .key(Collections.EMPTY_MAP)
                 .conditionExpression("foo")
                 .build();
 

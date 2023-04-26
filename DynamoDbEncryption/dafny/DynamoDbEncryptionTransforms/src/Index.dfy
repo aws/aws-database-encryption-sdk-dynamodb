@@ -20,9 +20,7 @@ module
   import SET = AwsCryptographyStructuredEncryptionTypes
   import DDB = ComAmazonawsDynamodbTypes
 
-  // TODO there is no sensible default, so what should this do?
-  // As is, the default config is invalid. Can we update the codegen to *not*
-  // build a default config?
+  // There is no sensible default, so we express something empty but invalid.
   function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig
   {
     ET.DynamoDbTablesEncryptionConfig(
@@ -132,8 +130,6 @@ module
           legacyConfig := inputConfig.legacyConfig,
           plaintextPolicy := inputConfig.plaintextPolicy
         );
-        // TODO consider using the raw constructor in order to avoid
-        // instantiating multiple StructuredEncryption
         var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
 
         var itemEncryptor :- itemEncryptorRes

@@ -60,8 +60,6 @@ module DdbStatement {
         None
   }
 
-  // TODO - find reference to ensure a naked "from" cannot appear in the select expression
-  // e.g. that it would have to be quoted or part of a larger construct without spaces
   function method {:tailrecursion} {:opaque} TableFromSelectStatementInner(s : string)
     : Option<string>
     decreases |s|

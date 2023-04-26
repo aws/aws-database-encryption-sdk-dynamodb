@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class DynamoDbItemConversionIntegrationTests {
-    // TODO break this up into distinct tests
     @Test
     public void TestPutItemGetRichItem() {
         Map<String, CryptoAction> actions = new HashMap<>();

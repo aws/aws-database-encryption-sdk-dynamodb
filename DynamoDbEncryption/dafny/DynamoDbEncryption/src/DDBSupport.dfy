@@ -171,7 +171,6 @@ module DynamoDBSupport {
       //# the existing attribute value AddNonSensitiveBeacons MUST fail.
       var badAttrs := set k <- newAttrs | k in item && item[k] != newAttrs[k] :: k;
       :- Need(|badAttrs| == 0, E("Signed beacons have generated values different from supplied values."));
-      // TODO - more specific error message
       var version : DDB.AttributeMap := map[VersionTag := DS(" ")];
       var both := newAttrs.Keys * item.Keys;
       var bad := set k <- both | newAttrs[k] != item[k];
