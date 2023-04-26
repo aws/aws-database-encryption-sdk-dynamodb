@@ -86,8 +86,18 @@ module TestBaseBeacon {
     expect_equal(badAttrs.error, E("Part Name for beacon Mixed has value 'A.B' which contains the split character .'."));
   }
 
-  /*
-    Successes :
-      some test vectors
-  */
+  method {:test} TestNumbersNormalize()
+  {
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    assert Std2String == DDB.AttributeValue.N("1.23");
+    expect "aws_dbe_b_std2" in goodAttrs;
+    expect goodAttrs["aws_dbe_b_std2"] == DDB.AttributeValue.S("b1eb7a");
+    var newItem := SimpleItem["std2" := DDB.AttributeValue.N("000001.23000000")];
+    var newAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    expect "aws_dbe_b_std2" in newAttrs;
+    expect goodAttrs["aws_dbe_b_std2"] == newAttrs["aws_dbe_b_std2"];
+  }
 }
