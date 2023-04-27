@@ -344,31 +344,21 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     )
   }
 
-  // TODO this is a workaround for a very silly issue with case sensitivity between package names,
-  // that prevents this code from always correctly finding `dafny.Function4`.
-  // For now, put all inputs into one datatype so we are only using `dafny.Function1` here.
-  datatype CanonizeForDecryptInput = CanonizeForDecryptInput(
-    tableName: GoodString,
-    data: StructuredDataPlain,
-    authSchema: AuthSchemaPlain,
-    legend: Header.Legend
-  )
-
   // construct the DecryptCanon
-  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(input: CanonizeForDecryptInput)
+  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(tableName: GoodString, data: StructuredDataPlain, authSchema: AuthSchemaPlain, legend: Header.Legend)
     : (ret : Result<DecryptCanon, Error>)
-    requires input.authSchema.Keys == input.data.Keys
+    requires authSchema.Keys == data.Keys
     ensures ret.Success? ==>
-      && |ret.value.signedFields_c| == |input.legend|
+      && |ret.value.signedFields_c| == |legend|
     ensures ret.Success? ==>
-      && (forall k :: k in input.data.Keys && input.authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(input.tableName, k) in ret.value.data_c.Keys)
+      && (forall k :: k in data.Keys && authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(tableName, k) in ret.value.data_c.Keys)
     ensures ret.Success? ==>
-      && (forall v :: v in ret.value.data_c.Values ==> v in input.data.Values)
+      && (forall v :: v in ret.value.data_c.Values ==> v in data.Values)
     ensures ret.Success? ==>
       && ret.value.cryptoSchema.content.SchemaMap?
       && CryptoSchemaMapIsFlat(ret.value.cryptoSchema.content.SchemaMap)
-      && AuthSchemaIsFlat(input.authSchema)
-      && ValidParsedCryptoSchema(ret.value.cryptoSchema.content.SchemaMap, input.authSchema, input.tableName)
+      && AuthSchemaIsFlat(authSchema)
+      && ValidParsedCryptoSchema(ret.value.cryptoSchema.content.SchemaMap, authSchema, tableName)
   {
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //# The `signed field list` MUST be all fields for which
@@ -378,18 +368,18 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# sorted by the [Canonical Path](header.md.#canonical-path).
 
     reveal Maps.Injective();
-    Paths.SimpleCanonUnique(input.tableName);
-    var fieldMap := map k <- input.data.Keys | input.authSchema[k].content.Action == SIGN ::
-      Paths.SimpleCanon(input.tableName, k) := k;
+    Paths.SimpleCanonUnique(tableName);
+    var fieldMap := map k <- data.Keys | authSchema[k].content.Action == SIGN ::
+      Paths.SimpleCanon(tableName, k) := k;
     assert Maps.Injective(fieldMap);
 
-    var data_c := map k <- fieldMap :: k := input.data[fieldMap[k]];
+    var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
 
-    if |input.legend| < |signedFields_c| then
+    if |legend| < |signedFields_c| then
       Failure(E("Schema changed : something that was unsigned is now signed."))
     else 
-    if |input.legend| > |signedFields_c| then
+    if |legend| > |signedFields_c| then
       Failure(E("Schema changed : something that was signed is now unsigned."))
     else
 
@@ -398,11 +388,11 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     //# for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
     //# is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes),
     //# sorted by the field's [canonical path](./header.md#canonical-path).
-    var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, input.legend);
+    var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, legend);
     :- Need(|encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
 
     var actionMap := map v <- fieldMap.Values ::
-      v := if Paths.SimpleCanon(input.tableName, v) in encFields_c then
+      v := if Paths.SimpleCanon(tableName, v) in encFields_c then
         CryptoSchema(
           content := CryptoSchemaContent.Action(ENCRYPT_AND_SIGN),
           attributes := None
@@ -812,8 +802,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var ok :- head.verifyCommitment(config.primitives, postCMMAlg, commitKey, headerSerialized);
 
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
-    var canonData :- CanonizeForDecrypt(
-      CanonizeForDecryptInput(input.tableName, encRecord, authSchema, head.legend));
+    var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
 
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //= type=implication
