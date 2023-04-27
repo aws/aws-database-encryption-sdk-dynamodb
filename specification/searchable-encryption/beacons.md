@@ -350,6 +350,13 @@ of the input bytes and the [hmac key](./search-config.md#hmac-key-generation), a
  * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
  * the length of the returned string MUST be (`beacon length`/4) rounded up.
 
+### string hash
+ * string hash MUST take a string and some [key materials](./search-config.md#get-beacon-key-materials)
+as input, and produce a string as output.
+ * string hash MUST return the [basic hash](#basichash) of the UTF8 representation
+of the input string, the HMAC key from the [key materials](./search-config.md#get-beacon-key-materials)
+associated with this beacon, and the beacon length associated with this beacon.
+
 ### value for a standard beacon
  * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional string.
  * This operation MUST return no value if the associated field does not exist in the record
@@ -391,17 +398,17 @@ using the prefix and length from the discovered part.
 Calculate the `plain string` :
 the concatenation of the prefix and the field value.
 
-The `Part Value` is the [part value calculation](#part-value-calculation) of the `plain string`, the part's prefix, and the [beacon length](#beacon-length), if any.
+The `Part Value` is the [part value calculation](#part-value-calculation) of the `plain string` and the part.
 
 ### Part Value Calculation
 
-Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string, a prefix,
+Part Value Calculation MUST take some [key materials](./search-config.md#get-beacon-key-materials),
+a string (the value for which the beacon is being calculated)
 and a [Part](#part) as input, and return a string as output.
 
-The input string MUST begin with the provided prefix.
+If the part is a [sensitive part](#sensitive-part-initialization),
+the part value MUST be the concatenation of the part's prefix
+and the [string hash](#string-hash) of the input string.
 
-If the [beacon length](#beacon-length) is provided, 
-the part value MUST be the concatenation of the prefix
-and the [basicHash](#basichash) of the input string with the configured [beacon length](#beacon-length).
-
-If the [beacon length](#beacon-length) is not provided, the part value MUST be the input string.
+If the part is a [nonsensitive part](#non-sensitive-part-initialization),
+the part value MUST be the concatenation of the part's prefix and the input string.
