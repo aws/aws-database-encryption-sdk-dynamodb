@@ -277,7 +277,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
         FilterEncrypt(fields[1..], fieldMap, schema)
   }
 
-  function method GetFieldMap(tableName : GoodString, data : StructuredDataPlain, schema : CryptoSchemaPlain)
+  function method GetFieldMap(tableName : GoodString, data : StructuredDataPlain, schema : CryptoSchemaPlain, foo: nat)
     : (ret : map<Bytes,GoodString>)
     requires schema.Keys == data.Keys
     ensures forall k <- data :: schema[k].content.Action == DO_NOTHING || Paths.SimpleCanon(tableName, k) in ret
@@ -285,7 +285,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   {
     reveal Maps.Injective();
     Paths.SimpleCanonUnique(tableName);
-    map k <- data.Keys | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k
+    map k <- data.Keys | foo == 1 && schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k
   }
 
   // construct the EncryptCanon
@@ -318,7 +318,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
       && var trimmedSchema := ret.value.cryptoSchema.content.SchemaMap;
       && (forall k :: k in trimmedSchema ==> k in schema && trimmedSchema[k] == schema[k]);
   {
-    var fieldMap := GetFieldMap(tableName, data, schema);
+    var fieldMap := GetFieldMap(tableName, data, schema, 1);
 
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
@@ -345,7 +345,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
   }
 
   // construct the DecryptCanon
-  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(tableName: GoodString, data: StructuredDataPlain, authSchema: AuthSchemaPlain, legend: Header.Legend)
+  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(tableName: GoodString, data: StructuredDataPlain, authSchema: AuthSchemaPlain, legend: Header.Legend, foo: int)
     : (ret : Result<DecryptCanon, Error>)
     requires authSchema.Keys == data.Keys
     ensures ret.Success? ==>
@@ -802,7 +802,7 @@ module AwsCryptographyStructuredEncryptionOperations refines AbstractAwsCryptogr
     var ok :- head.verifyCommitment(config.primitives, postCMMAlg, commitKey, headerSerialized);
 
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
-    var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
+    var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend, 1);
 
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //= type=implication
