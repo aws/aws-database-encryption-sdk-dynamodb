@@ -436,11 +436,10 @@ module CompoundBeacon {
         Failure(E("Internal Error"))
     }
 
-
-
     //= specification/searchable-encryption/beacons.md#part-value-calculation
     //= type=implication
-    //# Part Value Calculation MUST take an [hmac key](./search-config.md#hmac-key-generation), a string,
+    //# Part Value Calculation MUST take some [key materials](./search-config.md#get-beacon-key-materials),
+    //# a string (the value for which the beacon is being calculated)
     //# and a [Part](#part) as input, and return a string as output.
     function method {:opaque} PartValueCalc(data : string, keys : MaybeKeyMap, part : BeaconPart)
       : (ret : Result<string, Error>)
@@ -449,7 +448,7 @@ module CompoundBeacon {
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
       //# If the part is a [nonsensitive part](#non-sensitive-part-initialization),
-      //# the part value MUST be the concatenation of the prefix and the input string.
+      //# the part value MUST be the concatenation of the part's prefix and the input string.
       ensures part.NonSensitive? && ret.Success? ==>
                 && ret.value == part.prefix + data
                 && 0 < |ret.value|
@@ -461,8 +460,8 @@ module CompoundBeacon {
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
       //# If the part is a [sensitive part](#sensitive-part-initialization),
-      //# the part value MUST be the concatenation of the prefix
-      //# and the [basicHash](#basichash) of the input string with the configured [standard beacon](#beacon).
+      //# the part value MUST be the concatenation of the part's prefix
+      //# and the [string hash](#string-hash) of the input string.
       ensures part.Sensitive? && ret.Success? ==>
                 && 0 < |ret.value|
                 && keys.Keys?

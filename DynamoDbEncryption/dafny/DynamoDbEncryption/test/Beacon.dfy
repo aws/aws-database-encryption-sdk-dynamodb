@@ -93,6 +93,15 @@ module TestBaseBeacon {
     expect attrs == map[
                       "aws_dbe_b_Mixed" := DDB.AttributeValue.S("N_7d9bfa40.Y_1984"),
                       "aws_dbe_b_Name" := DDB.AttributeValue.S("7d9bfa40"),
+                      //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
+                      //= type=test
+                      //# * The value returned MUST be these part values, joined with the `split character`.
+
+                      //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+                      //= type=test
+                      //# * For that constructor, hash MUST join the [part value](#part-value) for each part
+                      //# on the `split character`,
+                      //# excluding parts that are not required and with a source field that is not available.
                       "aws_dbe_b_NameTitle" := DDB.AttributeValue.S("N_7d9bfa40.T_e4feb833"),
                       "aws_dbe_b_NameTitleField" := DDB.AttributeValue.S("4c577d7"),
                       "aws_dbe_b_std2" := DDB.AttributeValue.S("ac6f5d"),
