@@ -17,12 +17,12 @@ module
   import SE =  StructuredEncryptionUtil
   import InternalLegacyConfig
 
-  // There is no sensible default, so construct something empty but invalid.
+  // There is no sensible default, so construct something simple but invalid at runtime.
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
   {
     DynamoDbItemEncryptorConfig(
-      tableName := "",
-      partitionKeyName := "",
+      tableName := "foo",
+      partitionKeyName := "bar",
       sortKeyName := None(),
       attributeActions := map[],
       allowedUnauthenticatedAttributes := None(),

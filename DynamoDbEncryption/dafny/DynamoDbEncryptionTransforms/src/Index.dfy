@@ -20,7 +20,7 @@ module
   import SET = AwsCryptographyStructuredEncryptionTypes
   import DDB = ComAmazonawsDynamodbTypes
 
-  // There is no sensible default, so we express something empty but invalid.
+  // There is no sensible default, so we express something empty but invalid at runtime.
   function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig
   {
     ET.DynamoDbTablesEncryptionConfig(
