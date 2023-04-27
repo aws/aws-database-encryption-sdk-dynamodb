@@ -64,6 +64,29 @@ module TestBaseBeacon {
     expect_equal(badAttrs.error, E("Part Name for beacon Mixed has value 'A.B' which contains the split character .'."));
   }
 
+  const std2_beacon := "ac6f5d"
+  const Name_beacon := "7d9bfa40"
+  const Title_beacon := "e4feb833"
+  const std4_beacon := "0e9064"
+  const std6_beacon := "2d99222"
+  const NameTitle_beacon := "4c577d7"
+
+  method {:test} TestOneBeaconValue()
+  {
+    var x := GetBeaconValue("std2", [1,2,3,4,5], "1.23", 24);
+    expect x == std2_beacon;
+    x := GetBeaconValue("Name", [1,2,3,4,5], "MyName", 32);
+    expect x == Name_beacon;
+    x := GetBeaconValue("Title", [1,2,3,4,5], "MyTitle", 32);
+    expect x == Title_beacon;
+    x := GetBeaconValue("std4", [1,2,3,4,5], "abc", 24);
+    expect x == std4_beacon;
+    x := GetBeaconValue("std6", [1,2,3,4,5], "666", 26);
+    expect x == std6_beacon;
+    x := GetBeaconValue("NameTitleField", [1,2,3,4,5], "MyName__mytitle", 28);
+    expect x == NameTitle_beacon;
+  }
+
   method {:test} TestNumbersNormalize()
   {
     var version := GetLotsaBeacons();
@@ -74,8 +97,7 @@ module TestBaseBeacon {
     assert SimpleItem["std2"] == Std2String;
     assert Std2String == DDB.AttributeValue.N("1.23");
     expect "aws_dbe_b_std2" in goodAttrs;
-    // b1eb7a is the beaconization of "1.23" for beacon "std2"
-    expect goodAttrs["aws_dbe_b_std2"] == DDB.AttributeValue.S("ac6f5d");
+    expect goodAttrs["aws_dbe_b_std2"] == DDB.AttributeValue.S(std2_beacon);
     var newItem := SimpleItem["std2" := DDB.AttributeValue.N("000001.23000000")];
     var newAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
     expect "aws_dbe_b_std2" in newAttrs;
@@ -91,8 +113,8 @@ module TestBaseBeacon {
     expect attrs == map["JustSigned" := DDB.AttributeValue.S("Y_1984.M_May")];
     attrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
     expect attrs == map[
-                      "aws_dbe_b_Mixed" := DDB.AttributeValue.S("N_7d9bfa40.Y_1984"),
-                      "aws_dbe_b_Name" := DDB.AttributeValue.S("7d9bfa40"),
+                      "aws_dbe_b_Mixed" := DDB.AttributeValue.S("N_" + Name_beacon + ".Y_1984"),
+                      "aws_dbe_b_Name" := DDB.AttributeValue.S(Name_beacon),
                       //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
                       //= type=test
                       //# * The value returned MUST be these part values, joined with the `split character`.
@@ -102,30 +124,30 @@ module TestBaseBeacon {
                       //# * For that constructor, hash MUST join the [part value](#part-value) for each part
                       //# on the `split character`,
                       //# excluding parts that are not required and with a source field that is not available.
-                      "aws_dbe_b_NameTitle" := DDB.AttributeValue.S("N_7d9bfa40.T_e4feb833"),
+                      "aws_dbe_b_NameTitle" := DDB.AttributeValue.S("N_" + Name_beacon + ".T_" + Title_beacon),
                       "aws_dbe_b_NameTitleField" := DDB.AttributeValue.S("4c577d7"),
-                      "aws_dbe_b_std2" := DDB.AttributeValue.S("ac6f5d"),
-                      "aws_dbe_b_Title" := DDB.AttributeValue.S("e4feb833"),
-                      "aws_dbe_b_std6" := DDB.AttributeValue.S("2d99222"),
-                      "aws_dbe_b_std4" := DDB.AttributeValue.S("0e9064"),
-                      "aws_dbe_b_YearName" := DDB.AttributeValue.S("Y_1984.N_7d9bfa40")
+                      "aws_dbe_b_std2" := DDB.AttributeValue.S(std2_beacon),
+                      "aws_dbe_b_Title" := DDB.AttributeValue.S(Title_beacon),
+                      "aws_dbe_b_std6" := DDB.AttributeValue.S(std6_beacon),
+                      "aws_dbe_b_std4" := DDB.AttributeValue.S(std4_beacon),
+                      "aws_dbe_b_YearName" := DDB.AttributeValue.S("Y_1984.N_" + Name_beacon)
                     ];
   }
 
-  method {:test} TestOneBeaconValue()
+  method GetBeaconValue(name : string, key : Bytes, value : string, length : BeaconLength) returns (output : string)
   {
-    var info :- expect UTF8.Encode("AWS_DBE_SCAN_BEACONstd2");
+    var info :- expect UTF8.Encode("AWS_DBE_SCAN_BEACON" + name);
     var client :- expect Primitives.AtomicPrimitives();
 
     var key :- expect client.Hkdf(Prim.HkdfInput(
                                     digestAlgorithm := Prim.SHA_512,
                                     salt := None,
-                                    ikm := [1,2,3,4,5],
+                                    ikm := key,
                                     info := info,
                                     expectedLength := 64
                                   ));
 
-    var data :- expect UTF8.Encode("1.23");
+    var data :- expect UTF8.Encode(value);
     var input := Prim.HMacInput (
       digestAlgorithm := Prim.SHA_384,
       key := key,
@@ -133,9 +155,9 @@ module TestBaseBeacon {
     );
     var hmac48 :- expect client.HMac(input);
     var hmac8 := hmac48[..8];
-    var beacon := BytesToHex(hmac8, 24);
-    expect beacon == "ac6f5d";
+    return BytesToHex(hmac8, length);
   }
+
 
   method {:test} TestQueryBeacons() {
     var context := ExprContext (
@@ -163,18 +185,18 @@ module TestBaseBeacon {
     var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
     var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
     expect newContext.values == Some(map[
-                                       ":Mixed" := DDB.AttributeValue.S("N_7d9bfa40.Y_1984"),
-                                       ":Name" := DDB.AttributeValue.S("7d9bfa40"),
-                                       ":NameTitle" := DDB.AttributeValue.S("N_7d9bfa40.T_e4feb833"),
-                                       ":NameTitleTN" := DDB.AttributeValue.S("T_e4feb833.N_7d9bfa40"),
-                                       ":NameTitleN" := DDB.AttributeValue.S("N_7d9bfa40"),
-                                       ":NameTitleT" := DDB.AttributeValue.S("T_e4feb833"),
-                                       ":NameTitleField" := DDB.AttributeValue.S("4c577d7"),
-                                       ":std2" := DDB.AttributeValue.S("ac6f5d"),
-                                       ":Title" := DDB.AttributeValue.S("e4feb833"),
-                                       ":std6" := DDB.AttributeValue.S("2d99222"),
-                                       ":std4" := DDB.AttributeValue.S("0e9064"),
-                                       ":YearName" := DDB.AttributeValue.S("Y_1984.N_7d9bfa40")
+                                       ":Mixed" := DDB.AttributeValue.S("N_" + Name_beacon + ".Y_1984"),
+                                       ":Name" := DDB.AttributeValue.S(Name_beacon),
+                                       ":NameTitle" := DDB.AttributeValue.S("N_" + Name_beacon + ".T_" + Title_beacon),
+                                       ":NameTitleTN" := DDB.AttributeValue.S("T_" + Title_beacon + ".N_" + Name_beacon),
+                                       ":NameTitleN" := DDB.AttributeValue.S("N_" + Name_beacon),
+                                       ":NameTitleT" := DDB.AttributeValue.S("T_" + Title_beacon),
+                                       ":NameTitleField" := DDB.AttributeValue.S(NameTitle_beacon),
+                                       ":std2" := DDB.AttributeValue.S(std2_beacon),
+                                       ":Title" := DDB.AttributeValue.S(Title_beacon),
+                                       ":std6" := DDB.AttributeValue.S(std6_beacon),
+                                       ":std4" := DDB.AttributeValue.S(std4_beacon),
+                                       ":YearName" := DDB.AttributeValue.S("Y_1984.N_" + Name_beacon)
                                      ]);
     expect newContext.names == None;
     //expect_equal(newContext.expr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
