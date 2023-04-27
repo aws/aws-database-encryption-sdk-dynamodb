@@ -196,7 +196,7 @@ module CompoundBeacon {
       requires !keys.DontUseKeys?
     {
       var part :- partFromPrefix(parts, value);
-      PartValueCalc(value, keys, part)
+      PartValueCalc(value[|part.prefix|..], keys, part)
     }
 
     function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap) : Result<DDB.AttributeValue, Error>

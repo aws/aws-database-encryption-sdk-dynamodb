@@ -1,10 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../src/Beacon.dfy"
-include "../src/CompoundBeacon.dfy"
+include "../src/Index.dfy"
 include "BeaconTestFixtures.dfy"
-include "../src/ConfigToInfo.dfy"
-include "../src/SearchInfo.dfy"
 
 module TestBaseBeacon {
   import T = AwsCryptographyDynamoDbEncryptionTypes
@@ -14,10 +11,11 @@ module TestBaseBeacon {
   import opened TermLoc
   import opened BeaconTestFixtures
   import opened DynamoDbEncryptionUtil
+  import opened DynamoDBFilterExpr
   import C = SearchConfigToInfo
   import I = SearchableEncryptionInfo
   import SI = SearchableEncryptionInfo
-
+  import DDB = ComAmazonawsDynamodbTypes
 
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
@@ -128,5 +126,48 @@ module TestBaseBeacon {
     var hmac8 := hmac48[..8];
     var beacon := BytesToHex(hmac8, 24);
     expect beacon == "ac6f5d";
+  }
+
+  method {:test} TestQueryBeacons() {
+    var context := ExprContext (
+      expr := Some("std2 = :std2 AND std4 = :std4 AND :std6 = std6 AND Name = :Name AND Mixed = :Mixed"
+                   + " AND :NameTitle = NameTitle AND NameTitle = :NameTitleN AND NameTitle = :NameTitleT AND NameTitle = :NameTitleTN"
+                   + " AND NameTitleField = :NameTitleField And Title = :Title AND YearName = :YearName"),
+      values:= Some(map[
+                      ":std2" := Std2String,
+                      ":std4" := Std4String,
+                      ":std6" := Std6String,
+                      ":Name" := NameString,
+                      ":Title" := TitleString,
+                      ":Mixed" := DDB.AttributeValue.S("N_MyName.Y_1984"),
+                      ":NameTitle" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
+                      ":NameTitleN" := DDB.AttributeValue.S("N_MyName"),
+                      ":NameTitleT" := DDB.AttributeValue.S("T_MyTitle"),
+                      ":NameTitleTN" := DDB.AttributeValue.S("T_MyTitle.N_MyName"),
+                      ":NameTitleField" := DDB.AttributeValue.S("MyName__mytitle"),
+                      ":YearName" := DDB.AttributeValue.S("Y_1984.N_MyName")
+                    ]),
+      names := None
+    );
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    expect newContext.values == Some(map[
+                                       ":Mixed" := DDB.AttributeValue.S("N_7d9bfa40.Y_1984"),
+                                       ":Name" := DDB.AttributeValue.S("7d9bfa40"),
+                                       ":NameTitle" := DDB.AttributeValue.S("N_7d9bfa40.T_e4feb833"),
+                                       ":NameTitleTN" := DDB.AttributeValue.S("T_e4feb833.N_7d9bfa40"),
+                                       ":NameTitleN" := DDB.AttributeValue.S("N_7d9bfa40"),
+                                       ":NameTitleT" := DDB.AttributeValue.S("T_e4feb833"),
+                                       ":NameTitleField" := DDB.AttributeValue.S("4c577d7"),
+                                       ":std2" := DDB.AttributeValue.S("ac6f5d"),
+                                       ":Title" := DDB.AttributeValue.S("e4feb833"),
+                                       ":std6" := DDB.AttributeValue.S("2d99222"),
+                                       ":std4" := DDB.AttributeValue.S("0e9064"),
+                                       ":YearName" := DDB.AttributeValue.S("Y_1984.N_7d9bfa40")
+                                     ]);
+    expect newContext.names == None;
+    //expect_equal(newContext.expr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
   }
 }
