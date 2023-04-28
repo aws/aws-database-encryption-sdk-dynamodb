@@ -713,9 +713,9 @@ return Dafny.Sequence<byte>.FromArray(utf8.GetBytes(value));
   return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
     dafnyVal._ComAmazonawsDynamodb
   );
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyStructuredEncryption dafnyVal:
-  return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_CommonError(
-    dafnyVal._AwsCryptographyStructuredEncryption
+ case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyPrimitives dafnyVal:
+  return AWS.Cryptography.Primitives.TypeConversion.FromDafny_CommonError(
+    dafnyVal._AwsCryptographyPrimitives
   );
  case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_DynamoDbItemEncryptorException dafnyVal:
 return FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N13_itemEncryptor__S30_DynamoDbItemEncryptorException(dafnyVal);
@@ -734,9 +734,9 @@ return FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N13_itemEncry
   return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_AwsCryptographyDynamoDbEncryption(
     AWS.Cryptography.DynamoDbEncryption.TypeConversion.ToDafny_CommonError(value)
   );
- case "AWS.Cryptography.StructuredEncryption":
-  return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_AwsCryptographyStructuredEncryption(
-    AWS.Cryptography.StructuredEncryption.TypeConversion.ToDafny_CommonError(value)
+ case "AWS.Cryptography.Primitives":
+  return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_AwsCryptographyPrimitives(
+    AWS.Cryptography.Primitives.TypeConversion.ToDafny_CommonError(value)
   );
  case "AWS.Cryptography.MaterialProviders":
   return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_AwsCryptographyMaterialProviders(
