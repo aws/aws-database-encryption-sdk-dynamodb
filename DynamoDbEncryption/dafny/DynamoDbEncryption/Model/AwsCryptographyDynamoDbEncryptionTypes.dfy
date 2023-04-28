@@ -205,6 +205,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  
 }
  datatype DynamoDbTableEncryptionConfig = | DynamoDbTableEncryptionConfig (
+ nameonly logicalTableName: string ,
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
  nameonly search: Option<SearchConfig> ,

@@ -120,7 +120,7 @@ module
         var newActions := AddActions(signedBeacons, inputConfig.attributeActions);
 
         var encryptorConfig := AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.DynamoDbItemEncryptorConfig(
-          tableName := tableName,
+          logicalTableName := inputConfig.logicalTableName,
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
           attributeActions := newActions,

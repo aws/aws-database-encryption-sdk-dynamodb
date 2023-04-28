@@ -33,7 +33,7 @@ structure DynamoDbItemEncryptorConfig {
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
     //= type=implication
     //# The following are REQUIRED for DynamoDb Table Encryption Configuration:
-    //# - [DynamoDB Table Name](#dynamodb-table-name)
+    //# - [Logical Table Name](#logical-table-name)
     //# - [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
     //# - [Attribute Actions](#attribute-actions)
     //# - A [CMM](#cmm) or [Keyring](#keyring)
@@ -48,11 +48,8 @@ structure DynamoDbItemEncryptorConfig {
     //# - [Legacy Config](#legacy-config)
     //# - [Plaintext Policy](#plaintext-policy)
 
-    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-table-name
-    //= type=implication
-    //# This Table Name MUST be a valid DynamoDB Table Name.
     @required
-    tableName: TableName,
+    logicalTableName: String,
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-partition-key-name
     //= type=implication

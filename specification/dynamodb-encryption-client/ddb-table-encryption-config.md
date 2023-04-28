@@ -30,9 +30,12 @@ should be encrypted and decrypted.
 
 ## Structure
 
+The physical [DynamoDB Table Name](#dynamodb-table-name) is REQUIRED
+to be associated with the DynamoDb Table Encryption Configuration.
+
 The following are REQUIRED for DynamoDb Table Encryption Configuration:
 
-- [DynamoDB Table Name](#dynamodb-table-name)
+- [Logical Table Name](#logical-table-name)
 - [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
 - [Attribute Actions](#attribute-actions)
 - A [CMM](#cmm) or [Keyring](#keyring)
@@ -69,10 +72,21 @@ This Table Name MUST be a valid DynamoDB Table Name.
 If this config is being organized with other table configs in a map,
 this value MAY exist as a key value to identify other data in this config,
 instead of existing alongside this data in the same object.
-We specify this data generally instead of specifying a more complex
+We specify this data instead of specifying a more complex
 but consistent structure in order to give us flexibility for providing the
-simplest customer experience for configuring either the DynamoDb Item Encryptor
-or it's integration with the AWS SDK for DDB.
+simplest customer experience.
+Also in the case of a restore from backup,
+this physical name may not match the logical name for the data stored.
+
+### Logical Table Name
+
+The logical name for the DynamoDB Table.
+This value can match the DynamoDB Table Name
+but does not need to.
+This name is cryptographically bound to all data stored in this table.
+In the case of a restore from backup
+the [DynamoDB Table Name](#dynamodb-table-name) can change to a new name,
+but this name must remain the same.
 
 ### DynamoDB Partition Key Name
 
