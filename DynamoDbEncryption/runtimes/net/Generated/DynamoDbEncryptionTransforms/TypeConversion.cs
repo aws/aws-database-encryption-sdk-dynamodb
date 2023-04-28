@@ -990,18 +990,31 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ReturnConsumedCapacity.is_Some) converted.ReturnConsumedCapacity = (Amazon.DynamoDBv2.ReturnConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput__M22_ReturnConsumedCapacity(concrete._ReturnConsumedCapacity); return converted;
 }
  internal static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput (Amazon.DynamoDBv2.Model.BatchExecuteStatementRequest value) {
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchExecuteStatementInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput__M10_Statements(value.Statements) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) ) ;
 }
  internal static Amazon.DynamoDBv2.Model.BatchExecuteStatementResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementOutput value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.BatchExecuteStatementOutput concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.BatchExecuteStatementOutput)value; Amazon.DynamoDBv2.Model.BatchExecuteStatementResponse converted = new Amazon.DynamoDBv2.Model.BatchExecuteStatementResponse(); if (concrete._Responses.is_Some) converted.Responses = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M9_Responses(concrete._Responses);
  if (concrete._ConsumedCapacity.is_Some) converted.ConsumedCapacity = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M16_ConsumedCapacity(concrete._ConsumedCapacity); return converted;
 }
- internal static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput (Amazon.DynamoDBv2.Model.BatchExecuteStatementResponse value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse> var_responses = value.IsSetResponses() ? value.Responses : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse>) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
- return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchExecuteStatementOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M9_Responses(var_responses) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M16_ConsumedCapacity(var_consumedCapacity) ) ;
-}
+
+ internal static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementOutput
+   ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput(
+     Amazon.DynamoDBv2.Model.BatchExecuteStatementResponse value)
+ {
+   System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse> var_responses =
+     value.Responses is {Count: > 0}
+       ? value.Responses
+       : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse>)null;
+   System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity =
+     value.ConsumedCapacity is {Count: > 0}
+       ? value.ConsumedCapacity
+       : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)null;
+   return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchExecuteStatementOutput(
+     ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M9_Responses(var_responses),
+     ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M16_ConsumedCapacity(
+       var_consumedCapacity));
+ }
  internal static Amazon.DynamoDBv2.Model.BatchGetItemRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchGetItemInput value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.BatchGetItemInput concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.BatchGetItemInput)value; Amazon.DynamoDBv2.Model.BatchGetItemRequest converted = new Amazon.DynamoDBv2.Model.BatchGetItemRequest();  converted.RequestItems = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput__M12_RequestItems(concrete._RequestItems);
  if (concrete._ReturnConsumedCapacity.is_Some) converted.ReturnConsumedCapacity = (Amazon.DynamoDBv2.ReturnConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput__M22_ReturnConsumedCapacity(concrete._ReturnConsumedCapacity); return converted;
@@ -1027,8 +1040,8 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ReturnItemCollectionMetrics.is_Some) converted.ReturnItemCollectionMetrics = (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M27_ReturnItemCollectionMetrics(concrete._ReturnItemCollectionMetrics); return converted;
 }
  internal static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput (Amazon.DynamoDBv2.Model.BatchWriteItemRequest value) {
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.IsSetReturnItemCollectionMetrics() ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.ReturnItemCollectionMetrics != null ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchWriteItemInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M12_RequestItems(value.RequestItems) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M27_ReturnItemCollectionMetrics(var_returnItemCollectionMetrics) ) ;
 }
  internal static Amazon.DynamoDBv2.Model.BatchWriteItemResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemOutput value) {
