@@ -27,10 +27,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj" />
-        <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj" />
-        <ProjectReference Include="../../../submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj" />
-        <ProjectReference Include="../../../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj" />
+        <ProjectReference Include="..\..\..\submodules\MaterialProviders\StandardLibrary\runtimes\net\STD.csproj" />
+        <ProjectReference Include="..\..\..\submodules\MaterialProviders\AwsCryptographicMaterialProviders\runtimes\net\MPL.csproj" />
+        <ProjectReference Include="..\..\..\submodules\MaterialProviders\AwsCryptographyPrimitives\runtimes\net\Crypto.csproj" />
+        <ProjectReference Include="..\..\..\submodules\MaterialProviders\ComAmazonawsKms\runtimes\net\AWS-KMS.csproj" />
+        <ProjectReference Include="..\..\..\submodules\MaterialProviders\ComAmazonawsDynamodb\runtimes\net\ComAmazonawsDynamodb.csproj" />
     </ItemGroup>
 
     <!--
