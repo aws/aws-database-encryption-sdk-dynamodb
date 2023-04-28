@@ -727,5 +727,25 @@ return FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S27_DynamoDbE
  return new Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error_Opaque(value);
 }
 }
-}
+
+ public static ILegacyDynamoDbEncryptor FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S32_LegacyDynamoDbEncryptorReference(Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor value)
+ {
+   if (value is NativeWrapper_LegacyDynamoDbEncryptor nativeWrapper) return nativeWrapper._impl;
+   return new LegacyDynamoDbEncryptor(value);
+ }
+
+ public static Dafny.Aws.Cryptography.DynamoDbEncryption.Types.ILegacyDynamoDbEncryptor ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S32_LegacyDynamoDbEncryptorReference(ILegacyDynamoDbEncryptor value)
+ {
+   switch (value)
+   {
+     case LegacyDynamoDbEncryptor valueWithImpl:
+       return valueWithImpl._impl;
+     case LegacyDynamoDbEncryptorBase nativeImpl:
+       return new NativeWrapper_LegacyDynamoDbEncryptor(nativeImpl);
+     default:
+       throw new System.ArgumentException(
+         "Custom implementations of LegacyDynamoDbEncryptor must extend LegacyDynamoDbEncryptorBase.");
+   }
+ }
+ }
 }
