@@ -3,6 +3,18 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 using System.Linq; using System; namespace AWS.Cryptography.StructuredEncryption {
  public static class TypeConversion {
+ public static AWS.Cryptography.Primitives.AwsCryptographicPrimitives FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AtomicPrimitivesReference (Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient value) {
+ if (value is Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient dafnyValue) {
+    return new AWS.Cryptography.Primitives.AwsCryptographicPrimitives(dafnyValue);
+}
+ throw new System.ArgumentException("Custom implementations of AWS.Cryptography.Primitives.AwsCryptographicPrimitives are not supported yet");
+}
+ public static Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AtomicPrimitivesReference (AWS.Cryptography.Primitives.AwsCryptographicPrimitives value) {
+ if (value is AWS.Cryptography.Primitives.AwsCryptographicPrimitives nativeValue) {
+    return nativeValue.impl();
+}
+ throw new System.ArgumentException("Custom implementations of AWS.Cryptography.Primitives.AwsCryptographicPrimitives are not supported yet");
+}
  internal static AWS.Cryptography.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction value) {
  if (value.is_SIGN) return AWS.Cryptography.StructuredEncryption.AuthenticateAction.SIGN;
  if (value.is_DO__NOT__SIGN) return AWS.Cryptography.StructuredEncryption.AuthenticateAction.DO_NOT_SIGN;
@@ -12,6 +24,46 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
  if (AWS.Cryptography.StructuredEncryption.AuthenticateAction.SIGN.Equals(value)) return Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateAction.create_SIGN();
  if (AWS.Cryptography.StructuredEncryption.AuthenticateAction.DO_NOT_SIGN.Equals(value)) return Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateAction.create_DO__NOT__SIGN();
 throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryption.AuthenticateAction value");
+}
+ internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema value) {
+ Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchema concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchema)value; AWS.Cryptography.StructuredEncryption.AuthenticateSchema converted = new AWS.Cryptography.StructuredEncryption.AuthenticateSchema();  converted.Content = (AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M7_content(concrete._content);
+ if (concrete._attributes.is_Some) converted.Attributes = (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes(concrete._attributes); return converted;
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema (AWS.Cryptography.StructuredEncryption.AuthenticateSchema value) {
+ System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) null;
+ return new Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchema ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M7_content(value.Content) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes(var_attributes) ) ;
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>> value) {
+ return value.is_None ? (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) null : FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes(value.Extract());
+}
+ internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>>.create_Some(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes((System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) value));
+}
+ internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M7_content (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchemaContent value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchemaContent ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M7_content (AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction> value) {
+ return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M5_value(pair.Cdr));
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> value) {
+ return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>.FromCollection(value.Select(pair =>
+    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M5_value(pair.Value))
+));
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M3_key (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M3_key (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M5_value (AWS.Cryptography.StructuredEncryption.AuthenticateAction value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
 }
  internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchemaContent value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchemaContent concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchemaContent)value;
@@ -37,6 +89,56 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent state");
 }
+ internal static AWS.Cryptography.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M6_Action (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M6_Action (AWS.Cryptography.StructuredEncryption.AuthenticateAction value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
+}
+ internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M10_SchemaList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList(value);
+}
+ internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M10_SchemaList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M9_SchemaMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap(value);
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M9_SchemaMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap(value);
+}
+ internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> value) {
+ return new System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList__M6_member));
+}
+ internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> value) {
+ return Dafny.Sequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList__M6_member).ToArray());
+}
+ internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList__M6_member (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList__M6_member (AWS.Cryptography.StructuredEncryption.AuthenticateSchema value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> value) {
+ return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M5_value(pair.Cdr));
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> value) {
+ return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema>.FromCollection(value.Select(pair =>
+    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M5_value(pair.Value))
+));
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M3_key (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M3_key (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M5_value (AWS.Cryptography.StructuredEncryption.AuthenticateSchema value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
+}
  internal static AWS.Cryptography.StructuredEncryption.CryptoAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoAction (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoAction value) {
  if (value.is_ENCRYPT__AND__SIGN) return AWS.Cryptography.StructuredEncryption.CryptoAction.ENCRYPT_AND_SIGN;
  if (value.is_SIGN__ONLY) return AWS.Cryptography.StructuredEncryption.CryptoAction.SIGN_ONLY;
@@ -48,6 +150,46 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
  if (AWS.Cryptography.StructuredEncryption.CryptoAction.SIGN_ONLY.Equals(value)) return Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoAction.create_SIGN__ONLY();
  if (AWS.Cryptography.StructuredEncryption.CryptoAction.DO_NOTHING.Equals(value)) return Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoAction.create_DO__NOTHING();
 throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryption.CryptoAction value");
+}
+ internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
+ Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchema concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchema)value; AWS.Cryptography.StructuredEncryption.CryptoSchema converted = new AWS.Cryptography.StructuredEncryption.CryptoSchema();  converted.Content = (AWS.Cryptography.StructuredEncryption.CryptoSchemaContent) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M7_content(concrete._content);
+ if (concrete._attributes.is_Some) converted.Attributes = (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M10_attributes(concrete._attributes); return converted;
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
+ System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) null;
+ return new Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchema ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M7_content(value.Content) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M10_attributes(var_attributes) ) ;
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M10_attributes (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>> value) {
+ return value.is_None ? (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) null : FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes(value.Extract());
+}
+ internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M10_attributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>>.create_Some(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes((System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) value));
+}
+ internal static AWS.Cryptography.StructuredEncryption.CryptoSchemaContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M7_content (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchemaContent value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchemaContent ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M7_content (AWS.Cryptography.StructuredEncryption.CryptoSchemaContent value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction> value) {
+ return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M5_value(pair.Cdr));
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> value) {
+ return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>.FromCollection(value.Select(pair =>
+    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M5_value(pair.Value))
+));
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M3_key (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M3_key (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M5_value (AWS.Cryptography.StructuredEncryption.AuthenticateAction value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
 }
  internal static AWS.Cryptography.StructuredEncryption.CryptoSchemaContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchemaContent value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchemaContent concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchemaContent)value;
@@ -73,6 +215,56 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryption.CryptoSchemaContent state");
 }
+ internal static AWS.Cryptography.StructuredEncryption.CryptoAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M6_Action (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoAction value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoAction(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoAction ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M6_Action (AWS.Cryptography.StructuredEncryption.CryptoAction value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoAction(value);
+}
+ internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M10_SchemaList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList(value);
+}
+ internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M10_SchemaList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M9_SchemaMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap(value);
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M9_SchemaMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap(value);
+}
+ internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> value) {
+ return new System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList__M6_member));
+}
+ internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> value) {
+ return Dafny.Sequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList__M6_member).ToArray());
+}
+ internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList__M6_member (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList__M6_member (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> value) {
+ return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M5_value(pair.Cdr));
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> value) {
+ return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema>.FromCollection(value.Select(pair =>
+    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M5_value(pair.Value))
+));
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M3_key (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M3_key (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M5_value (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+}
  internal static AWS.Cryptography.StructuredEncryption.DecryptStructureInput FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput (Dafny.Aws.Cryptography.StructuredEncryption.Types._IDecryptStructureInput value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.DecryptStructureInput concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.DecryptStructureInput)value; AWS.Cryptography.StructuredEncryption.DecryptStructureInput converted = new AWS.Cryptography.StructuredEncryption.DecryptStructureInput();  converted.TableName = (string) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M9_tableName(concrete._tableName);
   converted.EncryptedStructure = (AWS.Cryptography.StructuredEncryption.StructuredData) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_encryptedStructure(concrete._encryptedStructure);
@@ -84,6 +276,36 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
  System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.IsSetEncryptionContext() ? value.EncryptionContext : (System.Collections.Generic.Dictionary<string, string>) null;
  return new Dafny.Aws.Cryptography.StructuredEncryption.Types.DecryptStructureInput ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M9_tableName(value.TableName) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_encryptedStructure(value.EncryptedStructure) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_authenticateSchema(value.AuthenticateSchema) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M3_cmm(value.Cmm) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M17_encryptionContext(var_encryptionContext) ) ;
 }
+ internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_authenticateSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_authenticateSchema (AWS.Cryptography.StructuredEncryption.AuthenticateSchema value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
+}
+ internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M3_cmm (Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
+}
+ internal static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M3_cmm (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_encryptedStructure (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_encryptedStructure (AWS.Cryptography.StructuredEncryption.StructuredData value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M17_encryptionContext (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> value) {
+ return value.is_None ? (System.Collections.Generic.Dictionary<string, string>) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value.Extract());
+}
+ internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M17_encryptionContext (System.Collections.Generic.Dictionary<string, string> value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext((System.Collections.Generic.Dictionary<string, string>) value));
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M9_tableName (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M9_tableName (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
  internal static AWS.Cryptography.StructuredEncryption.DecryptStructureOutput FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput (Dafny.Aws.Cryptography.StructuredEncryption.Types._IDecryptStructureOutput value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.DecryptStructureOutput concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.DecryptStructureOutput)value; AWS.Cryptography.StructuredEncryption.DecryptStructureOutput converted = new AWS.Cryptography.StructuredEncryption.DecryptStructureOutput();  converted.PlaintextStructure = (AWS.Cryptography.StructuredEncryption.StructuredData) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M18_plaintextStructure(concrete._plaintextStructure);
   converted.ParsedHeader = (AWS.Cryptography.StructuredEncryption.ParsedHeader) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M12_parsedHeader(concrete._parsedHeader); return converted;
@@ -91,6 +313,18 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
  internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IDecryptStructureOutput ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput (AWS.Cryptography.StructuredEncryption.DecryptStructureOutput value) {
 
  return new Dafny.Aws.Cryptography.StructuredEncryption.Types.DecryptStructureOutput ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M18_plaintextStructure(value.PlaintextStructure) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M12_parsedHeader(value.ParsedHeader) ) ;
+}
+ internal static AWS.Cryptography.StructuredEncryption.ParsedHeader FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M12_parsedHeader (Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M12_parsedHeader (AWS.Cryptography.StructuredEncryption.ParsedHeader value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M18_plaintextStructure (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M18_plaintextStructure (AWS.Cryptography.StructuredEncryption.StructuredData value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
 }
  internal static AWS.Cryptography.StructuredEncryption.EncryptStructureInput FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput (Dafny.Aws.Cryptography.StructuredEncryption.Types._IEncryptStructureInput value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureInput concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureInput)value; AWS.Cryptography.StructuredEncryption.EncryptStructureInput converted = new AWS.Cryptography.StructuredEncryption.EncryptStructureInput();  converted.TableName = (string) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M9_tableName(concrete._tableName);
@@ -105,6 +339,42 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
  System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.IsSetEncryptionContext() ? value.EncryptionContext : (System.Collections.Generic.Dictionary<string, string>) null;
  return new Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureInput ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M9_tableName(value.TableName) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M18_plaintextStructure(value.PlaintextStructure) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M12_cryptoSchema(value.CryptoSchema) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M3_cmm(value.Cmm) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M16_algorithmSuiteId(var_algorithmSuiteId) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M17_encryptionContext(var_encryptionContext) ) ;
 }
+ internal static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M16_algorithmSuiteId (Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId> value) {
+ return value.is_None ? (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId(value.Extract());
+}
+ internal static Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M16_algorithmSuiteId (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId>.create_None() : Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId((AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId) value));
+}
+ internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M3_cmm (Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
+}
+ internal static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M3_cmm (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M12_cryptoSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M12_cryptoSchema (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M17_encryptionContext (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> value) {
+ return value.is_None ? (System.Collections.Generic.Dictionary<string, string>) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value.Extract());
+}
+ internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M17_encryptionContext (System.Collections.Generic.Dictionary<string, string> value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext((System.Collections.Generic.Dictionary<string, string>) value));
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M18_plaintextStructure (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M18_plaintextStructure (AWS.Cryptography.StructuredEncryption.StructuredData value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M9_tableName (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M9_tableName (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
  internal static AWS.Cryptography.StructuredEncryption.EncryptStructureOutput FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput (Dafny.Aws.Cryptography.StructuredEncryption.Types._IEncryptStructureOutput value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureOutput concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureOutput)value; AWS.Cryptography.StructuredEncryption.EncryptStructureOutput converted = new AWS.Cryptography.StructuredEncryption.EncryptStructureOutput();  converted.EncryptedStructure = (AWS.Cryptography.StructuredEncryption.StructuredData) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M18_encryptedStructure(concrete._encryptedStructure);
   converted.ParsedHeader = (AWS.Cryptography.StructuredEncryption.ParsedHeader) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M12_parsedHeader(concrete._parsedHeader); return converted;
@@ -112,6 +382,92 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
  internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IEncryptStructureOutput ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput (AWS.Cryptography.StructuredEncryption.EncryptStructureOutput value) {
 
  return new Dafny.Aws.Cryptography.StructuredEncryption.Types.EncryptStructureOutput ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M18_encryptedStructure(value.EncryptedStructure) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M12_parsedHeader(value.ParsedHeader) ) ;
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M18_encryptedStructure (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M18_encryptedStructure (AWS.Cryptography.StructuredEncryption.StructuredData value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.ParsedHeader FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M12_parsedHeader (Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M12_parsedHeader (AWS.Cryptography.StructuredEncryption.ParsedHeader value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.ParsedHeader FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader (Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader value) {
+ Dafny.Aws.Cryptography.StructuredEncryption.Types.ParsedHeader concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.ParsedHeader)value; AWS.Cryptography.StructuredEncryption.ParsedHeader converted = new AWS.Cryptography.StructuredEncryption.ParsedHeader();  converted.CryptoSchema = (AWS.Cryptography.StructuredEncryption.CryptoSchema) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema(concrete._cryptoSchema);
+  converted.AlgorithmSuiteId = (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId(concrete._algorithmSuiteId);
+  converted.EncryptedDataKeys = (System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys(concrete._encryptedDataKeys);
+  converted.StoredEncryptionContext = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext(concrete._storedEncryptionContext); return converted;
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader (AWS.Cryptography.StructuredEncryption.ParsedHeader value) {
+
+ return new Dafny.Aws.Cryptography.StructuredEncryption.Types.ParsedHeader ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema(value.CryptoSchema) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId(value.AlgorithmSuiteId) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys(value.EncryptedDataKeys) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext(value.StoredEncryptionContext) ) ;
+}
+ internal static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId(value);
+}
+ internal static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+}
+ internal static System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys (Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList(value);
+}
+ internal static Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys (System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext (Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value);
+}
+ internal static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext (System.Collections.Generic.Dictionary<string, string> value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
+ Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredData concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredData)value; AWS.Cryptography.StructuredEncryption.StructuredData converted = new AWS.Cryptography.StructuredEncryption.StructuredData();  converted.Content = (AWS.Cryptography.StructuredEncryption.StructuredDataContent) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M7_content(concrete._content);
+ if (concrete._attributes.is_Some) converted.Attributes = (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M10_attributes(concrete._attributes); return converted;
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData (AWS.Cryptography.StructuredEncryption.StructuredData value) {
+ System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal>) null;
+ return new Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredData ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M7_content(value.Content) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M10_attributes(var_attributes) ) ;
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M10_attributes (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>> value) {
+ return value.is_None ? (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal>) null : FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes(value.Extract());
+}
+ internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M10_attributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>>.create_Some(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes((System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal>) value));
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredDataContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M7_content (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataContent value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataContent ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M7_content (AWS.Cryptography.StructuredEncryption.StructuredDataContent value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal> value) {
+ return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M5_value(pair.Cdr));
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> value) {
+ return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>.FromCollection(value.Select(pair =>
+    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M5_value(pair.Value))
+));
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredDataTerminal FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M5_value (AWS.Cryptography.StructuredEncryption.StructuredDataTerminal value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal(value);
 }
  internal static AWS.Cryptography.StructuredEncryption.StructuredDataContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataContent value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataContent concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataContent)value;
@@ -137,6 +493,76 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryption.StructuredDataContent state");
 }
+ internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_DataList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList(value);
+}
+ internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_DataList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M7_DataMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap(value);
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M7_DataMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredDataTerminal FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_Terminal (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_Terminal (AWS.Cryptography.StructuredEncryption.StructuredDataTerminal value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal(value);
+}
+ internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> value) {
+ return new System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList__M6_member));
+}
+ internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> value) {
+ return Dafny.Sequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList__M6_member).ToArray());
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList__M6_member (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList__M6_member (AWS.Cryptography.StructuredEncryption.StructuredData value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> value) {
+ return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M5_value(pair.Cdr));
+}
+ internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> value) {
+ return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData>.FromCollection(value.Select(pair =>
+    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M5_value(pair.Value))
+));
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M3_key (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M3_key (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M5_value (AWS.Cryptography.StructuredEncryption.StructuredData value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
+}
+ internal static AWS.Cryptography.StructuredEncryption.StructuredDataTerminal FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal value) {
+ Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataTerminal concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataTerminal)value; AWS.Cryptography.StructuredEncryption.StructuredDataTerminal converted = new AWS.Cryptography.StructuredEncryption.StructuredDataTerminal();  converted.Value = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value(concrete._value);
+  converted.TypeId = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId(concrete._typeId); return converted;
+}
+ internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal (AWS.Cryptography.StructuredEncryption.StructuredDataTerminal value) {
+
+ return new Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataTerminal ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value(value.Value) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId(value.TypeId) ) ;
+}
+ internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId (Dafny.ISequence<byte> value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_TerminalTypeId(value);
+}
+ internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId (System.IO.MemoryStream value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_TerminalTypeId(value);
+}
+ internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value (Dafny.ISequence<byte> value) {
+ return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S13_TerminalValue(value);
+}
+ internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value (System.IO.MemoryStream value) {
+ return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S13_TerminalValue(value);
+}
  internal static AWS.Cryptography.StructuredEncryption.StructuredEncryptionConfig FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S26_StructuredEncryptionConfig (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredEncryptionConfig value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredEncryptionConfig concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredEncryptionConfig)value; AWS.Cryptography.StructuredEncryption.StructuredEncryptionConfig converted = new AWS.Cryptography.StructuredEncryption.StructuredEncryptionConfig();  return converted;
 }
@@ -155,205 +581,35 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
  ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S29_StructuredEncryptionException__M7_message(value.Message)
  ) ;
 }
- internal static AWS.Cryptography.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M6_Action (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M6_Action (AWS.Cryptography.StructuredEncryption.AuthenticateAction value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M9_SchemaMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap(value);
-}
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M9_SchemaMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap(value);
-}
- internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M10_SchemaList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList(value);
-}
- internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M10_SchemaList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.CryptoAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M6_Action (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoAction value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoAction(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoAction ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M6_Action (AWS.Cryptography.StructuredEncryption.CryptoAction value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoAction(value);
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M9_SchemaMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap(value);
-}
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M9_SchemaMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap(value);
-}
- internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M10_SchemaList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList(value);
-}
- internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M10_SchemaList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList(value);
-}
- internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M9_tableName (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M9_tableName (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_encryptedStructure (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_encryptedStructure (AWS.Cryptography.StructuredEncryption.StructuredData value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_authenticateSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M18_authenticateSchema (AWS.Cryptography.StructuredEncryption.AuthenticateSchema value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
-}
- internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M3_cmm (Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value) {
- return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
-}
- internal static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M3_cmm (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value) {
- return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
-}
- internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M17_encryptionContext (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> value) {
- return value.is_None ? (System.Collections.Generic.Dictionary<string, string>) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value.Extract());
-}
- internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput__M17_encryptionContext (System.Collections.Generic.Dictionary<string, string> value) {
- return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext((System.Collections.Generic.Dictionary<string, string>) value));
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M18_plaintextStructure (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M18_plaintextStructure (AWS.Cryptography.StructuredEncryption.StructuredData value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.ParsedHeader FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M12_parsedHeader (Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput__M12_parsedHeader (AWS.Cryptography.StructuredEncryption.ParsedHeader value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader(value);
-}
- internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M9_tableName (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M9_tableName (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M18_plaintextStructure (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M18_plaintextStructure (AWS.Cryptography.StructuredEncryption.StructuredData value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M12_cryptoSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M12_cryptoSchema (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
-}
- internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M3_cmm (Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value) {
- return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
-}
- internal static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M3_cmm (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value) {
- return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
-}
- internal static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M16_algorithmSuiteId (Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId> value) {
- return value.is_None ? (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId(value.Extract());
-}
- internal static Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M16_algorithmSuiteId (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value) {
- return value == null ? Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId>.create_None() : Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId((AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId) value));
-}
- internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M17_encryptionContext (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> value) {
- return value.is_None ? (System.Collections.Generic.Dictionary<string, string>) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value.Extract());
-}
- internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput__M17_encryptionContext (System.Collections.Generic.Dictionary<string, string> value) {
- return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext((System.Collections.Generic.Dictionary<string, string>) value));
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M18_encryptedStructure (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M18_encryptedStructure (AWS.Cryptography.StructuredEncryption.StructuredData value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.ParsedHeader FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M12_parsedHeader (Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput__M12_parsedHeader (AWS.Cryptography.StructuredEncryption.ParsedHeader value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredDataTerminal FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_Terminal (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_Terminal (AWS.Cryptography.StructuredEncryption.StructuredDataTerminal value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal(value);
-}
- internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_DataList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList(value);
-}
- internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_DataList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList(value);
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M7_DataMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap(value);
-}
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M7_DataMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap(value);
-}
  internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S29_StructuredEncryptionException__M7_message (Dafny.ISequence<char> value) {
  return FromDafny_N6_smithy__N3_api__S6_String(value);
 }
  internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S29_StructuredEncryptionException__M7_message (string value) {
  return ToDafny_N6_smithy__N3_api__S6_String(value);
 }
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> value) {
- return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M5_value(pair.Cdr));
+ internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_TerminalTypeId (Dafny.ISequence<byte> value) {
+ return new System.IO.MemoryStream(value.Elements);
 }
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> value) {
- return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema>.FromCollection(value.Select(pair =>
-    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M5_value(pair.Value))
-));
+ internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_TerminalTypeId (System.IO.MemoryStream value) {
+ return Dafny.Sequence<byte>.FromArray(value.ToArray());
 }
- internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> value) {
- return new System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList__M6_member));
+ internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S13_TerminalValue (Dafny.ISequence<byte> value) {
+ return new System.IO.MemoryStream(value.Elements);
 }
- internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> value) {
- return Dafny.Sequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList__M6_member).ToArray());
+ internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S13_TerminalValue (System.IO.MemoryStream value) {
+ return Dafny.Sequence<byte>.FromArray(value.ToArray());
 }
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> value) {
- return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M5_value(pair.Cdr));
+ internal static int FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S7_Version (int value) {
+ return value;
 }
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> value) {
- return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema>.FromCollection(value.Select(pair =>
-    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M5_value(pair.Value))
-));
-}
- internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> value) {
- return new System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList__M6_member));
-}
- internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> value) {
- return Dafny.Sequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList__M6_member).ToArray());
+ internal static int ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S7_Version (int value) {
+ return value;
 }
  internal static string FromDafny_N6_smithy__N3_api__S6_String (Dafny.ISequence<char> value) {
  return new string(value.Elements);
 }
  internal static Dafny.ISequence<char> ToDafny_N6_smithy__N3_api__S6_String (string value) {
  return Dafny.Sequence<char>.FromString(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
- Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredData concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredData)value; AWS.Cryptography.StructuredEncryption.StructuredData converted = new AWS.Cryptography.StructuredEncryption.StructuredData();  converted.Content = (AWS.Cryptography.StructuredEncryption.StructuredDataContent) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M7_content(concrete._content);
- if (concrete._attributes.is_Some) converted.Attributes = (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M10_attributes(concrete._attributes); return converted;
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData (AWS.Cryptography.StructuredEncryption.StructuredData value) {
- System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal>) null;
- return new Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredData ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M7_content(value.Content) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M10_attributes(var_attributes) ) ;
-}
- internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema value) {
- Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchema concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchema)value; AWS.Cryptography.StructuredEncryption.AuthenticateSchema converted = new AWS.Cryptography.StructuredEncryption.AuthenticateSchema();  converted.Content = (AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M7_content(concrete._content);
- if (concrete._attributes.is_Some) converted.Attributes = (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes(concrete._attributes); return converted;
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema (AWS.Cryptography.StructuredEncryption.AuthenticateSchema value) {
- System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) null;
- return new Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchema ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M7_content(value.Content) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes(var_attributes) ) ;
 }
  internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference (Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value) {
  // This is converting a reference type in a dependant module.
@@ -373,24 +629,6 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
     new Dafny.Pair<Dafny.ISequence<byte>, Dafny.ISequence<byte>>(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext__M5_value(pair.Value))
 ));
 }
- internal static AWS.Cryptography.StructuredEncryption.ParsedHeader FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader (Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader value) {
- Dafny.Aws.Cryptography.StructuredEncryption.Types.ParsedHeader concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.ParsedHeader)value; AWS.Cryptography.StructuredEncryption.ParsedHeader converted = new AWS.Cryptography.StructuredEncryption.ParsedHeader();  converted.CryptoSchema = (AWS.Cryptography.StructuredEncryption.CryptoSchema) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema(concrete._cryptoSchema);
-  converted.AlgorithmSuiteId = (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId(concrete._algorithmSuiteId);
-  converted.EncryptedDataKeys = (System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys(concrete._encryptedDataKeys);
-  converted.StoredEncryptionContext = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext(concrete._storedEncryptionContext); return converted;
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IParsedHeader ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader (AWS.Cryptography.StructuredEncryption.ParsedHeader value) {
-
- return new Dafny.Aws.Cryptography.StructuredEncryption.Types.ParsedHeader ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema(value.CryptoSchema) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId(value.AlgorithmSuiteId) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys(value.EncryptedDataKeys) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext(value.StoredEncryptionContext) ) ;
-}
- internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
- Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchema concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchema)value; AWS.Cryptography.StructuredEncryption.CryptoSchema converted = new AWS.Cryptography.StructuredEncryption.CryptoSchema();  converted.Content = (AWS.Cryptography.StructuredEncryption.CryptoSchemaContent) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M7_content(concrete._content);
- if (concrete._attributes.is_Some) converted.Attributes = (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M10_attributes(concrete._attributes); return converted;
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
- System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) null;
- return new Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchema ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M7_content(value.Content) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M10_attributes(var_attributes) ) ;
-}
  internal static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId value) {
  if (value.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__SYMSIG__HMAC__SHA384) return AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
  if (value.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384__SYMSIG__HMAC__SHA384) return AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
@@ -401,87 +639,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.D
  if (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384.Equals(value)) return Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId.create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384__SYMSIG__HMAC__SHA384();
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value");
 }
- internal static AWS.Cryptography.StructuredEncryption.StructuredDataTerminal FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal value) {
- Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataTerminal concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataTerminal)value; AWS.Cryptography.StructuredEncryption.StructuredDataTerminal converted = new AWS.Cryptography.StructuredEncryption.StructuredDataTerminal();  converted.Value = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value(concrete._value);
-  converted.TypeId = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId(concrete._typeId); return converted;
+ internal static System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList (Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> value) {
+ return new System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList__M6_member));
 }
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal (AWS.Cryptography.StructuredEncryption.StructuredDataTerminal value) {
-
- return new Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataTerminal ( ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value(value.Value) , ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId(value.TypeId) ) ;
-}
- internal static System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList (Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> value) {
- return new System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList__M6_member));
-}
- internal static Dafny.ISequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList (System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> value) {
- return Dafny.Sequence<Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList__M6_member).ToArray());
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> value) {
- return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M5_value(pair.Cdr));
-}
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> value) {
- return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData>.FromCollection(value.Select(pair =>
-    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M5_value(pair.Value))
-));
-}
- internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M3_key (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M3_key (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_AuthenticateSchemaMap__M5_value (AWS.Cryptography.StructuredEncryption.AuthenticateSchema value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList__M6_member (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_AuthenticateSchemaList__M6_member (AWS.Cryptography.StructuredEncryption.AuthenticateSchema value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema(value);
-}
- internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M3_key (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M3_key (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S15_CryptoSchemaMap__M5_value (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList__M6_member (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S16_CryptoSchemaList__M6_member (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredDataContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M7_content (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataContent value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataContent ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M7_content (AWS.Cryptography.StructuredEncryption.StructuredDataContent value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent(value);
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M10_attributes (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>> value) {
- return value.is_None ? (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal>) null : FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes(value.Extract());
-}
- internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData__M10_attributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> value) {
- return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>>.create_Some(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes((System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal>) value));
-}
- internal static AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M7_content (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchemaContent value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchemaContent ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M7_content (AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent(value);
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>> value) {
- return value.is_None ? (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) null : FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes(value.Extract());
-}
- internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> value) {
- return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>>.create_Some(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes((System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) value));
+ internal static Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList (System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> value) {
+ return Dafny.Sequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList__M6_member).ToArray());
 }
  internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext__M3_key (Dafny.ISequence<byte> value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes(value);
@@ -495,87 +657,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.D
  internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext__M5_value (string value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes(value);
 }
- internal static AWS.Cryptography.StructuredEncryption.CryptoSchema FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
+ internal static AWS.Cryptography.MaterialProviders.EncryptedDataKey FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList__M6_member (Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey(value);
 }
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema (AWS.Cryptography.StructuredEncryption.CryptoSchema value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema(value);
-}
- internal static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId value) {
- return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId(value);
-}
- internal static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value) {
- return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId(value);
-}
- internal static System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys (Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> value) {
- return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList(value);
-}
- internal static Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys (System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> value) {
- return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList(value);
-}
- internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext (Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value) {
- return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value);
-}
- internal static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext (System.Collections.Generic.Dictionary<string, string> value) {
- return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.CryptoSchemaContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M7_content (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchemaContent value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchemaContent ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M7_content (AWS.Cryptography.StructuredEncryption.CryptoSchemaContent value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent(value);
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M10_attributes (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>> value) {
- return value.is_None ? (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) null : FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes(value.Extract());
-}
- internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S12_CryptoSchema__M10_attributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> value) {
- return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>>.create_Some(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes((System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction>) value));
-}
- internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value (Dafny.ISequence<byte> value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S13_TerminalValue(value);
-}
- internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value (System.IO.MemoryStream value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S13_TerminalValue(value);
-}
- internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId (Dafny.ISequence<byte> value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_TerminalTypeId(value);
-}
- internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId (System.IO.MemoryStream value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_TerminalTypeId(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList__M6_member (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_StructuredDataList__M6_member (AWS.Cryptography.StructuredEncryption.StructuredData value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M3_key (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M3_key (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredData FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredData ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S17_StructuredDataMap__M5_value (AWS.Cryptography.StructuredEncryption.StructuredData value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_StructuredData(value);
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal> value) {
- return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M5_value(pair.Cdr));
-}
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> value) {
- return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>.FromCollection(value.Select(pair =>
-    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M5_value(pair.Value))
-));
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction> value) {
- return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M5_value(pair.Cdr));
-}
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> value) {
- return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>.FromCollection(value.Select(pair =>
-    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M5_value(pair.Value))
-));
+ internal static Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList__M6_member (AWS.Cryptography.MaterialProviders.EncryptedDataKey value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey(value);
 }
  internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes (Dafny.ISequence<byte> value) {
  System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
@@ -584,74 +670,6 @@ return utf8.GetString(value.Elements);
  internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes (string value) {
  System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
 return Dafny.Sequence<byte>.FromArray(utf8.GetBytes(value));
-}
- internal static System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList (Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> value) {
- return new System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList__M6_member));
-}
- internal static Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList (System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> value) {
- return Dafny.Sequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList__M6_member).ToArray());
-}
- internal static System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes (Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction> value) {
- return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M5_value(pair.Cdr));
-}
- internal static Dafny.IMap<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes (System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateAction> value) {
- return Dafny.Map<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>.FromCollection(value.Select(pair =>
-    new Dafny.Pair<Dafny.ISequence<char>, Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction>(ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M5_value(pair.Value))
-));
-}
- internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S13_TerminalValue (Dafny.ISequence<byte> value) {
- return new System.IO.MemoryStream(value.Elements);
-}
- internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S13_TerminalValue (System.IO.MemoryStream value) {
- return Dafny.Sequence<byte>.FromArray(value.ToArray());
-}
- internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_TerminalTypeId (Dafny.ISequence<byte> value) {
- return new System.IO.MemoryStream(value.Elements);
-}
- internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S14_TerminalTypeId (System.IO.MemoryStream value) {
- return Dafny.Sequence<byte>.FromArray(value.ToArray());
-}
- internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.StructuredDataTerminal FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataTerminal ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S24_StructuredDataAttributes__M5_value (AWS.Cryptography.StructuredEncryption.StructuredDataTerminal value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_StructuredDataTerminal(value);
-}
- internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M3_key (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M3_key (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S28_AuthenticateSchemaAttributes__M5_value (AWS.Cryptography.StructuredEncryption.AuthenticateAction value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
-}
- internal static AWS.Cryptography.MaterialProviders.EncryptedDataKey FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList__M6_member (Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey value) {
- return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey(value);
-}
- internal static Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList__M6_member (AWS.Cryptography.MaterialProviders.EncryptedDataKey value) {
- return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey(value);
-}
- internal static string FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M3_key (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M3_key (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
-}
- internal static AWS.Cryptography.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M5_value (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction value) {
- return FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
-}
- internal static Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateAction ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_CryptoSchemaAttributes__M5_value (AWS.Cryptography.StructuredEncryption.AuthenticateAction value) {
- return ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S18_AuthenticateAction(value);
 }
  internal static AWS.Cryptography.MaterialProviders.EncryptedDataKey FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey (Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey value) {
  Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptedDataKey concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptedDataKey)value; AWS.Cryptography.MaterialProviders.EncryptedDataKey converted = new AWS.Cryptography.MaterialProviders.EncryptedDataKey();  converted.KeyProviderId = (string) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey__M13_keyProviderId(concrete._keyProviderId);
