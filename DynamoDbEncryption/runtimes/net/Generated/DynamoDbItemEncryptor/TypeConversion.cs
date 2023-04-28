@@ -686,78 +686,96 @@ return Dafny.Sequence<byte>.FromArray(utf8.GetBytes(value));
  internal static Dafny.ISequence<byte> ToDafny_N6_smithy__N3_api__S4_Blob (System.IO.MemoryStream value) {
  return Dafny.Sequence<byte>.FromArray(value.ToArray());
 }
- public static System.Exception FromDafny_CommonError(Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types._IError value) {
- switch(value)
- {
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyStructuredEncryption dafnyVal:
-  return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_CommonError(
-    dafnyVal._AwsCryptographyStructuredEncryption
-  );
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
-  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
-    dafnyVal._AwsCryptographyMaterialProviders
-  );
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_ComAmazonawsDynamodb dafnyVal:
-  return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
-    dafnyVal._ComAmazonawsDynamodb
-  );
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyDynamoDbEncryption dafnyVal:
-  return AWS.Cryptography.DynamoDbEncryption.TypeConversion.FromDafny_CommonError(
-    dafnyVal._AwsCryptographyDynamoDbEncryption
-  );
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_DynamoDbItemEncryptorException dafnyVal:
-return FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N13_itemEncryptor__S30_DynamoDbItemEncryptorException(dafnyVal);
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_CollectionOfErrors dafnyVal:
- return new CollectionOfErrors(new System.Collections.Generic.List<Exception>(dafnyVal._list.Elements.Select(x => TypeConversion.FromDafny_CommonError(x))));
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque dafnyVal:
- return new OpaqueError(dafnyVal._obj);
- default:
- // The switch MUST be complete for _IError, so `value` MUST NOT be an _IError. (How did you get here?)
- return new OpaqueError();
-}
-}
- public static Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types._IError ToDafny_CommonError(System.Exception value) {
- switch (value.GetType().Namespace) {
- case "AWS.Cryptography.DynamoDbEncryption":
-  return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_AwsCryptographyDynamoDbEncryption(
-    AWS.Cryptography.DynamoDbEncryption.TypeConversion.ToDafny_CommonError(value)
-  );
- case "AWS.Cryptography.StructuredEncryption":
-  return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_AwsCryptographyStructuredEncryption(
-    AWS.Cryptography.StructuredEncryption.TypeConversion.ToDafny_CommonError(value)
-  );
- case "AWS.Cryptography.MaterialProviders":
-  return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_AwsCryptographyMaterialProviders(
-    AWS.Cryptography.MaterialProviders.TypeConversion.ToDafny_CommonError(value)
-  );
- case "Com.Amazonaws.Dynamodb":
-  return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_ComAmazonawsDynamodb(
-    Com.Amazonaws.Dynamodb.TypeConversion.ToDafny_CommonError(value)
-  );
-}
- switch (value)
- {
- case AWS.Cryptography.DynamoDbEncryption.ItemEncryptor.DynamoDbItemEncryptorException exception:
- return ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N13_itemEncryptor__S30_DynamoDbItemEncryptorException(exception);
- case CollectionOfErrors collectionOfErrors:
- return new Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_CollectionOfErrors(
-     Dafny.Sequence<Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types._IError>
-     .FromArray(
-         collectionOfErrors.list.Select
-             (x => TypeConversion.ToDafny_CommonError(x))
-         .ToArray()
-     )
- );
 
- // OpaqueError is redundant, but listed for completeness.
- case OpaqueError exception:
- return new Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque(exception);
- case System.Exception exception:
- return new Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque(exception);
- default:
- // The switch MUST be complete for System.Exception, so `value` MUST NOT be an System.Exception. (How did you get here?)
- return new Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque(value);
-}
-}
+ public static System.Exception FromDafny_CommonError(
+   Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types._IError value)
+ {
+   switch (value)
+   {
+     case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyPrimitives
+       dafnyVal:
+       return AWS.Cryptography.Primitives.TypeConversion.FromDafny_CommonError(
+         dafnyVal._AwsCryptographyPrimitives
+       );
+     case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
+       return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
+         dafnyVal._AwsCryptographyMaterialProviders
+       );
+     case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_ComAmazonawsDynamodb dafnyVal:
+       return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
+         dafnyVal._ComAmazonawsDynamodb
+       );
+     case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyDynamoDbEncryption dafnyVal
+       :
+       return AWS.Cryptography.DynamoDbEncryption.TypeConversion.FromDafny_CommonError(
+         dafnyVal._AwsCryptographyDynamoDbEncryption
+       );
+     case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_DynamoDbItemEncryptorException dafnyVal:
+       return
+         FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N13_itemEncryptor__S30_DynamoDbItemEncryptorException(
+           dafnyVal);
+     case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_CollectionOfErrors dafnyVal:
+       return new CollectionOfErrors(
+         new System.Collections.Generic.List<Exception>(
+           dafnyVal._list.Elements.Select(x => TypeConversion.FromDafny_CommonError(x))));
+     case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque dafnyVal:
+       return new OpaqueError(dafnyVal._obj);
+     default:
+       // The switch MUST be complete for _IError, so `value` MUST NOT be an _IError. (How did you get here?)
+       return new OpaqueError();
+   }
+ }
+
+ public static Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types._IError ToDafny_CommonError(
+   System.Exception value)
+ {
+   switch (value.GetType().Namespace)
+   {
+     case "AWS.Cryptography.DynamoDbEncryption":
+       return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error
+         .create_AwsCryptographyDynamoDbEncryption(
+           AWS.Cryptography.DynamoDbEncryption.TypeConversion.ToDafny_CommonError(value)
+         );
+     case "AWS.Cryptography.MaterialProviders":
+       return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error
+         .create_AwsCryptographyMaterialProviders(
+           AWS.Cryptography.MaterialProviders.TypeConversion.ToDafny_CommonError(value)
+         );
+     case "Com.Amazonaws.Dynamodb":
+       return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_ComAmazonawsDynamodb(
+         Com.Amazonaws.Dynamodb.TypeConversion.ToDafny_CommonError(value)
+       );
+     case "AWS.Cryptography.Primitives" :
+       return Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error.create_AwsCryptographyPrimitives(
+         AWS.Cryptography.Primitives.TypeConversion.ToDafny_CommonError(value)
+       );
+   }
+
+   switch (value)
+   {
+     case AWS.Cryptography.DynamoDbEncryption.ItemEncryptor.DynamoDbItemEncryptorException exception:
+       return
+         ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N13_itemEncryptor__S30_DynamoDbItemEncryptorException(
+           exception);
+     case CollectionOfErrors collectionOfErrors:
+       return new Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_CollectionOfErrors(
+         Dafny.Sequence<Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types._IError>
+           .FromArray(
+             collectionOfErrors.list.Select
+                 (x => TypeConversion.ToDafny_CommonError(x))
+               .ToArray()
+           )
+       );
+
+     // OpaqueError is redundant, but listed for completeness.
+     case OpaqueError exception:
+       return new Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque(exception);
+     case Exception exception:
+       return new Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque(exception);
+     default:
+       // The switch MUST be complete for System.Exception, so `value` MUST NOT be an System.Exception. (How did you get here?)
+       return new Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_Opaque(value);
+   }
+ }
 }
 }
