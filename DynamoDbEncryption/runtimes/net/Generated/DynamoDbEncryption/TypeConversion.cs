@@ -3,14 +3,14 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption {
  public static class TypeConversion {
- public static AWS.Cryptography.Primitives.AwsCryptographicPrimitives FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S25_AtomicPrimitivesReference (Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient value) {
+ public static AWS.Cryptography.Primitives.AtomicPrimitives FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S25_AtomicPrimitivesReference (Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient value) {
  if (value is Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient dafnyValue) {
-    return new AWS.Cryptography.Primitives.AwsCryptographicPrimitives(dafnyValue);
+    return new AWS.Cryptography.Primitives.AtomicPrimitives(dafnyValue);
 }
  throw new System.ArgumentException("Custom implementations of AWS.Cryptography.Primitives.AwsCryptographicPrimitives are not supported yet");
 }
- public static Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S25_AtomicPrimitivesReference (AWS.Cryptography.Primitives.AwsCryptographicPrimitives value) {
- if (value is AWS.Cryptography.Primitives.AwsCryptographicPrimitives nativeValue) {
+ public static Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S25_AtomicPrimitivesReference (AWS.Cryptography.Primitives.AtomicPrimitives value) {
+ if (value is AWS.Cryptography.Primitives.AtomicPrimitives nativeValue) {
     return nativeValue.impl();
 }
  throw new System.ArgumentException("Custom implementations of AWS.Cryptography.Primitives.AwsCryptographicPrimitives are not supported yet");
