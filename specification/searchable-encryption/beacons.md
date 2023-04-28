@@ -229,7 +229,30 @@ to ease this burden. Perhaps another to construct the full [virtual database fie
 "MyField" can be used in the definition of an index (other than the primary index),
 as if it were any other field.
 
-## Definitions
+#### Signed Beacons
+
+If a compound beacon is configured with no sensitive parts (i.e. with exclusively non-sensitive parts)
+then it is considered a signed beacon. A signed beacon with name `NAME` follows slightly different rules.
+
+The beacon value MUST be stored as `NAME`, rather than the usual `aws_dbe_b_NAME`.
+
+This has certain implications.
+
+ * `NAME` can be used as a primary table key.
+ * `NAME` will not be stripped out of records returned from Query or GetItem.
+ * `NAME` is allowed to appear in a record to be written.
+
+Initialization MUST fail if `NAME` is explicitly configured with an
+[attribute actions](../dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions) or
+[unauthenticated attributes](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes),
+or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix).
+
+`NAME` MUST be automatically configured with an attribute action of SIGN_ONLY.
+
+As mentioned in [ddb support](../dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons),
+If `NAME` appears in an record to be written,
+and `NAME` can also be constructed from other parts of the record,
+then the write must fail if the constructed and supplied values are not equal.
 
 ### Conventions used in this document
 
