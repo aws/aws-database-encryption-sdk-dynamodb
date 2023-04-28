@@ -123,7 +123,7 @@ module
         //# or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix).
         var badBeacons := Seq.Filter(s => IsConfigured(inputConfig, s), signedBeacons);
         if 0 < |badBeacons| {
-          return Failure(E("Signed beacons cannot be configured with CryptoActions : " + Join(badBeacons, ", ")));
+          return Failure(E("Signed beacons cannot be configured with CryptoActions or as unauthenticated : " + Join(badBeacons, ", ")));
         }
         :- Need(forall k <- signedBeacons :: DDB.IsValid_AttributeName(k), E("Beacon configured with bad name"));
         //= specification/searchable-encryption/beacons.md#signed-beacons

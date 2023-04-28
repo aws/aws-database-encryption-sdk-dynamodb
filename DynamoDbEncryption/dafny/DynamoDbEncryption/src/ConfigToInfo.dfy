@@ -273,7 +273,7 @@ module SearchConfigToInfo {
     if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
       Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
     else if isSignedBeacon && name in outer.attributeActions then
-      Failure(E(name + " not allowed as a " + context + " because a fully nonsensitive beacon cannot have the same name as an encrypted attribute."))
+      Failure(E(name + " not allowed as a " + context + " because a fully nonsensitive beacon cannot have the same name as an existing attribute."))
     else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
       Failure(E(name + " not allowed as a " + context + " because it is already an allowed unauthenticated attribute."))
     else if outer.allowedUnauthenticatedAttributePrefix.Some? && outer.allowedUnauthenticatedAttributePrefix.value <= name then

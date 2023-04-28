@@ -99,7 +99,7 @@ The configured name is used as a field name in queries.
 To produce a standard beacon from a sequence of bytes :
 1. Compute the HMAC
 1. Truncate the HMAC, to the [beacon length](#beacon-length)
-1. Turn the result into a hex string, with leading zeros removed.
+1. Turn the result into a hex string.
 
 For example, the beacon for `banana` might be `4f`.
 
