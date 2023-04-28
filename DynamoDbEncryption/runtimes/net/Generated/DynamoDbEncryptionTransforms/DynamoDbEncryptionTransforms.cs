@@ -16,7 +16,7 @@ using System;
 }
  public DynamoDbEncryptionTransforms(AWS.Cryptography.DynamoDbEncryption.DynamoDbTablesEncryptionConfig input)
  {
- Dafny.Aws.Cryptography.DynamoDbEncryption.Types._IDynamoDbTablesEncryptionConfig internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S30_DynamoDbTablesEncryptionConfig(input);
+ Dafny.Aws.Cryptography.DynamoDbEncryption.Types._IDynamoDbTablesEncryptionConfig internalInput = AWS.Cryptography.DynamoDbEncryption.TypeConversion.ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S30_DynamoDbTablesEncryptionConfig(input);
  var result = Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms.__default.DynamoDbEncryptionTransforms(internalInput);
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  this._impl = result.dtor_value;
