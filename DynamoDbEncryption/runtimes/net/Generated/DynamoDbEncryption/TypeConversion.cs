@@ -43,10 +43,10 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption {
 }
  internal static AWS.Cryptography.DynamoDbEncryption.BeaconKeySource FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S15_BeaconKeySource (Dafny.Aws.Cryptography.DynamoDbEncryption.Types._IBeaconKeySource value) {
  Dafny.Aws.Cryptography.DynamoDbEncryption.Types.BeaconKeySource concrete = (Dafny.Aws.Cryptography.DynamoDbEncryption.Types.BeaconKeySource)value;
- var converted = new AWS.Cryptography.DynamoDbEncryption.BeaconKeySource(); if (value.is_Single) {
+ var converted = new AWS.Cryptography.DynamoDbEncryption.BeaconKeySource(); if (value.is_single) {
  converted.Single = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S15_BeaconKeySource__M6_single(concrete.dtor_single);
  return converted;
-} if (value.is_Multi) {
+} if (value.is_multi) {
  converted.Multi = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S15_BeaconKeySource__M5_multi(concrete.dtor_multi);
  return converted;
 }
@@ -936,28 +936,28 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.DynamoDbEncryption.
 }
  internal static AWS.Cryptography.DynamoDbEncryption.VirtualTransform FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform (Dafny.Aws.Cryptography.DynamoDbEncryption.Types._IVirtualTransform value) {
  Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualTransform concrete = (Dafny.Aws.Cryptography.DynamoDbEncryption.Types.VirtualTransform)value;
- var converted = new AWS.Cryptography.DynamoDbEncryption.VirtualTransform(); if (value.is_Upper) {
+ var converted = new AWS.Cryptography.DynamoDbEncryption.VirtualTransform(); if (value.is_upper) {
  converted.Upper = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform__M5_upper(concrete.dtor_upper);
  return converted;
-} if (value.is_Lower) {
+} if (value.is_lower) {
  converted.Lower = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform__M5_lower(concrete.dtor_lower);
  return converted;
-} if (value.is_Insert) {
+} if (value.is_insert) {
  converted.Insert = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform__M6_insert(concrete.dtor_insert);
  return converted;
-} if (value.is_Prefix) {
+} if (value.is_prefix) {
  converted.Prefix = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform__M6_prefix(concrete.dtor_prefix);
  return converted;
-} if (value.is_Suffix) {
+} if (value.is_suffix) {
  converted.Suffix = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform__M6_suffix(concrete.dtor_suffix);
  return converted;
-} if (value.is_Substring) {
+} if (value.is_substring) {
  converted.Substring = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform__M9_substring(concrete.dtor_substring);
  return converted;
-} if (value.is_Segment) {
+} if (value.is_segment) {
  converted.Segment = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform__M7_segment(concrete.dtor_segment);
  return converted;
-} if (value.is_Segments) {
+} if (value.is_segments) {
  converted.Segments = FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S16_VirtualTransform__M8_segments(concrete.dtor_segments);
  return converted;
 }
