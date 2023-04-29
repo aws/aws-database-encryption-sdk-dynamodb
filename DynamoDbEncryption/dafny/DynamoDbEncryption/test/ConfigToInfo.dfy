@@ -60,6 +60,6 @@ module TestDynamoDBConfigToInfo {
     newBeacons := newBeacons.(compoundBeacons := Some([DupNameNS]));
     beaconVersion := ConvertVersionWithSource(FullTableConfig, newBeacons, src);
     expect beaconVersion.Failure?;
-    expect beaconVersion.error == E("Name not allowed as a CompoundBeacon because a fully nonsensitive beacon cannot have the same name as an encrypted attribute.");
+    expect beaconVersion.error == E("Name not allowed as a CompoundBeacon because a fully nonsensitive beacon cannot have the same name as an existing attribute.");
   }
 }

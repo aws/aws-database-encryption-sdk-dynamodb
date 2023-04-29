@@ -59,13 +59,20 @@ module
     requires tableName in config.tableEncryptionConfigs
     ensures SearchModifies(config, tableName) <= TheModifies(config)
 
-  function method {:tailrecursion} AddActions(names : seq<string>, actions : ET.AttributeActions) : ET.AttributeActions
+  function method {:tailrecursion} AddSignedBeaconActions(names : seq<string>, actions : ET.AttributeActions) : ET.AttributeActions
     requires forall k <- names :: DDB.IsValid_AttributeName(k)
   {
     if |names| == 0 then
       actions
     else
-      AddActions(names[1..], actions[names[0] := SET.SIGN_ONLY])
+      AddSignedBeaconActions(names[1..], actions[names[0] := SET.SIGN_ONLY])
+  }
+
+  predicate method IsConfigured(config : AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTableEncryptionConfig, name : string)
+  {
+    || name in config.attributeActions
+    || (config.allowedUnauthenticatedAttributes.Some? && name in config.allowedUnauthenticatedAttributes.value)
+    || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= name)
   }
 
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
@@ -109,15 +116,19 @@ module
 
         // Add Signed Beacons to attributeActions
         var signedBeacons := if search.None? then [] else search.value.curr().ListSignedBeacons();
-        var badBeacons := Seq.Filter(s => s in inputConfig.attributeActions, signedBeacons);
+        //= specification/searchable-encryption/beacons.md#signed-beacons
+        //# Initialization MUST fail if `NAME` is explicitly configured with an
+        //# [attribute actions](../dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions) or
+        //# [unauthenticated attributes](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes),
+        //# or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix).
+        var badBeacons := Seq.Filter(s => IsConfigured(inputConfig, s), signedBeacons);
         if 0 < |badBeacons| {
-          return Failure(E("Beacons cannot be configured with CryptoActions : " + Join(badBeacons, ", ")));
+          return Failure(E("Signed beacons cannot be configured with CryptoActions or as unauthenticated : " + Join(badBeacons, ", ")));
         }
         :- Need(forall k <- signedBeacons :: DDB.IsValid_AttributeName(k), E("Beacon configured with bad name"));
-        //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
-        //# This new NonSensitiveBeacons MUST be added to [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
-        //# as a [SIGN_ONLY](../structured-encryption/structures.md#sign_only) action.
-        var newActions := AddActions(signedBeacons, inputConfig.attributeActions);
+        //= specification/searchable-encryption/beacons.md#signed-beacons
+        //# `NAME` MUST be automatically configured with an attribute action of SIGN_ONLY.
+        var newActions := AddSignedBeaconActions(signedBeacons, inputConfig.attributeActions);
 
         var encryptorConfig := AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.DynamoDbItemEncryptorConfig(
           tableName := tableName,
