@@ -77,12 +77,13 @@ module TestDynamoDBFilterExpr {
 
   method {:test} TestNoBeacons() {
     var context := ExprContext (
-      expr := Some("A < :A AND B = :B"),
-      values:= Some(map[
-                      ":A" := DDB.AttributeValue.N("1.23"),
-                      ":B" := DDB.AttributeValue.S("abc")
-                    ]),
-      names := None
+      None,
+      Some("A < :A AND B = :B"),
+      Some(map[
+             ":A" := DDB.AttributeValue.N("1.23"),
+             ":B" := DDB.AttributeValue.S("abc")
+           ]),
+      None
     );
     var version := GetEmptyBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
@@ -93,19 +94,20 @@ module TestDynamoDBFilterExpr {
 
   method {:test} TestBasicParse() {
     var context := ExprContext (
-      expr := Some("std2 <> :A AND #Field4 = :B"),
-      values:= Some(map[
-                      ":A" := DDB.AttributeValue.N("1.23"),
-                      ":B" := DDB.AttributeValue.S("abc")
-                    ]),
-      names := Some(map[
-                      "#Field4" := "std4"
-                    ])
+      None,
+      Some("std2 <> :A AND #Field4 = :B"),
+      Some(map[
+             ":A" := DDB.AttributeValue.N("1.23"),
+             ":B" := DDB.AttributeValue.S("abc")
+           ]),
+      Some(map[
+             "#Field4" := "std4"
+           ])
     );
     var version := GetEmptyBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
-    var parsed := ParseExpr(context.expr.value);
+    var parsed := ParseExpr(context.filterExpr.value);
     expect |parsed| == 7;
     expect parsed[0].Attr?;
     expect parsed[0].s == "std2";
@@ -113,26 +115,27 @@ module TestDynamoDBFilterExpr {
     expect OpNeedsBeacon(parsed, 0);
     expect beaconVersion.beacons[parsed[0].s].getBeaconName() == "aws_dbe_b_std2";
 
-    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys);
+    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys, map[]);
     var exprString := ParsedExprToString(newContext.expr);
     expect exprString == "aws_dbe_b_std2 <> :A AND #Field4 = :B";
   }
   method {:test} {:vcs_split_on_every_assert} TestBasicBeacons() {
     var context := ExprContext (
-      expr := Some("std2 <> :A AND #Field4 = :B"),
-      values:= Some(map[
-                      ":A" := Std2String,
-                      ":B" := Std4String
-                    ]),
-      names := Some(map[
-                      "#Field4" := "std4"
-                    ])
+      None,
+      Some("std2 <> :A AND #Field4 = :B"),
+      Some(map[
+             ":A" := Std2String,
+             ":B" := Std4String
+           ]),
+      Some(map[
+             "#Field4" := "std4"
+           ])
     );
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
-    expect_equal(newContext.expr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
+    expect_equal(newContext.filterExpr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
     var newName := "aws_dbe_b_std4";
     expect IsValid_AttributeName(newName);
     var expectedNames: DDB.ExpressionAttributeNameMap := map["#Field4" := newName];
@@ -141,6 +144,52 @@ module TestDynamoDBFilterExpr {
     expect "aws_dbe_b_std2" in itemBeacons;
     expect "aws_dbe_b_std4" in itemBeacons;
     expect_equal(newContext.values, Some(map[":A" := itemBeacons["aws_dbe_b_std2"], ":B" := itemBeacons["aws_dbe_b_std4"]]));
+  }
+
+  //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
+  //= type=test
+  //# If a single value in ExpressionAttributeValues is used in more than one context,
+  //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`
+  //# are both beacons, this operation MUST fail.
+  method {:test} TestMultiContextFailures() {
+    var context := ExprContext (
+      None,
+      Some("std2 = :A AND std4 = :A"),
+      Some(map[
+             ":A" := Std2String
+           ]),
+      None
+    );
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var newContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect newContext.Failure?;
+    expect newContext.error == E(":A used in two different contexts, which is not allowed.");
+
+    context := ExprContext (
+      Some("std2 = :A AND std4 = :A"),
+      None,
+      Some(map[
+             ":A" := Std2String
+           ]),
+      None
+    );
+    newContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect newContext.Failure?;
+    expect newContext.error == E(":A used in two different contexts, which is not allowed.");
+
+    context := ExprContext (
+      Some("std2 = :A"),
+      Some("std4 = :A"),
+      Some(map[
+             ":A" := Std2String
+           ]),
+      None
+    );
+    newContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect newContext.Failure?;
+    expect newContext.error == E(":A used in two different contexts, which is not allowed.");
   }
 
   function method DS(x : string) : DDB.AttributeValue

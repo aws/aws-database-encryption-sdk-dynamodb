@@ -450,9 +450,10 @@ module DynamoDBFilterExpr {
     b : SI.BeaconVersion,
     expr : seq<Token>,
     pos : nat,
-    values: DDB.ExpressionAttributeValueMap,
+    oldValues: DDB.ExpressionAttributeValueMap,
     names : Option<DDB.ExpressionAttributeNameMap>,
     keys : MaybeKeyMap,
+    newValues: DDB.ExpressionAttributeValueMap,
     acc : seq<Token> := []
   )
     : Result<ParsedContext, Error>
@@ -460,7 +461,7 @@ module DynamoDBFilterExpr {
     decreases |expr| - pos
   {
     if pos == |expr| then
-      Success(ParsedContext(acc, values, names))
+      Success(ParsedContext(acc, newValues, names))
     else if expr[pos].Attr? then
       var isIndirectName := "#" <= expr[pos].s;
       :- Need(!isIndirectName || (names.Some? && expr[pos].s in names.value), E("Name " + expr[pos].s + " not in ExpressionAttributeNameMap."));
@@ -471,24 +472,27 @@ module DynamoDBFilterExpr {
         if OpNeedsBeacon(expr, pos) then
           var newName := b.beacons[oldName].getBeaconName();
           if isIndirectName then
-            BeaconizeParsedExpr(b, expr, pos+1, values, Some(names.value[expr[pos].s := newName]), keys, acc + [expr[pos]])
+            BeaconizeParsedExpr(b, expr, pos+1, oldValues, Some(names.value[expr[pos].s := newName]), keys, newValues, acc + [expr[pos]])
           else
-            BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [Attr(newName, TermLocMap(newName))])
+            BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [Attr(newName, TermLocMap(newName))])
         else
-          BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [expr[pos]])
+          BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
       else
-        BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [expr[pos]])
+        BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
     else if expr[pos].Value? then
-      :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
-      var oldValue := values[expr[pos].s];
-      var bec :- BeaconForValue(b, expr, pos, names, values);
-      if bec.None? then
-        BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [expr[pos]])
-      else
-        var newValue :- bec.value.GetBeaconValue(oldValue, keys);
-        BeaconizeParsedExpr(b, expr, pos+1, values[expr[pos].s := newValue], names, keys, acc + [expr[pos]])
+      var name := expr[pos].s;
+      :- Need(name in oldValues, E(name + " not found in ExpressionAttributeValueMap"));
+      var oldValue := oldValues[name];
+      var bec :- BeaconForValue(b, expr, pos, names, oldValues);
+      var newValue :- if bec.None? then Success(oldValue) else bec.value.GetBeaconValue(oldValue, keys);
+      //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
+      //# If a single value in ExpressionAttributeValues is used in more than one context,
+      //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`
+      //# are both beacons, this operation MUST fail.
+      :- Need(name !in newValues || newValues[name] == newValue, E(name + " used in two different contexts, which is not allowed."));
+      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues[name := newValue], acc + [expr[pos]])
     else
-      BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [expr[pos]])
+      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
   }
 
   // Convert the tokens back into an expression
@@ -1356,7 +1360,7 @@ module DynamoDBFilterExpr {
       if KeyExpression.Some? {
         var parsed :- GetParsedExpr(KeyExpression.value);
         var parsed2 := ParseExpr(KeyExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed2, 0, values.UnwrapOr(map[]), names, DontUseKeys);
+        var expr :- BeaconizeParsedExpr(b, parsed2, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[]);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
         afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values);
@@ -1365,7 +1369,7 @@ module DynamoDBFilterExpr {
       }
       if FilterExpression.Some? {
         var parsed := ParseExpr(FilterExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[]);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
         output := FilterItems(b, expr2, afterKeys, expr.names, expr.values);
@@ -1537,7 +1541,8 @@ module DynamoDBFilterExpr {
   }
 
   datatype ExprContext = ExprContext (
-    expr : Option<DDB.ConditionExpression>,
+    keyExpr : Option<DDB.KeyExpression>,
+    filterExpr : Option<DDB.ConditionExpression>,
     values: Option<DDB.ExpressionAttributeValueMap>,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
@@ -1561,17 +1566,33 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if context.expr.None? || context.values.None? {
+    if (context.keyExpr.None? && context.filterExpr.None?) || context.values.None? {
       return Success(context);
     } else {
-      var parsed := ParseExpr(context.expr.value);
       var keys := DontUseKeys;
       if !naked {
         keys :- b.getKeyMap(keyId);
       }
-      var context :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, context.names, keys);
-      var exprString := ParsedExprToString(context.expr);
-      return Success(ExprContext(Some(exprString), Some(context.values), context.names));
+      var newValues : DDB.ExpressionAttributeValueMap := map[];
+      var newKeyExpr := context.keyExpr;
+      var newFilterExpr := context.filterExpr;
+      var newNames := context.names;
+
+      if context.keyExpr.Some? {
+        var parsed := ParseExpr(context.keyExpr.value);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, newNames, keys, newValues);
+        newKeyExpr := Some(ParsedExprToString(newContext.expr));
+        newValues := newContext.values;
+        newNames := newContext.names;
+      }
+      if context.filterExpr.Some? {
+        var parsed := ParseExpr(context.filterExpr.value);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, context.names, keys, newValues);
+        newFilterExpr := Some(ParsedExprToString(newContext.expr));
+        newValues := newContext.values;
+        newNames := newContext.names;
+      }
+      return Success(ExprContext(newKeyExpr, newFilterExpr, Some(newValues), newNames));
     }
   }
 }

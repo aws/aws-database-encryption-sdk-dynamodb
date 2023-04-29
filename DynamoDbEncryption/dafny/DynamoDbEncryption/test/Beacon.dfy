@@ -161,24 +161,25 @@ module TestBaseBeacon {
 
   method {:test} TestQueryBeacons() {
     var context := ExprContext (
-      expr := Some("std2 = :std2 AND std4 = :std4 AND :std6 = std6 AND Name = :Name AND Mixed = :Mixed"
-                   + " AND :NameTitle = NameTitle AND NameTitle = :NameTitleN AND NameTitle = :NameTitleT AND NameTitle = :NameTitleTN"
-                   + " AND NameTitleField = :NameTitleField And Title = :Title AND YearName = :YearName"),
-      values:= Some(map[
-                      ":std2" := Std2String,
-                      ":std4" := Std4String,
-                      ":std6" := Std6String,
-                      ":Name" := NameString,
-                      ":Title" := TitleString,
-                      ":Mixed" := DDB.AttributeValue.S("N_MyName.Y_1984"),
-                      ":NameTitle" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
-                      ":NameTitleN" := DDB.AttributeValue.S("N_MyName"),
-                      ":NameTitleT" := DDB.AttributeValue.S("T_MyTitle"),
-                      ":NameTitleTN" := DDB.AttributeValue.S("T_MyTitle.N_MyName"),
-                      ":NameTitleField" := DDB.AttributeValue.S("MyName__mytitle"),
-                      ":YearName" := DDB.AttributeValue.S("Y_1984.N_MyName")
-                    ]),
-      names := None
+      None,
+      Some("std2 = :std2 AND std4 = :std4 AND :std6 = std6 AND Name = :Name AND Mixed = :Mixed"
+           + " AND :NameTitle = NameTitle AND NameTitle = :NameTitleN AND NameTitle = :NameTitleT AND NameTitle = :NameTitleTN"
+           + " AND NameTitleField = :NameTitleField And Title = :Title AND YearName = :YearName"),
+      Some(map[
+             ":std2" := Std2String,
+             ":std4" := Std4String,
+             ":std6" := Std6String,
+             ":Name" := NameString,
+             ":Title" := TitleString,
+             ":Mixed" := DDB.AttributeValue.S("N_MyName.Y_1984"),
+             ":NameTitle" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
+             ":NameTitleN" := DDB.AttributeValue.S("N_MyName"),
+             ":NameTitleT" := DDB.AttributeValue.S("T_MyTitle"),
+             ":NameTitleTN" := DDB.AttributeValue.S("T_MyTitle.N_MyName"),
+             ":NameTitleField" := DDB.AttributeValue.S("MyName__mytitle"),
+             ":YearName" := DDB.AttributeValue.S("Y_1984.N_MyName")
+           ]),
+      None
     );
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
