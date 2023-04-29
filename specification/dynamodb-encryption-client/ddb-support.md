@@ -214,6 +214,13 @@ for example an expression of `this = :foo OR that = :foo` where `this` and `that
 are both beacons, this operation MUST fail.
 This includes the case where the KeyConditionExpression contains `this = :foo`
 and the FilterExpression includes `that = :foo`.
+This is because `:foo` can only hold one value, but the beaconization of `:foo`
+would be different for different beacons.
+
+Hypothetically, this operation could split `:foo` into `:foo1` and `:foo2`
+in this situation, but that risks leaking the connection between the two beacons and spoiling k-anonymity.
+Similarly, if one of the two was not a beacon, then we would be leaking the fact that
+this beacon came from that text.
 
 ### QueryObject has sensitive values
 
