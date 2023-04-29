@@ -60,8 +60,6 @@ AddNonSensitiveBeacons MUST add an attribute named NAME,
 where NAME is the name of the beacon.
 The value of this attribute MUST be a string,
 and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
-This new NonSensitiveBeacons MUST be added to [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
-as a [SIGN_ONLY](../structured-encryption/structures.md#sign_only) action.
 
 If the attribute NAME already exists,
 if the constructed compound beacon does not match

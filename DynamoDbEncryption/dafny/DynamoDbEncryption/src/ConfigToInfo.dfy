@@ -266,14 +266,14 @@ module SearchConfigToInfo {
     virtualFields : V.VirtualFieldMap,
     name : string,
     context : string,
-    isFullyNon : bool)
+    isSignedBeacon : bool := false)
     : (ret : Result<bool, Error>)
     ensures name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN ==> ret.Failure?
   {
     if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
       Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
-    else if isFullyNon && name in outer.attributeActions then
-      Failure(E(name + " not allowed as a " + context + " because a fully nonsensitive beacon cannot have the same name as an encrypted attribute."))
+    else if isSignedBeacon && name in outer.attributeActions then
+      Failure(E(name + " not allowed as a " + context + " because a fully nonsensitive beacon cannot have the same name as an existing attribute."))
     else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
       Failure(E(name + " not allowed as a " + context + " because it is already an allowed unauthenticated attribute."))
     else if outer.allowedUnauthenticatedAttributePrefix.Some? && outer.allowedUnauthenticatedAttributePrefix.value <= name then
@@ -429,7 +429,7 @@ module SearchConfigToInfo {
       return Success(converted);
     }
     :- Need(beacons[0].name !in converted, E("Duplicate StandardBeacon name : " + beacons[0].name));
-    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon", false);
+    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "StandardBeacon");
     var locString := GetLocStr(beacons[0].name, beacons[0].loc);
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString);
 
@@ -705,6 +705,59 @@ module SearchConfigToInfo {
       AddConstructors2(constructors.value, name, parts, |constructors.value|)
   }
 
+  // Construct a CompoundBeacon from its configuration
+  function method CreateCompoundBeacon(
+    beacon : CompoundBeacon,
+    outer : DynamoDbTableEncryptionConfig,
+    client: Primitives.AtomicPrimitivesClient,
+    virtualFields : V.VirtualFieldMap,
+    converted : I.BeaconMap
+  )
+    : (ret : Result<CB.CompoundBeacon, Error>)
+
+    //= specification/searchable-encryption/beacons.md#signed-beacons
+    //= type=implication
+    //# The beacon value MUST be stored as `NAME`, rather than the usual `aws_dbe_b_NAME`.
+    ensures ret.Success? ==>
+      && ret.value.base.name == beacon.name
+      && var sensitive := if beacon.sensitive.Some? then beacon.sensitive.value else [];
+      && (|sensitive| == 0 ==> ret.value.base.beaconName == beacon.name)
+      && (|sensitive| != 0 ==> ret.value.base.beaconName == BeaconPrefix + beacon.name)
+
+  {
+    // because UnwrapOr doesn't verify when used on a list with a minimum size
+    var nonSensitive := if beacon.nonSensitive.Some? then beacon.nonSensitive.value else [];
+    var sensitive := if beacon.sensitive.Some? then beacon.sensitive.value else [];
+    var isSignedBeacon := |sensitive| == 0;
+
+    :- Need(beacon.name !in converted, E("Duplicate CompoundBeacon name : " + beacon.name));
+    var _ :- BeaconNameAllowed(outer, virtualFields, beacon.name, "CompoundBeacon", isSignedBeacon);
+
+    var parts :- AddNonSensitiveParts(nonSensitive, outer);
+    var numNon := |parts|;
+    assert CB.OrderedParts(parts, numNon); 
+
+    var parts :- AddSensitiveParts(sensitive, |parts| + |sensitive|, numNon, parts, converted);
+    assert CB.OrderedParts(parts, numNon);
+    :- Need(0 < |parts|, E("For beacon " + beacon.name + " no parts were supplied."));
+    :- Need(beacon.constructors.None? || 0 < |beacon.constructors.value|, E("For beacon " + beacon.name + " an empty constructor list was supplied."));
+    var constructors :- AddConstructors(beacon.constructors, beacon.name, parts, numNon);
+
+    var beaconName := if isSignedBeacon then beacon.name else BeaconPrefix + beacon.name;
+    :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
+
+    CB.MakeCompoundBeacon(
+      B.BeaconBase (
+        client := client,
+        name := beacon.name,
+        beaconName := beaconName
+      ),
+      beacon.split[0],
+      parts,
+      numNon,
+      constructors
+    )
+  }
   // convert configured CompoundBeacons to internal BeaconMap
   method {:tailrecursion} AddCompoundBeacons(
     beacons : seq<CompoundBeacon>,
@@ -739,36 +792,7 @@ module SearchConfigToInfo {
     if |beacons| == 0 {
       return Success(converted);
     }
-    :- Need(beacons[0].name !in converted, E("Duplicate CompoundBeacon name : " + beacons[0].name));
-    var _ :- BeaconNameAllowed(outer, virtualFields, beacons[0].name, "CompoundBeacon", beacons[0].sensitive.None? || |beacons[0].sensitive.value| == 0);
-
-    // because UnwrapOr doesn't verify when used on a list with a minimum size
-    var nonSensitive := if beacons[0].nonSensitive.Some? then beacons[0].nonSensitive.value else [];
-    var parts :- AddNonSensitiveParts(nonSensitive, outer);
-    var numNon := |parts|;
-    assert CB.OrderedParts(parts, numNon);
-    var sensitive := if beacons[0].sensitive.Some? then beacons[0].sensitive.value else [];
-    parts :- AddSensitiveParts(sensitive, |parts| + |sensitive|, numNon, parts, converted);
-    assert CB.OrderedParts(parts, numNon);
-    :- Need(0 < |parts|, E("For beacon " + beacons[0].name + " no parts were supplied."));
-    :- Need(beacons[0].constructors.None? || 0 < |beacons[0].constructors.value|, E("For beacon " + beacons[0].name + " an empty constructor list was supplied."));
-    var constructors :- AddConstructors(beacons[0].constructors, beacons[0].name, parts, numNon);
-
-    var beaconName := if beacons[0].sensitive.Some? && 0 < |beacons[0].sensitive.value| then
-      BeaconPrefix + beacons[0].name else beacons[0].name;
-    :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
-
-    var newBeacon :- CB.MakeCompoundBeacon(
-      B.BeaconBase (
-        client := client,
-        name := beacons[0].name,
-        beaconName := beaconName
-      ),
-      beacons[0].split[0],
-      parts,
-      numNon,
-      constructors
-    );
+    var newBeacon :- CreateCompoundBeacon(beacons[0], outer, client, virtualFields, converted);
     output := AddCompoundBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Compound(newBeacon)]);
   }
 
