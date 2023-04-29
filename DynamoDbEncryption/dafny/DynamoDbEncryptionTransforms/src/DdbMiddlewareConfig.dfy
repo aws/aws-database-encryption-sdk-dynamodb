@@ -62,9 +62,6 @@ module DdbMiddlewareConfig {
   {
     && (forall tableName <- config.tableEncryptionConfigs ::
         config.tableEncryptionConfigs[tableName].physicalTableName == tableName)
-    // && (forall t :: t in config.tableEncryptionConfigs.Keys ==>
-    //     config.tableEncryptionConfigs[t].itemEncryptor.ValidState())
-    // && SearchValidState(config)
   }
 
 

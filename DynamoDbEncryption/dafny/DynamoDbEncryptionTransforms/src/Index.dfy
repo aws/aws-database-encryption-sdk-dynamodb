@@ -68,6 +68,34 @@ module
       AddActions(names[1..], actions[names[0] := SET.SIGN_ONLY])
   }
 
+  predicate {:opaque} AllTableConfigsValid?(configs: map<string, TableConfig>)
+    ensures 0 == |configs| ==> AllTableConfigsValid?(configs)
+  {
+    forall tableName <- configs :: ValidTableConfig?(configs[tableName])
+  }
+  predicate {:opaque} CorrectlyTransferedStructure?(
+    internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig>,
+    config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig
+  )
+    ensures 0 == |internalConfigs| ==> CorrectlyTransferedStructure?(internalConfigs, config)
+  {
+    forall tableName <- internalConfigs
+    ::
+      && tableName in config.tableEncryptionConfigs
+      && ConfigsMatch(tableName, internalConfigs[tableName], config.tableEncryptionConfigs[tableName])
+  }
+  predicate {:opaque} ConfigsMatch(
+    tableName: string,
+    internalConfig: DdbMiddlewareConfig.ValidTableConfig,
+    inputConfig: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTableEncryptionConfig
+  )
+  {
+    && tableName == internalConfig.physicalTableName
+    && inputConfig.logicalTableName == internalConfig.logicalTableName
+    && inputConfig.partitionKeyName == internalConfig.partitionKeyName
+    && inputConfig.sortKeyName == internalConfig.sortKeyName
+  }
+
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
   {
@@ -78,29 +106,26 @@ module
     //# [DynamoDb Item Encryptor](./ddb-table-encryption-config.md)
     //# per configured table, using these table encryption configs.
     var m' := config.tableEncryptionConfigs;
+
+    ghost var inputConfigsModifies: set<object> := set
+      tableConfig <- set tableName <- config.tableEncryptionConfigs, tableConfig | tableConfig == config.tableEncryptionConfigs[tableName] :: tableConfig,
+      o <- (
+            (if tableConfig.keyring.Some? then tableConfig.keyring.value.Modifies else {})
+          + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
+          + (if tableConfig.legacyConfig.Some? then tableConfig.legacyConfig.value.encryptor.Modifies else {})
+      )
+      :: o;
+
     while m'.Keys != {}
         invariant m'.Keys <= config.tableEncryptionConfigs.Keys
         invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
-        invariant forall k <- internalConfigs :: OneSearchValidState(internalConfigs[k])
 
-        invariant forall tableName <- internalConfigs :: ValidTableConfig?(internalConfigs[tableName])
+        invariant CorrectlyTransferedStructure?(internalConfigs, config)
+        invariant AllTableConfigsValid?(internalConfigs)
         invariant ValidConfig?(Config(internalConfigs))
-        // invariant forall tableName <- internalConfigs, tableConfig | tableConfig == internalConfigs[tableName]
-        // ::
-        //   && tableConfig.physicalTableName == tableName
-        //   && tableConfig.itemEncryptor.config.logicalTableName == tableConfig.logicalTableName
-        //   && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
-        //   && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
-        // invariant forall t :: t in internalConfigs.Keys ==> internalConfigs[t].itemEncryptor.ValidState()
-
-        invariant fresh((set t <- internalConfigs.Keys, o <- internalConfigs[t].itemEncryptor.Modifies :: o) -
-          set t <- config.tableEncryptionConfigs.Keys, o <- (
-            (if config.tableEncryptionConfigs[t].keyring.Some? then config.tableEncryptionConfigs[t].keyring.value.Modifies else {})
-          + (if config.tableEncryptionConfigs[t].cmm.Some? then config.tableEncryptionConfigs[t].cmm.value.Modifies else {})
-          + (if config.tableEncryptionConfigs[t].legacyConfig.Some? then config.tableEncryptionConfigs[t].legacyConfig.value.encryptor.Modifies else {})
-      ) :: o)
 
         decreases m'.Keys
+        modifies inputConfigsModifies
     {
         var tableName: string :| tableName in m';
         var inputConfig := config.tableEncryptionConfigs[tableName];
@@ -136,13 +161,14 @@ module
           legacyConfig := inputConfig.legacyConfig,
           plaintextPolicy := inputConfig.plaintextPolicy
         );
+
         // TODO consider using the raw constructor in order to avoid
         // instantiating multiple StructuredEncryption
         var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
-        var internalConfig := DdbMiddlewareConfig.TableConfig(
+
+        var internalConfig: DdbMiddlewareConfig.ValidTableConfig := DdbMiddlewareConfig.TableConfig(
           physicalTableName := tableName,
           logicalTableName := inputConfig.logicalTableName,
           partitionKeyName := inputConfig.partitionKeyName,
@@ -150,21 +176,39 @@ module
           itemEncryptor := itemEncryptor,
           search := search
         );
-
-        assert ValidTableConfig?(internalConfig);
-        assert OneSearchValidState(internalConfig);
-        assert internalConfig.itemEncryptor.ValidState();
+        
         internalConfigs := internalConfigs[tableName := internalConfig];
-        assert forall k <- internalConfigs :: OneSearchValidState(internalConfigs[k]);
+
+        assert AllTableConfigsValid?(internalConfigs) by {
+          reveal AllTableConfigsValid?();
+          assert AllTableConfigsValid?(internalConfigs - {tableName});
+          assert ValidTableConfig?(internalConfig);
+        }
+        assert ValidConfig?(Config(internalConfigs)) by {
+          assert ValidConfig?(Config(internalConfigs - {tableName}));
+          assert internalConfig.physicalTableName == tableName;
+        }
+
+        assert CorrectlyTransferedStructure?(internalConfigs, config) by {
+          reveal CorrectlyTransferedStructure?();
+          reveal ConfigsMatch();
+          assert CorrectlyTransferedStructure?(internalConfigs - {tableName}, config);
+          assert ConfigsMatch(tableName, internalConfig, inputConfig);
+        }
 
         // Pop 'tableName' off the map, so that we may continue iterating
         m' := map k' | k' in m' && k' != tableName :: m'[k'];
     }
     assert SearchValidState(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs));
+
+    var newConfig := DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs);
+    assert Operations.ValidInternalConfig?(newConfig);
+    var client := new DynamoDbEncryptionTransformsClient(newConfig);
+
     // I'm really sorry, but I can't get the freshness to verify
     // and my time box has run out of time.
     assume {:axiom} fresh(
-     Operations.ModifiesInternalConfig(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs))
+      client.Modifies
         - ( var tmps14 := set t14 | t14 in config.tableEncryptionConfigs.Values
           && t14.keyring.Some? 
           :: t14.keyring.value;
@@ -202,18 +246,6 @@ module
         && tmp22ModifyEntry in tmp22Modifies 
         :: tmp22ModifyEntry)
         ) );
-
-    // assert forall tableName <- internalConfigs ::
-    //   var tableConfig := internalConfigs[tableName];
-    //   && tableConfig.itemEncryptor.config.logicalTableName == tableName
-    //   && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
-    //   && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
-    //   && tableConfig.itemEncryptor.ValidState()
-    //   && OneSearchValidState(tableConfig);
-
-    var newConfig := DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs);
-    assert Operations.ValidInternalConfig?(newConfig);
-    var client := new DynamoDbEncryptionTransformsClient(newConfig);
 
     return Success(client);
   }
