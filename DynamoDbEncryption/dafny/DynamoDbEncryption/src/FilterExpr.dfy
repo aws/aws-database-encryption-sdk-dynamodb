@@ -94,6 +94,10 @@ module DynamoDBFilterExpr {
     | Contains
     | Size
 
+  predicate method IsEquality(t : Token)
+  {
+    t.Eq? || t.Ne? || t.In?
+  }
 
   function method TokenToString(t : Token) : string
   {
@@ -185,13 +189,13 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<Option<SI.Beacon>, Error>
+    : Result<(Option<SI.Beacon>, bool), Error>
     requires HasBeacon(bv, t, names)
     requires value.Value?
   {
     var b := GetBeacon2(bv, t, names);
     var _ :- CanBeacon(b, op, value.s, values);
-    Success(Some(b))
+    Success((Some(b), IsEquality(op)))
   }
 
   function method GetBetweenBeacon(
@@ -203,14 +207,14 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<Option<SI.Beacon>, Error>
+    : Result<(Option<SI.Beacon>, bool), Error>
     requires HasBeacon(bv, t, names)
     requires leftValue.Value?
     requires rightValue.Value?
   {
     var b := GetBeacon2(bv, t, names);
     var _ :- CanBetween(b, op, leftValue.s, rightValue.s, values);
-    Success(Some(b))
+    Success((Some(b), false))
   }
 
   function method CanStandardBeacon(op : Token) : (ret : Result<bool, Error>)
@@ -229,10 +233,12 @@ module DynamoDBFilterExpr {
     match op {
       case Lt | Gt | Le | Ge =>
         var startsWithSigned :- b.cmp.startsWithSigned(value);
-        if startsWithSigned then
+        var endsWithPrefix :- b.cmp.endsWithPrefix(value);
+        if startsWithSigned || endsWithPrefix then
           Success(true)
         else
-          Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a compound beacon, unless the value begins with a nonsensitive part."))
+          Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a compound beacon, unless the value begins with a nonsensitive part" +
+          " or ends with just a prefix."))
       // BeginsWith and Contains are dicey, but no way to distinguish good from bad
       case _ => Success(true)
     }
@@ -299,8 +305,11 @@ module DynamoDBFilterExpr {
       if 0 < |newLeft| && 0 < |newRight| then
         var leftPart :- b.cmp.getPartFromPrefix(newLeft[0]);
         var rightPart :- b.cmp.getPartFromPrefix(newRight[0]);
-        :- Need(leftPart.NonSensitive? && rightPart.NonSensitive?,
-                E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive."));
+        :- Need(
+            && (leftPart.NonSensitive? || leftPart.prefix == newLeft[0])
+            && (rightPart.NonSensitive? || rightPart.prefix == newRight[0]),
+        E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive, or just a prefix : "
+        + "BETWEEN " + leftVal + " AND " + rightVal));
         Success(true)
       else
         Success(true)
@@ -315,7 +324,7 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<Option<SI.Beacon>, Error>
+    : Result<(Option<SI.Beacon>, bool), Error>
     requires pos < |expr|
     requires expr[pos].Value?
   {
@@ -339,13 +348,13 @@ module DynamoDBFilterExpr {
     else if expr[pos].Value? then
       var in_pos := GetInPos(expr, pos);
       if in_pos.None? then
-        Success(None)
+        Success((None, true))
       else if HasBeacon(b, expr[in_pos.value-1], names) then
         GetBeacon(b, expr[in_pos.value-1], expr[in_pos.value], expr[pos], names, values)
       else
-        Success(None)
+        Success((None, true))
     else
-      Success(None)
+      Success((None, true))
   }
 
   // expr[pos] is a value; return the Attr to which that value refers
@@ -482,10 +491,10 @@ module DynamoDBFilterExpr {
       :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
       var oldValue := values[expr[pos].s];
       var bec :- BeaconForValue(b, expr, pos, names, values);
-      if bec.None? then
+      if bec.0.None? then
         BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [expr[pos]])
       else
-        var newValue :- bec.value.GetBeaconValue(oldValue, keys);
+        var newValue :- bec.0.value.GetBeaconValue(oldValue, keys, bec.1);
         BeaconizeParsedExpr(b, expr, pos+1, values[expr[pos].s := newValue], names, keys, acc + [expr[pos]])
     else
       BeaconizeParsedExpr(b, expr, pos+1, values, names, keys, acc + [expr[pos]])

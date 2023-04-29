@@ -187,6 +187,13 @@ module CompoundBeacon {
       Success(p.NonSensitive?)
     }
 
+    function method endsWithPrefix(value : string) : Result<bool, Error>
+    {
+      var pieces := Split(value, split);
+      var p :- partFromPrefix(parts, Seq.Last(pieces));
+      Success(p.prefix == Seq.Last(pieces))
+    }
+
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
       Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
@@ -199,7 +206,13 @@ module CompoundBeacon {
       PartValueCalc(value[|part.prefix|..], keys, part)
     }
 
-    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap) : Result<DDB.AttributeValue, Error>
+    function method justPrefix(value : string) : Result<bool, Error>
+    {
+      var part :- partFromPrefix(parts, value);
+      Success(value == part.prefix)
+    }
+
+    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool) : Result<DDB.AttributeValue, Error>
       requires !keys.DontUseKeys?
     {
       if !value.S? then
@@ -207,8 +220,13 @@ module CompoundBeacon {
       else
         var parts := Split(value.S, split);
         var beaconParts :- Seq.MapWithResult(s => FindAndCalcPart(s, keys), parts);
-        var result := Join(beaconParts, [split]);
-        Success(DDB.AttributeValue.S(result))
+        var lastIsPrefix :- justPrefix(Seq.Last(parts));
+        if !forEquality && lastIsPrefix then
+          var result := Join(beaconParts[..|parts|-1] + [Seq.Last(parts)], [split]);
+          Success(DDB.AttributeValue.S(result))
+        else
+          var result := Join(beaconParts, [split]);
+          Success(DDB.AttributeValue.S(result))
     }
 
     function method {:opaque} {:tailrecursion} TryConstructor(

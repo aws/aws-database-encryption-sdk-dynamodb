@@ -447,7 +447,8 @@ module SearchableEncryptionInfo {
       else
         cmp.GetFields(virtualFields)
     }
-    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap) : Result<DDB.AttributeValue, Error>
+
+    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool) : Result<DDB.AttributeValue, Error>
     {
       if keys.DontUseKeys? then
         Success(value)
@@ -460,8 +461,9 @@ module SearchableEncryptionInfo {
         else
           Failure(E("Internal error. Beacon " + std.base.name + " has no key."))
       else
-        cmp.GetBeaconValue(value, keys)
+        cmp.GetBeaconValue(value, keys, forEquality)
     }
+    
     predicate ValidState()
     {
       if Standard? then
