@@ -1587,7 +1587,7 @@ module DynamoDBFilterExpr {
       }
       if context.filterExpr.Some? {
         var parsed := ParseExpr(context.filterExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, context.names, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, newNames, keys, newValues);
         newFilterExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
