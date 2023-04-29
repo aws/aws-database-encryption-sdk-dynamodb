@@ -82,12 +82,16 @@ module
         invariant m'.Keys <= config.tableEncryptionConfigs.Keys
         invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
         invariant forall k <- internalConfigs :: OneSearchValidState(internalConfigs[k])
-        invariant forall tableName <- internalConfigs, tableConfig :: (tableConfig == internalConfigs[tableName]
-          ==>
-            && tableConfig.itemEncryptor.config.tableName == tableName
-            && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
-            && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName)
-        invariant forall t :: t in internalConfigs.Keys ==> internalConfigs[t].itemEncryptor.ValidState()
+
+        invariant forall tableName <- internalConfigs :: ValidTableConfig?(internalConfigs[tableName])
+        invariant ValidConfig?(Config(internalConfigs))
+        // invariant forall tableName <- internalConfigs, tableConfig | tableConfig == internalConfigs[tableName]
+        // ::
+        //   && tableConfig.physicalTableName == tableName
+        //   && tableConfig.itemEncryptor.config.logicalTableName == tableConfig.logicalTableName
+        //   && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
+        //   && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
+        // invariant forall t :: t in internalConfigs.Keys ==> internalConfigs[t].itemEncryptor.ValidState()
 
         invariant fresh((set t <- internalConfigs.Keys, o <- internalConfigs[t].itemEncryptor.Modifies :: o) -
           set t <- config.tableEncryptionConfigs.Keys, o <- (
@@ -139,11 +143,15 @@ module
         var itemEncryptor :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
         var internalConfig := DdbMiddlewareConfig.TableConfig(
+          physicalTableName := tableName,
+          logicalTableName := inputConfig.logicalTableName,
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
           itemEncryptor := itemEncryptor,
           search := search
         );
+
+        assert ValidTableConfig?(internalConfig);
         assert OneSearchValidState(internalConfig);
         assert internalConfig.itemEncryptor.ValidState();
         internalConfigs := internalConfigs[tableName := internalConfig];
@@ -195,13 +203,13 @@ module
         :: tmp22ModifyEntry)
         ) );
 
-    assert forall tableName <- internalConfigs ::
-      var tableConfig := internalConfigs[tableName];
-      && tableConfig.itemEncryptor.config.tableName == tableName
-      && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
-      && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
-      && tableConfig.itemEncryptor.ValidState()
-      && OneSearchValidState(tableConfig);
+    // assert forall tableName <- internalConfigs ::
+    //   var tableConfig := internalConfigs[tableName];
+    //   && tableConfig.itemEncryptor.config.logicalTableName == tableName
+    //   && tableConfig.itemEncryptor.config.partitionKeyName == tableConfig.partitionKeyName
+    //   && tableConfig.itemEncryptor.config.sortKeyName == tableConfig.sortKeyName
+    //   && tableConfig.itemEncryptor.ValidState()
+    //   && OneSearchValidState(tableConfig);
 
     var newConfig := DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs);
     assert Operations.ValidInternalConfig?(newConfig);
