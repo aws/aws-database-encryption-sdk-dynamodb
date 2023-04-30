@@ -128,7 +128,7 @@ public class ToDafny {
     plaintextPolicy = Objects.nonNull(nativeValue.plaintextPolicy()) ?
         Option.create_Some(ToDafny.PlaintextPolicy(nativeValue.plaintextPolicy()))
         : Option.create_None();
-    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
+    return new DynamoDbTableEncryptionConfig(logicalTableName, partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
   }
 
   public static NonSensitivePart NonSensitivePart(

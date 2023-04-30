@@ -14,6 +14,8 @@ import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 public class DynamoDbTableEncryptionConfig {
+  private final String logicalTableName;
+
   private final String partitionKeyName;
 
   private final String sortKeyName;
@@ -37,6 +39,7 @@ public class DynamoDbTableEncryptionConfig {
   private final PlaintextPolicy plaintextPolicy;
 
   protected DynamoDbTableEncryptionConfig(BuilderImpl builder) {
+    this.logicalTableName = builder.logicalTableName();
     this.partitionKeyName = builder.partitionKeyName();
     this.sortKeyName = builder.sortKeyName();
     this.search = builder.search();
@@ -48,6 +51,10 @@ public class DynamoDbTableEncryptionConfig {
     this.cmm = builder.cmm();
     this.legacyConfig = builder.legacyConfig();
     this.plaintextPolicy = builder.plaintextPolicy();
+  }
+
+  public String logicalTableName() {
+    return this.logicalTableName;
   }
 
   public String partitionKeyName() {
@@ -103,6 +110,10 @@ public class DynamoDbTableEncryptionConfig {
   }
 
   public interface Builder {
+    Builder logicalTableName(String logicalTableName);
+
+    String logicalTableName();
+
     Builder partitionKeyName(String partitionKeyName);
 
     String partitionKeyName();
@@ -151,6 +162,8 @@ public class DynamoDbTableEncryptionConfig {
   }
 
   static class BuilderImpl implements Builder {
+    protected String logicalTableName;
+
     protected String partitionKeyName;
 
     protected String sortKeyName;
@@ -177,6 +190,7 @@ public class DynamoDbTableEncryptionConfig {
     }
 
     protected BuilderImpl(DynamoDbTableEncryptionConfig model) {
+      this.logicalTableName = model.logicalTableName();
       this.partitionKeyName = model.partitionKeyName();
       this.sortKeyName = model.sortKeyName();
       this.search = model.search();
@@ -188,6 +202,15 @@ public class DynamoDbTableEncryptionConfig {
       this.cmm = model.cmm();
       this.legacyConfig = model.legacyConfig();
       this.plaintextPolicy = model.plaintextPolicy();
+    }
+
+    public Builder logicalTableName(String logicalTableName) {
+      this.logicalTableName = logicalTableName;
+      return this;
+    }
+
+    public String logicalTableName() {
+      return this.logicalTableName;
     }
 
     public Builder partitionKeyName(String partitionKeyName) {
@@ -291,6 +314,9 @@ public class DynamoDbTableEncryptionConfig {
     }
 
     public DynamoDbTableEncryptionConfig build() {
+      if (Objects.isNull(this.logicalTableName()))  {
+        throw new IllegalArgumentException("Missing value for required field `logicalTableName`");
+      }
       if (Objects.isNull(this.partitionKeyName()))  {
         throw new IllegalArgumentException("Missing value for required field `partitionKeyName`");
       }
