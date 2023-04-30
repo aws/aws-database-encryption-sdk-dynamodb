@@ -173,6 +173,7 @@ public class HierarchicalKeyringExample {
         // 7. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+                .logicalTableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActions(attributeActions)

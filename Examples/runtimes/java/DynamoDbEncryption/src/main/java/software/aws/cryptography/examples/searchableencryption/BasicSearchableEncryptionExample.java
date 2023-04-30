@@ -206,6 +206,7 @@ public class BasicSearchableEncryptionExample {
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+        .logicalTableName(ddbTableName)
         .partitionKeyName("customer_id")
         .sortKeyName("create_time")
         .attributeActions(attributeActions)
