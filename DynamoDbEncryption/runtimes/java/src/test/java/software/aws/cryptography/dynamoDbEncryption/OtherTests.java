@@ -38,7 +38,7 @@ public class OtherTests {
                                 .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                                 .sortKeyName("foo")
                                 .partitionKeyName("bar")
-                                .tableName("test-table")
+                                .logicalTableName("test-table")
                                 .attributeActions(actions)
                                 .keyring(createStaticKeyring())
                                 // TODO try configuring a LegacyConfig
