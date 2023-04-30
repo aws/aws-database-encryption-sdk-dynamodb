@@ -207,6 +207,19 @@ For example if the query is
 then the ExpressionAttributeValues must be changed to (:value = 13fd),
 where "13fd" is the calculated beacon value.
 
+If a single value in ExpressionAttributeValues is used in more than one context,
+for example an expression of `this = :foo OR that = :foo` where `this` and `that`
+are both beacons, this operation MUST fail.
+This includes the case where the KeyConditionExpression contains `this = :foo`
+and the FilterExpression includes `that = :foo`.
+This is because `:foo` can only hold one value, but the beaconization of `:foo`
+would be different for different beacons.
+
+Hypothetically, this operation could split `:foo` into `:foo1` and `:foo2`
+in this situation, but that risks leaking the connection between the two beacons and spoiling k-anonymity.
+Similarly, if one of the two was not a beacon, then we would be leaking the fact that
+this beacon came from that text.
+
 ### QueryObject has sensitive values
 
 Determines if a Query Object has sensitive values (ENCRYPT_AND_SIGN fields)
