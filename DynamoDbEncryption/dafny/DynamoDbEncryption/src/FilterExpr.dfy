@@ -218,10 +218,17 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<EqualityBeacon, Error>
+    : (ret : Result<EqualityBeacon, Error>)
     requires HasBeacon(bv, t, names)
     requires leftValue.Value?
     requires rightValue.Value?
+    //= specification/searchable-encryption/beacons.md#betweencomparable
+    //= type=implication
+    //# A Query MUST fail if it uses BETWEEN on values that are not BetweenComparable.
+    ensures (
+      && var b := GetBeacon2(bv, t, names);
+      && CanBetween(b, op, leftValue.s, rightValue.s, values).Failure?
+    ) ==> ret.Failure?
   {
     var b := GetBeacon2(bv, t, names);
     var _ :- CanBetween(b, op, leftValue.s, rightValue.s, values);
