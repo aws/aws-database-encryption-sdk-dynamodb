@@ -181,6 +181,7 @@ module DynamoDBFilterExpr {
       b.beacons[name2]
   }
 
+  // returns Beacon, if any, and a flag indicating that the operation is exact match
   function method GetBeacon(
     bv : SI.BeaconVersion,
     t : Token,
@@ -339,6 +340,7 @@ module DynamoDBFilterExpr {
 
 
   // expr[pos] is a value; return the beacon to which that value refers
+  // plus a flag to indicate if the operation is exact match
   function method BeaconForValue(
     b : SI.BeaconVersion,
     expr : seq<Token>,

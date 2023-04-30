@@ -1,16 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-/*
-  BaseBeacon.Beacon defines the way that input data (bytes or strings)
-  is converted into beacons, for use in searchable encryption.
-
-  The public interface of this module consists of the Beacon datatype, and four of its methods.
-  - standardHash : turn a sequence of bytes into a hex string
-  - compoundHash : turn a string into another string, containing one or more standardHash's and possibly some plain text.
-  - isValid : is the Beacon internally consistent?
-*/
-
 include "Util.dfy"
 include "Beacon.dfy"
 
@@ -93,18 +83,6 @@ module CompoundBeacon {
 
   type ConstructorList = x : seq<Constructor> | 0 < |x| witness *
 
-  predicate method {:opaque} Any<T>(f: (T ~> bool), xs: seq<T>)
-    requires forall i :: 0 <= i < |xs| ==> f.requires(xs[i])
-    reads set i, o | 0 <= i < |xs| && o in f.reads(xs[i]) :: o
-  {
-    if |xs| == 0 then
-      false
-    else if f(xs[0]) then
-      true
-    else
-      Any(f, xs[1..])
-  }
-
   type ValidCompoundBeacon = x : CompoundBeacon | x.ValidState() witness *
 
   function method MakeCompoundBeacon(
@@ -129,6 +107,8 @@ module CompoundBeacon {
     Success(x)
   }
 
+  // are the parts properly ordered?
+  // that is, with the non-sensitive parts followed the sensitive parts
   predicate OrderedParts(p : seq<BeaconPart>, n : nat)
     requires n <= |p|
   {
@@ -151,6 +131,8 @@ module CompoundBeacon {
       && OrderedParts(parts, numNonSensitive)
     }
 
+    // no prefix is a prefix of another prefix
+    // that is, no ambiguity when determining which prefix is used in a value
     predicate ValidPrefixSet()
     {
       forall x : nat, y : nat
@@ -158,17 +140,20 @@ module CompoundBeacon {
         :: OkPrefixPair(x, y)
     }
 
+    // Does this beacon have any sensitive parts
     predicate method isEncrypted() {
       numNonSensitive < |parts|
     }
 
-    function method {:tailrecursion} getPartFromPrefix(value : string)
+    // find the part whose prefix matches this value
+    function method getPartFromPrefix(value : string)
       : (ret : Result<BeaconPart, Error>)
       ensures ret.Success? ==> ret.value.prefix <= value
     {
       partFromPrefix(parts, value)
     }
 
+    // find the part whose prefix matches this value
     function method {:tailrecursion} partFromPrefix(p : seq<BeaconPart>, value : string)
       : (ret : Result<BeaconPart, Error>)
       ensures ret.Success? ==> ret.value.prefix <= value
@@ -181,6 +166,7 @@ module CompoundBeacon {
         partFromPrefix(p[1..], value)
     }
 
+    // trim leading pieces that refer to nonsensitive parts
     function method SkipSignedPieces(pieces : seq<string>) : Result<seq<string>, Error>
     {
       if |pieces| == 0 then
@@ -193,6 +179,7 @@ module CompoundBeacon {
           SkipSignedPieces(pieces[1..])
     }
 
+    // predicate : are these pieces compatible with a less than operation 
     function method IsLessThanComparable(pieces : seq<string>) : Result<bool, Error>
     {
       var rest :- SkipSignedPieces(pieces);
@@ -205,11 +192,13 @@ module CompoundBeacon {
         Success(p.prefix == rest[0])
     }
 
+    // return all the fields involved in this beacon
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
       Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
     }
 
+    // calculate value for a single piece of a compound beacon query string 
     function method FindAndCalcPart(value : string, keys : MaybeKeyMap) : Result<string, Error>
       requires !keys.DontUseKeys?
     {
@@ -217,12 +206,14 @@ module CompoundBeacon {
       PartValueCalc(value[|part.prefix|..], keys, part)
     }
 
+    // predicate : is the value simply the prefix, with no value
     function method justPrefix(value : string) : Result<bool, Error>
     {
       var part :- partFromPrefix(parts, value);
       Success(value == part.prefix)
     }
 
+    // for the given attribute value, return the beacon value
     function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool) : Result<DDB.AttributeValue, Error>
       requires !keys.DontUseKeys?
     {
@@ -240,6 +231,7 @@ module CompoundBeacon {
           Success(DDB.AttributeValue.S(result))
     }
 
+    // return the beacon value for this constructor, if possible
     function method {:opaque} {:tailrecursion} TryConstructor(
       consFields : seq<ConstructorPart>,
       item : DDB.AttributeMap,
@@ -278,6 +270,7 @@ module CompoundBeacon {
           TryConstructor(consFields[1..], item, vf, keys, acc)
     }
 
+    // attempt each constructor in turn, until one succeeds
     function method {:opaque} {:tailrecursion} TryConstructors(
       construct : seq<Constructor>,
       item : DDB.AttributeMap,
@@ -316,6 +309,7 @@ module CompoundBeacon {
       TryConstructors(construct, item, vf, keys)
     }
 
+    // return the unhashed beacon value, necessary for final client-side filtering
     function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 && |res.value.value| > 0
@@ -410,11 +404,14 @@ module CompoundBeacon {
           calcParts(pieces[1..], keys, acc + [split] + theBeacon)
     }
 
+    // true if neither string is a prefix of the other
     static predicate method OkPrefixStringPair(x : string, y : string)
     {
       && !(x <= y)
       && !(y <= x)
     }
+
+    // true is neither part's prefix is a prefix of the other
     predicate method OkPrefixPair(pos1 : nat, pos2 : nat)
       requires pos1 < |parts|
       requires pos2 < |parts|
@@ -423,6 +420,7 @@ module CompoundBeacon {
       || OkPrefixStringPair(parts[pos1].prefix, parts[pos2].prefix)
     }
 
+    // OkPrefixPair, but return Result with error message
     function method CheckOnePrefixPart(pos1 : nat, pos2 : nat) : (ret : Result<bool, Error>)
       requires pos1 < |parts|
       requires pos2 < |parts|
@@ -435,6 +433,7 @@ module CompoundBeacon {
         Success(true)
     }
 
+    // error if this part's prefix is a prefix of another part's prefix
     function method CheckOnePrefix(pos : nat) : (ret : Result<bool, Error>)
       requires pos < |parts|
     {
@@ -443,7 +442,8 @@ module CompoundBeacon {
       Success(true)
     }
 
-    function method ValidPrefixSetResultPos(index : nat) : (ret : Result<bool, Error>)
+    // error if any part's prefix is a prefix of another part's prefix
+    function method {:tailrecursion} ValidPrefixSetResultPos(index : nat) : (ret : Result<bool, Error>)
       decreases |parts| - index
     {
       if |parts| <= index then
@@ -453,6 +453,7 @@ module CompoundBeacon {
         ValidPrefixSetResultPos(index+1)
     }
 
+    // error if any part's prefix is a prefix of another part's prefix
     function method ValidPrefixSetResult() : (ret : Result<bool, Error>)
       ensures ret.Success? ==> ValidPrefixSet() && ret.value
     {
