@@ -62,6 +62,15 @@ module DdbMiddlewareConfig {
   {
     && (forall tableName <- config.tableEncryptionConfigs ::
         config.tableEncryptionConfigs[tableName].physicalTableName == tableName)
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
+    //# When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
+    //# there MUST a one to one mapping between the two.
+    && (forall
+        c1 <- config.tableEncryptionConfigs.Values,
+        c2 <- config.tableEncryptionConfigs.Values
+      | c1 != c2
+      :: c1.logicalTableName != c2.logicalTableName
+    )
   }
 
 

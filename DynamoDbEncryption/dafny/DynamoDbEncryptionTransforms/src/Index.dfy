@@ -98,6 +98,12 @@ module
 
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
+      //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
+      //= type=implication
+      //# When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
+      //# there MUST a one to one mapping between the two.
+      ensures res.Success? ==>
+        && DdbMiddlewareConfig.ValidConfig?(res.value.config)
   {
     var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
     assert ValidWholeSearchConfig(config);
@@ -108,7 +114,7 @@ module
     var m' := config.tableEncryptionConfigs;
 
     ghost var inputConfigsModifies: set<object> := set
-      tableConfig <- set tableName <- config.tableEncryptionConfigs, tableConfig | tableConfig == config.tableEncryptionConfigs[tableName] :: tableConfig,
+      tableConfig <- config.tableEncryptionConfigs.Values,
       o <- (
             (if tableConfig.keyring.Some? then tableConfig.keyring.value.Modifies else {})
           + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
@@ -116,9 +122,12 @@ module
       )
       :: o;
 
+    var allLogicalTableNames := {};
+
     while m'.Keys != {}
         invariant m'.Keys <= config.tableEncryptionConfigs.Keys
         invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
+        invariant forall internalConfig <- internalConfigs.Values :: internalConfig.logicalTableName in allLogicalTableNames
 
         invariant CorrectlyTransferedStructure?(internalConfigs, config)
         invariant AllTableConfigsValid?(internalConfigs)
@@ -129,6 +138,7 @@ module
     {
         var tableName: string :| tableName in m';
         var inputConfig := config.tableEncryptionConfigs[tableName];
+        :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table maped to multipule physical tables: " + inputConfig.logicalTableName));
 
         assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
         SearchInModifies(config, tableName);
@@ -178,6 +188,7 @@ module
         );
         
         internalConfigs := internalConfigs[tableName := internalConfig];
+        allLogicalTableNames := allLogicalTableNames + {internalConfig.logicalTableName};
 
         assert AllTableConfigsValid?(internalConfigs) by {
           reveal AllTableConfigsValid?();

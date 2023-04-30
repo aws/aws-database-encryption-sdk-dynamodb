@@ -77,6 +77,7 @@ but consistent structure in order to give us flexibility for providing the
 simplest customer experience.
 Also in the case of a restore from backup,
 this physical name may not match the logical name for the data stored.
+So a [logical table name](#logical-table-name) exists.
 
 ### Logical Table Name
 
@@ -87,6 +88,11 @@ This name is cryptographically bound to all data stored in this table.
 In the case of a restore from backup
 the [DynamoDB Table Name](#dynamodb-table-name) can change to a new name,
 but this name must remain the same.
+
+When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
+there MUST a one to one mapping between the two.
+The purpose of the logical name is to simplify restore type operations,
+not make it easier to confuse what data comes from what physical table.
 
 ### DynamoDB Partition Key Name
 
