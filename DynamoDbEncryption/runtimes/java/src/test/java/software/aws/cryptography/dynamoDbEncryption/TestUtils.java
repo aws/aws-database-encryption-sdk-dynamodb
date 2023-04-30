@@ -105,6 +105,7 @@ public class TestUtils {
             Map<String, CryptoAction> actions, List<String> allowedUnauth, IKeyring keyring, LegacyPolicy legacyPolicy, PlaintextPolicy ptPolicy) {
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
                 .partitionKeyName(TEST_PARTITION_NAME)
                 .sortKeyName(TEST_SORT_NAME)
                 .attributeActions(actions)
