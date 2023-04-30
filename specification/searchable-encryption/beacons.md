@@ -58,7 +58,7 @@ For a field with `X` distinct values, you should choose a beacon length `N`
 such that `2^N < X/2` to guarantee collisions.
 
 On the other side of the spectrum, if the beacon length is too short,
-then there are too many collisions and query performance begins to 
+then there are too many collisions and query performance begins to
 approach a simple scan of all the data. A reasonable lower bound is
 ensure that `2^N` is greater than the square root of `X`.
 
@@ -75,7 +75,7 @@ with 14 bits you would need to retrieve 30 records from the server to get the 10
 and two records with the same beacon are 33% likely to have the same zip code.
 
 A beacon length MUST be an integer between 1 and 63 inclusive,
-indicating the number of bits in the resulting beacon. 
+indicating the number of bits in the resulting beacon.
 The beacon string will be 1/4 this length.
 
 ### Terminal Location
@@ -224,6 +224,23 @@ The onus is on the customer to properly re-create the results of all of the abov
 We might provide an API to construct a [virtual field](virtual.md) from a record,
 to ease this burden. Perhaps another to construct the full [virtual database field](#virtual-database-field).
 
+##### LessThanComparable
+
+A value for a compound beacon in a query is `LessThanComparable` if it is composed of
+zero or more [nonsensitive parts](#non-sensitive-part-initialization),
+optionally follows by just the prefix of a [sensitive part](#sensitive-part-initialization).
+
+A Query MUST fail if it uses `<`, `<=`, `>`, or `>=` on a value that is not LessThanComparable.
+
+##### BetweenComparable
+
+To determine if two values for a compound beacon in a query are `BetweenComparable`.
+
+ 1 Remove any leading parts common to both values
+ 1 Check if the remainder is [LessThanComparable](#lessthancomparable)
+
+A Query MUST fail if it uses BETWEEN on values that are not BetweenComparable.
+
 #### Indexing Compound Beacons
 
 "MyField" can be used in the definition of an index (other than the primary index),
@@ -283,7 +300,7 @@ On initialization of a Compound Beacon, the caller MUST provide:
 
  * A name -- a string
  * A split character -- a character
- 
+
  On initialization of a Compound Beacon, the caller MAY provide:
 
  * A list of [sensitive parts](#sensitive-part-initialization)
@@ -408,7 +425,7 @@ excluding parts that are not required and with a source field that is not availa
  * getPart MUST take a string as input and produce a string.
  * The returned string MUST NOT be empty.
  * The string MUST be split on the `split character` into pieces.
- * For each piece, a [part](#part) MUST be identified 
+ * For each piece, a [part](#part) MUST be identified
  by matching the prefix of a [part](#part)
 to the beginning of the piece.
  * If no such part exists, this operation MUST fail.

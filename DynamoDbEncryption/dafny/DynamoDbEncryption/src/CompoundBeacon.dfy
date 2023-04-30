@@ -181,17 +181,28 @@ module CompoundBeacon {
         partFromPrefix(p[1..], value)
     }
 
-    function method startsWithSigned(value : string) : Result<bool, Error>
+    function method SkipSignedPieces(pieces : seq<string>) : Result<seq<string>, Error>
     {
-      var p :- partFromPrefix(parts, value);
-      Success(p.NonSensitive?)
+      if |pieces| == 0 then
+        Success(pieces)
+      else
+        var p :- partFromPrefix(parts, pieces[0]);
+        if p.Sensitive? then
+          Success(pieces)
+        else
+          SkipSignedPieces(pieces[1..])
     }
 
-    function method endsWithPrefix(value : string) : Result<bool, Error>
+    function method IsLessThanComparable(pieces : seq<string>) : Result<bool, Error>
     {
-      var pieces := Split(value, split);
-      var p :- partFromPrefix(parts, Seq.Last(pieces));
-      Success(p.prefix == Seq.Last(pieces))
+      var rest :- SkipSignedPieces(pieces);
+      if |rest| == 0 then
+        Success(true)
+      else if |rest| != 1 then
+        Success(false)
+      else
+        var p :- partFromPrefix(parts, rest[0]);
+        Success(p.prefix == rest[0])
     }
 
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
