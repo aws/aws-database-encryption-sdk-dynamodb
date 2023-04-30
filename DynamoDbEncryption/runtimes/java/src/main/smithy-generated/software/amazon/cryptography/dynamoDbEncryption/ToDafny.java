@@ -88,6 +88,8 @@ public class ToDafny {
 
   public static DynamoDbTableEncryptionConfig DynamoDbTableEncryptionConfig(
       software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig nativeValue) {
+    DafnySequence<? extends Character> logicalTableName;
+    logicalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.logicalTableName());
     DafnySequence<? extends Character> partitionKeyName;
     partitionKeyName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.partitionKeyName());
     Option<DafnySequence<? extends Character>> sortKeyName;
