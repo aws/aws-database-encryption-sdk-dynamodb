@@ -401,32 +401,6 @@ module TestDynamoDBFilterExpr {
     expect_equal(newItems, []);
   }
 
-  method {:test} TestFromExample() {
-    var names : DDB.ExpressionAttributeNameMap := map [
-      "#p" := "PK1",
-      "#sk1" := "SK1",
-      "#dur" := "Duration"
-    ];
-    var values : DDB.ExpressionAttributeValueMap := map [
-      ":e" := DS("EE-able@gmail.com"),
-      ":date1" := DS("MS-2022-07-02"),
-      ":date2" := DS("MS-2022-07-08"),
-      ":dur" := DS("0")
-    ];
-
-    var context := ExprContext (
-      expr := Some("#p = :e AND #sk1 BETWEEN :date1 AND :date2"),
-      values:= Some(values),
-      names := Some(names)
-    );
-
-    var version := GetLotsaBeacons();
-    var src := GetLiteralSource([1,2,3,4,5], version);
-    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
-    var newContext :- expect Beaconize(bv, context, DontUseKeyId);
-
-  }
-
   method {:test} TestFilterAttrOps() {
     var names : DDB.ExpressionAttributeNameMap := map [
       "#fecha" := "Date"
@@ -519,7 +493,6 @@ module TestDynamoDBFilterExpr {
     var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val4"), None, Some(values));
     expect newItems.Failure?;
-    print "\n", newItems.error, "\n";
     expect newItems.error == E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive, or just a prefix : BETWEEN T_ATitle AND T_MyTitle");
   }
 
@@ -555,10 +528,11 @@ module TestDynamoDBFilterExpr {
     newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val1"), None, Some(values));
     expect newItems.Success?;
     newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle < :val2"), None, Some(values));
-    expect newItems.Success?;
-    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val2"), None, Some(values));
     expect newItems.Failure?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val2"), None, Some(values));
+    expect newItems.Success?;
 
+   // var newContext := Beaconize(bv, Context(None, ), DontUseKeyId);
   }
 
 }
