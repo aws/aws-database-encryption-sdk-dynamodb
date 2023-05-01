@@ -12,28 +12,28 @@ using System;
  get { return this._cryptoSchema; }
  set { this._cryptoSchema = value; }
 }
- public bool IsSetCryptoSchema () {
+ public bool IsSetCryptoSchema() {
  return this._cryptoSchema != null;
 }
  public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId {
  get { return this._algorithmSuiteId; }
  set { this._algorithmSuiteId = value; }
 }
- public bool IsSetAlgorithmSuiteId () {
+ public bool IsSetAlgorithmSuiteId() {
  return this._algorithmSuiteId != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> EncryptedDataKeys {
  get { return this._encryptedDataKeys; }
  set { this._encryptedDataKeys = value; }
 }
- public bool IsSetEncryptedDataKeys () {
+ public bool IsSetEncryptedDataKeys() {
  return this._encryptedDataKeys != null;
 }
  public System.Collections.Generic.Dictionary<string, string> StoredEncryptionContext {
  get { return this._storedEncryptionContext; }
  set { this._storedEncryptionContext = value; }
 }
- public bool IsSetStoredEncryptionContext () {
+ public bool IsSetStoredEncryptionContext() {
  return this._storedEncryptionContext != null;
 }
  public void Validate() {

@@ -10,14 +10,14 @@ using System;
  get { return this._name; }
  set { this._name = value; }
 }
- public bool IsSetName () {
+ public bool IsSetName() {
  return this._name != null;
 }
  public bool Required {
  get { return this._required.GetValueOrDefault(); }
  set { this._required = value; }
 }
- public bool IsSetRequired () {
+ public bool IsSetRequired() {
  return this._required.HasValue;
 }
  public void Validate() {

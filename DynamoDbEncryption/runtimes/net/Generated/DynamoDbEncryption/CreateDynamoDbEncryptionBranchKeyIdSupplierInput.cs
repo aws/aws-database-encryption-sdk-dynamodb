@@ -9,7 +9,7 @@ using System;
  get { return this._ddbKeyBranchKeyIdSupplier; }
  set { this._ddbKeyBranchKeyIdSupplier = value; }
 }
- public bool IsSetDdbKeyBranchKeyIdSupplier () {
+ public bool IsSetDdbKeyBranchKeyIdSupplier() {
  return this._ddbKeyBranchKeyIdSupplier != null;
 }
  public void Validate() {

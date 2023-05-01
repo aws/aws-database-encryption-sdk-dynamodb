@@ -12,28 +12,28 @@ using System;
  get { return this._policy; }
  set { this._policy = value; }
 }
- public bool IsSetPolicy () {
+ public bool IsSetPolicy() {
  return this._policy != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.ILegacyDynamoDbEncryptor Encryptor {
  get { return this._encryptor; }
  set { this._encryptor = value; }
 }
- public bool IsSetEncryptor () {
+ public bool IsSetEncryptor() {
  return this._encryptor != null;
 }
  public System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoAction> AttributeFlags {
  get { return this._attributeFlags; }
  set { this._attributeFlags = value; }
 }
- public bool IsSetAttributeFlags () {
+ public bool IsSetAttributeFlags() {
  return this._attributeFlags != null;
 }
  public AWS.Cryptography.StructuredEncryption.CryptoAction DefaultAttributeFlag {
  get { return this._defaultAttributeFlag; }
  set { this._defaultAttributeFlag = value; }
 }
- public bool IsSetDefaultAttributeFlag () {
+ public bool IsSetDefaultAttributeFlag() {
  return this._defaultAttributeFlag != null;
 }
  public void Validate() {

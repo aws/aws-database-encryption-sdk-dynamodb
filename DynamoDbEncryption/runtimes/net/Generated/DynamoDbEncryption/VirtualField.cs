@@ -10,14 +10,14 @@ using System;
  get { return this._name; }
  set { this._name = value; }
 }
- public bool IsSetName () {
+ public bool IsSetName() {
  return this._name != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.DynamoDbEncryption.VirtualPart> Parts {
  get { return this._parts; }
  set { this._parts = value; }
 }
- public bool IsSetParts () {
+ public bool IsSetParts() {
  return this._parts != null;
 }
  public void Validate() {

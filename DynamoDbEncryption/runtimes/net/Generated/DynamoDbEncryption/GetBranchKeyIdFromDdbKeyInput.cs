@@ -9,7 +9,7 @@ using System;
  get { return this._ddbKey; }
  set { this._ddbKey = value; }
 }
- public bool IsSetDdbKey () {
+ public bool IsSetDdbKey() {
  return this._ddbKey != null;
 }
  public void Validate() {

@@ -11,21 +11,21 @@ using System;
  get { return this._action; }
  set { this._action = value; }
 }
- public bool IsSetAction () {
+ public bool IsSetAction() {
  return this._action != null;
 }
  public System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoSchema> SchemaMap {
  get { return this._schemaMap; }
  set { this._schemaMap = value; }
 }
- public bool IsSetSchemaMap () {
+ public bool IsSetSchemaMap() {
  return this._schemaMap != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.CryptoSchema> SchemaList {
  get { return this._schemaList; }
  set { this._schemaList = value; }
 }
- public bool IsSetSchemaList () {
+ public bool IsSetSchemaList() {
  return this._schemaList != null;
 }
  public void Validate() {

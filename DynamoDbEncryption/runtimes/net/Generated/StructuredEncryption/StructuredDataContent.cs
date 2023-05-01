@@ -11,21 +11,21 @@ using System;
  get { return this._terminal; }
  set { this._terminal = value; }
 }
- public bool IsSetTerminal () {
+ public bool IsSetTerminal() {
  return this._terminal != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> DataList {
  get { return this._dataList; }
  set { this._dataList = value; }
 }
- public bool IsSetDataList () {
+ public bool IsSetDataList() {
  return this._dataList != null;
 }
  public System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> DataMap {
  get { return this._dataMap; }
  set { this._dataMap = value; }
 }
- public bool IsSetDataMap () {
+ public bool IsSetDataMap() {
  return this._dataMap != null;
 }
  public void Validate() {

@@ -10,14 +10,14 @@ using System;
  get { return this._plaintextStructure; }
  set { this._plaintextStructure = value; }
 }
- public bool IsSetPlaintextStructure () {
+ public bool IsSetPlaintextStructure() {
  return this._plaintextStructure != null;
 }
  public AWS.Cryptography.StructuredEncryption.ParsedHeader ParsedHeader {
  get { return this._parsedHeader; }
  set { this._parsedHeader = value; }
 }
- public bool IsSetParsedHeader () {
+ public bool IsSetParsedHeader() {
  return this._parsedHeader != null;
 }
  public void Validate() {

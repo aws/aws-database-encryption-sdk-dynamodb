@@ -14,42 +14,42 @@ using System;
  get { return this._version.GetValueOrDefault(); }
  set { this._version = value; }
 }
- public bool IsSetVersion () {
+ public bool IsSetVersion() {
  return this._version.HasValue;
 }
  public AWS.Cryptography.KeyStore.KeyStore KeyStore {
  get { return this._keyStore; }
  set { this._keyStore = value; }
 }
- public bool IsSetKeyStore () {
+ public bool IsSetKeyStore() {
  return this._keyStore != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.BeaconKeySource KeySource {
  get { return this._keySource; }
  set { this._keySource = value; }
 }
- public bool IsSetKeySource () {
+ public bool IsSetKeySource() {
  return this._keySource != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.DynamoDbEncryption.StandardBeacon> StandardBeacons {
  get { return this._standardBeacons; }
  set { this._standardBeacons = value; }
 }
- public bool IsSetStandardBeacons () {
+ public bool IsSetStandardBeacons() {
  return this._standardBeacons != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.DynamoDbEncryption.CompoundBeacon> CompoundBeacons {
  get { return this._compoundBeacons; }
  set { this._compoundBeacons = value; }
 }
- public bool IsSetCompoundBeacons () {
+ public bool IsSetCompoundBeacons() {
  return this._compoundBeacons != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.DynamoDbEncryption.VirtualField> VirtualFields {
  get { return this._virtualFields; }
  set { this._virtualFields = value; }
 }
- public bool IsSetVirtualFields () {
+ public bool IsSetVirtualFields() {
  return this._virtualFields != null;
 }
  public void Validate() {

@@ -10,14 +10,14 @@ using System;
  get { return this._loc; }
  set { this._loc = value; }
 }
- public bool IsSetLoc () {
+ public bool IsSetLoc() {
  return this._loc != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.DynamoDbEncryption.VirtualTransform> Trans {
  get { return this._trans; }
  set { this._trans = value; }
 }
- public bool IsSetTrans () {
+ public bool IsSetTrans() {
  return this._trans != null;
 }
  public void Validate() {

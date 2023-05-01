@@ -10,14 +10,14 @@ using System;
  get { return this._versions; }
  set { this._versions = value; }
 }
- public bool IsSetVersions () {
+ public bool IsSetVersions() {
  return this._versions != null;
 }
  public int WriteVersion {
  get { return this._writeVersion.GetValueOrDefault(); }
  set { this._writeVersion = value; }
 }
- public bool IsSetWriteVersion () {
+ public bool IsSetWriteVersion() {
  return this._writeVersion.HasValue;
 }
  public void Validate() {

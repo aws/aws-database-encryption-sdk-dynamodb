@@ -11,21 +11,21 @@ using System;
  get { return this._name; }
  set { this._name = value; }
 }
- public bool IsSetName () {
+ public bool IsSetName() {
  return this._name != null;
 }
  public int Length {
  get { return this._length.GetValueOrDefault(); }
  set { this._length = value; }
 }
- public bool IsSetLength () {
+ public bool IsSetLength() {
  return this._length.HasValue;
 }
  public string Loc {
  get { return this._loc; }
  set { this._loc = value; }
 }
- public bool IsSetLoc () {
+ public bool IsSetLoc() {
  return this._loc != null;
 }
  public void Validate() {

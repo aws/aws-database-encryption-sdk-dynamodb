@@ -10,14 +10,14 @@ using System;
  get { return this._value; }
  set { this._value = value; }
 }
- public bool IsSetValue () {
+ public bool IsSetValue() {
  return this._value != null;
 }
  public System.IO.MemoryStream TypeId {
  get { return this._typeId; }
  set { this._typeId = value; }
 }
- public bool IsSetTypeId () {
+ public bool IsSetTypeId() {
  return this._typeId != null;
 }
  public void Validate() {

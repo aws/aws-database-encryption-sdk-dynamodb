@@ -10,14 +10,14 @@ using System;
  get { return this._keyId; }
  set { this._keyId = value; }
 }
- public bool IsSetKeyId () {
+ public bool IsSetKeyId() {
  return this._keyId != null;
 }
  public int CacheTTL {
  get { return this._cacheTTL.GetValueOrDefault(); }
  set { this._cacheTTL = value; }
 }
- public bool IsSetCacheTTL () {
+ public bool IsSetCacheTTL() {
  return this._cacheTTL.HasValue;
 }
  public void Validate() {

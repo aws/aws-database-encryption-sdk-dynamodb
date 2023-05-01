@@ -9,7 +9,7 @@ using System;
  get { return this._literal; }
  set { this._literal = value; }
 }
- public bool IsSetLiteral () {
+ public bool IsSetLiteral() {
  return this._literal != null;
 }
  public void Validate() {

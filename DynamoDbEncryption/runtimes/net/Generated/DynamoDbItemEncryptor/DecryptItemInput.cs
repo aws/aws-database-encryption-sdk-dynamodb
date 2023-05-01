@@ -9,7 +9,7 @@ using System;
  get { return this._encryptedItem; }
  set { this._encryptedItem = value; }
 }
- public bool IsSetEncryptedItem () {
+ public bool IsSetEncryptedItem() {
  return this._encryptedItem != null;
 }
  public void Validate() {

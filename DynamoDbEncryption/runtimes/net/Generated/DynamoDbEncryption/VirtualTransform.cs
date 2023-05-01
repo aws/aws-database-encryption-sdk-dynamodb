@@ -16,56 +16,56 @@ using System;
  get { return this._upper; }
  set { this._upper = value; }
 }
- public bool IsSetUpper () {
+ public bool IsSetUpper() {
  return this._upper != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.Lower Lower {
  get { return this._lower; }
  set { this._lower = value; }
 }
- public bool IsSetLower () {
+ public bool IsSetLower() {
  return this._lower != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.Insert Insert {
  get { return this._insert; }
  set { this._insert = value; }
 }
- public bool IsSetInsert () {
+ public bool IsSetInsert() {
  return this._insert != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.GetPrefix Prefix {
  get { return this._prefix; }
  set { this._prefix = value; }
 }
- public bool IsSetPrefix () {
+ public bool IsSetPrefix() {
  return this._prefix != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.GetSuffix Suffix {
  get { return this._suffix; }
  set { this._suffix = value; }
 }
- public bool IsSetSuffix () {
+ public bool IsSetSuffix() {
  return this._suffix != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.GetSubstring Substring {
  get { return this._substring; }
  set { this._substring = value; }
 }
- public bool IsSetSubstring () {
+ public bool IsSetSubstring() {
  return this._substring != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.GetSegment Segment {
  get { return this._segment; }
  set { this._segment = value; }
 }
- public bool IsSetSegment () {
+ public bool IsSetSegment() {
  return this._segment != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.GetSegments Segments {
  get { return this._segments; }
  set { this._segments = value; }
 }
- public bool IsSetSegments () {
+ public bool IsSetSegments() {
  return this._segments != null;
 }
  public void Validate() {

@@ -10,14 +10,14 @@ using System;
  get { return this._split; }
  set { this._split = value; }
 }
- public bool IsSetSplit () {
+ public bool IsSetSplit() {
  return this._split != null;
 }
  public int Index {
  get { return this._index.GetValueOrDefault(); }
  set { this._index = value; }
 }
- public bool IsSetIndex () {
+ public bool IsSetIndex() {
  return this._index.HasValue;
 }
  public void Validate() {

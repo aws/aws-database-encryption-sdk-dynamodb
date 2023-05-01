@@ -9,7 +9,7 @@ using System;
  get { return this._tableEncryptionConfigs; }
  set { this._tableEncryptionConfigs = value; }
 }
- public bool IsSetTableEncryptionConfigs () {
+ public bool IsSetTableEncryptionConfigs() {
  return this._tableEncryptionConfigs != null;
 }
  public void Validate() {

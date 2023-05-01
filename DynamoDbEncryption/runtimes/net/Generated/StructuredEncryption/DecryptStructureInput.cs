@@ -13,35 +13,35 @@ using System;
  get { return this._tableName; }
  set { this._tableName = value; }
 }
- public bool IsSetTableName () {
+ public bool IsSetTableName() {
  return this._tableName != null;
 }
  public AWS.Cryptography.StructuredEncryption.StructuredData EncryptedStructure {
  get { return this._encryptedStructure; }
  set { this._encryptedStructure = value; }
 }
- public bool IsSetEncryptedStructure () {
+ public bool IsSetEncryptedStructure() {
  return this._encryptedStructure != null;
 }
  public AWS.Cryptography.StructuredEncryption.AuthenticateSchema AuthenticateSchema {
  get { return this._authenticateSchema; }
  set { this._authenticateSchema = value; }
 }
- public bool IsSetAuthenticateSchema () {
+ public bool IsSetAuthenticateSchema() {
  return this._authenticateSchema != null;
 }
  public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager Cmm {
  get { return this._cmm; }
  set { this._cmm = value; }
 }
- public bool IsSetCmm () {
+ public bool IsSetCmm() {
  return this._cmm != null;
 }
  public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
  get { return this._encryptionContext; }
  set { this._encryptionContext = value; }
 }
- public bool IsSetEncryptionContext () {
+ public bool IsSetEncryptionContext() {
  return this._encryptionContext != null;
 }
  public void Validate() {

@@ -10,14 +10,14 @@ using System;
  get { return this._single; }
  set { this._single = value; }
 }
- public bool IsSetSingle () {
+ public bool IsSetSingle() {
  return this._single != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.MultiKeyStore Multi {
  get { return this._multi; }
  set { this._multi = value; }
 }
- public bool IsSetMulti () {
+ public bool IsSetMulti() {
  return this._multi != null;
 }
  public void Validate() {

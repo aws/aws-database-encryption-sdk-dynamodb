@@ -9,7 +9,7 @@ using System;
  get { return this._sdkInput; }
  set { this._sdkInput = value; }
 }
- public bool IsSetSdkInput () {
+ public bool IsSetSdkInput() {
  return this._sdkInput != null;
 }
  public void Validate() {

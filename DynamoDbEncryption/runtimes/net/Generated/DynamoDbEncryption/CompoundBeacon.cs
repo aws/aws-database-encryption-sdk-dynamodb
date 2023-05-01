@@ -13,35 +13,35 @@ using System;
  get { return this._name; }
  set { this._name = value; }
 }
- public bool IsSetName () {
+ public bool IsSetName() {
  return this._name != null;
 }
  public string Split {
  get { return this._split; }
  set { this._split = value; }
 }
- public bool IsSetSplit () {
+ public bool IsSetSplit() {
  return this._split != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.DynamoDbEncryption.SensitivePart> Sensitive {
  get { return this._sensitive; }
  set { this._sensitive = value; }
 }
- public bool IsSetSensitive () {
+ public bool IsSetSensitive() {
  return this._sensitive != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.DynamoDbEncryption.NonSensitivePart> NonSensitive {
  get { return this._nonSensitive; }
  set { this._nonSensitive = value; }
 }
- public bool IsSetNonSensitive () {
+ public bool IsSetNonSensitive() {
  return this._nonSensitive != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.DynamoDbEncryption.Constructor> Constructors {
  get { return this._constructors; }
  set { this._constructors = value; }
 }
- public bool IsSetConstructors () {
+ public bool IsSetConstructors() {
  return this._constructors != null;
 }
  public void Validate() {

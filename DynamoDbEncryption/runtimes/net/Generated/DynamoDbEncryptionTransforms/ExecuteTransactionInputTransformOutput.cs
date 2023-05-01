@@ -9,7 +9,7 @@ using System;
  get { return this._transformedInput; }
  set { this._transformedInput = value; }
 }
- public bool IsSetTransformedInput () {
+ public bool IsSetTransformedInput() {
  return this._transformedInput != null;
 }
  public void Validate() {

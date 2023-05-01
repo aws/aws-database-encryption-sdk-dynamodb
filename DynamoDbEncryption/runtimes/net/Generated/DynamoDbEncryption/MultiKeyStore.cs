@@ -11,21 +11,21 @@ using System;
  get { return this._keyFieldName; }
  set { this._keyFieldName = value; }
 }
- public bool IsSetKeyFieldName () {
+ public bool IsSetKeyFieldName() {
  return this._keyFieldName != null;
 }
  public int CacheTTL {
  get { return this._cacheTTL.GetValueOrDefault(); }
  set { this._cacheTTL = value; }
 }
- public bool IsSetCacheTTL () {
+ public bool IsSetCacheTTL() {
  return this._cacheTTL.HasValue;
 }
  public int MaxCacheSize {
  get { return this._maxCacheSize.GetValueOrDefault(); }
  set { this._maxCacheSize = value; }
 }
- public bool IsSetMaxCacheSize () {
+ public bool IsSetMaxCacheSize() {
  return this._maxCacheSize.HasValue;
 }
  public void Validate() {

@@ -19,77 +19,77 @@ using System;
  get { return this._partitionKeyName; }
  set { this._partitionKeyName = value; }
 }
- public bool IsSetPartitionKeyName () {
+ public bool IsSetPartitionKeyName() {
  return this._partitionKeyName != null;
 }
  public string SortKeyName {
  get { return this._sortKeyName; }
  set { this._sortKeyName = value; }
 }
- public bool IsSetSortKeyName () {
+ public bool IsSetSortKeyName() {
  return this._sortKeyName != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.SearchConfig Search {
  get { return this._search; }
  set { this._search = value; }
 }
- public bool IsSetSearch () {
+ public bool IsSetSearch() {
  return this._search != null;
 }
  public System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.CryptoAction> AttributeActions {
  get { return this._attributeActions; }
  set { this._attributeActions = value; }
 }
- public bool IsSetAttributeActions () {
+ public bool IsSetAttributeActions() {
  return this._attributeActions != null;
 }
  public System.Collections.Generic.List<string> AllowedUnauthenticatedAttributes {
  get { return this._allowedUnauthenticatedAttributes; }
  set { this._allowedUnauthenticatedAttributes = value; }
 }
- public bool IsSetAllowedUnauthenticatedAttributes () {
+ public bool IsSetAllowedUnauthenticatedAttributes() {
  return this._allowedUnauthenticatedAttributes != null;
 }
  public string AllowedUnauthenticatedAttributePrefix {
  get { return this._allowedUnauthenticatedAttributePrefix; }
  set { this._allowedUnauthenticatedAttributePrefix = value; }
 }
- public bool IsSetAllowedUnauthenticatedAttributePrefix () {
+ public bool IsSetAllowedUnauthenticatedAttributePrefix() {
  return this._allowedUnauthenticatedAttributePrefix != null;
 }
  public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId {
  get { return this._algorithmSuiteId; }
  set { this._algorithmSuiteId = value; }
 }
- public bool IsSetAlgorithmSuiteId () {
+ public bool IsSetAlgorithmSuiteId() {
  return this._algorithmSuiteId != null;
 }
  public AWS.Cryptography.MaterialProviders.IKeyring Keyring {
  get { return this._keyring; }
  set { this._keyring = value; }
 }
- public bool IsSetKeyring () {
+ public bool IsSetKeyring() {
  return this._keyring != null;
 }
  public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager Cmm {
  get { return this._cmm; }
  set { this._cmm = value; }
 }
- public bool IsSetCmm () {
+ public bool IsSetCmm() {
  return this._cmm != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.LegacyConfig LegacyConfig {
  get { return this._legacyConfig; }
  set { this._legacyConfig = value; }
 }
- public bool IsSetLegacyConfig () {
+ public bool IsSetLegacyConfig() {
  return this._legacyConfig != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.PlaintextPolicy PlaintextPolicy {
  get { return this._plaintextPolicy; }
  set { this._plaintextPolicy = value; }
 }
- public bool IsSetPlaintextPolicy () {
+ public bool IsSetPlaintextPolicy() {
  return this._plaintextPolicy != null;
 }
  public void Validate() {

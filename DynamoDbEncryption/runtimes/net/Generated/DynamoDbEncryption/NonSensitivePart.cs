@@ -11,21 +11,21 @@ using System;
  get { return this._name; }
  set { this._name = value; }
 }
- public bool IsSetName () {
+ public bool IsSetName() {
  return this._name != null;
 }
  public string Prefix {
  get { return this._prefix; }
  set { this._prefix = value; }
 }
- public bool IsSetPrefix () {
+ public bool IsSetPrefix() {
  return this._prefix != null;
 }
  public string Loc {
  get { return this._loc; }
  set { this._loc = value; }
 }
- public bool IsSetLoc () {
+ public bool IsSetLoc() {
  return this._loc != null;
 }
  public void Validate() {

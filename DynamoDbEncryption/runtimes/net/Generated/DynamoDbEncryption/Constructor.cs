@@ -9,7 +9,7 @@ using System;
  get { return this._parts; }
  set { this._parts = value; }
 }
- public bool IsSetParts () {
+ public bool IsSetParts() {
  return this._parts != null;
 }
  public void Validate() {

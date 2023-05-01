@@ -14,42 +14,42 @@ using System;
  get { return this._tableName; }
  set { this._tableName = value; }
 }
- public bool IsSetTableName () {
+ public bool IsSetTableName() {
  return this._tableName != null;
 }
  public AWS.Cryptography.StructuredEncryption.StructuredData PlaintextStructure {
  get { return this._plaintextStructure; }
  set { this._plaintextStructure = value; }
 }
- public bool IsSetPlaintextStructure () {
+ public bool IsSetPlaintextStructure() {
  return this._plaintextStructure != null;
 }
  public AWS.Cryptography.StructuredEncryption.CryptoSchema CryptoSchema {
  get { return this._cryptoSchema; }
  set { this._cryptoSchema = value; }
 }
- public bool IsSetCryptoSchema () {
+ public bool IsSetCryptoSchema() {
  return this._cryptoSchema != null;
 }
  public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager Cmm {
  get { return this._cmm; }
  set { this._cmm = value; }
 }
- public bool IsSetCmm () {
+ public bool IsSetCmm() {
  return this._cmm != null;
 }
  public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId {
  get { return this._algorithmSuiteId; }
  set { this._algorithmSuiteId = value; }
 }
- public bool IsSetAlgorithmSuiteId () {
+ public bool IsSetAlgorithmSuiteId() {
  return this._algorithmSuiteId != null;
 }
  public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
  get { return this._encryptionContext; }
  set { this._encryptionContext = value; }
 }
- public bool IsSetEncryptionContext () {
+ public bool IsSetEncryptionContext() {
  return this._encryptionContext != null;
 }
  public void Validate() {

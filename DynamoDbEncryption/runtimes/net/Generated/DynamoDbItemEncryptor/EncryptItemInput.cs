@@ -9,7 +9,7 @@ using System;
  get { return this._plaintextItem; }
  set { this._plaintextItem = value; }
 }
- public bool IsSetPlaintextItem () {
+ public bool IsSetPlaintextItem() {
  return this._plaintextItem != null;
 }
  public void Validate() {

@@ -11,21 +11,21 @@ using System;
  get { return this._split; }
  set { this._split = value; }
 }
- public bool IsSetSplit () {
+ public bool IsSetSplit() {
  return this._split != null;
 }
  public int Low {
  get { return this._low.GetValueOrDefault(); }
  set { this._low = value; }
 }
- public bool IsSetLow () {
+ public bool IsSetLow() {
  return this._low.HasValue;
 }
  public int High {
  get { return this._high.GetValueOrDefault(); }
  set { this._high = value; }
 }
- public bool IsSetHigh () {
+ public bool IsSetHigh() {
  return this._high.HasValue;
 }
  public void Validate() {

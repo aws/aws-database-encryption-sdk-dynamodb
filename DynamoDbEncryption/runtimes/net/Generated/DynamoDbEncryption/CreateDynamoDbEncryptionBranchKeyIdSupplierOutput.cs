@@ -9,7 +9,7 @@ using System;
  get { return this._branchKeyIdSupplier; }
  set { this._branchKeyIdSupplier = value; }
 }
- public bool IsSetBranchKeyIdSupplier () {
+ public bool IsSetBranchKeyIdSupplier() {
  return this._branchKeyIdSupplier != null;
 }
  public void Validate() {

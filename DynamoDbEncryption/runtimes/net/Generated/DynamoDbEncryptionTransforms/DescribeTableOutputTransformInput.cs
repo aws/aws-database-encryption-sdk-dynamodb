@@ -10,14 +10,14 @@ using System;
  get { return this._sdkOutput; }
  set { this._sdkOutput = value; }
 }
- public bool IsSetSdkOutput () {
+ public bool IsSetSdkOutput() {
  return this._sdkOutput != null;
 }
  public Amazon.DynamoDBv2.Model.DescribeTableRequest OriginalInput {
  get { return this._originalInput; }
  set { this._originalInput = value; }
 }
- public bool IsSetOriginalInput () {
+ public bool IsSetOriginalInput() {
  return this._originalInput != null;
 }
  public void Validate() {

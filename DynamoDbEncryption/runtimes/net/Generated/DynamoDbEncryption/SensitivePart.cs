@@ -10,14 +10,14 @@ using System;
  get { return this._name; }
  set { this._name = value; }
 }
- public bool IsSetName () {
+ public bool IsSetName() {
  return this._name != null;
 }
  public string Prefix {
  get { return this._prefix; }
  set { this._prefix = value; }
 }
- public bool IsSetPrefix () {
+ public bool IsSetPrefix() {
  return this._prefix != null;
 }
  public void Validate() {

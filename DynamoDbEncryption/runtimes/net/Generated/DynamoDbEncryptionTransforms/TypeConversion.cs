@@ -993,7 +993,7 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ReturnConsumedCapacity.is_Some) converted.ReturnConsumedCapacity = (Amazon.DynamoDBv2.ReturnConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput__M22_ReturnConsumedCapacity(concrete._ReturnConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput (Amazon.DynamoDBv2.Model.BatchExecuteStatementRequest value) {
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchExecuteStatementInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput__M10_Statements(value.Statements) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.BatchExecuteStatementResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementOutput value) {
@@ -1001,8 +1001,8 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ConsumedCapacity.is_Some) converted.ConsumedCapacity = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M16_ConsumedCapacity(concrete._ConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput (Amazon.DynamoDBv2.Model.BatchExecuteStatementResponse value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse> var_responses = value.IsSetResponses() ? value.Responses : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse>) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse> var_responses = value.Responses is {Count: > 0} ? value.Responses : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchExecuteStatementOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M9_Responses(var_responses) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M16_ConsumedCapacity(var_consumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.BatchGetItemRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchGetItemInput value) {
@@ -1010,7 +1010,7 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ReturnConsumedCapacity.is_Some) converted.ReturnConsumedCapacity = (Amazon.DynamoDBv2.ReturnConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput__M22_ReturnConsumedCapacity(concrete._ReturnConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchGetItemInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput (Amazon.DynamoDBv2.Model.BatchGetItemRequest value) {
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchGetItemInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput__M12_RequestItems(value.RequestItems) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.BatchGetItemResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchGetItemOutput value) {
@@ -1019,9 +1019,9 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ConsumedCapacity.is_Some) converted.ConsumedCapacity = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M16_ConsumedCapacity(concrete._ConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchGetItemOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput (Amazon.DynamoDBv2.Model.BatchGetItemResponse value) {
- System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>> var_responses = value.IsSetResponses() ? value.Responses : (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes> var_unprocessedKeys = value.IsSetUnprocessedKeys() ? value.UnprocessedKeys : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes>) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
+ System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>> var_responses = value.Responses is {Count: > 0} ? value.Responses : (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes> var_unprocessedKeys = value.UnprocessedKeys is {Count: > 0} ? value.UnprocessedKeys : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchGetItemOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M9_Responses(var_responses) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M15_UnprocessedKeys(var_unprocessedKeys) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M16_ConsumedCapacity(var_consumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.BatchWriteItemRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemInput value) {
@@ -1030,8 +1030,8 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ReturnItemCollectionMetrics.is_Some) converted.ReturnItemCollectionMetrics = (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M27_ReturnItemCollectionMetrics(concrete._ReturnItemCollectionMetrics); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput (Amazon.DynamoDBv2.Model.BatchWriteItemRequest value) {
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.IsSetReturnItemCollectionMetrics() ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.ReturnItemCollectionMetrics != null ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchWriteItemInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M12_RequestItems(value.RequestItems) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M27_ReturnItemCollectionMetrics(var_returnItemCollectionMetrics) ) ;
 }
  public static Amazon.DynamoDBv2.Model.BatchWriteItemResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemOutput value) {
@@ -1040,9 +1040,9 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ConsumedCapacity.is_Some) converted.ConsumedCapacity = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M16_ConsumedCapacity(concrete._ConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput (Amazon.DynamoDBv2.Model.BatchWriteItemResponse value) {
- System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest>> var_unprocessedItems = value.IsSetUnprocessedItems() ? value.UnprocessedItems : (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest>>) null;
- System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>> var_itemCollectionMetrics = value.IsSetItemCollectionMetrics() ? value.ItemCollectionMetrics : (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
+ System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest>> var_unprocessedItems = value.UnprocessedItems is {Count: > 0} ? value.UnprocessedItems : (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest>>) null;
+ System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>> var_itemCollectionMetrics = value.ItemCollectionMetrics is {Count: > 0} ? value.ItemCollectionMetrics : (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchWriteItemOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M16_UnprocessedItems(var_unprocessedItems) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M21_ItemCollectionMetrics(var_itemCollectionMetrics) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M16_ConsumedCapacity(var_consumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.CreateTableRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput (Dafny.Com.Amazonaws.Dynamodb.Types._ICreateTableInput value) {
@@ -1059,21 +1059,21 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._TableClass.is_Some) converted.TableClass = (Amazon.DynamoDBv2.TableClass) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M10_TableClass(concrete._TableClass); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ICreateTableInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput (Amazon.DynamoDBv2.Model.CreateTableRequest value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndex> var_localSecondaryIndexes = value.IsSetLocalSecondaryIndexes() ? value.LocalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndex>) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndex> var_globalSecondaryIndexes = value.IsSetGlobalSecondaryIndexes() ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndex>) null;
- Amazon.DynamoDBv2.BillingMode var_billingMode = value.IsSetBillingMode() ? value.BillingMode : (Amazon.DynamoDBv2.BillingMode) null;
- Amazon.DynamoDBv2.Model.ProvisionedThroughput var_provisionedThroughput = value.IsSetProvisionedThroughput() ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughput) null;
- Amazon.DynamoDBv2.Model.StreamSpecification var_streamSpecification = value.IsSetStreamSpecification() ? value.StreamSpecification : (Amazon.DynamoDBv2.Model.StreamSpecification) null;
- Amazon.DynamoDBv2.Model.SSESpecification var_sSESpecification = value.IsSetSSESpecification() ? value.SSESpecification : (Amazon.DynamoDBv2.Model.SSESpecification) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.Tag> var_tags = value.IsSetTags() ? value.Tags : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.Tag>) null;
- Amazon.DynamoDBv2.TableClass var_tableClass = value.IsSetTableClass() ? value.TableClass : (Amazon.DynamoDBv2.TableClass) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndex> var_localSecondaryIndexes = value.LocalSecondaryIndexes is {Count: > 0} ? value.LocalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndex>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndex> var_globalSecondaryIndexes = value.GlobalSecondaryIndexes is {Count: > 0} ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndex>) null;
+ Amazon.DynamoDBv2.BillingMode var_billingMode = value.BillingMode != null ? value.BillingMode : (Amazon.DynamoDBv2.BillingMode) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughput var_provisionedThroughput = value.ProvisionedThroughput is {Count: > 0} ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughput) null;
+ Amazon.DynamoDBv2.Model.StreamSpecification var_streamSpecification = value.StreamSpecification is {Count: > 0} ? value.StreamSpecification : (Amazon.DynamoDBv2.Model.StreamSpecification) null;
+ Amazon.DynamoDBv2.Model.SSESpecification var_sSESpecification = value.SSESpecification is {Count: > 0} ? value.SSESpecification : (Amazon.DynamoDBv2.Model.SSESpecification) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.Tag> var_tags = value.Tags is {Count: > 0} ? value.Tags : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.Tag>) null;
+ Amazon.DynamoDBv2.TableClass var_tableClass = value.TableClass != null ? value.TableClass : (Amazon.DynamoDBv2.TableClass) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.CreateTableInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M20_AttributeDefinitions(value.AttributeDefinitions) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M9_KeySchema(value.KeySchema) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M21_LocalSecondaryIndexes(var_localSecondaryIndexes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M22_GlobalSecondaryIndexes(var_globalSecondaryIndexes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M11_BillingMode(var_billingMode) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M21_ProvisionedThroughput(var_provisionedThroughput) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M19_StreamSpecification(var_streamSpecification) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M16_SSESpecification(var_sSESpecification) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M4_Tags(var_tags) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_CreateTableInput__M10_TableClass(var_tableClass) ) ;
 }
  public static Amazon.DynamoDBv2.Model.CreateTableResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_CreateTableOutput (Dafny.Com.Amazonaws.Dynamodb.Types._ICreateTableOutput value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.CreateTableOutput concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.CreateTableOutput)value; Amazon.DynamoDBv2.Model.CreateTableResponse converted = new Amazon.DynamoDBv2.Model.CreateTableResponse(); if (concrete._TableDescription.is_Some) converted.TableDescription = (Amazon.DynamoDBv2.Model.TableDescription) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_CreateTableOutput__M16_TableDescription(concrete._TableDescription); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ICreateTableOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_CreateTableOutput (Amazon.DynamoDBv2.Model.CreateTableResponse value) {
- Amazon.DynamoDBv2.Model.TableDescription var_tableDescription = value.IsSetTableDescription() ? value.TableDescription : (Amazon.DynamoDBv2.Model.TableDescription) null;
+ Amazon.DynamoDBv2.Model.TableDescription var_tableDescription = value.TableDescription is {Count: > 0} ? value.TableDescription : (Amazon.DynamoDBv2.Model.TableDescription) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.CreateTableOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_CreateTableOutput__M16_TableDescription(var_tableDescription) ) ;
 }
  public static Amazon.DynamoDBv2.Model.DeleteItemRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput (Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteItemInput value) {
@@ -1089,14 +1089,14 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ExpressionAttributeValues.is_Some) converted.ExpressionAttributeValues = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M25_ExpressionAttributeValues(concrete._ExpressionAttributeValues); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteItemInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput (Amazon.DynamoDBv2.Model.DeleteItemRequest value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> var_expected = value.IsSetExpected() ? value.Expected : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>) null;
- Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.IsSetConditionalOperator() ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
- Amazon.DynamoDBv2.ReturnValue var_returnValues = value.IsSetReturnValues() ? value.ReturnValues : (Amazon.DynamoDBv2.ReturnValue) null;
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.IsSetReturnItemCollectionMetrics() ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
- string var_conditionExpression = value.IsSetConditionExpression() ? value.ConditionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> var_expected = value.Expected is {Count: > 0} ? value.Expected : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>) null;
+ Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.ConditionalOperator != null ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
+ Amazon.DynamoDBv2.ReturnValue var_returnValues = value.ReturnValues != null ? value.ReturnValues : (Amazon.DynamoDBv2.ReturnValue) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.ReturnItemCollectionMetrics != null ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
+ string var_conditionExpression = value.ConditionExpression != null ? value.ConditionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.DeleteItemInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M3_Key(value.Key) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M8_Expected(var_expected) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M19_ConditionalOperator(var_conditionalOperator) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M12_ReturnValues(var_returnValues) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M27_ReturnItemCollectionMetrics(var_returnItemCollectionMetrics) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M19_ConditionExpression(var_conditionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M25_ExpressionAttributeValues(var_expressionAttributeValues) ) ;
 }
  public static Amazon.DynamoDBv2.Model.DeleteItemResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteItemOutput value) {
@@ -1105,9 +1105,9 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ItemCollectionMetrics.is_Some) converted.ItemCollectionMetrics = (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput__M21_ItemCollectionMetrics(concrete._ItemCollectionMetrics); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteItemOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput (Amazon.DynamoDBv2.Model.DeleteItemResponse value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
- Amazon.DynamoDBv2.Model.ItemCollectionMetrics var_itemCollectionMetrics = value.IsSetItemCollectionMetrics() ? value.ItemCollectionMetrics : (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_attributes = value.Attributes is {Count: > 0} ? value.Attributes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
+ Amazon.DynamoDBv2.Model.ItemCollectionMetrics var_itemCollectionMetrics = value.ItemCollectionMetrics is {Count: > 0} ? value.ItemCollectionMetrics : (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.DeleteItemOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput__M10_Attributes(var_attributes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput__M16_ConsumedCapacity(var_consumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput__M21_ItemCollectionMetrics(var_itemCollectionMetrics) ) ;
 }
  public static Amazon.DynamoDBv2.Model.DescribeTableRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_DescribeTableInput (Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTableInput value) {
@@ -1121,7 +1121,7 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  Dafny.Com.Amazonaws.Dynamodb.Types.DescribeTableOutput concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.DescribeTableOutput)value; Amazon.DynamoDBv2.Model.DescribeTableResponse converted = new Amazon.DynamoDBv2.Model.DescribeTableResponse(); if (concrete._Table.is_Some) converted.Table = (Amazon.DynamoDBv2.Model.TableDescription) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_DescribeTableOutput__M5_Table(concrete._Table); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTableOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_DescribeTableOutput (Amazon.DynamoDBv2.Model.DescribeTableResponse value) {
- Amazon.DynamoDBv2.Model.TableDescription var_table = value.IsSetTable() ? value.Table : (Amazon.DynamoDBv2.Model.TableDescription) null;
+ Amazon.DynamoDBv2.Model.TableDescription var_table = value.Table is {Count: > 0} ? value.Table : (Amazon.DynamoDBv2.Model.TableDescription) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.DescribeTableOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_DescribeTableOutput__M5_Table(var_table) ) ;
 }
  public static string FromDafny_N6_smithy__N3_api__S6_String (Dafny.ISequence<char> value) {
@@ -1139,11 +1139,11 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._Limit.is_Some) converted.Limit = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M5_Limit(concrete._Limit); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteStatementInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput (Amazon.DynamoDBv2.Model.ExecuteStatementRequest value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_parameters = value.IsSetParameters() ? value.Parameters : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
- bool? var_consistentRead = value.IsSetConsistentRead() ? value.ConsistentRead : (bool?) null;
- string var_nextToken = value.IsSetNextToken() ? value.NextToken : (string) null;
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- int? var_limit = value.IsSetLimit() ? value.Limit : (int?) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_parameters = value.Parameters is {Count: > 0} ? value.Parameters : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ bool? var_consistentRead = value.ConsistentRead != null ? value.ConsistentRead : (bool?) null;
+ string var_nextToken = value.NextToken != null ? value.NextToken : (string) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ int? var_limit = value.Limit != null ? value.Limit : (int?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ExecuteStatementInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M9_Statement(value.Statement) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M10_Parameters(var_parameters) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M14_ConsistentRead(var_consistentRead) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M9_NextToken(var_nextToken) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M5_Limit(var_limit) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ExecuteStatementResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteStatementOutput value) {
@@ -1153,10 +1153,10 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._LastEvaluatedKey.is_Some) converted.LastEvaluatedKey = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput__M16_LastEvaluatedKey(concrete._LastEvaluatedKey); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteStatementOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput (Amazon.DynamoDBv2.Model.ExecuteStatementResponse value) {
- System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> var_items = value.IsSetItems() ? value.Items : (System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>) null;
- string var_nextToken = value.IsSetNextToken() ? value.NextToken : (string) null;
- Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_lastEvaluatedKey = value.IsSetLastEvaluatedKey() ? value.LastEvaluatedKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> var_items = value.Items is {Count: > 0} ? value.Items : (System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>) null;
+ string var_nextToken = value.NextToken != null ? value.NextToken : (string) null;
+ Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_lastEvaluatedKey = value.LastEvaluatedKey is {Count: > 0} ? value.LastEvaluatedKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ExecuteStatementOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput__M5_Items(var_items) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput__M9_NextToken(var_nextToken) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput__M16_ConsumedCapacity(var_consumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput__M16_LastEvaluatedKey(var_lastEvaluatedKey) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ExecuteTransactionRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExecuteTransactionInput (Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteTransactionInput value) {
@@ -1165,8 +1165,8 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ReturnConsumedCapacity.is_Some) converted.ReturnConsumedCapacity = (Amazon.DynamoDBv2.ReturnConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExecuteTransactionInput__M22_ReturnConsumedCapacity(concrete._ReturnConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteTransactionInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExecuteTransactionInput (Amazon.DynamoDBv2.Model.ExecuteTransactionRequest value) {
- string var_clientRequestToken = value.IsSetClientRequestToken() ? value.ClientRequestToken : (string) null;
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ string var_clientRequestToken = value.ClientRequestToken != null ? value.ClientRequestToken : (string) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ExecuteTransactionInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExecuteTransactionInput__M18_TransactStatements(value.TransactStatements) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExecuteTransactionInput__M18_ClientRequestToken(var_clientRequestToken) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExecuteTransactionInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ExecuteTransactionResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteTransactionOutput value) {
@@ -1174,8 +1174,8 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ConsumedCapacity.is_Some) converted.ConsumedCapacity = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput__M16_ConsumedCapacity(concrete._ConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteTransactionOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput (Amazon.DynamoDBv2.Model.ExecuteTransactionResponse value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse> var_responses = value.IsSetResponses() ? value.Responses : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse> var_responses = value.Responses is {Count: > 0} ? value.Responses : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ExecuteTransactionOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput__M9_Responses(var_responses) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput__M16_ConsumedCapacity(var_consumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.GetItemRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput (Dafny.Com.Amazonaws.Dynamodb.Types._IGetItemInput value) {
@@ -1188,11 +1188,11 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ExpressionAttributeNames.is_Some) converted.ExpressionAttributeNames = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M24_ExpressionAttributeNames(concrete._ExpressionAttributeNames); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IGetItemInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput (Amazon.DynamoDBv2.Model.GetItemRequest value) {
- System.Collections.Generic.List<string> var_attributesToGet = value.IsSetAttributesToGet() ? value.AttributesToGet : (System.Collections.Generic.List<string>) null;
- bool? var_consistentRead = value.IsSetConsistentRead() ? value.ConsistentRead : (bool?) null;
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- string var_projectionExpression = value.IsSetProjectionExpression() ? value.ProjectionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.List<string> var_attributesToGet = value.AttributesToGet is {Count: > 0} ? value.AttributesToGet : (System.Collections.Generic.List<string>) null;
+ bool? var_consistentRead = value.ConsistentRead != null ? value.ConsistentRead : (bool?) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ string var_projectionExpression = value.ProjectionExpression != null ? value.ProjectionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.GetItemInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M3_Key(value.Key) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M15_AttributesToGet(var_attributesToGet) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M14_ConsistentRead(var_consistentRead) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M20_ProjectionExpression(var_projectionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M24_ExpressionAttributeNames(var_expressionAttributeNames) ) ;
 }
  public static Amazon.DynamoDBv2.Model.GetItemResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IGetItemOutput value) {
@@ -1200,8 +1200,8 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ConsumedCapacity.is_Some) converted.ConsumedCapacity = (Amazon.DynamoDBv2.Model.ConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput__M16_ConsumedCapacity(concrete._ConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IGetItemOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput (Amazon.DynamoDBv2.Model.GetItemResponse value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_item = value.IsSetItem() ? value.Item : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_item = value.Item is {Count: > 0} ? value.Item : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.GetItemOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput__M4_Item(var_item) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput__M16_ConsumedCapacity(var_consumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.PutItemRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput (Dafny.Com.Amazonaws.Dynamodb.Types._IPutItemInput value) {
@@ -1217,14 +1217,14 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ExpressionAttributeValues.is_Some) converted.ExpressionAttributeValues = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M25_ExpressionAttributeValues(concrete._ExpressionAttributeValues); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IPutItemInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput (Amazon.DynamoDBv2.Model.PutItemRequest value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> var_expected = value.IsSetExpected() ? value.Expected : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>) null;
- Amazon.DynamoDBv2.ReturnValue var_returnValues = value.IsSetReturnValues() ? value.ReturnValues : (Amazon.DynamoDBv2.ReturnValue) null;
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.IsSetReturnItemCollectionMetrics() ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
- Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.IsSetConditionalOperator() ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
- string var_conditionExpression = value.IsSetConditionExpression() ? value.ConditionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> var_expected = value.Expected is {Count: > 0} ? value.Expected : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>) null;
+ Amazon.DynamoDBv2.ReturnValue var_returnValues = value.ReturnValues != null ? value.ReturnValues : (Amazon.DynamoDBv2.ReturnValue) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.ReturnItemCollectionMetrics != null ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
+ Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.ConditionalOperator != null ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
+ string var_conditionExpression = value.ConditionExpression != null ? value.ConditionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.PutItemInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M4_Item(value.Item) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M8_Expected(var_expected) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M12_ReturnValues(var_returnValues) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M27_ReturnItemCollectionMetrics(var_returnItemCollectionMetrics) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M19_ConditionalOperator(var_conditionalOperator) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M19_ConditionExpression(var_conditionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M25_ExpressionAttributeValues(var_expressionAttributeValues) ) ;
 }
  public static Amazon.DynamoDBv2.Model.PutItemResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IPutItemOutput value) {
@@ -1233,9 +1233,9 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ItemCollectionMetrics.is_Some) converted.ItemCollectionMetrics = (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput__M21_ItemCollectionMetrics(concrete._ItemCollectionMetrics); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IPutItemOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput (Amazon.DynamoDBv2.Model.PutItemResponse value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
- Amazon.DynamoDBv2.Model.ItemCollectionMetrics var_itemCollectionMetrics = value.IsSetItemCollectionMetrics() ? value.ItemCollectionMetrics : (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_attributes = value.Attributes is {Count: > 0} ? value.Attributes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
+ Amazon.DynamoDBv2.Model.ItemCollectionMetrics var_itemCollectionMetrics = value.ItemCollectionMetrics is {Count: > 0} ? value.ItemCollectionMetrics : (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.PutItemOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput__M10_Attributes(var_attributes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput__M16_ConsumedCapacity(var_consumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput__M21_ItemCollectionMetrics(var_itemCollectionMetrics) ) ;
 }
  public static Amazon.DynamoDBv2.Model.QueryRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput (Dafny.Com.Amazonaws.Dynamodb.Types._IQueryInput value) {
@@ -1258,22 +1258,22 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ExpressionAttributeValues.is_Some) converted.ExpressionAttributeValues = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M25_ExpressionAttributeValues(concrete._ExpressionAttributeValues); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IQueryInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput (Amazon.DynamoDBv2.Model.QueryRequest value) {
- string var_indexName = value.IsSetIndexName() ? value.IndexName : (string) null;
- Amazon.DynamoDBv2.Select var_select = value.IsSetSelect() ? value.Select : (Amazon.DynamoDBv2.Select) null;
- System.Collections.Generic.List<string> var_attributesToGet = value.IsSetAttributesToGet() ? value.AttributesToGet : (System.Collections.Generic.List<string>) null;
- int? var_limit = value.IsSetLimit() ? value.Limit : (int?) null;
- bool? var_consistentRead = value.IsSetConsistentRead() ? value.ConsistentRead : (bool?) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_keyConditions = value.IsSetKeyConditions() ? value.KeyConditions : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_queryFilter = value.IsSetQueryFilter() ? value.QueryFilter : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>) null;
- Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.IsSetConditionalOperator() ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
- bool? var_scanIndexForward = value.IsSetScanIndexForward() ? value.ScanIndexForward : (bool?) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_exclusiveStartKey = value.IsSetExclusiveStartKey() ? value.ExclusiveStartKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- string var_projectionExpression = value.IsSetProjectionExpression() ? value.ProjectionExpression : (string) null;
- string var_filterExpression = value.IsSetFilterExpression() ? value.FilterExpression : (string) null;
- string var_keyConditionExpression = value.IsSetKeyConditionExpression() ? value.KeyConditionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ string var_indexName = value.IndexName != null ? value.IndexName : (string) null;
+ Amazon.DynamoDBv2.Select var_select = value.Select != null ? value.Select : (Amazon.DynamoDBv2.Select) null;
+ System.Collections.Generic.List<string> var_attributesToGet = value.AttributesToGet is {Count: > 0} ? value.AttributesToGet : (System.Collections.Generic.List<string>) null;
+ int? var_limit = value.Limit != null ? value.Limit : (int?) null;
+ bool? var_consistentRead = value.ConsistentRead != null ? value.ConsistentRead : (bool?) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_keyConditions = value.KeyConditions is {Count: > 0} ? value.KeyConditions : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_queryFilter = value.QueryFilter is {Count: > 0} ? value.QueryFilter : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>) null;
+ Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.ConditionalOperator != null ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
+ bool? var_scanIndexForward = value.ScanIndexForward != null ? value.ScanIndexForward : (bool?) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_exclusiveStartKey = value.ExclusiveStartKey is {Count: > 0} ? value.ExclusiveStartKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ string var_projectionExpression = value.ProjectionExpression != null ? value.ProjectionExpression : (string) null;
+ string var_filterExpression = value.FilterExpression != null ? value.FilterExpression : (string) null;
+ string var_keyConditionExpression = value.KeyConditionExpression != null ? value.KeyConditionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.QueryInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M9_IndexName(var_indexName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M6_Select(var_select) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M15_AttributesToGet(var_attributesToGet) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M5_Limit(var_limit) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M14_ConsistentRead(var_consistentRead) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M13_KeyConditions(var_keyConditions) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M11_QueryFilter(var_queryFilter) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M19_ConditionalOperator(var_conditionalOperator) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M16_ScanIndexForward(var_scanIndexForward) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M17_ExclusiveStartKey(var_exclusiveStartKey) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M20_ProjectionExpression(var_projectionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M16_FilterExpression(var_filterExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M22_KeyConditionExpression(var_keyConditionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M25_ExpressionAttributeValues(var_expressionAttributeValues) ) ;
 }
  public static Amazon.DynamoDBv2.Model.QueryResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IQueryOutput value) {
@@ -1284,11 +1284,11 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ConsumedCapacity.is_Some) converted.ConsumedCapacity = (Amazon.DynamoDBv2.Model.ConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M16_ConsumedCapacity(concrete._ConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IQueryOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput (Amazon.DynamoDBv2.Model.QueryResponse value) {
- System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> var_items = value.IsSetItems() ? value.Items : (System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>) null;
- int? var_count = value.IsSetCount() ? value.Count : (int?) null;
- int? var_scannedCount = value.IsSetScannedCount() ? value.ScannedCount : (int?) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_lastEvaluatedKey = value.IsSetLastEvaluatedKey() ? value.LastEvaluatedKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
+ System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> var_items = value.Items is {Count: > 0} ? value.Items : (System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>) null;
+ int? var_count = value.Count != null ? value.Count : (int?) null;
+ int? var_scannedCount = value.ScannedCount != null ? value.ScannedCount : (int?) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_lastEvaluatedKey = value.LastEvaluatedKey is {Count: > 0} ? value.LastEvaluatedKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.QueryOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M5_Items(var_items) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M5_Count(var_count) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M12_ScannedCount(var_scannedCount) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M16_LastEvaluatedKey(var_lastEvaluatedKey) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M16_ConsumedCapacity(var_consumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ScanRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput (Dafny.Com.Amazonaws.Dynamodb.Types._IScanInput value) {
@@ -1310,21 +1310,21 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ConsistentRead.is_Some) converted.ConsistentRead = (bool) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M14_ConsistentRead(concrete._ConsistentRead); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IScanInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput (Amazon.DynamoDBv2.Model.ScanRequest value) {
- string var_indexName = value.IsSetIndexName() ? value.IndexName : (string) null;
- System.Collections.Generic.List<string> var_attributesToGet = value.IsSetAttributesToGet() ? value.AttributesToGet : (System.Collections.Generic.List<string>) null;
- int? var_limit = value.IsSetLimit() ? value.Limit : (int?) null;
- Amazon.DynamoDBv2.Select var_select = value.IsSetSelect() ? value.Select : (Amazon.DynamoDBv2.Select) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_scanFilter = value.IsSetScanFilter() ? value.ScanFilter : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>) null;
- Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.IsSetConditionalOperator() ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_exclusiveStartKey = value.IsSetExclusiveStartKey() ? value.ExclusiveStartKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- int? var_totalSegments = value.IsSetTotalSegments() ? value.TotalSegments : (int?) null;
- int? var_segment = value.IsSetSegment() ? value.Segment : (int?) null;
- string var_projectionExpression = value.IsSetProjectionExpression() ? value.ProjectionExpression : (string) null;
- string var_filterExpression = value.IsSetFilterExpression() ? value.FilterExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- bool? var_consistentRead = value.IsSetConsistentRead() ? value.ConsistentRead : (bool?) null;
+ string var_indexName = value.IndexName != null ? value.IndexName : (string) null;
+ System.Collections.Generic.List<string> var_attributesToGet = value.AttributesToGet is {Count: > 0} ? value.AttributesToGet : (System.Collections.Generic.List<string>) null;
+ int? var_limit = value.Limit != null ? value.Limit : (int?) null;
+ Amazon.DynamoDBv2.Select var_select = value.Select != null ? value.Select : (Amazon.DynamoDBv2.Select) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_scanFilter = value.ScanFilter is {Count: > 0} ? value.ScanFilter : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>) null;
+ Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.ConditionalOperator != null ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_exclusiveStartKey = value.ExclusiveStartKey is {Count: > 0} ? value.ExclusiveStartKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ int? var_totalSegments = value.TotalSegments != null ? value.TotalSegments : (int?) null;
+ int? var_segment = value.Segment != null ? value.Segment : (int?) null;
+ string var_projectionExpression = value.ProjectionExpression != null ? value.ProjectionExpression : (string) null;
+ string var_filterExpression = value.FilterExpression != null ? value.FilterExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ bool? var_consistentRead = value.ConsistentRead != null ? value.ConsistentRead : (bool?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ScanInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M9_IndexName(var_indexName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M15_AttributesToGet(var_attributesToGet) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M5_Limit(var_limit) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M6_Select(var_select) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M10_ScanFilter(var_scanFilter) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M19_ConditionalOperator(var_conditionalOperator) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M17_ExclusiveStartKey(var_exclusiveStartKey) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M13_TotalSegments(var_totalSegments) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M7_Segment(var_segment) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M20_ProjectionExpression(var_projectionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M16_FilterExpression(var_filterExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M25_ExpressionAttributeValues(var_expressionAttributeValues) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M14_ConsistentRead(var_consistentRead) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ScanResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IScanOutput value) {
@@ -1335,11 +1335,11 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ConsumedCapacity.is_Some) converted.ConsumedCapacity = (Amazon.DynamoDBv2.Model.ConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M16_ConsumedCapacity(concrete._ConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IScanOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput (Amazon.DynamoDBv2.Model.ScanResponse value) {
- System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> var_items = value.IsSetItems() ? value.Items : (System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>) null;
- int? var_count = value.IsSetCount() ? value.Count : (int?) null;
- int? var_scannedCount = value.IsSetScannedCount() ? value.ScannedCount : (int?) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_lastEvaluatedKey = value.IsSetLastEvaluatedKey() ? value.LastEvaluatedKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
+ System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> var_items = value.Items is {Count: > 0} ? value.Items : (System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>) null;
+ int? var_count = value.Count != null ? value.Count : (int?) null;
+ int? var_scannedCount = value.ScannedCount != null ? value.ScannedCount : (int?) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_lastEvaluatedKey = value.LastEvaluatedKey is {Count: > 0} ? value.LastEvaluatedKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ScanOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M5_Items(var_items) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M5_Count(var_count) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M12_ScannedCount(var_scannedCount) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M16_LastEvaluatedKey(var_lastEvaluatedKey) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M16_ConsumedCapacity(var_consumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.TransactGetItemsRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_TransactGetItemsInput (Dafny.Com.Amazonaws.Dynamodb.Types._ITransactGetItemsInput value) {
@@ -1347,7 +1347,7 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ReturnConsumedCapacity.is_Some) converted.ReturnConsumedCapacity = (Amazon.DynamoDBv2.ReturnConsumedCapacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_TransactGetItemsInput__M22_ReturnConsumedCapacity(concrete._ReturnConsumedCapacity); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ITransactGetItemsInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_TransactGetItemsInput (Amazon.DynamoDBv2.Model.TransactGetItemsRequest value) {
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.TransactGetItemsInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_TransactGetItemsInput__M13_TransactItems(value.TransactItems) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_TransactGetItemsInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) ) ;
 }
  public static Amazon.DynamoDBv2.Model.TransactGetItemsResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput (Dafny.Com.Amazonaws.Dynamodb.Types._ITransactGetItemsOutput value) {
@@ -1355,8 +1355,8 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._Responses.is_Some) converted.Responses = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput__M9_Responses(concrete._Responses); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ITransactGetItemsOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput (Amazon.DynamoDBv2.Model.TransactGetItemsResponse value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse> var_responses = value.IsSetResponses() ? value.Responses : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse> var_responses = value.Responses is {Count: > 0} ? value.Responses : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.TransactGetItemsOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput__M16_ConsumedCapacity(var_consumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput__M9_Responses(var_responses) ) ;
 }
  public static Amazon.DynamoDBv2.Model.TransactWriteItemsRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_TransactWriteItemsInput (Dafny.Com.Amazonaws.Dynamodb.Types._ITransactWriteItemsInput value) {
@@ -1366,9 +1366,9 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ClientRequestToken.is_Some) converted.ClientRequestToken = (string) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_TransactWriteItemsInput__M18_ClientRequestToken(concrete._ClientRequestToken); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ITransactWriteItemsInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_TransactWriteItemsInput (Amazon.DynamoDBv2.Model.TransactWriteItemsRequest value) {
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.IsSetReturnItemCollectionMetrics() ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
- string var_clientRequestToken = value.IsSetClientRequestToken() ? value.ClientRequestToken : (string) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.ReturnItemCollectionMetrics != null ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
+ string var_clientRequestToken = value.ClientRequestToken != null ? value.ClientRequestToken : (string) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.TransactWriteItemsInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_TransactWriteItemsInput__M13_TransactItems(value.TransactItems) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_TransactWriteItemsInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_TransactWriteItemsInput__M27_ReturnItemCollectionMetrics(var_returnItemCollectionMetrics) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_TransactWriteItemsInput__M18_ClientRequestToken(var_clientRequestToken) ) ;
 }
  public static Amazon.DynamoDBv2.Model.TransactWriteItemsResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput (Dafny.Com.Amazonaws.Dynamodb.Types._ITransactWriteItemsOutput value) {
@@ -1376,8 +1376,8 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ItemCollectionMetrics.is_Some) converted.ItemCollectionMetrics = (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput__M21_ItemCollectionMetrics(concrete._ItemCollectionMetrics); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ITransactWriteItemsOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput (Amazon.DynamoDBv2.Model.TransactWriteItemsResponse value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
- System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>> var_itemCollectionMetrics = value.IsSetItemCollectionMetrics() ? value.ItemCollectionMetrics : (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>) null;
+ System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>> var_itemCollectionMetrics = value.ItemCollectionMetrics is {Count: > 0} ? value.ItemCollectionMetrics : (System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.TransactWriteItemsOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput__M16_ConsumedCapacity(var_consumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput__M21_ItemCollectionMetrics(var_itemCollectionMetrics) ) ;
 }
  public static Amazon.DynamoDBv2.Model.UpdateItemRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput (Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateItemInput value) {
@@ -1395,16 +1395,16 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ExpressionAttributeValues.is_Some) converted.ExpressionAttributeValues = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M25_ExpressionAttributeValues(concrete._ExpressionAttributeValues); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateItemInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput (Amazon.DynamoDBv2.Model.UpdateItemRequest value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValueUpdate> var_attributeUpdates = value.IsSetAttributeUpdates() ? value.AttributeUpdates : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValueUpdate>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> var_expected = value.IsSetExpected() ? value.Expected : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>) null;
- Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.IsSetConditionalOperator() ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
- Amazon.DynamoDBv2.ReturnValue var_returnValues = value.IsSetReturnValues() ? value.ReturnValues : (Amazon.DynamoDBv2.ReturnValue) null;
- Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.IsSetReturnConsumedCapacity() ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
- Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.IsSetReturnItemCollectionMetrics() ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
- string var_updateExpression = value.IsSetUpdateExpression() ? value.UpdateExpression : (string) null;
- string var_conditionExpression = value.IsSetConditionExpression() ? value.ConditionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValueUpdate> var_attributeUpdates = value.AttributeUpdates is {Count: > 0} ? value.AttributeUpdates : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValueUpdate>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> var_expected = value.Expected is {Count: > 0} ? value.Expected : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>) null;
+ Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.ConditionalOperator != null ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator) null;
+ Amazon.DynamoDBv2.ReturnValue var_returnValues = value.ReturnValues != null ? value.ReturnValues : (Amazon.DynamoDBv2.ReturnValue) null;
+ Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity) null;
+ Amazon.DynamoDBv2.ReturnItemCollectionMetrics var_returnItemCollectionMetrics = value.ReturnItemCollectionMetrics != null ? value.ReturnItemCollectionMetrics : (Amazon.DynamoDBv2.ReturnItemCollectionMetrics) null;
+ string var_updateExpression = value.UpdateExpression != null ? value.UpdateExpression : (string) null;
+ string var_conditionExpression = value.ConditionExpression != null ? value.ConditionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.UpdateItemInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M3_Key(value.Key) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M16_AttributeUpdates(var_attributeUpdates) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M8_Expected(var_expected) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M19_ConditionalOperator(var_conditionalOperator) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M12_ReturnValues(var_returnValues) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M22_ReturnConsumedCapacity(var_returnConsumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M27_ReturnItemCollectionMetrics(var_returnItemCollectionMetrics) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M16_UpdateExpression(var_updateExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M19_ConditionExpression(var_conditionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M25_ExpressionAttributeValues(var_expressionAttributeValues) ) ;
 }
  public static Amazon.DynamoDBv2.Model.UpdateItemResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateItemOutput value) {
@@ -1413,9 +1413,9 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._ItemCollectionMetrics.is_Some) converted.ItemCollectionMetrics = (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput__M21_ItemCollectionMetrics(concrete._ItemCollectionMetrics); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateItemOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput (Amazon.DynamoDBv2.Model.UpdateItemResponse value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.IsSetConsumedCapacity() ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
- Amazon.DynamoDBv2.Model.ItemCollectionMetrics var_itemCollectionMetrics = value.IsSetItemCollectionMetrics() ? value.ItemCollectionMetrics : (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_attributes = value.Attributes is {Count: > 0} ? value.Attributes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.Model.ConsumedCapacity var_consumedCapacity = value.ConsumedCapacity is {Count: > 0} ? value.ConsumedCapacity : (Amazon.DynamoDBv2.Model.ConsumedCapacity) null;
+ Amazon.DynamoDBv2.Model.ItemCollectionMetrics var_itemCollectionMetrics = value.ItemCollectionMetrics is {Count: > 0} ? value.ItemCollectionMetrics : (Amazon.DynamoDBv2.Model.ItemCollectionMetrics) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.UpdateItemOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput__M10_Attributes(var_attributes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput__M16_ConsumedCapacity(var_consumedCapacity) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput__M21_ItemCollectionMetrics(var_itemCollectionMetrics) ) ;
 }
  public static Amazon.DynamoDBv2.Model.UpdateTableRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput (Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableInput value) {
@@ -1430,21 +1430,21 @@ using System.Linq; using System; namespace AWS.Cryptography.DynamoDbEncryption.T
  if (concrete._TableClass.is_Some) converted.TableClass = (Amazon.DynamoDBv2.TableClass) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M10_TableClass(concrete._TableClass); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableInput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput (Amazon.DynamoDBv2.Model.UpdateTableRequest value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeDefinition> var_attributeDefinitions = value.IsSetAttributeDefinitions() ? value.AttributeDefinitions : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeDefinition>) null;
- Amazon.DynamoDBv2.BillingMode var_billingMode = value.IsSetBillingMode() ? value.BillingMode : (Amazon.DynamoDBv2.BillingMode) null;
- Amazon.DynamoDBv2.Model.ProvisionedThroughput var_provisionedThroughput = value.IsSetProvisionedThroughput() ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughput) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndexUpdate> var_globalSecondaryIndexUpdates = value.IsSetGlobalSecondaryIndexUpdates() ? value.GlobalSecondaryIndexUpdates : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndexUpdate>) null;
- Amazon.DynamoDBv2.Model.StreamSpecification var_streamSpecification = value.IsSetStreamSpecification() ? value.StreamSpecification : (Amazon.DynamoDBv2.Model.StreamSpecification) null;
- Amazon.DynamoDBv2.Model.SSESpecification var_sSESpecification = value.IsSetSSESpecification() ? value.SSESpecification : (Amazon.DynamoDBv2.Model.SSESpecification) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicationGroupUpdate> var_replicaUpdates = value.IsSetReplicaUpdates() ? value.ReplicaUpdates : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicationGroupUpdate>) null;
- Amazon.DynamoDBv2.TableClass var_tableClass = value.IsSetTableClass() ? value.TableClass : (Amazon.DynamoDBv2.TableClass) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeDefinition> var_attributeDefinitions = value.AttributeDefinitions is {Count: > 0} ? value.AttributeDefinitions : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeDefinition>) null;
+ Amazon.DynamoDBv2.BillingMode var_billingMode = value.BillingMode != null ? value.BillingMode : (Amazon.DynamoDBv2.BillingMode) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughput var_provisionedThroughput = value.ProvisionedThroughput is {Count: > 0} ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughput) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndexUpdate> var_globalSecondaryIndexUpdates = value.GlobalSecondaryIndexUpdates is {Count: > 0} ? value.GlobalSecondaryIndexUpdates : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndexUpdate>) null;
+ Amazon.DynamoDBv2.Model.StreamSpecification var_streamSpecification = value.StreamSpecification is {Count: > 0} ? value.StreamSpecification : (Amazon.DynamoDBv2.Model.StreamSpecification) null;
+ Amazon.DynamoDBv2.Model.SSESpecification var_sSESpecification = value.SSESpecification is {Count: > 0} ? value.SSESpecification : (Amazon.DynamoDBv2.Model.SSESpecification) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicationGroupUpdate> var_replicaUpdates = value.ReplicaUpdates is {Count: > 0} ? value.ReplicaUpdates : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicationGroupUpdate>) null;
+ Amazon.DynamoDBv2.TableClass var_tableClass = value.TableClass != null ? value.TableClass : (Amazon.DynamoDBv2.TableClass) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.UpdateTableInput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M20_AttributeDefinitions(var_attributeDefinitions) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M11_BillingMode(var_billingMode) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M21_ProvisionedThroughput(var_provisionedThroughput) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M27_GlobalSecondaryIndexUpdates(var_globalSecondaryIndexUpdates) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M19_StreamSpecification(var_streamSpecification) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M16_SSESpecification(var_sSESpecification) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M14_ReplicaUpdates(var_replicaUpdates) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateTableInput__M10_TableClass(var_tableClass) ) ;
 }
  public static Amazon.DynamoDBv2.Model.UpdateTableResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_UpdateTableOutput (Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableOutput value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.UpdateTableOutput concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.UpdateTableOutput)value; Amazon.DynamoDBv2.Model.UpdateTableResponse converted = new Amazon.DynamoDBv2.Model.UpdateTableResponse(); if (concrete._TableDescription.is_Some) converted.TableDescription = (Amazon.DynamoDBv2.Model.TableDescription) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_UpdateTableOutput__M16_TableDescription(concrete._TableDescription); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableOutput ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_UpdateTableOutput (Amazon.DynamoDBv2.Model.UpdateTableResponse value) {
- Amazon.DynamoDBv2.Model.TableDescription var_tableDescription = value.IsSetTableDescription() ? value.TableDescription : (Amazon.DynamoDBv2.Model.TableDescription) null;
+ Amazon.DynamoDBv2.Model.TableDescription var_tableDescription = value.TableDescription is {Count: > 0} ? value.TableDescription : (Amazon.DynamoDBv2.Model.TableDescription) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.UpdateTableOutput ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_UpdateTableOutput__M16_TableDescription(var_tableDescription) ) ;
 }
  public static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementRequest> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_BatchExecuteStatementInput__M10_Statements (Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchStatementRequest> value) {
@@ -2514,7 +2514,7 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.BillingMode value"
  if (concrete._StreamViewType.is_Some) converted.StreamViewType = (Amazon.DynamoDBv2.StreamViewType) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_StreamSpecification__M14_StreamViewType(concrete._StreamViewType); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IStreamSpecification ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_StreamSpecification (Amazon.DynamoDBv2.Model.StreamSpecification value) {
- Amazon.DynamoDBv2.StreamViewType var_streamViewType = value.IsSetStreamViewType() ? value.StreamViewType : (Amazon.DynamoDBv2.StreamViewType) null;
+ Amazon.DynamoDBv2.StreamViewType var_streamViewType = value.StreamViewType != null ? value.StreamViewType : (Amazon.DynamoDBv2.StreamViewType) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.StreamSpecification ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_StreamSpecification__M13_StreamEnabled(value.StreamEnabled) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_StreamSpecification__M14_StreamViewType(var_streamViewType) ) ;
 }
  public static Amazon.DynamoDBv2.Model.SSESpecification FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_SSESpecification (Dafny.Com.Amazonaws.Dynamodb.Types._ISSESpecification value) {
@@ -2523,9 +2523,9 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.BillingMode value"
  if (concrete._KMSMasterKeyId.is_Some) converted.KMSMasterKeyId = (string) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_SSESpecification__M14_KMSMasterKeyId(concrete._KMSMasterKeyId); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ISSESpecification ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_SSESpecification (Amazon.DynamoDBv2.Model.SSESpecification value) {
- bool? var_enabled = value.IsSetEnabled() ? value.Enabled : (bool?) null;
- Amazon.DynamoDBv2.SSEType var_sSEType = value.IsSetSSEType() ? value.SSEType : (Amazon.DynamoDBv2.SSEType) null;
- string var_kMSMasterKeyId = value.IsSetKMSMasterKeyId() ? value.KMSMasterKeyId : (string) null;
+ bool? var_enabled = value.Enabled != null ? value.Enabled : (bool?) null;
+ Amazon.DynamoDBv2.SSEType var_sSEType = value.SSEType != null ? value.SSEType : (Amazon.DynamoDBv2.SSEType) null;
+ string var_kMSMasterKeyId = value.KMSMasterKeyId != null ? value.KMSMasterKeyId : (string) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.SSESpecification ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_SSESpecification__M7_Enabled(var_enabled) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_SSESpecification__M7_SSEType(var_sSEType) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_SSESpecification__M14_KMSMasterKeyId(var_kMSMasterKeyId) ) ;
 }
  public static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.Tag> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S7_TagList (Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._ITag> value) {
@@ -2569,28 +2569,28 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.TableClass value")
  if (concrete._TableClassSummary.is_Some) converted.TableClassSummary = (Amazon.DynamoDBv2.Model.TableClassSummary) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M17_TableClassSummary(concrete._TableClassSummary); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ITableDescription ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription (Amazon.DynamoDBv2.Model.TableDescription value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeDefinition> var_attributeDefinitions = value.IsSetAttributeDefinitions() ? value.AttributeDefinitions : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeDefinition>) null;
- string var_tableName = value.IsSetTableName() ? value.TableName : (string) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement> var_keySchema = value.IsSetKeySchema() ? value.KeySchema : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement>) null;
- Amazon.DynamoDBv2.TableStatus var_tableStatus = value.IsSetTableStatus() ? value.TableStatus : (Amazon.DynamoDBv2.TableStatus) null;
- System.DateTime? var_creationDateTime = value.IsSetCreationDateTime() ? value.CreationDateTime : (System.DateTime?) null;
- Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription var_provisionedThroughput = value.IsSetProvisionedThroughput() ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription) null;
- long? var_tableSizeBytes = value.IsSetTableSizeBytes() ? value.TableSizeBytes : (long?) null;
- long? var_itemCount = value.IsSetItemCount() ? value.ItemCount : (long?) null;
- string var_tableArn = value.IsSetTableArn() ? value.TableArn : (string) null;
- string var_tableId = value.IsSetTableId() ? value.TableId : (string) null;
- Amazon.DynamoDBv2.Model.BillingModeSummary var_billingModeSummary = value.IsSetBillingModeSummary() ? value.BillingModeSummary : (Amazon.DynamoDBv2.Model.BillingModeSummary) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndexDescription> var_localSecondaryIndexes = value.IsSetLocalSecondaryIndexes() ? value.LocalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndexDescription>) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndexDescription> var_globalSecondaryIndexes = value.IsSetGlobalSecondaryIndexes() ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndexDescription>) null;
- Amazon.DynamoDBv2.Model.StreamSpecification var_streamSpecification = value.IsSetStreamSpecification() ? value.StreamSpecification : (Amazon.DynamoDBv2.Model.StreamSpecification) null;
- string var_latestStreamLabel = value.IsSetLatestStreamLabel() ? value.LatestStreamLabel : (string) null;
- string var_latestStreamArn = value.IsSetLatestStreamArn() ? value.LatestStreamArn : (string) null;
- string var_globalTableVersion = value.IsSetGlobalTableVersion() ? value.GlobalTableVersion : (string) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaDescription> var_replicas = value.IsSetReplicas() ? value.Replicas : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaDescription>) null;
- Amazon.DynamoDBv2.Model.RestoreSummary var_restoreSummary = value.IsSetRestoreSummary() ? value.RestoreSummary : (Amazon.DynamoDBv2.Model.RestoreSummary) null;
- Amazon.DynamoDBv2.Model.SSEDescription var_sSEDescription = value.IsSetSSEDescription() ? value.SSEDescription : (Amazon.DynamoDBv2.Model.SSEDescription) null;
- Amazon.DynamoDBv2.Model.ArchivalSummary var_archivalSummary = value.IsSetArchivalSummary() ? value.ArchivalSummary : (Amazon.DynamoDBv2.Model.ArchivalSummary) null;
- Amazon.DynamoDBv2.Model.TableClassSummary var_tableClassSummary = value.IsSetTableClassSummary() ? value.TableClassSummary : (Amazon.DynamoDBv2.Model.TableClassSummary) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeDefinition> var_attributeDefinitions = value.AttributeDefinitions is {Count: > 0} ? value.AttributeDefinitions : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeDefinition>) null;
+ string var_tableName = value.TableName != null ? value.TableName : (string) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement> var_keySchema = value.KeySchema is {Count: > 0} ? value.KeySchema : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement>) null;
+ Amazon.DynamoDBv2.TableStatus var_tableStatus = value.TableStatus != null ? value.TableStatus : (Amazon.DynamoDBv2.TableStatus) null;
+ System.DateTime? var_creationDateTime = value.CreationDateTime != null ? value.CreationDateTime : (System.DateTime?) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription var_provisionedThroughput = value.ProvisionedThroughput is {Count: > 0} ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription) null;
+ long? var_tableSizeBytes = value.TableSizeBytes != null ? value.TableSizeBytes : (long?) null;
+ long? var_itemCount = value.ItemCount != null ? value.ItemCount : (long?) null;
+ string var_tableArn = value.TableArn != null ? value.TableArn : (string) null;
+ string var_tableId = value.TableId != null ? value.TableId : (string) null;
+ Amazon.DynamoDBv2.Model.BillingModeSummary var_billingModeSummary = value.BillingModeSummary is {Count: > 0} ? value.BillingModeSummary : (Amazon.DynamoDBv2.Model.BillingModeSummary) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndexDescription> var_localSecondaryIndexes = value.LocalSecondaryIndexes is {Count: > 0} ? value.LocalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndexDescription>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndexDescription> var_globalSecondaryIndexes = value.GlobalSecondaryIndexes is {Count: > 0} ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.GlobalSecondaryIndexDescription>) null;
+ Amazon.DynamoDBv2.Model.StreamSpecification var_streamSpecification = value.StreamSpecification is {Count: > 0} ? value.StreamSpecification : (Amazon.DynamoDBv2.Model.StreamSpecification) null;
+ string var_latestStreamLabel = value.LatestStreamLabel != null ? value.LatestStreamLabel : (string) null;
+ string var_latestStreamArn = value.LatestStreamArn != null ? value.LatestStreamArn : (string) null;
+ string var_globalTableVersion = value.GlobalTableVersion != null ? value.GlobalTableVersion : (string) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaDescription> var_replicas = value.Replicas is {Count: > 0} ? value.Replicas : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaDescription>) null;
+ Amazon.DynamoDBv2.Model.RestoreSummary var_restoreSummary = value.RestoreSummary is {Count: > 0} ? value.RestoreSummary : (Amazon.DynamoDBv2.Model.RestoreSummary) null;
+ Amazon.DynamoDBv2.Model.SSEDescription var_sSEDescription = value.SSEDescription is {Count: > 0} ? value.SSEDescription : (Amazon.DynamoDBv2.Model.SSEDescription) null;
+ Amazon.DynamoDBv2.Model.ArchivalSummary var_archivalSummary = value.ArchivalSummary is {Count: > 0} ? value.ArchivalSummary : (Amazon.DynamoDBv2.Model.ArchivalSummary) null;
+ Amazon.DynamoDBv2.Model.TableClassSummary var_tableClassSummary = value.TableClassSummary is {Count: > 0} ? value.TableClassSummary : (Amazon.DynamoDBv2.Model.TableClassSummary) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.TableDescription ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M20_AttributeDefinitions(var_attributeDefinitions) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M9_TableName(var_tableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M9_KeySchema(var_keySchema) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M11_TableStatus(var_tableStatus) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M16_CreationDateTime(var_creationDateTime) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M21_ProvisionedThroughput(var_provisionedThroughput) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M14_TableSizeBytes(var_tableSizeBytes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M9_ItemCount(var_itemCount) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M8_TableArn(var_tableArn) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M7_TableId(var_tableId) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M18_BillingModeSummary(var_billingModeSummary) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M21_LocalSecondaryIndexes(var_localSecondaryIndexes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M22_GlobalSecondaryIndexes(var_globalSecondaryIndexes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M19_StreamSpecification(var_streamSpecification) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M17_LatestStreamLabel(var_latestStreamLabel) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M15_LatestStreamArn(var_latestStreamArn) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M18_GlobalTableVersion(var_globalTableVersion) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M8_Replicas(var_replicas) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M14_RestoreSummary(var_restoreSummary) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M14_SSEDescription(var_sSEDescription) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M15_ArchivalSummary(var_archivalSummary) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_TableDescription__M17_TableClassSummary(var_tableClassSummary) ) ;
 }
  public static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key (Dafny.IMap<Dafny.ISequence<char>, Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue> value) {
@@ -2675,13 +2675,13 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ReturnValue value"
  if (concrete._GlobalSecondaryIndexes.is_Some) converted.GlobalSecondaryIndexes = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M22_GlobalSecondaryIndexes(concrete._GlobalSecondaryIndexes); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IConsumedCapacity ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity (Amazon.DynamoDBv2.Model.ConsumedCapacity value) {
- string var_tableName = value.IsSetTableName() ? value.TableName : (string) null;
- double? var_capacityUnits = value.IsSetCapacityUnits() ? value.CapacityUnits : (double?) null;
- double? var_readCapacityUnits = value.IsSetReadCapacityUnits() ? value.ReadCapacityUnits : (double?) null;
- double? var_writeCapacityUnits = value.IsSetWriteCapacityUnits() ? value.WriteCapacityUnits : (double?) null;
- Amazon.DynamoDBv2.Model.Capacity var_table = value.IsSetTable() ? value.Table : (Amazon.DynamoDBv2.Model.Capacity) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> var_localSecondaryIndexes = value.IsSetLocalSecondaryIndexes() ? value.LocalSecondaryIndexes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> var_globalSecondaryIndexes = value.IsSetGlobalSecondaryIndexes() ? value.GlobalSecondaryIndexes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>) null;
+ string var_tableName = value.TableName != null ? value.TableName : (string) null;
+ double? var_capacityUnits = value.CapacityUnits != null ? value.CapacityUnits : (double?) null;
+ double? var_readCapacityUnits = value.ReadCapacityUnits != null ? value.ReadCapacityUnits : (double?) null;
+ double? var_writeCapacityUnits = value.WriteCapacityUnits != null ? value.WriteCapacityUnits : (double?) null;
+ Amazon.DynamoDBv2.Model.Capacity var_table = value.Table is {Count: > 0} ? value.Table : (Amazon.DynamoDBv2.Model.Capacity) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> var_localSecondaryIndexes = value.LocalSecondaryIndexes is {Count: > 0} ? value.LocalSecondaryIndexes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> var_globalSecondaryIndexes = value.GlobalSecondaryIndexes is {Count: > 0} ? value.GlobalSecondaryIndexes : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ConsumedCapacity ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M9_TableName(var_tableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M13_CapacityUnits(var_capacityUnits) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M17_ReadCapacityUnits(var_readCapacityUnits) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M18_WriteCapacityUnits(var_writeCapacityUnits) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M5_Table(var_table) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M21_LocalSecondaryIndexes(var_localSecondaryIndexes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M22_GlobalSecondaryIndexes(var_globalSecondaryIndexes) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ItemCollectionMetrics FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics (Dafny.Com.Amazonaws.Dynamodb.Types._IItemCollectionMetrics value) {
@@ -2689,8 +2689,8 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ReturnValue value"
  if (concrete._SizeEstimateRangeGB.is_Some) converted.SizeEstimateRangeGB = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB(concrete._SizeEstimateRangeGB).Select(i => (double) i).ToList(); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IItemCollectionMetrics ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics (Amazon.DynamoDBv2.Model.ItemCollectionMetrics value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_itemCollectionKey = value.IsSetItemCollectionKey() ? value.ItemCollectionKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- System.Collections.Generic.List<double> var_sizeEstimateRangeGB = value.IsSetSizeEstimateRangeGB() ? value.SizeEstimateRangeGB : (System.Collections.Generic.List<double>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_itemCollectionKey = value.ItemCollectionKey is {Count: > 0} ? value.ItemCollectionKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ System.Collections.Generic.List<double> var_sizeEstimateRangeGB = value.SizeEstimateRangeGB is {Count: > 0} ? value.SizeEstimateRangeGB : (System.Collections.Generic.List<double>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ItemCollectionMetrics ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M17_ItemCollectionKey(var_itemCollectionKey) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB(var_sizeEstimateRangeGB) ) ;
 }
  public static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_PartiQLStatement (Dafny.ISequence<char> value) {
@@ -3363,8 +3363,8 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Select value");
  if (concrete._ConsistentRead.is_Some) converted.ConsistentRead = (bool) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_BatchStatementRequest__M14_ConsistentRead(concrete._ConsistentRead); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchStatementRequest ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_BatchStatementRequest (Amazon.DynamoDBv2.Model.BatchStatementRequest value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_parameters = value.IsSetParameters() ? value.Parameters : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
- bool? var_consistentRead = value.IsSetConsistentRead() ? value.ConsistentRead : (bool?) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_parameters = value.Parameters is {Count: > 0} ? value.Parameters : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ bool? var_consistentRead = value.ConsistentRead != null ? value.ConsistentRead : (bool?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchStatementRequest ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_BatchStatementRequest__M9_Statement(value.Statement) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_BatchStatementRequest__M10_Parameters(var_parameters) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_BatchStatementRequest__M14_ConsistentRead(var_consistentRead) ) ;
 }
  public static Amazon.DynamoDBv2.Model.BatchStatementResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_BatchStatementResponse (Dafny.Com.Amazonaws.Dynamodb.Types._IBatchStatementResponse value) {
@@ -3373,9 +3373,9 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Select value");
  if (concrete._Item.is_Some) converted.Item = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_BatchStatementResponse__M4_Item(concrete._Item); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchStatementResponse ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_BatchStatementResponse (Amazon.DynamoDBv2.Model.BatchStatementResponse value) {
- Amazon.DynamoDBv2.Model.BatchStatementError var_error = value.IsSetError() ? value.Error : (Amazon.DynamoDBv2.Model.BatchStatementError) null;
- string var_tableName = value.IsSetTableName() ? value.TableName : (string) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_item = value.IsSetItem() ? value.Item : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.Model.BatchStatementError var_error = value.Error is {Count: > 0} ? value.Error : (Amazon.DynamoDBv2.Model.BatchStatementError) null;
+ string var_tableName = value.TableName != null ? value.TableName : (string) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_item = value.Item is {Count: > 0} ? value.Item : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchStatementResponse ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_BatchStatementResponse__M5_Error(var_error) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_BatchStatementResponse__M9_TableName(var_tableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_BatchStatementResponse__M4_Item(var_item) ) ;
 }
  public static Amazon.DynamoDBv2.Model.KeysAndAttributes FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes (Dafny.Com.Amazonaws.Dynamodb.Types._IKeysAndAttributes value) {
@@ -3386,10 +3386,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Select value");
  if (concrete._ExpressionAttributeNames.is_Some) converted.ExpressionAttributeNames = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M24_ExpressionAttributeNames(concrete._ExpressionAttributeNames); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IKeysAndAttributes ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes (Amazon.DynamoDBv2.Model.KeysAndAttributes value) {
- System.Collections.Generic.List<string> var_attributesToGet = value.IsSetAttributesToGet() ? value.AttributesToGet : (System.Collections.Generic.List<string>) null;
- bool? var_consistentRead = value.IsSetConsistentRead() ? value.ConsistentRead : (bool?) null;
- string var_projectionExpression = value.IsSetProjectionExpression() ? value.ProjectionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.List<string> var_attributesToGet = value.AttributesToGet is {Count: > 0} ? value.AttributesToGet : (System.Collections.Generic.List<string>) null;
+ bool? var_consistentRead = value.ConsistentRead != null ? value.ConsistentRead : (bool?) null;
+ string var_projectionExpression = value.ProjectionExpression != null ? value.ProjectionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.KeysAndAttributes ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M4_Keys(value.Keys) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M15_AttributesToGet(var_attributesToGet) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M14_ConsistentRead(var_consistentRead) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M20_ProjectionExpression(var_projectionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M24_ExpressionAttributeNames(var_expressionAttributeNames) ) ;
 }
  public static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_WriteRequests (Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._IWriteRequest> value) {
@@ -3436,7 +3436,7 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Select value");
  if (concrete._ProvisionedThroughput.is_Some) converted.ProvisionedThroughput = (Amazon.DynamoDBv2.Model.ProvisionedThroughput) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_GlobalSecondaryIndex__M21_ProvisionedThroughput(concrete._ProvisionedThroughput); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IGlobalSecondaryIndex ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_GlobalSecondaryIndex (Amazon.DynamoDBv2.Model.GlobalSecondaryIndex value) {
- Amazon.DynamoDBv2.Model.ProvisionedThroughput var_provisionedThroughput = value.IsSetProvisionedThroughput() ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughput) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughput var_provisionedThroughput = value.ProvisionedThroughput is {Count: > 0} ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughput) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.GlobalSecondaryIndex ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_GlobalSecondaryIndex__M9_IndexName(value.IndexName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_GlobalSecondaryIndex__M9_KeySchema(value.KeySchema) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_GlobalSecondaryIndex__M10_Projection(value.Projection) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_GlobalSecondaryIndex__M21_ProvisionedThroughput(var_provisionedThroughput) ) ;
 }
  public static long FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_PositiveLongObject (long value) {
@@ -3535,11 +3535,11 @@ return Dafny.Sequence<char>.FromString(timestampString);
  if (concrete._WriteCapacityUnits.is_Some) converted.WriteCapacityUnits = (long) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_ProvisionedThroughputDescription__M18_WriteCapacityUnits(concrete._WriteCapacityUnits); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IProvisionedThroughputDescription ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_ProvisionedThroughputDescription (Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription value) {
- System.DateTime? var_lastIncreaseDateTime = value.IsSetLastIncreaseDateTime() ? value.LastIncreaseDateTime : (System.DateTime?) null;
- System.DateTime? var_lastDecreaseDateTime = value.IsSetLastDecreaseDateTime() ? value.LastDecreaseDateTime : (System.DateTime?) null;
- long? var_numberOfDecreasesToday = value.IsSetNumberOfDecreasesToday() ? value.NumberOfDecreasesToday : (long?) null;
- long? var_readCapacityUnits = value.IsSetReadCapacityUnits() ? value.ReadCapacityUnits : (long?) null;
- long? var_writeCapacityUnits = value.IsSetWriteCapacityUnits() ? value.WriteCapacityUnits : (long?) null;
+ System.DateTime? var_lastIncreaseDateTime = value.LastIncreaseDateTime != null ? value.LastIncreaseDateTime : (System.DateTime?) null;
+ System.DateTime? var_lastDecreaseDateTime = value.LastDecreaseDateTime != null ? value.LastDecreaseDateTime : (System.DateTime?) null;
+ long? var_numberOfDecreasesToday = value.NumberOfDecreasesToday != null ? value.NumberOfDecreasesToday : (long?) null;
+ long? var_readCapacityUnits = value.ReadCapacityUnits != null ? value.ReadCapacityUnits : (long?) null;
+ long? var_writeCapacityUnits = value.WriteCapacityUnits != null ? value.WriteCapacityUnits : (long?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ProvisionedThroughputDescription ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_ProvisionedThroughputDescription__M20_LastIncreaseDateTime(var_lastIncreaseDateTime) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_ProvisionedThroughputDescription__M20_LastDecreaseDateTime(var_lastDecreaseDateTime) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_ProvisionedThroughputDescription__M22_NumberOfDecreasesToday(var_numberOfDecreasesToday) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_ProvisionedThroughputDescription__M17_ReadCapacityUnits(var_readCapacityUnits) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_ProvisionedThroughputDescription__M18_WriteCapacityUnits(var_writeCapacityUnits) ) ;
 }
  public static long FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S4_Long (long value) {
@@ -3565,8 +3565,8 @@ return Dafny.Sequence<char>.FromString(timestampString);
  if (concrete._LastUpdateToPayPerRequestDateTime.is_Some) converted.LastUpdateToPayPerRequestDateTime = (System.DateTime) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BillingModeSummary__M33_LastUpdateToPayPerRequestDateTime(concrete._LastUpdateToPayPerRequestDateTime); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBillingModeSummary ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BillingModeSummary (Amazon.DynamoDBv2.Model.BillingModeSummary value) {
- Amazon.DynamoDBv2.BillingMode var_billingMode = value.IsSetBillingMode() ? value.BillingMode : (Amazon.DynamoDBv2.BillingMode) null;
- System.DateTime? var_lastUpdateToPayPerRequestDateTime = value.IsSetLastUpdateToPayPerRequestDateTime() ? value.LastUpdateToPayPerRequestDateTime : (System.DateTime?) null;
+ Amazon.DynamoDBv2.BillingMode var_billingMode = value.BillingMode != null ? value.BillingMode : (Amazon.DynamoDBv2.BillingMode) null;
+ System.DateTime? var_lastUpdateToPayPerRequestDateTime = value.LastUpdateToPayPerRequestDateTime != null ? value.LastUpdateToPayPerRequestDateTime : (System.DateTime?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BillingModeSummary ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BillingModeSummary__M11_BillingMode(var_billingMode) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BillingModeSummary__M33_LastUpdateToPayPerRequestDateTime(var_lastUpdateToPayPerRequestDateTime) ) ;
 }
  public static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.LocalSecondaryIndexDescription> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_LocalSecondaryIndexDescriptionList (Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._ILocalSecondaryIndexDescription> value) {
@@ -3600,8 +3600,8 @@ return Dafny.Sequence<char>.FromString(timestampString);
   converted.RestoreInProgress = (bool) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_RestoreSummary__M17_RestoreInProgress(concrete._RestoreInProgress); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IRestoreSummary ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_RestoreSummary (Amazon.DynamoDBv2.Model.RestoreSummary value) {
- string var_sourceBackupArn = value.IsSetSourceBackupArn() ? value.SourceBackupArn : (string) null;
- string var_sourceTableArn = value.IsSetSourceTableArn() ? value.SourceTableArn : (string) null;
+ string var_sourceBackupArn = value.SourceBackupArn != null ? value.SourceBackupArn : (string) null;
+ string var_sourceTableArn = value.SourceTableArn != null ? value.SourceTableArn : (string) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.RestoreSummary ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_RestoreSummary__M15_SourceBackupArn(var_sourceBackupArn) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_RestoreSummary__M14_SourceTableArn(var_sourceTableArn) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_RestoreSummary__M15_RestoreDateTime(value.RestoreDateTime) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_RestoreSummary__M17_RestoreInProgress(value.RestoreInProgress) ) ;
 }
  public static Amazon.DynamoDBv2.Model.SSEDescription FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_SSEDescription (Dafny.Com.Amazonaws.Dynamodb.Types._ISSEDescription value) {
@@ -3611,10 +3611,10 @@ return Dafny.Sequence<char>.FromString(timestampString);
  if (concrete._InaccessibleEncryptionDateTime.is_Some) converted.InaccessibleEncryptionDateTime = (System.DateTime) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_SSEDescription__M30_InaccessibleEncryptionDateTime(concrete._InaccessibleEncryptionDateTime); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ISSEDescription ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_SSEDescription (Amazon.DynamoDBv2.Model.SSEDescription value) {
- Amazon.DynamoDBv2.SSEStatus var_status = value.IsSetStatus() ? value.Status : (Amazon.DynamoDBv2.SSEStatus) null;
- Amazon.DynamoDBv2.SSEType var_sSEType = value.IsSetSSEType() ? value.SSEType : (Amazon.DynamoDBv2.SSEType) null;
- string var_kMSMasterKeyArn = value.IsSetKMSMasterKeyArn() ? value.KMSMasterKeyArn : (string) null;
- System.DateTime? var_inaccessibleEncryptionDateTime = value.IsSetInaccessibleEncryptionDateTime() ? value.InaccessibleEncryptionDateTime : (System.DateTime?) null;
+ Amazon.DynamoDBv2.SSEStatus var_status = value.Status != null ? value.Status : (Amazon.DynamoDBv2.SSEStatus) null;
+ Amazon.DynamoDBv2.SSEType var_sSEType = value.SSEType != null ? value.SSEType : (Amazon.DynamoDBv2.SSEType) null;
+ string var_kMSMasterKeyArn = value.KMSMasterKeyArn != null ? value.KMSMasterKeyArn : (string) null;
+ System.DateTime? var_inaccessibleEncryptionDateTime = value.InaccessibleEncryptionDateTime != null ? value.InaccessibleEncryptionDateTime : (System.DateTime?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.SSEDescription ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_SSEDescription__M6_Status(var_status) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_SSEDescription__M7_SSEType(var_sSEType) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_SSEDescription__M15_KMSMasterKeyArn(var_kMSMasterKeyArn) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_SSEDescription__M30_InaccessibleEncryptionDateTime(var_inaccessibleEncryptionDateTime) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ArchivalSummary FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_ArchivalSummary (Dafny.Com.Amazonaws.Dynamodb.Types._IArchivalSummary value) {
@@ -3623,9 +3623,9 @@ return Dafny.Sequence<char>.FromString(timestampString);
  if (concrete._ArchivalBackupArn.is_Some) converted.ArchivalBackupArn = (string) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_ArchivalSummary__M17_ArchivalBackupArn(concrete._ArchivalBackupArn); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IArchivalSummary ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_ArchivalSummary (Amazon.DynamoDBv2.Model.ArchivalSummary value) {
- System.DateTime? var_archivalDateTime = value.IsSetArchivalDateTime() ? value.ArchivalDateTime : (System.DateTime?) null;
- string var_archivalReason = value.IsSetArchivalReason() ? value.ArchivalReason : (string) null;
- string var_archivalBackupArn = value.IsSetArchivalBackupArn() ? value.ArchivalBackupArn : (string) null;
+ System.DateTime? var_archivalDateTime = value.ArchivalDateTime != null ? value.ArchivalDateTime : (System.DateTime?) null;
+ string var_archivalReason = value.ArchivalReason != null ? value.ArchivalReason : (string) null;
+ string var_archivalBackupArn = value.ArchivalBackupArn != null ? value.ArchivalBackupArn : (string) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ArchivalSummary ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_ArchivalSummary__M16_ArchivalDateTime(var_archivalDateTime) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_ArchivalSummary__M14_ArchivalReason(var_archivalReason) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_ArchivalSummary__M17_ArchivalBackupArn(var_archivalBackupArn) ) ;
 }
  public static Amazon.DynamoDBv2.Model.TableClassSummary FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TableClassSummary (Dafny.Com.Amazonaws.Dynamodb.Types._ITableClassSummary value) {
@@ -3633,8 +3633,8 @@ return Dafny.Sequence<char>.FromString(timestampString);
  if (concrete._LastUpdateDateTime.is_Some) converted.LastUpdateDateTime = (System.DateTime) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TableClassSummary__M18_LastUpdateDateTime(concrete._LastUpdateDateTime); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ITableClassSummary ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TableClassSummary (Amazon.DynamoDBv2.Model.TableClassSummary value) {
- Amazon.DynamoDBv2.TableClass var_tableClass = value.IsSetTableClass() ? value.TableClass : (Amazon.DynamoDBv2.TableClass) null;
- System.DateTime? var_lastUpdateDateTime = value.IsSetLastUpdateDateTime() ? value.LastUpdateDateTime : (System.DateTime?) null;
+ Amazon.DynamoDBv2.TableClass var_tableClass = value.TableClass != null ? value.TableClass : (Amazon.DynamoDBv2.TableClass) null;
+ System.DateTime? var_lastUpdateDateTime = value.LastUpdateDateTime != null ? value.LastUpdateDateTime : (System.DateTime?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.TableClassSummary ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TableClassSummary__M10_TableClass(var_tableClass) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TableClassSummary__M18_LastUpdateDateTime(var_lastUpdateDateTime) ) ;
 }
  public static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_AttributeName (Dafny.ISequence<char> value) {
@@ -3709,10 +3709,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._AttributeValueList.is_Some) converted.AttributeValueList = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExpectedAttributeValue__M18_AttributeValueList(concrete._AttributeValueList); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IExpectedAttributeValue ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExpectedAttributeValue (Amazon.DynamoDBv2.Model.ExpectedAttributeValue value) {
- Com.Amazonaws.Dynamodb.AttributeValue var_value = value.IsSetValue() ? value.Value : (Com.Amazonaws.Dynamodb.AttributeValue) null;
- bool? var_exists = value.IsSetExists() ? value.Exists : (bool?) null;
- Amazon.DynamoDBv2.ComparisonOperator var_comparisonOperator = value.IsSetComparisonOperator() ? value.ComparisonOperator : (Amazon.DynamoDBv2.ComparisonOperator) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_attributeValueList = value.IsSetAttributeValueList() ? value.AttributeValueList : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Com.Amazonaws.Dynamodb.AttributeValue var_value = value.Value is {Count: > 0} ? value.Value : (Com.Amazonaws.Dynamodb.AttributeValue) null;
+ bool? var_exists = value.Exists != null ? value.Exists : (bool?) null;
+ Amazon.DynamoDBv2.ComparisonOperator var_comparisonOperator = value.ComparisonOperator != null ? value.ComparisonOperator : (Amazon.DynamoDBv2.ComparisonOperator) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_attributeValueList = value.AttributeValueList is {Count: > 0} ? value.AttributeValueList : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ExpectedAttributeValue ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExpectedAttributeValue__M5_Value(var_value) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExpectedAttributeValue__M6_Exists(var_exists) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExpectedAttributeValue__M18_ComparisonOperator(var_comparisonOperator) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExpectedAttributeValue__M18_AttributeValueList(var_attributeValueList) ) ;
 }
  public static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ExpressionAttributeNameVariable (Dafny.ISequence<char> value) {
@@ -3739,9 +3739,9 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._CapacityUnits.is_Some) converted.CapacityUnits = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits(concrete._CapacityUnits); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ICapacity ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity (Amazon.DynamoDBv2.Model.Capacity value) {
- double? var_readCapacityUnits = value.IsSetReadCapacityUnits() ? value.ReadCapacityUnits : (double?) null;
- double? var_writeCapacityUnits = value.IsSetWriteCapacityUnits() ? value.WriteCapacityUnits : (double?) null;
- double? var_capacityUnits = value.IsSetCapacityUnits() ? value.CapacityUnits : (double?) null;
+ double? var_readCapacityUnits = value.ReadCapacityUnits != null ? value.ReadCapacityUnits : (double?) null;
+ double? var_writeCapacityUnits = value.WriteCapacityUnits != null ? value.WriteCapacityUnits : (double?) null;
+ double? var_capacityUnits = value.CapacityUnits != null ? value.CapacityUnits : (double?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.Capacity ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits(var_readCapacityUnits) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M18_WriteCapacityUnits(var_writeCapacityUnits) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits(var_capacityUnits) ) ;
 }
  public static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_SecondaryIndexesCapacityMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Com.Amazonaws.Dynamodb.Types._ICapacity> value) {
@@ -3771,14 +3771,14 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._Parameters.is_Some) converted.Parameters = (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ParameterizedStatement__M10_Parameters(concrete._Parameters); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IParameterizedStatement ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ParameterizedStatement (Amazon.DynamoDBv2.Model.ParameterizedStatement value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_parameters = value.IsSetParameters() ? value.Parameters : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_parameters = value.Parameters is {Count: > 0} ? value.Parameters : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ParameterizedStatement ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ParameterizedStatement__M9_Statement(value.Statement) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ParameterizedStatement__M10_Parameters(var_parameters) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ItemResponse FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_ItemResponse (Dafny.Com.Amazonaws.Dynamodb.Types._IItemResponse value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.ItemResponse concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.ItemResponse)value; Amazon.DynamoDBv2.Model.ItemResponse converted = new Amazon.DynamoDBv2.Model.ItemResponse(); if (concrete._Item.is_Some) converted.Item = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_ItemResponse__M4_Item(concrete._Item); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IItemResponse ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_ItemResponse (Amazon.DynamoDBv2.Model.ItemResponse value) {
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_item = value.IsSetItem() ? value.Item : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_item = value.Item is {Count: > 0} ? value.Item : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ItemResponse ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_ItemResponse__M4_Item(var_item) ) ;
 }
  public static Amazon.DynamoDBv2.Model.Condition FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_Condition (Dafny.Com.Amazonaws.Dynamodb.Types._ICondition value) {
@@ -3786,7 +3786,7 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
   converted.ComparisonOperator = (Amazon.DynamoDBv2.ComparisonOperator) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_Condition__M18_ComparisonOperator(concrete._ComparisonOperator); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ICondition ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_Condition (Amazon.DynamoDBv2.Model.Condition value) {
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_attributeValueList = value.IsSetAttributeValueList() ? value.AttributeValueList : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> var_attributeValueList = value.AttributeValueList is {Count: > 0} ? value.AttributeValueList : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.Condition ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_Condition__M18_AttributeValueList(var_attributeValueList) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_Condition__M18_ComparisonOperator(value.ComparisonOperator) ) ;
 }
  public static Amazon.DynamoDBv2.Model.TransactGetItem FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_TransactGetItem (Dafny.Com.Amazonaws.Dynamodb.Types._ITransactGetItem value) {
@@ -3803,10 +3803,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._Update.is_Some) converted.Update = (Amazon.DynamoDBv2.Model.Update) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TransactWriteItem__M6_Update(concrete._Update); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ITransactWriteItem ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TransactWriteItem (Amazon.DynamoDBv2.Model.TransactWriteItem value) {
- Amazon.DynamoDBv2.Model.ConditionCheck var_conditionCheck = value.IsSetConditionCheck() ? value.ConditionCheck : (Amazon.DynamoDBv2.Model.ConditionCheck) null;
- Amazon.DynamoDBv2.Model.Put var_put = value.IsSetPut() ? value.Put : (Amazon.DynamoDBv2.Model.Put) null;
- Amazon.DynamoDBv2.Model.Delete var_delete = value.IsSetDelete() ? value.Delete : (Amazon.DynamoDBv2.Model.Delete) null;
- Amazon.DynamoDBv2.Model.Update var_update = value.IsSetUpdate() ? value.Update : (Amazon.DynamoDBv2.Model.Update) null;
+ Amazon.DynamoDBv2.Model.ConditionCheck var_conditionCheck = value.ConditionCheck is {Count: > 0} ? value.ConditionCheck : (Amazon.DynamoDBv2.Model.ConditionCheck) null;
+ Amazon.DynamoDBv2.Model.Put var_put = value.Put is {Count: > 0} ? value.Put : (Amazon.DynamoDBv2.Model.Put) null;
+ Amazon.DynamoDBv2.Model.Delete var_delete = value.Delete is {Count: > 0} ? value.Delete : (Amazon.DynamoDBv2.Model.Delete) null;
+ Amazon.DynamoDBv2.Model.Update var_update = value.Update is {Count: > 0} ? value.Update : (Amazon.DynamoDBv2.Model.Update) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.TransactWriteItem ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TransactWriteItem__M14_ConditionCheck(var_conditionCheck) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TransactWriteItem__M3_Put(var_put) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TransactWriteItem__M6_Delete(var_delete) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_TransactWriteItem__M6_Update(var_update) ) ;
 }
  public static Amazon.DynamoDBv2.Model.AttributeValueUpdate FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_AttributeValueUpdate (Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValueUpdate value) {
@@ -3814,8 +3814,8 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._Action.is_Some) converted.Action = (Amazon.DynamoDBv2.AttributeAction) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_AttributeValueUpdate__M6_Action(concrete._Action); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValueUpdate ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_AttributeValueUpdate (Amazon.DynamoDBv2.Model.AttributeValueUpdate value) {
- Com.Amazonaws.Dynamodb.AttributeValue var_value = value.IsSetValue() ? value.Value : (Com.Amazonaws.Dynamodb.AttributeValue) null;
- Amazon.DynamoDBv2.AttributeAction var_action = value.IsSetAction() ? value.Action : (Amazon.DynamoDBv2.AttributeAction) null;
+ Com.Amazonaws.Dynamodb.AttributeValue var_value = value.Value is {Count: > 0} ? value.Value : (Com.Amazonaws.Dynamodb.AttributeValue) null;
+ Amazon.DynamoDBv2.AttributeAction var_action = value.Action != null ? value.Action : (Amazon.DynamoDBv2.AttributeAction) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValueUpdate ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_AttributeValueUpdate__M5_Value(var_value) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_AttributeValueUpdate__M6_Action(var_action) ) ;
 }
  public static Amazon.DynamoDBv2.Model.GlobalSecondaryIndexUpdate FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_GlobalSecondaryIndexUpdate (Dafny.Com.Amazonaws.Dynamodb.Types._IGlobalSecondaryIndexUpdate value) {
@@ -3824,9 +3824,9 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._Delete.is_Some) converted.Delete = (Amazon.DynamoDBv2.Model.DeleteGlobalSecondaryIndexAction) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_GlobalSecondaryIndexUpdate__M6_Delete(concrete._Delete); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IGlobalSecondaryIndexUpdate ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_GlobalSecondaryIndexUpdate (Amazon.DynamoDBv2.Model.GlobalSecondaryIndexUpdate value) {
- Amazon.DynamoDBv2.Model.UpdateGlobalSecondaryIndexAction var_update = value.IsSetUpdate() ? value.Update : (Amazon.DynamoDBv2.Model.UpdateGlobalSecondaryIndexAction) null;
- Amazon.DynamoDBv2.Model.CreateGlobalSecondaryIndexAction var_create = value.IsSetCreate() ? value.Create : (Amazon.DynamoDBv2.Model.CreateGlobalSecondaryIndexAction) null;
- Amazon.DynamoDBv2.Model.DeleteGlobalSecondaryIndexAction var_delete = value.IsSetDelete() ? value.Delete : (Amazon.DynamoDBv2.Model.DeleteGlobalSecondaryIndexAction) null;
+ Amazon.DynamoDBv2.Model.UpdateGlobalSecondaryIndexAction var_update = value.Update is {Count: > 0} ? value.Update : (Amazon.DynamoDBv2.Model.UpdateGlobalSecondaryIndexAction) null;
+ Amazon.DynamoDBv2.Model.CreateGlobalSecondaryIndexAction var_create = value.Create is {Count: > 0} ? value.Create : (Amazon.DynamoDBv2.Model.CreateGlobalSecondaryIndexAction) null;
+ Amazon.DynamoDBv2.Model.DeleteGlobalSecondaryIndexAction var_delete = value.Delete is {Count: > 0} ? value.Delete : (Amazon.DynamoDBv2.Model.DeleteGlobalSecondaryIndexAction) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.GlobalSecondaryIndexUpdate ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_GlobalSecondaryIndexUpdate__M6_Update(var_update) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_GlobalSecondaryIndexUpdate__M6_Create(var_create) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_GlobalSecondaryIndexUpdate__M6_Delete(var_delete) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ReplicationGroupUpdate FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ReplicationGroupUpdate (Dafny.Com.Amazonaws.Dynamodb.Types._IReplicationGroupUpdate value) {
@@ -3835,9 +3835,9 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._Delete.is_Some) converted.Delete = (Amazon.DynamoDBv2.Model.DeleteReplicationGroupMemberAction) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ReplicationGroupUpdate__M6_Delete(concrete._Delete); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IReplicationGroupUpdate ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ReplicationGroupUpdate (Amazon.DynamoDBv2.Model.ReplicationGroupUpdate value) {
- Amazon.DynamoDBv2.Model.CreateReplicationGroupMemberAction var_create = value.IsSetCreate() ? value.Create : (Amazon.DynamoDBv2.Model.CreateReplicationGroupMemberAction) null;
- Amazon.DynamoDBv2.Model.UpdateReplicationGroupMemberAction var_update = value.IsSetUpdate() ? value.Update : (Amazon.DynamoDBv2.Model.UpdateReplicationGroupMemberAction) null;
- Amazon.DynamoDBv2.Model.DeleteReplicationGroupMemberAction var_delete = value.IsSetDelete() ? value.Delete : (Amazon.DynamoDBv2.Model.DeleteReplicationGroupMemberAction) null;
+ Amazon.DynamoDBv2.Model.CreateReplicationGroupMemberAction var_create = value.Create is {Count: > 0} ? value.Create : (Amazon.DynamoDBv2.Model.CreateReplicationGroupMemberAction) null;
+ Amazon.DynamoDBv2.Model.UpdateReplicationGroupMemberAction var_update = value.Update is {Count: > 0} ? value.Update : (Amazon.DynamoDBv2.Model.UpdateReplicationGroupMemberAction) null;
+ Amazon.DynamoDBv2.Model.DeleteReplicationGroupMemberAction var_delete = value.Delete is {Count: > 0} ? value.Delete : (Amazon.DynamoDBv2.Model.DeleteReplicationGroupMemberAction) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ReplicationGroupUpdate ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ReplicationGroupUpdate__M6_Create(var_create) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ReplicationGroupUpdate__M6_Update(var_update) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ReplicationGroupUpdate__M6_Delete(var_delete) ) ;
 }
  public static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_BatchStatementRequest__M9_Statement (Dafny.ISequence<char> value) {
@@ -4379,8 +4379,8 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._Message.is_Some) converted.Message = (string) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchStatementError__M7_Message(concrete._Message); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IBatchStatementError ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchStatementError (Amazon.DynamoDBv2.Model.BatchStatementError value) {
- Amazon.DynamoDBv2.BatchStatementErrorCodeEnum var_code = value.IsSetCode() ? value.Code : (Amazon.DynamoDBv2.BatchStatementErrorCodeEnum) null;
- string var_message = value.IsSetMessage() ? value.Message : (string) null;
+ Amazon.DynamoDBv2.BatchStatementErrorCodeEnum var_code = value.Code != null ? value.Code : (Amazon.DynamoDBv2.BatchStatementErrorCodeEnum) null;
+ string var_message = value.Message != null ? value.Message : (string) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.BatchStatementError ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchStatementError__M4_Code(var_code) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchStatementError__M7_Message(var_message) ) ;
 }
  public static System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S7_KeyList (Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>> value) {
@@ -4394,8 +4394,8 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeVal
  if (concrete._DeleteRequest.is_Some) converted.DeleteRequest = (Amazon.DynamoDBv2.Model.DeleteRequest) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_WriteRequest__M13_DeleteRequest(concrete._DeleteRequest); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IWriteRequest ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_WriteRequest (Amazon.DynamoDBv2.Model.WriteRequest value) {
- Amazon.DynamoDBv2.Model.PutRequest var_putRequest = value.IsSetPutRequest() ? value.PutRequest : (Amazon.DynamoDBv2.Model.PutRequest) null;
- Amazon.DynamoDBv2.Model.DeleteRequest var_deleteRequest = value.IsSetDeleteRequest() ? value.DeleteRequest : (Amazon.DynamoDBv2.Model.DeleteRequest) null;
+ Amazon.DynamoDBv2.Model.PutRequest var_putRequest = value.PutRequest is {Count: > 0} ? value.PutRequest : (Amazon.DynamoDBv2.Model.PutRequest) null;
+ Amazon.DynamoDBv2.Model.DeleteRequest var_deleteRequest = value.DeleteRequest is {Count: > 0} ? value.DeleteRequest : (Amazon.DynamoDBv2.Model.DeleteRequest) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.WriteRequest ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_WriteRequest__M10_PutRequest(var_putRequest) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_WriteRequest__M13_DeleteRequest(var_deleteRequest) ) ;
 }
  public static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_KeySchemaAttributeName (Dafny.ISequence<char> value) {
@@ -4431,8 +4431,8 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.KeyType value");
  if (concrete._NonKeyAttributes.is_Some) converted.NonKeyAttributes = (System.Collections.Generic.List<string>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_Projection__M16_NonKeyAttributes(concrete._NonKeyAttributes); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IProjection ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_Projection (Amazon.DynamoDBv2.Model.Projection value) {
- Amazon.DynamoDBv2.ProjectionType var_projectionType = value.IsSetProjectionType() ? value.ProjectionType : (Amazon.DynamoDBv2.ProjectionType) null;
- System.Collections.Generic.List<string> var_nonKeyAttributes = value.IsSetNonKeyAttributes() ? value.NonKeyAttributes : (System.Collections.Generic.List<string>) null;
+ Amazon.DynamoDBv2.ProjectionType var_projectionType = value.ProjectionType != null ? value.ProjectionType : (Amazon.DynamoDBv2.ProjectionType) null;
+ System.Collections.Generic.List<string> var_nonKeyAttributes = value.NonKeyAttributes is {Count: > 0} ? value.NonKeyAttributes : (System.Collections.Generic.List<string>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.Projection ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_Projection__M14_ProjectionType(var_projectionType) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_Projection__M16_NonKeyAttributes(var_nonKeyAttributes) ) ;
 }
  public static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_TagKeyString (Dafny.ISequence<char> value) {
@@ -4462,12 +4462,12 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.KeyType value");
  if (concrete._IndexArn.is_Some) converted.IndexArn = (string) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_LocalSecondaryIndexDescription__M8_IndexArn(concrete._IndexArn); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ILocalSecondaryIndexDescription ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_LocalSecondaryIndexDescription (Amazon.DynamoDBv2.Model.LocalSecondaryIndexDescription value) {
- string var_indexName = value.IsSetIndexName() ? value.IndexName : (string) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement> var_keySchema = value.IsSetKeySchema() ? value.KeySchema : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement>) null;
- Amazon.DynamoDBv2.Model.Projection var_projection = value.IsSetProjection() ? value.Projection : (Amazon.DynamoDBv2.Model.Projection) null;
- long? var_indexSizeBytes = value.IsSetIndexSizeBytes() ? value.IndexSizeBytes : (long?) null;
- long? var_itemCount = value.IsSetItemCount() ? value.ItemCount : (long?) null;
- string var_indexArn = value.IsSetIndexArn() ? value.IndexArn : (string) null;
+ string var_indexName = value.IndexName != null ? value.IndexName : (string) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement> var_keySchema = value.KeySchema is {Count: > 0} ? value.KeySchema : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement>) null;
+ Amazon.DynamoDBv2.Model.Projection var_projection = value.Projection is {Count: > 0} ? value.Projection : (Amazon.DynamoDBv2.Model.Projection) null;
+ long? var_indexSizeBytes = value.IndexSizeBytes != null ? value.IndexSizeBytes : (long?) null;
+ long? var_itemCount = value.ItemCount != null ? value.ItemCount : (long?) null;
+ string var_indexArn = value.IndexArn != null ? value.IndexArn : (string) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.LocalSecondaryIndexDescription ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_LocalSecondaryIndexDescription__M9_IndexName(var_indexName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_LocalSecondaryIndexDescription__M9_KeySchema(var_keySchema) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_LocalSecondaryIndexDescription__M10_Projection(var_projection) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_LocalSecondaryIndexDescription__M14_IndexSizeBytes(var_indexSizeBytes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_LocalSecondaryIndexDescription__M9_ItemCount(var_itemCount) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_LocalSecondaryIndexDescription__M8_IndexArn(var_indexArn) ) ;
 }
  public static Amazon.DynamoDBv2.Model.GlobalSecondaryIndexDescription FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription (Dafny.Com.Amazonaws.Dynamodb.Types._IGlobalSecondaryIndexDescription value) {
@@ -4482,15 +4482,15 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.KeyType value");
  if (concrete._IndexArn.is_Some) converted.IndexArn = (string) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M8_IndexArn(concrete._IndexArn); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IGlobalSecondaryIndexDescription ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription (Amazon.DynamoDBv2.Model.GlobalSecondaryIndexDescription value) {
- string var_indexName = value.IsSetIndexName() ? value.IndexName : (string) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement> var_keySchema = value.IsSetKeySchema() ? value.KeySchema : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement>) null;
- Amazon.DynamoDBv2.Model.Projection var_projection = value.IsSetProjection() ? value.Projection : (Amazon.DynamoDBv2.Model.Projection) null;
- Amazon.DynamoDBv2.IndexStatus var_indexStatus = value.IsSetIndexStatus() ? value.IndexStatus : (Amazon.DynamoDBv2.IndexStatus) null;
- bool? var_backfilling = value.IsSetBackfilling() ? value.Backfilling : (bool?) null;
- Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription var_provisionedThroughput = value.IsSetProvisionedThroughput() ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription) null;
- long? var_indexSizeBytes = value.IsSetIndexSizeBytes() ? value.IndexSizeBytes : (long?) null;
- long? var_itemCount = value.IsSetItemCount() ? value.ItemCount : (long?) null;
- string var_indexArn = value.IsSetIndexArn() ? value.IndexArn : (string) null;
+ string var_indexName = value.IndexName != null ? value.IndexName : (string) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement> var_keySchema = value.KeySchema is {Count: > 0} ? value.KeySchema : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.KeySchemaElement>) null;
+ Amazon.DynamoDBv2.Model.Projection var_projection = value.Projection is {Count: > 0} ? value.Projection : (Amazon.DynamoDBv2.Model.Projection) null;
+ Amazon.DynamoDBv2.IndexStatus var_indexStatus = value.IndexStatus != null ? value.IndexStatus : (Amazon.DynamoDBv2.IndexStatus) null;
+ bool? var_backfilling = value.Backfilling != null ? value.Backfilling : (bool?) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription var_provisionedThroughput = value.ProvisionedThroughput is {Count: > 0} ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughputDescription) null;
+ long? var_indexSizeBytes = value.IndexSizeBytes != null ? value.IndexSizeBytes : (long?) null;
+ long? var_itemCount = value.ItemCount != null ? value.ItemCount : (long?) null;
+ string var_indexArn = value.IndexArn != null ? value.IndexArn : (string) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.GlobalSecondaryIndexDescription ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M9_IndexName(var_indexName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M9_KeySchema(var_keySchema) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M10_Projection(var_projection) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M11_IndexStatus(var_indexStatus) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M11_Backfilling(var_backfilling) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M21_ProvisionedThroughput(var_provisionedThroughput) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M14_IndexSizeBytes(var_indexSizeBytes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M9_ItemCount(var_itemCount) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_GlobalSecondaryIndexDescription__M8_IndexArn(var_indexArn) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ReplicaDescription FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription (Dafny.Com.Amazonaws.Dynamodb.Types._IReplicaDescription value) {
@@ -4505,15 +4505,15 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.KeyType value");
  if (concrete._ReplicaTableClassSummary.is_Some) converted.ReplicaTableClassSummary = (Amazon.DynamoDBv2.Model.TableClassSummary) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M24_ReplicaTableClassSummary(concrete._ReplicaTableClassSummary); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IReplicaDescription ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription (Amazon.DynamoDBv2.Model.ReplicaDescription value) {
- string var_regionName = value.IsSetRegionName() ? value.RegionName : (string) null;
- Amazon.DynamoDBv2.ReplicaStatus var_replicaStatus = value.IsSetReplicaStatus() ? value.ReplicaStatus : (Amazon.DynamoDBv2.ReplicaStatus) null;
- string var_replicaStatusDescription = value.IsSetReplicaStatusDescription() ? value.ReplicaStatusDescription : (string) null;
- string var_replicaStatusPercentProgress = value.IsSetReplicaStatusPercentProgress() ? value.ReplicaStatusPercentProgress : (string) null;
- string var_kMSMasterKeyId = value.IsSetKMSMasterKeyId() ? value.KMSMasterKeyId : (string) null;
- Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.IsSetProvisionedThroughputOverride() ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexDescription> var_globalSecondaryIndexes = value.IsSetGlobalSecondaryIndexes() ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexDescription>) null;
- System.DateTime? var_replicaInaccessibleDateTime = value.IsSetReplicaInaccessibleDateTime() ? value.ReplicaInaccessibleDateTime : (System.DateTime?) null;
- Amazon.DynamoDBv2.Model.TableClassSummary var_replicaTableClassSummary = value.IsSetReplicaTableClassSummary() ? value.ReplicaTableClassSummary : (Amazon.DynamoDBv2.Model.TableClassSummary) null;
+ string var_regionName = value.RegionName != null ? value.RegionName : (string) null;
+ Amazon.DynamoDBv2.ReplicaStatus var_replicaStatus = value.ReplicaStatus != null ? value.ReplicaStatus : (Amazon.DynamoDBv2.ReplicaStatus) null;
+ string var_replicaStatusDescription = value.ReplicaStatusDescription != null ? value.ReplicaStatusDescription : (string) null;
+ string var_replicaStatusPercentProgress = value.ReplicaStatusPercentProgress != null ? value.ReplicaStatusPercentProgress : (string) null;
+ string var_kMSMasterKeyId = value.KMSMasterKeyId != null ? value.KMSMasterKeyId : (string) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.ProvisionedThroughputOverride is {Count: > 0} ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexDescription> var_globalSecondaryIndexes = value.GlobalSecondaryIndexes is {Count: > 0} ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexDescription>) null;
+ System.DateTime? var_replicaInaccessibleDateTime = value.ReplicaInaccessibleDateTime != null ? value.ReplicaInaccessibleDateTime : (System.DateTime?) null;
+ Amazon.DynamoDBv2.Model.TableClassSummary var_replicaTableClassSummary = value.ReplicaTableClassSummary is {Count: > 0} ? value.ReplicaTableClassSummary : (Amazon.DynamoDBv2.Model.TableClassSummary) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ReplicaDescription ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M10_RegionName(var_regionName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M13_ReplicaStatus(var_replicaStatus) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M24_ReplicaStatusDescription(var_replicaStatusDescription) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M28_ReplicaStatusPercentProgress(var_replicaStatusPercentProgress) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M14_KMSMasterKeyId(var_kMSMasterKeyId) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M29_ProvisionedThroughputOverride(var_provisionedThroughputOverride) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M22_GlobalSecondaryIndexes(var_globalSecondaryIndexes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M27_ReplicaInaccessibleDateTime(var_replicaInaccessibleDateTime) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_ReplicaDescription__M24_ReplicaTableClassSummary(var_replicaTableClassSummary) ) ;
 }
  public static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_BackupArn (Dafny.ISequence<char> value) {
@@ -4675,8 +4675,8 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ComparisonOperator
  if (concrete._ExpressionAttributeNames.is_Some) converted.ExpressionAttributeNames = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Get__M24_ExpressionAttributeNames(concrete._ExpressionAttributeNames); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IGet ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Get (Amazon.DynamoDBv2.Model.Get value) {
- string var_projectionExpression = value.IsSetProjectionExpression() ? value.ProjectionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ string var_projectionExpression = value.ProjectionExpression != null ? value.ProjectionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.Get ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Get__M3_Key(value.Key) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Get__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Get__M20_ProjectionExpression(var_projectionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Get__M24_ExpressionAttributeNames(var_expressionAttributeNames) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ConditionCheck FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck (Dafny.Com.Amazonaws.Dynamodb.Types._IConditionCheck value) {
@@ -4688,9 +4688,9 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ComparisonOperator
  if (concrete._ReturnValuesOnConditionCheckFailure.is_Some) converted.ReturnValuesOnConditionCheckFailure = (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M35_ReturnValuesOnConditionCheckFailure(concrete._ReturnValuesOnConditionCheckFailure); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IConditionCheck ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck (Amazon.DynamoDBv2.Model.ConditionCheck value) {
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure var_returnValuesOnConditionCheckFailure = value.IsSetReturnValuesOnConditionCheckFailure() ? value.ReturnValuesOnConditionCheckFailure : (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure var_returnValuesOnConditionCheckFailure = value.ReturnValuesOnConditionCheckFailure != null ? value.ReturnValuesOnConditionCheckFailure : (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ConditionCheck ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M3_Key(value.Key) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M19_ConditionExpression(value.ConditionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M25_ExpressionAttributeValues(var_expressionAttributeValues) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M35_ReturnValuesOnConditionCheckFailure(var_returnValuesOnConditionCheckFailure) ) ;
 }
  public static Amazon.DynamoDBv2.Model.Put FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put (Dafny.Com.Amazonaws.Dynamodb.Types._IPut value) {
@@ -4702,10 +4702,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ComparisonOperator
  if (concrete._ReturnValuesOnConditionCheckFailure.is_Some) converted.ReturnValuesOnConditionCheckFailure = (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M35_ReturnValuesOnConditionCheckFailure(concrete._ReturnValuesOnConditionCheckFailure); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IPut ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put (Amazon.DynamoDBv2.Model.Put value) {
- string var_conditionExpression = value.IsSetConditionExpression() ? value.ConditionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure var_returnValuesOnConditionCheckFailure = value.IsSetReturnValuesOnConditionCheckFailure() ? value.ReturnValuesOnConditionCheckFailure : (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) null;
+ string var_conditionExpression = value.ConditionExpression != null ? value.ConditionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure var_returnValuesOnConditionCheckFailure = value.ReturnValuesOnConditionCheckFailure != null ? value.ReturnValuesOnConditionCheckFailure : (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.Put ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M4_Item(value.Item) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M19_ConditionExpression(var_conditionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M25_ExpressionAttributeValues(var_expressionAttributeValues) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M35_ReturnValuesOnConditionCheckFailure(var_returnValuesOnConditionCheckFailure) ) ;
 }
  public static Amazon.DynamoDBv2.Model.Delete FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete (Dafny.Com.Amazonaws.Dynamodb.Types._IDelete value) {
@@ -4717,10 +4717,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ComparisonOperator
  if (concrete._ReturnValuesOnConditionCheckFailure.is_Some) converted.ReturnValuesOnConditionCheckFailure = (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M35_ReturnValuesOnConditionCheckFailure(concrete._ReturnValuesOnConditionCheckFailure); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IDelete ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete (Amazon.DynamoDBv2.Model.Delete value) {
- string var_conditionExpression = value.IsSetConditionExpression() ? value.ConditionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure var_returnValuesOnConditionCheckFailure = value.IsSetReturnValuesOnConditionCheckFailure() ? value.ReturnValuesOnConditionCheckFailure : (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) null;
+ string var_conditionExpression = value.ConditionExpression != null ? value.ConditionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure var_returnValuesOnConditionCheckFailure = value.ReturnValuesOnConditionCheckFailure != null ? value.ReturnValuesOnConditionCheckFailure : (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.Delete ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M3_Key(value.Key) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M19_ConditionExpression(var_conditionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M25_ExpressionAttributeValues(var_expressionAttributeValues) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M35_ReturnValuesOnConditionCheckFailure(var_returnValuesOnConditionCheckFailure) ) ;
 }
  public static Amazon.DynamoDBv2.Model.Update FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update (Dafny.Com.Amazonaws.Dynamodb.Types._IUpdate value) {
@@ -4733,10 +4733,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ComparisonOperator
  if (concrete._ReturnValuesOnConditionCheckFailure.is_Some) converted.ReturnValuesOnConditionCheckFailure = (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M35_ReturnValuesOnConditionCheckFailure(concrete._ReturnValuesOnConditionCheckFailure); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IUpdate ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update (Amazon.DynamoDBv2.Model.Update value) {
- string var_conditionExpression = value.IsSetConditionExpression() ? value.ConditionExpression : (string) null;
- System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.IsSetExpressionAttributeNames() ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
- System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.IsSetExpressionAttributeValues() ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
- Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure var_returnValuesOnConditionCheckFailure = value.IsSetReturnValuesOnConditionCheckFailure() ? value.ReturnValuesOnConditionCheckFailure : (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) null;
+ string var_conditionExpression = value.ConditionExpression != null ? value.ConditionExpression : (string) null;
+ System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames is {Count: > 0} ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>) null;
+ System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_expressionAttributeValues = value.ExpressionAttributeValues is {Count: > 0} ? value.ExpressionAttributeValues : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) null;
+ Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure var_returnValuesOnConditionCheckFailure = value.ReturnValuesOnConditionCheckFailure != null ? value.ReturnValuesOnConditionCheckFailure : (Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.Update ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M3_Key(value.Key) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M16_UpdateExpression(value.UpdateExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M9_TableName(value.TableName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M19_ConditionExpression(var_conditionExpression) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M24_ExpressionAttributeNames(var_expressionAttributeNames) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M25_ExpressionAttributeValues(var_expressionAttributeValues) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M35_ReturnValuesOnConditionCheckFailure(var_returnValuesOnConditionCheckFailure) ) ;
 }
  public static Amazon.DynamoDBv2.AttributeAction FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_AttributeAction (Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeAction value) {
@@ -4766,7 +4766,7 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.AttributeAction va
  if (concrete._ProvisionedThroughput.is_Some) converted.ProvisionedThroughput = (Amazon.DynamoDBv2.Model.ProvisionedThroughput) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_CreateGlobalSecondaryIndexAction__M21_ProvisionedThroughput(concrete._ProvisionedThroughput); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ICreateGlobalSecondaryIndexAction ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_CreateGlobalSecondaryIndexAction (Amazon.DynamoDBv2.Model.CreateGlobalSecondaryIndexAction value) {
- Amazon.DynamoDBv2.Model.ProvisionedThroughput var_provisionedThroughput = value.IsSetProvisionedThroughput() ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughput) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughput var_provisionedThroughput = value.ProvisionedThroughput is {Count: > 0} ? value.ProvisionedThroughput : (Amazon.DynamoDBv2.Model.ProvisionedThroughput) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.CreateGlobalSecondaryIndexAction ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_CreateGlobalSecondaryIndexAction__M9_IndexName(value.IndexName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_CreateGlobalSecondaryIndexAction__M9_KeySchema(value.KeySchema) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_CreateGlobalSecondaryIndexAction__M10_Projection(value.Projection) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_CreateGlobalSecondaryIndexAction__M21_ProvisionedThroughput(var_provisionedThroughput) ) ;
 }
  public static Amazon.DynamoDBv2.Model.DeleteGlobalSecondaryIndexAction FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_DeleteGlobalSecondaryIndexAction (Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteGlobalSecondaryIndexAction value) {
@@ -4784,10 +4784,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.AttributeAction va
  if (concrete._TableClassOverride.is_Some) converted.TableClassOverride = (Amazon.DynamoDBv2.TableClass) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_CreateReplicationGroupMemberAction__M18_TableClassOverride(concrete._TableClassOverride); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._ICreateReplicationGroupMemberAction ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_CreateReplicationGroupMemberAction (Amazon.DynamoDBv2.Model.CreateReplicationGroupMemberAction value) {
- string var_kMSMasterKeyId = value.IsSetKMSMasterKeyId() ? value.KMSMasterKeyId : (string) null;
- Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.IsSetProvisionedThroughputOverride() ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex> var_globalSecondaryIndexes = value.IsSetGlobalSecondaryIndexes() ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex>) null;
- Amazon.DynamoDBv2.TableClass var_tableClassOverride = value.IsSetTableClassOverride() ? value.TableClassOverride : (Amazon.DynamoDBv2.TableClass) null;
+ string var_kMSMasterKeyId = value.KMSMasterKeyId != null ? value.KMSMasterKeyId : (string) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.ProvisionedThroughputOverride is {Count: > 0} ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex> var_globalSecondaryIndexes = value.GlobalSecondaryIndexes is {Count: > 0} ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex>) null;
+ Amazon.DynamoDBv2.TableClass var_tableClassOverride = value.TableClassOverride != null ? value.TableClassOverride : (Amazon.DynamoDBv2.TableClass) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.CreateReplicationGroupMemberAction ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_CreateReplicationGroupMemberAction__M10_RegionName(value.RegionName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_CreateReplicationGroupMemberAction__M14_KMSMasterKeyId(var_kMSMasterKeyId) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_CreateReplicationGroupMemberAction__M29_ProvisionedThroughputOverride(var_provisionedThroughputOverride) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_CreateReplicationGroupMemberAction__M22_GlobalSecondaryIndexes(var_globalSecondaryIndexes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_CreateReplicationGroupMemberAction__M18_TableClassOverride(var_tableClassOverride) ) ;
 }
  public static Amazon.DynamoDBv2.Model.UpdateReplicationGroupMemberAction FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_UpdateReplicationGroupMemberAction (Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateReplicationGroupMemberAction value) {
@@ -4798,10 +4798,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.AttributeAction va
  if (concrete._TableClassOverride.is_Some) converted.TableClassOverride = (Amazon.DynamoDBv2.TableClass) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_UpdateReplicationGroupMemberAction__M18_TableClassOverride(concrete._TableClassOverride); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateReplicationGroupMemberAction ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_UpdateReplicationGroupMemberAction (Amazon.DynamoDBv2.Model.UpdateReplicationGroupMemberAction value) {
- string var_kMSMasterKeyId = value.IsSetKMSMasterKeyId() ? value.KMSMasterKeyId : (string) null;
- Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.IsSetProvisionedThroughputOverride() ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
- System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex> var_globalSecondaryIndexes = value.IsSetGlobalSecondaryIndexes() ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex>) null;
- Amazon.DynamoDBv2.TableClass var_tableClassOverride = value.IsSetTableClassOverride() ? value.TableClassOverride : (Amazon.DynamoDBv2.TableClass) null;
+ string var_kMSMasterKeyId = value.KMSMasterKeyId != null ? value.KMSMasterKeyId : (string) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.ProvisionedThroughputOverride is {Count: > 0} ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
+ System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex> var_globalSecondaryIndexes = value.GlobalSecondaryIndexes is {Count: > 0} ? value.GlobalSecondaryIndexes : (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex>) null;
+ Amazon.DynamoDBv2.TableClass var_tableClassOverride = value.TableClassOverride != null ? value.TableClassOverride : (Amazon.DynamoDBv2.TableClass) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.UpdateReplicationGroupMemberAction ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_UpdateReplicationGroupMemberAction__M10_RegionName(value.RegionName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_UpdateReplicationGroupMemberAction__M14_KMSMasterKeyId(var_kMSMasterKeyId) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_UpdateReplicationGroupMemberAction__M29_ProvisionedThroughputOverride(var_provisionedThroughputOverride) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_UpdateReplicationGroupMemberAction__M22_GlobalSecondaryIndexes(var_globalSecondaryIndexes) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_UpdateReplicationGroupMemberAction__M18_TableClassOverride(var_tableClassOverride) ) ;
 }
  public static Amazon.DynamoDBv2.Model.DeleteReplicationGroupMemberAction FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S34_DeleteReplicationGroupMemberAction (Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteReplicationGroupMemberAction value) {
@@ -5443,7 +5443,7 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ReplicaStatus valu
  Dafny.Com.Amazonaws.Dynamodb.Types.ProvisionedThroughputOverride concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.ProvisionedThroughputOverride)value; Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride converted = new Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride(); if (concrete._ReadCapacityUnits.is_Some) converted.ReadCapacityUnits = (long) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ProvisionedThroughputOverride__M17_ReadCapacityUnits(concrete._ReadCapacityUnits); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IProvisionedThroughputOverride ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ProvisionedThroughputOverride (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride value) {
- long? var_readCapacityUnits = value.IsSetReadCapacityUnits() ? value.ReadCapacityUnits : (long?) null;
+ long? var_readCapacityUnits = value.ReadCapacityUnits != null ? value.ReadCapacityUnits : (long?) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ProvisionedThroughputOverride ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ProvisionedThroughputOverride__M17_ReadCapacityUnits(var_readCapacityUnits) ) ;
 }
  public static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexDescription> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S42_ReplicaGlobalSecondaryIndexDescriptionList (Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._IReplicaGlobalSecondaryIndexDescription> value) {
@@ -5515,8 +5515,8 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ReturnValuesOnCond
  if (concrete._ProvisionedThroughputOverride.is_Some) converted.ProvisionedThroughputOverride = (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S38_ReplicaGlobalSecondaryIndexDescription__M29_ProvisionedThroughputOverride(concrete._ProvisionedThroughputOverride); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IReplicaGlobalSecondaryIndexDescription ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S38_ReplicaGlobalSecondaryIndexDescription (Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexDescription value) {
- string var_indexName = value.IsSetIndexName() ? value.IndexName : (string) null;
- Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.IsSetProvisionedThroughputOverride() ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
+ string var_indexName = value.IndexName != null ? value.IndexName : (string) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.ProvisionedThroughputOverride is {Count: > 0} ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ReplicaGlobalSecondaryIndexDescription ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S38_ReplicaGlobalSecondaryIndexDescription__M9_IndexName(var_indexName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S38_ReplicaGlobalSecondaryIndexDescription__M29_ProvisionedThroughputOverride(var_provisionedThroughputOverride) ) ;
 }
  public static Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ReplicaGlobalSecondaryIndex (Dafny.Com.Amazonaws.Dynamodb.Types._IReplicaGlobalSecondaryIndex value) {
@@ -5524,7 +5524,7 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ReturnValuesOnCond
  if (concrete._ProvisionedThroughputOverride.is_Some) converted.ProvisionedThroughputOverride = (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ReplicaGlobalSecondaryIndex__M29_ProvisionedThroughputOverride(concrete._ProvisionedThroughputOverride); return converted;
 }
  public static Dafny.Com.Amazonaws.Dynamodb.Types._IReplicaGlobalSecondaryIndex ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ReplicaGlobalSecondaryIndex (Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndex value) {
- Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.IsSetProvisionedThroughputOverride() ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
+ Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride var_provisionedThroughputOverride = value.ProvisionedThroughputOverride is {Count: > 0} ? value.ProvisionedThroughputOverride : (Amazon.DynamoDBv2.Model.ProvisionedThroughputOverride) null;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ReplicaGlobalSecondaryIndex ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ReplicaGlobalSecondaryIndex__M9_IndexName(value.IndexName) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ReplicaGlobalSecondaryIndex__M29_ProvisionedThroughputOverride(var_provisionedThroughputOverride) ) ;
 }
  public static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S38_ReplicaGlobalSecondaryIndexDescription__M9_IndexName (Wrappers_Compile._IOption<Dafny.ISequence<char>> value) {
@@ -5554,6 +5554,10 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ReturnValuesOnCond
  public static System.Exception FromDafny_CommonError(Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms.Types._IError value) {
  switch(value)
  {
+ case Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
+  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
+    dafnyVal._AwsCryptographyMaterialProviders
+  );
  case Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms.Types.Error_ComAmazonawsDynamodb dafnyVal:
   return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
     dafnyVal._ComAmazonawsDynamodb
@@ -5561,10 +5565,6 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.ReturnValuesOnCond
  case Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms.Types.Error_AwsCryptographyStructuredEncryption dafnyVal:
   return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_CommonError(
     dafnyVal._AwsCryptographyStructuredEncryption
-  );
- case Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
-  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
-    dafnyVal._AwsCryptographyMaterialProviders
   );
  case Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms.Types.Error_DynamoDbEncryptionTransformsException dafnyVal:
 return FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N10_transforms__S37_DynamoDbEncryptionTransformsException(dafnyVal);

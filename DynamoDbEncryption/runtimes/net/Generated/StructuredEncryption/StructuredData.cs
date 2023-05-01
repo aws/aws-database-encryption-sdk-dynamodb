@@ -10,14 +10,14 @@ using System;
  get { return this._content; }
  set { this._content = value; }
 }
- public bool IsSetContent () {
+ public bool IsSetContent() {
  return this._content != null;
 }
  public System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredDataTerminal> Attributes {
  get { return this._attributes; }
  set { this._attributes = value; }
 }
- public bool IsSetAttributes () {
+ public bool IsSetAttributes() {
  return this._attributes != null;
 }
  public void Validate() {

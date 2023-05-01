@@ -10,14 +10,14 @@ using System;
  get { return this._plaintextItem; }
  set { this._plaintextItem = value; }
 }
- public bool IsSetPlaintextItem () {
+ public bool IsSetPlaintextItem() {
  return this._plaintextItem != null;
 }
  public AWS.Cryptography.DynamoDbEncryption.ItemEncryptor.ParsedHeader ParsedHeader {
  get { return this._parsedHeader; }
  set { this._parsedHeader = value; }
 }
- public bool IsSetParsedHeader () {
+ public bool IsSetParsedHeader() {
  return this._parsedHeader != null;
 }
  public void Validate() {
