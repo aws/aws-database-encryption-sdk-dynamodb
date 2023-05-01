@@ -88,6 +88,8 @@ public class ToDafny {
 
   public static DynamoDbTableEncryptionConfig DynamoDbTableEncryptionConfig(
       software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig nativeValue) {
+    DafnySequence<? extends Character> logicalTableName;
+    logicalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.logicalTableName());
     DafnySequence<? extends Character> partitionKeyName;
     partitionKeyName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.partitionKeyName());
     Option<DafnySequence<? extends Character>> sortKeyName;
@@ -128,7 +130,7 @@ public class ToDafny {
     plaintextPolicy = Objects.nonNull(nativeValue.plaintextPolicy()) ?
         Option.create_Some(ToDafny.PlaintextPolicy(nativeValue.plaintextPolicy()))
         : Option.create_None();
-    return new DynamoDbTableEncryptionConfig(partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
+    return new DynamoDbTableEncryptionConfig(logicalTableName, partitionKeyName, sortKeyName, search, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
   }
 
   public static NonSensitivePart NonSensitivePart(

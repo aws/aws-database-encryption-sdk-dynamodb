@@ -11,6 +11,8 @@ module DdbMiddlewareConfig {
   import SearchableEncryptionInfo
   
   datatype TableConfig = TableConfig(
+    physicalTableName: ComAmazonawsDynamodbTypes.TableName,
+    logicalTableName: string,
     partitionKeyName: string,
     sortKeyName: Option<string>,
     itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient,
@@ -19,9 +21,11 @@ module DdbMiddlewareConfig {
 
   predicate ValidTableConfig?(config: TableConfig) {
     var encryptorConfig := config.itemEncryptor.config;
+    && config.logicalTableName == encryptorConfig.logicalTableName
     && config.partitionKeyName == encryptorConfig.partitionKeyName
     && config.sortKeyName == encryptorConfig.sortKeyName
     && config.itemEncryptor.ValidState()
+    && OneSearchValidState(config)
   }
 
   type ValidTableConfig = c: TableConfig | ValidTableConfig?(c) witness *
@@ -39,9 +43,9 @@ module DdbMiddlewareConfig {
 
   }
 
-  predicate OneSearchValidState(config : ValidTableConfig)
+  predicate OneSearchValidState(config : TableConfig)
   {
-    if config.search.Some? then config.search.value.ValidState() else true
+    && (config.search.Some? ==> config.search.value.ValidState())
   }
   predicate SearchValidState(config: Config)
   {
@@ -57,10 +61,16 @@ module DdbMiddlewareConfig {
   predicate ValidConfig?(config: Config)
   {
     && (forall tableName <- config.tableEncryptionConfigs ::
-        config.tableEncryptionConfigs[tableName].itemEncryptor.config.tableName == tableName)
-    && (forall t :: t in config.tableEncryptionConfigs.Keys ==>
-        config.tableEncryptionConfigs[t].itemEncryptor.ValidState())
-    && SearchValidState(config)
+        config.tableEncryptionConfigs[tableName].physicalTableName == tableName)
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
+    //# When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
+    //# there MUST a one to one mapping between the two.
+    && (forall
+        c1 <- config.tableEncryptionConfigs.Values,
+        c2 <- config.tableEncryptionConfigs.Values
+      | c1 != c2
+      :: c1.logicalTableName != c2.logicalTableName
+    )
   }
 
 

@@ -107,8 +107,8 @@ public class ToDafny {
 
   public static DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig(
       software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig nativeValue) {
-    DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    DafnySequence<? extends Character> logicalTableName;
+    logicalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.logicalTableName());
     DafnySequence<? extends Character> partitionKeyName;
     partitionKeyName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.partitionKeyName());
     Option<DafnySequence<? extends Character>> sortKeyName;
@@ -145,7 +145,7 @@ public class ToDafny {
     plaintextPolicy = Objects.nonNull(nativeValue.plaintextPolicy()) ?
         Option.create_Some(software.amazon.cryptography.dynamoDbEncryption.ToDafny.PlaintextPolicy(nativeValue.plaintextPolicy()))
         : Option.create_None();
-    return new DynamoDbItemEncryptorConfig(tableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
+    return new DynamoDbItemEncryptorConfig(logicalTableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
   }
 
   public static Error Error(DynamoDbItemEncryptorException nativeValue) {

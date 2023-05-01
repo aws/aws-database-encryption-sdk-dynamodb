@@ -58,6 +58,14 @@ structure DynamoDbTablesEncryptionConfig {
 //# A map of DynamoDb table names to a structure that MUST contain
 //# data as described by [DynamoDb Table Encryption Config](./ddb-table-encryption-config.md).
 map DynamoDbTableEncryptionConfigList {
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //= type=implication
+    //# The physical [DynamoDB Table Name](#dynamodb-table-name) is REQUIRED
+    //# to be associated with the DynamoDb Table Encryption Configuration.
+
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-table-name
+    //= type=implication
+    //# This Table Name MUST be a valid DynamoDB Table Name.
     key: TableName,
     value: DynamoDbTableEncryptionConfig
 }
@@ -72,7 +80,7 @@ structure DynamoDbTableEncryptionConfig {
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
     //= type=implication
     //# The following are REQUIRED for DynamoDb Table Encryption Configuration:
-    //# - [DynamoDB Table Name](#dynamodb-table-name)
+    //# - [Logical Table Name](#logical-table-name)
     //# - [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
     //# - [Attribute Actions](#attribute-actions)
     //# - A [CMM](#cmm) or [Keyring](#keyring)
@@ -86,6 +94,9 @@ structure DynamoDbTableEncryptionConfig {
     //# - [Algorithm Suite](#algorithm-suite)
     //# - [Legacy Config](#legacy-config)
     //# - [Plaintext Policy](#plaintext-policy)
+
+    @required
+    logicalTableName: String,
 
     @required
     partitionKeyName: KeySchemaAttributeName,

@@ -37,7 +37,6 @@ module SearchConfigToInfo {
   method Convert(outer : DynamoDbTableEncryptionConfig)
     returns (output : Result<Option<I.ValidSearchInfo>, Error>)
     requires ValidSearchConfig(outer.search)
-    modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
@@ -154,7 +153,6 @@ module SearchConfigToInfo {
   method ConvertVersion(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion)
     returns (output : Result<I.ValidBeaconVersion, Error>)
     requires ValidBeaconVersion(config)
-    modifies config.keyStore.Modifies
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)
@@ -187,7 +185,7 @@ module SearchConfigToInfo {
   )
     returns (output : Result<I.ValidBeaconVersion, Error>)
     requires config.version == 1
-    modifies source.Modifies()
+    modifies source.client.Modifies
     requires source.ValidState()
     ensures output.Success? ==>
               && output.value.ValidState()

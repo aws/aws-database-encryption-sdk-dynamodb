@@ -161,6 +161,7 @@ module BeaconTestFixtures {
   }
 
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
+                              logicalTableName := "Foo",
                               partitionKeyName := "foo",
                               sortKeyName := None,
                               search := None,
