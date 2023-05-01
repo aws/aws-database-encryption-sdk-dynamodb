@@ -16,22 +16,22 @@ using System;
 }
  public StructuredEncryption(AWS.Cryptography.StructuredEncryption.StructuredEncryptionConfig input)
  {
- Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredEncryptionConfig internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S26_StructuredEncryptionConfig(input);
+ Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredEncryptionConfig internalInput = AWS.Cryptography.StructuredEncryption.TypeConversion.ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S26_StructuredEncryptionConfig(input);
  var result = Dafny.Aws.Cryptography.StructuredEncryption.__default.StructuredEncryption(internalInput);
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  this._impl = result.dtor_value;
 }
  public AWS.Cryptography.StructuredEncryption.EncryptStructureOutput EncryptStructure(AWS.Cryptography.StructuredEncryption.EncryptStructureInput input) {
- Dafny.Aws.Cryptography.StructuredEncryption.Types._IEncryptStructureInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput(input);
+ Dafny.Aws.Cryptography.StructuredEncryption.Types._IEncryptStructureInput internalInput = AWS.Cryptography.StructuredEncryption.TypeConversion.ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_EncryptStructureInput(input);
  Wrappers_Compile._IResult<Dafny.Aws.Cryptography.StructuredEncryption.Types._IEncryptStructureOutput, Dafny.Aws.Cryptography.StructuredEncryption.Types._IError> result = _impl.EncryptStructure(internalInput);
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
- return TypeConversion.FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput(result.dtor_value);
+ return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_EncryptStructureOutput(result.dtor_value);
 }
  public AWS.Cryptography.StructuredEncryption.DecryptStructureOutput DecryptStructure(AWS.Cryptography.StructuredEncryption.DecryptStructureInput input) {
- Dafny.Aws.Cryptography.StructuredEncryption.Types._IDecryptStructureInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput(input);
+ Dafny.Aws.Cryptography.StructuredEncryption.Types._IDecryptStructureInput internalInput = AWS.Cryptography.StructuredEncryption.TypeConversion.ToDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_DecryptStructureInput(input);
  Wrappers_Compile._IResult<Dafny.Aws.Cryptography.StructuredEncryption.Types._IDecryptStructureOutput, Dafny.Aws.Cryptography.StructuredEncryption.Types._IError> result = _impl.DecryptStructure(internalInput);
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
- return TypeConversion.FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput(result.dtor_value);
+ return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S22_DecryptStructureOutput(result.dtor_value);
 }
 }
 }

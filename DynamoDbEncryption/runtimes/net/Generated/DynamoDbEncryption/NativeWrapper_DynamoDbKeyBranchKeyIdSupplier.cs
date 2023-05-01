@@ -25,12 +25,12 @@
  throw new DynamoDbEncryptionException(message);
 }
 }
- AWS.Cryptography.DynamoDbEncryption.GetBranchKeyIdFromDdbKeyInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S29_GetBranchKeyIdFromDdbKeyInput(input);
+ AWS.Cryptography.DynamoDbEncryption.GetBranchKeyIdFromDdbKeyInput nativeInput = AWS.Cryptography.DynamoDbEncryption.TypeConversion.FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S29_GetBranchKeyIdFromDdbKeyInput(input);
  try {
  AWS.Cryptography.DynamoDbEncryption.GetBranchKeyIdFromDdbKeyOutput nativeOutput = _impl.GetBranchKeyIdFromDdbKey(nativeInput);
  _ = nativeOutput ?? throw new DynamoDbEncryptionException($"{_impl}._GetBranchKeyIdFromDdbKey returned null, should be {typeof(AWS.Cryptography.DynamoDbEncryption.GetBranchKeyIdFromDdbKeyOutput)}");
  validateOutput(nativeOutput);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.DynamoDbEncryption.Types._IGetBranchKeyIdFromDdbKeyOutput, Dafny.Aws.Cryptography.DynamoDbEncryption.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S30_GetBranchKeyIdFromDdbKeyOutput(nativeOutput));
+ return Wrappers_Compile.Result<Dafny.Aws.Cryptography.DynamoDbEncryption.Types._IGetBranchKeyIdFromDdbKeyOutput, Dafny.Aws.Cryptography.DynamoDbEncryption.Types._IError>.create_Success(AWS.Cryptography.DynamoDbEncryption.TypeConversion.ToDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__S30_GetBranchKeyIdFromDdbKeyOutput(nativeOutput));
 }
  catch(Exception e)
  {
