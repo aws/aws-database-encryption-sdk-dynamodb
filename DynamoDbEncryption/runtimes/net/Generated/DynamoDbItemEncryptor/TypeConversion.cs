@@ -408,34 +408,34 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.DynamoDbEncryption.
 }
  public static Amazon.DynamoDBv2.Model.AttributeValue FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue (Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue)value;
- var converted = new Amazon.DynamoDBv2.Model.AttributeValue(); if (value.is_s) {
+ var converted = new Amazon.DynamoDBv2.Model.AttributeValue(); if (value.is_S) {
  converted.S = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_S(concrete.dtor_S);
  return converted;
-} if (value.is_n) {
+} if (value.is_N) {
  converted.N = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_N(concrete.dtor_N);
  return converted;
-} if (value.is_b) {
+} if (value.is_B) {
  converted.B = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_B(concrete.dtor_B);
  return converted;
-} if (value.is_sS) {
+} if (value.is_SS) {
  converted.SS = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_SS(concrete.dtor_SS);
  return converted;
-} if (value.is_nS) {
+} if (value.is_NS) {
  converted.NS = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_NS(concrete.dtor_NS);
  return converted;
-} if (value.is_bS) {
+} if (value.is_BS) {
  converted.BS = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_BS(concrete.dtor_BS);
  return converted;
-} if (value.is_m) {
+} if (value.is_M) {
  converted.M = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_M(concrete.dtor_M);
  return converted;
-} if (value.is_l) {
+} if (value.is_L) {
  converted.L = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_L(concrete.dtor_L);
  return converted;
-} if (value.is_nULL) {
+} if (value.is_NULL) {
  converted.NULL = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_NULL(concrete.dtor_NULL);
  return converted;
-} if (value.is_bOOL) {
+} if (value.is_BOOL) {
  converted.BOOL = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_BOOL(concrete.dtor_BOOL);
  return converted;
 }
@@ -701,21 +701,21 @@ return Dafny.Sequence<byte>.FromArray(utf8.GetBytes(value));
  public static System.Exception FromDafny_CommonError(Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types._IError value) {
  switch(value)
  {
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
-  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
-    dafnyVal._AwsCryptographyMaterialProviders
+ case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyDynamoDbEncryption dafnyVal:
+  return AWS.Cryptography.DynamoDbEncryption.TypeConversion.FromDafny_CommonError(
+    dafnyVal._AwsCryptographyDynamoDbEncryption
   );
  case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_ComAmazonawsDynamodb dafnyVal:
   return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
     dafnyVal._ComAmazonawsDynamodb
   );
- case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyDynamoDbEncryption dafnyVal:
-  return AWS.Cryptography.DynamoDbEncryption.TypeConversion.FromDafny_CommonError(
-    dafnyVal._AwsCryptographyDynamoDbEncryption
-  );
  case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyStructuredEncryption dafnyVal:
   return AWS.Cryptography.StructuredEncryption.TypeConversion.FromDafny_CommonError(
     dafnyVal._AwsCryptographyStructuredEncryption
+  );
+ case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_AwsCryptographyMaterialProviders dafnyVal:
+  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
+    dafnyVal._AwsCryptographyMaterialProviders
   );
  case Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.Error_DynamoDbItemEncryptorException dafnyVal:
 return FromDafny_N3_aws__N12_cryptography__N18_dynamoDbEncryption__N13_itemEncryptor__S30_DynamoDbItemEncryptorException(dafnyVal);

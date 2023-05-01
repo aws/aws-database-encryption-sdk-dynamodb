@@ -4,29 +4,29 @@
 using System;
  using AWS.Cryptography.StructuredEncryption; namespace AWS.Cryptography.StructuredEncryption {
  public class StructuredDataContent {
- private AWS.Cryptography.StructuredEncryption.StructuredDataTerminal _terminal ;
- private System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> _dataList ;
- private System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> _dataMap ;
+ private AWS.Cryptography.StructuredEncryption.StructuredDataTerminal _Terminal ;
+ private System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> _DataList ;
+ private System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> _DataMap ;
  public AWS.Cryptography.StructuredEncryption.StructuredDataTerminal Terminal {
- get { return this._terminal; }
- set { this._terminal = value; }
+ get { return this._Terminal; }
+ set { this._Terminal = value; }
 }
  public bool IsSetTerminal() {
- return this._terminal != null;
+ return this._Terminal != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.StructuredData> DataList {
- get { return this._dataList; }
- set { this._dataList = value; }
+ get { return this._DataList; }
+ set { this._DataList = value; }
 }
  public bool IsSetDataList() {
- return this._dataList != null;
+ return this._DataList != null;
 }
  public System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.StructuredData> DataMap {
- get { return this._dataMap; }
- set { this._dataMap = value; }
+ get { return this._DataMap; }
+ set { this._DataMap = value; }
 }
  public bool IsSetDataMap() {
- return this._dataMap != null;
+ return this._DataMap != null;
 }
  public void Validate() {
  var numberOfPropertiesSet = Convert.ToUInt16(IsSetTerminal()) +

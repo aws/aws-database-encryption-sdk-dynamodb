@@ -4,29 +4,29 @@
 using System;
  using AWS.Cryptography.StructuredEncryption; namespace AWS.Cryptography.StructuredEncryption {
  public class AuthenticateSchemaContent {
- private AWS.Cryptography.StructuredEncryption.AuthenticateAction _action ;
- private System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> _schemaMap ;
- private System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> _schemaList ;
+ private AWS.Cryptography.StructuredEncryption.AuthenticateAction _Action ;
+ private System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> _SchemaMap ;
+ private System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> _SchemaList ;
  public AWS.Cryptography.StructuredEncryption.AuthenticateAction Action {
- get { return this._action; }
- set { this._action = value; }
+ get { return this._Action; }
+ set { this._Action = value; }
 }
  public bool IsSetAction() {
- return this._action != null;
+ return this._Action != null;
 }
  public System.Collections.Generic.Dictionary<string, AWS.Cryptography.StructuredEncryption.AuthenticateSchema> SchemaMap {
- get { return this._schemaMap; }
- set { this._schemaMap = value; }
+ get { return this._SchemaMap; }
+ set { this._SchemaMap = value; }
 }
  public bool IsSetSchemaMap() {
- return this._schemaMap != null;
+ return this._SchemaMap != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.StructuredEncryption.AuthenticateSchema> SchemaList {
- get { return this._schemaList; }
- set { this._schemaList = value; }
+ get { return this._SchemaList; }
+ set { this._SchemaList = value; }
 }
  public bool IsSetSchemaList() {
- return this._schemaList != null;
+ return this._SchemaList != null;
 }
  public void Validate() {
  var numberOfPropertiesSet = Convert.ToUInt16(IsSetAction()) +

@@ -67,13 +67,13 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
 }
  public static AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent (Dafny.Aws.Cryptography.StructuredEncryption.Types._IAuthenticateSchemaContent value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchemaContent concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.AuthenticateSchemaContent)value;
- var converted = new AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent(); if (value.is_action) {
+ var converted = new AWS.Cryptography.StructuredEncryption.AuthenticateSchemaContent(); if (value.is_Action) {
  converted.Action = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M6_Action(concrete.dtor_Action);
  return converted;
-} if (value.is_schemaMap) {
+} if (value.is_SchemaMap) {
  converted.SchemaMap = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M9_SchemaMap(concrete.dtor_SchemaMap);
  return converted;
-} if (value.is_schemaList) {
+} if (value.is_SchemaList) {
  converted.SchemaList = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S25_AuthenticateSchemaContent__M10_SchemaList(concrete.dtor_SchemaList);
  return converted;
 }
@@ -193,13 +193,13 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
 }
  public static AWS.Cryptography.StructuredEncryption.CryptoSchemaContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent (Dafny.Aws.Cryptography.StructuredEncryption.Types._ICryptoSchemaContent value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchemaContent concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.CryptoSchemaContent)value;
- var converted = new AWS.Cryptography.StructuredEncryption.CryptoSchemaContent(); if (value.is_action) {
+ var converted = new AWS.Cryptography.StructuredEncryption.CryptoSchemaContent(); if (value.is_Action) {
  converted.Action = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M6_Action(concrete.dtor_Action);
  return converted;
-} if (value.is_schemaMap) {
+} if (value.is_SchemaMap) {
  converted.SchemaMap = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M9_SchemaMap(concrete.dtor_SchemaMap);
  return converted;
-} if (value.is_schemaList) {
+} if (value.is_SchemaList) {
  converted.SchemaList = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S19_CryptoSchemaContent__M10_SchemaList(concrete.dtor_SchemaList);
  return converted;
 }
@@ -471,13 +471,13 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.StructuredEncryptio
 }
  public static AWS.Cryptography.StructuredEncryption.StructuredDataContent FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent (Dafny.Aws.Cryptography.StructuredEncryption.Types._IStructuredDataContent value) {
  Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataContent concrete = (Dafny.Aws.Cryptography.StructuredEncryption.Types.StructuredDataContent)value;
- var converted = new AWS.Cryptography.StructuredEncryption.StructuredDataContent(); if (value.is_terminal) {
+ var converted = new AWS.Cryptography.StructuredEncryption.StructuredDataContent(); if (value.is_Terminal) {
  converted.Terminal = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_Terminal(concrete.dtor_Terminal);
  return converted;
-} if (value.is_dataList) {
+} if (value.is_DataList) {
  converted.DataList = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M8_DataList(concrete.dtor_DataList);
  return converted;
-} if (value.is_dataMap) {
+} if (value.is_DataMap) {
  converted.DataMap = FromDafny_N3_aws__N12_cryptography__N20_structuredEncryption__S21_StructuredDataContent__M7_DataMap(concrete.dtor_DataMap);
  return converted;
 }
