@@ -542,11 +542,53 @@ module TestDynamoDBFilterExpr {
     var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val4"), None, Some(values));
     expect newItems.Failure?;
-    expect newItems.error == E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive.");
+    expect newItems.error == E("To use BETWEEN with a compound beacon, the part after any common prefix must be LessThanComparable : BETWEEN T_ATitle AND T_MyTitle");
   }
 
-  /*
-    Successes :
-      compound beacon on virtual field
-  */
+  method {:test} TestComparisons() {
+
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":val1" := DS("N_"),
+      ":val2" := DS("N_MyName"),
+      ":val3" := DS("N_MyName.T_"),
+      ":val4" := DS("N_MyName.T_Title"),
+      ":val5" := DS("T_"),
+      ":val6" := DS("N_MyName.N_")
+    ];
+
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+
+    var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val1 and :val5"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val6"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val2 and :val3"), None, Some(values));
+    expect newItems.Success?;
+
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val1 and :val2"), None, Some(values));
+    expect newItems.Failure?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val1 and :val4"), None, Some(values));
+    expect newItems.Failure?;
+
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle < :val1"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val1"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle < :val2"), None, Some(values));
+    expect newItems.Failure?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val2"), None, Some(values));
+    expect newItems.Success?;
+
+    var newContext :- expect Beaconize(bv, ExprContext(None, Some("NameTitle = :val1"), Some(values), None), DontUseKeyId);
+    expect newContext.values.Some?;
+    expect ":val1" in newContext.values.value;
+    expect newContext.values.value[":val1"] == DS("N_" + EmptyName_beacon);
+    newContext :- expect Beaconize(bv, ExprContext(None, Some("NameTitle < :val1"), Some(values), None), DontUseKeyId);
+    expect newContext.values.Some?;
+    expect ":val1" in newContext.values.value;
+    expect newContext.values.value[":val1"] == DS("N_");
+  }
+
 }

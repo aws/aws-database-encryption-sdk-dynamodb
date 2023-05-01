@@ -64,12 +64,6 @@ module TestBaseBeacon {
     expect_equal(badAttrs.error, E("Part Name for beacon Mixed has value 'A.B' which contains the split character .'."));
   }
 
-  const std2_beacon := "ac6f5d"
-  const Name_beacon := "7d9bfa40"
-  const Title_beacon := "e4feb833"
-  const std4_beacon := "0e9064"
-  const std6_beacon := "2d99222"
-  const NameTitle_beacon := "4c577d7"
 
   method {:test} TestOneBeaconValue()
   {
@@ -85,6 +79,10 @@ module TestBaseBeacon {
     expect x == std6_beacon;
     x := GetBeaconValue("NameTitleField", [1,2,3,4,5], "MyName__mytitle", 28);
     expect x == NameTitle_beacon;
+    x := GetBeaconValue("Name", [1,2,3,4,5], "", 32);
+    expect x == EmptyName_beacon;
+    x := GetBeaconValue("Title", [1,2,3,4,5], "", 32);
+    expect x == EmptyTitle_beacon;
   }
 
   method {:test} TestNumbersNormalize()

@@ -94,6 +94,15 @@ module DynamoDBFilterExpr {
     | Contains
     | Size
 
+  predicate method IsEquality(t : Token)
+  {
+    t.Eq? || t.Ne? || t.In?
+  }
+
+  predicate method IsInequality(t : Token)
+  {
+    t.Lt? || t.Le? || t.Gt? || t.Ge?
+  }
 
   function method TokenToString(t : Token) : string
   {
@@ -177,6 +186,12 @@ module DynamoDBFilterExpr {
       b.beacons[name2]
   }
 
+  datatype EqualityBeacon = EqualityBeacon (
+    beacon : Option<SI.Beacon>,
+    forEquality : bool
+  )
+
+  // returns Beacon, if any, and a flag indicating that the operation is exact match
   function method GetBeacon(
     bv : SI.BeaconVersion,
     t : Token,
@@ -185,13 +200,13 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<Option<SI.Beacon>, Error>
+    : Result<EqualityBeacon, Error>
     requires HasBeacon(bv, t, names)
     requires value.Value?
   {
     var b := GetBeacon2(bv, t, names);
     var _ :- CanBeacon(b, op, value.s, values);
-    Success(Some(b))
+    Success(EqualityBeacon(Some(b), IsEquality(op)))
   }
 
   function method GetBetweenBeacon(
@@ -203,14 +218,21 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<Option<SI.Beacon>, Error>
+    : (ret : Result<EqualityBeacon, Error>)
     requires HasBeacon(bv, t, names)
     requires leftValue.Value?
     requires rightValue.Value?
+    //= specification/searchable-encryption/beacons.md#betweencomparable
+    //= type=implication
+    //# A Query MUST fail if it uses BETWEEN on values that are not BetweenComparable.
+    ensures (
+      && var b := GetBeacon2(bv, t, names);
+      && CanBetween(b, op, leftValue.s, rightValue.s, values).Failure?
+    ) ==> ret.Failure?
   {
     var b := GetBeacon2(bv, t, names);
     var _ :- CanBetween(b, op, leftValue.s, rightValue.s, values);
-    Success(Some(b))
+    Success(EqualityBeacon(Some(b), false))
   }
 
   function method CanStandardBeacon(op : Token) : (ret : Result<bool, Error>)
@@ -225,14 +247,25 @@ module DynamoDBFilterExpr {
   function method CanCompoundBeacon(b : SI.Beacon, op : Token, value : string) : (ret : Result<bool, Error>)
     requires b.Compound?
     ensures ret.Success? ==> ret.value
+
+    //= specification/searchable-encryption/beacons.md#lessthancomparable
+    //= type=implication
+    //# A Query MUST fail if it uses `<`, `<=`, `>`, or `>=` on a value that is not LessThanComparable.
+    ensures (
+              && IsInequality(op)
+              && var pieces := Split(value, b.cmp.split);
+              && b.cmp.IsLessThanComparable(pieces).Success?
+              && !b.cmp.IsLessThanComparable(pieces).value
+            ) ==> ret.Failure?
   {
     match op {
       case Lt | Gt | Le | Ge =>
-        var startsWithSigned :- b.cmp.startsWithSigned(value);
-        if startsWithSigned then
+        var pieces := Split(value, b.cmp.split);
+        var canLess :- b.cmp.IsLessThanComparable(pieces);
+        if canLess then
           Success(true)
         else
-          Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a compound beacon, unless the value begins with a nonsensitive part."))
+          Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a compound beacon, unless the value is LessThanComparable : " + value))
       // BeginsWith and Contains are dicey, but no way to distinguish good from bad
       case _ => Success(true)
     }
@@ -286,6 +319,28 @@ module DynamoDBFilterExpr {
   )
     : (ret : Result<bool, Error>)
     ensures ret.Success? ==> ret.value
+    //#  To determine if two values for a compound beacon in a query are `BetweenComparable`.
+    //#
+    //#  1 Remove any leading parts common to both values
+    //#  1 Check if the remainder is [LessThanComparable](#lessthancomparable)
+    //= specification/searchable-encryption/beacons.md#betweencomparable
+    //= type=implication
+    //# A Query MUST fail if it uses BETWEEN on values that are not BetweenComparable.
+    ensures (
+              && b.Compound?
+              && GetStringFromValue(leftValue, values, b).Success?
+              && var leftVal := GetStringFromValue(leftValue, values, b).value;
+              && GetStringFromValue(rightValue, values, b).Success?
+              && var rightVal := GetStringFromValue(rightValue, values, b).value;
+              && var leftParts := Split(leftVal, b.cmp.split);
+              && var rightParts := Split(rightVal, b.cmp.split);
+              && var (newLeft, newRight) := RemoveCommonPrefix(leftParts, rightParts);
+              && b.cmp.IsLessThanComparable(newLeft).Success?
+              && var leftCanLess := b.cmp.IsLessThanComparable(newLeft).value;
+              && b.cmp.IsLessThanComparable(newRight).Success?
+              && var rightCanLess := b.cmp.IsLessThanComparable(newRight).value;
+              && !(leftCanLess && rightCanLess)
+            ) ==> ret.Failure?
   {
     if b.Standard? then
       Failure(E("The operation BETWEEN cannot be used with a standard beacon."))
@@ -296,18 +351,17 @@ module DynamoDBFilterExpr {
       var leftParts := Split(leftVal, b.cmp.split);
       var rightParts := Split(rightVal, b.cmp.split);
       var (newLeft, newRight) := RemoveCommonPrefix(leftParts, rightParts);
-      if 0 < |newLeft| && 0 < |newRight| then
-        var leftPart :- b.cmp.getPartFromPrefix(newLeft[0]);
-        var rightPart :- b.cmp.getPartFromPrefix(newRight[0]);
-        :- Need(leftPart.NonSensitive? && rightPart.NonSensitive?,
-                E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive."));
-        Success(true)
-      else
-        Success(true)
+      var leftCanLess :- b.cmp.IsLessThanComparable(newLeft);
+      var rightCanLess :- b.cmp.IsLessThanComparable(newRight);
+      :- Need(leftCanLess && rightCanLess,
+              E("To use BETWEEN with a compound beacon, the part after any common prefix must be LessThanComparable : "
+                + "BETWEEN " + leftVal + " AND " + rightVal));
+      Success(true)
   }
 
 
   // expr[pos] is a value; return the beacon to which that value refers
+  // plus a flag to indicate if the operation is exact match
   function method BeaconForValue(
     b : SI.BeaconVersion,
     expr : seq<Token>,
@@ -315,7 +369,7 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<Option<SI.Beacon>, Error>
+    : Result<EqualityBeacon, Error>
     requires pos < |expr|
     requires expr[pos].Value?
   {
@@ -339,13 +393,13 @@ module DynamoDBFilterExpr {
     else if expr[pos].Value? then
       var in_pos := GetInPos(expr, pos);
       if in_pos.None? then
-        Success(None)
+        Success(EqualityBeacon(None, true))
       else if HasBeacon(b, expr[in_pos.value-1], names) then
         GetBeacon(b, expr[in_pos.value-1], expr[in_pos.value], expr[pos], names, values)
       else
-        Success(None)
+        Success(EqualityBeacon(None, true))
     else
-      Success(None)
+      Success(EqualityBeacon(None, true))
   }
 
   // expr[pos] is a value; return the Attr to which that value refers
@@ -483,8 +537,8 @@ module DynamoDBFilterExpr {
       var name := expr[pos].s;
       :- Need(name in oldValues, E(name + " not found in ExpressionAttributeValueMap"));
       var oldValue := oldValues[name];
-      var bec :- BeaconForValue(b, expr, pos, names, oldValues);
-      var newValue :- if bec.None? then Success(oldValue) else bec.value.GetBeaconValue(oldValue, keys);
+      var eb :- BeaconForValue(b, expr, pos, names, oldValues);
+      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality);
       //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
       //# If a single value in ExpressionAttributeValues is used in more than one context,
       //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`

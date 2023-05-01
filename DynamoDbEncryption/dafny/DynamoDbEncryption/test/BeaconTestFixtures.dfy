@@ -92,6 +92,15 @@ module BeaconTestFixtures {
                                         ])
                  )
 
+  const std2_beacon := "ac6f5d"
+  const Name_beacon := "7d9bfa40"
+  const Title_beacon := "e4feb833"
+  const std4_beacon := "0e9064"
+  const std6_beacon := "2d99222"
+  const NameTitle_beacon := "4c577d7"
+  const EmptyName_beacon := "e0e88994"
+  const EmptyTitle_beacon := "af34f26f"
+
   const Std2String := DDB.AttributeValue.N("1.23")
   const Std4String := DDB.AttributeValue.S("abc")
   const Std6String := DDB.AttributeValue.S("666")
