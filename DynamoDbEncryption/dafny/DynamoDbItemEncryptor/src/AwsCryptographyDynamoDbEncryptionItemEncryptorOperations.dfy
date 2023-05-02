@@ -31,7 +31,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
 
   datatype Config = Config(
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
-    nameonly tableName: ComAmazonawsDynamodbTypes.TableName,
+    nameonly logicalTableName: string,
     nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName,
     nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>,
     nameonly cmm: CMP.ICryptographicMaterialsManager,
@@ -233,11 +233,11 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
   {
     UTF8.EncodeAsciiUnique();
     :- Need(config.partitionKeyName in item, DDBError("Partition key " + config.partitionKeyName + " not found in Item to be encrypted or decrypted"));
-    var tableName :- DDBEncode(config.tableName);
+    var logicalTableName :- DDBEncode(config.logicalTableName);
     var partitionName :- DDBEncode(config.partitionKeyName);
     var sortContext :- MakeSortContext(config, item);
-    var base : CMP.EncryptionContext := map[TABLE_NAME := tableName, PARTITION_NAME := partitionName] + sortContext;
-    assert TABLE_NAME in base && DDBEncode(config.tableName).Success? && base[TABLE_NAME] == DDBEncode(config.tableName).value;
+    var base : CMP.EncryptionContext := map[TABLE_NAME := logicalTableName, PARTITION_NAME := partitionName] + sortContext;
+    assert TABLE_NAME in base && DDBEncode(config.logicalTableName).Success? && base[TABLE_NAME] == DDBEncode(config.logicalTableName).value;
     assert PARTITION_NAME in base && DDBEncode(config.partitionKeyName).Success? && base[PARTITION_NAME] == DDBEncode(config.partitionKeyName).value;
     //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context
     //# If this item does not have a sort key attribute,
@@ -658,7 +658,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
     var reqCMM :- reqCMMR.MapFailure(e => AwsCryptographyMaterialProviders(e));
     var encryptRes := config.structuredEncryption.EncryptStructure(
       CSE.EncryptStructureInput(
-        tableName := config.tableName,
+        tableName := config.logicalTableName,
         plaintextStructure:=wrappedStruct,
         cryptoSchema:=cryptoSchema,
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
@@ -873,7 +873,7 @@ module AwsCryptographyDynamoDbEncryptionItemEncryptorOperations refines Abstract
 
     var decryptRes := config.structuredEncryption.DecryptStructure(
       CSE.DecryptStructureInput(
-        tableName := config.tableName,
+        tableName := config.logicalTableName,
         encryptedStructure := wrappedStruct,
         authenticateSchema := authenticateSchema,
         //= specification/dynamodb-encryption-client/decrypt-item.md#behavior

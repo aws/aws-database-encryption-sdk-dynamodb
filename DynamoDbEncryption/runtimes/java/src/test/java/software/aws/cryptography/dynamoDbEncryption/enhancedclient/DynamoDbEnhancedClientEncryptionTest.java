@@ -34,12 +34,14 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put("SimpleClassTestTable",
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName("SimpleClassTestTable")
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
                         .build());
         tableConfigs.put("SignOnlyClassTestTable",
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName("SignOnlyClassTestTable")
                         .keyring(createKmsKeyring())
                         .tableSchema(signOnlySchema)
                         .build());
@@ -76,6 +78,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
@@ -105,6 +108,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(simpleSchema)
@@ -128,6 +132,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());
@@ -148,6 +153,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());
@@ -168,6 +174,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing", "partition_key"))
                         .tableSchema(tableSchema)
@@ -187,6 +194,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());
@@ -205,6 +213,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .tableSchema(tableSchema)
                         .build());

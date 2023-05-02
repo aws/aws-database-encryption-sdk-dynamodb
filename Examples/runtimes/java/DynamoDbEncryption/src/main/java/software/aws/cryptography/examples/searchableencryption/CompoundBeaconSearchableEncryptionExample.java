@@ -200,6 +200,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+        .logicalTableName(ddbTableName)
         .partitionKeyName("customer_id")
         .attributeActions(attributeActions)
         .keyring(kmsKeyring)

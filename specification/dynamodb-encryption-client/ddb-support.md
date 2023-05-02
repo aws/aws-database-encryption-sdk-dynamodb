@@ -60,8 +60,6 @@ AddNonSensitiveBeacons MUST add an attribute named NAME,
 where NAME is the name of the beacon.
 The value of this attribute MUST be a string,
 and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
-This new NonSensitiveBeacons MUST be added to [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
-as a [SIGN_ONLY](../structured-encryption/structures.md#sign_only) action.
 
 If the attribute NAME already exists,
 if the constructed compound beacon does not match
@@ -208,6 +206,19 @@ For example if the query is
 "MyBeacon < :value" and ExpressionAttributeValues holds (:value = banana),
 then the ExpressionAttributeValues must be changed to (:value = 13fd),
 where "13fd" is the calculated beacon value.
+
+If a single value in ExpressionAttributeValues is used in more than one context,
+for example an expression of `this = :foo OR that = :foo` where `this` and `that`
+are both beacons, this operation MUST fail.
+This includes the case where the KeyConditionExpression contains `this = :foo`
+and the FilterExpression includes `that = :foo`.
+This is because `:foo` can only hold one value, but the beaconization of `:foo`
+would be different for different beacons.
+
+Hypothetically, this operation could split `:foo` into `:foo1` and `:foo2`
+in this situation, but that risks leaking the connection between the two beacons and spoiling k-anonymity.
+Similarly, if one of the two was not a beacon, then we would be leaking the fact that
+this beacon came from that text.
 
 ### QueryObject has sensitive values
 

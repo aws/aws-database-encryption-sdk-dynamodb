@@ -89,6 +89,7 @@ public class EnhancedPutGetExample {
         final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
                         .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
                         .tableSchema(tableSchema)

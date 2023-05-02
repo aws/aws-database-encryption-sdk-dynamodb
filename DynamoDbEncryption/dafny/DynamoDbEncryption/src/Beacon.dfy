@@ -146,8 +146,24 @@ module BaseBeacon {
     }
 
     // Get the standard hash for the UTF8 encoded representation of this string.
+    //= specification/searchable-encryption/beacons.md#string-hash
+    //= type=implication
+    //# * string hash MUST take a string and some [key materials](./search-config.md#get-beacon-key-materials)
+    //# as input, and produce a string as output.
     function method {:opaque} hashStr(val : string, keys : HmacKeyMap) : (res : Result<string, Error>)
       ensures res.Success? ==> |res.value| > 0
+
+      //= specification/searchable-encryption/beacons.md#string-hash
+      //= type=implication
+      //# * string hash MUST return the [basic hash](#basichash) of the UTF8 representation
+      //# of the input string, the HMAC key from the [key materials](./search-config.md#get-beacon-key-materials)
+      //# associated with this beacon, and the beacon length associated with this beacon.
+      ensures res.Success? ==>
+        && base.name in keys
+        && UTF8.Encode(val).Success?
+        && var str := UTF8.Encode(val).value;
+        && hash(str, keys[base.name]).Success?
+        && res.value == hash(str, keys[base.name]).value
     {
       :- Need(base.name in keys, E("Internal Error, no key for " + base.name));
       var str := UTF8.Encode(val);

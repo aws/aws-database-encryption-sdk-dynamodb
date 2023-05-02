@@ -117,7 +117,7 @@ public class ToNative {
   public static DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig(
       Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Types.DynamoDbItemEncryptorConfig dafnyValue) {
     DynamoDbItemEncryptorConfig.Builder nativeBuilder = DynamoDbItemEncryptorConfig.builder();
-    nativeBuilder.tableName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableName()));
+    nativeBuilder.logicalTableName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_logicalTableName()));
     nativeBuilder.partitionKeyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_partitionKeyName()));
     if (dafnyValue.dtor_sortKeyName().is_Some()) {
       nativeBuilder.sortKeyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_sortKeyName().dtor_value()));

@@ -85,9 +85,9 @@ module TestFixtures {
 
   method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
     var keyring := GetKmsKeyring();
-    var tableName := GetTableName("foo");
+    var logicalTableName := GetTableName("foo");
     output := DynamoDbItemEncryptorConfig(
-      tableName := tableName,
+      logicalTableName := logicalTableName,
       partitionKeyName := "bar",
       sortKeyName := None(),
       attributeActions := GetAttributeActions(),
@@ -109,7 +109,7 @@ module TestFixtures {
   {
     var keyring := GetKmsKeyring();
     var encryptorConfig := DynamoDbItemEncryptorConfig(
-      tableName := config.tableName,
+      logicalTableName := config.logicalTableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,
       attributeActions := config.attributeActions,
@@ -211,6 +211,7 @@ module TestFixtures {
       DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
+            logicalTableName := "foo",
             partitionKeyName := "bar",
             sortKeyName := None(),
             attributeActions := map[

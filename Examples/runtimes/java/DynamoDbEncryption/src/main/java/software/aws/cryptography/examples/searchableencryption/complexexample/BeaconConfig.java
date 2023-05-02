@@ -667,6 +667,7 @@ public class BeaconConfig {
     // 13. Set up table config
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+        .logicalTableName(ddbTableName)
         .partitionKeyName("partition_key")
         .attributeActions(attributeActions)
         .keyring(kmsKeyring)

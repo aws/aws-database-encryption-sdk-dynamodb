@@ -1,0 +1,33 @@
+// Class LegacyPolicy_REQUIRE__ENCRYPT__ALLOW__DECRYPT
+// Dafny class LegacyPolicy_REQUIRE__ENCRYPT__ALLOW__DECRYPT compiled into Java
+package Dafny.Aws.Cryptography.DynamoDbEncryption.Types;
+
+import Dafny.Aws.Cryptography.StructuredEncryption.Types.*;
+
+@SuppressWarnings({"unchecked", "deprecation"})
+public class LegacyPolicy_REQUIRE__ENCRYPT__ALLOW__DECRYPT extends LegacyPolicy {
+  public LegacyPolicy_REQUIRE__ENCRYPT__ALLOW__DECRYPT () {
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (other == null) return false;
+    if (getClass() != other.getClass()) return false;
+    LegacyPolicy_REQUIRE__ENCRYPT__ALLOW__DECRYPT o = (LegacyPolicy_REQUIRE__ENCRYPT__ALLOW__DECRYPT)other;
+    return true;
+  }
+  @Override
+  public int hashCode() {
+    long hash = 5381;
+    hash = ((hash << 5) + hash) + 0;
+    return (int)hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder s = new StringBuilder();
+    s.append("Dafny.Aws.Cryptography.DynamoDbEncryption.Types_Compile.LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT");
+    return s.toString();
+  }
+}

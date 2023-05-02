@@ -358,8 +358,6 @@ this result.
 If any [Decrypt Item](./decrypt-item.md) operation fails,
 BatchGetItem MUST yield an error.
 
-TODO: Is there a way to make use of `UnprocessedKeys` to return a partial result?
-
 ### Decrypt after Scan
 
 After a [Scan](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html)
@@ -383,8 +381,6 @@ Scan MUST yield an error.
 
 The resulting decrypted response MUST be [filtered](ddb-support.md#scanoutputforbeacons) from the result.
 
-TODO: Is there a way we can return a partial result?
-
 ### Decrypt after Query
 
 After a [Query](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html)
@@ -407,8 +403,6 @@ Query MUST yield an error.
 
 The resulting decrypted response MUST be [filtered](ddb-support.md#queryoutputforbeacons) from the result.
 
-TODO: Is there a way we can return a partial result?
-
 ### Decrypt after TransactGetItems
 
 After a [TransactGetItems](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_TransactGetItems.html)
@@ -430,8 +424,6 @@ with a value that is equivalent to the resulting item.
 
 If any [Decrypt Item](./decrypt-item.md) fails,
 TransactGetItems MUST yield an error.
-
-TODO: Is there a way to return a partial result?
 
 ### Validate Before UpdateItem
 

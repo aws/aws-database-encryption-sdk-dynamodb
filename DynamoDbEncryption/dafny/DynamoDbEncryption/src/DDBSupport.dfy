@@ -305,15 +305,13 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var context1 := Filter.ExprContext(req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var context2 :- Filter.Beaconize(search.value.curr(), context1, keyId);
-      var context3 := context2.(expr := req.FilterExpression);
-      var context4 :- Filter.Beaconize(search.value.curr(), context3, keyId);
+      var oldContext := Filter.ExprContext(req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
+      var newContext :- Filter.Beaconize(search.value.curr(), oldContext, keyId);
       return Success(req.(
-                     KeyConditionExpression := context2.expr,
-                     FilterExpression := context4.expr,
-                     ExpressionAttributeNames := context4.names,
-                     ExpressionAttributeValues := context4.values
+                     KeyConditionExpression := newContext.keyExpr,
+                     FilterExpression := newContext.filterExpr,
+                     ExpressionAttributeNames := newContext.names,
+                     ExpressionAttributeValues := newContext.values
                      ));
     }
   }
@@ -369,10 +367,10 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var context := Filter.ExprContext(req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
+      var context := Filter.ExprContext(None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var newContext :- Filter.Beaconize(search.value.curr(), context, keyId);
       return Success(req.(
-                     FilterExpression := newContext.expr,
+                     FilterExpression := newContext.filterExpr,
                      ExpressionAttributeNames := newContext.names,
                      ExpressionAttributeValues := newContext.values
                      ));

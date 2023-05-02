@@ -137,7 +137,7 @@ No encryption or decryption is performed on the Terminal Data.
 
 ### Encryption Context
 
-TODO: Link directly to the MPL definition once it is more generalized.
+[The Encryption Context as defined by the Material Providers Library specification.](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/master/framework/structures.md#encryption-context)
 
 ### Structured Data Content
 

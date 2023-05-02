@@ -39,6 +39,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(tableSchema)
@@ -186,6 +187,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(tableSchema)
@@ -219,6 +221,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
                         .keyring(createKmsKeyring(invalidKey))
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(tableSchema)
@@ -261,8 +264,9 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         String badTableName = "tableDoesNotExist";
         TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put("badTableName",
+        tableConfigs.put(badTableName,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(badTableName)
                         .keyring(createKmsKeyring())
                         .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
                         .tableSchema(tableSchema)

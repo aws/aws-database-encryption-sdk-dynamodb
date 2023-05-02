@@ -21,7 +21,7 @@ module
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
   {
     DynamoDbItemEncryptorConfig(
-      tableName := "foo",
+      logicalTableName := "foo",
       partitionKeyName := "bar",
       sortKeyName := None(),
       attributeActions := map[],
@@ -44,7 +44,7 @@ module
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<DynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
-      && res.value.config.tableName == config.tableName
+      && res.value.config.logicalTableName == config.logicalTableName
       && res.value.config.partitionKeyName == config.partitionKeyName
       && res.value.config.sortKeyName == config.sortKeyName
       && res.value.config.attributeActions == config.attributeActions
@@ -173,7 +173,7 @@ module
 
     var internalConfig := Operations.Config(
       cmpClient := cmpClient,
-      tableName := config.tableName,
+      logicalTableName := config.logicalTableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,
       attributeActions := config.attributeActions,

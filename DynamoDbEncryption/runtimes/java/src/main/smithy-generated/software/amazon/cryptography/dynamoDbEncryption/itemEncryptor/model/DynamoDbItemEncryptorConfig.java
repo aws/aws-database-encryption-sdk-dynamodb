@@ -16,7 +16,7 @@ import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
 public class DynamoDbItemEncryptorConfig {
-  private final String tableName;
+  private final String logicalTableName;
 
   private final String partitionKeyName;
 
@@ -39,7 +39,7 @@ public class DynamoDbItemEncryptorConfig {
   private final PlaintextPolicy plaintextPolicy;
 
   protected DynamoDbItemEncryptorConfig(BuilderImpl builder) {
-    this.tableName = builder.tableName();
+    this.logicalTableName = builder.logicalTableName();
     this.partitionKeyName = builder.partitionKeyName();
     this.sortKeyName = builder.sortKeyName();
     this.attributeActions = builder.attributeActions();
@@ -52,8 +52,8 @@ public class DynamoDbItemEncryptorConfig {
     this.plaintextPolicy = builder.plaintextPolicy();
   }
 
-  public String tableName() {
-    return this.tableName;
+  public String logicalTableName() {
+    return this.logicalTableName;
   }
 
   public String partitionKeyName() {
@@ -105,9 +105,9 @@ public class DynamoDbItemEncryptorConfig {
   }
 
   public interface Builder {
-    Builder tableName(String tableName);
+    Builder logicalTableName(String logicalTableName);
 
-    String tableName();
+    String logicalTableName();
 
     Builder partitionKeyName(String partitionKeyName);
 
@@ -153,7 +153,7 @@ public class DynamoDbItemEncryptorConfig {
   }
 
   static class BuilderImpl implements Builder {
-    protected String tableName;
+    protected String logicalTableName;
 
     protected String partitionKeyName;
 
@@ -179,7 +179,7 @@ public class DynamoDbItemEncryptorConfig {
     }
 
     protected BuilderImpl(DynamoDbItemEncryptorConfig model) {
-      this.tableName = model.tableName();
+      this.logicalTableName = model.logicalTableName();
       this.partitionKeyName = model.partitionKeyName();
       this.sortKeyName = model.sortKeyName();
       this.attributeActions = model.attributeActions();
@@ -192,13 +192,13 @@ public class DynamoDbItemEncryptorConfig {
       this.plaintextPolicy = model.plaintextPolicy();
     }
 
-    public Builder tableName(String tableName) {
-      this.tableName = tableName;
+    public Builder logicalTableName(String logicalTableName) {
+      this.logicalTableName = logicalTableName;
       return this;
     }
 
-    public String tableName() {
-      return this.tableName;
+    public String logicalTableName() {
+      return this.logicalTableName;
     }
 
     public Builder partitionKeyName(String partitionKeyName) {
@@ -293,14 +293,8 @@ public class DynamoDbItemEncryptorConfig {
     }
 
     public DynamoDbItemEncryptorConfig build() {
-      if (Objects.isNull(this.tableName()))  {
-        throw new IllegalArgumentException("Missing value for required field `tableName`");
-      }
-      if (Objects.nonNull(this.tableName()) && this.tableName().length() < 3) {
-        throw new IllegalArgumentException("The size of `tableName` must be greater than or equal to 3");
-      }
-      if (Objects.nonNull(this.tableName()) && this.tableName().length() > 255) {
-        throw new IllegalArgumentException("The size of `tableName` must be less than or equal to 255");
+      if (Objects.isNull(this.logicalTableName()))  {
+        throw new IllegalArgumentException("Missing value for required field `logicalTableName`");
       }
       if (Objects.isNull(this.partitionKeyName()))  {
         throw new IllegalArgumentException("Missing value for required field `partitionKeyName`");

@@ -431,7 +431,7 @@ module DynamoToStruct {
       && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
       && (|a.L| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
-    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-todo-duvet-currently-can-t-handle-headers-named-map
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-attribute
     //= type=implication
     //# Map MUST be serialized as:
     //# | Field                   | Length   |

@@ -90,6 +90,7 @@ public class MigrationExampleStep2 {
         final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
                         .allowedUnauthenticatedAttributes(unauthAttributes)
                         .tableSchema(tableSchema)
