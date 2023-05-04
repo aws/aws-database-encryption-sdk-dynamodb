@@ -190,6 +190,11 @@ module DynamoDBSupport {
     }
   }
 
+  function method DoRemoveBeacons(item : DDB.AttributeMap) : DDB.AttributeMap
+  {
+    map k <- item | (!(ReservedPrefix <= k)) :: k := item[k]
+  }
+
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
   // returning a replacement AttributeMap.
   function method RemoveBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
@@ -206,7 +211,7 @@ module DynamoDBSupport {
     if search.None? then
       Success(item)
     else
-      Success(map k <- item | (!(ReservedPrefix <= k)) :: k := item[k])
+      Success(DoRemoveBeacons(item))
   }
 
   // transform optional LSIs for searchable encryption, changing AttributeDefinitions as needed
@@ -335,12 +340,13 @@ module DynamoDBSupport {
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues);
       :- Need(|newItems| < INT32_MAX_LIMIT, DynamoDbEncryptionUtil.E("This is impossible."));
+      var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
       var count :=
         if resp.Count.Some? then
-          Some(|newItems| as DDB.Integer)
+          Some(|trimmedItems| as DDB.Integer)
         else
           None;
-      return Success(resp.(Items := Some(newItems), Count := count));
+      return Success(resp.(Items := Some(trimmedItems), Count := count));
     }
   }
 
@@ -396,12 +402,13 @@ module DynamoDBSupport {
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues);
       :- Need(|newItems| < INT32_MAX_LIMIT, DynamoDbEncryptionUtil.E("This is impossible."));
+      var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
       var count :=
         if resp.Count.Some? then
-          Some(|newItems| as DDB.Integer)
+          Some(|trimmedItems| as DDB.Integer)
         else
           None;
-      return Success(resp.(Items := Some(newItems), Count := count));
+      return Success(resp.(Items := Some(trimmedItems), Count := count));
     }
   }
 }
