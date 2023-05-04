@@ -90,7 +90,7 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
           # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
-          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || "nightly-2023-04-12-f4836e9" }}
+          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || 'nightly-2023-04-12-f4836e9' }}
 
       - name: Build and locally deploy dependencies for examples
         shell: bash
