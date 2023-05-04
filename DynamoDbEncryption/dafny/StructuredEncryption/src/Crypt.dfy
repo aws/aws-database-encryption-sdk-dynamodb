@@ -167,7 +167,6 @@ module StructuredEncryptionCrypt {
   }
 
   // Encrypt or Decrypt a StructuredDataMap
-  // TODO - some guarantee that this encryption is being done in the right order
   method Crypt(
     mode : EncryptionSelector,
     client: Primitives.AtomicPrimitivesClient,

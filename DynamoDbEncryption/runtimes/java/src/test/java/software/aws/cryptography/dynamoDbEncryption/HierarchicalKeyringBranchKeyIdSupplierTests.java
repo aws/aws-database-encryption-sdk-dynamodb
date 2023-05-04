@@ -22,31 +22,7 @@ import static software.aws.cryptography.dynamoDbEncryption.TestUtils.*;
 
 import org.testng.annotations.Test;
 
-// Here we are testing some manually generated interfaces that don't technically belong to this package,
-// but exist alongside this package as a deliverable, and it is easiest to test them here for now.
-// TODO these should be moved appropriately when they are properly being generated.
-public class OtherTests {
-    @Test
-    public void TestItemEncryptorBuild() {
-        Map<String, CryptoAction> actions = new HashMap<>();
-        actions.put("foo", CryptoAction.SIGN_ONLY);
-        actions.put("bar", CryptoAction.SIGN_ONLY);
-
-        DynamoDbItemEncryptor itemEncryptor = DynamoDbItemEncryptor.builder()
-                .DynamoDbItemEncryptorConfig(
-                        DynamoDbItemEncryptorConfig.builder()
-                                .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
-                                .sortKeyName("foo")
-                                .partitionKeyName("bar")
-                                .logicalTableName("test-table")
-                                .attributeActions(actions)
-                                .keyring(createStaticKeyring())
-                                // TODO try configuring a LegacyConfig
-                                .build()
-                ).build();
-
-        assertNotNull(itemEncryptor);
-    }
+public class HierarchicalKeyringBranchKeyIdSupplierTests {
 
     @Test
     public void TestHierarchyKeyringWithSupplier() {

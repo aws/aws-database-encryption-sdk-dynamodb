@@ -159,9 +159,6 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue, attrValue2);
         Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue, attrValue2);
 
-        // TODO Transactions need to be built with TableName, otherwise we get a NPE.
-        // TableName is @required but the Java object builder does not enforce it.
-        // We should add validation on our conversions to give a helpful error message instead.
         TransactWriteItemsRequest writeRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
                         TransactWriteItem.builder()
