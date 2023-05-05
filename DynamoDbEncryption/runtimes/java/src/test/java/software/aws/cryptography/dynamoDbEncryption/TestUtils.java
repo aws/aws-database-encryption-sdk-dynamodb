@@ -42,6 +42,7 @@ public class TestUtils {
                 KeyStoreConfig.builder()
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(TEST_KEY_STORE_NAME)
+                        .logicalKeyStoreName(TEST_KEY_STORE_NAME)
                         .kmsClient(KmsClient.create())
                         .kmsConfiguration(
                                 KMSConfiguration.builder()
