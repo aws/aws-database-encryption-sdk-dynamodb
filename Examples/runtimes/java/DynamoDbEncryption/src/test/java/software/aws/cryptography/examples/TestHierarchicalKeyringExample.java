@@ -8,6 +8,7 @@ public class TestHierarchicalKeyringExample {
         HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(
                 TestUtils.TEST_DDB_TABLE_NAME,
                 TestUtils.TEST_KEYSTORE_NAME,
+                TestUtils.TEST_LOGICAL_KEYSTORE_NAME,
                 TestUtils.TEST_KEYSTORE_KMS_KEY_ID);
     }
 }
