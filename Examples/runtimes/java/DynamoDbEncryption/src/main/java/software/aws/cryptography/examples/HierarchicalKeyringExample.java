@@ -12,6 +12,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncry
 import software.amazon.cryptography.keyStore.KeyStore;
 import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
+import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -76,7 +77,7 @@ import java.util.Map;
  */
 public class HierarchicalKeyringExample {
 
-    public static void HierarchicalKeyringGetItemPutItem(String ddbTableName, String keyStoreTableName, String kmsKeyId) {
+    public static void HierarchicalKeyringGetItemPutItem(String ddbTableName, String keyStoreTableName, String logicalKeyStoreName, String kmsKeyId) {
         // Initial KeyStore Setup: Configure a keystore resource to create the table
         // that will persist your branch keys, then create two new branch keys.
         // This process should occur in your control plane, and returns
@@ -87,8 +88,11 @@ public class HierarchicalKeyringExample {
                 KeyStoreConfig.builder()
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(keyStoreTableName)
+                        .logicalKeyStoreName(logicalKeyStoreName)
                         .kmsClient(KmsClient.create())
-                        .kmsKeyArn(kmsKeyId)
+                        .kmsConfiguration(KMSConfiguration.builder()
+                                .kmsKeyArn(kmsKeyId)
+                                .build())
                         .build()).build();
 
         // 2. Create the DynamoDb table to store the branch keys
@@ -247,7 +251,8 @@ public class HierarchicalKeyringExample {
         }
         final String ddbTableName = args[0];
         final String keyStoreTableName = args[1];
-        final String kmsKeyId = args[2];
-        HierarchicalKeyringGetItemPutItem(ddbTableName, keyStoreTableName, kmsKeyId);
+        final String logicalKeyStoreTableName = args[2];
+        final String kmsKeyId = args[3];
+        HierarchicalKeyringGetItemPutItem(ddbTableName, keyStoreTableName, logicalKeyStoreTableName, kmsKeyId);
     }
 }

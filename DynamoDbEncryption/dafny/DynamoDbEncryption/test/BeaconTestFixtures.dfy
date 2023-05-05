@@ -124,11 +124,15 @@ module BeaconTestFixtures {
   {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDBC.DynamoDBClient();
+    var kmsConfig := KTypes.KMSConfiguration.kmsKeyArn(
+      "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+    );
     var keyStoreConfig := KTypes.KeyStoreConfig(
       id := None,
-      ddbTableName := "foo",
-      kmsKeyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126",
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := "foo",
       grantTokens := None,
+      ddbTableName := "foo",
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
