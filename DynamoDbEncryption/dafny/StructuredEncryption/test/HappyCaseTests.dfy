@@ -3,8 +3,6 @@
 include "../src/Index.dfy"
 include "StructuredDataTestFixtures.dfy"
 
-// TODO -- add a test with only signed attributes, no encrypted attributes.
-
 module HappyCaseTests {
   import opened Wrappers
   import opened StandardLibrary.UInt

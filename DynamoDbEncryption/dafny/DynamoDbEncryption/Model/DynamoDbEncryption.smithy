@@ -49,8 +49,6 @@ structure DynamoDbTablesEncryptionConfig {
     //# - [DynamoDb Table Encryption Configs](#dynamodb-tables-encryption-configs)
     @required
     tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
-
-    // TODO allowed passthrough tables
 }
 
 //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-table-encryption-configs

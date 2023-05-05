@@ -17,9 +17,7 @@ module
   import SE =  StructuredEncryptionUtil
   import InternalLegacyConfig
 
-  // TODO there is no sensible default, so what should this do?
-  // As is, the default config is invalid. Can we update the codegen to *not*
-  // build a default config?
+  // There is no sensible default, so construct something simple but invalid at runtime.
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
   {
     DynamoDbItemEncryptorConfig(

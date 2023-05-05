@@ -22,15 +22,6 @@ module DynamoToStruct {
   type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
   type TerminalDataMap = map<AttributeName, StructuredDataTerminalType>
 
-/* TODO - prove the following
-  StructuredToItem(ItemToStructured(itemMap)) == itemMap
-  ItemToStructured(StructuredToItem(structureMap)) == structureMap
-  AttrToStructured(StructuredToAttr(structure)) == structure
-  StructuredToAttr(AttrToStructured(item)) == item
-
-  Also prove : "there exists a single canonical serialization of items that contains a set or map (i.e. there is a canonical ordering or set entries)"
-*/
-
 //= specification/dynamodb-encryption-client/ddb-item-conversion.md#overview
 //= type=TODO
 //# The conversion from DDB Item to Structured Data must be lossless,

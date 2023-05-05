@@ -76,7 +76,6 @@ module DdbMiddlewareConfig {
 
   datatype Config = Config(
     tableEncryptionConfigs: map<string, ValidTableConfig>
-    // TODO allowed passthrough tables
   )
 
   function method MapError<T>(r : Result<T, EncTypes.Error>) : Result<T, Error> {
