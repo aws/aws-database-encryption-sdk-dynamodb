@@ -207,10 +207,7 @@ module DynamoDBSupport {
               && (forall k <- ret.value :: !(ReservedPrefix <= k))
               && (forall k <- item :: (ReservedPrefix <= k) || (k in ret.value && ret.value[k] == item[k]))
   {
-    if search.None? then
-      Success(item)
-    else
-      Success(DoRemoveBeacons(item))
+    Success(DoRemoveBeacons(item))
   }
 
   // transform optional LSIs for searchable encryption, changing AttributeDefinitions as needed
@@ -328,8 +325,9 @@ module DynamoDBSupport {
     ensures output.Success? ==> output.value.Items.Some?
     modifies if search.Some? then search.value.Modifies() else {}
   {
-    if search.None? || resp.Items.None? {
-      return Success(resp);
+    if search.None? {
+      var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
+      return Success(resp.(Items := Some(trimmedItems)));
     } else {
       var newItems :- Filter.FilterResults(
         search.value.curr(),
@@ -391,7 +389,8 @@ module DynamoDBSupport {
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
-      return Success(resp);
+      var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
+      return Success(resp.(Items := Some(trimmedItems)));
     } else {
       var newItems :- Filter.FilterResults(
         search.value.curr(),

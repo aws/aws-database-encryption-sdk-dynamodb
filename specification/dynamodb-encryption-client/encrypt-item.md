@@ -136,18 +136,17 @@ The DynamoDB Item Base Context MUST contain:
   - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
     this item is stored in (or will be stored in).
   - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
+  - the key "aws-crypto-partition-value" with a value equal to the value of the Partition Key on this item.
   - If this item has a sort key attribute,
     the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-  - For every [SIGN_ONLY](../structured-encryption/structures.md#signonly) attribute on the item,
-    the following key-value pair:
-    - the key is the following concatenation,
-      where `attributeName` is the name of the attribute:
-        "aws-crypto-attr." + `attributeName`
-    - the value is the concatenation of the bytes `typeID + serializedValue`
-      [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648),
-      where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
-      and `serializedValue` is the attribute's value serialized according to
-      [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization)
+    the key "aws-crypto-sort-value" with a value equal to the value of the sort key on this item.
+
+The value for "aws-crypto-partition-value" and "aws-crypto-sort-value" MUST be
+  the UTF8 encoding of the [Base 64 encoding](https://www.rfc-editor.org/rfc/rfc4648),
+  of the concatenation of the bytes `typeID + serializedValue`
+  where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
+  and `serializedValue` is the attribute's value serialized according to
+  [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization).
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
