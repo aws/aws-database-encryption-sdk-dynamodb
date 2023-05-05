@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.keyStore.KeyStore;
+import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -42,7 +43,11 @@ public class TestUtils {
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(TEST_KEY_STORE_NAME)
                         .kmsClient(KmsClient.create())
-                        .kmsKeyArn(TEST_KEY_STORE_KMS_KEY)
+                        .kmsConfiguration(
+                                KMSConfiguration.builder()
+                                        .kmsKeyArn(TEST_KEY_STORE_KMS_KEY)
+                                        .build()
+                        )
                         .build()
         ).build();
     }
