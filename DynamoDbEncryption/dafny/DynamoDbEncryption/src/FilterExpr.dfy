@@ -1412,9 +1412,8 @@ module DynamoDBFilterExpr {
     } else {
       var afterKeys;
       if KeyExpression.Some? {
-        var parsed :- GetParsedExpr(KeyExpression.value);
-        var parsed2 := ParseExpr(KeyExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed2, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[]);
+        var parsed := ParseExpr(KeyExpression.value);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[]);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
         afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values);
