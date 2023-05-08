@@ -11,7 +11,7 @@ plugins {
 
 group = "software.amazon.cryptography"
 version = "1.0-SNAPSHOT"
-description = "AwsCryptographyDynamoDbEncryption"
+description = "Aws Database Encryption Sdk for DynamoDb Java"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
@@ -111,7 +111,7 @@ dependencies {
 publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "software.amazon.cryptography"
-        artifactId = "AwsCryptographyDynamoDbEncryption"
+        artifactId = "aws-database-encryption-sdk-dynamodb"
         from(components["java"])
     }
     repositories { mavenLocal() }

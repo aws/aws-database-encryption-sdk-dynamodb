@@ -11,7 +11,7 @@ module CompoundBeacon {
   import opened StandardLibrary.UInt
   import opened StandardLibrary.String
   import opened TermLoc
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
 

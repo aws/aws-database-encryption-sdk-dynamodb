@@ -7,7 +7,7 @@ include "../src/Virtual.dfy"
 module TestDdbVirtualFields {
 
   import opened DdbVirtualFields
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt

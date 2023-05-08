@@ -8,7 +8,7 @@ module BatchExecuteStatementTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestBatchExecuteStatementInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -24,7 +24,7 @@ module BatchExecuteStatementTransformTest {
       ReturnConsumedCapacity := None
     );
     var good_transformed := middlewareUnderTest.BatchExecuteStatementInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.BatchExecuteStatementInputTransformInput(
         sdkInput := good_input
       )
     );
@@ -47,7 +47,7 @@ module BatchExecuteStatementTransformTest {
       ReturnConsumedCapacity := None
     );
     var bad_transformed := middlewareUnderTest.BatchExecuteStatementInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.BatchExecuteStatementInputTransformInput(
         sdkInput := bad_input
       )
     );
@@ -75,7 +75,7 @@ module BatchExecuteStatementTransformTest {
       ReturnConsumedCapacity := None
     );
     var transformed := middlewareUnderTest.BatchExecuteStatementOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchExecuteStatementOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.BatchExecuteStatementOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

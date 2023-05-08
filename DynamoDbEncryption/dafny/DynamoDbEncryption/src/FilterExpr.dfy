@@ -27,7 +27,7 @@ include "Util.dfy"
 include "SearchInfo.dfy"
 
 module DynamoDBFilterExpr {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt

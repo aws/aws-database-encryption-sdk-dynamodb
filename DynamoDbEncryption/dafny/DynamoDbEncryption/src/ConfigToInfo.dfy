@@ -6,7 +6,7 @@
 
   The only entry point of interest is 
 
-  Convert(outer : DynamoDbTableEncryptionConfig, config : Option<AwsCryptographyDynamoDbEncryptionTypes.SearchConfig>)
+  Convert(outer : DynamoDbTableEncryptionConfig, config : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig>)
     : Option<SearchableEncryptionInfo.SearchInfo>
   
   e.g. client.info :- Convert(config, config.beacons)
@@ -16,7 +16,7 @@ include "SearchInfo.dfy"
 include "Util.dfy"
 
 module SearchConfigToInfo {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened StandardLibrary
   import opened Wrappers
   import opened StandardLibrary.UInt
@@ -29,7 +29,7 @@ module SearchConfigToInfo {
   import V = DdbVirtualFields
   import B = BaseBeacon
   import CB = CompoundBeacon
-  import SE = AwsCryptographyStructuredEncryptionTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MPT = AwsCryptographyMaterialProvidersTypes
   import Aws.Cryptography.Primitives
 
@@ -324,7 +324,7 @@ module SearchConfigToInfo {
   }
   // convert configured VirtualFields to internal VirtualFields
   function method {:tailrecursion} AddVirtualFields(
-    vf : seq<AwsCryptographyDynamoDbEncryptionTypes.VirtualField>,
+    vf : seq<AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField>,
     outer : DynamoDbTableEncryptionConfig,
     converted : V.VirtualFieldMap := map[])
     : (ret : Result<V.VirtualFieldMap, Error>)

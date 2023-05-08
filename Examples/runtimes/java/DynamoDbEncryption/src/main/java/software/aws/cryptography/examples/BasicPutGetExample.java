@@ -10,7 +10,7 @@ import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+import software.aws.cryptography.dbEncryptionSdk.dynamoDb.DynamoDbEncryptionInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;

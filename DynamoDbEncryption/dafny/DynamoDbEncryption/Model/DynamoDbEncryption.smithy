@@ -1,6 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-namespace aws.cryptography.dynamoDbEncryption
+namespace aws.cryptography.dbEncryptionSdk.dynamoDb
 
 // The top level namespace for this project.
 // Contains an entry-point for helper methods,
@@ -15,7 +15,7 @@ use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.keyStore#KeyStore
-use aws.cryptography.structuredEncryption#CryptoAction
+use aws.cryptography.dbEncryptionSdk.structuredEncryption#CryptoAction
 
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#TableName

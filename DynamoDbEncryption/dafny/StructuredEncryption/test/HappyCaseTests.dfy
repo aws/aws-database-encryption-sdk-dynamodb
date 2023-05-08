@@ -6,7 +6,7 @@ include "StructuredDataTestFixtures.dfy"
 module HappyCaseTests {
   import opened Wrappers
   import opened StandardLibrary.UInt
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
   import StructuredEncryption
   import AwsCryptographyMaterialProvidersTypes

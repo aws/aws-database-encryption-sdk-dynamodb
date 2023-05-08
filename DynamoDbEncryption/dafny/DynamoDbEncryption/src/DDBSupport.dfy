@@ -16,7 +16,7 @@ include "DDBIndex.dfy"
 module DynamoDBSupport {
 
   import DDB = ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt

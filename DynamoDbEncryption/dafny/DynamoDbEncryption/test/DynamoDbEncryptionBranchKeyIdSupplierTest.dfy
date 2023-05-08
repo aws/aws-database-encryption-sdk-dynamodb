@@ -7,12 +7,12 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   import opened StandardLibrary.UInt
   import MaterialProviders
   import DynamoDbEncryption
-  import Types = AwsCryptographyDynamoDbEncryptionTypes
+  import Types = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
   import KMS = Com.Amazonaws.Kms
   import DDB = Com.Amazonaws.Dynamodb
   import UTF8
-  import CSE = AwsCryptographyStructuredEncryptionTypes
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
   import Base64
   import KeyStore 

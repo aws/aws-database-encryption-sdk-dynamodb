@@ -21,10 +21,10 @@ import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.DynamoDbEnhancedClientEncryption;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
+import software.aws.cryptography.dbEncryptionSdk.dynamoDb.DynamoDbEncryptionInterceptor;
+import software.aws.cryptography.dbEncryptionSdk.dynamoDb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
+import software.aws.cryptography.dbEncryptionSdk.dynamoDb.enhancedclient.DynamoDbEnhancedClientEncryption;
+import software.aws.cryptography.dbEncryptionSdk.dynamoDb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 
 import java.util.Arrays;
 import java.util.HashMap;
