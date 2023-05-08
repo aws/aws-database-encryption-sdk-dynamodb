@@ -104,7 +104,7 @@ module TestDynamoDBFilterExpr {
              "#Field4" := "std4"
            ])
     );
-    var version := GetEmptyBeacons();
+    var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var parsed := ParseExpr(context.filterExpr.value);
@@ -119,6 +119,42 @@ module TestDynamoDBFilterExpr {
     var exprString := ParsedExprToString(newContext.expr);
     expect exprString == "aws_dbe_b_std2 <> :A AND #Field4 = :B";
   }
+
+    method {:test} TestNoBeaconFail() {
+    var context := ExprContext (
+      None,
+      Some("std2 <> :A AND #Field4 = :B"),
+      Some(map[
+             ":A" := DDB.AttributeValue.N("1.23"),
+             ":B" := DDB.AttributeValue.S("abc")
+           ]),
+      Some(map[
+             "#Field4" := "std4"
+           ])
+    );
+    var version := GetEmptyBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var parsed := ParseExpr(context.filterExpr.value);
+    expect |parsed| == 7;
+    expect parsed[0].Attr?;
+    expect parsed[0].s == "std2";
+    expect beaconVersion.IsBeacon(parsed[0].s);
+    expect OpNeedsBeacon(parsed, 0);
+    expect beaconVersion.beacons[parsed[0].s].getBeaconName() == "aws_dbe_b_std2";
+
+    var newContext := BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys, map[]);
+    expect newContext.Failure?;
+    expect newContext.error == E("Field std4 is encrypted, and cannot be searched without a beacon.");
+
+    var badBeacon := TestBeaconize(FullTableConfig.attributeActions, None, Some("std2 <> :A AND #Field4 = :B"), None);
+    expect badBeacon.Failure?;
+    expect badBeacon.error == E("Query is using encrypted field : std2.");
+    badBeacon := TestBeaconize(FullTableConfig.attributeActions, Some("std2 <> :A AND #Field4 = :B"), None, None);
+    expect badBeacon.Failure?;
+    expect badBeacon.error == E("Query is using encrypted field : std2.");
+  }
+
   method {:test} {:vcs_split_on_every_assert} TestBasicBeacons() {
     var context := ExprContext (
       None,
