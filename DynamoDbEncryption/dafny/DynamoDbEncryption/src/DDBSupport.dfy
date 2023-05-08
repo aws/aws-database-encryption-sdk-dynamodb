@@ -299,11 +299,17 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryInput object for searchable encryption.
-  method QueryInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput)
+  method QueryInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.QueryInput)
     returns (output : Result<DDB.QueryInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
+      var _ :- Filter.TestBeaconize(
+        actions,
+        req.KeyConditionExpression,
+        req.FilterExpression,
+        req.ExpressionAttributeNames
+      );
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
@@ -363,11 +369,17 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanInput object for searchable encryption.
-  method ScanInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput)
+  method ScanInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.ScanInput)
     returns (output : Result<DDB.ScanInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
+      var _ :- Filter.TestBeaconize(
+        actions,
+        None,
+        req.FilterExpression,
+        req.ExpressionAttributeNames
+      );
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
