@@ -213,7 +213,8 @@ module SearchConfigToInfo {
         config.version as I.VersionNumber,
         source,
         beacons,
-        virtualFields
+        virtualFields,
+        outer.attributeActions
       );
   }
 

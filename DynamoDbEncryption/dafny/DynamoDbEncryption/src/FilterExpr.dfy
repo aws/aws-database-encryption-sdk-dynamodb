@@ -39,6 +39,7 @@ module DynamoDBFilterExpr {
   import Seq
   import StandardLibrary.String
   import CompoundBeacon
+  import SE = AwsCryptographyStructuredEncryptionTypes
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
@@ -59,20 +60,20 @@ module DynamoDBFilterExpr {
   // the recursive inside of ExtractAttributes
   function method {:tailrecursion} ExtractAttributes2(
     tokens : seq<Token>,
-    ex : Option<DDB.ExpressionAttributeNameMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>,
     tokensUntilSkip : int)
     : seq<string>
   {
     if |tokens| == 0 then
       []
     else if IsSpecial(tokens[0]) then
-      ExtractAttributes2(tokens[1..], ex, 1)
+      ExtractAttributes2(tokens[1..], names, 1)
     else if tokens[0].Attr? && tokensUntilSkip == 0 then
-      ExtractAttributes2(tokens[1..], ex, -1)
+      ExtractAttributes2(tokens[1..], names, -1)
     else if tokens[0].Attr? then
-      [GetName(tokens[0].s, ex)] + ExtractAttributes2(tokens[1..], ex, -1)
+      [GetAttrName(tokens[0], names)] + ExtractAttributes2(tokens[1..], names, -1)
     else
-      ExtractAttributes2(tokens[1..], ex, tokensUntilSkip-1)
+      ExtractAttributes2(tokens[1..], names, tokensUntilSkip-1)
   }
 
   datatype Token =
@@ -164,26 +165,34 @@ module DynamoDBFilterExpr {
       s
   }
 
+  // true if Attr has a beacon, or needs a beacon
   predicate method HasBeacon(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
   {
     if t.Attr? then
       var name := RealName(t.s);
       || name in b.beacons
       || (names.Some? && name in names.value && RealName(names.value[name]) in b.beacons)
+      || name in b.encryptedFields
+      || (names.Some? && name in names.value && RealName(names.value[name]) in b.encryptedFields)
     else
       false
   }
 
   function method GetBeacon2(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
-    : SI.Beacon
+    : Result<SI.Beacon, Error>
     requires HasBeacon(b, t, names)
   {
     var name := RealName(t.s);
     if name in b.beacons then
-      b.beacons[name]
+      Success(b.beacons[name])
+    else if names.Some? && name in names.value && RealName(names.value[name]) in b.beacons then
+      var name2 := RealName(names.value[name]);
+      Success(b.beacons[name2])
+    else if name in b.encryptedFields then
+      Failure(E("Field " + name + " is encrypted, and cannot be searched without a beacon."))
     else
       var name2 := RealName(names.value[name]);
-      b.beacons[name2]
+      Failure(E("Field " + name2 + " is encrypted, and cannot be searched without a beacon."))
   }
 
   datatype EqualityBeacon = EqualityBeacon (
@@ -204,7 +213,7 @@ module DynamoDBFilterExpr {
     requires HasBeacon(bv, t, names)
     requires value.Value?
   {
-    var b := GetBeacon2(bv, t, names);
+    var b :- GetBeacon2(bv, t, names);
     var _ :- CanBeacon(b, op, value.s, values);
     Success(EqualityBeacon(Some(b), IsEquality(op)))
   }
@@ -226,11 +235,12 @@ module DynamoDBFilterExpr {
     //= type=implication
     //# A Query MUST fail if it uses BETWEEN on values that are not BetweenComparable.
     ensures (
-      && var b := GetBeacon2(bv, t, names);
-      && CanBetween(b, op, leftValue.s, rightValue.s, values).Failure?
-    ) ==> ret.Failure?
+              && GetBeacon2(bv, t, names).Success?
+              && var b := GetBeacon2(bv, t, names).value;
+              && CanBetween(b, op, leftValue.s, rightValue.s, values).Failure?
+            ) ==> ret.Failure?
   {
-    var b := GetBeacon2(bv, t, names);
+    var b :- GetBeacon2(bv, t, names);
     var _ :- CanBetween(b, op, leftValue.s, rightValue.s, values);
     Success(EqualityBeacon(Some(b), false))
   }
@@ -1432,21 +1442,6 @@ module DynamoDBFilterExpr {
     }
   }
 
-  // Get the name, possibly looking it up in the map
-  function method GetName(s : string, ExpressionAttributeNames : Option<DDB.ExpressionAttributeNameMap>) : string
-  {
-    if |s| == 0 then
-      s
-    else if s[0] != '#' then
-      s
-    else if ExpressionAttributeNames.None? then
-      ""
-    else if s in ExpressionAttributeNames.value then
-      ExpressionAttributeNames.value[s]
-    else
-      s[1..]
-  }
-
   // Find the KeyId for in this Value
   function method KeyIdFromPart(bv : SI.BeaconVersion, keyIdField : string, attr : string, value : string)
     : Option<string>
@@ -1648,4 +1643,52 @@ module DynamoDBFilterExpr {
       return Success(ExprContext(newKeyExpr, newFilterExpr, Some(newValues), newNames));
     }
   }
+
+  function method GetAttrName(t : Token, names : Option<DDB.ExpressionAttributeNameMap>) : string
+    requires t.Attr?
+  {
+    if names.Some? && t.s in names.value then
+      names.value[t.s]
+    else
+      t.s
+  }
+
+  // return an error if any encrypted field exists in the query
+  method TestParsedExpr(
+    expr : seq<Token>,
+    encrypted : set<string>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (output : Outcome<Error>)
+  {
+    for i := 0 to |expr| {
+      if expr[i].Attr? {
+        var name := GetAttrName(expr[i], names);
+        if name in encrypted {
+          return Fail(E("Query is using encrypted field : " + name + "."));
+        }
+      }
+    }
+    return Pass;
+  }
+
+  // return an error if any encrypted field exists in the query
+  method TestBeaconize(
+    actions : AttributeActions,
+    keyExpr : Option<DDB.KeyExpression>,
+    filterExpr : Option<DDB.ConditionExpression>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (output : Result<bool, Error>)
+  {
+    var encrypted := set k <- actions | actions[k] == SE.ENCRYPT_AND_SIGN :: k;
+    if keyExpr.Some? {
+      :- TestParsedExpr(ParseExpr(keyExpr.value), encrypted, names);
+    }
+    if filterExpr.Some? {
+      :- TestParsedExpr(ParseExpr(filterExpr.value), encrypted, names);
+    }
+    return Success(true);
+  }
+
 }
