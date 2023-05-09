@@ -4,6 +4,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.keyStore.KeyStore;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
+import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 
 /*
@@ -34,7 +35,9 @@ public class CreateKeyStoreTableExample {
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(keyStoreTableName)
                         .kmsClient(KmsClient.create())
-                        .kmsKeyArn(kmsKeyArn)
+                        .kmsConfiguration(KMSConfiguration.builder()
+                            .kmsKeyArn(kmsKeyArn)
+                            .build())
                         .build()).build();
 
         // 2. Create the DynamoDb table that will store the branch keys and beacon keys.

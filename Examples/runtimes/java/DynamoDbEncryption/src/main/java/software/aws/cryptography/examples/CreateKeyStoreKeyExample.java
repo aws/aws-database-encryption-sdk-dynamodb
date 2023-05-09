@@ -4,6 +4,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.keyStore.KeyStore;
 import software.amazon.cryptography.keyStore.model.CreateKeyInput;
+import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 
 /*
@@ -33,14 +34,15 @@ public class CreateKeyStoreKeyExample {
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(keyStoreTableName)
                         .kmsClient(KmsClient.create())
-                        .kmsKeyArn(kmsKeyArn)
+                        .kmsConfiguration(KMSConfiguration.builder()
+                            .kmsKeyArn(kmsKeyArn)
+                            .build())
                         .build()).build();
 
         // 2. Create a new branch key and beacon key in our KeyStore.
         //    Both the branch key and the beacon key will share an Id.
         //    This creation is eventually consistent.
-        final String branchKeyId = keystore.CreateKey(
-                CreateKeyInput.builder().build()).branchKeyIdentifier();
+        final String branchKeyId = keystore.CreateKey().branchKeyIdentifier();
 
         return branchKeyId;
     }
