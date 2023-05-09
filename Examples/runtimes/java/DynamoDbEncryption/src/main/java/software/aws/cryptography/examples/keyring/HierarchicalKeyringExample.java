@@ -75,31 +75,8 @@ import java.util.Map;
  */
 public class HierarchicalKeyringExample {
 
-    public static void HierarchicalKeyringGetItemPutItem(String ddbTableName, String keyStoreTableName, String logicalKeyStoreName, String kmsKeyId) {
-        // Initial KeyStore Setup: Configure a keystore resource to create the table
-        // that will persist your branch keys, then create two new branch keys.
-        // This process should occur in your control plane, and returns
-        // Branch Key IDs that you will need to configure for use in your data plane.
+    public static void HierarchicalKeyringGetItemPutItem(String ddbTableName, String keyStoreTableName, String logicalKeyStoreName, String tenant1BranchKeyId, String tenant2BranchKeyId) {
 
-        // 1. Configure your KeyStore resource
-        final KeyStore keystore = KeyStore.builder().KeyStoreConfig(
-                KeyStoreConfig.builder()
-                        .ddbClient(DynamoDbClient.create())
-                        .ddbTableName(keyStoreTableName)
-                        .logicalKeyStoreName(logicalKeyStoreName)
-                        .kmsClient(KmsClient.create())
-                        .kmsConfiguration(KMSConfiguration.builder()
-                                .kmsKeyArn(kmsKeyId)
-                                .build())
-                        .build()).build();
-
-        // 2. Create the DynamoDb table to store the branch keys
-        keystore.CreateKeyStore(CreateKeyStoreInput.builder().build());
-
-        // 3. Create two branch keys for our two tenants.
-        //    Use the same KMS Key to protect both keys.
-        final String tenant1BranchKey = keystore.CreateKey().branchKeyIdentifier();
-        final String tenant2BranchKey = keystore.CreateKey().branchKeyIdentifier();
 
         // Data Plane: Given the above setup done in our control plane, we have created
         // the resources required to encrypt and decrypt items for our two tenants by
