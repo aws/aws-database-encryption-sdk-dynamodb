@@ -39,7 +39,7 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
   encrypted item to the provided DynamoDb table. Then, it gets the
   item from the table and decrypts it.
 
-  This example creates a new key on each execution. In practice,
+  This example creates a new key pair on each execution. In practice,
   users of this library should not do this, and should instead
   retrieve an existing key from a secure key management system
   (e.g. an HSM).
