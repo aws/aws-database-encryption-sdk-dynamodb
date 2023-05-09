@@ -493,7 +493,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var cryptoSchema := input.cryptoSchema.content.SchemaMap;
     :- Need(CryptoSchemaMapIsFlat(cryptoSchema), E("Schema must be flat."));
     :- Need(forall k <- cryptoSchema :: ValidString(k), E("Schema has bad field name."));
-    :- Need(exists k <- cryptoSchema :: cryptoSchema[k].content.Action == ENCRYPT_AND_SIGN, E("Schema has bad field name."));
+    :- Need(exists k <- cryptoSchema :: (
+        || cryptoSchema[k].content.Action == ENCRYPT_AND_SIGN
+        || cryptoSchema[k].content.Action == SIGN_ONLY
+      ), E("At least one field in the Crypto Schema must be ENCRYPT_AND_SIGN or SIGN_ONLY."));
 
     var plainRecord := input.plaintextStructure.content.DataMap;
     :- Need(DataMapIsFlat(plainRecord), E("Input DataMap must be flat."));

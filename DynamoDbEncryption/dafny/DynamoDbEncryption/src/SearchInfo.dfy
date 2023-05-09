@@ -25,6 +25,7 @@ module SearchableEncryptionInfo {
   import Prim = AwsCryptographyPrimitivesTypes
   import MP = AwsCryptographyMaterialProvidersTypes
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
+  import SE = AwsCryptographyStructuredEncryptionTypes
 
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
@@ -549,7 +550,8 @@ module SearchableEncryptionInfo {
     version : VersionNumber,
     keySource : KeySource,
     beacons : BeaconMap,
-    virtualFields : VirtualFieldMap
+    virtualFields : VirtualFieldMap,
+    actions : AttributeActions
   )
     : (ret : Result<ValidBeaconVersion, Error>)
     requires version == 1
@@ -558,7 +560,8 @@ module SearchableEncryptionInfo {
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
     var stdKeys := Seq.Filter((k : string) => k in beacons && beacons[k].Standard?, beaconNames);
     FilterPreservesHasNoDuplicates((k : string) => k in beacons && beacons[k].Standard?, beaconNames);
-    var bv := BeaconVersion.BeaconVersion(version, keySource, virtualFields, beacons, beaconNames, stdKeys);
+    var encrypted := set k <- actions | actions[k] == SE.ENCRYPT_AND_SIGN :: k;
+    var bv := BeaconVersion.BeaconVersion(version, keySource, virtualFields, beacons, beaconNames, stdKeys, encrypted);
     assert bv.ValidState();
     Success(bv)
   }
@@ -571,7 +574,8 @@ module SearchableEncryptionInfo {
     virtualFields : VirtualFieldMap,
     beacons : BeaconMap,
     beaconNames : seq<string>,
-    stdNames : seq<string>
+    stdNames : seq<string>,
+    encryptedFields : set<string>
   ) {
 
     function Modifies() : set<object>

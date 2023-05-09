@@ -186,7 +186,7 @@ module DynamoDbMiddlewareSupport {
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.QueryInputForBeacons(config.search, req);
+    var ret := BS.QueryInputForBeacons(config.search, config.itemEncryptor.config.attributeActions, req);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
@@ -210,7 +210,7 @@ module DynamoDbMiddlewareSupport {
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.ScanInputForBeacons(config.search, req);
+    var ret := BS.ScanInputForBeacons(config.search, config.itemEncryptor.config.attributeActions, req);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 

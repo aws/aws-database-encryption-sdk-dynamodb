@@ -61,7 +61,8 @@ public class DynamoDbEnhancedClientEncryptionTest {
         assertEquals(CryptoAction.ENCRYPT_AND_SIGN, simpleConfig.attributeActions().get("encryptAndSign"));
 
         DynamoDbTableEncryptionConfig signOnlyConfig = interceptor.config().tableEncryptionConfigs().get("SignOnlyClassTestTable");
-        assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("id"));
+        assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("partition_key"));
+        assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("sort_key"));
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("attr1"));
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActions().get("attr2"));
     }
