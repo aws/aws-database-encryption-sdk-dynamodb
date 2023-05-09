@@ -52,12 +52,6 @@ import java.util.Map;
   or you can implement an interface that lets you map the primary key on your items
   to the branch key that should be responsible for decrypting that data.
 
-  This example first creates the DynamoDb-backed KeyStore,
-  and creates two branch keys. These are control plane operations that
-  only need to occur once. While not demonstrated in this example,
-  you should additionally use the `VersionKey` API on the KeyStore
-  to periodically rotate your branch key material.
-
   This example then demonstrates configuring a Hierarchical Keyring
   with a Branch Key ID Supplier to encrypt and decrypt data for
   two separate tenants.
@@ -78,7 +72,8 @@ import java.util.Map;
 public class HierarchicalKeyringExample {
 
     public static void HierarchicalKeyringGetItemPutItem(
-            String ddbTableName, String tenant1BranchKeyId, String tenant2BranchKeyId, String keyStoreTableName, String kmsKeyId) {
+                String ddbTableName, String tenant1BranchKeyId, String tenant2BranchKeyId, String keyStoreTableName,
+                String logicalKeyStoreName, String kmsKeyId) {
         // Initial KeyStore Setup: This example requires that you have already
         // created your KeyStore, and have populated it with two new branch keys.
         // See the "Create KeyStore Table Example" and "Create KeyStore Key Example"
@@ -245,7 +240,8 @@ public class HierarchicalKeyringExample {
         final String tenant1BranchKeyId = args[1];
         final String tenant2BranchKeyId = args[2];
         final String keyStoreTableName = args[3];
+        final String logicalKeyStoreName = args[0];
         final String kmsKeyId = args[4];
-        HierarchicalKeyringGetItemPutItem(ddbTableName, tenant1BranchKeyId, tenant2BranchKeyId, keyStoreTableName, kmsKeyId);
+        HierarchicalKeyringGetItemPutItem(ddbTableName, tenant1BranchKeyId, tenant2BranchKeyId, keyStoreTableName, logicalKeyStoreName, kmsKeyId);
     }
 }

@@ -15,7 +15,10 @@ import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
   using a helper method to create the DDB table that will be
   used to persist branch keys and beacons keys for this KeyStore.
 
-  This table creation should occur within your control plane.
+  This table creation should occur within your control plane. This
+  only needs to occur once. While not demonstrated in this example,
+  you should additionally use the `VersionKey` API on the KeyStore
+  to periodically rotate your branch key material.
  */
 public class CreateKeyStoreTableExample {
 

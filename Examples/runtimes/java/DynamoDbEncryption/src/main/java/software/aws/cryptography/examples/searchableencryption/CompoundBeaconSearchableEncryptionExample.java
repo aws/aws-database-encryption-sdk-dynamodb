@@ -61,8 +61,11 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
-    2. Branch key wrapping KMS key ARN for the KMS key used to create the branch key
-    3. Branch key DDB table ARN for the DDB table representing the branch key store
+    2. Branch key ID for a branch key that was previously created in your key store. See the
+       CreateKeyStoreKeyExample.
+    3. Branch key wrapping KMS key ARN for the KMS key used to create the branch key with ID
+       provided in arg 2
+    4. Branch key DDB table ARN for the DDB table representing the branch key store
  */
 
 public class CompoundBeaconSearchableEncryptionExample {
