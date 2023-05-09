@@ -19,9 +19,19 @@ use aws.cryptography.dbEncryptionSdk.dynamoDb#LegacyConfig
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#Version
 use aws.cryptography.dbEncryptionSdk.dynamoDb#PlaintextPolicy
 
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
+
 @localService(
   sdkId: "DynamoDbItemEncryptor",
   config: DynamoDbItemEncryptorConfig,
+  dependencies: [
+    AwsCryptographicPrimitives,
+    DynamoDB_20120810,
+    AwsCryptographicMaterialProviders,
+    DynamoDbEncryption
+  ]
 )
 service DynamoDbItemEncryptor {
     version: "2022-08-26",

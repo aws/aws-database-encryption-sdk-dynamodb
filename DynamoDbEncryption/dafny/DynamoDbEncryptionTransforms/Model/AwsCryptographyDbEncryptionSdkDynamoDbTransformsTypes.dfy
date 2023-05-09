@@ -849,7 +849,6 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig
  method DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig := DefaultDynamoDbTablesEncryptionConfig())
  returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
-// BEGIN MANUAL EDIT
  requires var tmps0 := set t0 | t0 in config.tableEncryptionConfigs.Values;
  forall tmp0 :: tmp0 in tmps0 ==>
  tmp0.keyring.Some? ==>

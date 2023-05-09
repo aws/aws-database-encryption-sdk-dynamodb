@@ -7,11 +7,18 @@ use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
 
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
+
 use aws.polymorph#localService
 
 @localService(
   sdkId: "StructuredEncryption",
   config: StructuredEncryptionConfig,
+  dependencies: [
+    AwsCryptographicPrimitives,
+    AwsCryptographicMaterialProviders
+  ]
 )
 service StructuredEncryption {
     version: "2022-07-08",

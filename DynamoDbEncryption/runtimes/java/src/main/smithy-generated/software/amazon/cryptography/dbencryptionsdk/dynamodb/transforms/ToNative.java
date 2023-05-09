@@ -110,6 +110,15 @@ public class ToNative {
     if (dafnyValue.is_CollectionOfErrors()) {
       return ToNative.Error((Error_CollectionOfErrors) dafnyValue);
     }
+    if (dafnyValue.is_ComAmazonawsDynamodb()) {
+      return software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.Error(dafnyValue.dtor_ComAmazonawsDynamodb());
+    }
+    if (dafnyValue.is_AwsCryptographyDbEncryptionSdkDynamoDb()) {
+      return software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.Error(dafnyValue.dtor_AwsCryptographyDbEncryptionSdkDynamoDb());
+    }
+    if (dafnyValue.is_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor()) {
+      return software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToNative.Error(dafnyValue.dtor_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor());
+    }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue);
     return nativeBuilder.build();

@@ -24,6 +24,7 @@ use com.amazonaws.dynamodb#Key
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
 
+
 // A config-less entry-point for DynamoDb Encryption helper/factory methods
 @localService(
   sdkId: "DynamoDbEncryption",

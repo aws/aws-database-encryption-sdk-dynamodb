@@ -4,11 +4,20 @@ namespace aws.cryptography.dbEncryptionSdk.dynamoDb.transforms
 
 use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbTablesEncryptionConfig
 
+use com.amazonaws.dynamodb#DynamoDB_20120810
+use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
+use aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor#DynamoDbItemEncryptor
+
 use aws.polymorph#localService
 
 @localService(
   sdkId: "DynamoDbEncryptionTransforms",
   config: DynamoDbTablesEncryptionConfig,
+  dependencies: [
+    DynamoDB_20120810,
+    DynamoDbEncryption,
+    DynamoDbItemEncryptor,
+  ]
 )
 service DynamoDbEncryptionTransforms {
     version: "2022-11-21",
