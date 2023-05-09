@@ -24,11 +24,20 @@ use com.amazonaws.dynamodb#Key
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
 
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 
 // A config-less entry-point for DynamoDb Encryption helper/factory methods
 @localService(
   sdkId: "DynamoDbEncryption",
   config: DynamoDbEncryptionConfig,
+  dependencies: [
+    AwsCryptographicPrimitives,
+    DynamoDB_20120810,
+    AwsCryptographicMaterialProviders,
+    StructuredEncryption
+  ]
 )
 service DynamoDbEncryption {
     version: "2022-11-21",
