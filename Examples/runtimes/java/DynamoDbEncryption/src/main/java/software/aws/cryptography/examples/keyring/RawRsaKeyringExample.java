@@ -53,7 +53,7 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
  */
 public class RawRsaKeyringExample {
 
-    public static void RawRsaKeyringGetItemPutItem(String ddbTableName) throws IOException {
+    public static void RawRsaKeyringGetItemPutItem(String ddbTableName) {
         // 1. Generate a 2048-bit RSA key to use with your keyring.
         //    This example uses some custom dependencies to generate the key:
         //     - AWS DynamoDbEncryption client-provided RNG instance (lightweight wrapper for
@@ -67,21 +67,31 @@ public class RawRsaKeyringExample {
         try {
             rsaGen = KeyPairGenerator.getInstance("RSA");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("No such algorithm", e);
         }
         rsaGen.initialize(2048, Utils.getRng());
         KeyPair keyPair = rsaGen.generateKeyPair();
 
         StringWriter privateKeyStringWriter = new StringWriter();
         PemWriter privateKeyPemWriter = new PemWriter(privateKeyStringWriter);
-        privateKeyPemWriter.writeObject(new PemObject("PRIVATE KEY", keyPair.getPrivate().getEncoded()));
-        privateKeyPemWriter.close();
+        try {
+            privateKeyPemWriter.writeObject(new PemObject("PRIVATE KEY", keyPair.getPrivate().getEncoded()));
+            privateKeyPemWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException("IOException while writing private key PEM", e);
+        }
+
         ByteBuffer privateKeyUtf8EncodedByteBuffer = StandardCharsets.UTF_8.encode(privateKeyStringWriter.toString());
 
         StringWriter publicKeyStringWriter = new StringWriter();
         PemWriter publicKeyPemWriter = new PemWriter(publicKeyStringWriter);
-        publicKeyPemWriter.writeObject(new PemObject("PUBLIC KEY", keyPair.getPublic().getEncoded()));
-        publicKeyPemWriter.close();
+        try {
+            publicKeyPemWriter.writeObject(
+                new PemObject("PUBLIC KEY", keyPair.getPublic().getEncoded()));
+            publicKeyPemWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException("IOException while writing public key PEM", e);
+        }
         ByteBuffer publicKeyUtf8EncodedByteBuffer = StandardCharsets.UTF_8.encode(publicKeyStringWriter.toString());
 
         // 2. Create the keyring.
@@ -210,7 +220,7 @@ public class RawRsaKeyringExample {
         assert returnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
     }
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) {
         if (args.length <= 0) {
             throw new IllegalArgumentException("To run this example, include the ddbTable in args");
         }

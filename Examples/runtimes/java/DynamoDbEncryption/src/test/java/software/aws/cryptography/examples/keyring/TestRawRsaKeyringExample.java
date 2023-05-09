@@ -6,7 +6,7 @@ import software.aws.cryptography.examples.TestUtils;
 
 public class TestRawRsaKeyringExample {
     @Test
-    public void TestRawRsaKeyringExample() throws IOException {
+    public void TestRawRsaKeyringExample() {
         RawRsaKeyringExample.RawRsaKeyringGetItemPutItem(
                 TestUtils.TEST_DDB_TABLE_NAME);
     }

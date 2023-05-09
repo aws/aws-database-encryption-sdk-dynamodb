@@ -60,7 +60,7 @@ public class RawAesKeyringExample {
         try {
             aesGen = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("No such algorithm", e);
         }
         aesGen.init(256, Utils.getRng());
         SecretKey encryptionKey = aesGen.generateKey();
