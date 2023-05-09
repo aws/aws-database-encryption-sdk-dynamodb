@@ -11,7 +11,7 @@ public class TestHierarchicalKeyringExample {
         KeystoreExample.configureKeystore(
             TestUtils.TEST_KEYSTORE_NAME,
             TestUtils.TEST_LOGICAL_KEYSTORE_NAME,
-            TestUtils.TEST_KMS_KEY_ID
+            TestUtils.TEST_KEYSTORE_KMS_KEY_ID
         );
 
         String tenant1BranchKeyId = KeystoreExample.createBranchKey();
