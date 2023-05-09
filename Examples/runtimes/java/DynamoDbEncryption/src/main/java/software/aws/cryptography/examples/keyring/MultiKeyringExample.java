@@ -156,8 +156,8 @@ public class MultiKeyringExample {
         //        for GET. The PUT config uses the multi-keyring, while the GET config uses the
         //        raw AES keyring. This is solely done to demonstrate that a keyring included as
         //        a child of a multi-keyring can be used to decrypt data on its own.
-        final Map<String, DynamoDbTableEncryptionConfig> tableConfigsForPut = new HashMap<>();
-        final DynamoDbTableEncryptionConfig configForPut = DynamoDbTableEncryptionConfig.builder()
+        final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
+        final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
                 .logicalTableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
@@ -166,26 +166,28 @@ public class MultiKeyringExample {
                 .keyring(multiKeyring)
                 .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
                 .build();
-        tableConfigsForPut.put(ddbTableName, configForPut);
+        tableConfigs.put(ddbTableName, config);
 
         // 8. Create the DynamoDb Encryption Interceptor
-        DynamoDbEncryptionInterceptor encryptionInterceptorForPut = DynamoDbEncryptionInterceptor.builder()
+        DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
                 .config(DynamoDbTablesEncryptionConfig.builder()
-                        .tableEncryptionConfigs(tableConfigsForPut)
+                        .tableEncryptionConfigs(tableConfigs)
                         .build())
                 .build();
 
         // 9. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
-        final DynamoDbClient ddbClientForPut = DynamoDbClient.builder()
+        final DynamoDbClient ddbClient = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(encryptionInterceptorForPut)
+                                .addExecutionInterceptor(encryptionInterceptor)
                                 .build())
                 .build();
 
         // 10. Put an item into our table using the above client.
         //     Before the item gets sent to DynamoDb, it will be encrypted
         //     client-side using the multi-keyring.
+        //     The item will be encrypted with all wrapping keys in the keyring,
+        //     so that it can be decrypted with any one of the keys.
         final HashMap<String, AttributeValue> item = new HashMap<>();
         item.put("partition_key", AttributeValue.builder().s("multiKeyringItem").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
@@ -196,15 +198,36 @@ public class MultiKeyringExample {
                 .item(item)
                 .build();
 
-        final PutItemResponse putResponse = ddbClientForPut.putItem(putRequest);
+        final PutItemResponse putResponse = ddbClient.putItem(putRequest);
 
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 11. Create a new config and client with only the raw AES keyring to GET the item
+        // 11. Get the item back from our table using the above client.
+        //     The client will decrypt the item client-side using the AWS KMS
+        //     keyring, and return back the original item.
+        //     Since the generator key is the first available key in the keyring,
+        //     that is the key that will be used to decrypt this item.
+        final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
+        keyToGet.put("partition_key", AttributeValue.builder().s("multiKeyringItem").build());
+        keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+
+        final GetItemRequest getRequest = GetItemRequest.builder()
+            .key(keyToGet)
+            .tableName(ddbTableName)
+            .build();
+
+        final GetItemResponse getResponse = ddbClient.getItem(getRequest);
+
+        // Demonstrate that GetItem succeeded and returned the decrypted item
+        assert 200 == getResponse.sdkHttpResponse().statusCode();
+        final Map<String, AttributeValue> returnedItem = getResponse.item();
+        assert returnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
+
+        // 12. Create a new config and client with only the raw AES keyring to GET the item
         //     This is the same setup as above, except the config uses the `rawAesKeyring`.
-        final Map<String, DynamoDbTableEncryptionConfig> tableConfigsForGet = new HashMap<>();
-        final DynamoDbTableEncryptionConfig configForGet = DynamoDbTableEncryptionConfig.builder()
+        final Map<String, DynamoDbTableEncryptionConfig> tableConfigsForRawAes = new HashMap<>();
+        final DynamoDbTableEncryptionConfig configForRawAes = DynamoDbTableEncryptionConfig.builder()
             .logicalTableName(ddbTableName)
             .partitionKeyName("partition_key")
             .sortKeyName("sort_key")
@@ -213,44 +236,44 @@ public class MultiKeyringExample {
             .keyring(rawAesKeyring)
             .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
             .build();
-        tableConfigsForGet.put(ddbTableName, configForGet);
+        tableConfigsForRawAes.put(ddbTableName, configForRawAes);
 
-        DynamoDbEncryptionInterceptor encryptionInterceptorForGet = DynamoDbEncryptionInterceptor.builder()
+        DynamoDbEncryptionInterceptor encryptionInterceptorForRawAes = DynamoDbEncryptionInterceptor.builder()
             .config(DynamoDbTablesEncryptionConfig.builder()
-                .tableEncryptionConfigs(tableConfigsForGet)
+                .tableEncryptionConfigs(tableConfigsForRawAes)
                 .build())
             .build();
 
-        final DynamoDbClient ddbClientForGet = DynamoDbClient.builder()
+        final DynamoDbClient ddbClientForRawAes = DynamoDbClient.builder()
             .overrideConfiguration(
                 ClientOverrideConfiguration.builder()
-                    .addExecutionInterceptor(encryptionInterceptorForGet)
+                    .addExecutionInterceptor(encryptionInterceptorForRawAes)
                     .build())
             .build();
 
-        // 12. Get the item back from our table using the GET client.
+        // 13. Get the item back from our table using the raw AES-configured client.
         //     The client will decrypt the item client-side using the raw
         //     AES keyring, and return back the original item.
-        final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
+        final HashMap<String, AttributeValue> keyToGetForRawAes = new HashMap<>();
         keyToGet.put("partition_key", AttributeValue.builder().s("multiKeyringItem").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
-        final GetItemRequest getRequest = GetItemRequest.builder()
-                .key(keyToGet)
+        final GetItemRequest getRequestForRawAws = GetItemRequest.builder()
+                .key(keyToGetForRawAes)
                 .tableName(ddbTableName)
                 .build();
 
-        final GetItemResponse getResponse = ddbClientForGet.getItem(getRequest);
+        final GetItemResponse getResponseForRawAws = ddbClientForRawAes.getItem(getRequestForRawAws);
 
         // Demonstrate that GetItem succeeded and returned the decrypted item
         assert 200 == getResponse.sdkHttpResponse().statusCode();
-        final Map<String, AttributeValue> returnedItem = getResponse.item();
-        assert returnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
+        final Map<String, AttributeValue> returnedItemForRawAws = getResponseForRawAws.item();
+        assert returnedItemForRawAws.get("sensitive_data").s().equals("encrypt and sign me!");
     }
 
     public static void main(final String[] args) {
-        if (args.length <= 0) {
-            throw new IllegalArgumentException("To run this example, include the ddbTable in args");
+        if (args.length <= 1) {
+            throw new IllegalArgumentException("To run this example, include the ddbTable and keyArn in args");
         }
         final String ddbTableName = args[0];
         final String keyArn = args[1];
