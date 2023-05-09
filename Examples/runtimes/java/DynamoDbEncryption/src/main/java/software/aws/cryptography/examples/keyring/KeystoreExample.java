@@ -7,15 +7,14 @@ import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
 import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 
-public class BranchKeyCreationExample {
+public class KeystoreExample {
 
   static KeyStore keystore;
 
-  public static void setupKeystore(String keyStoreTableName, String logicalKeyStoreName, String kmsKeyId) {
+  public static void configureKeystore(String keyStoreTableName, String logicalKeyStoreName, String kmsKeyId) {
     // Initial KeyStore Setup: Configure a keystore resource to create the table
     // that will persist your branch keys, then create two new branch keys.
-    // This process should occur in your control plane, and returns
-    // Branch Key IDs that you will need to configure for use in your data plane.
+    // This process should occur in your control plane.
 
     // 1. Configure your KeyStore resource
     keystore = KeyStore.builder().KeyStoreConfig(
@@ -33,8 +32,16 @@ public class BranchKeyCreationExample {
     keystore.CreateKeyStore(CreateKeyStoreInput.builder().build());
   }
 
+  public static KeyStore getConfiguredKeystore() {
+    if (keystore == null) {
+      throw new IllegalStateException("Keystore not configured");
+    }
+    return keystore;
+  }
+
   /**
    * Creates a new branch key in the keystore and returns the branch key ID.
+   * You should use these branch key IDs in your data plane.
    * @return
    */
   public static String createBranchKey() {

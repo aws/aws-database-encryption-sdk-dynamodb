@@ -3,16 +3,12 @@ package software.aws.cryptography.examples.keyring;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
 import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.keyStore.KeyStore;
-import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
-import software.amazon.cryptography.keyStore.model.KMSConfiguration;
-import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
@@ -75,7 +71,7 @@ import java.util.Map;
  */
 public class HierarchicalKeyringExample {
 
-    public static void HierarchicalKeyringGetItemPutItem(String ddbTableName, String keyStoreTableName, String logicalKeyStoreName, String tenant1BranchKeyId, String tenant2BranchKeyId) {
+    public static void HierarchicalKeyringGetItemPutItem(String ddbTableName, KeyStore keyStore, String tenant1BranchKeyId, String tenant2BranchKeyId) {
 
 
         // Data Plane: Given the above setup done in our control plane, we have created
@@ -88,7 +84,7 @@ public class HierarchicalKeyringExample {
                 .build();
         final IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
                 CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
-                        .ddbKeyBranchKeyIdSupplier(new ExampleBranchKeyIdSupplier(tenant1BranchKey, tenant2BranchKey))
+                        .ddbKeyBranchKeyIdSupplier(new ExampleBranchKeyIdSupplier(tenant1BranchKeyId, tenant2BranchKeyId))
                         .build()).branchKeyIdSupplier();
 
         // 5. Create the Hierarchical Keyring, using the Branch Key ID Supplier above.
@@ -101,7 +97,7 @@ public class HierarchicalKeyringExample {
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
         final CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
-                .keyStore(keystore)
+                .keyStore(keyStore)
                 .branchKeyIdSupplier(branchKeyIdSupplier)
                 .ttlSeconds(600) // This dictates how often we call back to KMS to authorize use of the branch keys
                 .maxCacheSize(100) // This dictates how many branch keys will be held stored on the host 
@@ -228,6 +224,31 @@ public class HierarchicalKeyringExample {
         final String keyStoreTableName = args[1];
         final String logicalKeyStoreTableName = args[2];
         final String kmsKeyId = args[3];
-        HierarchicalKeyringGetItemPutItem(ddbTableName, keyStoreTableName, logicalKeyStoreTableName, kmsKeyId);
+
+        // Control plane: Create a branch key ID to use in the test
+        KeystoreExample.configureKeystore(
+            keyStoreTableName,
+            logicalKeyStoreTableName,
+            kmsKeyId
+        );
+
+        String tenant1BranchKeyId = KeystoreExample.createBranchKey();
+        String tenant2BranchKeyId = KeystoreExample.createBranchKey();
+
+        // Sleep for 1 second so keys are replicated across DDB table.
+        // In practice, branch key creation SHOULD happen in a separate process from branch key usage,
+        //   and a sleep will not be needed.
+        // However, this test creates and uses the branch key in the same process. Since the keystore
+        //   read is eventually consistent, we should sleep for a short time for the branch key to replicate.
+        // The expected use case is that the branch key will be replicated before it is used.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Interrupted while waiting for branch key creation", e);
+        }
+
+        // Data plane: Test example with branch key IDs
+        KeyStore keystore = KeystoreExample.getConfiguredKeystore();
+        HierarchicalKeyringGetItemPutItem(ddbTableName, keystore, tenant1BranchKeyId, tenant2BranchKeyId);
     }
 }
