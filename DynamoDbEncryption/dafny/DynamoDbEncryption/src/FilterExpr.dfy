@@ -133,28 +133,23 @@ module DynamoDBFilterExpr {
     }
   }
 
-  // if expr is "ATTR IN VAL, VAL, VAL..."
+  // if expr is "ATTR IN ( VAL, VAL, VAL... )"
   // and expr[pos] is one of the VAL's
   // return pos for the 'IN'
   // else return None
   function method {:tailrecursion} GetInPos(expr : seq<Token>, pos : nat) : (ret : Option<nat>)
     requires pos < |expr|
+    requires expr[pos].Value?
     ensures ret.Some? ==> ret.value >= 1 && ret.value < |expr|
   {
-    if pos < 1 then
+    if pos < 3 then
       None
-    else if expr[pos].In? then
-      Some(pos)
-    else if !expr[pos].Value? then
-      None
-    else if pos < 2 then
-      None
-    else if expr[pos-1].In? then
-      Some(pos-1)
-    else if !expr[pos-1].Comma? then
-      None
-    else
+    else if expr[pos-1].Open? && expr[pos-2].In? then
+      Some(pos-2)
+    else if expr[pos-1].Comma? && expr[pos-2].Value? then
       GetInPos(expr, pos-2)
+    else
+      None
   }
 
   function method RealName(s : string) : string
