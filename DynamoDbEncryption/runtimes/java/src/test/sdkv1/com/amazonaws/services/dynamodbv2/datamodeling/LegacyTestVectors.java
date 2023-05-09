@@ -146,7 +146,7 @@ public class LegacyTestVectors {
 
     final DynamoDbItemEncryptorConfig.Builder config = DynamoDbItemEncryptorConfig
       .builder()
-      .tableName(tableName)
+      .logicalTableName(tableName)
       .partitionKeyName(HASH_KEY)
       .legacyConfig(legacyConfig)
       // **Not** trying to write things,

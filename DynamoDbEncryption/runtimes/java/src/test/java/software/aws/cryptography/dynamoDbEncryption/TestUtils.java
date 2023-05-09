@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
 import software.amazon.cryptography.keyStore.KeyStore;
+import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -41,8 +42,13 @@ public class TestUtils {
                 KeyStoreConfig.builder()
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(TEST_KEY_STORE_NAME)
+                        .logicalKeyStoreName(TEST_KEY_STORE_NAME)
                         .kmsClient(KmsClient.create())
-                        .kmsKeyArn(TEST_KEY_STORE_KMS_KEY)
+                        .kmsConfiguration(
+                                KMSConfiguration.builder()
+                                        .kmsKeyArn(TEST_KEY_STORE_KMS_KEY)
+                                        .build()
+                        )
                         .build()
         ).build();
     }
@@ -105,6 +111,7 @@ public class TestUtils {
             Map<String, CryptoAction> actions, List<String> allowedUnauth, IKeyring keyring, LegacyPolicy legacyPolicy, PlaintextPolicy ptPolicy) {
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
                 .partitionKeyName(TEST_PARTITION_NAME)
                 .sortKeyName(TEST_SORT_NAME)
                 .attributeActions(actions)

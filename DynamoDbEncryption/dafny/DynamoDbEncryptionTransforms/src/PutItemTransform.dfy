@@ -11,6 +11,7 @@ module PutItemTransform {
   import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
   import EncTypes = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
   import Seq
+  import Util = DynamoDbEncryptionUtil
 
   method Input(config: Config, input: PutItemInputTransformInput)
     returns (output: Result<PutItemInputTransformOutput, Error>)
@@ -76,7 +77,7 @@ module PutItemTransform {
     );
     var encrypted :- MapError(encryptRes);
     var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
-    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, keyId);
+    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, Util.MaybeFromOptionKeyId(keyId));
     return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem + beacons)));
   }
 

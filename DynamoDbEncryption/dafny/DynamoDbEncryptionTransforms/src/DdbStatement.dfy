@@ -60,8 +60,10 @@ module DdbStatement {
         None
   }
 
-  // TODO - find reference to ensure a naked "from" cannot appear in the select expression
-  // e.g. that it would have to be quoted or part of a larger construct without spaces
+  // Find the first naked "from". i.e. a "from" that is not quoted or part of a larger
+  // construct without spaces.
+  // Expressions will not contain such a "from" so this is correct:
+  // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.select.html#ql-reference.select.syntax
   function method {:tailrecursion} {:opaque} TableFromSelectStatementInner(s : string)
     : Option<string>
     decreases |s|

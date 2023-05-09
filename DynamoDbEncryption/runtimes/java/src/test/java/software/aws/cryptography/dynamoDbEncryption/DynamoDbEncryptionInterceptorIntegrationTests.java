@@ -1,5 +1,6 @@
 package software.aws.cryptography.dynamoDbEncryption;
 
+import Dafny.Com.Amazonaws.Kms.KMSClientConfigType;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
@@ -8,6 +9,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -15,10 +17,15 @@ import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 
 import java.security.GeneralSecurityException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.model.CreateKeyRequest;
 import software.amazon.cryptography.dynamoDbEncryption.model.*;
+import software.amazon.cryptography.dynamoDbEncryption.transforms.model.DynamoDbEncryptionTransformsException;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 
@@ -152,9 +159,6 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         Map<String,AttributeValue> item1 = createTestItem(partitionValue, sortValue1, attrValue, attrValue2);
         Map<String,AttributeValue> item2 = createTestItem(partitionValue, sortValue2, attrValue, attrValue2);
 
-        // TODO Transactions need to be built with TableName, otherwise we get a NPE.
-        // TableName is @required but the Java object builder does not enforce it.
-        // We should add validation on our conversions to give a helpful error message instead.
         TransactWriteItemsRequest writeRequest = TransactWriteItemsRequest.builder()
                 .transactItems(
                         TransactWriteItem.builder()
@@ -300,16 +304,16 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         DynamoDBEncryptor legacyEncryptor = createLegacyEncryptor();
 
         EncryptionContext encryptionContext =
-            new EncryptionContext.Builder()
-                .withTableName(TEST_TABLE_NAME)
-                .withHashKeyName(TEST_PARTITION_NAME)
-                .withRangeKeyName(TEST_SORT_NAME)
-                .build();
+                new EncryptionContext.Builder()
+                        .withTableName(TEST_TABLE_NAME)
+                        .withHashKeyName(TEST_PARTITION_NAME)
+                        .withRangeKeyName(TEST_SORT_NAME)
+                        .build();
         Map<String, Set<EncryptionFlags>> actions = createLegacyAttributeFlags();
 
         // Encrypt the plaintext record directly
         final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> encrypted_record =
-            legacyEncryptor.encryptRecord(legacyItem, actions, encryptionContext);
+                legacyEncryptor.encryptRecord(legacyItem, actions, encryptionContext);
         // Put record into ddb directly using SDKv1 Java client
         AmazonDynamoDB legacyDDB = AmazonDynamoDBClientBuilder.standard().build();
         legacyDDB.putItem(new com.amazonaws.services.dynamodbv2.model.PutItemRequest(TEST_TABLE_NAME, encrypted_record));
@@ -346,18 +350,18 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         String attrValue = "bar";
         String attrValue2 = "hello world";
         Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
-        
+
         // Set up Legacy DDBEC Encryptor
         DynamoDBEncryptor legacyEncryptor = createLegacyEncryptor();
 
         EncryptionContext encryptionContext =
-            new EncryptionContext.Builder()
-                .withTableName(TEST_TABLE_NAME)
-                .withHashKeyName(TEST_PARTITION_NAME)
-                .withRangeKeyName(TEST_SORT_NAME)
-                .build();
+                new EncryptionContext.Builder()
+                        .withTableName(TEST_TABLE_NAME)
+                        .withHashKeyName(TEST_PARTITION_NAME)
+                        .withRangeKeyName(TEST_SORT_NAME)
+                        .build();
         Map<String, Set<EncryptionFlags>> actions = createLegacyAttributeFlags();
-        
+
         // Configure interceptor with legacy behavior
         DynamoDbEncryptionInterceptor interceptor =
                 createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT, null);
@@ -387,10 +391,10 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         com.amazonaws.services.dynamodbv2.model.GetItemResult getItemResponse = legacyDDB.getItem(
                 new com.amazonaws.services.dynamodbv2.model.GetItemRequest(TEST_TABLE_NAME, itemKey)
         );
-        
+
         // Decrypt the plaintext record directly
         final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> decryptedRecord =
-            legacyEncryptor.decryptRecord(getItemResponse.getItem(), actions, encryptionContext);
+                legacyEncryptor.decryptRecord(getItemResponse.getItem(), actions, encryptionContext);
         assertNotNull(decryptedRecord);
         assertEquals(partitionValue, decryptedRecord.get(TEST_PARTITION_NAME).getS());
         assertEquals(sortValue, decryptedRecord.get(TEST_SORT_NAME).getN());
@@ -490,5 +494,38 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
         assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
         assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
+    }
+
+    @Test(
+            expectedExceptions = DynamoDbEncryptionTransformsException.class,
+            expectedExceptionsMessageRegExp = "DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb."
+    )
+    public void TestFailsNonDDBClient() {
+        KmsClient wrongClient = KmsClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(kmsInterceptor)
+                                .build())
+                .build();
+
+        wrongClient.createKey();
+    }
+
+    @Test(
+            expectedExceptions = ExecutionException.class,
+            expectedExceptionsMessageRegExp = ".*DynamoDbEncryptionInterceptor does not support use with the Async client."
+    )
+    public void TestFailsNonSyncClient() throws Throwable {
+        DynamoDbAsyncClient asyncClient = DynamoDbAsyncClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(kmsInterceptor)
+                                .build())
+                .build();
+
+        Map<String, AttributeValue> item = createTestItem("expect", "7415", "to", "fail");
+        CompletableFuture<PutItemResponse> response =  asyncClient.putItem(
+                PutItemRequest.builder().tableName(TEST_TABLE_NAME).item(item).build());
+        response.get();
     }
 }

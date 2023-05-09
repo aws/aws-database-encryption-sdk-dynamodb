@@ -12,6 +12,7 @@ import software.amazon.cryptography.materialProviders.Keyring;
 import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
 
 public class DynamoDbEnhancedTableEncryptionConfig {
+    private final String logicalTableName;
     private final TableSchema tableSchema;
     private final List<String> allowedUnauthenticatedAttributes;
     private final String allowedUnauthenticatedAttributePrefix;
@@ -22,6 +23,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
 
     protected DynamoDbEnhancedTableEncryptionConfig(BuilderImpl builder) {
+        this.logicalTableName = builder.logicalTableName();
         this.tableSchema = builder.tableSchema();
         this.allowedUnauthenticatedAttributes = builder.allowedUnauthenticatedAttributes();
         this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
@@ -31,6 +33,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         this.algorithmSuiteId = builder.algorithmSuiteId();
 
     }
+
+    public String logicalTableName() { return this.logicalTableName; }
 
     public TableSchema tableSchema() {
         return this.tableSchema;
@@ -69,6 +73,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
     }
 
     public interface Builder {
+        String logicalTableName();
+        Builder logicalTableName(String logicalTableName);
         Builder tableSchema(TableSchema tableSchema);
         TableSchema tableSchema();
         Builder allowedUnauthenticatedAttributes(List<String> allowedUnauthenticatedAttributes);
@@ -85,6 +91,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
     }
 
     protected static class BuilderImpl implements Builder {
+        protected String logicalTableName;
         protected TableSchema tableSchema;
         protected List<String> allowedUnauthenticatedAttributes;
         protected String allowedUnauthenticatedAttributePrefix;
@@ -96,6 +103,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         }
 
         protected BuilderImpl(DynamoDbEnhancedTableEncryptionConfig model) {
+            this.logicalTableName = model.logicalTableName();
             this.tableSchema = model.tableSchema();
             this.allowedUnauthenticatedAttributes = model.allowedUnauthenticatedAttributes();
             this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
@@ -104,6 +112,13 @@ public class DynamoDbEnhancedTableEncryptionConfig {
             this.legacyConfig = model.legacyConfig();
             this.algorithmSuiteId = model.algorithmSuiteId();
         }
+
+        public Builder logicalTableName(String logicalTableName) {
+            this.logicalTableName = logicalTableName;
+            return this;
+        }
+
+        public String logicalTableName() { return this.logicalTableName; }
 
         public Builder tableSchema(TableSchema tableSchema) {
             this.tableSchema = tableSchema;

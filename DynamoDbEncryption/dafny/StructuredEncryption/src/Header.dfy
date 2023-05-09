@@ -226,7 +226,7 @@ module StructuredEncryptionHeader {
     //# that are not included in the
     //# [required encryption context keys](../framework/structures.md#required-encryption-context-keys) list.
     var storedEC := map k <- mat.encryptionContext | k !in mat.requiredEncryptionContextKeys :: k := mat.encryptionContext[k];
-    // TODO - should be able to prove ValidEncryptionContext
+    // It is difficult for dafny to prove ValidEncryptionContext here, so perform a runtime check instead
     :- Need(ValidEncryptionContext(storedEC), E("Invalid Encryption Context"));
     Success(PartialHeader(
       version := 1,

@@ -12,6 +12,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncry
 import software.amazon.cryptography.keyStore.KeyStore;
 import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
+import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -90,8 +91,11 @@ public class HierarchicalKeyringExample {
                 KeyStoreConfig.builder()
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(keyStoreTableName)
+                        .logicalKeyStoreName(logicalKeyStoreName)
                         .kmsClient(KmsClient.create())
-                        .kmsKeyArn(kmsKeyId)
+                        .kmsConfiguration(KMSConfiguration.builder()
+                                .kmsKeyArn(kmsKeyId)
+                                .build())
                         .build()).build();
 
         // 2. Create a Branch Key ID Supplier. See ExampleBranchKeyIdSupplier in this directory.
@@ -164,6 +168,7 @@ public class HierarchicalKeyringExample {
         // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+                .logicalTableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActions(attributeActions)

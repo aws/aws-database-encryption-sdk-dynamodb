@@ -77,35 +77,37 @@ module TestDynamoDBFilterExpr {
 
   method {:test} TestNoBeacons() {
     var context := ExprContext (
-      expr := Some("A < :A AND B = :B"),
-      values:= Some(map[
-                      ":A" := DDB.AttributeValue.N("1.23"),
-                      ":B" := DDB.AttributeValue.S("abc")
-                    ]),
-      names := None
+      None,
+      Some("A < :A AND B = :B"),
+      Some(map[
+             ":A" := DDB.AttributeValue.N("1.23"),
+             ":B" := DDB.AttributeValue.S("abc")
+           ]),
+      None
     );
     var version := GetEmptyBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
-    var newContext :- expect Beaconize(beaconVersion, context, None);
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
     expect newContext == context;
   }
 
   method {:test} TestBasicParse() {
     var context := ExprContext (
-      expr := Some("std2 <> :A AND #Field4 = :B"),
-      values:= Some(map[
-                      ":A" := DDB.AttributeValue.N("1.23"),
-                      ":B" := DDB.AttributeValue.S("abc")
-                    ]),
-      names := Some(map[
-                      "#Field4" := "std4"
-                    ])
+      None,
+      Some("std2 <> :A AND #Field4 = :B"),
+      Some(map[
+             ":A" := DDB.AttributeValue.N("1.23"),
+             ":B" := DDB.AttributeValue.S("abc")
+           ]),
+      Some(map[
+             "#Field4" := "std4"
+           ])
     );
-    var version := GetEmptyBeacons();
+    var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
-    var parsed := ParseExpr(context.expr.value);
+    var parsed := ParseExpr(context.filterExpr.value);
     expect |parsed| == 7;
     expect parsed[0].Attr?;
     expect parsed[0].s == "std2";
@@ -113,34 +115,117 @@ module TestDynamoDBFilterExpr {
     expect OpNeedsBeacon(parsed, 0);
     expect beaconVersion.beacons[parsed[0].s].getBeaconName() == "aws_dbe_b_std2";
 
-    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, None);
+    var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys, map[]);
     var exprString := ParsedExprToString(newContext.expr);
     expect exprString == "aws_dbe_b_std2 <> :A AND #Field4 = :B";
   }
+
+    method {:test} TestNoBeaconFail() {
+    var context := ExprContext (
+      None,
+      Some("std2 <> :A AND #Field4 = :B"),
+      Some(map[
+             ":A" := DDB.AttributeValue.N("1.23"),
+             ":B" := DDB.AttributeValue.S("abc")
+           ]),
+      Some(map[
+             "#Field4" := "std4"
+           ])
+    );
+    var version := GetEmptyBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var parsed := ParseExpr(context.filterExpr.value);
+    expect |parsed| == 7;
+    expect parsed[0].Attr?;
+    expect parsed[0].s == "std2";
+    expect beaconVersion.IsBeacon(parsed[0].s);
+    expect OpNeedsBeacon(parsed, 0);
+    expect beaconVersion.beacons[parsed[0].s].getBeaconName() == "aws_dbe_b_std2";
+
+    var newContext := BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys, map[]);
+    expect newContext.Failure?;
+    expect newContext.error == E("Field std4 is encrypted, and cannot be searched without a beacon.");
+
+    var badBeacon := TestBeaconize(FullTableConfig.attributeActions, None, Some("std2 <> :A AND #Field4 = :B"), None);
+    expect badBeacon.Failure?;
+    expect badBeacon.error == E("Query is using encrypted field : std2.");
+    badBeacon := TestBeaconize(FullTableConfig.attributeActions, Some("std2 <> :A AND #Field4 = :B"), None, None);
+    expect badBeacon.Failure?;
+    expect badBeacon.error == E("Query is using encrypted field : std2.");
+  }
+
   method {:test} {:vcs_split_on_every_assert} TestBasicBeacons() {
     var context := ExprContext (
-      expr := Some("std2 <> :A AND #Field4 = :B"),
-      values:= Some(map[
-                      ":A" := Std2String,
-                      ":B" := Std4String
-                    ]),
-      names := Some(map[
-                      "#Field4" := "std4"
-                    ])
+      None,
+      Some("std2 <> :A AND #Field4 = :B"),
+      Some(map[
+             ":A" := Std2String,
+             ":B" := Std4String
+           ]),
+      Some(map[
+             "#Field4" := "std4"
+           ])
     );
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
-    var newContext :- expect Beaconize(beaconVersion, context, None);
-    expect_equal(newContext.expr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    expect_equal(newContext.filterExpr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
     var newName := "aws_dbe_b_std4";
     expect IsValid_AttributeName(newName);
     var expectedNames: DDB.ExpressionAttributeNameMap := map["#Field4" := newName];
     expect_equal(newContext.names, Some(expectedNames));
-    var itemBeacons :- expect beaconVersion.GenerateEncryptedBeacons(SimpleItem, None);
+    var itemBeacons :- expect beaconVersion.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
     expect "aws_dbe_b_std2" in itemBeacons;
     expect "aws_dbe_b_std4" in itemBeacons;
     expect_equal(newContext.values, Some(map[":A" := itemBeacons["aws_dbe_b_std2"], ":B" := itemBeacons["aws_dbe_b_std4"]]));
+  }
+
+  //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
+  //= type=test
+  //# If a single value in ExpressionAttributeValues is used in more than one context,
+  //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`
+  //# are both beacons, this operation MUST fail.
+  method {:test} TestMultiContextFailures() {
+    var context := ExprContext (
+      None,
+      Some("std2 = :A AND std4 = :A"),
+      Some(map[
+             ":A" := Std2String
+           ]),
+      None
+    );
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var newContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect newContext.Failure?;
+    expect newContext.error == E(":A used in two different contexts, which is not allowed.");
+
+    context := ExprContext (
+      Some("std2 = :A AND std4 = :A"),
+      None,
+      Some(map[
+             ":A" := Std2String
+           ]),
+      None
+    );
+    newContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect newContext.Failure?;
+    expect newContext.error == E(":A used in two different contexts, which is not allowed.");
+
+    context := ExprContext (
+      Some("std2 = :A"),
+      Some("std4 = :A"),
+      Some(map[
+             ":A" := Std2String
+           ]),
+      None
+    );
+    newContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect newContext.Failure?;
+    expect newContext.error == E(":A used in two different contexts, which is not allowed.");
   }
 
   function method DS(x : string) : DDB.AttributeValue
@@ -493,11 +578,53 @@ module TestDynamoDBFilterExpr {
     var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val4"), None, Some(values));
     expect newItems.Failure?;
-    expect newItems.error == E("To use BETWEEN with a compound beacon, the part after any common prefix must be nonsensitive.");
+    expect newItems.error == E("To use BETWEEN with a compound beacon, the part after any common prefix must be LessThanComparable : BETWEEN T_ATitle AND T_MyTitle");
   }
 
-  /*
-    Successes :
-      compound beacon on virtual field
-  */
+  method {:test} TestComparisons() {
+
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":val1" := DS("N_"),
+      ":val2" := DS("N_MyName"),
+      ":val3" := DS("N_MyName.T_"),
+      ":val4" := DS("N_MyName.T_Title"),
+      ":val5" := DS("T_"),
+      ":val6" := DS("N_MyName.N_")
+    ];
+
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+
+    var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val1 and :val5"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val6"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val2 and :val3"), None, Some(values));
+    expect newItems.Success?;
+
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val1 and :val2"), None, Some(values));
+    expect newItems.Failure?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val1 and :val4"), None, Some(values));
+    expect newItems.Failure?;
+
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle < :val1"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val1"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle < :val2"), None, Some(values));
+    expect newItems.Failure?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle = :val2"), None, Some(values));
+    expect newItems.Success?;
+
+    var newContext :- expect Beaconize(bv, ExprContext(None, Some("NameTitle = :val1"), Some(values), None), DontUseKeyId);
+    expect newContext.values.Some?;
+    expect ":val1" in newContext.values.value;
+    expect newContext.values.value[":val1"] == DS("N_" + EmptyName_beacon);
+    newContext :- expect Beaconize(bv, ExprContext(None, Some("NameTitle < :val1"), Some(values), None), DontUseKeyId);
+    expect newContext.values.Some?;
+    expect ":val1" in newContext.values.value;
+    expect newContext.values.value[":val1"] == DS("N_");
+  }
+
 }

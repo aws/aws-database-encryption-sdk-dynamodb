@@ -43,7 +43,9 @@ The following inputs to this behavior MUST be OPTIONAL:
 
 ### Table Name
 
-The name of the table to hold the encrypted record
+The logical name for the structure.
+This can be the same as the physical name.
+For example the name of the table to hold the encrypted record.
 
 ### Structured Data
 

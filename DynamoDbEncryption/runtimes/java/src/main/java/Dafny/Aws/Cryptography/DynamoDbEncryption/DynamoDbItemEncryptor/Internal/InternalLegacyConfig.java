@@ -260,7 +260,7 @@ public class InternalLegacyConfig {
     try {
       EncryptionContext.Builder encryptionContextBuilder = new EncryptionContext
         .Builder()
-        .withTableName(ToNativeString(config.dtor_tableName()))
+        .withTableName(ToNativeString(config.dtor_logicalTableName()))
         .withHashKeyName(ToNativeString(config.dtor_partitionKeyName()));
 
       final EncryptionContext encryptionContext = config.dtor_sortKeyName().is_Some()

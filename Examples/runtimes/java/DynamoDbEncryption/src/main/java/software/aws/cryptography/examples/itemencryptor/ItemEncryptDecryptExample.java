@@ -92,7 +92,7 @@ public class ItemEncryptDecryptExample {
 
         // 3. Create the configuration for the DynamoDb Item Encryptor
         final DynamoDbItemEncryptorConfig config = DynamoDbItemEncryptorConfig.builder()
-                .tableName(ddbTableName)
+                .logicalTableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActions(attributeActions)

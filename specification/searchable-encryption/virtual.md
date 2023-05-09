@@ -53,7 +53,7 @@ The evaluation of a Virtual Part MUST be the value of its location,
 which is then transformed by each Virtual Transform,
 in the order they are configured.
 
-Evaluation MUST fail if the location does not exist,
+Evaluation MUST return no value if the location does not exist,
 or is not a plain string value.
 
  ### Virtual Transform Initialization
@@ -73,13 +73,15 @@ All transforms take a string as input and produce a string as output.
 
 ### Upper Transform Initialization
 
-On initialization of an Upper Transform, the caller MUST NOT provide any further information
+On initialization of an Upper Transform, the caller MUST NOT provide any
+additional parameters to the Upper Transform.
 
 The Upper transform MUST convert all ascii lowercase characters into their uppercase equivalents. 
 
 ### Lower Transform Initialization
 
-On initialization of a Lower Transform, the caller MUST NOT provide any further information
+On initialization of a Lower Transform, the caller MUST NOT provide any
+additional parameters to the Lower Transform.
 
 The Lower transform MUST convert all ascii uppercase characters into their lowercase equivalents. 
 
@@ -97,12 +99,16 @@ On initialization of a GetPrefix Transform, the caller MUST provide:
 
  * length : an integer
 
+If length is non-negative, the GetPrefix transform MUST return the first `length` characters of the input.
+
+If length is non-negative, and length exceeds the length of the string, the input string MUST be returned.
+
 If length is negative, then the GetPrefix transform MUST return
 all but the last `-length` character of the input.
 
-Otherwise, the GetPrefix transform MUST return the first `length` characters of the input.
+If length is negative and -length exceeds the length on the input,
+the empty string MUST be returned.
 
-In either case, if length exceeds the length of the string, an empty string MUST be returned.
 
 ### GetSuffix Transform Initialization
 
@@ -110,21 +116,24 @@ On initialization of a GetSuffix Transform, the caller MUST provide:
 
  * length : an integer
 
+If length is non-negative, the GetSuffix transform MUST return the last `length` characters of the input.
+
+If length is non-negative, and length exceeds the length of the string, the input string MUST be returned.
+
 If length is negative, then the GetSuffix transform MUST return
 all but the first `-length` character of the input.
 
-Otherwise, the GetSuffix transform MUST return the last `length` characters of the input.
-
-In either case, if length exceeds the length of the string, an empty string MUST be returned.
+If length is negative and -length exceeds the length on the input,
+the empty string MUST be returned.
 
 ### Position Definition
 
 The transforms below refer to positions within a list.
 
-If the position provided is positive, it is the zero-based index from the start of the list.
+If the position provided is positive, it MUST be the zero-based index from the start of the list.
 
-If the position provided is negative, it's absolute value is the
-one-based index from the start of the list, i.e. -1 refers to the last item in the list.
+If the position provided is negative, it's absolute value MUST be the
+one-based index from the end of the list, that is, -1 refers to the last item in the list.
 
 Positions are always clamped to the bounds of the list. That is `-999999999` refers to the first item in the list, and `999999999` refers to the position just after the last item in the list.
 
@@ -150,7 +159,7 @@ On initialization of a GetSegment Transform, the caller MUST provide:
 The GetSegment transform MUST split the input string on the given character,
 and return the item in the resulting list the corresponds to the given position.
 
-If index is greater than the number of items in the list, and empty string MUST be returned.
+If index is greater than the number of items in the list, an empty string MUST be returned.
 
 ### GetSegments Transform Initialization
 
@@ -160,12 +169,12 @@ On initialization of a GetSegments Transform, the caller MUST provide:
  * low : an integer [position](#position-definition)
  * high : an integer [position](#position-definition)
 
-The GetSegment transform MUST split the input string on the `split` character,
-The GetSegments transform MUST MUST split the input string on the given character,
-and return the range of parts from low (inclusive) to high (exclusive),
+The GetSegments transform MUST split the input string on the `split` character.
+
+GetSegments MUST return the range of parts from low (inclusive) to high (exclusive),
 joined on the `split` character.
 
-If high is less than or equal to low, an empty string is returned.
+If high is less than or equal to low, an empty string MUST be returned.
 
 ### Terminal Location
 

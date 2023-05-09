@@ -2,6 +2,7 @@ package software.aws.cryptography.dynamoDbEncryption;
 
 import software.amazon.awssdk.awscore.AwsRequest;
 import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
+import software.amazon.awssdk.core.ClientType;
 import software.amazon.awssdk.core.interceptor.*;
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.SdkResponse;
@@ -18,17 +19,16 @@ import static software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionExe
 import static software.aws.cryptography.dynamoDbEncryption.SupportedOperations.SUPPORTED_OPERATION_NAMES;
 
 /**
- * Implementation of {@link ExecutionInterceptor} with configurable wait times
+ * Implementation of {@link ExecutionInterceptor} that enables client side encryption with DynamoDb.
  */
 public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
     private final DynamoDbTablesEncryptionConfig config;
     private DynamoDbEncryptionTransforms transformer;
 
-    // TODO find where in sdk we can pull this string from
+    // This value is protected in DefaultDynamoDbBaseClientBuilder,
+    // so hardcode here. We do not expect it to change.
     static final String DDB_NAME = "DynamoDb";
-
-    // TODO ensure this is not being run with the Async client.
 
     protected DynamoDbEncryptionInterceptor(BuilderImpl builder) {
         this.config = builder.config();
@@ -52,10 +52,18 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                     .build();
         }
 
+        // Throw an error if this is not a Sync client.
+        if (!executionAttributes.getAttribute(SdkExecutionAttribute.CLIENT_TYPE).equals(ClientType.SYNC)) {
+            throw DynamoDbEncryptionTransformsException.builder()
+                    .message("DynamoDbEncryptionInterceptor does not support use with the Async client.")
+                    .build();
+        }
+
         // Store original request so it can be used when intercepting the response
         executionAttributes.putAttribute(ORIGINAL_REQUEST, originalRequest);
 
         String operationName = executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME);
+        // Ensure we are dealing with a known operation. Otherwise, throw an error.
         checkSupportedOperation(operationName);
 
         SdkRequest outgoingRequest;
@@ -152,7 +160,8 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                 outgoingRequest = copyOverrideConfig((UpdateItemRequest) originalRequest, transformedRequest);
                 break;
             } default: {
-                // passthrough
+                // Currently we only transform the above hardcoded set of APIs.
+                // Passthrough all others.
                 outgoingRequest = originalRequest;
                 break;
             }
@@ -165,14 +174,25 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
         SdkResponse originalResponse = context.response();
 
         // Only transform DDB requests. Otherwise, throw an error.
+        // It should be impossible to encounter this error. Belt and suspenders.
         if (!executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME).equals(DDB_NAME)) {
             throw DynamoDbEncryptionTransformsException.builder()
                     .message("DynamoDbEncryptionInterceptor does not support use with services other than DynamoDb.")
                     .build();
         }
+        // Throw an error if this is not a Sync client.
+        // It should be impossible to encounter this error. Belt and suspenders.
+        if (!executionAttributes.getAttribute(SdkExecutionAttribute.CLIENT_TYPE).equals(ClientType.SYNC)) {
+            throw DynamoDbEncryptionTransformsException.builder()
+                    .message("DynamoDbEncryptionInterceptor does not support use with the Async client.")
+                    .build();
+        }
 
         SdkRequest originalRequest = executionAttributes.getAttribute(ORIGINAL_REQUEST);
+
         String operationName = executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME);
+        // Ensure we are dealing with a known operation. Otherwise, throw an error.
+        // It should be impossible to encounter this error. Belt and suspenders.
         checkSupportedOperation(operationName);
 
         SdkResponse outgoingResponse;
@@ -310,7 +330,8 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                         .build();
                 break;
             } default: {
-                // Passthrough
+                // Currently we only transform the above hardcoded set of APIs.
+                // Passthrough all others.
                 outgoingResponse = originalResponse;
                 break;
             }
@@ -326,6 +347,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
         }
     }
 
+    // We currently assume that the OverrideConfig is the only non-smithy modelled information that we need to preserve
     private AwsRequest copyOverrideConfig(AwsRequest original, AwsRequest transformed) {
         Optional<AwsRequestOverrideConfiguration> config = original.overrideConfiguration();
         if (!config.isPresent()) {

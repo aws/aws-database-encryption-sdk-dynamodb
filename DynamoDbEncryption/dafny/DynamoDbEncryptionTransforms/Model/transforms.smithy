@@ -35,9 +35,6 @@ use com.amazonaws.dynamodb#UpdateTableOutput
 use com.amazonaws.dynamodb#DescribeTableInput
 use com.amazonaws.dynamodb#DescribeTableOutput
 
-// TODO: Model passthrough APIs
-// TODO: Do we model an "unknown operation" somewhere, that just spits out an error?
-
 operation PutItemInputTransform {
     input: PutItemInputTransformInput,
     output: PutItemInputTransformOutput,

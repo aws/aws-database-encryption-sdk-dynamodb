@@ -22,6 +22,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon;
 import software.amazon.cryptography.keyStore.KeyStore;
 import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
+import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
@@ -47,7 +48,8 @@ public class BeaconConfig {
             .kmsClient(KmsClient.create())
             .ddbClient(DynamoDbClient.create())
             .ddbTableName(branchKeyDdbTableName)
-            .kmsKeyArn(branchKeyWrappingKmsKeyArn)
+            .logicalKeyStoreName(branchKeyDdbTableName)
+            .kmsConfiguration(KMSConfiguration.builder().kmsKeyArn(branchKeyWrappingKmsKeyArn).build())
             .build())
         .build();
 
@@ -665,6 +667,7 @@ public class BeaconConfig {
     // 13. Set up table config
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+        .logicalTableName(ddbTableName)
         .partitionKeyName("partition_key")
         .attributeActions(attributeActions)
         .keyring(kmsKeyring)

@@ -27,6 +27,7 @@ import software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon;
 import software.amazon.cryptography.keyStore.KeyStore;
 import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
+import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
@@ -148,7 +149,8 @@ public class CompoundBeaconSearchableEncryptionExample {
             .kmsClient(KmsClient.create())
             .ddbClient(DynamoDbClient.create())
             .ddbTableName(branchKeyDdbTableName)
-            .kmsKeyArn(branchKeyWrappingKmsKeyArn)
+            .logicalKeyStoreName(branchKeyDdbTableName)
+            .kmsConfiguration(KMSConfiguration.builder().kmsKeyArn(branchKeyWrappingKmsKeyArn).build())
             .build())
         .build();
 
@@ -198,6 +200,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+        .logicalTableName(ddbTableName)
         .partitionKeyName("customer_id")
         .attributeActions(attributeActions)
         .keyring(kmsKeyring)

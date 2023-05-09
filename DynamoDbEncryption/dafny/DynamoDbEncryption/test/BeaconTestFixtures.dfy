@@ -31,12 +31,12 @@ module BeaconTestFixtures {
     expect a == b;
   }
 
-  const std2 := StandardBeacon(name := "std2", length := 2, loc := None)
-  const std4 := StandardBeacon(name := "std4", length := 4, loc := Some("std4"))
-  const std6 := StandardBeacon(name := "std6", length := 6, loc := Some("std6[0]"))
-  const NameB := StandardBeacon(name := "Name", length := 12, loc := None)
-  const TitleB := StandardBeacon(name := "Title", length := 12, loc := None)
-  const TooBadB := StandardBeacon(name := "TooBad", length := 12, loc := None)
+  const std2 := StandardBeacon(name := "std2", length := 24, loc := None)
+  const std4 := StandardBeacon(name := "std4", length := 24, loc := Some("std4"))
+  const std6 := StandardBeacon(name := "std6", length := 26, loc := Some("std6[0]"))
+  const NameB := StandardBeacon(name := "Name", length := 32, loc := None)
+  const TitleB := StandardBeacon(name := "Title", length := 32, loc := None)
+  const TooBadB := StandardBeacon(name := "TooBad", length := 32, loc := None)
 
   const Year := NonSensitivePart(name := "Year", prefix := "Y_", loc := None)
   const Month := NonSensitivePart(name := "Month", prefix := "M_", loc := Some("Date.Month"))
@@ -92,6 +92,15 @@ module BeaconTestFixtures {
                                         ])
                  )
 
+  const std2_beacon := "ac6f5d"
+  const Name_beacon := "7d9bfa40"
+  const Title_beacon := "e4feb833"
+  const std4_beacon := "0e9064"
+  const std6_beacon := "2d99222"
+  const NameTitle_beacon := "4c577d7"
+  const EmptyName_beacon := "e0e88994"
+  const EmptyTitle_beacon := "af34f26f"
+
   const Std2String := DDB.AttributeValue.N("1.23")
   const Std4String := DDB.AttributeValue.S("abc")
   const Std6String := DDB.AttributeValue.S("666")
@@ -107,7 +116,7 @@ module BeaconTestFixtures {
   const VPart1 := VirtualPart(loc := "Name", trans := Some([insert(Insert(literal := "__"))]))
   const VPart2 := VirtualPart(loc := "Title", trans := Some([lower(Lower)]))
   const NameTitleField := VirtualField(name := "NameTitleField", parts := [VPart1, VPart2])
-  const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 8, loc := None)
+  const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 28, loc := None)
   const NameVirtField := VirtualField(name := "NameVirtField", parts := [VPart1])
 
   method GetKeyStore() returns (output : SI.ValidStore)
@@ -115,10 +124,15 @@ module BeaconTestFixtures {
   {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDBC.DynamoDBClient();
+    var kmsConfig := KTypes.KMSConfiguration.kmsKeyArn(
+      "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+    );
     var keyStoreConfig := KTypes.KeyStoreConfig(
       id := None,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := "foo",
+      grantTokens := None,
       ddbTableName := "foo",
-      kmsKeyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126",
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
@@ -160,6 +174,7 @@ module BeaconTestFixtures {
   }
 
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
+                              logicalTableName := "Foo",
                               partitionKeyName := "foo",
                               sortKeyName := None,
                               search := None,

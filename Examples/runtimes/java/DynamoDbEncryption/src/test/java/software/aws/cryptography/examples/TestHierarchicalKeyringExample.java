@@ -23,6 +23,7 @@ public class TestHierarchicalKeyringExample {
                 keyId1,
                 keyId2,
                 TestUtils.TEST_KEYSTORE_NAME,
+                TestUtils.TEST_LOGICAL_KEYSTORE_NAME,
                 TestUtils.TEST_KEYSTORE_KMS_KEY_ID);
     }
 }

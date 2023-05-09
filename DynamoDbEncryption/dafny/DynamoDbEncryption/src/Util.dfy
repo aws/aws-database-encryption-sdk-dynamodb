@@ -15,7 +15,34 @@ module DynamoDbEncryptionUtil {
   const VersionPrefix := "aws_dbe_v_"
 
   type HmacKeyMap = map<string, Bytes>
-  
+
+  // For Multi-Tenant Queries, it's OK to have no KeyId in the query
+  // as long as nothing in the query needs a key
+  // The two "ShouldHave" enums below indicate that case
+  // The query MUST fail if the mode is "ShouldHave" and a standard beacon is used
+  //
+  // Counterintuitively, DontUseKeys and DontUseKeyId are very different things.
+  // DontUseKeyId is the usual thing for single tenant, meaning to use the pre-configured
+  // KeyId, rather than fnd a new one from somewhere.
+  // DontUseKeys means to not hash the values into beacons,
+  // but to leave them plaintext, which is necessary for the post-query filtering.
+  datatype MaybeKeyMap =
+    | DontUseKeys
+    | ShouldHaveKeys
+    | Keys(value : HmacKeyMap)
+
+  datatype MaybeKeyId =
+    | DontUseKeyId
+    | ShouldHaveKeyId
+    | KeyId(value : string)
+  function method MaybeFromOptionKeyId(x : Option<string>) : MaybeKeyId
+  {
+    if x.Some? then
+      KeyId(x.value)
+    else
+      DontUseKeyId
+  }
+
   const DDBEC_ATTR_PREFIX := "aws-crypto-attr."
   const DDBEC_EC_ATTR_PREFIX: UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(DDBEC_ATTR_PREFIX)
 

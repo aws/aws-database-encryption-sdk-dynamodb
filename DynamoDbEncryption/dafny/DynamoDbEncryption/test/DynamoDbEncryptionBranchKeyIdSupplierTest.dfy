@@ -23,6 +23,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
   const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
   const branchKeyStoreName := "KeyStoreTestTable";
+  const logicalKeyStoreName := branchKeyStoreName;
 
   // These tests require a keystore populated with a key with this Id
   const BRANCH_KEY_ID := "71c83ce3-aad6-4aab-a4c4-d02bb9273305";
@@ -58,12 +59,15 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     var mpl :- expect MaterialProviders.MaterialProviders();
     var kmsClient :- expect KMS.KMSClient();
     var dynamodbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := KeyStoreTypes.KMSConfiguration.kmsKeyArn(keyArn);
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
-      kmsKeyArn := keyArn,
-      kmsClient := Some(kmsClient),
-      ddbClient := Some(dynamodbClient)
+      ddbClient := Some(dynamodbClient),
+      kmsClient := Some(kmsClient)
     );
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
     var hierarchyKeyring :- expect mpl.CreateAwsKmsHierarchicalKeyring(
@@ -72,8 +76,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
         branchKeyIdSupplier := Some(branchKeyIdSupplier),
         keyStore := keyStore,
         ttlSeconds := ttl,
-        maxCacheSize := Option.Some(10),
-        grantTokens := Option.None
+        maxCacheSize := Option.Some(10)
       )
     );
 
