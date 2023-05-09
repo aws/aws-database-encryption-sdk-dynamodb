@@ -25,7 +25,7 @@ module SearchableEncryptionInfo {
   import Prim = AwsCryptographyPrimitivesTypes
   import MP = AwsCryptographyMaterialProvidersTypes
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
-  import SE = AwsCryptographyStructuredEncryptionTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
