@@ -1,4 +1,4 @@
-package software.aws.cryptography.performance.itemencryptor;
+package software.aws.cryptography.performance.itemencryptor.v3;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +29,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.DATA_TO_ENCRYPT;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.DATA_TO_IGNORE;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.DATA_TO_SIGN;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.PARTITION_ATTRIBUTE;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.SORT_ATTRIBUTE;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.SORT_NUMBER;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.TEST_PK;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.TEST_TABLE;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.UNAUTH_PREFIX;
+
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -36,14 +46,6 @@ import java.util.concurrent.TimeUnit;
 @Warmup(iterations = 2, time = 2)
 @Measurement(iterations = 3, time = 3)
 public abstract class TestBase {
-    public static final String PARTITION_ATTRIBUTE = "partition_attribute";
-    public static final String SORT_ATTRIBUTE = "sort_attribute";
-    public static final String DATA_TO_ENCRYPT = "data_to_encrypt";
-    public static final String DATA_TO_SIGN = "data_to_sign";
-    public static final String DATA_TO_IGNORE = ":data_to_ignore";
-    public static final String TEST_TABLE = "Test_Table";
-    public static final String TEST_PK = "Test_pk";
-    public static final String SORT_NUMBER = "10";
     @Param({"single_attribute.json"})
     protected String plainTextFile;
     protected Map<String, AttributeValue> encryptedAttributes;
@@ -70,7 +72,7 @@ public abstract class TestBase {
                                                                               .sortKeyName(SORT_ATTRIBUTE)
                                                                               .attributeActions(getAttributeActions())
                                                                               .keyring(createKeyring())
-                                                                              .allowedUnauthenticatedAttributePrefix(":")
+                                                                              .allowedUnauthenticatedAttributePrefix(UNAUTH_PREFIX)
                                                                               .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                                                                               .build();
 

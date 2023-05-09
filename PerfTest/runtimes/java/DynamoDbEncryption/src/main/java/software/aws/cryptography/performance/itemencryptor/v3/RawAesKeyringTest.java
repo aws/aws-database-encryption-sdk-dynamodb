@@ -1,4 +1,4 @@
-package software.aws.cryptography.performance.itemencryptor;
+package software.aws.cryptography.performance.itemencryptor.v3;
 
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
@@ -8,10 +8,10 @@ import software.amazon.cryptography.materialProviders.model.MaterialProvidersCon
 
 import java.nio.ByteBuffer;
 
-public class RawAesKeyringTest extends TestBase{
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.KEY_NAME;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.KEY_NAMESPACE;
 
-    public static final String KEY_NAMESPACE = "Key_Namespace";
-    public static final String KEY_NAME = "Key_Name";
+public class RawAesKeyringTest extends TestBase{
 
     @Override
     protected IKeyring createKeyring() {

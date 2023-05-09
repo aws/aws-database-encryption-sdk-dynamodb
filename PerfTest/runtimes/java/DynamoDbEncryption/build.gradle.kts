@@ -1,8 +1,11 @@
+import org.apache.tools.ant.Main
 import java.net.URI
 import javax.annotation.Nullable
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.internal.classpath.Instrumented.systemProperty
 import org.gradle.internal.impldep.org.eclipse.jgit.lib.ObjectChecker.type
+import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.include
 import java.awt.SystemColor.info
 
 plugins {
@@ -46,10 +49,6 @@ if (!caPasswordString.isNullOrBlank()) {
 }
 
 repositories {
-    maven {
-        name = "DynamoDB Local Release Repository - US West (Oregon) Region"
-        url  = URI.create("https://s3-us-west-2.amazonaws.com/dynamodb-local/release")
-    }
     mavenCentral()
     mavenLocal()
     
@@ -72,6 +71,7 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.409")
     implementation("software.amazon.awssdk:kms")
 
     implementation("org.openjdk.jmh:jmh-core:1.36")

@@ -1,4 +1,4 @@
-package software.aws.cryptography.performance.itemencryptor;
+package software.aws.cryptography.performance.itemencryptor.v3;
 
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.materialProviders.IKeyring;
@@ -6,9 +6,10 @@ import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsKeyringInput;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.KMS_KEY_ARN;
+
 public class AwsKmsKeyringTest extends TestBase {
 
-    public static final String AWS_KMS_KEY_ARN = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
 
     @Override
     protected IKeyring createKeyring() {
@@ -16,7 +17,7 @@ public class AwsKmsKeyringTest extends TestBase {
                                                            .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                                                            .build();
         return matProv.CreateAwsKmsKeyring(CreateAwsKmsKeyringInput.builder()
-                                                                   .kmsKeyId(AWS_KMS_KEY_ARN)
+                                                                   .kmsKeyId(KMS_KEY_ARN)
                                                                    .kmsClient(KmsClient.create())
                                                                    .build());
     }
@@ -35,7 +36,7 @@ public class AwsKmsKeyringTest extends TestBase {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        TestBase testBase = new AwsKmsKeyringTest("/Users/scchatur/single_attribute.json");
+        TestBase testBase = new AwsKmsKeyringTest("single_attribute.json");
         testBase.setup();
         testBase.decrypt();
 
