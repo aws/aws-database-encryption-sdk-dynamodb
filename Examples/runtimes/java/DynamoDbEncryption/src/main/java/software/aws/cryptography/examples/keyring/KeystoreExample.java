@@ -7,6 +7,12 @@ import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
 import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 
+/*
+  This is an example that demonstrates a singleton access
+  pattern for a configured keystore. This is a possible
+  access pattern if you are using a single keystore
+  configuration in your code.
+ */
 public class KeystoreExample {
 
   static KeyStore keystore;
