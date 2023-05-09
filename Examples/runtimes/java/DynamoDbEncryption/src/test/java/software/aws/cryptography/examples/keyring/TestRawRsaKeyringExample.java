@@ -1,6 +1,5 @@
 package software.aws.cryptography.examples.keyring;
 
-import java.io.IOException;
 import org.testng.annotations.Test;
 import software.aws.cryptography.examples.TestUtils;
 
