@@ -63,7 +63,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         DynamoDbTable<SimpleClass> table = enhancedClient.table(TEST_TABLE_NAME, tableSchema);
 
         SimpleClass record = new SimpleClass();
-        record.setPartitionKey("foo");
+        record.setPartitionKey("SimpleEnhanced");
         record.setSortKey(777);
         record.setEncryptAndSign("lorem");
         record.setSignOnly("ipsum");
@@ -74,17 +74,69 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
 
         // Get the item back from the table
         Key key = Key.builder()
-                .partitionValue("foo").sortValue(777)
+                .partitionValue("SimpleEnhanced").sortValue(777)
                 .build();
 
         // Get the item by using the key.
         SimpleClass result = table.getItem(
                 (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
-        assertEquals("foo", result.getPartitionKey());
-        assertEquals(777, result.getSortKey());
-        assertEquals("lorem", result.getEncryptAndSign());
-        assertEquals("ipsum", result.getSignOnly());
-        assertEquals("fizzbuzz", result.getDoNothing());
+        assertEquals(result.getPartitionKey(), "SimpleEnhanced");
+        assertEquals(result.getSortKey(), 777);
+        assertEquals(result.getEncryptAndSign(), "lorem");
+        assertEquals(result.getSignOnly(), "ipsum");
+        assertEquals(result.getDoNothing(), "fizzbuzz");
+    }
+
+    @Test
+    public void TestPutAndGetSignOnly() {
+        TableSchema<SignOnlyClass> tableSchema = TableSchema.fromBean(SignOnlyClass.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+                DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(TEST_TABLE_NAME)
+                        .keyring(createKmsKeyring())
+                        .allowedUnauthenticatedAttributes(Arrays.asList("doNothing"))
+                        .tableSchema(tableSchema)
+                        .build());
+        DynamoDbEncryptionInterceptor interceptor =
+                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                        CreateDynamoDbEncryptionInterceptorInput.builder()
+                                .tableEncryptionConfigs(tableConfigs)
+                                .build()
+                );
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptor)
+                                .build())
+                .build();
+        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
+                .dynamoDbClient(ddb)
+                .build();
+
+        DynamoDbTable<SignOnlyClass> table = enhancedClient.table(TEST_TABLE_NAME, tableSchema);
+
+        SignOnlyClass record = new SignOnlyClass();
+        record.setPartitionKey("SignOnlyEnhanced");
+        record.setSortKey(777);
+        record.setAttr1("lorem");
+        record.setAttr2("ipsum");
+
+        // Put an item into an Amazon DynamoDB table.
+        table.putItem(record);
+
+        // Get the item back from the table
+        Key key = Key.builder()
+                .partitionValue("SignOnlyEnhanced").sortValue(777)
+                .build();
+
+        // Get the item by using the key.
+        SignOnlyClass result = table.getItem(
+                (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
+        assertEquals(result.getPartitionKey(), "SignOnlyEnhanced");
+        assertEquals(result.getSortKey(), 777);
+        assertEquals(result.getAttr1(), "lorem");
+        assertEquals(result.getAttr2(), "ipsum");
     }
 
     @Test
