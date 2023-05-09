@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples;
+package software.aws.cryptography.examples.keyring;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -10,7 +10,6 @@ import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionC
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.keyStore.KeyStore;
-import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
 import software.amazon.cryptography.keyStore.model.KMSConfiguration;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
@@ -18,7 +17,6 @@ import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsHierarchicalKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
 import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
