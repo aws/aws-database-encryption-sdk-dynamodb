@@ -24,7 +24,9 @@ import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 public class CreateKeyStoreTableExample {
 
     // Create KeyStore Table Example
-    public static void KeyStoreCreateTable(String keyStoreTableName, String kmsKeyArn) {
+    public static void KeyStoreCreateTable(String keyStoreTableName,
+                                           String logicalKeyStoreName,
+                                           String kmsKeyArn) {
         // 1. Configure your KeyStore resource.
         //    `ddbTableName` is the name you want for the DDB table that
         //    will back your keystore.
@@ -34,6 +36,7 @@ public class CreateKeyStoreTableExample {
                 KeyStoreConfig.builder()
                         .ddbClient(DynamoDbClient.create())
                         .ddbTableName(keyStoreTableName)
+                        .logicalKeyStoreName(logicalKeyStoreName)
                         .kmsClient(KmsClient.create())
                         .kmsConfiguration(KMSConfiguration.builder()
                             .kmsKeyArn(kmsKeyArn)
@@ -55,10 +58,11 @@ public class CreateKeyStoreTableExample {
 
     public static void main(final String[] args) {
         if (args.length <= 1) {
-            throw new IllegalArgumentException("To run this example, include the keyStoreTableName and kmsKeyArn in args");
+            throw new IllegalArgumentException("To run this example, include the keyStoreTableName, logicalKeyStoreName, and kmsKeyArn in args");
         }
         final String keyStoreTableName = args[0];
-        final String kmsKeyArn = args[1];
-        KeyStoreCreateTable(keyStoreTableName, kmsKeyArn);
+        final String logicalKeyStoreName = args[1];
+        final String kmsKeyArn = args[2];
+        KeyStoreCreateTable(keyStoreTableName, logicalKeyStoreName, kmsKeyArn);
     }
 }
