@@ -11,7 +11,7 @@ public class ComplexSearchableEncryptionExample {
   }
 
   public static void main(final String[] args) {
-    if (args.length != 3) {
+    if (args.length <= 1) {
       throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], "
               + "branchKeyId as args[1], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
     }
