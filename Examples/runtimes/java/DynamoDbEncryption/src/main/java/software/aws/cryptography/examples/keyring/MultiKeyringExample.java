@@ -33,14 +33,14 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
   This example sets up DynamoDb Encryption for the AWS SDK client
   using the multi-keyring. This keyring takes in multiple keyrings
   and uses them to encrypt and decrypt data. Data encrypted with
-  a multi-keyring can be decrypted with any of its internal keyrings.
+  a multi-keyring can be decrypted with any of its component keyrings.
 
   For more information on multi-keyrings, see
   https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-multi-keyring.html
 
   This example creates a new multi-keyring consisting of an AWS KMS
   keyring (labeled the "generator keyring") and a raw AES keyring
-  (labelled as the only "child keyring"). It encrypts a test item
+  (labeled as the only "child keyring"). It encrypts a test item
   using the multi-keyring and puts the encrypted item to the provided
   DynamoDb table. Then, it gets the item from the table and decrypts it
   using only the raw AES keyring.
