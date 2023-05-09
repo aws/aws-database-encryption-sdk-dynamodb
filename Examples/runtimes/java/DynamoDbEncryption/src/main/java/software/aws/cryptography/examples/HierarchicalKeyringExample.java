@@ -234,14 +234,14 @@ public class HierarchicalKeyringExample {
     public static void main(final String[] args) {
         if (args.length <= 0) {
             throw new IllegalArgumentException("To run this example, include the ddbTable, tenant1BranchKeyId, "
-                    + "tenant2BranchKeyId, keyStoreTableName, and kmsKeyId in args");
+                    + "tenant2BranchKeyId, keyStoreTableName, logicalKeyStoreName, and kmsKeyId in args");
         }
         final String ddbTableName = args[0];
         final String tenant1BranchKeyId = args[1];
         final String tenant2BranchKeyId = args[2];
         final String keyStoreTableName = args[3];
-        final String logicalKeyStoreName = args[0];
-        final String kmsKeyId = args[4];
+        final String logicalKeyStoreName = args[4];
+        final String kmsKeyId = args[5];
         HierarchicalKeyringGetItemPutItem(ddbTableName, tenant1BranchKeyId, tenant2BranchKeyId, keyStoreTableName, logicalKeyStoreName, kmsKeyId);
     }
 }
