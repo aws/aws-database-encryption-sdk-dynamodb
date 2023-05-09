@@ -179,9 +179,6 @@ public class RawRsaKeyringExample {
         // 8. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
         //    client-side, according to our configuration.
-        //    Because the item we are writing uses "tenantId1" as our partition value,
-        //    based on the code we wrote in the ExampleBranchKeySupplier,
-        //    `tenant1BranchKey` will be used to encrypt this item.
         final HashMap<String, AttributeValue> item = new HashMap<>();
         item.put("partition_key", AttributeValue.builder().s("rawRsaKeyringItem").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
@@ -197,12 +194,9 @@ public class RawRsaKeyringExample {
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 11. Get the item back from our table using the same client.
-        //     The client will decrypt the item client-side, and return
-        //     back the original item.
-        //     Because the returned item's partition value is "tenantId1",
-        //     based on the code we wrote in the ExampleBranchKeySupplier,
-        //     `tenant1BranchKey` will be used to decrypt this item.
+        // 9. Get the item back from our table using the same client.
+        //    The client will decrypt the item client-side, and return
+        //    back the original item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
         keyToGet.put("partition_key", AttributeValue.builder().s("rawRsaKeyringItem").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
