@@ -172,7 +172,7 @@ public class MultiMrkKeyringExample {
         //    The client will decrypt the item client-side using the MRK
         //    and return back the original item.
         //    Since the generator key is the first available key in the keyring,
-        //    that is the key that will be used to decrypt this item.
+        //    that is the KMS Key that will be used to decrypt this item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
         keyToGet.put("partition_key", AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
