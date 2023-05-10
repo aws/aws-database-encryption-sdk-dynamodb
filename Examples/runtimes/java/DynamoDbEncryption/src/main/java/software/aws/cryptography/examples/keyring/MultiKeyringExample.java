@@ -255,20 +255,20 @@ public class MultiKeyringExample {
         //     The client will decrypt the item client-side using the raw
         //     AES keyring, and return back the original item.
         final HashMap<String, AttributeValue> keyToGetForRawAes = new HashMap<>();
-        keyToGet.put("partition_key", AttributeValue.builder().s("multiKeyringItem").build());
-        keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+        keyToGetForRawAes.put("partition_key", AttributeValue.builder().s("multiKeyringItem").build());
+        keyToGetForRawAes.put("sort_key", AttributeValue.builder().n("0").build());
 
-        final GetItemRequest getRequestForRawAws = GetItemRequest.builder()
+        final GetItemRequest getRequestForRawAes = GetItemRequest.builder()
                 .key(keyToGetForRawAes)
                 .tableName(ddbTableName)
                 .build();
 
-        final GetItemResponse getResponseForRawAws = ddbClientForRawAes.getItem(getRequestForRawAws);
+        final GetItemResponse getResponseForRawAes = ddbClientForRawAes.getItem(getRequestForRawAes);
 
         // Demonstrate that GetItem succeeded and returned the decrypted item
         assert 200 == getResponse.sdkHttpResponse().statusCode();
-        final Map<String, AttributeValue> returnedItemForRawAws = getResponseForRawAws.item();
-        assert returnedItemForRawAws.get("sensitive_data").s().equals("encrypt and sign me!");
+        final Map<String, AttributeValue> returnedItemForRawAes = getResponseForRawAes.item();
+        assert returnedItemForRawAes.get("sensitive_data").s().equals("encrypt and sign me!");
     }
 
     public static void main(final String[] args) {
