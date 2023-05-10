@@ -27,16 +27,19 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
   using the raw AES Keyring. This keyring takes in an AES key
-  and uses that key to encrypt and decrypt DynamoDb table items.
+  and uses that key to protect the data keys that encrypt and
+  decrypt DynamoDb table items.
 
-  This example creates a new key, encrypts a test item, and puts the
+  This example takes in an `aesKeyBytes` parameter. This parameter
+  should be a ByteBuffer representing a 256-bit AES key. If this example
+  is run through the class' main method, it will create a new key.
+  In practice, users of this library should not randomly generate a key,
+  and should instead retrieve an existing key from a secure key
+  management system (e.g. an HSM).
+
+  This example encrypts a test item using the provided AES key and puts the
   encrypted item to the provided DynamoDb table. Then, it gets the
   item from the table and decrypts it.
-
-  This example creates a new key on each execution. In practice,
-  users of this library should not do this, and should instead
-  retrieve an existing key from a secure key management system
-  (e.g. an HSM).
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -47,31 +50,13 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
  */
 public class RawAesKeyringExample {
 
-    public static void RawAesKeyringGetItemPutItem(String ddbTableName) {
-        // 1. Generate a 256-bit AES key to use with your keyring.
-        //    This example uses some custom dependencies to generate the key:
-        //     - AWS DynamoDbEncryption client-provided RNG instance (lightweight wrapper for Java's SecureRandom)
-        //     - BouncyCastle KeyGenerator
-        //    You do not need to use these in your own code.
-        //    In practice, you should not generate this key in your code, and should instead
-        //        retrieve this key from a secure key management system (e.g. HSM).
-        //    This key is created here for example purposes only.
-        KeyGenerator aesGen;
-        try {
-            aesGen = KeyGenerator.getInstance("AES");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("No such algorithm", e);
-        }
-        aesGen.init(256, Utils.getRng());
-        SecretKey encryptionKey = aesGen.generateKey();
-        ByteBuffer encryptionKeyByteBuffer = ByteBuffer.wrap(encryptionKey.getEncoded());
-
-        // 2. Create the keyring.
+    public static void RawAesKeyringGetItemPutItem(String ddbTableName, ByteBuffer aesKeyBytes) {
+        // 1. Create the keyring.
         //    The DynamoDb encryption client uses this to encrypt and decrypt items.
         final CreateRawAesKeyringInput keyringInput = CreateRawAesKeyringInput.builder()
-            .keyName("My example key")
-            .keyNamespace("My example key namespace")
-            .wrappingKey(encryptionKeyByteBuffer)
+            .keyName("my-aes-key-name")
+            .keyNamespace("my-key-namespace")
+            .wrappingKey(aesKeyBytes)
             .wrappingAlg(AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16)
             .build();
         final MaterialProviders matProv = MaterialProviders.builder()
@@ -79,7 +64,7 @@ public class RawAesKeyringExample {
             .build();
         IKeyring rawAesKeyring = matProv.CreateRawAesKeyring(keyringInput);
 
-        // 3. Configure which attributes are encrypted and/or signed when writing new items.
+        // 2. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
         //    we must explicitly configure how they should be treated during item encryption:
         //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
@@ -90,7 +75,7 @@ public class RawAesKeyringExample {
         attributeActions.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
         attributeActions.put("sensitive_data", CryptoAction.ENCRYPT_AND_SIGN);
 
-        // 4. Configure which attributes we expect to be included in the signature
+        // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
         //
         //    - (Recommended) Configure `allowedUnauthenticatedAttributesPrefix`:
@@ -120,7 +105,7 @@ public class RawAesKeyringExample {
         //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
         final String unauthAttrPrefix = ":";
 
-        // 5. Create the DynamoDb Encryption configuration for the table we will be writing to.
+        // 4. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
                 .logicalTableName(ddbTableName)
@@ -132,14 +117,14 @@ public class RawAesKeyringExample {
                 .build();
         tableConfigs.put(ddbTableName, config);
 
-        // 6. Create the DynamoDb Encryption Interceptor
+        // 5. Create the DynamoDb Encryption Interceptor
         DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
                 .config(DynamoDbTablesEncryptionConfig.builder()
                         .tableEncryptionConfigs(tableConfigs)
                         .build())
                 .build();
 
-        // 7. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+        // 6. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
         final DynamoDbClient ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -147,7 +132,7 @@ public class RawAesKeyringExample {
                                 .build())
                 .build();
 
-        // 8. Put an item into our table using the above client.
+        // 7. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
         //    client-side, according to our configuration.
         final HashMap<String, AttributeValue> item = new HashMap<>();
@@ -165,7 +150,7 @@ public class RawAesKeyringExample {
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 9. Get the item back from our table using the same client.
+        // 8. Get the item back from our table using the same client.
         //    The client will decrypt the item client-side, and return
         //    back the original item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
@@ -190,6 +175,30 @@ public class RawAesKeyringExample {
             throw new IllegalArgumentException("To run this example, include the ddbTable in args");
         }
         final String ddbTableName = args[0];
-        RawAesKeyringGetItemPutItem(ddbTableName);
+
+        // Generate a new AES key
+        ByteBuffer aesKeyBytes = generateAesKeyBytes();
+
+        RawAesKeyringGetItemPutItem(ddbTableName, aesKeyBytes);
+    }
+
+    static ByteBuffer generateAesKeyBytes() {
+        // This example uses some custom dependencies to generate the key:
+        //  - AWS DynamoDbEncryption client-provided RNG instance (lightweight wrapper for Java's SecureRandom)
+        //  - BouncyCastle KeyGenerator
+        // You do not need to use these in your own code.
+        // In practice, you should not generate this key in your code, and should instead
+        //     retrieve this key from a secure key management system (e.g. HSM).
+        // This key is created here for example purposes only and should not be used for any other purpose.
+        KeyGenerator aesGen;
+        try {
+            aesGen = KeyGenerator.getInstance("AES");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("No such algorithm", e);
+        }
+        aesGen.init(256, Utils.getRng());
+        SecretKey encryptionKey = aesGen.generateKey();
+        ByteBuffer encryptionKeyByteBuffer = ByteBuffer.wrap(encryptionKey.getEncoded());
+        return encryptionKeyByteBuffer;
     }
 }

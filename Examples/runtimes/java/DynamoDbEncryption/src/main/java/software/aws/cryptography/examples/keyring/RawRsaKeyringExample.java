@@ -1,10 +1,18 @@
 package software.aws.cryptography.examples.keyring;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.internal.Utils;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -31,18 +39,30 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
-  using the raw RSA Keyring. This keyring takes in an RSA key pair.
-  The client uses the private key to encrypt items it adds to the table
-  and uses the public key to decrypt existing table items it retrieves.
+  using the raw RSA Keyring. This keyring uses an RSA key pair to
+  encrypt and decrypt records. This keyring accepts PEM encodings of
+  the key pair as UTF-8 interpreted bytes. The client uses the private key
+  to encrypt items it adds to the table and uses the public key to decrypt
+  existing table items it retrieves.
 
-  This example creates a new key pair, encrypts a test item, and puts the
+  This example loads a key pair from PEM files with paths defined in
+   - EXAMPLE_RSA_PRIVATE_KEY_FILENAME
+   - EXAMPLE_RSA_PUBLIC_KEY_FILENAME
+  If you do not provide these files, running this example through this
+  class' main method will generate these files for you. These files will
+  be generated in the directory where the example is run.
+  In practice, users of this library should not generate new key pairs
+  like this, and should instead retrieve an existing key from a secure
+  key management system (e.g. an HSM).
+  You may also provide your own key pair by placing PEM files in the
+  directory where the example is run or modifying the paths in the code
+  below. These files must be valid PEM encodings of the key pair as UTF-8
+  encoded bytes. If you do provide your own key pair, or if a key pair
+  already exists, this class' main method will not generate a new key pair.
+
+  This example loads a key pair from disk, encrypts a test item, and puts the
   encrypted item to the provided DynamoDb table. Then, it gets the
   item from the table and decrypts it.
-
-  This example creates a new key pair on each execution. In practice,
-  users of this library should not do this, and should instead
-  retrieve an existing key from a secure key management system
-  (e.g. an HSM).
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -53,52 +73,35 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
  */
 public class RawRsaKeyringExample {
 
+    private static String EXAMPLE_RSA_PRIVATE_KEY_FILENAME = "RawRsaKeyringExamplePrivateKey.pem";
+    private static String EXAMPLE_RSA_PUBLIC_KEY_FILENAME = "RawRsaKeyringExamplePublicKey.pem";
+
     public static void RawRsaKeyringGetItemPutItem(String ddbTableName) {
-        // 1. Generate a 2048-bit RSA key to use with your keyring.
-        //    This example uses some custom dependencies to generate the key:
-        //     - AWS DynamoDbEncryption client-provided RNG instance (lightweight wrapper for
-        //         java.security.SecureRandom)
-        //     - BouncyCastle KeyPairGenerator
-        //    You do not need to use these in your own code.
-        //    In practice, you should not generate this key in your code, and should instead
-        //        retrieve this key from a secure key management system (e.g. HSM).
-        //    This key is created here for example purposes only.
-        KeyPairGenerator rsaGen;
+        // 1. Load key pair from UTF-8 encoded PEM files.
+        //    You may provide your own PEM files to use here.
+        //    If you do not, the main method in this class will generate PEM
+        //    files for example use. Do not use these files for any other purpose.
+        ByteBuffer publicKeyUtf8EncodedByteBuffer;
         try {
-            rsaGen = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("No such algorithm", e);
-        }
-        rsaGen.initialize(2048, Utils.getRng());
-        KeyPair keyPair = rsaGen.generateKeyPair();
-
-        StringWriter privateKeyStringWriter = new StringWriter();
-        PemWriter privateKeyPemWriter = new PemWriter(privateKeyStringWriter);
-        try {
-            privateKeyPemWriter.writeObject(new PemObject("PRIVATE KEY", keyPair.getPrivate().getEncoded()));
-            privateKeyPemWriter.close();
+            publicKeyUtf8EncodedByteBuffer = ByteBuffer.wrap(
+                Files.readAllBytes(Paths.get(EXAMPLE_RSA_PUBLIC_KEY_FILENAME)));
         } catch (IOException e) {
-            throw new RuntimeException("IOException while writing private key PEM", e);
+            throw new RuntimeException("IOException while reading public key from file", e);
         }
 
-        ByteBuffer privateKeyUtf8EncodedByteBuffer = StandardCharsets.UTF_8.encode(privateKeyStringWriter.toString());
-
-        StringWriter publicKeyStringWriter = new StringWriter();
-        PemWriter publicKeyPemWriter = new PemWriter(publicKeyStringWriter);
+        ByteBuffer privateKeyUtf8EncodedByteBuffer;
         try {
-            publicKeyPemWriter.writeObject(
-                new PemObject("PUBLIC KEY", keyPair.getPublic().getEncoded()));
-            publicKeyPemWriter.close();
+            privateKeyUtf8EncodedByteBuffer = ByteBuffer.wrap(
+                Files.readAllBytes(Paths.get(EXAMPLE_RSA_PRIVATE_KEY_FILENAME)));
         } catch (IOException e) {
-            throw new RuntimeException("IOException while writing public key PEM", e);
+            throw new RuntimeException("IOException while reading private key from file", e);
         }
-        ByteBuffer publicKeyUtf8EncodedByteBuffer = StandardCharsets.UTF_8.encode(publicKeyStringWriter.toString());
 
         // 2. Create the keyring.
         //    The DynamoDb encryption client uses this to encrypt and decrypt items.
         final CreateRawRsaKeyringInput keyringInput = CreateRawRsaKeyringInput.builder()
-            .keyName("My example RSA key")
-            .keyNamespace("My example key namespace")
+            .keyName("my-rsa-key-name")
+            .keyNamespace("my-key-namespace")
             .paddingScheme(PaddingScheme.OAEP_SHA256_MGF1)
             .publicKey(publicKeyUtf8EncodedByteBuffer)
             .privateKey(privateKeyUtf8EncodedByteBuffer)
@@ -219,6 +222,108 @@ public class RawRsaKeyringExample {
             throw new IllegalArgumentException("To run this example, include the ddbTable in args");
         }
         final String ddbTableName = args[0];
+
+        // You may provide your own RSA key pair in the files located at
+        //  - EXAMPLE_RSA_PRIVATE_KEY_FILENAME
+        //  - EXAMPLE_RSA_PUBLIC_KEY_FILENAME
+        // If these files are not present, this will generate a pair for you
+        if (shouldGenerateNewRsaKeyPair()) {
+            generateRsaKeyPair();
+        }
+
         RawRsaKeyringGetItemPutItem(ddbTableName);
+    }
+
+    static boolean shouldGenerateNewRsaKeyPair() {
+        // Check if a key pair already exists
+        File privateKeyFile = new File(EXAMPLE_RSA_PRIVATE_KEY_FILENAME);
+        File publicKeyFile = new File(EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
+
+        // If a key pair already exists: do not overwrite existing key pair
+        if (privateKeyFile.exists() && publicKeyFile.exists()) {
+            return false;
+        }
+
+        // If only one file is present: throw exception
+        if (privateKeyFile.exists() && !publicKeyFile.exists()) {
+            throw new IllegalStateException("Missing public key file at " + EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
+        }
+        if (!privateKeyFile.exists() && publicKeyFile.exists()) {
+            throw new IllegalStateException("Missing private key file at " + EXAMPLE_RSA_PRIVATE_KEY_FILENAME);
+        }
+
+        // If neither file is present, generate a new key pair
+        return true;
+    }
+
+    static void generateRsaKeyPair() {
+        // Safety check: Validate neither file is present
+        File privateKeyFile = new File(EXAMPLE_RSA_PRIVATE_KEY_FILENAME);
+        File publicKeyFile = new File(EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
+        if (privateKeyFile.exists() || publicKeyFile.exists()) {
+            throw new IllegalStateException("generateRsaKeyPair will not overwrite existing PEM files");
+        }
+
+        // This code will generate a new RSA key pair for example use.
+        // The public and private key will be written to the files:
+        //  - public: EXAMPLE_RSA_PUBLIC_KEY_FILENAME
+        //  - private: EXAMPLE_RSA_PRIVATE_KEY_FILENAME
+        // This example uses some custom dependencies to generate the key:
+        //  - AWS DbEncryptionSdk-provided RNG instance (lightweight wrapper for
+        //      java.security.SecureRandom)
+        //  - BouncyCastle KeyPairGenerator
+        // In practice, you should not generate this in your code, and should instead
+        // retrieve this key from a secure key management system (e.g. HSM)
+        // This key is created here for example purposes only.
+        KeyPairGenerator rsaGen;
+        try {
+            rsaGen = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("No such algorithm", e);
+        }
+        rsaGen.initialize(2048, Utils.getRng());
+        KeyPair keyPair = rsaGen.generateKeyPair();
+
+        StringWriter privateKeyStringWriter = new StringWriter();
+        PemWriter privateKeyPemWriter = new PemWriter(privateKeyStringWriter);
+        try {
+            privateKeyPemWriter.writeObject(new PemObject("PRIVATE KEY", keyPair.getPrivate().getEncoded()));
+            privateKeyPemWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException("IOException while writing private key PEM", e);
+        }
+
+        ByteBuffer privateKeyUtf8EncodedByteBuffer = StandardCharsets.UTF_8.encode(privateKeyStringWriter.toString());
+        // Write UTF-8 encoded PEM file
+        try {
+            FileChannel fc = new FileOutputStream(EXAMPLE_RSA_PRIVATE_KEY_FILENAME).getChannel();
+            fc.write(privateKeyUtf8EncodedByteBuffer);
+            fc.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("FileNotFoundException while opening private key FileChannel", e);
+        } catch (IOException e) {
+            throw new RuntimeException("IOException while writing private key or closing FileChannel", e);
+        }
+
+        StringWriter publicKeyStringWriter = new StringWriter();
+        PemWriter publicKeyPemWriter = new PemWriter(publicKeyStringWriter);
+        try {
+            publicKeyPemWriter.writeObject(
+                new PemObject("PUBLIC KEY", keyPair.getPublic().getEncoded()));
+            publicKeyPemWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException("IOException while writing public key PEM", e);
+        }
+        ByteBuffer publicKeyUtf8EncodedByteBuffer = StandardCharsets.UTF_8.encode(publicKeyStringWriter.toString());
+
+        try {
+            FileChannel fc = new FileOutputStream(EXAMPLE_RSA_PUBLIC_KEY_FILENAME).getChannel();
+            fc.write(publicKeyUtf8EncodedByteBuffer);
+            fc.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("FileNotFoundException while opening public key FileChannel", e);
+        } catch (IOException e) {
+            throw new RuntimeException("IOException while writing public key or closing FileChannel", e);
+        }
     }
 }
