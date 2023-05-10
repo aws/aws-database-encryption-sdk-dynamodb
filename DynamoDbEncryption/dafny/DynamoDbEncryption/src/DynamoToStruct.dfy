@@ -1,23 +1,23 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTypes.dfy"
 include "NormalizeNumber.dfy"
 
 module DynamoToStruct {
 
   import opened ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import AwsCryptographyDynamoDbEncryptionTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import UTF8
   import SortedSets
   import Seq
   import Norm = DynamoDbNormalizeNumber
 
-  type Error = AwsCryptographyDynamoDbEncryptionTypes.Error
+  type Error = AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error
 
   type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
   type TerminalDataMap = map<AttributeName, StructuredDataTerminalType>

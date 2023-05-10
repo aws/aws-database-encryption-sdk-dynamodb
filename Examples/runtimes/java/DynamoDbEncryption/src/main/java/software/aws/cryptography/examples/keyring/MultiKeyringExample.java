@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -17,17 +16,17 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.AesWrappingAlg;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.AesWrappingAlg;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsKeyringInput;
+import software.amazon.cryptography.materialproviders.model.CreateMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client

@@ -8,7 +8,7 @@ module DeleteItemTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestDeleteItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -26,7 +26,7 @@ module DeleteItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.DeleteItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.DeleteItemInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.DeleteItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -56,7 +56,7 @@ module DeleteItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.DeleteItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.DeleteItemOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.DeleteItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

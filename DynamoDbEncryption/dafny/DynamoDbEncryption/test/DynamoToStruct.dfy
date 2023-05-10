@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTypes.dfy"
 include "../../DynamoDbEncryption/src/DynamoToStruct.dfy"
 
 module DynamoToStructTest {
@@ -9,7 +9,7 @@ module DynamoToStructTest {
   import opened DynamoToStruct
   import opened Wrappers
   import opened ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StandardLibrary.UInt
 
   method DoFail(data : seq<uint8>, typeId : TerminalTypeId)

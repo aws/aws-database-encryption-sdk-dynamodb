@@ -7,10 +7,10 @@ module BeaconTestFixtures {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened DynamoDbEncryptionUtil
   import DDB = ComAmazonawsDynamodbTypes
-  import SE = AwsCryptographyStructuredEncryptionTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import KeyStore
   import Seq
   import KMS = Com.Amazonaws.Kms

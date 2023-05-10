@@ -8,7 +8,7 @@ module UpdateItemTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestUpdateItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -28,7 +28,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.UpdateItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -55,7 +55,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.UpdateItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -82,7 +82,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.UpdateItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -109,7 +109,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.UpdateItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -141,7 +141,7 @@ module UpdateItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.UpdateItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.UpdateItemOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.UpdateItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

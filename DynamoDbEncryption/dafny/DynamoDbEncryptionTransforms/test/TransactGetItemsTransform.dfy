@@ -8,7 +8,7 @@ module TransactGetItemsTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestTransactGetItemsInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -26,7 +26,7 @@ module TransactGetItemsTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.TransactGetItemsInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactGetItemsInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.TransactGetItemsInputTransformInput(
         sdkInput := input
       )
     );
@@ -55,7 +55,7 @@ module TransactGetItemsTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.TransactGetItemsOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactGetItemsOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.TransactGetItemsOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

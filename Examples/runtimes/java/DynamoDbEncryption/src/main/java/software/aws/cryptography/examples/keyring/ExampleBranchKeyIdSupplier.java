@@ -1,9 +1,9 @@
 package software.aws.cryptography.examples.keyring;
 
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptography.dynamoDbEncryption.IDynamoDbKeyBranchKeyIdSupplier;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.IDynamoDbKeyBranchKeyIdSupplier;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyOutput;
 
 import java.util.Map;
 
