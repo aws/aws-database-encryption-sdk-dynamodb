@@ -150,8 +150,9 @@ public class MultiMrkKeyringExample {
         // 7. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
         //    client-side using the MRK multi-keyring.
-        //    The item will be encrypted with all keys in the keyring,
-        //    so that it can be decrypted with any one of the keys.
+        //    The data key protecting this item will be encrypted
+        //    with all the KMS Keys in this keyring, so that it can be
+        //    decrypted with any one of those KMS Keys.
         final HashMap<String, AttributeValue> item = new HashMap<>();
         item.put("partition_key", AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
