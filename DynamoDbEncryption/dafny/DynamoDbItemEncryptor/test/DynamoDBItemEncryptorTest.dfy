@@ -9,14 +9,14 @@ module DynamoDbItemEncryptorTest {
   import MaterialProviders
   import DynamoDbItemEncryptor
   import AwsCryptographyMaterialProvidersTypes
-  import Types = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
+  import Types = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import UTF8
   import DDB = ComAmazonawsDynamodbTypes
   import TestFixtures
-  import AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
-  import CSE = AwsCryptographyStructuredEncryptionTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
-  import DDBE = AwsCryptographyDynamoDbEncryptionTypes
+  import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import AlgorithmSuites
 
   // round trip
@@ -36,7 +36,7 @@ module DynamoDbItemEncryptorTest {
       )
     );
     expect encryptRes.Failure?;
-    expect encryptRes.error == Types.AwsCryptographyDynamoDbEncryption(
+    expect encryptRes.error == Types.AwsCryptographyDbEncryptionSdkDynamoDb(
       DDBE.DynamoDbEncryptionException(message := "No Crypto Action configured for attribute unknown"));
   }
 

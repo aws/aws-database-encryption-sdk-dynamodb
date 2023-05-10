@@ -6,7 +6,7 @@ module StructuredDataTestFixtures {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
   import MaterialProviders
   import AwsCryptographyMaterialProvidersTypes

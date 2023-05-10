@@ -27,7 +27,7 @@ include "Util.dfy"
 include "SearchInfo.dfy"
 
 module DynamoDBFilterExpr {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
@@ -39,7 +39,7 @@ module DynamoDBFilterExpr {
   import Seq
   import StandardLibrary.String
   import CompoundBeacon
-  import SE = AwsCryptographyStructuredEncryptionTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value

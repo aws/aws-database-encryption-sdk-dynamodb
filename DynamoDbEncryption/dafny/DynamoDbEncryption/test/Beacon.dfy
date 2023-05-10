@@ -4,7 +4,7 @@ include "../src/Index.dfy"
 include "BeaconTestFixtures.dfy"
 
 module TestBaseBeacon {
-  import T = AwsCryptographyDynamoDbEncryptionTypes
+  import T = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened BaseBeacon
   import opened CompoundBeacon
   import opened Wrappers
