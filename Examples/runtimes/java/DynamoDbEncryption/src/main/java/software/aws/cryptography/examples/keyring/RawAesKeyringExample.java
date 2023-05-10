@@ -1,6 +1,5 @@
 package software.aws.cryptography.examples.keyring;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.internal.Utils;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;

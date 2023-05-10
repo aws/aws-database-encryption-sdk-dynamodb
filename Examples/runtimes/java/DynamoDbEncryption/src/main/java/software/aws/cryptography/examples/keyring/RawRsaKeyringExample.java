@@ -1,6 +1,5 @@
 package software.aws.cryptography.examples.keyring;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.internal.Utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
