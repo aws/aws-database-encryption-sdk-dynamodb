@@ -8,7 +8,7 @@ public class TestUtils {
     // These are public KMS Keys that MUST only be used for testing, and MUST NOT be used for any production data
     public static final String TEST_KMS_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
     public static final String TEST_MRK_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7";
-    public static final String TEST_MRK_REPLICA_KEY_ID = "arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7";
+    public static final String TEST_MRK_REPLICA_KEY_ID = "arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7";
 
     // Our tests require access to DDB Table with this name
     public static final String TEST_DDB_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";

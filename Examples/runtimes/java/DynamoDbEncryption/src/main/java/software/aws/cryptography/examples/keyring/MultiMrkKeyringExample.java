@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import software.amazon.awssdk.arns.Arn;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
@@ -48,7 +50,11 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
   This example encrypts a test item using the MRK multi-keyring and puts the
   encrypted item to the provided DynamoDb table. Then, it gets the item
-  from the table and decrypts it using only the replica MRK.
+  from the table and decrypts it using three different configs:
+    1. The MRK multi-keyring, where the MRK key is used to decrypt
+    2. An MRK keyring, where the replica MRK key is used to decrypt
+    3. An AWS KMS keyring, where a standard KMS key that was present
+       in the MRK multi-keyring is used to decrypt
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -56,6 +62,15 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
   primary key configuration:
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
+
+  This example demonstrates multi-region use cases. As a result,
+  it requires that you have a default region set in your AWS client.
+  You can set a default region through the AWS CLI with
+  `aws configure set region [region-name]`
+  e.g.
+  `aws configure set region us-west-2`
+  For more information on using AWS CLI to set config, see
+  https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configure/set.html
  */
 public class MultiMrkKeyringExample {
 
@@ -186,9 +201,12 @@ public class MultiMrkKeyringExample {
         //    can decrypt data created with the original MRK.
         //    Note that this example created a MRK multi-keyring above,
         //    but is creating a standard MRK keyring here.
+        //    Also note that this keyring overrides the default AWS region
+        //    to use the region where the replica MRK exists.
+        final Region mrkReplicaKeyRegion = Region.of(Arn.fromString(mrkReplicaKeyArn).region().get());
         final CreateAwsKmsMrkKeyringInput createAwsKmsMrkKeyringInput =
             CreateAwsKmsMrkKeyringInput.builder()
-                .kmsClient(KmsClient.create())
+                .kmsClient(KmsClient.builder().region(mrkReplicaKeyRegion).build())
                 .kmsKeyId(mrkReplicaKeyArn)
                 .build();
         IKeyring awsKmsMrkKeyring = matProv.CreateAwsKmsMrkKeyring(createAwsKmsMrkKeyringInput);
@@ -232,13 +250,69 @@ public class MultiMrkKeyringExample {
             .tableName(ddbTableName)
             .build();
 
-        final GetItemResponse getResponseForReplica = ddbClient.getItem(getRequestForReplica);
+        final GetItemResponse getResponseForReplica = ddbClientForReplica.getItem(getRequestForReplica);
 
         // Demonstrate that GetItem succeeded and returned the decrypted item
         assert 200 == getResponseForReplica.sdkHttpResponse().statusCode();
         final Map<String, AttributeValue> returnedItemForReplica = getResponseForReplica.item();
         assert returnedItemForReplica.get("sensitive_data").s().equals("encrypt and sign me!");
 
+        // 12. Create an AWS KMS keyring using the KMS key ARN.
+        //     We will use this to demonstrate that the KMS key
+        //     can decrypt data created with the MRK multi-keyring,
+        //     since it is present in the keyring.
+        final CreateAwsKmsKeyringInput createAwsKmsKeyringInput =
+            CreateAwsKmsKeyringInput.builder()
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(keyArn)
+                .build();
+        IKeyring awsKmsKeyring = matProv.CreateAwsKmsKeyring(createAwsKmsKeyringInput);
+
+        // 13. Create a new config and client using the AWS KMS keyring.
+        //     This is the same setup as above, except we provide the AWS KMS keyring to the config.
+        final Map<String, DynamoDbTableEncryptionConfig> tableConfigsForStandardKmsKey = new HashMap<>();
+        final DynamoDbTableEncryptionConfig configForStandardKmsKey = DynamoDbTableEncryptionConfig.builder()
+            .logicalTableName(ddbTableName)
+            .partitionKeyName("partition_key")
+            .sortKeyName("sort_key")
+            .attributeActions(attributeActions)
+            // AWS KMS keyring added here
+            .keyring(awsKmsKeyring)
+            .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
+            .build();
+        tableConfigsForStandardKmsKey.put(ddbTableName, configForStandardKmsKey);
+
+        DynamoDbEncryptionInterceptor encryptionInterceptorForStandardKmsKey = DynamoDbEncryptionInterceptor.builder()
+            .config(DynamoDbTablesEncryptionConfig.builder()
+                .tableEncryptionConfigs(tableConfigsForStandardKmsKey)
+                .build())
+            .build();
+
+        final DynamoDbClient ddbClientForStandardKmsKey = DynamoDbClient.builder()
+            .overrideConfiguration(
+                ClientOverrideConfiguration.builder()
+                    .addExecutionInterceptor(encryptionInterceptorForStandardKmsKey)
+                    .build())
+            .build();
+
+        // 14. Get the item back from our table using the client configured with the AWS KMS keyring.
+        //     The client will decrypt the item client-side using the AWS KMS key
+        //     and return back the original item.
+        final HashMap<String, AttributeValue> keyToGetForStandardKmsKey = new HashMap<>();
+        keyToGetForStandardKmsKey.put("partition_key", AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build());
+        keyToGetForStandardKmsKey.put("sort_key", AttributeValue.builder().n("0").build());
+
+        final GetItemRequest getRequestForStandardKmsKey = GetItemRequest.builder()
+            .key(keyToGetForStandardKmsKey)
+            .tableName(ddbTableName)
+            .build();
+
+        final GetItemResponse getResponseForStandardKmsKey = ddbClientForStandardKmsKey.getItem(getRequestForStandardKmsKey);
+
+        // Demonstrate that GetItem succeeded and returned the decrypted item
+        assert 200 == getResponseForStandardKmsKey.sdkHttpResponse().statusCode();
+        final Map<String, AttributeValue> returnedItemForStandardKmsKey = getResponseForStandardKmsKey.item();
+        assert returnedItemForStandardKmsKey.get("sensitive_data").s().equals("encrypt and sign me!");
     }
 
     public static void main(final String[] args) {
