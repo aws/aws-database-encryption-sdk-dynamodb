@@ -6,7 +6,7 @@ include "BeaconTestFixtures.dfy"
 include "../src/ConfigToInfo.dfy"
 
 module TestDynamoDBFilterExpr {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened ComAmazonawsDynamodbTypes
   import opened DynamoDBFilterExpr
   import opened Wrappers

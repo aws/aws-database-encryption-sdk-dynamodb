@@ -6,7 +6,7 @@ include "../../StructuredEncryption/src/Index.dfy"
 module TestHeader {
   import opened Wrappers
   import opened StandardLibrary.UInt
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
 
   import StructuredEncryption

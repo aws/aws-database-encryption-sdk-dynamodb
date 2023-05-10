@@ -8,7 +8,7 @@ module ScanTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestScanInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -32,7 +32,7 @@ module ScanTransformTest {
       ConsistentRead := None()
     );
     var transformed := middlewareUnderTest.ScanInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.ScanInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ScanInputTransformInput(
         sdkInput := input
       )
     );
@@ -70,7 +70,7 @@ module ScanTransformTest {
       ConsistentRead := None()
     );
     var transformed := middlewareUnderTest.ScanOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.ScanOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ScanOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

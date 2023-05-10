@@ -5,7 +5,7 @@ include "DynamoToStruct.dfy"
 include "Util.dfy"
 
 module DynamoDbEncryptionBranchKeyIdSupplier {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
   import DDB = ComAmazonawsDynamodbTypes
   import opened Seq

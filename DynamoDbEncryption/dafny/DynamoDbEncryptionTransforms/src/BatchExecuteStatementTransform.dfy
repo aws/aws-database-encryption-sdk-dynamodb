@@ -8,8 +8,8 @@ module BatchExecuteStatementTransform {
   import opened DdbMiddlewareConfig
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
-  import EncTypes = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import Seq
   import DdbStatement
 

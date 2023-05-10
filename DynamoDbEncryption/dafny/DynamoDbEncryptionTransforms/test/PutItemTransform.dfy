@@ -8,7 +8,7 @@ module PutItemTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestPutItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -26,7 +26,7 @@ module PutItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.PutItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.PutItemInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -56,7 +56,7 @@ module PutItemTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.PutItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.PutItemOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

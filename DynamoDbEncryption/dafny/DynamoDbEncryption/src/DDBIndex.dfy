@@ -12,7 +12,7 @@ include "FilterExpr.dfy"
 module DynamoDBIndexSupport {
 
   import DDB = ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
@@ -23,7 +23,7 @@ module DynamoDBIndexSupport {
   import SortedSets
   import Seq
   import Update = DynamoDbUpdateExpr
-  import SET = AwsCryptographyStructuredEncryptionTypes
+  import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import Filter = DynamoDBFilterExpr
 
   // transform beacon name to plain names
@@ -37,7 +37,7 @@ module DynamoDBIndexSupport {
 
   // transform beacon names to plain names in KeySchemaAttributeName
   function method UnbeaconKeySchemaAttributeName(s : DDB.KeySchemaAttributeName)
-    : Result<DDB.KeySchemaAttributeName, AwsCryptographyDynamoDbEncryptionTypes.Error>
+    : Result<DDB.KeySchemaAttributeName, AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error>
   {
     if ReservedPrefix <= s then
       var ret := s[|ReservedPrefix|..];

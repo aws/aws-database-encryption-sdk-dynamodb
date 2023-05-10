@@ -44,7 +44,7 @@ import java.util.function.Function;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import software.amazon.cryptography.dynamoDbEncryption.ILegacyDynamoDbEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
 
 /**
  * The low-level API used by {@link AttributeEncryptor} to perform crypto operations on the record

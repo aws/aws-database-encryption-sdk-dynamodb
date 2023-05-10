@@ -8,7 +8,7 @@ module QueryTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestQueryInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -33,7 +33,7 @@ module QueryTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.QueryInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.QueryInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.QueryInputTransformInput(
         sdkInput := input
       )
     );
@@ -72,7 +72,7 @@ module QueryTransformTest {
       ExpressionAttributeValues := None()
     );
     var transformed := middlewareUnderTest.QueryOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.QueryOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.QueryOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )
