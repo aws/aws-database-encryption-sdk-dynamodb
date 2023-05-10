@@ -2,26 +2,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "DdbMiddlewareConfig.dfy"
-include "AwsCryptographyDynamoDbEncryptionTransformsOperations.dfy"
+include "AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations.dfy"
 include "../../DynamoDbEncryption/src/ConfigToInfo.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.Transforms" }
-  DynamoDbEncryptionTransforms refines AbstractAwsCryptographyDynamoDbEncryptionTransformsService
+  {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny" }
+  DynamoDbEncryptionTransforms refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
 {
   import opened DdbMiddlewareConfig
   import opened StandardLibrary
-  import AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
-  import Operations = AwsCryptographyDynamoDbEncryptionTransformsOperations
+  import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+  import Operations = AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations
   import DynamoDbItemEncryptor
   import SearchConfigToInfo
   import Seq
-  import ET = AwsCryptographyDynamoDbEncryptionTypes
-  import SET = AwsCryptographyStructuredEncryptionTypes
+  import ET = AwsCryptographyDbEncryptionSdkDynamoDbTypes
+  import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import DDB = ComAmazonawsDynamodbTypes
 
   // There is no sensible default, so we express something empty but invalid at runtime.
-  function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig
+  function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig
   {
     ET.DynamoDbTablesEncryptionConfig(
       tableEncryptionConfigs := map[]
@@ -33,7 +33,7 @@ module
     forall t <- config.tableEncryptionConfigs :: SearchConfigToInfo.ValidSearchConfig(config.tableEncryptionConfigs[t].search)
   }
 
-  function TheModifies(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig) : set<object>
+  function TheModifies(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig) : set<object>
   {
   var tmps11 := set t11 | t11 in config.tableEncryptionConfigs.Values
     && t11.search.Some? 
@@ -46,14 +46,14 @@ module
   :: tmp13ModifyEntry)
   }
 
-  function SearchModifies(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig, tableName : string)
+  function SearchModifies(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig, tableName : string)
     : set<object>
     requires tableName in config.tableEncryptionConfigs
   {
     var inputConfig := config.tableEncryptionConfigs[tableName];
     if inputConfig.search.Some? then inputConfig.search.value.versions[0].keyStore.Modifies else {}
   }
-  lemma {:axiom} SearchInModifies(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig, tableName : string)
+  lemma {:axiom} SearchInModifies(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig, tableName : string)
     requires tableName in config.tableEncryptionConfigs
     ensures SearchModifies(config, tableName) <= TheModifies(config)
 
@@ -66,7 +66,7 @@ module
       AddSignedBeaconActions(names[1..], actions[names[0] := SET.SIGN_ONLY])
   }
 
-  predicate method IsConfigured(config : AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTableEncryptionConfig, name : string)
+  predicate method IsConfigured(config : AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig, name : string)
   {
     || name in config.attributeActions
     || (config.allowedUnauthenticatedAttributes.Some? && name in config.allowedUnauthenticatedAttributes.value)
@@ -80,7 +80,7 @@ module
   }
   predicate {:opaque} CorrectlyTransferedStructure?(
     internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig>,
-    config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig
+    config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig
   )
     ensures 0 == |internalConfigs| ==> CorrectlyTransferedStructure?(internalConfigs, config)
   {
@@ -92,7 +92,7 @@ module
   predicate {:opaque} ConfigsMatch(
     tableName: string,
     internalConfig: DdbMiddlewareConfig.ValidTableConfig,
-    inputConfig: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTableEncryptionConfig
+    inputConfig: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig
   )
   {
     && tableName == internalConfig.physicalTableName
@@ -101,7 +101,7 @@ module
     && inputConfig.sortKeyName == internalConfig.sortKeyName
   }
 
-  method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDynamoDbEncryptionTypes.DynamoDbTablesEncryptionConfig)
+  method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
       //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
       //= type=implication
@@ -148,7 +148,7 @@ module
         assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
         SearchInModifies(config, tableName);
         var searchR := SearchConfigToInfo.Convert(inputConfig);
-        var search :- searchR.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+        var search :- searchR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
         assert search.None? || search.value.ValidState();
 
         // Add Signed Beacons to attributeActions
@@ -167,7 +167,7 @@ module
         //# `NAME` MUST be automatically configured with an attribute action of SIGN_ONLY.
         var newActions := AddSignedBeaconActions(signedBeacons, inputConfig.attributeActions);
 
-        var encryptorConfig := AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.DynamoDbItemEncryptorConfig(
+        var encryptorConfig := AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.DynamoDbItemEncryptorConfig(
           logicalTableName := inputConfig.logicalTableName,
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
@@ -182,7 +182,7 @@ module
         );
         var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
         var itemEncryptor :- itemEncryptorRes
-          .MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e));
+          .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(e));
 
         var internalConfig: DdbMiddlewareConfig.ValidTableConfig := DdbMiddlewareConfig.TableConfig(
           physicalTableName := tableName,

@@ -8,7 +8,7 @@ module BatchGetItemTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
 
   method {:test} TestBatchGetItemInputTransform() {
@@ -28,7 +28,7 @@ module BatchGetItemTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.BatchGetItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchGetItemInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.BatchGetItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -59,7 +59,7 @@ module BatchGetItemTransformTest {
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.BatchGetItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchGetItemOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.BatchGetItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

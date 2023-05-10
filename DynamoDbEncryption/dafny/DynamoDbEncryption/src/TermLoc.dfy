@@ -24,7 +24,7 @@ module TermLoc {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened DynamoDbEncryptionUtil
   import StandardLibrary.String
   import DDB = ComAmazonawsDynamodbTypes

@@ -7,7 +7,7 @@ include "CompoundBeacon.dfy"
 include "Virtual.dfy"
 
 module SearchableEncryptionInfo {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import BaseBeacon
   import CompoundBeacon
   import opened TermLoc
@@ -25,7 +25,7 @@ module SearchableEncryptionInfo {
   import Prim = AwsCryptographyPrimitivesTypes
   import MP = AwsCryptographyMaterialProvidersTypes
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
-  import SE = AwsCryptographyStructuredEncryptionTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication

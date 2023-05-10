@@ -10,7 +10,7 @@ module BaseBeacon {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened StandardLibrary.String
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened HexStrings
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
