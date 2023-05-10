@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -266,10 +267,7 @@ public class RawRsaKeyringExample {
         // The public and private key will be written to the files:
         //  - public: EXAMPLE_RSA_PUBLIC_KEY_FILENAME
         //  - private: EXAMPLE_RSA_PRIVATE_KEY_FILENAME
-        // This example uses some custom dependencies to generate the key:
-        //  - AWS DbEncryptionSdk-provided RNG instance (lightweight wrapper for
-        //      java.security.SecureRandom)
-        //  - BouncyCastle KeyPairGenerator
+        // This example uses BouncyCastle's KeyPairGenerator to generate the key pair.
         // In practice, you should not generate this in your code, and should instead
         // retrieve this key from a secure key management system (e.g. HSM)
         // This key is created here for example purposes only.
@@ -279,7 +277,7 @@ public class RawRsaKeyringExample {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("No such algorithm", e);
         }
-        rsaGen.initialize(2048, Utils.getRng());
+        rsaGen.initialize(2048, new SecureRandom());
         KeyPair keyPair = rsaGen.generateKeyPair();
 
         StringWriter privateKeyStringWriter = new StringWriter();

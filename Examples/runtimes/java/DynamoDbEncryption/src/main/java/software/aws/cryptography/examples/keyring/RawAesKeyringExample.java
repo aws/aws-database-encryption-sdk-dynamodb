@@ -3,6 +3,7 @@ package software.aws.cryptography.examples.keyring;
 import com.amazonaws.services.dynamodbv2.datamodeling.internal.Utils;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.KeyGenerator;
@@ -183,10 +184,7 @@ public class RawAesKeyringExample {
     }
 
     static ByteBuffer generateAesKeyBytes() {
-        // This example uses some custom dependencies to generate the key:
-        //  - AWS DynamoDbEncryption client-provided RNG instance (lightweight wrapper for Java's SecureRandom)
-        //  - BouncyCastle KeyGenerator
-        // You do not need to use these in your own code.
+        // This example uses BouncyCastle's KeyGenerator to generate the key bytes.
         // In practice, you should not generate this key in your code, and should instead
         //     retrieve this key from a secure key management system (e.g. HSM).
         // This key is created here for example purposes only and should not be used for any other purpose.
@@ -196,7 +194,7 @@ public class RawAesKeyringExample {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("No such algorithm", e);
         }
-        aesGen.init(256, Utils.getRng());
+        aesGen.init(256, new SecureRandom());
         SecretKey encryptionKey = aesGen.generateKey();
         ByteBuffer encryptionKeyByteBuffer = ByteBuffer.wrap(encryptionKey.getEncoded());
         return encryptionKeyByteBuffer;
