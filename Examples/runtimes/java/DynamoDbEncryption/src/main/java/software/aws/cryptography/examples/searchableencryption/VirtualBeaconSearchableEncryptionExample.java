@@ -15,9 +15,6 @@ import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySource;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconVersion;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CompoundBeacon;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Constructor;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.ConstructorPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPrefix;
@@ -28,7 +25,6 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualField;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualTransform;
 import software.amazon.cryptography.keystore.KeyStore;
-import software.amazon.cryptography.keystore.model.CreateKeyOutput;
 import software.amazon.cryptography.keystore.model.KMSConfiguration;
 import software.amazon.cryptography.keystore.model.KeyStoreConfig;
 import software.amazon.cryptography.materialproviders.IKeyring;
@@ -86,9 +82,8 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
   following primary key configuration:
     - Partition key is named "customer_id" with type (S)
     - Sort key is named "create_time" with type (S)
-  This table must have a Global Secondary Index (GSI) configured named "state-zip-index":
-    - Partition key is named "aws_dbe_b_state" with type (S)
-    - Sort key is named "aws_dbe_b_zip" with type (S)
+  This table must have a Global Secondary Index (GSI) configured named "stateAndCustomerData-index":
+    - Partition key is named "aws_dbe_b_stateAndCustomerData" with type (S)
 
   In this example for storing customer location data, this schema is utilized for the data:
    - "customer_id" stores a unique customer identifier
@@ -101,20 +96,17 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
+    2. Branch key ID for a branch key that was previously created in your key store. See the
+       CreateKeyStoreKeyExample.
     2. Branch key wrapping KMS key ARN for the KMS key used to create the branch key
     3. Branch key DDB table name for the DDB table representing the branch key store
  */
 
 public class VirtualBeaconSearchableEncryptionExample {
 
-  // In this example, we re-use the index from the BasicSearchableEncryptionExample.
-  // We will use a filter expression to implement our query against our beaconized virtual field.
-  // This demonstrates that you do not need to create a new GSI for every query,
-  // and might be able to re-use existing GSIs if the primary key is similar enough.
-  // This is done as an example only; we could have also created a new GSI for this query.
-  static String GSI_NAME = "state-zip-index";
+  static String GSI_NAME = "stateAndCustomerData-index";
 
-  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId,
+  public static void PutItemQueryItemWithVirtualBeacon(String ddbTableName, String branchKeyId,
       String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
     // 1. Construct a length-1 prefix virtual transform.
     //    `customerData` is a binary attribute, containing either `true` or `false`.
@@ -122,7 +114,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //    of `customerData` in the virtual field to the length-1 prefix of the binary value, i.e.:
     //     - "true" -> "t"
     //     - "false -> "f"
-    //    This is not necessary and is done as a demonstration of virtual transforms.
+    //    This is not necessary, but is done as a demonstration of virtual transforms.
     //    Virtual transform operations treat all attributes as strings,
     //      i.e. the binary `true` is interpreted as a string "true",
     //    so its length-1 prefix is just "t".
@@ -338,7 +330,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //     aws_dbe_b_state = truncate(HMAC("WA"), 4)
     //     aws_dbe_b_zip = truncate(HMAC("98101"), 10)
 
-    // Add a record in CA with customer data
+    // Add record with customerData=true
     final HashMap<String, AttributeValue> itemWithCustomerData = new HashMap<>();
     itemWithCustomerData.put("customer_id", AttributeValue.builder().s("ABC-123").build());
     itemWithCustomerData.put("create_time", AttributeValue.builder().n("1681495205").build());
@@ -355,14 +347,13 @@ public class VirtualBeaconSearchableEncryptionExample {
     // Assert PutItem was successful
     assert 200 == itemWithCustomerDataPutResponse.sdkHttpResponse().statusCode();
 
-    // Add record in CA with no customer data
+    // Add record with customerData=false
     final HashMap<String, AttributeValue> itemWithNoCustomerData = new HashMap<>();
     itemWithNoCustomerData.put("customer_id", AttributeValue.builder().s("DEF-456").build());
     itemWithNoCustomerData.put("create_time", AttributeValue.builder().n("1681495205").build());
     itemWithNoCustomerData.put("state", AttributeValue.builder().s("CA").build());
     itemWithNoCustomerData.put("zip", AttributeValue.builder().s("94111").build());
     itemWithNoCustomerData.put("customerData", AttributeValue.builder().bool(false).build());
-
 
     final PutItemRequest itemWithNoCustomerDataPutRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
@@ -386,12 +377,9 @@ public class VirtualBeaconSearchableEncryptionExample {
     //     This procedure is internal to the client and is abstracted away from the user;
     //     e.g. the user will only see "CA" and never "DC", though the actual query returned both.
     Map<String,String> expressionAttributesNames = new HashMap<>();
-    expressionAttributesNames.put("#s", "state");
     expressionAttributesNames.put("#scd", "stateAndCustomerData");
 
     Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
-    expressionAttributeValues.put(":s", AttributeValue.builder().s("CA").build());
-
     // We are querying for the item with `state`="CA" and `customerData`=`true`.
     // Since we added virtual parts as `state` then `customerData`,
     // we must write our query expression in the same order.
@@ -405,8 +393,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     QueryRequest queryRequest = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
-        .keyConditionExpression("#s = :s")
-        .filterExpression("#scd = :scd")
+        .keyConditionExpression("#scd = :scd")
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
@@ -431,6 +418,6 @@ public class VirtualBeaconSearchableEncryptionExample {
     final String branchKeyId = args[1];
     final String branchKeyWrappingKmsKeyArn = args[2];
     final String branchKeyDdbTableName = args[3];
-    PutItemQueryItemWithBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName);
+    PutItemQueryItemWithVirtualBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName);
   }
 }

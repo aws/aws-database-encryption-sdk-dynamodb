@@ -2,12 +2,11 @@ package software.aws.cryptography.examples.searchableencryption;
 
 import org.testng.annotations.Test;
 import software.aws.cryptography.examples.CreateKeyStoreKeyExample;
-import software.aws.cryptography.examples.TestUtils;
 
 public class TestVirtualBeaconSearchableEncryptionExample {
 
   @Test
-  public void TestVirtualBeaconExample() {
+  public void TestVirtualBeaconExample() throws InterruptedException {
     // Create new branch key for test
     String keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey(
         SearchableEncryptionTestUtils.TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME,
@@ -20,8 +19,9 @@ public class TestVirtualBeaconSearchableEncryptionExample {
     Thread.sleep(5000);
 
     // TODO rename method
-    VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithBeacon(
+    VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(
         SearchableEncryptionTestUtils.TEST_DDB_TABLE_NAME,
+        keyId,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME);
   }
