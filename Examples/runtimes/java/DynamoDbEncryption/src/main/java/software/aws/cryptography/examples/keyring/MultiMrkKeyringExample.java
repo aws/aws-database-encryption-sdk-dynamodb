@@ -27,7 +27,7 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
   using the MRK multi-keyring. This keyring takes in multiple AWS KMS
-  MRKs (multi-region keys) or regular AWS KMS keys (single-region keys; SRKs)
+  MRKs (multi-region keys) or regular AWS KMS keys (single-region keys)
   and uses them to encrypt and decrypt data. Data encrypted using an MRK
   multi-keyring can be decrypted using any of its component keys. If a component
   key is an MRK with a replica in a second region, the replica key can also be
@@ -40,15 +40,15 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
   https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-multi-keyring.html
 
   This example creates a new MRK multi-keyring consisting of one MRK
-  (labeled as the "generator keyring") and one SRK (labeled as the only
-  "child keyring"). The MRK also has a replica in a second region.
+  (labeled as the "generator keyring") and one single-region key (labeled
+   as the only "child keyring"). The MRK also has a replica in a second region.
 
   This example encrypts a test item using the MRK multi-keyring and puts the
   encrypted item to the provided DynamoDb table. Then, it gets the item
   from the table and decrypts it using three different configs:
     1. The MRK multi-keyring, where the MRK key is used to decrypt
     2. Another MRK multi-keyring, where the replica MRK key is used to decrypt
-    3. Another MRK multi-keyring, where the SRK that was present
+    3. Another MRK multi-keyring, where the single-region key that was present
        in the original MRK multi-keyring is used to decrypt
 
   Running this example requires access to the DDB Table whose name
@@ -71,12 +71,12 @@ public class MultiMrkKeyringExample {
 
     public static void MultiMrkKeyringGetItemPutItem(String ddbTableName, String mrkKeyArn, String keyArn,
             String mrkReplicaKeyArn) {
-        // 1. Create a single MRK multi-keyring using the MRK arn and the SRK arn.
+        // 1. Create a single MRK multi-keyring using the MRK arn and the single-region key arn.
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
         // Create the multi-keyring, using the MRK as the generator key,
-        //   and the SRK as a child key.
+        //   and the single-region key as a child key.
         // Note that the generator key will generate and encrypt a plaintext data key
         //   and all child keys will only encrypt that same plaintext data key.
         // As such, you must have permission to call KMS:GenerateDataKey on your generator key
@@ -257,8 +257,8 @@ public class MultiMrkKeyringExample {
         final Map<String, AttributeValue> onlyReplicaKeyReturnedItem = onlyReplicaKeyGetResponse.item();
         assert onlyReplicaKeyReturnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
 
-        // 12. Create an AWS KMS keyring using the SRK ARN.
-        //     We will use this to demonstrate that the SRK
+        // 12. Create an AWS KMS keyring using the single-region key ARN.
+        //     We will use this to demonstrate that the single-region key
         //     can decrypt data created with the MRK multi-keyring,
         //     since it is present in the keyring used to encrypt.
         final CreateAwsKmsMrkMultiKeyringInput onlySrkCreateAwsKmsMrkMultiKeyringInput =
@@ -275,7 +275,7 @@ public class MultiMrkKeyringExample {
             .partitionKeyName("partition_key")
             .sortKeyName("sort_key")
             .attributeActions(attributeActions)
-            // Only SRK keyring added here
+            // Only single-region key keyring added here
             .keyring(onlySrkKeyring)
             .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
             .build();
@@ -295,7 +295,7 @@ public class MultiMrkKeyringExample {
             .build();
 
         // 14. Get the item back from our table using the client configured with the AWS KMS keyring.
-        //     The client will decrypt the item client-side using the SRK
+        //     The client will decrypt the item client-side using the single-region key
         //     and return back the original item.
         final HashMap<String, AttributeValue> onlySrkKeyToGet = new HashMap<>();
         onlySrkKeyToGet.put("partition_key", AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build());
