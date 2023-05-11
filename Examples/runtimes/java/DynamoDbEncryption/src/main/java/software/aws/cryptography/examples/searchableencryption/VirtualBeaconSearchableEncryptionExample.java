@@ -35,8 +35,18 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
 import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
-  This example demonstrates how to set up a virtual beacon on one or
-  more attributes, put an item with that beacon, and query against that beacon.
+  This example demonstrates how to set up a virtual field from two DDB
+  attributes, create a standard beacon with that field, put an item with
+  that beacon, and query against that beacon.
+
+  A virtual field is a field consisting of a transformation of one or more attributes in a DDB item.
+  Virtual fields are not stored in the DDB table. However, they are used to construct
+  a beacon, the value of which is stored. For our example, we will construct a virtual field
+  from two DDB attributes `state` and `hasSensitiveData` as `state`+prefix(`hasSensitiveData`, 1).
+  We will then create beacon out of this virtual field and use it to search.
+
+  In general, if you wish to use a field with only a handful possible values, it is suggested
+  to construct a virtual field to enable effective querying while obfuscating underlying data.
 
   This example follows a use case of a database that stores customer location data. This is an
   extension of the "BasicSearchableEncryptionExample" in this directory. This example uses the same
@@ -56,12 +66,12 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
   properties on our table:
    1. Obfuscate whether a record's `hasSensitiveData` attribute is `true` or `false`
    2. Query against a combination of whether `hasSensitiveData` is true/false and the `state` field
-  We could not achieve these properties with a standard beacon on an empty/non-empty attribute.
-
-  Following the guidance to choose a beacon length in the BasicSearchableEncryptionExample for
-  a boolean value (in our case, whether `hasSensitiveData` is empty or non-empty), the acceptable
+  We could not achieve these properties with a standard beacon on an true/false attribute.Following
+  the guidance to choose a beacon length:
+    TODO: link
+  For a boolean value (in our case, whether `hasSensitiveData` is true or false), the acceptable
   bounds for beacon length are either 0 or 1. This corresponds to either not storing a beacon
-  (length 0), or effectively directly storing an empty/non-empty attribute (length 1). With
+  (length 0), or effectively directly storing an true/false attribute (length 1). With
   length 0, this beacon is useless for searching (violating property 2); with length 1, this
   beacon does not obfuscate the attribute (violating property 1).
 
@@ -69,15 +79,10 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
    concatenation of standard beacons, i.e. beacon(`state`)+beacon(`hasSensitiveData`).
    The `state` beacon is still visible, so we would still have the problems above.)
 
-  To achieve these properties, we instead construct a virtual field and use that in our beacon.
-  A virtual field is a transformation of one or more fields that is not stored, but is used to
-  construct a beacon that is stored. For our example, we will construct a virtual field as
-  `state`+`hasSensitiveData`. We will create beacon out of this, i.e. beacon(`state`+`hasSensitiveData`).
-  This gives us both desired properties. The reasoning behind this and this construction
-  is described in the example below.
-
-  In general, if you wish to use a field with only a handful possible values, it is suggested
-  to construct a virtual field to enable effective querying while obfuscating underlying data.
+  To achieve these properties, we instead construct a virtual field and use that in our beacon,
+  i.e. beacon(`state`+`hasSensitiveData`). This gives us both desired properties; we can query
+  against both attributes while obfuscating the underlying data. This is demonstrated in more
+  detail below.
 
   Running this example requires access to a DDB table  with the
   following primary key configuration:
@@ -116,7 +121,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //    of `hasSensitiveData` in the virtual field to the length-1 prefix of the binary value, i.e.:
     //     - "true" -> "t"
     //     - "false -> "f"
-    //    This is not necessary, but is done as a demonstration of virtual transforms.
+    //    This is not necessary. This is done as a demonstration of virtual transforms.
     //    Virtual transform operations treat all attributes as strings,
     //      i.e. the binary `true` is interpreted as a string "true",
     //    so its length-1 prefix is just "t".
@@ -159,7 +164,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     // 4. Configure our beacon.
     //    The virtual field is assumed to hold a well-distributed US 2-letter state abbreviation
     //      (56 possible values = 50 states + 6 territories) concatenated with a binary attribute
-    //      (2 possible values: empty/non-empty hasSensitiveData field), we expect a population size of
+    //      (2 possible values: true/false hasSensitiveData field), we expect a population size of
     //      (56 * 2 = 112) possible values.
     //    The following link provides guidance on choosing a beacon length:
     //       TODO: add link
@@ -175,7 +180,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //    Values stored in aws_dbe_b_stateAndHasSensitiveData will be 5 bits long (0x00 - 0x1f)
     //    There will be 2^5 = 32 possible HMAC values.
     //    With well-distributed plaintext data (112 values), we expect (112/32) = 3.5 combinations of
-    //       abbreviation + empty/non-empty attribute sharing the same beacon value.
+    //       abbreviation + true/false attribute sharing the same beacon value.
     //    NOTE: This example assumes that the field values are well-distributed. In practice, this will not be true.
     //          Some flaws in this assumption:
     //           - More populous states would be expected to have more records; those beacons will be overused
@@ -217,7 +222,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //        (for example if your table holds data for multiple tenants, and you want to use
     //        a different beacon key per tenant), look into configuring a Multi Beacon Key.
     //        Source: TODO example
-    //    We also provide our standard beacons and virtual fields here.
+    //    We also provide our standard beacon list and virtual fields here.
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()
@@ -301,9 +306,9 @@ public class VirtualBeaconSearchableEncryptionExample {
 
     // 12. Put two items into our table using the above client.
     //     The two items will differ only in their `customer_id` attribute (primary key)
-    //     and their `hasSensitiveData` attribute.
+    //         and their `hasSensitiveData` attribute.
     //     We will query against these items to demonstrate how to use our setup above
-    //     to query against our `stateAndHasSensitiveData` beacon.
+    //         to query against our `stateAndHasSensitiveData` beacon.
     //     Before the item gets sent to DynamoDb, it will be encrypted
     //         client-side, according to our configuration.
     //     Since our configuration includes a beacon on a virtual field named
