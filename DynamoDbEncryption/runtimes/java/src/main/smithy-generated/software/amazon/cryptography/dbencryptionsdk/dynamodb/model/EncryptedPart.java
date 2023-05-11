@@ -5,12 +5,12 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
-public class SensitivePart {
+public class EncryptedPart {
   private final String name;
 
   private final String prefix;
 
-  protected SensitivePart(BuilderImpl builder) {
+  protected EncryptedPart(BuilderImpl builder) {
     this.name = builder.name();
     this.prefix = builder.prefix();
   }
@@ -40,7 +40,7 @@ public class SensitivePart {
 
     String prefix();
 
-    SensitivePart build();
+    EncryptedPart build();
   }
 
   static class BuilderImpl implements Builder {
@@ -51,7 +51,7 @@ public class SensitivePart {
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(SensitivePart model) {
+    protected BuilderImpl(EncryptedPart model) {
       this.name = model.name();
       this.prefix = model.prefix();
     }
@@ -74,7 +74,7 @@ public class SensitivePart {
       return this.prefix;
     }
 
-    public SensitivePart build() {
+    public EncryptedPart build() {
       if (Objects.isNull(this.name()))  {
         throw new IllegalArgumentException("Missing value for required field `name`");
       }
@@ -84,7 +84,7 @@ public class SensitivePart {
       if (Objects.nonNull(this.prefix()) && this.prefix().length() < 1) {
         throw new IllegalArgumentException("The size of `prefix` must be greater than or equal to 1");
       }
-      return new SensitivePart(this);
+      return new EncryptedPart(this);
     }
   }
 }
