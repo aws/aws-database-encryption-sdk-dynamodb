@@ -1,6 +1,7 @@
-package software.aws.cryptography.examples;
+package software.aws.cryptography.examples.keyring;
 
 import org.testng.annotations.Test;
+import software.aws.cryptography.examples.TestUtils;
 
 public class TestHierarchicalKeyringExample {
     @Test
