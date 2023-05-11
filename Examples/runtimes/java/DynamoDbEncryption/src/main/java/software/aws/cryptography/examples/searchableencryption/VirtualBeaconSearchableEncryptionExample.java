@@ -113,7 +113,8 @@ public class VirtualBeaconSearchableEncryptionExample {
   // This is done as an example only; we could have also created a new GSI for this query.
   static String GSI_NAME = "state-zip-index";
 
-  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
+  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId,
+      String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
     // 1. Construct a length-1 prefix virtual transform.
     //    `customerData` is a binary attribute, containing either `true` or `false`.
     //    As an example to demonstrate virtual transforms, we will truncate the value
@@ -213,11 +214,10 @@ public class VirtualBeaconSearchableEncryptionExample {
         .build();
     standardBeaconList.add(stateAndCustomerDataBeacon);
 
-    // 5. Create Keystore.
-    //    The keystore is a separate DDB table where the client stores encryption and decryption materials.
-    //    In order to configure beacons on the DDB client, you must configure a keystore.
-    //    For more information, see:
-    //    TODO: Add link
+    // 5. Configure Keystore.
+    //    This example expects that you have already set up a KeyStore with a single branch key.
+    //    See the "Create KeyStore Table Example" and "Create KeyStore Key Example" for how to do this.
+    //    After you create a branch key, you should persist its ID for use in this example.
     KeyStore keyStore = KeyStore.builder()
         .KeyStoreConfig(KeyStoreConfig.builder()
             .kmsClient(KmsClient.create())
@@ -228,20 +228,7 @@ public class VirtualBeaconSearchableEncryptionExample {
             .build())
         .build();
 
-    // 6. Create a branch key.
-    //    The branch key stores information required to encrypt and decrypt items on the main table.
-    //    This key lives as an item inside the keystore DDB table.
-    //    After you create a branch key, you should persist its ID to decrypt items in the table.
-    //    For simple use cases, we can configure a 'singleKeySource' which
-    //    statically configures a single beaconKey. That is the approach this example takes.
-    //    For use cases where you want to use different beacon keys depending on the data
-    //    (for example if your table holds data for multiple tenants, and you want to use
-    //    a different beacon key per tenant), look into configuring a Multi Beacon Key.
-    //    Source: TODO example
-    CreateKeyOutput output = keyStore.CreateKey();
-    String branchKeyId = output.branchKeyIdentifier();
-
-    // 4. Create BeaconVersion.
+    // 6. Create BeaconVersion.
     //    The BeaconVersion inside the list holds the list of beacons on the table.
     //    The BeaconVersion also stores information about the keystore.
     //    BeaconVersion must be provided:
@@ -252,7 +239,6 @@ public class VirtualBeaconSearchableEncryptionExample {
         BeaconVersion.builder()
             .virtualFields(virtualFieldList)
             .standardBeacons(standardBeaconList)
-//            .compoundBeacons(compoundBeaconList)
             .version(1) // MUST be 1
             .keyStore(keyStore)
             .keySource(BeaconKeySource.builder()
