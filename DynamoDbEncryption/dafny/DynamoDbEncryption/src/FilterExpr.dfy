@@ -350,7 +350,7 @@ module DynamoDBFilterExpr {
     if b.Standard? then
       Failure(E("The operation BETWEEN cannot be used with a standard beacon."))
     else
-      // between is ok if both limits have a matching prefix followed by a nonsensitive part.
+      // between is ok if both limits have a matching prefix followed by a signed part.
       var leftVal :- GetStringFromValue(leftValue, values, b);
       var rightVal :- GetStringFromValue(rightValue, values, b);
       var leftParts := Split(leftVal, b.cmp.split);
@@ -1445,7 +1445,7 @@ module DynamoDBFilterExpr {
       None
     else
       var parts := bv.beacons[attr].cmp.parts;
-      var theParts := Seq.Filter((p : CompoundBeacon.BeaconPart) => p.NonSensitive? && p.loc[0].key == keyIdField, parts);
+      var theParts := Seq.Filter((p : CompoundBeacon.BeaconPart) => p.Signed? && p.loc[0].key == keyIdField, parts);
       if |theParts| != 1 then
         None
       else

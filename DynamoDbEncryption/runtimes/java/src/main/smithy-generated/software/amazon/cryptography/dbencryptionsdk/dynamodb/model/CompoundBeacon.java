@@ -11,17 +11,17 @@ public class CompoundBeacon {
 
   private final String split;
 
-  private final List<SensitivePart> sensitive;
+  private final List<EncryptedPart> encrypted;
 
-  private final List<NonSensitivePart> nonSensitive;
+  private final List<SignedPart> signed;
 
   private final List<Constructor> constructors;
 
   protected CompoundBeacon(BuilderImpl builder) {
     this.name = builder.name();
     this.split = builder.split();
-    this.sensitive = builder.sensitive();
-    this.nonSensitive = builder.nonSensitive();
+    this.encrypted = builder.encrypted();
+    this.signed = builder.signed();
     this.constructors = builder.constructors();
   }
 
@@ -33,12 +33,12 @@ public class CompoundBeacon {
     return this.split;
   }
 
-  public List<SensitivePart> sensitive() {
-    return this.sensitive;
+  public List<EncryptedPart> encrypted() {
+    return this.encrypted;
   }
 
-  public List<NonSensitivePart> nonSensitive() {
-    return this.nonSensitive;
+  public List<SignedPart> signed() {
+    return this.signed;
   }
 
   public List<Constructor> constructors() {
@@ -62,13 +62,13 @@ public class CompoundBeacon {
 
     String split();
 
-    Builder sensitive(List<SensitivePart> sensitive);
+    Builder encrypted(List<EncryptedPart> encrypted);
 
-    List<SensitivePart> sensitive();
+    List<EncryptedPart> encrypted();
 
-    Builder nonSensitive(List<NonSensitivePart> nonSensitive);
+    Builder signed(List<SignedPart> signed);
 
-    List<NonSensitivePart> nonSensitive();
+    List<SignedPart> signed();
 
     Builder constructors(List<Constructor> constructors);
 
@@ -82,9 +82,9 @@ public class CompoundBeacon {
 
     protected String split;
 
-    protected List<SensitivePart> sensitive;
+    protected List<EncryptedPart> encrypted;
 
-    protected List<NonSensitivePart> nonSensitive;
+    protected List<SignedPart> signed;
 
     protected List<Constructor> constructors;
 
@@ -94,8 +94,8 @@ public class CompoundBeacon {
     protected BuilderImpl(CompoundBeacon model) {
       this.name = model.name();
       this.split = model.split();
-      this.sensitive = model.sensitive();
-      this.nonSensitive = model.nonSensitive();
+      this.encrypted = model.encrypted();
+      this.signed = model.signed();
       this.constructors = model.constructors();
     }
 
@@ -117,22 +117,22 @@ public class CompoundBeacon {
       return this.split;
     }
 
-    public Builder sensitive(List<SensitivePart> sensitive) {
-      this.sensitive = sensitive;
+    public Builder encrypted(List<EncryptedPart> encrypted) {
+      this.encrypted = encrypted;
       return this;
     }
 
-    public List<SensitivePart> sensitive() {
-      return this.sensitive;
+    public List<EncryptedPart> encrypted() {
+      return this.encrypted;
     }
 
-    public Builder nonSensitive(List<NonSensitivePart> nonSensitive) {
-      this.nonSensitive = nonSensitive;
+    public Builder signed(List<SignedPart> signed) {
+      this.signed = signed;
       return this;
     }
 
-    public List<NonSensitivePart> nonSensitive() {
-      return this.nonSensitive;
+    public List<SignedPart> signed() {
+      return this.signed;
     }
 
     public Builder constructors(List<Constructor> constructors) {
@@ -157,11 +157,11 @@ public class CompoundBeacon {
       if (Objects.nonNull(this.split()) && this.split().length() > 1) {
         throw new IllegalArgumentException("The size of `split` must be less than or equal to 1");
       }
-      if (Objects.nonNull(this.sensitive()) && this.sensitive().size() < 1) {
-        throw new IllegalArgumentException("The size of `sensitive` must be greater than or equal to 1");
+      if (Objects.nonNull(this.encrypted()) && this.encrypted().size() < 1) {
+        throw new IllegalArgumentException("The size of `encrypted` must be greater than or equal to 1");
       }
-      if (Objects.nonNull(this.nonSensitive()) && this.nonSensitive().size() < 1) {
-        throw new IllegalArgumentException("The size of `nonSensitive` must be greater than or equal to 1");
+      if (Objects.nonNull(this.signed()) && this.signed().size() < 1) {
+        throw new IllegalArgumentException("The size of `signed` must be greater than or equal to 1");
       }
       if (Objects.nonNull(this.constructors()) && this.constructors().size() < 1) {
         throw new IllegalArgumentException("The size of `constructors` must be greater than or equal to 1");

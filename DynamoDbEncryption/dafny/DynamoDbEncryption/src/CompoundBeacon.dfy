@@ -24,39 +24,39 @@ module CompoundBeacon {
   type Prefix = x : string | 0 < |x| witness *
 
   datatype BeaconPart =
-    | Sensitive(prefix : Prefix, beacon : BaseBeacon.StandardBeacon)
-    | NonSensitive(prefix : Prefix, name : string, loc : TermLoc)
+    | Encrypted(prefix : Prefix, beacon : BaseBeacon.StandardBeacon)
+    | Signed(prefix : Prefix, name : string, loc : TermLoc)
   {
 
     function method getPrefix() : string
     {
       match this {
-        case Sensitive(p, b) => p
-        case NonSensitive(p, n, l) => p
+        case Encrypted(p, b) => p
+        case Signed(p, n, l) => p
       }
     }
 
     function method getName() : string
     {
       match this {
-        case Sensitive(p, b) => b.base.name
-        case NonSensitive(p, n, l) => n
+        case Encrypted(p, b) => b.base.name
+        case Signed(p, n, l) => n
       }
     }
 
     function method getString(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<string>, Error>
     {
       match this {
-        case Sensitive(p, b) => VirtToString(b.loc, item, vf)
-        case NonSensitive(p, n, l) => VirtToString(l, item, vf)
+        case Encrypted(p, b) => VirtToString(b.loc, item, vf)
+        case Signed(p, n, l) => VirtToString(l, item, vf)
       }
     }
 
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
       match this {
-        case Sensitive(p, b) => b.GetFields(virtualFields)
-        case NonSensitive(p, n, l) =>
+        case Encrypted(p, b) => b.GetFields(virtualFields)
+        case Signed(p, n, l) =>
           if loc[0].key in virtualFields then
             virtualFields[loc[0].key].GetFields()
           else
@@ -88,13 +88,13 @@ module CompoundBeacon {
   function method MakeCompoundBeacon(
     base : BeaconBase,
     split : char,
-    parts : seq<BeaconPart>, // Non-Sensitive followed by Sensitive
-    numNonSensitive : nat,
+    parts : seq<BeaconPart>, // Signed followed by Encrypted
+    numSigned : nat,
     construct : ConstructorList
   )
     : (ret : Result<ValidCompoundBeacon, Error>)
-    requires numNonSensitive <= |parts|
-    requires OrderedParts(parts, numNonSensitive)
+    requires numSigned <= |parts|
+    requires OrderedParts(parts, numSigned)
 
     //= specification/searchable-encryption/beacons.md#initialization-failure
     //= type=implication
@@ -102,33 +102,33 @@ module CompoundBeacon {
     //# the `prefix` of any other [part](#part).
     ensures ret.Success? ==> ret.value.ValidPrefixSet()
   {
-    var x := CompoundBeacon.CompoundBeacon(base, split, parts, numNonSensitive, construct);
+    var x := CompoundBeacon.CompoundBeacon(base, split, parts, numSigned, construct);
     var _ :- x.ValidPrefixSetResult();
     Success(x)
   }
 
   // are the parts properly ordered?
-  // that is, with the non-sensitive parts followed the sensitive parts
+  // that is, with the signed parts followed the encrypted parts
   predicate OrderedParts(p : seq<BeaconPart>, n : nat)
     requires n <= |p|
   {
-    && (forall x | 0 <= x < n :: p[x].NonSensitive?)
-    && (forall x | n <= x < |p| :: p[x].Sensitive?)
+    && (forall x | 0 <= x < n :: p[x].Signed?)
+    && (forall x | n <= x < |p| :: p[x].Encrypted?)
   }
 
   datatype CompoundBeacon = CompoundBeacon(
     base : BeaconBase,
     split : char,
     parts : seq<BeaconPart>,
-    numNonSensitive : nat,
+    numSigned : nat,
     construct : ConstructorList
   ) {
 
     predicate ValidState()
     {
       && ValidPrefixSet()
-      && numNonSensitive <= |parts|
-      && OrderedParts(parts, numNonSensitive)
+      && numSigned <= |parts|
+      && OrderedParts(parts, numSigned)
     }
 
     // no prefix is a prefix of another prefix
@@ -140,9 +140,9 @@ module CompoundBeacon {
         :: OkPrefixPair(x, y)
     }
 
-    // Does this beacon have any sensitive parts
+    // Does this beacon have any encrypted parts
     predicate method isEncrypted() {
-      numNonSensitive < |parts|
+      numSigned < |parts|
     }
 
     // find the part whose prefix matches this value
@@ -166,14 +166,14 @@ module CompoundBeacon {
         partFromPrefix(p[1..], value)
     }
 
-    // trim leading pieces that refer to nonsensitive parts
+    // trim leading pieces that refer to signed parts
     function method SkipSignedPieces(pieces : seq<string>) : Result<seq<string>, Error>
     {
       if |pieces| == 0 then
         Success(pieces)
       else
         var p :- partFromPrefix(parts, pieces[0]);
-        if p.Sensitive? then
+        if p.Encrypted? then
           Success(pieces)
         else
           SkipSignedPieces(pieces[1..])
@@ -477,9 +477,9 @@ module CompoundBeacon {
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
-      //# If the part is a [nonsensitive part](#non-sensitive-part-initialization),
+      //# If the part is a [signed part](#signed-part-initialization),
       //# the part value MUST be the concatenation of the part's prefix and the input string.
-      ensures part.NonSensitive? && ret.Success? ==>
+      ensures part.Signed? && ret.Success? ==>
                 && ret.value == part.prefix + data
                 && 0 < |ret.value|
                    //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
@@ -489,10 +489,10 @@ module CompoundBeacon {
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
       //= type=implication
-      //# If the part is a [sensitive part](#sensitive-part-initialization),
+      //# If the part is a [encrypted part](#encrypted-part-initialization),
       //# the part value MUST be the concatenation of the part's prefix
       //# and the [string hash](#string-hash) of the input string.
-      ensures part.Sensitive? && ret.Success? ==>
+      ensures part.Encrypted? && ret.Success? ==>
                 && 0 < |ret.value|
                 && keys.Keys?
                 && part.beacon.hashStr(data, keys.value).Success?
@@ -504,11 +504,11 @@ module CompoundBeacon {
     {
       :- Need(split !in data, E("Value '" + data + "' for beacon part " + part.getName() + " contains the split character '" + [split] + "'."));
       match part {
-        case Sensitive(p, b) =>
+        case Encrypted(p, b) =>
           :- Need(keys.Keys?, E("Need KeyId for beacon " + b.base.name + " but no KeyId found in query."));
           var hash :- b.hashStr(data, keys.value);
           Success(part.prefix + hash)
-        case NonSensitive =>
+        case Signed =>
           Success(part.prefix + data)
       }
     }

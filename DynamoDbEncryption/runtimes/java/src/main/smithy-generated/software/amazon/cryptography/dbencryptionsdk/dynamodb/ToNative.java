@@ -28,6 +28,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncry
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPrefix;
@@ -40,11 +41,10 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Lower;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.MultiKeyStore;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.NonSensitivePart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SensitivePart;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SignedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Upper;
@@ -123,11 +123,11 @@ public class ToNative {
     CompoundBeacon.Builder nativeBuilder = CompoundBeacon.builder();
     nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
     nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
-    if (dafnyValue.dtor_sensitive().is_Some()) {
-      nativeBuilder.sensitive(ToNative.SensitivePartsList(dafnyValue.dtor_sensitive().dtor_value()));
+    if (dafnyValue.dtor_encrypted().is_Some()) {
+      nativeBuilder.encrypted(ToNative.EncryptedPartsList(dafnyValue.dtor_encrypted().dtor_value()));
     }
-    if (dafnyValue.dtor_nonSensitive().is_Some()) {
-      nativeBuilder.nonSensitive(ToNative.NonSensitivePartsList(dafnyValue.dtor_nonSensitive().dtor_value()));
+    if (dafnyValue.dtor_signed().is_Some()) {
+      nativeBuilder.signed(ToNative.SignedPartsList(dafnyValue.dtor_signed().dtor_value()));
     }
     if (dafnyValue.dtor_constructors().is_Some()) {
       nativeBuilder.constructors(ToNative.ConstructorList(dafnyValue.dtor_constructors().dtor_value()));
@@ -210,6 +210,14 @@ public class ToNative {
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbTablesEncryptionConfig dafnyValue) {
     DynamoDbTablesEncryptionConfig.Builder nativeBuilder = DynamoDbTablesEncryptionConfig.builder();
     nativeBuilder.tableEncryptionConfigs(ToNative.DynamoDbTableEncryptionConfigList(dafnyValue.dtor_tableEncryptionConfigs()));
+    return nativeBuilder.build();
+  }
+
+  public static EncryptedPart EncryptedPart(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.EncryptedPart dafnyValue) {
+    EncryptedPart.Builder nativeBuilder = EncryptedPart.builder();
+    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.prefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
     return nativeBuilder.build();
   }
 
@@ -300,17 +308,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static NonSensitivePart NonSensitivePart(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.NonSensitivePart dafnyValue) {
-    NonSensitivePart.Builder nativeBuilder = NonSensitivePart.builder();
-    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
-    nativeBuilder.prefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
-    if (dafnyValue.dtor_loc().is_Some()) {
-      nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static SearchConfig SearchConfig(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SearchConfig dafnyValue) {
     SearchConfig.Builder nativeBuilder = SearchConfig.builder();
@@ -319,11 +316,14 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static SensitivePart SensitivePart(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SensitivePart dafnyValue) {
-    SensitivePart.Builder nativeBuilder = SensitivePart.builder();
+  public static SignedPart SignedPart(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SignedPart dafnyValue) {
+    SignedPart.Builder nativeBuilder = SignedPart.builder();
     nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
     nativeBuilder.prefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
+    if (dafnyValue.dtor_loc().is_Some()) {
+      nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 
@@ -468,18 +468,18 @@ public class ToNative {
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::ConstructorPart);
   }
 
-  public static List<NonSensitivePart> NonSensitivePartsList(
-      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.NonSensitivePart> dafnyValue) {
+  public static List<EncryptedPart> EncryptedPartsList(
+      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.EncryptedPart> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
-        software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::NonSensitivePart);
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::EncryptedPart);
   }
 
-  public static List<SensitivePart> SensitivePartsList(
-      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SensitivePart> dafnyValue) {
+  public static List<SignedPart> SignedPartsList(
+      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SignedPart> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
-        software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::SensitivePart);
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::SignedPart);
   }
 
   public static List<StandardBeacon> StandardBeaconList(
