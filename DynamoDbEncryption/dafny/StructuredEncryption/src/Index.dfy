@@ -1,14 +1,14 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AwsCryptographyStructuredEncryptionOperations.dfy"
+include "AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.StructuredEncryption" }
-  StructuredEncryption refines AbstractAwsCryptographyStructuredEncryptionService
+  {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny" }
+  StructuredEncryption refines AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionService
 {
 
-  import Operations = AwsCryptographyStructuredEncryptionOperations
+  import Operations = AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations
   import Aws.Cryptography.Primitives
   import MaterialProviders
 

@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 include "Util.dfy"
 include "Header.dfy"
 
@@ -21,7 +21,7 @@ module StructuredEncryptionFooter {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
   import Aws.Cryptography.Primitives
   import Materials

@@ -1,13 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../Model/AwsCryptographyDynamoDbEncryptionTransformsTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.dfy"
 
 module DdbMiddlewareConfig {
   import opened Wrappers
-  import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import DynamoDbItemEncryptor
-  import EncTypes = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
-  import DDBE = AwsCryptographyDynamoDbEncryptionTypes
+  import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+  import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import SearchableEncryptionInfo
   
   datatype TableConfig = TableConfig(
@@ -79,7 +79,7 @@ module DdbMiddlewareConfig {
   )
 
   function method MapError<T>(r : Result<T, EncTypes.Error>) : Result<T, Error> {
-    r.MapFailure(e => AwsCryptographyDynamoDbEncryptionItemEncryptor(e))
+    r.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(e))
   }
 
   function method MapString<T>(r : Result<T, string>) : Result<T, Error> {

@@ -1,19 +1,19 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
+include "AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.dfy"
 include "Util.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor" }
-  DynamoDbItemEncryptor refines AbstractAwsCryptographyDynamoDbEncryptionItemEncryptorService
+  {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny" }
+  DynamoDbItemEncryptor refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService
 {
   import opened DynamoDbItemEncryptorUtil
   import StructuredEncryption
-  import CSE = AwsCryptographyStructuredEncryptionTypes
-  import DDBE = AwsCryptographyDynamoDbEncryptionTypes
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import MaterialProviders
-  import Operations = AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
+  import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   import SE =  StructuredEncryptionUtil
   import InternalLegacyConfig
 
@@ -125,7 +125,7 @@ module
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
     var structuredEncryption :- structuredEncryptionRes
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
+      .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
 
     var cmm;
     if (config.cmm.Some?) {

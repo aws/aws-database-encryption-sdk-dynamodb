@@ -1,16 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 
 module StructuredEncryptionUtil {
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes
-  import CSE = AwsCryptographyStructuredEncryptionTypes
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import AlgorithmSuites
 
   // all attributes with this prefix reserved for the implementation

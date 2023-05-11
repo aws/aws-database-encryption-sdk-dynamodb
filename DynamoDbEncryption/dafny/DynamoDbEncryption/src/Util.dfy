@@ -1,10 +1,10 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyDynamoDbEncryptionTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTypes.dfy"
 
 module DynamoDbEncryptionUtil {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt

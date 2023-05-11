@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 include "Util.dfy"
 
 // The only entry point currently used is SimpleCanon
@@ -12,7 +12,7 @@ module StructuredEncryptionPaths {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened StructuredEncryptionUtil
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
   datatype Selector =
     | List(pos : uint64)

@@ -27,7 +27,7 @@ include "Util.dfy"
 include "SearchInfo.dfy"
 
 module DynamoDBFilterExpr {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
@@ -39,7 +39,7 @@ module DynamoDBFilterExpr {
   import Seq
   import StandardLibrary.String
   import CompoundBeacon
-  import SE = AwsCryptographyStructuredEncryptionTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
@@ -350,7 +350,7 @@ module DynamoDBFilterExpr {
     if b.Standard? then
       Failure(E("The operation BETWEEN cannot be used with a standard beacon."))
     else
-      // between is ok if both limits have a matching prefix followed by a nonsensitive part.
+      // between is ok if both limits have a matching prefix followed by a signed part.
       var leftVal :- GetStringFromValue(leftValue, values, b);
       var rightVal :- GetStringFromValue(rightValue, values, b);
       var leftParts := Split(leftVal, b.cmp.split);
@@ -1445,7 +1445,7 @@ module DynamoDBFilterExpr {
       None
     else
       var parts := bv.beacons[attr].cmp.parts;
-      var theParts := Seq.Filter((p : CompoundBeacon.BeaconPart) => p.NonSensitive? && p.loc[0].key == keyIdField, parts);
+      var theParts := Seq.Filter((p : CompoundBeacon.BeaconPart) => p.Signed? && p.loc[0].key == keyIdField, parts);
       if |theParts| != 1 then
         None
       else

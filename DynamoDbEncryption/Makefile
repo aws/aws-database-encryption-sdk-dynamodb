@@ -15,10 +15,10 @@ PROJECT_SERVICES := \
 
 # Namespace for each local service
 # Currently our build relies on local services and namespaces being 1:1
-SERVICE_NAMESPACE_StructuredEncryption=aws.cryptography.structuredEncryption
-SERVICE_NAMESPACE_DynamoDbEncryption=aws.cryptography.dynamoDbEncryption
-SERVICE_NAMESPACE_DynamoDbItemEncryptor=aws.cryptography.dynamoDbEncryption.itemEncryptor
-SERVICE_NAMESPACE_DynamoDbEncryptionTransforms=aws.cryptography.dynamoDbEncryption.transforms
+SERVICE_NAMESPACE_StructuredEncryption=aws.cryptography.dbEncryptionSdk.structuredEncryption
+SERVICE_NAMESPACE_DynamoDbEncryption=aws.cryptography.dbEncryptionSdk.dynamoDb
+SERVICE_NAMESPACE_DynamoDbItemEncryptor=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor
+SERVICE_NAMESPACE_DynamoDbEncryptionTransforms=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms
 
 MAX_RESOURCE_COUNT=20000000
 # Order is important

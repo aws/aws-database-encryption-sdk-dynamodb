@@ -8,7 +8,7 @@ module ExecuteStatementTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestExecuteStatementInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -22,7 +22,7 @@ module ExecuteStatementTransformTest {
       Limit := None()
     );
     var good_transformed := middlewareUnderTest.ExecuteStatementInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteStatementInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ExecuteStatementInputTransformInput(
         sdkInput := good_input
       )
     );
@@ -43,7 +43,7 @@ module ExecuteStatementTransformTest {
       Limit := None()
     );
     var bad_transformed := middlewareUnderTest.ExecuteStatementInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteStatementInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ExecuteStatementInputTransformInput(
         sdkInput := bad_input
       )
     );
@@ -71,7 +71,7 @@ module ExecuteStatementTransformTest {
       Limit := None()
     );
     var transformed := middlewareUnderTest.ExecuteStatementOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteStatementOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ExecuteStatementOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )
