@@ -77,7 +77,7 @@ public class MultiKeyringExample {
 
         // 2. Create the AWS KMS keyring.
         //    We create a MRK multi keyring, as this interface also supports
-        //    single-region KMS keys (SRKs; standard KMS keys),
+        //    single-region KMS keys (standard KMS keys),
         //    and creates the KMS client for us automatically.
         final CreateAwsKmsMrkMultiKeyringInput createAwsKmsMrkMultiKeyringInput = CreateAwsKmsMrkMultiKeyringInput.builder()
             .generator(keyArn)
