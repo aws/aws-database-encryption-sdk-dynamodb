@@ -81,6 +81,15 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
+        - IndexName: "stateAndHasSensitiveData-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
       KeySchema:
         - AttributeName: "customer_id"
           KeyType: "HASH"
