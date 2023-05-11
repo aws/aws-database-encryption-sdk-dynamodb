@@ -49,8 +49,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype CompoundBeacon = | CompoundBeacon (
  nameonly name: string ,
  nameonly split: Char ,
- nameonly sensitive: Option<SensitivePartsList> ,
- nameonly nonSensitive: Option<NonSensitivePartsList> ,
+ nameonly encrypted: Option<EncryptedPartsList> ,
+ nameonly signed: Option<SignedPartsList> ,
  nameonly constructors: Option<ConstructorList>
  )
  type CompoundBeaconList = x: seq<CompoundBeacon> | IsValid_CompoundBeaconList(x) witness *
@@ -222,6 +222,14 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
  nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
  )
+ datatype EncryptedPart = | EncryptedPart (
+ nameonly name: string ,
+ nameonly prefix: Prefix
+ )
+ type EncryptedPartsList = x: seq<EncryptedPart> | IsValid_EncryptedPartsList(x) witness *
+ predicate method IsValid_EncryptedPartsList(x: seq<EncryptedPart>) {
+ ( 1 <= |x|  )
+}
  datatype GetBranchKeyIdFromDdbKeyInput = | GetBranchKeyIdFromDdbKeyInput (
  nameonly ddbKey: ComAmazonawsDynamodbTypes.Key
  )
@@ -303,15 +311,6 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly cacheTTL: int32 ,
  nameonly maxCacheSize: int32
  )
- datatype NonSensitivePart = | NonSensitivePart (
- nameonly name: string ,
- nameonly prefix: Prefix ,
- nameonly loc: Option<TerminalLocation>
- )
- type NonSensitivePartsList = x: seq<NonSensitivePart> | IsValid_NonSensitivePartsList(x) witness *
- predicate method IsValid_NonSensitivePartsList(x: seq<NonSensitivePart>) {
- ( 1 <= |x|  )
-}
  datatype PlaintextPolicy =
 	| REQUIRE_WRITE_ALLOW_READ
 	| FORBID_WRITE_ALLOW_READ
@@ -324,12 +323,13 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly versions: BeaconVersionList ,
  nameonly writeVersion: VersionNumber
  )
- datatype SensitivePart = | SensitivePart (
+ datatype SignedPart = | SignedPart (
  nameonly name: string ,
- nameonly prefix: Prefix
+ nameonly prefix: Prefix ,
+ nameonly loc: Option<TerminalLocation>
  )
- type SensitivePartsList = x: seq<SensitivePart> | IsValid_SensitivePartsList(x) witness *
- predicate method IsValid_SensitivePartsList(x: seq<SensitivePart>) {
+ type SignedPartsList = x: seq<SignedPart> | IsValid_SignedPartsList(x) witness *
+ predicate method IsValid_SignedPartsList(x: seq<SignedPart>) {
  ( 1 <= |x|  )
 }
  datatype SingleKeyStore = | SingleKeyStore (

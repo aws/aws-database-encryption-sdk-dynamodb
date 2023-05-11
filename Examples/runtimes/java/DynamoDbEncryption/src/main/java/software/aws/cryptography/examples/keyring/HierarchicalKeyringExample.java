@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples;
+package software.aws.cryptography.examples.keyring;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -17,7 +17,6 @@ import software.amazon.cryptography.materialproviders.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
-import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
@@ -51,12 +50,6 @@ import java.util.Map;
   or you can implement an interface that lets you map the primary key on your items
   to the branch key that should be responsible for decrypting that data.
 
-  This example first creates the DynamoDb-backed KeyStore,
-  and creates two branch keys. These are control plane operations that
-  only need to occur once. While not demonstrated in this example,
-  you should additionally use the `VersionKey` API on the KeyStore
-  to periodically rotate your branch key material.
-
   This example then demonstrates configuring a Hierarchical Keyring
   with a Branch Key ID Supplier to encrypt and decrypt data for
   two separate tenants.
@@ -76,13 +69,17 @@ import java.util.Map;
  */
 public class HierarchicalKeyringExample {
 
-    public static void HierarchicalKeyringGetItemPutItem(String ddbTableName, String keyStoreTableName, String logicalKeyStoreName, String kmsKeyId) {
-        // Initial KeyStore Setup: Configure a keystore resource to create the table
-        // that will persist your branch keys, then create two new branch keys.
-        // This process should occur in your control plane, and returns
-        // Branch Key IDs that you will need to configure for use in your data plane.
+    public static void HierarchicalKeyringGetItemPutItem(
+                String ddbTableName, String tenant1BranchKeyId, String tenant2BranchKeyId, String keyStoreTableName,
+                String logicalKeyStoreName, String kmsKeyId) {
+        // Initial KeyStore Setup: This example requires that you have already
+        // created your KeyStore, and have populated it with two new branch keys.
+        // See the "Create KeyStore Table Example" and "Create KeyStore Key Example"
+        // for an example of how to do this.
 
-        // 1. Configure your KeyStore resource
+        // 1. Configure your KeyStore resource.
+        //    This SHOULD be the same configuration that you used
+        //    to initially create and populate your KeyStore.
         final KeyStore keystore = KeyStore.builder().KeyStoreConfig(
                 KeyStoreConfig.builder()
                         .ddbClient(DynamoDbClient.create())
@@ -94,32 +91,20 @@ public class HierarchicalKeyringExample {
                                 .build())
                         .build()).build();
 
-        // 2. Create the DynamoDb table to store the branch keys
-        keystore.CreateKeyStore(CreateKeyStoreInput.builder().build());
-
-        // 3. Create two branch keys for our two tenants.
-        //    Use the same KMS Key to protect both keys.
-        final String tenant1BranchKey = keystore.CreateKey().branchKeyIdentifier();
-        final String tenant2BranchKey = keystore.CreateKey().branchKeyIdentifier();
-
-        // Data Plane: Given the above setup done in our control plane, we have created
-        // the resources required to encrypt and decrypt items for our two tenants by
-        // configuring our AWS SDK Client to use a Hierarchical Keyring.
-
-        // 4. Create a Branch Key ID Supplier. See ExampleBranchKeyIdSupplier in this directory.
+        // 2. Create a Branch Key ID Supplier. See ExampleBranchKeyIdSupplier in this directory.
         final DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
                 .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
                 .build();
         final IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
                 CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
-                        .ddbKeyBranchKeyIdSupplier(new ExampleBranchKeyIdSupplier(tenant1BranchKey, tenant2BranchKey))
+                        .ddbKeyBranchKeyIdSupplier(new ExampleBranchKeyIdSupplier(tenant1BranchKeyId, tenant2BranchKeyId))
                         .build()).branchKeyIdSupplier();
 
-        // 5. Create the Hierarchical Keyring, using the Branch Key ID Supplier above.
+        // 3. Create the Hierarchical Keyring, using the Branch Key ID Supplier above.
         //    With this configuration, the AWS SDK Client ultimately configured will be capable
         //    of encrypting or decrypting items for either tenant (assuming correct KMS access).
         //    If you want to restrict the client to only encrypt or decrypt for a single tenant,
-        //    configure this Hierarchical Keyring using `.branchKeyId(tenant1BranchKey)` instead
+        //    configure this Hierarchical Keyring using `.branchKeyId(tenant1BranchKeyId)` instead
         //    of `.branchKeyIdSupplier(branchKeyIdSupplier)`.
         final MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
@@ -132,7 +117,7 @@ public class HierarchicalKeyringExample {
                 .build();
         final IKeyring hierarchicalKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
-        // 6. Configure which attributes are encrypted and/or signed when writing new items.
+        // 4. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
         //    we must explicitly configure how they should be treated during item encryption:
         //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
@@ -143,7 +128,7 @@ public class HierarchicalKeyringExample {
         attributeActions.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
         attributeActions.put("tenant_sensitive_data", CryptoAction.ENCRYPT_AND_SIGN);
 
-        // 3. Configure which attributes we expect to be included in the signature
+        // 5. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
         //
         //    - (Recommended) Configure `allowedUnauthenticatedAttributesPrefix`:
@@ -173,7 +158,7 @@ public class HierarchicalKeyringExample {
         //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
         final String unauthAttrPrefix = ":";
 
-        // 7. Create the DynamoDb Encryption configuration for the table we will be writing to.
+        // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
                 .logicalTableName(ddbTableName)
@@ -185,14 +170,14 @@ public class HierarchicalKeyringExample {
                 .build();
         tableConfigs.put(ddbTableName, config);
 
-        // 8. Create the DynamoDb Encryption Interceptor
+        // 7. Create the DynamoDb Encryption Interceptor
         DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
                 .config(DynamoDbTablesEncryptionConfig.builder()
                         .tableEncryptionConfigs(tableConfigs)
                         .build())
                 .build();
 
-        // 9. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+        // 8. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
         final DynamoDbClient ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -200,12 +185,12 @@ public class HierarchicalKeyringExample {
                                 .build())
                 .build();
 
-        // 10. Put an item into our table using the above client.
-        //     Before the item gets sent to DynamoDb, it will be encrypted
-        //     client-side, according to our configuration.
-        //     Because the item we are writing uses "tenantId1" as our partition value,
-        //     based on the code we wrote in the ExampleBranchKeySupplier,
-        //     `tenant1BranchKey` will be used to encrypt this item.
+        // 9. Put an item into our table using the above client.
+        //    Before the item gets sent to DynamoDb, it will be encrypted
+        //    client-side, according to our configuration.
+        //    Because the item we are writing uses "tenantId1" as our partition value,
+        //    based on the code we wrote in the ExampleBranchKeySupplier,
+        //    `tenant1BranchKeyId` will be used to encrypt this item.
         final HashMap<String, AttributeValue> item = new HashMap<>();
         item.put("partition_key", AttributeValue.builder().s("tenant1Id").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
@@ -221,12 +206,12 @@ public class HierarchicalKeyringExample {
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 11. Get the item back from our table using the same client.
+        // 10. Get the item back from our table using the same client.
         //     The client will decrypt the item client-side, and return
         //     back the original item.
         //     Because the returned item's partition value is "tenantId1",
         //     based on the code we wrote in the ExampleBranchKeySupplier,
-        //     `tenant1BranchKey` will be used to decrypt this item.
+        //     `tenant1BranchKeyId` will be used to decrypt this item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
         keyToGet.put("partition_key", AttributeValue.builder().s("tenant1Id").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
@@ -246,12 +231,15 @@ public class HierarchicalKeyringExample {
 
     public static void main(final String[] args) {
         if (args.length <= 0) {
-            throw new IllegalArgumentException("To run this example, include the ddbTable, keyStoreTableName, and kmsKeyId in args");
+            throw new IllegalArgumentException("To run this example, include the ddbTable, tenant1BranchKeyId, "
+                    + "tenant2BranchKeyId, keyStoreTableName, logicalKeyStoreName, and kmsKeyId in args");
         }
         final String ddbTableName = args[0];
-        final String keyStoreTableName = args[1];
-        final String logicalKeyStoreTableName = args[2];
-        final String kmsKeyId = args[3];
-        HierarchicalKeyringGetItemPutItem(ddbTableName, keyStoreTableName, logicalKeyStoreTableName, kmsKeyId);
+        final String tenant1BranchKeyId = args[1];
+        final String tenant2BranchKeyId = args[2];
+        final String keyStoreTableName = args[3];
+        final String logicalKeyStoreName = args[4];
+        final String kmsKeyId = args[5];
+        HierarchicalKeyringGetItemPutItem(ddbTableName, tenant1BranchKeyId, tenant2BranchKeyId, keyStoreTableName, logicalKeyStoreName, kmsKeyId);
     }
 }

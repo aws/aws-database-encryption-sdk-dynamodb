@@ -48,11 +48,11 @@ module TestDynamoDBConfigToInfo {
     var DupNameNS := CompoundBeacon (
       name := "Name",
       split := ".",
-      sensitive := None,
-      nonSensitive := Some([Year,Month]),
+      encrypted := None,
+      signed := Some([Year,Month]),
       constructors := None
     );
-    var DupNameS := DupNameNS.(sensitive := Some([Title]));
+    var DupNameS := DupNameNS.(encrypted := Some([Title]));
     var newBeacons := version.(compoundBeacons := Some([DupNameS]), standardBeacons := [std2, std4, std6, NameTitleBeacon, TitleB]);
     var beaconVersion := ConvertVersionWithSource(FullTableConfig, newBeacons, src);
     expect beaconVersion.Success?;
@@ -60,6 +60,6 @@ module TestDynamoDBConfigToInfo {
     newBeacons := newBeacons.(compoundBeacons := Some([DupNameNS]));
     beaconVersion := ConvertVersionWithSource(FullTableConfig, newBeacons, src);
     expect beaconVersion.Failure?;
-    expect beaconVersion.error == E("Name not allowed as a CompoundBeacon because a fully nonsensitive beacon cannot have the same name as an existing attribute.");
+    expect beaconVersion.error == E("Name not allowed as a CompoundBeacon because a fully signed beacon cannot have the same name as an existing attribute.");
   }
 }

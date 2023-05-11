@@ -2,13 +2,16 @@ package software.aws.cryptography.examples;
 
 import org.testng.annotations.Test;
 
-public class TestHierarchicalKeyringExample {
+import static org.testng.Assert.assertNotNull;
+
+public class TestCreateKeyStoreKeyExample {
     @Test
-    public void TestHierarchicalKeyringExample() {
-        HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(
-                TestUtils.TEST_DDB_TABLE_NAME,
+    public void TestCreateKeyStoreKeyExample() {
+        String keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey(
                 TestUtils.TEST_KEYSTORE_NAME,
                 TestUtils.TEST_LOGICAL_KEYSTORE_NAME,
                 TestUtils.TEST_KEYSTORE_KMS_KEY_ID);
+
+        assertNotNull(keyId);
     }
 }
