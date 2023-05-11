@@ -1,12 +1,9 @@
-import org.apache.tools.ant.Main
 import java.net.URI
 import javax.annotation.Nullable
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.gradle.internal.classpath.Instrumented.systemProperty
-import org.gradle.internal.impldep.org.eclipse.jgit.lib.ObjectChecker.type
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.include
 import java.awt.SystemColor.info
+import java.nio.file.Files.delete
 
 plugins {
     `java`
@@ -19,7 +16,7 @@ version = "1.0-SNAPSHOT"
 description = "DynamoDbEncryptionPerformanceTest"
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     sourceSets["main"].java {
         srcDir("src/main/java")
     }
@@ -77,7 +74,9 @@ dependencies {
     implementation("org.openjdk.jmh:jmh-core:1.36")
     implementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")
     annotationProcessor ("org.openjdk.jmh:jmh-generator-annprocess:1.36")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.0.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+    implementation("com.univocity:univocity-parsers:2.9.1")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
 
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
@@ -85,6 +84,12 @@ dependencies {
 
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
+}
+
+gradle.taskGraph.whenReady {
+    delete {
+        file("build/results/").deleteRecursively()
+    }
 }
 
 tasks.test {

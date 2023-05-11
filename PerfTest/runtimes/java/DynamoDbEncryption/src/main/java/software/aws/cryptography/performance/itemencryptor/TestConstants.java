@@ -14,4 +14,6 @@ public class TestConstants {
     public static final String KEY_NAMESPACE = "Key_Namespace";
     public static final String KEY_NAME = "Key_Name";
 
+    public static final String SIZE_RESULTS_FILE = "build/results/size.txt";
+
 }

@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
 import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
@@ -33,12 +33,12 @@ import static software.aws.cryptography.performance.itemencryptor.TestConstants.
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.PARTITION_ATTRIBUTE;
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.SORT_ATTRIBUTE;
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.SORT_NUMBER;
+import static software.aws.cryptography.performance.itemencryptor.TestConstants.TEST_PK;
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.UNAUTH_PREFIX;
 
 public class HeirarchyKeyringTest extends TestBase {
     private static final String TEST_KEYSTORE_NAME = "KeyStoreTestTable";
     private static final String TEST_DDB_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
-    private static final String TENANT_1_ID = "PerfTestTenant1Id";
 
     private DynamoDbEncryption ddbEnc;
     private DynamoDbClient ddb;
@@ -75,7 +75,7 @@ public class HeirarchyKeyringTest extends TestBase {
                 CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
                                                                 .ddbKeyBranchKeyIdSupplier((getBranchKeyIdFromDdbKeyInput) -> {
                                                                     String tenantKeyId = getBranchKeyIdFromDdbKeyInput.ddbKey().get(PARTITION_ATTRIBUTE).s();
-                                                                    if (tenantKeyId.equals(TENANT_1_ID)) {
+                                                                    if (tenantKeyId.equals(TEST_PK)) {
                                                                         return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(tenant1BranchKey).build();
                                                                     }
                                                                     return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(tenant2BranchKey).build();
@@ -127,24 +127,25 @@ public class HeirarchyKeyringTest extends TestBase {
     @Override
     public Map<String, AttributeValue> encrypt() {
         final HashMap<String, AttributeValue> item = new HashMap<>();
-        item.put(PARTITION_ATTRIBUTE, AttributeValue.builder().s(TENANT_1_ID).build());
+        item.put(PARTITION_ATTRIBUTE, AttributeValue.builder().s(TEST_PK).build());
         item.put(SORT_ATTRIBUTE, AttributeValue.builder().n(SORT_NUMBER).build());
         item.put(DATA_TO_ENCRYPT, AttributeValue.builder().s(plainTextJson.get(DATA_TO_ENCRYPT).asText()).build());
-
+        itemBeforeEncrypt = item;
         final PutItemRequest putRequest = PutItemRequest.builder()
                                                         .tableName(TEST_DDB_TABLE_NAME)
                                                         .item(item)
+                                                        .returnValues(ReturnValue.ALL_OLD)
                                                         .build();
 
-        final PutItemResponse putResponse = ddb.putItem(putRequest);
-        return putResponse.attributes();
+        encryptedAttributes = ddb.putItem(putRequest).attributes();
+        return encryptedAttributes;
     }
 
 
     @Override
     public Map<String, AttributeValue> decrypt() {
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-        keyToGet.put(PARTITION_ATTRIBUTE, AttributeValue.builder().s(TENANT_1_ID).build());
+        keyToGet.put(PARTITION_ATTRIBUTE, AttributeValue.builder().s(TEST_PK).build());
         keyToGet.put(SORT_ATTRIBUTE, AttributeValue.builder().n("0").build());
 
         final GetItemRequest getRequest = GetItemRequest.builder()
@@ -153,7 +154,7 @@ public class HeirarchyKeyringTest extends TestBase {
                                                         .build();
 
         final GetItemResponse getResponse = ddb.getItem(getRequest);
-        return null;
+        return getResponse.item();
     }
 
     /**

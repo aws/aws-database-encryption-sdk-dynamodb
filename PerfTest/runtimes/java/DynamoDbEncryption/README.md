@@ -26,6 +26,18 @@ s.a.c.p.i.v3.RawAesKeyringTest.encrypt          single_attribute.json  avgt    3
 ...
 ```
 
+Size report will also be generated in the same directory, `build/results/size.txt` with the following format:
+
+```
+AesKeyProviderTest_decrypt_jmhTest                205152              274001              68849
+AesKeyProviderTest_encrypt_jmhTest                205152              274001              68849
+AwsKmsKeyProviderTest_decrypt_jmhTest             205152              274349              69197
+AwsKmsKeyProviderTest_encrypt_jmhTest             205152              274349              69197
+...
+```
+
+where the columns are `OperationName     OriginalSize    EncryptedSize       Diff`
+
 ### IDE (or Main Class)
 1. Run the `main()` method in the TestBase class, or you can also run individual tests by executing the `main()` method in the respective classes.
 2. This serves the purpose of quickly debugging benchmarking/jmh issues.
