@@ -2,10 +2,10 @@ package software.aws.cryptography.examples;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.keyStore.KeyStore;
-import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
-import software.amazon.cryptography.keyStore.model.KMSConfiguration;
-import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
+import software.amazon.cryptography.keystore.KeyStore;
+import software.amazon.cryptography.keystore.model.CreateKeyStoreInput;
+import software.amazon.cryptography.keystore.model.KMSConfiguration;
+import software.amazon.cryptography.keystore.model.KeyStoreConfig;
 
 /*
   The Hierarchical Keyring Example and Searchable Encryption Examples
