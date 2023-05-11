@@ -21,9 +21,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.ConstructorPa
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPrefix;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.NonSensitivePart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SensitivePart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualField;
@@ -50,14 +48,17 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
   `stateAndCustomerData`.
 
   The motivation behind this example is to demonstrate how and why one would use a virtual beacon.
-  In this example, our table stores records with an encrypted `customerData` attribute. We would like
-  to be able to query for customers in a given state with a non-empty customerData attribute. In
-  practice, this setup might be used to query for customers with data in a particular state to
-  comply with different state's data processing laws (e.g. CA's CCPA, IL's BIPA).
+  In this example, our table stores records with an encrypted boolean `customerData` attribute.
+  We would like to be able to query for customers in a given state with a `true` customerData
+  attribute. In practice, this setup might be used to identify customers with data in a
+  particular state to comply with different state's data processing laws (e.g. CA's CCPA,
+  IL's BIPA). Please note that this is a streamlined example to facilitate understanding,
+  and we do not suggest using this setup for production purpose.
 
-  To achieve this, we want the following properties:
-   1. Obfuscate whether a record's `customerData` attribute is empty or non-empty
-   2. Query against a combination of whether `customerData` is empty/non-empty and the `state` field
+  To be able to execute this query securely and efficiently, we want the following
+  properties on our table:
+   1. Obfuscate whether a record's `customerData` attribute is `true` or `false`
+   2. Query against a combination of whether `customerData` is true/false and the `state` field
   We could not achieve these properties with a standard beacon on an empty/non-empty attribute.
 
   Following the guidance to choose a beacon length in the BasicSearchableEncryptionExample for
@@ -68,13 +69,13 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
   beacon does not obfuscate the attribute (violating property 1).
 
   (A compound beacon also does not help. To (over)simplify, a compound beacon is a
-   concatenation of standard beacons, i.e. beacon(`customerData`)+beacon(`state`).
+   concatenation of standard beacons, i.e. beacon(`state`)+beacon(`customerData`).
    The `state` beacon is still visible, so we would still have the problems above.)
 
   To achieve these properties, we instead construct a virtual field and use that in our beacon.
   A virtual field is a transformation of one or more fields that is not stored, but is used to
   construct a beacon that is stored. For our example, we will construct a virtual field as
-  `customerData`+`state`. We will create beacon out of this, i.e. beacon(`customerData`+`state`).
+  `state`+`customerData`. We will create beacon out of this, i.e. beacon(`state`+`customerData`).
   This gives us both desired properties. The reasoning behind this and this construction
   is described in the example below.
 
@@ -150,8 +151,8 @@ public class VirtualBeaconSearchableEncryptionExample {
     //    dictates the order in which they are concatenated to build the virtual field.
     //    You must add virtual parts in the same order on write as you do on read.
     List<VirtualPart> virtualPartList = new ArrayList<>();
-    virtualPartList.add(customerDataPart);
     virtualPartList.add(statePart);
+    virtualPartList.add(customerDataPart);
 
     VirtualField stateAndCustomerDataField = VirtualField.builder()
         .name("stateAndCustomerData")
@@ -209,6 +210,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //       This is a streamlined example and should not be used as a basis for determining beacon length
     //       in production. Users should analyze their specific dataset to determine acceptable beacon length bounds.
     StandardBeacon stateAndCustomerDataBeacon = StandardBeacon.builder()
+        // This name is the same as our virtual field's name above;
         .name("stateAndCustomerData")
         .length(5)
         .build();
@@ -232,8 +234,15 @@ public class VirtualBeaconSearchableEncryptionExample {
     //    The BeaconVersion inside the list holds the list of beacons on the table.
     //    The BeaconVersion also stores information about the keystore.
     //    BeaconVersion must be provided:
-    //      - keyStore: The keystore configured in step 2
-    //      - keySource: A configuration for the key source
+    //      - keyStore: The keystore configured in the previous step.
+    //      - keySource: A configuration for the key source.
+    //        For simple use cases, we can configure a 'singleKeySource' which
+    //        statically configures a single beaconKey. That is the approach this example takes.
+    //        For use cases where you want to use different beacon keys depending on the data
+    //        (for example if your table holds data for multiple tenants, and you want to use
+    //        a different beacon key per tenant), look into configuring a Multi Beacon Key.
+    //        Source: TODO example
+    //    We also provide our standard beacons and virtual fields here.
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()
@@ -255,7 +264,7 @@ public class VirtualBeaconSearchableEncryptionExample {
             .build()
     );
 
-    // 5. Create a Hierarchical Keyring
+    // 7. Create a Hierarchical Keyring
     //    This is a KMS keyring that utilizes the keystore table.
     //    This config defines how items are encrypted and decrypted.
     //    NOTE: You should configure this to use the same keystore as your search config.
@@ -270,7 +279,7 @@ public class VirtualBeaconSearchableEncryptionExample {
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
-    // 6. Configure which attributes are encrypted and/or signed when writing new items.
+    // 8. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
     //    we must explicitly configure how they should be treated during item encryption:
     //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
@@ -284,7 +293,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     attributeActions.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("customerData", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
-    // 7. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    // 9. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
@@ -300,14 +309,14 @@ public class VirtualBeaconSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 8. Create the DynamoDb Encryption Interceptor
+    // 10. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
         .config(DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build())
         .build();
 
-    // 9. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 11. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
@@ -315,13 +324,11 @@ public class VirtualBeaconSearchableEncryptionExample {
                 .build())
         .build();
 
-    // 10. Put three items into our table using the above client.
-    //     All 3 items will have different zipcodes:
-    //      1. 98101: Example zipcode above
-    //      2. 98155: Zipcode with same length-3 prefix as example zipcode
-    //      3. 95555: Zipcode with same length-1 prefix as example zipcode
-    //     We will use this to demonstrate querying against the length-1,
-    //     length-3, and length-5 prefixes.
+    // 10. Put two items into our table using the above client.
+    //     The two items will differ only in their `customer_id` attribute (primary key)
+    //     and their `customerData` attribute.
+    //     We will query against these items to demonstrate how to use our setup above
+    //     to query against our `stateAndCustomerData` beacon.
     //     Before the item gets sent to DynamoDb, it will be encrypted
     //         client-side, according to our configuration.
     //     Since our configuration includes a virtual field on `zip`,
@@ -332,69 +339,74 @@ public class VirtualBeaconSearchableEncryptionExample {
     //     aws_dbe_b_zip = truncate(HMAC("98101"), 10)
 
     // Add a record in CA with customer data
-    final HashMap<String, AttributeValue> exampleZipcodeItem = new HashMap<>();
-    exampleZipcodeItem.put("customer_id", AttributeValue.builder().s("ABC-123").build());
-    exampleZipcodeItem.put("create_time", AttributeValue.builder().n("1681495205").build());
-    exampleZipcodeItem.put("state", AttributeValue.builder().s("CA").build());
-    exampleZipcodeItem.put("zip", AttributeValue.builder().s("98101").build());
-    exampleZipcodeItem.put("customerData", AttributeValue.builder().bool(true).build());
+    final HashMap<String, AttributeValue> itemWithCustomerData = new HashMap<>();
+    itemWithCustomerData.put("customer_id", AttributeValue.builder().s("ABC-123").build());
+    itemWithCustomerData.put("create_time", AttributeValue.builder().n("1681495205").build());
+    itemWithCustomerData.put("state", AttributeValue.builder().s("CA").build());
+    itemWithCustomerData.put("zip", AttributeValue.builder().s("94111").build());
+    itemWithCustomerData.put("customerData", AttributeValue.builder().bool(true).build());
 
-    final PutItemRequest putRequest = PutItemRequest.builder()
+    final PutItemRequest itemWithCustomerDataPutRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
-        .item(exampleZipcodeItem)
+        .item(itemWithCustomerData)
         .build();
 
-    final PutItemResponse putResponse = ddb.putItem(putRequest);
+    final PutItemResponse itemWithCustomerDataPutResponse = ddb.putItem(itemWithCustomerDataPutRequest);
     // Assert PutItem was successful
-    assert 200 == putResponse.sdkHttpResponse().statusCode();
+    assert 200 == itemWithCustomerDataPutResponse.sdkHttpResponse().statusCode();
 
     // Add record in CA with no customer data
-    final HashMap<String, AttributeValue> length3PrefixZipcodeItem = new HashMap<>();
-    length3PrefixZipcodeItem.put("customer_id", AttributeValue.builder().s("DEF-456").build());
-    length3PrefixZipcodeItem.put("create_time", AttributeValue.builder().n("1681495205").build());
-    length3PrefixZipcodeItem.put("state", AttributeValue.builder().s("CA").build());
-    length3PrefixZipcodeItem.put("zip", AttributeValue.builder().s("98155").build());
-    length3PrefixZipcodeItem.put("customerData", AttributeValue.builder().bool(false).build());
+    final HashMap<String, AttributeValue> itemWithNoCustomerData = new HashMap<>();
+    itemWithNoCustomerData.put("customer_id", AttributeValue.builder().s("DEF-456").build());
+    itemWithNoCustomerData.put("create_time", AttributeValue.builder().n("1681495205").build());
+    itemWithNoCustomerData.put("state", AttributeValue.builder().s("CA").build());
+    itemWithNoCustomerData.put("zip", AttributeValue.builder().s("94111").build());
+    itemWithNoCustomerData.put("customerData", AttributeValue.builder().bool(false).build());
 
 
-    final PutItemRequest length3PrefixPutRequest = PutItemRequest.builder()
+    final PutItemRequest itemWithNoCustomerDataPutRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
-        .item(length3PrefixZipcodeItem)
+        .item(itemWithNoCustomerData)
         .build();
 
-    final PutItemResponse length3PrefixPutResponse = ddb.putItem(length3PrefixPutRequest);
+    final PutItemResponse itemWithNoCustomerDataPutResponse = ddb.putItem(itemWithNoCustomerDataPutRequest);
     // Assert PutItem was successful
-    assert 200 == length3PrefixPutResponse.sdkHttpResponse().statusCode();
+    assert 200 == itemWithNoCustomerDataPutResponse.sdkHttpResponse().statusCode();
 
-    // 11. Query for the item we just put.
+    // 11. Query by state and stateAndCustomerData attribute.
     //     Note that we are constructing the query as if we were querying on plaintext values.
     //     However, the DDB encryption client will detect that this attribute name has a beacon configured.
     //     The client will add the beaconized attribute name and attribute value to the query,
     //         and transform the query to use the beaconized name and value.
     //     Internally, the client will query for and receive all items with a matching HMAC value in the beacon field.
     //     This may include a number of "false positives" with different ciphertext, but the same truncated HMAC.
-    //     e.g. if truncate(HMAC("WA"), 4) == truncate(HMAC("DC"), 4), the query will return both items.
+    //     e.g. if truncate(HMAC("CA"), 4) == truncate(HMAC("DC"), 4), the query will return both items.
     //     The client will decrypt all returned items to determine which ones have the expected attribute values,
     //         and only surface items with the correct plaintext to the user.
     //     This procedure is internal to the client and is abstracted away from the user;
-    //     e.g. the user will only see "WA" and never "DC", though the actual query returned both.
+    //     e.g. the user will only see "CA" and never "DC", though the actual query returned both.
     Map<String,String> expressionAttributesNames = new HashMap<>();
     expressionAttributesNames.put("#s", "state");
-//    expressionAttributesNames.put("#z", "zip");
-    expressionAttributesNames.put("#zp", "stateAndCustomerData");
+    expressionAttributesNames.put("#scd", "stateAndCustomerData");
 
     Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
     expressionAttributeValues.put(":s", AttributeValue.builder().s("CA").build());
-//    expressionAttributeValues.put(":z", AttributeValue.builder().s("98101").build());
-    // Since we added virtual parts as `customerData` then `state`,
-    // we must write our query expression in the same order
-    expressionAttributeValues.put(":zp", AttributeValue.builder().s("tCA").build());
+
+    // We are querying for the item with `state`="CA" and `customerData`=`true`.
+    // Since we added virtual parts as `state` then `customerData`,
+    // we must write our query expression in the same order.
+    // We constructed our virtual field as `state`+`customerData`,
+    // so we add the two parts in that order.
+    // Since we also created a virtual transform that truncated `customerData`
+    // to its length-1 prefix, i.e. "true" -> "t",
+    // we write that field as its length-1 prefix in the query.
+    expressionAttributeValues.put(":scd", AttributeValue.builder().s("CAt").build());
 
     QueryRequest queryRequest = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
         .keyConditionExpression("#s = :s")
-        .filterExpression("#zp = :zp")
+        .filterExpression("#scd = :scd")
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
@@ -403,8 +415,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
     // Validate query was returned successfully
     assert 200 == queryResponse.sdkHttpResponse().statusCode();
-    System.out.println("Got items " + attributeValues.size());
-    // Validate only 1 item was returned: the item we just put
+    // Validate only 1 item was returned: the item with the expected attributes
     assert attributeValues.size() == 1;
     final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
     // Validate the item has the expected attributes
@@ -413,12 +424,13 @@ public class VirtualBeaconSearchableEncryptionExample {
   }
 
   public static void main(final String[] args) {
-    if (args.length != 3) {
-      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyWrappingKmsKeyId as args[1], and branchKeyDdbTableName as args[2]");
+    if (args.length <= 1) {
+      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyId as args[1], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
     }
     final String ddbTableName = args[0];
-    final String branchKeyWrappingKmsKeyArn = args[1];
-    final String branchKeyDdbTableName = args[2];
-    PutItemQueryItemWithBeacon(ddbTableName, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName);
+    final String branchKeyId = args[1];
+    final String branchKeyWrappingKmsKeyArn = args[2];
+    final String branchKeyDdbTableName = args[3];
+    PutItemQueryItemWithBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName);
   }
 }
