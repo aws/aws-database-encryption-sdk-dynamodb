@@ -14,9 +14,9 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Constructor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.ConstructorPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.NonSensitivePart;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SignedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SensitivePart;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
 import software.amazon.cryptography.keystore.KeyStore;
@@ -142,144 +142,144 @@ public class BeaconConfig {
     standardBeaconList.add(roomStandardBeacon);
     standardBeaconList.add(deskStandardBeacon);
 
-    // 3. Define sensitive parts
+    // 3. Define encrypted parts
     //    Note that some of the prefixes are modified from the suggested prefixes in Demo.md.
     //    This is because all prefixes must be unique in a configuration.
-    //    Sensitive parts are described in more detail in the CompoundBeaconSearcbaleEncryptionExample.
-    SensitivePart employeeIDSensitivePart = SensitivePart.builder()
+    //    Encrypted parts are described in more detail in the CompoundBeaconSearcbaleEncryptionExample.
+    EncryptedPart employeeIDEncryptedPart = EncryptedPart.builder()
         .name("EmployeeID")
         .prefix("E-")
         .build();
-    SensitivePart ticketNumberSensitivePart = SensitivePart.builder()
+    EncryptedPart ticketNumberEncryptedPart = EncryptedPart.builder()
         .name("TicketNumber")
         .prefix("T-")
         .build();
-    SensitivePart projectNameSensitivePart = SensitivePart.builder()
+    EncryptedPart projectNameEncryptedPart = EncryptedPart.builder()
         .name("ProjectName")
         .prefix("P-")
         .build();
-    SensitivePart employeeEmailSensitivePart = SensitivePart.builder()
+    EncryptedPart employeeEmailEncryptedPart = EncryptedPart.builder()
         .name("EmployeeEmail")
         .prefix("EE-")
         .build();
-    SensitivePart creatorEmailSensitivePart = SensitivePart.builder()
+    EncryptedPart creatorEmailEncryptedPart = EncryptedPart.builder()
         .name("CreatorEmail")
         .prefix("CE-")
         .build();
-    SensitivePart projectStatusSensitivePart = SensitivePart.builder()
+    EncryptedPart projectStatusEncryptedPart = EncryptedPart.builder()
         .name("ProjectStatus")
         .prefix("PSts-")
         .build();
-    SensitivePart organizerEmailSensitivePart = SensitivePart.builder()
+    EncryptedPart organizerEmailEncryptedPart = EncryptedPart.builder()
         .name("OrganizerEmail")
         .prefix("OE-")
         .build();
-    SensitivePart managerEmailSensitivePart = SensitivePart.builder()
+    EncryptedPart managerEmailEncryptedPart = EncryptedPart.builder()
         .name("ManagerEmail")
         .prefix("ME-")
         .build();
-    SensitivePart assigneeEmailSensitivePart = SensitivePart.builder()
+    EncryptedPart assigneeEmailEncryptedPart = EncryptedPart.builder()
         .name("AssigneeEmail")
         .prefix("AE-")
         .build();
-    SensitivePart citySensitivePart = SensitivePart.builder()
+    EncryptedPart cityEncryptedPart = EncryptedPart.builder()
         .name("City")
         .prefix("C-")
         .build();
-    SensitivePart severitySensitivePart = SensitivePart.builder()
+    EncryptedPart severityEncryptedPart = EncryptedPart.builder()
         .name("Severity")
         .prefix("S-")
         .build();
-    SensitivePart buildingSensitivePart = SensitivePart.builder()
+    EncryptedPart buildingEncryptedPart = EncryptedPart.builder()
         .name("Building")
         .prefix("B-")
         .build();
-    SensitivePart floorSensitivePart = SensitivePart.builder()
+    EncryptedPart floorEncryptedPart = EncryptedPart.builder()
         .name("Floor")
         .prefix("F-")
         .build();
-    SensitivePart roomSensitivePart = SensitivePart.builder()
+    EncryptedPart roomEncryptedPart = EncryptedPart.builder()
         .name("Room")
         .prefix("R-")
         .build();
-    SensitivePart deskSensitivePart = SensitivePart.builder()
+    EncryptedPart deskEncryptedPart = EncryptedPart.builder()
         .name("Desk")
         .prefix("D-")
         .build();
 
-    // 4. Define non-sensitive parts.
+    // 4. Define signed parts.
     //    These are unencrypted attributes we would like to use in beacon queries.
     //    In this example, all of these represent dates or times.
-    //    Keeping these attributes unencrypted allows us to use them in comparison-based queries. If a non-sensitive
+    //    Keeping these attributes unencrypted allows us to use them in comparison-based queries. If a signed
     //        part is the first part in a compound beacon, then that part can be used in comparison for sorting.
-    NonSensitivePart ticketModTimeNonSensitivePart = NonSensitivePart.builder()
+    SignedPart ticketModTimeSignedPart = SignedPart.builder()
         .name("TicketModTime")
         .prefix("M-")
         .build();
-    NonSensitivePart meetingStartNonSensitivePart = NonSensitivePart.builder()
+    SignedPart meetingStartSignedPart = SignedPart.builder()
         .name("MeetingStart")
         .prefix("MS-")
         .build();
-    NonSensitivePart timeCardStartNonSensitivePart = NonSensitivePart.builder()
+    SignedPart timeCardStartSignedPart = SignedPart.builder()
         .name("TimeCardStart")
         .prefix("TC-")
         .build();
-    NonSensitivePart projectStartNonSensitivePart = NonSensitivePart.builder()
+    SignedPart projectStartSignedPart = SignedPart.builder()
         .name("ProjectStart")
         .prefix("PS-")
         .build();
 
-    // 5. Create lists of sensitive and non-sensitive parts for each GSI key
-    List<SensitivePart> pk0SensitivePartList = new ArrayList<>();
-    pk0SensitivePartList.add(employeeIDSensitivePart);
-    pk0SensitivePartList.add(ticketNumberSensitivePart);
-    pk0SensitivePartList.add(projectNameSensitivePart);
-    pk0SensitivePartList.add(buildingSensitivePart);
+    // 5. Create lists of encrypted and signed parts for each GSI key
+    List<EncryptedPart> pk0EncryptedPartList = new ArrayList<>();
+    pk0EncryptedPartList.add(employeeIDEncryptedPart);
+    pk0EncryptedPartList.add(ticketNumberEncryptedPart);
+    pk0EncryptedPartList.add(projectNameEncryptedPart);
+    pk0EncryptedPartList.add(buildingEncryptedPart);
 
-    List<SensitivePart> sk0SensitivePartList = new ArrayList<>();
-    sk0SensitivePartList.add(employeeIDSensitivePart);
-    sk0SensitivePartList.add(floorSensitivePart);
-    sk0SensitivePartList.add(roomSensitivePart);
-    sk0SensitivePartList.add(projectNameSensitivePart);
-    sk0SensitivePartList.add(employeeEmailSensitivePart);
+    List<EncryptedPart> sk0EncryptedPartList = new ArrayList<>();
+    sk0EncryptedPartList.add(employeeIDEncryptedPart);
+    sk0EncryptedPartList.add(floorEncryptedPart);
+    sk0EncryptedPartList.add(roomEncryptedPart);
+    sk0EncryptedPartList.add(projectNameEncryptedPart);
+    sk0EncryptedPartList.add(employeeEmailEncryptedPart);
 
-    List<NonSensitivePart> sk0NonSensitivePartList = new ArrayList<>();
-    sk0NonSensitivePartList.add(timeCardStartNonSensitivePart);
-    sk0NonSensitivePartList.add(ticketModTimeNonSensitivePart);
-    sk0NonSensitivePartList.add(meetingStartNonSensitivePart);
+    List<SignedPart> sk0SignedPartList = new ArrayList<>();
+    sk0SignedPartList.add(timeCardStartSignedPart);
+    sk0SignedPartList.add(ticketModTimeSignedPart);
+    sk0SignedPartList.add(meetingStartSignedPart);
 
-    List<SensitivePart> pk1SensitivePartList = new ArrayList<>();
-    pk1SensitivePartList.add(creatorEmailSensitivePart);
-    pk1SensitivePartList.add(projectStatusSensitivePart);
-    pk1SensitivePartList.add(organizerEmailSensitivePart);
-    pk1SensitivePartList.add(employeeEmailSensitivePart);
+    List<EncryptedPart> pk1EncryptedPartList = new ArrayList<>();
+    pk1EncryptedPartList.add(creatorEmailEncryptedPart);
+    pk1EncryptedPartList.add(projectStatusEncryptedPart);
+    pk1EncryptedPartList.add(organizerEmailEncryptedPart);
+    pk1EncryptedPartList.add(employeeEmailEncryptedPart);
 
-    List<SensitivePart> sk1SensitivePartList = new ArrayList<>();
-    sk1SensitivePartList.add(floorSensitivePart);
-    sk1SensitivePartList.add(roomSensitivePart);
-    sk1SensitivePartList.add(employeeIDSensitivePart);
+    List<EncryptedPart> sk1EncryptedPartList = new ArrayList<>();
+    sk1EncryptedPartList.add(floorEncryptedPart);
+    sk1EncryptedPartList.add(roomEncryptedPart);
+    sk1EncryptedPartList.add(employeeIDEncryptedPart);
 
-    List<NonSensitivePart> sk1NonSensitivePartList = new ArrayList<>();
-    sk1NonSensitivePartList.add(timeCardStartNonSensitivePart);
-    sk1NonSensitivePartList.add(ticketModTimeNonSensitivePart);
-    sk1NonSensitivePartList.add(meetingStartNonSensitivePart);
-    sk1NonSensitivePartList.add(projectStartNonSensitivePart);
+    List<SignedPart> sk1SignedPartList = new ArrayList<>();
+    sk1SignedPartList.add(timeCardStartSignedPart);
+    sk1SignedPartList.add(ticketModTimeSignedPart);
+    sk1SignedPartList.add(meetingStartSignedPart);
+    sk1SignedPartList.add(projectStartSignedPart);
 
-    List<SensitivePart> pk2SensitivePartList = new ArrayList<>();
-    pk2SensitivePartList.add(managerEmailSensitivePart);
-    pk2SensitivePartList.add(assigneeEmailSensitivePart);
+    List<EncryptedPart> pk2EncryptedPartList = new ArrayList<>();
+    pk2EncryptedPartList.add(managerEmailEncryptedPart);
+    pk2EncryptedPartList.add(assigneeEmailEncryptedPart);
 
-    List<SensitivePart> pk3SensitivePartList = new ArrayList<>();
-    pk3SensitivePartList.add(citySensitivePart);
-    pk3SensitivePartList.add(severitySensitivePart);
+    List<EncryptedPart> pk3EncryptedPartList = new ArrayList<>();
+    pk3EncryptedPartList.add(cityEncryptedPart);
+    pk3EncryptedPartList.add(severityEncryptedPart);
 
-    List<SensitivePart> sk3SensitivePartList = new ArrayList<>();
-    sk3SensitivePartList.add(buildingSensitivePart);
-    sk3SensitivePartList.add(floorSensitivePart);
-    sk3SensitivePartList.add(deskSensitivePart);
+    List<EncryptedPart> sk3EncryptedPartList = new ArrayList<>();
+    sk3EncryptedPartList.add(buildingEncryptedPart);
+    sk3EncryptedPartList.add(floorEncryptedPart);
+    sk3EncryptedPartList.add(deskEncryptedPart);
 
-    List<NonSensitivePart> sk3NonSensitivePartList = new ArrayList<>();
-    sk3NonSensitivePartList.add(ticketModTimeNonSensitivePart);
+    List<SignedPart> sk3SignedPartList = new ArrayList<>();
+    sk3SignedPartList.add(ticketModTimeSignedPart);
 
     // 6. Create constructor parts.
     //    Constructor parts are used to assemble constructors (constructors described more in next step).
@@ -369,7 +369,7 @@ public class BeaconConfig {
         .build();
 
     // 7. Define constructors
-    //    Constructors define how sensitive and non-sensitive parts are assembled into compound beacons.
+    //    Constructors define how encrypted and signed parts are assembled into compound beacons.
     //    The constructors below are based off of the "PK Constructors", "SK constructors", etc. sections in Demo.md.
 
     // The employee ID constructor only requires an employee ID.
@@ -549,46 +549,46 @@ public class BeaconConfig {
     CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
         .name("PK")
         .split("~")
-        .sensitive(pk0SensitivePartList)
+        .encrypted(pk0EncryptedPartList)
         .constructors(pk0ConstructorList)
         .build();
     CompoundBeacon sk0CompoundBeacon = CompoundBeacon.builder()
         .name("SK")
         .split("~")
-        .sensitive(sk0SensitivePartList)
-        .nonSensitive(sk0NonSensitivePartList)
+        .encrypted(sk0EncryptedPartList)
+        .signed(sk0SignedPartList)
         .constructors(sk0ConstructorList)
         .build();
     CompoundBeacon pk1CompoundBeacon = CompoundBeacon.builder()
         .name("PK1")
         .split("~")
-        .sensitive(pk1SensitivePartList)
+        .encrypted(pk1EncryptedPartList)
         .constructors(pk1ConstructorList)
         .build();
     CompoundBeacon sk1CompoundBeacon = CompoundBeacon.builder()
         .name("SK1")
         .split("~")
-        .sensitive(sk1SensitivePartList)
-        .nonSensitive(sk1NonSensitivePartList)
+        .encrypted(sk1EncryptedPartList)
+        .signed(sk1SignedPartList)
         .constructors(sk1ConstructorList)
         .build();
     CompoundBeacon pk2CompoundBeacon = CompoundBeacon.builder()
         .name("PK2")
         .split("~")
-        .sensitive(pk2SensitivePartList)
+        .encrypted(pk2EncryptedPartList)
         .constructors(pk2ConstructorList)
         .build();
     CompoundBeacon pk3CompoundBeacon = CompoundBeacon.builder()
         .name("PK3")
         .split("~")
-        .sensitive(pk3SensitivePartList)
+        .encrypted(pk3EncryptedPartList)
         .constructors(pk3ConstructorList)
         .build();
     CompoundBeacon sk3CompoundBeacon = CompoundBeacon.builder()
         .name("SK3")
         .split("~")
-        .sensitive(sk3SensitivePartList)
-        .nonSensitive(sk3NonSensitivePartList)
+        .encrypted(sk3EncryptedPartList)
+        .signed(sk3SignedPartList)
         .constructors(sk3ConstructorList)
         .build();
 
@@ -651,7 +651,7 @@ public class BeaconConfig {
     // These are not beaconized attributes, but are sensitive data that must be encrypted
     attributeActions.put("Attendees", CryptoAction.ENCRYPT_AND_SIGN);
     attributeActions.put("Subject", CryptoAction.ENCRYPT_AND_SIGN);
-    // Non-sensitive parts and unencrypted attributes can be configured as SIGN_ONLY or DO_NOTHING
+    // signed parts and unencrypted attributes can be configured as SIGN_ONLY or DO_NOTHING
     // For this example, we will set these to SIGN_ONLY to ensure authenticity
     attributeActions.put("TicketModTime", CryptoAction.SIGN_ONLY);
     attributeActions.put("MeetingStart", CryptoAction.SIGN_ONLY);

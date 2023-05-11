@@ -107,7 +107,7 @@ Initialization MUST fail if the [terminal location](virtual.md#terminal-location
 reference by a [standard beacon](beacons.md#standard-beacon) is not `encrypted`.
 
 Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
-reference by a [non-sensitive part](beacons.md#non-sensitive-part) is `encrypted`,
+reference by a [signed part](beacons.md#signed-part) is `encrypted`,
 or is not `signed`.
 
 ### Version Number
@@ -261,7 +261,7 @@ then `beacon key id` MUST be the configured [beacon key id](#beacon-key-id)
 
 If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key-store-initialization)
 then for each Key Condition Expression or Filter Expression,
-extract the value of any [non-sensitive part](./beacons.md#non-sensitive-part-initialization)
+extract the value of any [signed part](./beacons.md#signed-part-initialization)
 of any [compound beacons](beacons.md#compound-beacon)
 with the `name` that equals [Beacon Key Field Name](#beacon-key-field-name)
 and construct a list of beacon key ids.
