@@ -497,7 +497,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   //= specification/dynamodb-encryption-client/decrypt-item.md#determining-plaintext-items
   //= type=implication
   //# An item MUST be determined to be plaintext if it does not contain
-  //# attributes with the names "aws_dbe_header" and "aws_dbe_footer".
+  //# attributes with the names "aws_dbe_head" and "aws_dbe_foot".
   predicate method IsPlaintextItem(ddbItem: ComAmazonawsDynamodbTypes.AttributeMap) {
     && StructuredEncryptionUtil.HeaderField !in ddbItem.Keys
     && StructuredEncryptionUtil.FooterField !in ddbItem.Keys

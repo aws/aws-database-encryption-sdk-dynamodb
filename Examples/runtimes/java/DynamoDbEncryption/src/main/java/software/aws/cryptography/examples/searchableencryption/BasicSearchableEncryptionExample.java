@@ -53,15 +53,18 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
-    2. Branch key wrapping KMS key ARN for the KMS key used to create the branch key
-    3. Branch key DDB table name for the DDB table representing the branch key store
+    2. Branch key ID for a branch key that was previously created in your key store. See the
+       CreateKeyStoreKeyExample.
+    3. Branch key wrapping KMS key ARN for the KMS key used to create the branch key with ID
+       provided in arg 2
+    4. Branch key DDB table name for the DDB table representing the branch key store
  */
 
 public class BasicSearchableEncryptionExample {
 
   static String GSI_NAME = "state-zip-index";
 
-  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
+  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 1. Configure Beacons.
     //    The beacon name must be the name of a table attribute that will be encrypted.
@@ -121,11 +124,13 @@ public class BasicSearchableEncryptionExample {
         .build();
     standardBeaconList.add(numberBeacon);
 
-    // 2. Create Keystore.
+    // 2. Configure Keystore.
     //    The keystore is a separate DDB table where the client stores encryption and decryption materials.
     //    In order to configure beacons on the DDB client, you must configure a keystore.
-    //    For more information, see:
-    //    TODO: Add link
+    //
+    //    This example expects that you have already set up a KeyStore with a single branch key.
+    //    See the "Create KeyStore Table Example" and "Create KeyStore Key Example" for how to do this.
+    //    After you create a branch key, you should persist its ID for use in this example.
     KeyStore keyStore = KeyStore.builder()
         .KeyStoreConfig(KeyStoreConfig.builder()
             .kmsClient(KmsClient.create())
@@ -136,25 +141,18 @@ public class BasicSearchableEncryptionExample {
             .build())
         .build();
 
-    // 3. Create a branch key.
-    //    The branch key stores information required to encrypt and decrypt items on the main table.
-    //    This key lives as an item inside the keystore DDB table.
-    //    After you create a branch key, you should persist its ID to decrypt items in the table.
-    //    For simple use cases, we can configure a 'singleKeySource' which
-    //    statically configures a single beaconKey. That is the approach this example takes.
-    //    For use cases where you want to use different beacon keys depending on the data
-    //    (for example if your table holds data for multiple tenants, and you want to use
-    //    a different beacon key per tenant), look into configuring a Multi Beacon Key.
-    //    Source: TODO example
-    CreateKeyOutput output = keyStore.CreateKey();
-    String branchKeyId = output.branchKeyIdentifier();
-
-    // 4. Create BeaconVersion.
+    // 3. Create BeaconVersion.
     //    The BeaconVersion inside the list holds the list of beacons on the table.
     //    The BeaconVersion also stores information about the keystore.
     //    BeaconVersion must be provided:
-    //      - keyStore: The keystore configured in step 2
-    //      - keySource: A configuration for the key source
+    //      - keyStore: The keystore configured in step 2.
+    //      - keySource: A configuration for the key source.
+    //        For simple use cases, we can configure a 'singleKeySource' which
+    //        statically configures a single beaconKey. That is the approach this example takes.
+    //        For use cases where you want to use different beacon keys depending on the data
+    //        (for example if your table holds data for multiple tenants, and you want to use
+    //        a different beacon key per tenant), look into configuring a Multi Beacon Key.
+    //        Source: TODO example
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()
@@ -175,7 +173,7 @@ public class BasicSearchableEncryptionExample {
           .build()
     );
 
-    // 5. Create a Hierarchical Keyring
+    // 4. Create a Hierarchical Keyring
     //    This is a KMS keyring that utilizes the keystore table.
     //    This config defines how items are encrypted and decrypted.
     //    NOTE: You should configure this to use the same keystore as your search config.
@@ -190,7 +188,7 @@ public class BasicSearchableEncryptionExample {
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
-    // 6. Configure which attributes are encrypted and/or signed when writing new items.
+    // 5. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
     //    we must explicitly configure how they should be treated during item encryption:
     //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
@@ -203,7 +201,7 @@ public class BasicSearchableEncryptionExample {
     attributeActions.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActions.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
-    // 7. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
@@ -219,14 +217,14 @@ public class BasicSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 8. Create the DynamoDb Encryption Interceptor
+    // 7. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
         .config(DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build())
         .build();
 
-    // 9. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 8. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
@@ -234,15 +232,15 @@ public class BasicSearchableEncryptionExample {
                 .build())
         .build();
 
-    // 10. Put an item into our table using the above client.
-    //     Before the item gets sent to DynamoDb, it will be encrypted
-    //         client-side, according to our configuration.
-    //     Since our configuration includes beacons for `state` and `zip`,
-    //         the client will add two additional attributes to the item. These attributes will have names
-    //         `aws_dbe_b_state` and `aws_dbe_b_zip`. Their values will be HMACs
-    //         truncated to as many bits as the beacon's `length` parameter; e.g.
-    //     aws_dbe_b_state = truncate(HMAC("WA"), 4)
-    //     aws_dbe_b_zip = truncate(HMAC("98101"), 10)
+    // 9. Put an item into our table using the above client.
+    //    Before the item gets sent to DynamoDb, it will be encrypted
+    //        client-side, according to our configuration.
+    //    Since our configuration includes beacons for `state` and `zip`,
+    //        the client will add two additional attributes to the item. These attributes will have names
+    //        `aws_dbe_b_state` and `aws_dbe_b_zip`. Their values will be HMACs
+    //        truncated to as many bits as the beacon's `length` parameter; e.g.
+    //    aws_dbe_b_state = truncate(HMAC("WA"), 4)
+    //    aws_dbe_b_zip = truncate(HMAC("98101"), 10)
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("customer_id", AttributeValue.builder().s("ABCD-1234").build());
     item.put("create_time", AttributeValue.builder().n("1681495205").build());
@@ -257,7 +255,7 @@ public class BasicSearchableEncryptionExample {
     final PutItemResponse putResponse = ddb.putItem(putRequest);
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    // 11. Query for the item we just put.
+    // 10. Query for the item we just put.
     //     Note that we are constructing the query as if we were querying on plaintext values.
     //     However, the DDB encryption client will detect that this attribute name has a beacon configured.
     //     The client will add the beaconized attribute name and attribute value to the query,
@@ -298,12 +296,14 @@ public class BasicSearchableEncryptionExample {
   }
 
   public static void main(final String[] args) {
-    if (args.length != 3) {
-      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyWrappingKmsKeyId as args[1], and branchKeyDdbTableName as args[2]");
+    if (args.length <= 1) {
+      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], "
+              + "branchKeyId as args[1], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
     }
     final String ddbTableName = args[0];
-    final String branchKeyWrappingKmsKeyArn = args[1];
-    final String branchKeyDdbTableName = args[2];
-    PutItemQueryItemWithBeacon(ddbTableName, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName);
+    final String branchKeyId = args[1];
+    final String branchKeyWrappingKmsKeyArn = args[2];
+    final String branchKeyDdbTableName = args[3];
+    PutItemQueryItemWithBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName);
   }
 }

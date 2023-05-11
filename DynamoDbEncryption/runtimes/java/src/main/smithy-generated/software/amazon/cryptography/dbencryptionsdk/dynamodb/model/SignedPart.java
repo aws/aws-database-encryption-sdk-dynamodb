@@ -5,14 +5,14 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
-public class NonSensitivePart {
+public class SignedPart {
   private final String name;
 
   private final String prefix;
 
   private final String loc;
 
-  protected NonSensitivePart(BuilderImpl builder) {
+  protected SignedPart(BuilderImpl builder) {
     this.name = builder.name();
     this.prefix = builder.prefix();
     this.loc = builder.loc();
@@ -51,7 +51,7 @@ public class NonSensitivePart {
 
     String loc();
 
-    NonSensitivePart build();
+    SignedPart build();
   }
 
   static class BuilderImpl implements Builder {
@@ -64,7 +64,7 @@ public class NonSensitivePart {
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(NonSensitivePart model) {
+    protected BuilderImpl(SignedPart model) {
       this.name = model.name();
       this.prefix = model.prefix();
       this.loc = model.loc();
@@ -97,7 +97,7 @@ public class NonSensitivePart {
       return this.loc;
     }
 
-    public NonSensitivePart build() {
+    public SignedPart build() {
       if (Objects.isNull(this.name()))  {
         throw new IllegalArgumentException("Missing value for required field `name`");
       }
@@ -110,7 +110,7 @@ public class NonSensitivePart {
       if (Objects.nonNull(this.loc()) && this.loc().length() < 1) {
         throw new IllegalArgumentException("The size of `loc` must be greater than or equal to 1");
       }
-      return new NonSensitivePart(this);
+      return new SignedPart(this);
     }
   }
 }

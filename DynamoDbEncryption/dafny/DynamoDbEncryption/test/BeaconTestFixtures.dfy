@@ -38,54 +38,54 @@ module BeaconTestFixtures {
   const TitleB := StandardBeacon(name := "Title", length := 32, loc := None)
   const TooBadB := StandardBeacon(name := "TooBad", length := 32, loc := None)
 
-  const Year := NonSensitivePart(name := "Year", prefix := "Y_", loc := None)
-  const Month := NonSensitivePart(name := "Month", prefix := "M_", loc := Some("Date.Month"))
-  const Nothing := NonSensitivePart(name := "Nothing", prefix := "N__", loc := None)
+  const Year := SignedPart(name := "Year", prefix := "Y_", loc := None)
+  const Month := SignedPart(name := "Month", prefix := "M_", loc := Some("Date.Month"))
+  const Nothing := SignedPart(name := "Nothing", prefix := "N__", loc := None)
 
-  const Name := SensitivePart(name := "Name", prefix := "N_")
-  const Title := SensitivePart(name := "Title", prefix := "T_")
-  const TooBad := SensitivePart(name := "TooBad", prefix := "T")
+  const Name := EncryptedPart(name := "Name", prefix := "N_")
+  const Title := EncryptedPart(name := "Title", prefix := "T_")
+  const TooBad := EncryptedPart(name := "TooBad", prefix := "T")
 
   const NameTitle := CompoundBeacon (
                        name := "NameTitle",
                        split := ".",
-                       sensitive := Some([Name,Title]),
-                       nonSensitive := None,
+                       encrypted := Some([Name,Title]),
+                       signed := None,
                        constructors := None
                      )
   const YearName := CompoundBeacon (
                       name := "YearName",
                       split := ".",
-                      sensitive := Some([Name]),
-                      nonSensitive := Some([Year]),
+                      encrypted := Some([Name]),
+                      signed := Some([Year]),
                       constructors := None
                     )
   const BadPrefix := CompoundBeacon (
                        name := "BadPrefix",
                        split := ".",
-                       sensitive := Some([Name,Title,TooBad]),
-                       nonSensitive := None,
+                       encrypted := Some([Name,Title,TooBad]),
+                       signed := None,
                        constructors := None
                      )
   const BadPrefix2 := CompoundBeacon (
                         name := "BadPrefix2",
                         split := ".",
-                        sensitive := Some([Name]),
-                        nonSensitive := Some([Nothing]),
+                        encrypted := Some([Name]),
+                        signed := Some([Nothing]),
                         constructors := None
                       )
   const JustSigned := CompoundBeacon (
                         name := "JustSigned",
                         split := ".",
-                        sensitive := None,
-                        nonSensitive := Some([Year,Month]),
+                        encrypted := None,
+                        signed := Some([Year,Month]),
                         constructors := None
                       )
   const Mixed := CompoundBeacon (
                    name := "Mixed",
                    split := ".",
-                   sensitive := Some([Name,Title]),
-                   nonSensitive := Some([Year,Month]),
+                   encrypted := Some([Name,Title]),
+                   signed := Some([Year,Month]),
                    constructors := Some([
                                           Constructor(parts := [ConstructorPart(name := "Name", required := true), ConstructorPart(name := "Year", required := true)]),
                                           Constructor(parts := [ConstructorPart(name := "Title", required := true), ConstructorPart(name := "Month", required := false)])

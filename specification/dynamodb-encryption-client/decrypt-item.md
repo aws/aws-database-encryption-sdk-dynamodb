@@ -155,7 +155,7 @@ although the DynamoDbEncryptor allows callers to configure custom names for thes
 ### Determining Plaintext Items
 
 An item MUST be determined to be plaintext if it does not contain
-attributes with the names "aws_dbe_header" and "aws_dbe_footer".
+attributes with the names "aws_dbe_head" and "aws_dbe_foot".
 
 Note that this does not conflict with the [legacy item](#determining-legacy-items) definition,
 as there is no configuration state which needs to be able to distinguish
