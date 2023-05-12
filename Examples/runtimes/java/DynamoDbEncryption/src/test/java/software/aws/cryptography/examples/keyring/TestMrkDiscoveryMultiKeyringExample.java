@@ -7,7 +7,7 @@ import software.aws.cryptography.examples.TestUtils;
 
 public class TestMrkDiscoveryMultiKeyringExample {
     @Test
-    public void TestMrkMultiKeyringExample() {
+    public void TestMrkDiscoveryMultiKeyringExample() {
         List<String> accounts = Collections.singletonList(TestUtils.TEST_AWS_ACCOUNT_ID);
         List<String> regions = Collections.singletonList(TestUtils.TEST_AWS_REGION);
 

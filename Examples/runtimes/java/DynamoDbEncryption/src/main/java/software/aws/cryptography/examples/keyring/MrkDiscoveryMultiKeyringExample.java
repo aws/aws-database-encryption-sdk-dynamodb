@@ -48,7 +48,7 @@ public class MrkDiscoveryMultiKeyringExample {
 
     public static void MultiMrkDiscoveryKeyringGetItemPutItem(String ddbTableName, String keyArn,
             List<String> accountIds, List<String> regions) {
-        // 1. Create a single MRK multi-keyring using the MRK arn and the single-region key arn.
+        // 1. Create a single MRK multi-keyring using the key arn.
         //    Although this example demonstrates use of the MRK discovery multi-keyring,
         //    a discovery keyring cannot be used to encrypt. So we will need to construct
         //    a non-discovery keyring for this example to encrypt. For more information on MRK
@@ -203,11 +203,11 @@ public class MrkDiscoveryMultiKeyringExample {
 
         // 11. Get the item back from our table using the client.
         //     The client will retrieve encrypted items from the DDB table, then
-        //     detect the KMS key that was used to encrypt its data key.
-        //     The client will make a request to KMS to decrypt with that KMS key.
+        //     detect the KMS key that was used to encrypt their data keys.
+        //     The client will make a request to KMS to decrypt with the encrypting KMS key.
         //     If the client has permission to decrypt with the KMS key,
-        //     The client will decrypt the item client-side using the keyring
-        //     and return back the original item.
+        //     the client will decrypt the item client-side using the keyring
+        //     and return the original item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
         keyToGet.put("partition_key", AttributeValue.builder().s("awsKmsMrkDiscoveryMultiKeyringItem").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
