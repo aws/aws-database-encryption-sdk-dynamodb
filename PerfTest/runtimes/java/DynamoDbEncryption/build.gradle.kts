@@ -66,7 +66,7 @@ dependencies {
     implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")
 
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
-    implementation("software.amazon.awssdk:dynamodb")
+    implementation("software.amazon.awssdk:dynamodb:2.20.64")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.409")
     implementation("software.amazon.awssdk:kms")
@@ -77,6 +77,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
     implementation("com.univocity:univocity-parsers:2.9.1")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation("org.apache.commons:commons-lang3:3.8.1")
 
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")

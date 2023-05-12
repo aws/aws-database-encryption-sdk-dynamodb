@@ -1,7 +1,9 @@
 package software.aws.cryptography.performance.itemencryptor.v3;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.univocity.parsers.fixed.FieldAlignment;
 import com.univocity.parsers.fixed.FixedWidthFields;
 import com.univocity.parsers.fixed.FixedWidthWriter;
@@ -54,31 +56,44 @@ import static software.aws.cryptography.performance.itemencryptor.TestConstants.
 @Warmup(iterations = 2, time = 2)
 @Measurement(iterations = 3, time = 3)
 public abstract class TestBase {
-    @Param({"single_attribute.json"})
+    @Param({"single_attribute.json", "nested_attributes.json", "flat_attributes.json"})
     protected String plainTextFile;
     protected Map<String, AttributeValue> encryptedAttributes;
-    protected JsonNode plainTextJson;
+    protected Map<String, AttributeValue.Builder> plainTextAttribute = new HashMap<>();
     protected DynamoDbItemEncryptor dynamoDbItemEncryptor;
     protected Map<String, AttributeValue> itemBeforeEncrypt;
+    protected Map<String, AttributeValue> originalItem;
 
+    protected ObjectMapper mapper = JsonMapper.builder()
+                                              .serializationInclusion(JsonInclude.Include.NON_NULL)
+                                              .build();
     protected abstract IKeyring createKeyring();
 
-    protected Map<String, CryptoAction> getAttributeActions() {
+    protected Map<String, CryptoAction> getAttributeActions(Map<String, AttributeValue.Builder> record) {
         final Map<String, CryptoAction> attributeActions = new HashMap<>();
         attributeActions.put(PARTITION_ATTRIBUTE, CryptoAction.SIGN_ONLY);
         attributeActions.put(SORT_ATTRIBUTE, CryptoAction.SIGN_ONLY);
         attributeActions.put(DATA_TO_ENCRYPT, CryptoAction.ENCRYPT_AND_SIGN);
         attributeActions.put(DATA_TO_SIGN, CryptoAction.SIGN_ONLY);
         attributeActions.put(DATA_TO_IGNORE, CryptoAction.DO_NOTHING);
+        for (Map.Entry<String, AttributeValue.Builder> entry:record.entrySet()
+        ) {
+            if (entry.getKey().contains("Attribute")) {
+                attributeActions.put(entry.getKey(), CryptoAction.ENCRYPT_AND_SIGN);
+            }
+        }
         return attributeActions;
     }
 
     @Setup
     public void setup() throws Exception {
+        final JsonNode plainTextJson = mapper.readTree(getClass().getClassLoader().getResourceAsStream(plainTextFile));
+        plainTextJson.properties().forEach((entry) -> plainTextAttribute.put(entry.getKey(), mapper.convertValue(entry.getValue(), AttributeValue.serializableBuilderClass())));
+
         final DynamoDbItemEncryptorConfig config = DynamoDbItemEncryptorConfig.builder().logicalTableName(TEST_TABLE)
                                                                               .partitionKeyName(PARTITION_ATTRIBUTE)
                                                                               .sortKeyName(SORT_ATTRIBUTE)
-                                                                              .attributeActions(getAttributeActions())
+                                                                              .attributeActions(getAttributeActions(plainTextAttribute))
                                                                               .keyring(createKeyring())
                                                                               .allowedUnauthenticatedAttributePrefix(UNAUTH_PREFIX)
                                                                               .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
@@ -86,8 +101,6 @@ public abstract class TestBase {
 
         dynamoDbItemEncryptor = DynamoDbItemEncryptor.builder().DynamoDbItemEncryptorConfig(config)
                                                      .build();
-
-        plainTextJson = new ObjectMapper().readTree(getClass().getClassLoader().getResourceAsStream(plainTextFile));
         encryptedAttributes = encrypt();
 
     }
@@ -98,7 +111,7 @@ public abstract class TestBase {
         final Map<String, AttributeValue> originalItem = new HashMap<>();
         originalItem.put(PARTITION_ATTRIBUTE, AttributeValue.builder().s(TEST_PK).build());
         originalItem.put(SORT_ATTRIBUTE, AttributeValue.builder().n(SORT_NUMBER).build());
-        originalItem.put(DATA_TO_ENCRYPT, AttributeValue.builder().s(plainTextJson.get(DATA_TO_ENCRYPT).asText()).build());
+        plainTextAttribute.forEach((key, value) -> originalItem.put(key, value.build()));
         itemBeforeEncrypt = originalItem;
         encryptedAttributes = dynamoDbItemEncryptor.EncryptItem(
                 EncryptItemInput.builder()

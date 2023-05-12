@@ -1,5 +1,7 @@
 package software.aws.cryptography.performance.itemencryptor.v3;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -96,12 +98,15 @@ public class HeirarchyKeyringTest extends TestBase {
 
     @Override
     public void setup() throws Exception {
+        final JsonNode plainTextJson = mapper.readTree(getClass().getClassLoader().getResourceAsStream(plainTextFile));
+        plainTextJson.properties().forEach((entry) -> plainTextAttribute.put(entry.getKey(), mapper.convertValue(entry.getValue(), AttributeValue.serializableBuilderClass())));
+
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
                                                                                   .logicalTableName(TEST_DDB_TABLE_NAME)
                                                                                   .partitionKeyName(PARTITION_ATTRIBUTE)
                                                                                   .sortKeyName(SORT_ATTRIBUTE)
-                                                                                  .attributeActions(getAttributeActions())
+                                                                                  .attributeActions(getAttributeActions(plainTextAttribute))
                                                                                   .keyring(createKeyring())
                                                                                   .allowedUnauthenticatedAttributePrefix(UNAUTH_PREFIX)
                                                                                   .build();
@@ -119,7 +124,6 @@ public class HeirarchyKeyringTest extends TestBase {
        ddb = DynamoDbClient.builder()
                            .overrideConfiguration(clientOverrideConfiguration)
                            .build();
-        plainTextJson = new ObjectMapper().readTree(getClass().getClassLoader().getResourceAsStream(plainTextFile));
         encryptedAttributes = encrypt();
 
     }
@@ -129,7 +133,7 @@ public class HeirarchyKeyringTest extends TestBase {
         final HashMap<String, AttributeValue> item = new HashMap<>();
         item.put(PARTITION_ATTRIBUTE, AttributeValue.builder().s(TEST_PK).build());
         item.put(SORT_ATTRIBUTE, AttributeValue.builder().n(SORT_NUMBER).build());
-        item.put(DATA_TO_ENCRYPT, AttributeValue.builder().s(plainTextJson.get(DATA_TO_ENCRYPT).asText()).build());
+        plainTextAttribute.forEach((key, value) -> item.put(key, value.build()));
         itemBeforeEncrypt = item;
         final PutItemRequest putRequest = PutItemRequest.builder()
                                                         .tableName(TEST_DDB_TABLE_NAME)

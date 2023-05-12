@@ -2,7 +2,8 @@ package software.aws.cryptography.performance.itemencryptor.v3;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.WrappedMaterialsProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
@@ -47,10 +48,19 @@ public class LegacyConfigTest extends TestBase {
 
     @Override
     public void setup() throws Exception {
+        final JsonNode plainTextJson = mapper.readTree(getClass().getClassLoader().getResourceAsStream(plainTextFile));
+        plainTextJson.properties().forEach((entry) -> plainTextAttribute.put(entry.getKey(), mapper.convertValue(entry.getValue(), AttributeValue.serializableBuilderClass())));
+
         final Map<String, CryptoAction> legacyActions = new HashMap<>();
         legacyActions.put(PARTITION_ATTRIBUTE, CryptoAction.SIGN_ONLY);
         legacyActions.put(SORT_ATTRIBUTE, CryptoAction.SIGN_ONLY);
         legacyActions.put(DATA_TO_ENCRYPT, CryptoAction.ENCRYPT_AND_SIGN);
+        for (Map.Entry<String, AttributeValue.Builder> entry:plainTextAttribute.entrySet()
+        ) {
+            if (entry.getKey().contains("Attribute")) {
+                legacyActions.put(entry.getKey(), CryptoAction.ENCRYPT_AND_SIGN);
+            }
+        }
 
         final LegacyConfig legacyConfig = LegacyConfig
                                                   .builder()
@@ -62,7 +72,7 @@ public class LegacyConfigTest extends TestBase {
         final DynamoDbItemEncryptorConfig config = DynamoDbItemEncryptorConfig.builder().logicalTableName(TEST_TABLE)
                                                                               .partitionKeyName(PARTITION_ATTRIBUTE)
                                                                               .sortKeyName(SORT_ATTRIBUTE)
-                                                                              .attributeActions(getAttributeActions())
+                                                                              .attributeActions(getAttributeActions(plainTextAttribute))
                                                                               .keyring(createKeyring())
                                                                               .legacyConfig(legacyConfig)
                                                                               .allowedUnauthenticatedAttributePrefix(UNAUTH_PREFIX)
@@ -71,7 +81,6 @@ public class LegacyConfigTest extends TestBase {
         dynamoDbItemEncryptor = DynamoDbItemEncryptor.builder().DynamoDbItemEncryptorConfig(config)
                                                      .build();
 
-        plainTextJson = new ObjectMapper().readTree(getClass().getClassLoader().getResourceAsStream(plainTextFile));
         encryptedAttributes = encrypt();
 
     }

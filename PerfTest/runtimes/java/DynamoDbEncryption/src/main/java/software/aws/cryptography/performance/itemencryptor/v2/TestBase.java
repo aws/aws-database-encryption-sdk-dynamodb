@@ -5,8 +5,10 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionConte
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.EncryptionMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.univocity.parsers.fixed.FieldAlignment;
 import com.univocity.parsers.fixed.FixedWidthFields;
 import com.univocity.parsers.fixed.FixedWidthWriter;
@@ -50,11 +52,14 @@ import static software.aws.cryptography.performance.itemencryptor.TestConstants.
 @Warmup(iterations = 2, time = 2)
 @Measurement(iterations = 3, time = 3)
 public abstract class TestBase {
-    @Param({"single_attribute.json"})
+    @Param({"single_attribute.json", "nested_attributes.json", "flat_attributes.json"})
     protected String plainTextFile;
-    protected JsonNode plainTextJson;
+    protected Map<String, AttributeValue> plainTextAttribute = new HashMap<>();
     protected Map<String, AttributeValue> itemBeforeEncrypt;
     protected Map<String, AttributeValue> encryptedAttributes;
+    protected ObjectMapper mapper = JsonMapper.builder()
+                                              .serializationInclusion(JsonInclude.Include.NON_NULL)
+                                              .build();
 
     DynamoDBEncryptor encryptor;
 
@@ -63,12 +68,12 @@ public abstract class TestBase {
     @Setup
     public void setup() throws Exception {
         encryptor = DynamoDBEncryptor.getInstance(createMasterKeyProvider());
-        plainTextJson = new ObjectMapper().readTree(getClass().getClassLoader().getResourceAsStream(plainTextFile));
+        plainTextAttribute = new ObjectMapper().readValue(getClass().getClassLoader().getResourceAsStream(plainTextFile), new TypeReference<Map<String, AttributeValue>>() {});
         encryptedAttributes = encrypt();
 
     }
 
-    protected Map<String, Set<EncryptionFlags>> getAttributeActions() {
+    protected Map<String, Set<EncryptionFlags>> getAttributeActions(Map<String, AttributeValue> record) {
         final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
         final EnumSet<EncryptionFlags> encryptAndSign =
                 EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN);
@@ -76,6 +81,12 @@ public abstract class TestBase {
         actions.put(PARTITION_ATTRIBUTE, signOnly);
         actions.put(SORT_ATTRIBUTE, signOnly);
         actions.put(DATA_TO_ENCRYPT, encryptAndSign);
+        for (Map.Entry<String, AttributeValue> entry:record.entrySet()
+             ) {
+            if (entry.getKey().contains("Attribute")) {
+                actions.put(entry.getKey(), encryptAndSign);
+            }
+        }
         return actions;
     }
 
@@ -84,7 +95,7 @@ public abstract class TestBase {
         final Map<String, AttributeValue> record = new HashMap<>();
         record.put(PARTITION_ATTRIBUTE, new AttributeValue().withS(TEST_PK));
         record.put(SORT_ATTRIBUTE, new AttributeValue().withN(SORT_NUMBER));
-        record.put(DATA_TO_ENCRYPT, new AttributeValue().withS(plainTextJson.get(DATA_TO_ENCRYPT).asText()));
+        record.putAll(plainTextAttribute);
 
         final EncryptionContext encryptionContext =
                 new EncryptionContext.Builder()
@@ -96,7 +107,7 @@ public abstract class TestBase {
         itemBeforeEncrypt = record;
 
         final Map<String, AttributeValue> encrypted_record =
-                encryptor.encryptRecord(record, getAttributeActions(), encryptionContext);
+                encryptor.encryptRecord(record, getAttributeActions(record), encryptionContext);
         return encrypted_record;
     }
 
@@ -109,7 +120,7 @@ public abstract class TestBase {
                         .withRangeKeyName(SORT_ATTRIBUTE)
                         .build();
         final Map<String, AttributeValue> decrypted_record =
-                encryptor.decryptRecord(encryptedAttributes, getAttributeActions(), encryptionContext);
+                encryptor.decryptRecord(encryptedAttributes, getAttributeActions(plainTextAttribute), encryptionContext);
         return decrypted_record;
     }
 
@@ -139,7 +150,7 @@ public abstract class TestBase {
     }
 
     public static void main(String[] args) throws Exception {
-        Options options = new OptionsBuilder().include(MostRecentKeyProviderTest.class.getSimpleName())
+        Options options = new OptionsBuilder()
                                   .build();
         new Runner(options).run();    }
 }
