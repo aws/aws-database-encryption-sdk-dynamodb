@@ -138,13 +138,19 @@ module SearchConfigToInfo {
     );
     var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
     var cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
-
+    
     if config.multi? {
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
       var deleteKey :- ShouldDeleteKeyField(outer, config.multi.keyFieldName);
+      //= specification/searchable-encryption/search-config.md#key-store-cache
+      //# The Key Store Cache MUST be bound to the Beacon Key Source.
+      // keyStore & I.MultiLoc are bound together
       output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32));
     } else {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
+      //= specification/searchable-encryption/search-config.md#key-store-cache
+      //# The Key Store Cache MUST be bound to the Beacon Key Source.
+      // keyStore & I.SingleLoc are bound together
       output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32));
     }
   }
