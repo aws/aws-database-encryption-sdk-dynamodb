@@ -37,7 +37,7 @@ jobs:
           macos-latest
         ]
     runs-on: ${{ matrix.os }}
-    environment: "ESDK CI"
+    environment: "MPL CI"
     permissions:
       id-token: write
       contents: read
@@ -54,9 +54,9 @@ jobs:
       - name: Init Submodules
         env:
           # This secret is in the configured environment
-          # Token created on # 11/28/2022
-          # expires in ~30 days 12/28/2022
-          PRIVATE_ESDK_PAT: ${{ secrets.PRIVATE_ESDK_PAT }}
+          # Token created on # 05/12/2023
+          # expires in ~30 days 05/22/2023
+          MPL_PAT: ${{ secrets.MPL_PAT }}
         run: |
           AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
