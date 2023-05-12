@@ -1,0 +1,8 @@
+
+// Ensuring the Search Config & Hierarchical Keyring use the same Key Store
+// did not make the GA-1.x cut off.
+
+//= specification/searchable-encryption/search-config.md#keystore
+//= type=TODO
+//# If being used with a Hierarchical Keyring to encrypt/decrypt items,
+//# this SHOULD be the same Keystore as configured to that Keyring.
