@@ -672,11 +672,6 @@ module SearchableEncryptionInfo {
       ensures ValidState()
       modifies Modifies()
     {
-      //= specification/searchable-encryption/search-config.md#get-beacon-key-after-encrypt
-      //# The `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`
-      //# MUST be passed to [Get Beacon Key Materials](#get-beacon-key-materials)
-      //# and the result returned for Get beacon key after encrypt.
-
       //= specification/dynamodb-encryption-client/ddb-support.md#getencryptedbeacons
       //# To obtain [Beacon Key Materials] GetEncryptedBeacons
       //# MUST call [Get beacon key after encrypt](../searchable-encryption/search-config.md#get-beacon-key-after-encrypt).
