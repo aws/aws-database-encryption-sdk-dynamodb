@@ -61,7 +61,7 @@ jobs:
           # expires in ~30 days 05/22/2023
           MPL_PAT: ${{ secrets.MPL_PAT }}
         run: |
-          AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
+          AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
           git config --global --add url.https://github.com/.insteadOf git@github.com:
           git submodule update --init --recursive submodules/MaterialProviders
