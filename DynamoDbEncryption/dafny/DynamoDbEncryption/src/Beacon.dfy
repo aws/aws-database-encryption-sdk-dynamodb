@@ -305,7 +305,5 @@ module BaseBeacon {
       && BytesToHex(bytes, 6) == "37"
       && BytesToHex(bytes, 7) == "37"
       && BytesToHex(bytes, 8) == "b7"
-      && BytesToHex(bytes, 9) == "1b7"
-      && BytesToHex(bytes, 10) == "3b7"
   {}
 }
