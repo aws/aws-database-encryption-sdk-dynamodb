@@ -1,0 +1,59 @@
+{
+  "Complex": [
+    {
+      "Records": [
+        {
+          "RecNum": 0,
+          "Stuff": "Junk",
+          "Four": "444"
+        },
+        {
+          "RecNum": 1,
+          "Stuff": "Junk",
+          "Four": "Cuatro"
+        }
+      ],
+      "Values": [
+        ":cmp": "F_Cuatro.S_Junk",
+      ],
+      "Query": {
+        "Query": "Comp1 = :cmp",
+        "Match": [
+          1
+        ]
+      },
+      {
+        "Encrypt": [
+          "Stuff"
+        ],
+        "Sign": [
+          "Four",
+        ],
+        "Standard": [
+          {
+            "Name": "Stuff",
+            "Length": 32
+          }
+        ],
+        "Compound": [
+          {
+            "Name": "Comp1",
+            "Split": ".",
+            "Encrypted": [
+              {
+                "Name": "Stuff",
+                "Prefix": "S_"
+              }
+            ],
+            "Signed": [
+              {
+                "Name": "Four",
+                "Prefix": "F_"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
