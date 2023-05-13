@@ -150,7 +150,7 @@ public class HeirarchyKeyringTest extends TestBase {
     public Map<String, AttributeValue> decrypt() {
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
         keyToGet.put(PARTITION_ATTRIBUTE, AttributeValue.builder().s(TEST_PK).build());
-        keyToGet.put(SORT_ATTRIBUTE, AttributeValue.builder().n("0").build());
+        keyToGet.put(SORT_ATTRIBUTE, AttributeValue.builder().n(SORT_NUMBER).build());
 
         final GetItemRequest getRequest = GetItemRequest.builder()
                                                         .key(keyToGet)
