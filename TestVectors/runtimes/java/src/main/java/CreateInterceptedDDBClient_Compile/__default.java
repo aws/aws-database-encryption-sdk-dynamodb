@@ -4,11 +4,11 @@ import software.amazon.cryptography.services.dynamodb.internaldafny.Shim;
 import Wrappers_Compile.Result;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
-import software.amazon.cryptography.dynamoDbEncryption.ToDafny;
-import software.amazon.cryptography.dynamoDbEncryption.ToNative;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import java.net.URI;
@@ -17,10 +17,10 @@ public class __default {
   public static
   Wrappers_Compile.Result<
   software.amazon.cryptography.services.dynamodb.internaldafny.types.IDynamoDBClient,
-    Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error
+          software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error
     >
   CreateInterceptedDDBClient(
-    Dafny.Aws.Cryptography.DynamoDbEncryption.Types.DynamoDbTablesEncryptionConfig config
+          software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbTablesEncryptionConfig config
   ) {
     try {
     final DynamoDbTablesEncryptionConfig nativeConfig = ToNative.DynamoDbTablesEncryptionConfig(config);
@@ -48,8 +48,8 @@ public class __default {
 
   public static
   Wrappers_Compile.Result<
-    Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient,
-    Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error
+          software.amazon.cryptography.services.dynamodb.internaldafny.types.IDynamoDBClient,
+          software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error
     >
   CreateVanillaDDBClient() {
     try {
@@ -67,11 +67,3 @@ public class __default {
   }
 
 }
-/*
-DynamoDbClient client = DynamoDbClient.builder()
-                        .region(Region.US_WEST_2)
-                        .endpointOverride(URI.create("http://localhost:8000"))
-                        .build();
-
-DynamoDB dynamoDB = new DynamoDB(client);
-*/

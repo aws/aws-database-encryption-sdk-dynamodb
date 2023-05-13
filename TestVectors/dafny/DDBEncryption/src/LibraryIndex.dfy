@@ -4,7 +4,7 @@
 include "../Model/AwsCryptographyDynamoDbEncryptionTypesWrapped.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.Wrapped" }
+  {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.wrapped"}
   WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService
 {
 

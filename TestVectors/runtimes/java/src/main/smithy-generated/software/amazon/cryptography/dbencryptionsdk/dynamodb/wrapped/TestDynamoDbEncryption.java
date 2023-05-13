@@ -1,19 +1,19 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-package software.amazon.cryptography.dynamoDbEncryption.wrapped;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb.wrapped;
 
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.Error;
-import Dafny.Aws.Cryptography.DynamoDbEncryption.Types.IDynamoDbEncryptionClient;
 import Wrappers_Compile.Result;
 import java.lang.IllegalArgumentException;
 import java.lang.RuntimeException;
 import java.util.Objects;
-import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
-import software.amazon.cryptography.dynamoDbEncryption.ToDafny;
-import software.amazon.cryptography.dynamoDbEncryption.ToNative;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryption;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbEncryptionClient;
 
 public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
   private final DynamoDbEncryption _impl;
@@ -28,9 +28,9 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
 
   public Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error> CreateDynamoDbEncryptionBranchKeyIdSupplier(
       CreateDynamoDbEncryptionBranchKeyIdSupplierInput dafnyInput) {
-    software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput nativeInput = ToNative.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(dafnyInput);
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput nativeInput = ToNative.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(dafnyInput);
     try {
-      software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput nativeOutput = this._impl.CreateDynamoDbEncryptionBranchKeyIdSupplier(nativeInput);
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput nativeOutput = this._impl.CreateDynamoDbEncryptionBranchKeyIdSupplier(nativeInput);
       CreateDynamoDbEncryptionBranchKeyIdSupplierOutput dafnyOutput = ToDafny.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(nativeOutput);
       return Result.create_Success(dafnyOutput);
     } catch (RuntimeException ex) {

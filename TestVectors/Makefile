@@ -3,7 +3,7 @@
 
 CORES=2
 
-include ../submodules/MaterialProviders/SharedMakefileV2.mk
+include ../SharedMakefile.mk
 
 PROJECT_SERVICES := \
 	DDBEncryption \
@@ -18,40 +18,40 @@ MAX_RESOURCE_COUNT=10000000
 # In java they MUST be built
 # in the order they depend on each other
 PROJECT_DEPENDENCIES := \
-	AwsCryptographyPrimitives \
-	ComAmazonawsKms \
-	ComAmazonawsDynamodb \
-	AwsCryptographicMaterialProviders \
-	TestVectorsAwsCryptographicMaterialProviders \
-	../../DynamoDbEncryption \
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders \
+	DynamoDbEncryption \
 
 # Since we are packaging projects differently, we cannot make assumptions
 # about where the files are located. 
 # This is here to get unblocked but should be removed once we have migrated packages
 # to the new packaging format.
 PROJECT_INDEX := \
-	AwsCryptographyPrimitives/src/Index.dfy \
-	ComAmazonawsKms/src/Index.dfy \
-	ComAmazonawsDynamodb/src/Index.dfy \
-	AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy \
-	AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy \
-	../../DynamoDbEncryption/dafny/StructuredEncryption/src/Index.dfy \
-	../../DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy \
+	submodules/MaterialProviders/AwsCryptographyPrimitives/src/Index.dfy \
+	submodules/MaterialProviders/ComAmazonawsKms/src/Index.dfy \
+	submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy \
+	DynamoDbEncryption/dafny/StructuredEncryption/src/Index.dfy \
+	DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy \
 
-STD_LIBRARY=StandardLibrary
-SMITHY_DEPS=model
+STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
+SMITHY_DEPS=submodules/MaterialProviders/model
 
 DIR_STRUCTURE_V2=V2
 
 # Dependencies for each local service
 SERVICE_DEPS_DDBEncryption := \
-	AwsCryptographyPrimitives \
-	ComAmazonawsKms \
-	ComAmazonawsDynamodb \
-	AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
-	AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
-	../../DynamoDbEncryption/dafny/StructuredEncryption \
-	../../DynamoDbEncryption/dafny/DynamoDbEncryption \
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
+	DynamoDbEncryption/dafny/StructuredEncryption \
+	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
 
 format_net:
