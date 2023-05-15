@@ -59,10 +59,8 @@ public class KmsRsaKeyringExample {
     public static void RsaKeyringGetItemPutItem(String ddbTableName, String rsaKeyArn) {
         // 1. Load UTF-8 encoded public key PEM file.
         //    You may have an RSA public key file already defined. If not,
-        //    the main method in this class will generate PEM
-        //    files for example use.
-        //    Note that these files represent a publicly-accessible RSA key.
-        //    Do not use these files for any other purpose.
+        //    the main method in this class will generate a PEM
+        //    file for example use.
         ByteBuffer publicKeyUtf8EncodedByteBuffer;
         try {
             publicKeyUtf8EncodedByteBuffer = ByteBuffer.wrap(
@@ -241,13 +239,13 @@ public class KmsRsaKeyringExample {
             .keyId(rsaKeyArn)
             .build());
         System.out.println(response.publicKey().asByteArray());
-        byte[] publicKeyByteBuffer = response.publicKey().asByteArray();
+        byte[] publicKeyByteArray = response.publicKey().asByteArray();
 
         StringWriter publicKeyStringWriter = new StringWriter();
         PemWriter publicKeyPemWriter = new PemWriter(publicKeyStringWriter);
         try {
             publicKeyPemWriter.writeObject(
-                new PemObject("PUBLIC KEY", publicKeyByteBuffer));
+                new PemObject("PUBLIC KEY", publicKeyByteArray));
             publicKeyPemWriter.close();
         } catch (IOException e) {
             throw new RuntimeException("IOException while writing public key PEM", e);
