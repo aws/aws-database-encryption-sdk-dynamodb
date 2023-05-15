@@ -10,7 +10,7 @@ public class TestConstants {
     public static final String TEST_PK = "Test_pk";
     public static final String SORT_NUMBER = "10";
     public static final String UNAUTH_PREFIX = ":";
-    public static final String KMS_KEY_ARN = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
+    public static final String KMS_KEY_ARN = "arn:aws:kms:us-west-2:749962803191:key/062862b8-c1c2-4832-a550-28d6c1921e6a";
     public static final String KEY_NAMESPACE = "Key_Namespace";
     public static final String KEY_NAME = "Key_Name";
 

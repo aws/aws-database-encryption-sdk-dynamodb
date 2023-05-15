@@ -1,10 +1,10 @@
 package software.aws.cryptography.performance.itemencryptor.v3;
 
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.KMS_KEY_ARN;
 
@@ -36,7 +36,7 @@ public class AwsKmsKeyringTest extends TestBase {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        TestBase testBase = new AwsKmsKeyringTest("single_attribute.json");
+        TestBase testBase = new AwsKmsKeyringTest("nested_attributes.json");
         testBase.setup();
         testBase.decrypt();
 

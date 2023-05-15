@@ -11,21 +11,22 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
-import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput;
-import software.amazon.cryptography.keyStore.KeyStore;
-import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
-import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
-import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsHierarchicalKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryption;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyOutput;
+import software.amazon.cryptography.keystore.KeyStore;
+import software.amazon.cryptography.keystore.model.CreateKeyStoreInput;
+import software.amazon.cryptography.keystore.model.KMSConfiguration;
+import software.amazon.cryptography.keystore.model.KeyStoreConfig;
+import software.amazon.cryptography.materialproviders.IBranchKeyIdSupplier;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,14 +57,16 @@ public class HeirarchyKeyringTest extends TestBase {
         final KmsClient kmsClient = KmsClient.create();
         final DynamoDbClient dynamoDbClient = DynamoDbClient.create();
 
-        final KeyStoreConfig keyStoreConfig = KeyStoreConfig.builder()
+        final KeyStoreConfig keystoreConfig = KeyStoreConfig.builder()
                                                             .ddbTableName(TEST_KEYSTORE_NAME)
-                                                            .kmsKeyArn(KMS_KEY_ARN)
+                                                            .kmsConfiguration(KMSConfiguration.builder()
+                                                                    .kmsKeyArn(KMS_KEY_ARN)
+                                                                    .build())
                                                             .kmsClient(kmsClient)
                                                             .ddbClient(dynamoDbClient)
                                                             .build();
         final KeyStore keystore = KeyStore.builder().KeyStoreConfig(
-                keyStoreConfig).build();
+                keystoreConfig).build();
 
         keystore.CreateKeyStore(CreateKeyStoreInput.builder().build());
 
