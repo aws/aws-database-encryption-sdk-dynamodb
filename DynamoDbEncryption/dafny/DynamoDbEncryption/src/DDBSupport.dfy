@@ -16,7 +16,7 @@ include "DDBIndex.dfy"
 module DynamoDBSupport {
 
   import DDB = ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
@@ -155,9 +155,9 @@ module DynamoDBSupport {
     //= type=implication
     //# In addition to the configured beacons, a [version tag](#version-tag) MUST also be written.
 
-    //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+    //= specification/dynamodb-encryption-client/ddb-support.md#addsignedbeacons
     //= type=implication
-    //# AddNonSensitiveBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
+    //# AddSignedBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
     ensures output.Success? && search.Some? ==> VersionTag in output.value
   {
     if search.None? {
@@ -165,10 +165,10 @@ module DynamoDBSupport {
     } else {
       var newAttrs :- search.value.GenerateSignedBeacons(item);
 
-      //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
+      //= specification/dynamodb-encryption-client/ddb-support.md#addsignedbeacons
       //# If the attribute NAME already exists,
       //# if the constructed compound beacon does not match
-      //# the existing attribute value AddNonSensitiveBeacons MUST fail.
+      //# the existing attribute value AddSignedBeacons MUST fail.
       var badAttrs := set k <- newAttrs | k in item && item[k] != newAttrs[k] :: k;
       :- Need(|badAttrs| == 0, E("Signed beacons have generated values different from supplied values."));
       var version : DDB.AttributeMap := map[VersionTag := DS(" ")];
@@ -178,8 +178,8 @@ module DynamoDBSupport {
         var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, CharLess);
         return Failure(E("Supplied Beacons do not match calculated beacons : " + Join(badSeq, ", ")));
       }
-      //= specification/dynamodb-encryption-client/ddb-support.md#addnonsensitivebeacons
-      //# The result of AddNonSensitiveBeacons MUST be a super set of everything in the input AttributeMap.
+      //= specification/dynamodb-encryption-client/ddb-support.md#addsignedbeacons
+      //# The result of AddSignedBeacons MUST be a super set of everything in the input AttributeMap.
       if search.value.curr().keySource.keyLoc.MultiLoc? && search.value.curr().keySource.keyLoc.deleteKey {
         var newItem := map k <- item | k != search.value.curr().keySource.keyLoc.keyName :: k := item[k];
         return Success(newItem + newAttrs + version);
@@ -187,6 +187,11 @@ module DynamoDBSupport {
         return Success(item + newAttrs + version);
       }
     }
+  }
+
+  function method DoRemoveBeacons(item : DDB.AttributeMap) : DDB.AttributeMap
+  {
+    map k <- item | (!(ReservedPrefix <= k)) :: k := item[k]
   }
 
   // RemoveBeacons examines an AttributeMap and modifies it to be appropriate for customer use,
@@ -202,10 +207,7 @@ module DynamoDBSupport {
               && (forall k <- ret.value :: !(ReservedPrefix <= k))
               && (forall k <- item :: (ReservedPrefix <= k) || (k in ret.value && ret.value[k] == item[k]))
   {
-    if search.None? then
-      Success(item)
-    else
-      Success(map k <- item | (!(ReservedPrefix <= k)) :: k := item[k])
+    Success(DoRemoveBeacons(item))
   }
 
   // transform optional LSIs for searchable encryption, changing AttributeDefinitions as needed
@@ -297,11 +299,17 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryInput object for searchable encryption.
-  method QueryInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput)
+  method QueryInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.QueryInput)
     returns (output : Result<DDB.QueryInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
+      var _ :- Filter.TestBeaconize(
+        actions,
+        req.KeyConditionExpression,
+        req.FilterExpression,
+        req.ExpressionAttributeNames
+      );
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
@@ -323,8 +331,9 @@ module DynamoDBSupport {
     ensures output.Success? ==> output.value.Items.Some?
     modifies if search.Some? then search.value.Modifies() else {}
   {
-    if search.None? || resp.Items.None? {
-      return Success(resp);
+    if search.None? {
+      var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
+      return Success(resp.(Items := Some(trimmedItems)));
     } else {
       var newItems :- Filter.FilterResults(
         search.value.curr(),
@@ -334,12 +343,13 @@ module DynamoDBSupport {
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues);
       :- Need(|newItems| < INT32_MAX_LIMIT, DynamoDbEncryptionUtil.E("This is impossible."));
+      var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
       var count :=
         if resp.Count.Some? then
-          Some(|newItems| as DDB.Integer)
+          Some(|trimmedItems| as DDB.Integer)
         else
           None;
-      return Success(resp.(Items := Some(newItems), Count := count));
+      return Success(resp.(Items := Some(trimmedItems), Count := count));
     }
   }
 
@@ -359,11 +369,17 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanInput object for searchable encryption.
-  method ScanInputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput)
+  method ScanInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.ScanInput)
     returns (output : Result<DDB.ScanInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
+      var _ :- Filter.TestBeaconize(
+        actions,
+        None,
+        req.FilterExpression,
+        req.ExpressionAttributeNames
+      );
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
@@ -385,7 +401,8 @@ module DynamoDBSupport {
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
-      return Success(resp);
+      var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
+      return Success(resp.(Items := Some(trimmedItems)));
     } else {
       var newItems :- Filter.FilterResults(
         search.value.curr(),
@@ -395,12 +412,13 @@ module DynamoDBSupport {
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues);
       :- Need(|newItems| < INT32_MAX_LIMIT, DynamoDbEncryptionUtil.E("This is impossible."));
+      var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
       var count :=
         if resp.Count.Some? then
-          Some(|newItems| as DDB.Integer)
+          Some(|trimmedItems| as DDB.Integer)
         else
           None;
-      return Success(resp.(Items := Some(newItems), Count := count));
+      return Success(resp.(Items := Some(trimmedItems), Count := count));
     }
   }
 }

@@ -1,6 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-namespace aws.cryptography.dynamoDbEncryption
+namespace aws.cryptography.dbEncryptionSdk.dynamoDb
 
 // The top level namespace for this project.
 // Contains an entry-point for helper methods,
@@ -15,7 +15,7 @@ use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.keyStore#KeyStore
-use aws.cryptography.structuredEncryption#CryptoAction
+use aws.cryptography.dbEncryptionSdk.structuredEncryption#CryptoAction
 
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#TableName
@@ -24,10 +24,20 @@ use com.amazonaws.dynamodb#Key
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
 
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
+
 // A config-less entry-point for DynamoDb Encryption helper/factory methods
 @localService(
   sdkId: "DynamoDbEncryption",
   config: DynamoDbEncryptionConfig,
+  dependencies: [
+    AwsCryptographicPrimitives,
+    DynamoDB_20120810,
+    AwsCryptographicMaterialProviders,
+    StructuredEncryption
+  ]
 )
 service DynamoDbEncryption {
     version: "2022-11-21",
@@ -234,13 +244,13 @@ list CompoundBeaconList {
 }
 
 @length(min: 1)
-list SensitivePartsList {
-  member: SensitivePart
+list EncryptedPartsList {
+  member: EncryptedPart
 }
 
 @length(min: 1)
-list NonSensitivePartsList {
-  member: NonSensitivePart
+list SignedPartsList {
+  member: SignedPart
 }
 
 @length(min: 1)
@@ -412,31 +422,31 @@ union VirtualTransform {
   segments : GetSegments
 }
 
-//= specification/searchable-encryption/beacons.md#sensitive-part-initialization
+//= specification/searchable-encryption/beacons.md#encrypted-part-initialization
 //= type=implication
-//# On initialization of a [sensitive part](#sensitive-part-initialization), the caller MUST provide:
+//# On initialization of a [encrypted part](#encrypted-part-initialization), the caller MUST provide:
 //#  * A name -- a string, the name of a standard beacon
 //#  * A prefix -- a string
 
-structure SensitivePart {
+structure EncryptedPart {
   @required
   name : String,
   @required
   prefix : Prefix
 }
 
-//= specification/searchable-encryption/beacons.md#non-sensitive-part-initialization
+//= specification/searchable-encryption/beacons.md#signed-part-initialization
 //= type=implication
-//# On initialization of a [non-sensitive part](#non-sensitive-part-initialization), the caller MUST provide:
+//# On initialization of a [signed part](#signed-part-initialization), the caller MUST provide:
 //#  * A name -- a string
 //#  * A prefix -- a string
 
-//= specification/searchable-encryption/beacons.md#non-sensitive-part-initialization
+//= specification/searchable-encryption/beacons.md#signed-part-initialization
 //= type=implication
-//# On initialization of a [non-sensitive parts](#non-sensitive-part-initialization), the caller MAY provide:
+//# On initialization of a [signed parts](#signed-part-initialization), the caller MAY provide:
 //# * A [terminal location](virtual.md#terminal-location) -- a string
 
-structure NonSensitivePart {
+structure SignedPart {
   @required
   name : String,
   @required
@@ -495,8 +505,8 @@ structure StandardBeacon {
 //= specification/searchable-encryption/beacons.md#compound-beacon-initialization
 //= type=implication
 //# On initialization of a Compound Beacon, the caller MAY provide:
-//#  * A list of [sensitive parts](#sensitive-part-initialization)
-//#  * A list of [non-sensitive parts](#non-sensitive-part-initialization)
+//#  * A list of [encrypted parts](#encrypted-part-initialization)
+//#  * A list of [signed parts](#signed-part-initialization)
 //#  * A list of constructors
 
 structure CompoundBeacon {
@@ -504,8 +514,8 @@ structure CompoundBeacon {
   name : String,
   @required
   split : Char,
-  sensitive : SensitivePartsList,
-  nonSensitive : NonSensitivePartsList,
+  encrypted : EncryptedPartsList,
+  signed : SignedPartsList,
   constructors : ConstructorList
 }
 

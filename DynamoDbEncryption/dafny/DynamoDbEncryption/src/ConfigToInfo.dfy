@@ -6,7 +6,7 @@
 
   The only entry point of interest is 
 
-  Convert(outer : DynamoDbTableEncryptionConfig, config : Option<AwsCryptographyDynamoDbEncryptionTypes.SearchConfig>)
+  Convert(outer : DynamoDbTableEncryptionConfig, config : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig>)
     : Option<SearchableEncryptionInfo.SearchInfo>
   
   e.g. client.info :- Convert(config, config.beacons)
@@ -16,7 +16,7 @@ include "SearchInfo.dfy"
 include "Util.dfy"
 
 module SearchConfigToInfo {
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened StandardLibrary
   import opened Wrappers
   import opened StandardLibrary.UInt
@@ -29,7 +29,7 @@ module SearchConfigToInfo {
   import V = DdbVirtualFields
   import B = BaseBeacon
   import CB = CompoundBeacon
-  import SE = AwsCryptographyStructuredEncryptionTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MPT = AwsCryptographyMaterialProvidersTypes
   import Aws.Cryptography.Primitives
 
@@ -213,7 +213,8 @@ module SearchConfigToInfo {
         config.version as I.VersionNumber,
         source,
         beacons,
-        virtualFields
+        virtualFields,
+        outer.attributeActions
       );
   }
 
@@ -271,7 +272,7 @@ module SearchConfigToInfo {
     if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
       Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
     else if isSignedBeacon && name in outer.attributeActions then
-      Failure(E(name + " not allowed as a " + context + " because a fully nonsensitive beacon cannot have the same name as an existing attribute."))
+      Failure(E(name + " not allowed as a " + context + " because a fully signed beacon cannot have the same name as an existing attribute."))
     else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
       Failure(E(name + " not allowed as a " + context + " because it is already an allowed unauthenticated attribute."))
     else if outer.allowedUnauthenticatedAttributePrefix.Some? && outer.allowedUnauthenticatedAttributePrefix.value <= name then
@@ -324,7 +325,7 @@ module SearchConfigToInfo {
   }
   // convert configured VirtualFields to internal VirtualFields
   function method {:tailrecursion} AddVirtualFields(
-    vf : seq<AwsCryptographyDynamoDbEncryptionTypes.VirtualField>,
+    vf : seq<AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField>,
     outer : DynamoDbTableEncryptionConfig,
     converted : V.VirtualFieldMap := map[])
     : (ret : Result<V.VirtualFieldMap, Error>)
@@ -469,38 +470,38 @@ module SearchConfigToInfo {
       loc.value
   }
 
-  // convert configured NonSensitivePart to internal BeaconPart
-  function method {:tailrecursion} AddNonSensitiveParts(
-    parts : seq<NonSensitivePart>,
+  // convert configured SignedPart to internal BeaconPart
+  function method {:tailrecursion} AddSignedParts(
+    parts : seq<SignedPart>,
     outer : DynamoDbTableEncryptionConfig,
     origSize : nat := |parts|,
     converted : seq<CB.BeaconPart> := []
   )
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
-    requires forall p <- converted :: p.NonSensitive?
+    requires forall p <- converted :: p.Signed?
     ensures ret.Success? ==> |ret.value| == origSize
-    ensures ret.Success? ==> forall p <- ret.value :: p.NonSensitive?
+    ensures ret.Success? ==> forall p <- ret.value :: p.Signed?
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //= type=implication
     //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
-    //# reference by a [non-sensitive part](beacons.md#non-sensitive-part) is `encrypted`,
+    //# reference by a [signed part](beacons.md#signed-part) is `encrypted`,
     //# or is not `signed`.
     ensures
       (&& 0 < |parts|
-          //= specification/searchable-encryption/beacons.md#non-sensitive-part-initialization
+          //= specification/searchable-encryption/beacons.md#signed-part-initialization
           //= type=implication
           //# If no [terminal location](virtual.md#terminal-location) is provided,
           //# the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
        && GetLoc(parts[0].name, parts[0].loc).Success?
        && var loc := GetLoc(parts[0].name, parts[0].loc).value;
-       && !IsSignOnly(outer, CB.NonSensitive(parts[0].prefix, parts[0].name, loc).loc))
+       && !IsSignOnly(outer, CB.Signed(parts[0].prefix, parts[0].name, loc).loc))
       ==> ret.Failure?
 
     //= specification/searchable-encryption/beacons.md#initialization-failure
     //= type=implication
-    //# Initialization MUST fail if any [non-sensitive-part](#non-sensitive-part-initialization) contains
+    //# Initialization MUST fail if any [signed-part](#signed-part-initialization) contains
     //# anything but SIGN_ONLY fields.
     ensures ret.Success? && 0 < |parts| ==>
               && GetLoc(parts[0].name, parts[0].loc).Success?
@@ -511,39 +512,39 @@ module SearchConfigToInfo {
       Success(converted)
     else
       var loc :- GetLoc(parts[0].name, parts[0].loc);
-      var newPart := CB.NonSensitive(parts[0].prefix, parts[0].name, loc);
-      :- Need(IsSignOnly(outer, newPart.loc), E("NonSensitive Part " + newPart.name
+      var newPart := CB.Signed(parts[0].prefix, parts[0].name, loc);
+      :- Need(IsSignOnly(outer, newPart.loc), E("Signed Part " + newPart.name
                                                 + " is built from " + GetLocStr(parts[0].name, parts[0].loc) + " which is not SIGN_ONLY."));
-      AddNonSensitiveParts(parts[1..], outer,origSize, converted + [newPart])
+      AddSignedParts(parts[1..], outer,origSize, converted + [newPart])
   }
 
-  // convert configured SensitivePart to internal BeaconPart
-  function method AddSensitiveParts(
-    parts : seq<SensitivePart>,
+  // convert configured EncryptedPart to internal BeaconPart
+  function method AddEncryptedParts(
+    parts : seq<EncryptedPart>,
     ghost origSize : nat,
-    ghost numNonSensitive : nat,
+    ghost numSigned : nat,
     converted : seq<CB.BeaconPart>,
     std : I.BeaconMap
   )
     : (ret : Result<seq<CB.BeaconPart>, Error>)
     requires origSize == |parts| + |converted|
-    requires numNonSensitive <= |converted|
-    requires CB.OrderedParts(converted, numNonSensitive)
+    requires numSigned <= |converted|
+    requires CB.OrderedParts(converted, numSigned)
     ensures ret.Success? ==> |ret.value| == origSize
     //= specification/searchable-encryption/beacons.md#compound-beacon
     //= type=implication
     //# The name MUST be the name of a configured standard beacon.
     ensures ret.Success? && 0 < |parts| ==> parts[0].name in std && std[parts[0].name].Standard?
-    ensures ret.Success? ==> CB.OrderedParts(ret.value, numNonSensitive)
+    ensures ret.Success? ==> CB.OrderedParts(ret.value, numSigned)
   {
     if |parts| == 0 then
       Success(converted)
     else
     if parts[0].name in std && std[parts[0].name].Standard? then
-      var newPart := CB.Sensitive(parts[0].prefix, std[parts[0].name].std);
-      AddSensitiveParts(parts[1..], origSize, numNonSensitive, converted + [newPart], std)
+      var newPart := CB.Encrypted(parts[0].prefix, std[parts[0].name].std);
+      AddEncryptedParts(parts[1..], origSize, numSigned, converted + [newPart], std)
     else
-      Failure(E("Sensitive part needs standard beacon " + parts[0].name + " which is not configured."))
+      Failure(E("Encrypted part needs standard beacon " + parts[0].name + " which is not configured."))
   }
 
   // create the default constructor, if not constructor is specified
@@ -567,8 +568,8 @@ module SearchConfigToInfo {
               && |ret.value[0].parts| == |parts| + |converted|
                  //= specification/searchable-encryption/beacons.md#default-construction
                  //= type=implication
-                 //# * This default constructor MUST be all of the non-sensitive parts,
-                 //# followed by all the sensitive parts, all parts being required.
+                 //# * This default constructor MUST be all of the signed parts,
+                 //# followed by all the encrypted parts, all parts being required.
               && CB.OrderedParts(allParts, numNon)
               && (forall i | 0 <= i < |ret.value[0].parts| ::
                     && ret.value[0].parts[i].part == allParts[i]
@@ -608,7 +609,7 @@ module SearchConfigToInfo {
     ensures ret.Success? ==> |ret.value| == origSize
     //= specification/searchable-encryption/beacons.md#constructor-part-initialization
     //= type=implication
-    //# This name MUST match the name of one of the [sensitive](#sensitive-part-initialization) or [non-sensitive](#non-sensitive-part-initialization) parts.
+    //# This name MUST match the name of one of the [encrypted](#encrypted-part-initialization) or [signed](#signed-part-initialization) parts.
 
     //= specification/searchable-encryption/beacons.md#initialization-failure
     //= type=implication
@@ -680,13 +681,13 @@ module SearchConfigToInfo {
     constructors : Option<ConstructorList>,
     name : string,
     parts : seq<CB.BeaconPart>,
-    ghost numNonSensitive : nat
+    ghost numSigned : nat
   )
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts|
     requires constructors.Some? ==> 0 < |constructors.value|
-    requires numNonSensitive <= |parts|
-    requires CB.OrderedParts(parts, numNonSensitive)
+    requires numSigned <= |parts|
+    requires CB.OrderedParts(parts, numSigned)
     ensures ret.Success? ==>
               && (constructors.None? ==> |ret.value| == 1)
               && (constructors.Some? ==> |ret.value| == |constructors.value|)
@@ -695,10 +696,10 @@ module SearchConfigToInfo {
     //= type=implication
     //# * If no constructors are configured, a default constructor MUST be generated.
     ensures ret.Success? && constructors.None? ==>
-              ret == MakeDefaultConstructor(parts, parts, numNonSensitive)
+              ret == MakeDefaultConstructor(parts, parts, numSigned)
   {
     if constructors.None? then
-      MakeDefaultConstructor(parts, parts, numNonSensitive)
+      MakeDefaultConstructor(parts, parts, numSigned)
     else
       AddConstructors2(constructors.value, name, parts, |constructors.value|)
   }
@@ -718,24 +719,24 @@ module SearchConfigToInfo {
     //# The beacon value MUST be stored as `NAME`, rather than the usual `aws_dbe_b_NAME`.
     ensures ret.Success? ==>
       && ret.value.base.name == beacon.name
-      && var sensitive := if beacon.sensitive.Some? then beacon.sensitive.value else [];
-      && (|sensitive| == 0 ==> ret.value.base.beaconName == beacon.name)
-      && (|sensitive| != 0 ==> ret.value.base.beaconName == BeaconPrefix + beacon.name)
+      && var encrypted := if beacon.encrypted.Some? then beacon.encrypted.value else [];
+      && (|encrypted| == 0 ==> ret.value.base.beaconName == beacon.name)
+      && (|encrypted| != 0 ==> ret.value.base.beaconName == BeaconPrefix + beacon.name)
 
   {
     // because UnwrapOr doesn't verify when used on a list with a minimum size
-    var nonSensitive := if beacon.nonSensitive.Some? then beacon.nonSensitive.value else [];
-    var sensitive := if beacon.sensitive.Some? then beacon.sensitive.value else [];
-    var isSignedBeacon := |sensitive| == 0;
+    var signed := if beacon.signed.Some? then beacon.signed.value else [];
+    var encrypted := if beacon.encrypted.Some? then beacon.encrypted.value else [];
+    var isSignedBeacon := |encrypted| == 0;
 
     :- Need(beacon.name !in converted, E("Duplicate CompoundBeacon name : " + beacon.name));
     var _ :- BeaconNameAllowed(outer, virtualFields, beacon.name, "CompoundBeacon", isSignedBeacon);
 
-    var parts :- AddNonSensitiveParts(nonSensitive, outer);
+    var parts :- AddSignedParts(signed, outer);
     var numNon := |parts|;
     assert CB.OrderedParts(parts, numNon); 
 
-    var parts :- AddSensitiveParts(sensitive, |parts| + |sensitive|, numNon, parts, converted);
+    var parts :- AddEncryptedParts(encrypted, |parts| + |encrypted|, numNon, parts, converted);
     assert CB.OrderedParts(parts, numNon);
     :- Need(0 < |parts|, E("For beacon " + beacon.name + " no parts were supplied."));
     :- Need(beacon.constructors.None? || 0 < |beacon.constructors.value|, E("For beacon " + beacon.name + " an empty constructor list was supplied."));

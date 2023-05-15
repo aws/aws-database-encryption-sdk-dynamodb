@@ -6,14 +6,14 @@ module TestFixtures {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
-  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DynamoDbEncryptionTransforms
   import DynamoDbItemEncryptor
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
-  import CSE = AwsCryptographyStructuredEncryptionTypes
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import DDB = ComAmazonawsDynamodbTypes
 
   method GetTableName(s : string) returns (output : DDB.TableName)
@@ -135,7 +135,7 @@ module TestFixtures {
   }
 
 
-  method expect_ok<X>(tag : string, actual : Result<X, AwsCryptographyDynamoDbEncryptionTransformsTypes.Error>)
+  method expect_ok<X>(tag : string, actual : Result<X, AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error>)
     ensures actual.Success?
   {
     if actual.Failure? {
@@ -151,7 +151,7 @@ module TestFixtures {
     expect actual == expected;
   }
 
-  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionTransformsTypes.Error>, s : string)
+  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error>, s : string)
   {
     if !ret.Failure? {
       print "Got Success when expected failure ", s, "\n";

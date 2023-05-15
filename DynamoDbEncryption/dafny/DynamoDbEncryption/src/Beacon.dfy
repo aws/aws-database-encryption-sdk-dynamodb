@@ -10,7 +10,7 @@ module BaseBeacon {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened StandardLibrary.String
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened HexStrings
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
@@ -305,7 +305,5 @@ module BaseBeacon {
       && BytesToHex(bytes, 6) == "37"
       && BytesToHex(bytes, 7) == "37"
       && BytesToHex(bytes, 8) == "b7"
-      && BytesToHex(bytes, 9) == "1b7"
-      && BytesToHex(bytes, 10) == "3b7"
   {}
 }

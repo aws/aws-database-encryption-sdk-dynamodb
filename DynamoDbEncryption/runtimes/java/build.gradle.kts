@@ -11,7 +11,7 @@ plugins {
 
 group = "software.amazon.cryptography"
 version = "1.0-SNAPSHOT"
-description = "AwsCryptographyDynamoDbEncryption"
+description = "Aws Database Encryption Sdk for DynamoDb Java"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
@@ -64,7 +64,7 @@ repositories {
 val dynamodb by configurations.creating
 
 dependencies {
-    implementation("org.dafny:DafnyRuntime:4.0.0")
+    implementation("org.dafny:DafnyRuntime:4.1.0")
     implementation("software.amazon.dafny:conversion:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:StandardLibrary:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:AwsCryptographyPrimitives:1.0-SNAPSHOT")
@@ -111,7 +111,7 @@ dependencies {
 publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "software.amazon.cryptography"
-        artifactId = "AwsCryptographyDynamoDbEncryption"
+        artifactId = "aws-database-encryption-sdk-dynamodb"
         from(components["java"])
     }
     repositories { mavenLocal() }
