@@ -35,17 +35,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import CreateInterceptedDDBClient
 
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
+  type ConfigName = string
 
   datatype Record = Record (
     number : nat,
     item : DDB.AttributeMap
   )
 
-  datatype ConfigType = Simple | Complex
-
-  datatype SearchConfig = SearchConfig (
-    number : nat,
-    style : ConfigType,
+  datatype TableConfig = TableConfig (
+    name : ConfigName,
     config : Types.DynamoDbTableEncryptionConfig,
     vanilla : bool
   )
@@ -54,7 +52,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     index : Option<DDB.IndexName>,
     keyExpr : Option<string>,
     filterExpr : Option<string>,
-    failConfigs : seq<nat>
+    failConfigs : seq<ConfigName>
   )
 
   datatype ComplexQuery = ComplexQuery (
@@ -64,26 +62,37 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   )
 
   datatype ComplexTest = ComplexTest (
-    config : nat,
+    config : ConfigName,
     queries : seq<ComplexQuery>,
     failures : seq<SimpleQuery>
+  )
+
+  datatype IoTest = IoTest (
+    name : string,
+    writeConfig : TableConfig,
+    readConfig : TableConfig,
+    records : seq<Record>,
+    names : DDB.ExpressionAttributeNameMap,
+    values : DDB.ExpressionAttributeValueMap,
+    queries : seq<SimpleQuery>
   )
 
   const TableName : DDB.TableName := "GazelleVectorTable"
   const HashName := "RecNum"
 
-  type NumPair = (nat, nat)
-  type PairList = seq<NumPair>
+  type ConfigPair = (ConfigName, ConfigName)
+  type PairList = seq<ConfigPair>
 
   datatype TestVectorConfig = TestVectorConfig (
     tableSchema : DDB.CreateTableInput,
-    records : seq<Record>,
-    searchConfigs : seq<SearchConfig>,
+    globalRecords : seq<Record>,
+    tableEncryptionConfigs : map<ConfigName, TableConfig>,
     queries : seq<SimpleQuery>,
     names : DDB.ExpressionAttributeNameMap,
     values : DDB.ExpressionAttributeValueMap,
     failingQueries : seq<SimpleQuery>,
     complexTests : seq<ComplexTest>,
+    ioTests : seq<IoTest>,
     configsForIoTest : PairList,
     configsForModTest : PairList
   ) {
@@ -91,17 +100,19 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     method RunAllTests()
     {
       print "DBE Test Vectors\n";
-      print |records|, " records.\n";
-      print |searchConfigs|, " searchConfigs.\n";
+      print |globalRecords|, " records.\n";
+      print |tableEncryptionConfigs|, " tableEncryptionConfigs.\n";
       print |queries|, " queries.\n";
       print |names|, " names.\n";
       print |values|, " values.\n";
       print |failingQueries|, " failingQueries.\n";
       print |complexTests|, " complexTests.\n";
+      print |ioTests|, " ioTests.\n";
       print |configsForIoTest|, " configsForIoTest.\n";
       print |configsForModTest|, " configsForModTest.\n";
       Validate();
       BasicIoTest();
+      RunIoTests();
       BasicQueryTest();
       ConfigModTest();
       ComplexTests();
@@ -111,50 +122,44 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method Validate() {
       var bad := false;
-      for i := 0 to |records| {
-        if records[i].number != i {
-          print "Record number ", i, " has number ", records[i].number, "\n";
-          bad := true;
-        }
-      }
-      for i := 0 to |searchConfigs| {
-        if searchConfigs[i].number != i {
-          print "Search Config number ", i, " has number ", searchConfigs[i].number, "\n";
+      for i := 0 to |globalRecords| {
+        if globalRecords[i].number != i {
+          print "Record number ", i, " has number ", globalRecords[i].number, "\n";
           bad := true;
         }
       }
       for i := 0 to |complexTests| {
-        if complexTests[i].config >= |searchConfigs| {
-          print "Complex Test number ", i, " refers to search config number ", complexTests[i].config, " which does not exist.\n";
+        if complexTests[i].config !in tableEncryptionConfigs {
+          print "Complex Test number ", i, " refers to search config, ", complexTests[i].config, " which does not exist.\n";
           bad := true;
         }
       }
       for i := 0 to |queries| {
         for j := 0 to |queries[i].failConfigs| {
-          if queries[i].failConfigs[j] >= |searchConfigs| {
-            print "Simple query number ", i, " refers to search config number ", queries[i].failConfigs[j], " which does not exist.\n";
+          if queries[i].failConfigs[j] !in tableEncryptionConfigs {
+            print "Simple query number ", i, " refers to search config ", queries[i].failConfigs[j], " which does not exist.\n";
             bad := true;
           }
         }
       }
 
       for i := 0 to |configsForIoTest| {
-        if configsForIoTest[i].0 >= |searchConfigs| {
-          print "configsForIoTest number ", i, " refers to search config number ", configsForIoTest[i].0, " which does not exist.\n";
+        if configsForIoTest[i].0 !in tableEncryptionConfigs {
+          print "configsForIoTest number ", i, " refers to search config ", configsForIoTest[i].0, " which does not exist.\n";
           bad := true;
         }
-        if configsForIoTest[i].1 >= |searchConfigs| {
-          print "configsForIoTest number ", i, " refers to search config number ", configsForIoTest[i].1, " which does not exist.\n";
+        if configsForIoTest[i].1 !in tableEncryptionConfigs {
+          print "configsForIoTest number ", i, " refers to search config ", configsForIoTest[i].1, " which does not exist.\n";
           bad := true;
         }
       }
       for i := 0 to |configsForModTest| {
-        if configsForModTest[i].0 >= |searchConfigs| {
-          print "configsForModTest number ", i, " refers to search config number ", configsForModTest[i].0, " which does not exist.\n";
+        if configsForModTest[i].0 !in tableEncryptionConfigs {
+          print "configsForModTest number ", i, " refers to search config ", configsForModTest[i].0, " which does not exist.\n";
           bad := true;
         }
-        if configsForModTest[i].1 >= |searchConfigs| {
-          print "configsForModTest number ", i, " refers to search config number ", configsForModTest[i].1, " which does not exist.\n";
+        if configsForModTest[i].1 !in tableEncryptionConfigs {
+          print "configsForModTest number ", i, " refers to search config ", configsForModTest[i].1, " which does not exist.\n";
           bad := true;
         }
       }
@@ -168,41 +173,47 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var res := client.DeleteTable(DDB.DeleteTableInput(TableName := TableName));
     }
 
-    method DoQuery(client : DDB.IDynamoDBClient, q : SimpleQuery) returns (output : DDB.ItemList)
-      requires client.ValidState()
-      ensures client.ValidState()
-      modifies client.Modifies
-    {
-      if q.keyExpr.Some? {
-        output := FullQuery(client, q);
-      } else {
-        output := FullScan(client, q);
-      }
-    }
-
     function GetUsed(q : SimpleQuery) : (DDB.ExpressionAttributeNameMap, DDB.ExpressionAttributeValueMap)
     {
       TrimMaps(q.keyExpr.UnwrapOr(""), q.filterExpr.UnwrapOr(""), names, values)
     }
 
-    method FullSearch(client : DDB.IDynamoDBClient, q : SimpleQuery) returns (output : DDB.ItemList)
+    method GetUsed2(q : SimpleQuery, names : Option<DDB.ExpressionAttributeNameMap>, values : Option<DDB.ExpressionAttributeValueMap>)
+      returns (output : (DDB.ExpressionAttributeNameMap, DDB.ExpressionAttributeValueMap))
+    {
+      expect names.Some? == values.Some?;
+      if names.Some? {
+        return (names.value, values.value);
+      } else {
+        return GetUsed(q);
+      }
+    }
+
+    method FullSearch(
+      client : DDB.IDynamoDBClient,
+      q : SimpleQuery,
+      names : Option<DDB.ExpressionAttributeNameMap> := None,
+      values : Option<DDB.ExpressionAttributeValueMap> := None
+    )
+      returns (output : DDB.ItemList)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
     {
       if q.keyExpr.Some? {
-        output := FullQuery(client, q);
+        output := FullQuery(client, q, names, values);
       } else {
-        output := FullScan(client, q);
+        output := FullScan(client, q, names, values);
       }
     }
 
-    method FullQuery(client : DDB.IDynamoDBClient, q : SimpleQuery) returns (output : DDB.ItemList)
+    method FullQuery(client : DDB.IDynamoDBClient, q : SimpleQuery, names : Option<DDB.ExpressionAttributeNameMap>, values : Option<DDB.ExpressionAttributeValueMap>) returns (output : DDB.ItemList)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
     {
-      var (usedNames, usedValues) := GetUsed(q);
+      var zzz := GetUsed2(q, names, values);
+      var (usedNames, usedValues) := zzz;
 
       output := [];
       var lastKey : Option<DDB.Key> := None;
@@ -220,12 +231,14 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method FullScan(client : DDB.IDynamoDBClient, q : SimpleQuery) returns (output : DDB.ItemList)
+    method FullScan(client : DDB.IDynamoDBClient, q : SimpleQuery, names : Option<DDB.ExpressionAttributeNameMap>, values : Option<DDB.ExpressionAttributeValueMap>) returns (output : DDB.ItemList)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
     {
-      var (usedNames, usedValues) := GetUsed(q);
+      var zzz := GetUsed2(q, names, values);
+      var (usedNames, usedValues) := zzz;
+
       output := [];
       var lastKey : Option<DDB.Key> := None;
       for i := 0 to 100
@@ -299,7 +312,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
     }
 
-    method WriteAllRecords(client : DDB.IDynamoDBClient)
+    method WriteAllRecords(client : DDB.IDynamoDBClient, records : seq<Record>)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
@@ -327,13 +340,29 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       print "BasicIoTest\n";
       for x := 0 to |configsForIoTest| {
-        expect configsForIoTest[x].0 < |searchConfigs|;
-        expect configsForIoTest[x].1 < |searchConfigs|;
-        var c1 := searchConfigs[configsForIoTest[x].0];
-        var c2 := searchConfigs[configsForIoTest[x].1];
-        BasicIoTestBatchWriteItem(c1, c2);
-        BasicIoTestPutItem(c1, c2);
-        BasicIoTestTransactWriteItems(c1, c2);
+        expect configsForIoTest[x].0 in tableEncryptionConfigs;
+        expect configsForIoTest[x].1 in tableEncryptionConfigs;
+        var c1 := tableEncryptionConfigs[configsForIoTest[x].0];
+        var c2 := tableEncryptionConfigs[configsForIoTest[x].1];
+        BasicIoTestBatchWriteItem(c1, c2, globalRecords);
+        BasicIoTestPutItem(c1, c2, globalRecords);
+        BasicIoTestTransactWriteItems(c1, c2, globalRecords);
+      }
+    }
+
+    method RunIoTests()
+    {
+      print "RunIoTests\n";
+      for i := 0 to |ioTests| {
+        print "RunIoTest ", i, "\n";
+        BasicIoTestBatchWriteItem(ioTests[i].writeConfig, ioTests[i].readConfig, ioTests[i].records);
+        BasicIoTestPutItem(ioTests[i].writeConfig, ioTests[i].readConfig, ioTests[i].records);
+        BasicIoTestTransactWriteItems(ioTests[i].writeConfig, ioTests[i].readConfig, ioTests[i].records);
+
+        var rClient :- expect newGazelle(ioTests[i].readConfig);
+        for j := 0 to |ioTests[i].queries| {
+          var results := FullSearch(rClient, ioTests[i].queries[j], Some(ioTests[i].names), Some(ioTests[i].values));
+        }
       }
     }
 
@@ -341,13 +370,13 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       print "ConfigModTest\n";
       for x := 0 to |configsForModTest| {
-        expect configsForModTest[x].0 < |searchConfigs|;
-        expect configsForModTest[x].1 < |searchConfigs|;
-        ConfigModPairTest(searchConfigs[configsForModTest[x].0], searchConfigs[configsForModTest[x].1]);
+        expect configsForModTest[x].0 in tableEncryptionConfigs;
+        expect configsForModTest[x].1 in tableEncryptionConfigs;
+        ConfigModPairTest(tableEncryptionConfigs[configsForModTest[x].0], tableEncryptionConfigs[configsForModTest[x].1]);
       }
     }
 
-    method newGazelle(config: SearchConfig)
+    method newGazelle(config: TableConfig)
       returns (output: Result<DDB.IDynamoDBClient, Types.Error>)
       ensures output.Success? ==>
                 && fresh(output.value)
@@ -368,14 +397,14 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method ConfigModPairTest(x : SearchConfig, y : SearchConfig)
+    method ConfigModPairTest(x : TableConfig, y : TableConfig)
     {
-      print "ConfigModPairTest ", x.number, ", ", y.number, "\n";
+      print "ConfigModPairTest ", x.name, ", ", y.name, "\n";
       var client1 :- expect newGazelle(x);
       var client2 :- expect newGazelle(y);
-      WriteAllRecords(client1);
+      WriteAllRecords(client1, globalRecords);
       for i := 0 to |queries| {
-        if x.number !in queries[i].failConfigs && y.number !in queries[i].failConfigs {
+        if x.name !in queries[i].failConfigs && y.name !in queries[i].failConfigs {
           var result1 := FullSearch(client1, queries[i]);
           var result2 := FullSearch(client2, queries[i]);
           expect QueryOutputEqual(result1, result2);
@@ -404,9 +433,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method DoComplexTest(test : ComplexTest)
     {
-      expect test.config < |searchConfigs|;
-      var client :- expect newGazelle(searchConfigs[test.config]);
-      WriteAllRecords(client);
+      expect test.config in tableEncryptionConfigs;
+      var client :- expect newGazelle(tableEncryptionConfigs[test.config]);
+      WriteAllRecords(client, globalRecords);
 
       for i := 0 to |test.failures| {
         var (usedNames, usedValues) := GetUsed(test.failures[i]);
@@ -438,7 +467,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       print "BasicQueryTest\n";
       var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
-      WriteAllRecords(client);
+      WriteAllRecords(client, globalRecords);
 
       for i := 0 to |failingQueries| {
         var (usedNames, usedValues) := GetUsed(failingQueries[i]);
@@ -450,31 +479,34 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         results[i] := FullSearch(client, queries[i]);
       }
 
-      for i := 0 to |searchConfigs| {
-        if searchConfigs[i].style == Simple {
-          BasicQueryTestConfig(searchConfigs[i], results);
-        }
+      var configs := tableEncryptionConfigs.Keys;
+      while configs != {}
+        decreases |configs|
+        invariant forall k <- configs :: k in tableEncryptionConfigs
+      {
+        var config :| config in configs;
+        configs := configs - { config };
+        BasicQueryTestConfig(tableEncryptionConfigs[config], results, globalRecords);
       }
     }
-
     predicate QueryOutputEqual(actual : DDB.ItemList, expected : DDB.ItemList)
     {
       // TODO - maybe the order isn't guaranteed?
       actual == expected
     }
 
-    method BasicQueryTestConfig(config : SearchConfig, expected : array<DDB.ItemList>)
+    method BasicQueryTestConfig(config : TableConfig, expected : array<DDB.ItemList>, records : seq<Record>)
       requires expected.Length == |queries|
     {
       var client :- expect newGazelle(config);
-      WriteAllRecords(client);
+      WriteAllRecords(client, records);
       for i := 0 to |failingQueries| {
         var (usedNames, usedValues) := GetUsed(failingQueries[i]);
         var res := client.Query(GetQueryInput(failingQueries[i], usedNames, usedValues));
         expect res.Failure?;
       }
       for i := 0 to |queries| {
-        if config.number in queries[i].failConfigs {
+        if config.name in queries[i].failConfigs {
           // var (usedNames, usedValues) := GetUsed(queries[i]);
           // print "Expecting failure\n";
           // var res := client.Query(GetQueryInput(queries[i], usedNames, usedValues));
@@ -483,7 +515,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         } else {
           var result := FullSearch(client, queries[i]);
           if !QueryOutputEqual(result, expected[i]) {
-            print "Query : ", queries[i], "\nconfig : ", config.number;
+            print "Query : ", queries[i], "\nconfig : ", config.name;
             print " result : ", |result|, ", expected : ", |expected[i]|, ", \n";
           }
           expect QueryOutputEqual(result, expected[i]);
@@ -491,7 +523,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method BasicIoTestBatchWriteItem(writeConfig : SearchConfig, readConfig : SearchConfig)
+    method BasicIoTestBatchWriteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
@@ -523,13 +555,14 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
                                                ));
         i := i + count;
       }
-      BasicIoTestGetItem(rClient);
-      BasicIoTestBatchGetItems(rClient);
-      BasicIoTestScan(rClient);
-      BasicIoTestTransactGetItems(rClient);
+
+      BasicIoTestGetItem(rClient, records);
+      BasicIoTestBatchGetItems(rClient, records);
+      BasicIoTestScan(rClient, records);
+      BasicIoTestTransactGetItems(rClient, records);
     }
 
-    method BasicIoTestTransactWriteItems(writeConfig : SearchConfig, readConfig : SearchConfig)
+    method BasicIoTestTransactWriteItems(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
@@ -570,22 +603,22 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         );
         i := i + count;
       }
-      BasicIoTestBatchGetItems(rClient);
-      BasicIoTestGetItem(rClient);
-      BasicIoTestScan(rClient);
-      BasicIoTestTransactGetItems(rClient);
+      BasicIoTestBatchGetItems(rClient, records);
+      BasicIoTestGetItem(rClient, records);
+      BasicIoTestScan(rClient, records);
+      BasicIoTestTransactGetItems(rClient, records);
     }
 
-    method BasicIoTestPutItem(writeConfig : SearchConfig, readConfig : SearchConfig)
+    method BasicIoTestPutItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
-      WriteAllRecords(wClient);
+      WriteAllRecords(wClient, records);
 
-      BasicIoTestBatchGetItems(rClient);
-      BasicIoTestGetItem(rClient);
-      BasicIoTestScan(rClient);
-      BasicIoTestTransactGetItems(rClient);
+      BasicIoTestBatchGetItems(rClient, records);
+      BasicIoTestGetItem(rClient, records);
+      BasicIoTestScan(rClient, records);
+      BasicIoTestTransactGetItems(rClient, records);
     }
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
@@ -611,18 +644,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect !bad;
     }
 
-    method BasicIoTestScan(client : DDB.IDynamoDBClient)
+    method BasicIoTestScan(client : DDB.IDynamoDBClient, records : seq<Record>)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
     {
       var emptyQuery := SimpleQuery(None, None, None, []);
-      var results := FullScan(client, emptyQuery);
+      var results := FullScan(client, emptyQuery, None, None);
       expect |results| == |records|;
       CompareRecordsDisordered(records, results);
     }
 
-    method BasicIoTestGetItem(client : DDB.IDynamoDBClient)
+    method BasicIoTestGetItem(client : DDB.IDynamoDBClient, records : seq<Record>)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
@@ -644,7 +677,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method PrintAllRecords()
+    method PrintAllRecords(records : seq<Record>)
     {
       var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
       for i := 0 to |records| {
@@ -688,7 +721,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method BasicIoTestBatchGetItems(client : DDB.IDynamoDBClient)
+    method BasicIoTestBatchGetItems(client : DDB.IDynamoDBClient, records : seq<Record>)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
@@ -736,7 +769,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method BasicIoTestTransactGetItems(client : DDB.IDynamoDBClient)
+    method BasicIoTestTransactGetItems(client : DDB.IDynamoDBClient, records : seq<Record>)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
@@ -842,7 +875,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   function MakeEmptyTestVector() : TestVectorConfig
   {
-    TestVectorConfig(MakeCreateTableInput(), [], [], [], map[], map[], [], [], [], [])
+    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [])
   }
 
   method ParseTestVector(data : JSON, prev : TestVectorConfig) returns (output : Result<TestVectorConfig, string>)
@@ -856,8 +889,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     var names : DDB.ExpressionAttributeNameMap := map[];
     var values : DDB.ExpressionAttributeValueMap := map[];
     var complexTests : seq<ComplexTest> := [];
+    var ioTests : seq<IoTest> := [];
     var gsi : seq<DDB.GlobalSecondaryIndex> := [];
-    var searchConfigs : seq<SearchConfig> := [];
+    var tableEncryptionConfigs : map<string, TableConfig> := map[];
 
     for i := 0 to |data.obj| {
       match data.obj[i].0 {
@@ -869,8 +903,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         case "Names" => names :- GetNameMap(data.obj[i].1);
         case "Values" => values :- GetValueMap(data.obj[i].1);
         case "Complex" => complexTests :- GetComplexTests(data.obj[i].1);
+        case "IoTests" => ioTests :- GetIoTests(data.obj[i].1);
         case "GSI" => gsi :- GetGSIs(data.obj[i].1);
-        case "Search" => searchConfigs :- GetSearchConfigs(data.obj[i].1);
+        case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1);
         case _ => return Failure("Unexpected top level tag " + data.obj[i].0);
       }
     }
@@ -879,63 +914,173 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     output := Success(
       TestVectorConfig (
         tableSchema := newSchema,
-        records := prev.records + records,
-        searchConfigs := prev.searchConfigs + searchConfigs,
+        globalRecords := prev.globalRecords + records,
+        tableEncryptionConfigs := prev.tableEncryptionConfigs + tableEncryptionConfigs,
         queries := prev.queries + queries,
         failingQueries := prev.failingQueries + failingQueries,
         names := prev.names + names,
         values := prev.values + values,
         complexTests := prev.complexTests + complexTests,
+        ioTests := prev.ioTests + ioTests,
         configsForIoTest := prev.configsForIoTest + ioPairs,
         configsForModTest := prev.configsForModTest + queryPairs
       )
     );
   }
 
-  method GetSearchConfigs(data : JSON) returns (output : Result<seq<SearchConfig> , string>)
+  method GetTableConfigs(data : JSON) returns (output : Result<map<string, TableConfig> , string>)
   {
-    :- Need(data.Array?, "Search Config list must be an array.");
-    var results : seq<SearchConfig> := [];
-    for i := 0 to |data.arr| {
-      var item :- GetOneSearchConfig(data.arr[i]);
-      results := results + [item];
+    :- Need(data.Object?, "Search Config list must be an object.");
+    var results : map<string, TableConfig> := map[];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      var item :- GetOneTableConfig(obj.0, obj.1);
+      results := results[obj.0 := item];
     }
     return Success(results);
   }
-  method GetOneSearchConfig(data : JSON) returns (output : Result<SearchConfig, string>)
+  method GetOneTableConfig(name : string, data : JSON) returns (output : Result<TableConfig, string>)
   {
-    :- Need(data.Object?, "A Search Config must be an object.");
-    var number : int := -1;
-    var style : ConfigType := Simple;
+    :- Need(data.Object?, "A Table Config must be an object.");
     var encrypt : seq<string>  := [];
-    var sign : seq<string>  := [];
-    var nothing : seq<string>  := [];
+    var attributeActions : Types.AttributeActions  := map[];
+    var allowed : seq<DDB.AttributeName>  := [];
     var prefix : string  := "";
     var stdBeacons : seq<Types.StandardBeacon> := [];
     var compoundBeacons : seq<Types.CompoundBeacon> := [];
     var virtualFields : seq<Types.VirtualField> := [];
+    var keySource : Option<Types.BeaconKeySource> := None;
+    var search : Option<Types.SearchConfig> := None;
 
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
-        case "ConfNum" =>
-          :- Need(obj.1.Number?, "ConfNum must be of type Number.");
-          number :- DecimalToNat(obj.1.num);
-        case "Encrypt" => encrypt :- GetStrings(obj.1);
-        case "Sign" => sign :- GetStrings(obj.1);
-        case "Nothing" => nothing :- GetStrings(obj.1);
-        case "Prefix" =>
+        case "attributeActions" => attributeActions :- GetAttributeActions(obj.1);
+        case "allowedUnauthenticatedAttributePrefix" =>
           :- Need(obj.1.String?, "Prefix must be of type String.");
           prefix := obj.1.str;
-        case "Standard" => stdBeacons :- GetStandardBeacons(obj.1);
-        case "Compound" => compoundBeacons :- GetCompoundBeacons(obj.1);
-        case "virtualFields" => virtualFields :- GetVirtualFields(obj.1);
+        case "allowedUnauthenticatedAttributes" => allowed :- GetAttrNames(obj.1);
+        case "search" => var src :- GetOneSearchConfig(obj.1); search := Some(src);
+        case _ => return Failure("Unexpected part of a table config : '" + obj.0 + "'");
+      }
+    }
+
+    var keys :- expect KeyVectors.KeyVectors(
+      KeyVectorsTypes.KeyVectorsConfig(
+        keyManifiestPath := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+      )
+    );
+    var keyDescription := KeyVectorsTypes.Hierarchy(KeyVectorsTypes.HierarchyKeyring(
+                                                      keyId := "static-branch-key-1"
+                                                    ));
+    var keyring :- expect keys.CreateWappedTestVectorKeyring(KeyVectorsTypes.TestVectorKeyringInput(keyDescription := keyDescription));
+
+    var config :=
+      Types.DynamoDbTableEncryptionConfig(
+        logicalTableName := TableName,
+        partitionKeyName := HashName,
+        sortKeyName := None,
+        search := search,
+        attributeActions := attributeActions,
+        allowedUnauthenticatedAttributes := OptSeq(allowed),
+        allowedUnauthenticatedAttributePrefix := OptSeq(prefix),
+        algorithmSuiteId := None,
+        keyring := Some(keyring),
+        cmm := None,
+        legacyConfig := None,
+        plaintextPolicy := None
+      );
+    return Success(TableConfig(name, config, |data.obj| == 0));
+  }
+
+  method GetOneSearchConfig(data : JSON) returns (output : Result<Types.SearchConfig, string>)
+  {
+    :- Need(data.Object?, "A Search Config must be an object.");
+    var writeVersion : nat := 1;
+    var versions : seq<Types.BeaconVersion> := [];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "versions" =>
+          :- Need(obj.1.Array?, "versions must be an Array.");
+          for j := 0 to |obj.1.arr| {
+            var v :- GetOneBeaconVersion(obj.1.arr[j]);
+            versions := versions + [v];
+          }
+        case "writeVersion" =>
+          :- Need(obj.1.Number?, "writeVersion must be a number");
+          writeVersion :- DecimalToNat(obj.1.num);
         case _ => return Failure("Unexpected part of a search config : '" + obj.0 + "'");
       }
     }
-    :- Need(number >= 0, "Every search config must specify a " + HashName);
-    var config :- MakeConfig(encrypt, sign, nothing, prefix, stdBeacons, compoundBeacons, virtualFields);
-    return Success(SearchConfig(number, style, config, |data.obj| <= 1));
+
+    :- Need(Types.IsValid_BeaconVersionList(versions), "versions needs at least one version");
+    return Success(Types.SearchConfig (
+                     versions := versions,
+                     writeVersion := 1
+                   ));
+  }
+  method GetOneBeaconVersion(data : JSON) returns (output : Result<Types.BeaconVersion, string>)
+  {
+    :- Need(data.Object?, "A Beacon Version must be an object.");
+    var standardBeacons : seq<Types.StandardBeacon> := [];
+    var compoundBeacons : seq<Types.CompoundBeacon> := [];
+    var virtualFields : seq<Types.VirtualField> := [];
+    var keySource : Option<Types.BeaconKeySource> := None;
+
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "keySource" => var src :- GetKeySource(obj.1); keySource := Some(src);
+        case "standardBeacons" => standardBeacons :- GetStandardBeacons(obj.1);
+        case "compoundBeacons" => compoundBeacons :- GetCompoundBeacons(obj.1);
+        case "virtualFields" => virtualFields :- GetVirtualFields(obj.1);
+        case _ => return Failure("Unexpected part of a beacon version : '" + obj.0 + "'");
+      }
+    }
+
+    :- Need(|standardBeacons| > 0, "A Search Config needs at least one standard beacon.");
+    var keyMaterial : KeyMaterial.KeyMaterial :=
+      KeyMaterial.StaticKeyStoreInformation("abc", UTF8.EncodeAscii("abc"), [1,2,3,4,5], [1,2,3,4,5]);
+    var store := SKS.CreateStaticKeyStore(keyMaterial);
+    var source : Types.BeaconKeySource :=
+      if keySource.Some? then
+        keySource.value
+      else
+        Types.single(Types.SingleKeyStore(keyId := "foo", cacheTTL := 42));
+
+    return Success(Types.BeaconVersion(
+                     version := 1,
+                     keyStore := store,
+                     keySource := source,
+                     standardBeacons := standardBeacons,
+                     compoundBeacons := OptSeq(compoundBeacons),
+                     virtualFields := OptSeq(virtualFields)
+                   )
+      );
+  }
+
+  method GetAttributeActions(data : JSON) returns (output : Result<Types.AttributeActions, string>)
+  {
+    :- Need(data.Object?, "attributeActions must be an object");
+    var result : Types.AttributeActions := map[];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      :- Need(DDB.IsValid_AttributeName(obj.0), obj.0 + " is not a valid attribute name.");
+      var action :- GetAttributeAction(obj.1);
+      result := result[obj.0 := action];
+    }
+    return Success(result);
+  }
+  method GetAttributeAction(data : JSON) returns (output : Result<SE.CryptoAction, string>)
+  {
+    :- Need(data.String?, "Attribute Action must be a string");
+    match data.str {
+      case "ENCRYPT_AND_SIGN" => return Success(SE.ENCRYPT_AND_SIGN);
+      case "SIGN_ONLY" => return Success(SE.SIGN_ONLY);
+      case "DO_NOTHING" => return Success(SE.DO_NOTHING);
+      case _ => return Failure(data.str + " is not a value CryptoAction.");
+    }
   }
 
   method GetStrings(data : JSON) returns (output : Result<seq<string>, string>)
@@ -949,41 +1094,45 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     return Success(results);
   }
 
+  method GetAttrNames(data : JSON) returns (output : Result<seq<DDB.AttributeName>, string>)
+  {
+    :- Need(data.Array?, "List of Attribute Names must be an array");
+    var results : seq<DDB.AttributeName> := [];
+    for i := 0 to |data.arr| {
+      :- Need(data.arr[i].String?, "Each item in a string list must be a string");
+      :- Need(DDB.IsValid_AttributeName(data.arr[i].str), data.arr[i].str + " is not a valid attribute name.");
+      results := results + [data.arr[i].str];
+    }
+    return Success(results);
+  }
+
   method MakeConfig(
-    encrypt : seq<string>,
-    sign : seq<string>,
-    nothing : seq<string>,
+    attributeActions : Types.AttributeActions,
+    allowed : seq<DDB.AttributeName>,
     prefix : string,
+    keySource : Option<Types.BeaconKeySource>,
     beacons : seq<Types.StandardBeacon>,
     compound : seq<Types.CompoundBeacon>,
     virtualFields : seq<Types.VirtualField>
   )
     returns (output : Result<Types.DynamoDbTableEncryptionConfig, string>)
   {
-    var actions : Types.AttributeActions := map[HashName := SE.SIGN_ONLY];
-    for i := 0 to |encrypt| {
-      :- Need(DDB.IsValid_AttributeName(encrypt[i]), encrypt[i] + " is not a valid AttributeName");
-      actions := actions[encrypt[i] := SE.ENCRYPT_AND_SIGN];
-    }
-    for i := 0 to |sign| {
-      :- Need(DDB.IsValid_AttributeName(sign[i]), sign[i] + " is not a valid AttributeName");
-      actions := actions[sign[i] := SE.SIGN_ONLY];
-    }
-    var allowed : seq<DDB.AttributeName> := [];
-    for i := 0 to |nothing| {
-      :- Need(DDB.IsValid_AttributeName(nothing[i]), nothing[i] + " is not a valid AttributeName");
-      allowed := allowed + [nothing[i]];
-    }
     var keyMaterial : KeyMaterial.KeyMaterial :=
       KeyMaterial.StaticKeyStoreInformation("abc", UTF8.EncodeAscii("abc"), [1,2,3,4,5], [1,2,3,4,5]);
     var store := SKS.CreateStaticKeyStore(keyMaterial);
     var search := None;
+    var source : Types.BeaconKeySource :=
+      if keySource.Some? then
+        keySource.value
+      else
+        Types.single(Types.SingleKeyStore(keyId := "foo", cacheTTL := 42));
+
     if 0 < |beacons| {
       search := Some(Types.SearchConfig (
                        versions := [Types.BeaconVersion(
                                       version := 1,
                                       keyStore := store,
-                                      keySource := Types.single(Types.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+                                      keySource := source,
                                       standardBeacons := beacons,
                                       compoundBeacons := OptSeq(compound),
                                       virtualFields := OptSeq(virtualFields)
@@ -1008,9 +1157,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           partitionKeyName := HashName,
           sortKeyName := None,
           search := search,
-          attributeActions := actions,
-          allowedUnauthenticatedAttributes := if 0 < |allowed| then Some(allowed) else None,
-          allowedUnauthenticatedAttributePrefix := if 0 < |prefix| then Some(prefix) else None,
+          attributeActions := attributeActions,
+          allowedUnauthenticatedAttributes := OptSeq(allowed),
+          allowedUnauthenticatedAttributePrefix := OptSeq(prefix),
           algorithmSuiteId := None,
           keyring := Some(keyring),
           cmm := None,
@@ -1055,6 +1204,44 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       results := results + [item];
     }
     return Success(results);
+  }
+
+  method GetKeySource(data : JSON) returns (output : Result<Types.BeaconKeySource, string>)
+  {
+    :- Need(data.Object?, "keySource must be an object.");
+    var keyFieldName : string := "";
+    var keyId : string := "";
+    var cacheTTL : nat := 42;
+    var maxCacheSize : nat := 1;
+    var parts : seq<Types.VirtualPart> := [];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "keyFieldName" =>
+          :- Need(obj.1.String?, "keyFieldName must be a string.");
+          keyFieldName := obj.1.str;
+        case "keyId" =>
+          :- Need(obj.1.String?, "keyId must be a string.");
+          keyId := obj.1.str;
+        case "cacheTTL" =>
+          :- Need(obj.1.Number?, "cacheTTL must be a number.");
+          cacheTTL :- DecimalToNat(obj.1.num);
+        case "maxCacheSize" =>
+          :- Need(obj.1.Number?, "maxCacheSize must be a number.");
+          maxCacheSize :- DecimalToNat(obj.1.num);
+        case _ => return Failure("Unexpected part of a key source : '" + data.obj[i].0 + "'");
+      }
+    }
+    :- Need(cacheTTL < INT32_MAX_LIMIT, "cacheTTL must fit in an int32");
+    :- Need(maxCacheSize < INT32_MAX_LIMIT, "maxCacheSize must fit in an int32");
+    :- Need(|keyFieldName| > 0 || |keyId| > 0, "Each key source needs a either a keyFieldName or a keyId.");
+    :- Need(|keyFieldName| == 0 || |keyId| == 0, "Each key source cannot have both a keyFieldName and a keyId.");
+    if |keyId| > 0 {
+      return Success(Types.single(Types.SingleKeyStore(keyId := keyId, cacheTTL := cacheTTL as int32)));
+    } else {
+      assert |keyFieldName| > 0;
+      return Success(Types.multi(Types.MultiKeyStore(keyFieldName := keyFieldName, cacheTTL := cacheTTL as int32, maxCacheSize := maxCacheSize as int32)));
+    }
   }
 
   method GetOneVirtualField(data : JSON) returns (output : Result<Types.VirtualField, string>)
@@ -1521,6 +1708,47 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
                    ));
   }
 
+  method GetIoTests(data : JSON) returns (output : Result<seq<IoTest> , string>)
+  {
+    :- Need(data.Object?, "IoTests must be an object.");
+    var results : seq<IoTest> := [];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      var item :- GetOneIoTest(obj.0, obj.1);
+      results := results + [item];
+    }
+    return Success(results);
+  }
+
+  method GetOneIoTest(name : string, data : JSON) returns (output : Result<IoTest, string>)
+  {
+    :- Need(data.Object?, "IoTest must be an object.");
+    var readConfig : Option<TableConfig> := None;
+    var writeConfig : Option<TableConfig> := None;
+    var names : DDB.ExpressionAttributeNameMap := map[];
+    var values : DDB.ExpressionAttributeValueMap := map[];
+    var queries : seq<SimpleQuery> := [];
+    var records : seq<Record>  := [];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "WriteConfig" => var config :- GetOneTableConfig(obj.0, obj.1); writeConfig := Some(config);
+        case "ReadConfig" => var config :- GetOneTableConfig(obj.0, obj.1); readConfig := Some(config);
+        case "Records" => records :- GetRecords(obj.1);
+        case "Values" => values :- GetValueMap(data.obj[i].1);
+        case "Queries" => queries :- GetSimpleQueries(data.obj[i].1);
+        case _ => return Failure("Unexpected part of a complex test : '" + obj.0 + "'");
+      }
+    }
+    :- Need(writeConfig.Some?, "An IoTest needs a writeConfig");
+    :- Need(0 < |records|, "An IoTest needs at least one record");
+    if readConfig.Some? {
+      return Success(IoTest(name, writeConfig.value, readConfig.value, records, names, values, queries));
+    } else {
+      return Success(IoTest(name, writeConfig.value, writeConfig.value, records, names, values, queries));
+    }
+  }
+
   method GetComplexTests(data : JSON) returns (output : Result<seq<ComplexTest> , string>)
   {
     :- Need(data.Array?, "Queries must be an array.");
@@ -1534,21 +1762,21 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   method GetOneComplexTest(data : JSON) returns (output : Result<ComplexTest, string>)
   {
     :- Need(data.Object?, "Complex Query must be an object.");
-    var config : int := -1;
+    var config : ConfigName := "";
     var queries : seq<ComplexQuery>  := [];
     var failures : seq<SimpleQuery>  := [];
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
         case "Config" =>
-          :- Need(obj.1.Number?, "");
-          config :- DecimalToNat(obj.1.num);
+          :- Need(obj.1.String?, "Complex config name must be a string.");
+          config := obj.1.str;
         case "Queries" => queries :- GetComplexQueries(obj.1);
         case "Failing" => failures :- GetSimpleQueries(obj.1);
         case _ => return Failure("Unexpected part of a complex test : '" + obj.0 + "'");
       }
     }
-    :- Need(config >= 0, "Every complex test must specify a config");
+    :- Need(|config| >= 0, "Every complex test must specify a config");
     return Success(ComplexTest(config, queries, failures));
   }
 
@@ -1651,7 +1879,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var index : Option<DDB.IndexName> := None;
       var keyExpr : Option<string> := None;
       var filterExpr : Option<string> := None;
-      var failConfigs : seq<nat> := [];
+      var failConfigs : seq<ConfigName> := [];
       for i := 0 to |data.obj| {
         match data.obj[i].0 {
           case "Index" =>
@@ -1664,7 +1892,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           case "Filter" =>
             :- Need(data.obj[i].1.String?, "Filter expression for query ust be of type string.");
             filterExpr := Some(data.obj[i].1.str);
-          case "Fail" => failConfigs :- GetNumbers(data.obj[i].1);
+          case "Fail" => failConfigs :- GetStrings(data.obj[i].1);
           case _ => return Failure("Unexpected part of a query : '" + data.obj[i].0 + "'");
         }
       }
@@ -1732,11 +1960,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         Success("0." + Zeros(|str| - num.e10) + str)
   }
 
-  function GetOnePair(data : JSON) : Result<NumPair, string>
+  function GetOnePair(data : JSON) : Result<ConfigPair, string>
   {
-    :- Need(data.Array? && |data.arr| == 2 && data.arr[0].Number? && data.arr[1].Number?, "A Config Pair must be an array of two numbers.");
-    var p1 :- DecimalToNat(data.arr[0].num);
-    var p2 :- DecimalToNat(data.arr[1].num);
+    :- Need(data.Array? && |data.arr| == 2 && data.arr[0].String? && data.arr[1].String?, "A Config Pair must be an array of two strings.");
+    var p1 := data.arr[0].str;
+    var p2 := data.arr[1].str;
     Success((p1, p2))
   }
 

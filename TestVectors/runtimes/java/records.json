@@ -29,6 +29,21 @@
             "Seven": "Siete",
             "Eight": "Ocho",
             "Nine": "Nueve"
+        },
+        {
+            "RecNum": {
+                "N": "2"
+            },
+            "Stuff": "Junk",
+            "One": "Uno",
+            "Two": "Dos",
+            "Three": "Tres",
+            "Four": "Cuatro",
+            "Five": "Cinco",
+            "Six": "Seis",
+            "Seven": "Siete",
+            "Eight": "Ocho",
+            "Nine": "Nueve"
         }
     ]
 }

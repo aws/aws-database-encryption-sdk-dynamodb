@@ -28,6 +28,8 @@ module WrappedDDBEncryptionMain {
     var config := MakeEmptyTestVector();
     config :- expect AddJson(config, "records.json");
     config :- expect AddJson(config, "configs.json");
+    config :- expect AddJson(config, "data.json");
+    config :- expect AddJson(config, "iotest.json");
     config.RunAllTests();
   }
 }

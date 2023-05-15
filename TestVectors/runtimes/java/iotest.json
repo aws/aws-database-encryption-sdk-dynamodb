@@ -1,0 +1,70 @@
+{
+  "IoTests": {
+    "IoTest1": {
+      "WriteConfig": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "Stuff": "ENCRYPT_AND_SIGN",
+          "Junk": "ENCRYPT_AND_SIGN"
+        }
+      },
+      "ReadConfig": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "Stuff": "ENCRYPT_AND_SIGN"
+        }
+      },
+      "Records": [
+        {
+          "RecNum": {
+            "N": "0"
+          },
+          "Stuff": "StuffValue",
+          "Junk": "JunkValue"
+        }
+      ]
+    },
+    "IoTest2": {
+      "WriteConfig": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "Stuff": "SIGN_ONLY",
+          "Junk": "ENCRYPT_AND_SIGN"
+        },
+        "search": {
+          "versions": [
+            {
+              "keySource": {
+                "keyFieldName": "Stuff"
+              },
+              "standardBeacons": [
+                {
+                  "Name": "Junk",
+                  "Length": 32
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "Records": [
+        {
+          "RecNum": {
+            "N": "0"
+          },
+          "Stuff": "StuffValue",
+          "Junk": "JunkValue"
+        }
+      ],
+      "Queries": [
+        {
+          "Filter": "Stuff = :stuff AND Junk = :junk"
+        }
+      ],
+      "Values": {
+        ":stuff": "Stuff",
+        ":junk": "Junk"
+      }
+    }
+  }
+}
