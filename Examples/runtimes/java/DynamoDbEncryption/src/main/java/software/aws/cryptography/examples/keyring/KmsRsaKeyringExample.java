@@ -25,42 +25,25 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec;
+import software.amazon.awssdk.services.kms.model.GetPublicKeyRequest;
+import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
-import software.amazon.cryptography.materialproviders.model.CreateRawRsaKeyringInput;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsRsaKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.materialproviders.model.PaddingScheme;
 import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
   using the KMS RSA Keyring. This keyring uses a KMS RSA key pair to
-  encrypt and decrypt records. This keyring accepts PEM encodings of
-  the key pair as UTF-8 interpreted bytes. The client uses the private key
+  encrypt and decrypt records. The client uses the private key
   to encrypt items it adds to the table and uses the public key to decrypt
   existing table items it retrieves.
-
-  This example loads a key pair from PEM files with paths defined in
-   - EXAMPLE_RSA_PRIVATE_KEY_FILENAME
-   - EXAMPLE_RSA_PUBLIC_KEY_FILENAME
-  If you do not provide these files, running this example through this
-  class' main method will generate these files for you. These files will
-  be generated in the directory where the example is run.
-  In practice, users of this library should not generate new key pairs
-  like this, and should instead retrieve an existing key from a secure
-  key management system (e.g. an HSM).
-  You may also provide your own key pair by placing PEM files in the
-  directory where the example is run or modifying the paths in the code
-  below. These files must be valid PEM encodings of the key pair as UTF-8
-  encoded bytes. If you do provide your own key pair, or if a key pair
-  already exists, this class' main method will not generate a new key pair.
-
-  This example loads a key pair from disk, encrypts a test item, and puts the
-  encrypted item to the provided DynamoDb table. Then, it gets the
-  item from the table and decrypts it.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -71,14 +54,15 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
  */
 public class KmsRsaKeyringExample {
 
-    private static String EXAMPLE_RSA_PRIVATE_KEY_FILENAME = "RawRsaKeyringExamplePrivateKey.pem";
-    private static String EXAMPLE_RSA_PUBLIC_KEY_FILENAME = "RawRsaKeyringExamplePublicKey.pem";
+    private static String EXAMPLE_RSA_PUBLIC_KEY_FILENAME = "KmsRsaKeyringExamplePublicKey.pem";
 
-    public static void RawRsaKeyringGetItemPutItem(String ddbTableName) {
-        // 1. Load key pair from UTF-8 encoded PEM files.
-        //    You may provide your own PEM files to use here.
-        //    If you do not, the main method in this class will generate PEM
-        //    files for example use. Do not use these files for any other purpose.
+    public static void RsaKeyringGetItemPutItem(String ddbTableName, String rsaKeyArn) {
+        // 1. Load UTF-8 encoded public key PEM file.
+        //    You may have an RSA public key file already defined. If not,
+        //    the main method in this class will generate PEM
+        //    files for example use.
+        //    Note that these files represent a publicly-accessible RSA key.
+        //    Do not use these files for any other purpose.
         ByteBuffer publicKeyUtf8EncodedByteBuffer;
         try {
             publicKeyUtf8EncodedByteBuffer = ByteBuffer.wrap(
@@ -87,27 +71,24 @@ public class KmsRsaKeyringExample {
             throw new RuntimeException("IOException while reading public key from file", e);
         }
 
-        ByteBuffer privateKeyUtf8EncodedByteBuffer;
-        try {
-            privateKeyUtf8EncodedByteBuffer = ByteBuffer.wrap(
-                Files.readAllBytes(Paths.get(EXAMPLE_RSA_PRIVATE_KEY_FILENAME)));
-        } catch (IOException e) {
-            throw new RuntimeException("IOException while reading private key from file", e);
-        }
-
-        // 2. Create the keyring.
-        //    The DynamoDb encryption client uses this to encrypt and decrypt items.
-        final CreateRawRsaKeyringInput keyringInput = CreateRawRsaKeyringInput.builder()
-            .keyName("my-rsa-key-name")
-            .keyNamespace("my-key-namespace")
-            .paddingScheme(PaddingScheme.OAEP_SHA256_MGF1)
-            .publicKey(publicKeyUtf8EncodedByteBuffer)
-            .privateKey(privateKeyUtf8EncodedByteBuffer)
-            .build();
+        // 2. Create a KMS RSA keyring.
+        //    This keyring takes in:
+        //     - KmsClient
+        //     - kmsKeyId: MUST be an ARN representing a KMS RSA key
+        //     - publicKey: A ByteBuffer of a UTF-8 encoded PEM file representing the public
+        //                  key for the key passed into kmsKeyId
+        //     - encryptionAlgorithm
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
-        IKeyring rawRsaKeyring = matProv.CreateRawRsaKeyring(keyringInput);
+        final CreateAwsKmsRsaKeyringInput createAwsKmsRsaKeyringInput =
+            CreateAwsKmsRsaKeyringInput.builder()
+                .kmsClient(KmsClient.create())
+                .kmsKeyId(rsaKeyArn)
+                .publicKey(publicKeyUtf8EncodedByteBuffer)
+                .encryptionAlgorithm(EncryptionAlgorithmSpec.RSAES_OAEP_SHA_256)
+                .build();
+        IKeyring awsKmsRsaKeyring = matProv.CreateAwsKmsRsaKeyring(createAwsKmsRsaKeyringInput);
 
         // 3. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -153,61 +134,61 @@ public class KmsRsaKeyringExample {
         // 5. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
-                .logicalTableName(ddbTableName)
-                .partitionKeyName("partition_key")
-                .sortKeyName("sort_key")
-                .attributeActions(attributeActions)
-                .keyring(rawRsaKeyring)
-                .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
-                .build();
+            .logicalTableName(ddbTableName)
+            .partitionKeyName("partition_key")
+            .sortKeyName("sort_key")
+            .attributeActions(attributeActions)
+            .keyring(awsKmsRsaKeyring)
+            .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
+            .build();
         tableConfigs.put(ddbTableName, config);
 
         // 6. Create the DynamoDb Encryption Interceptor
         DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
-                .config(DynamoDbTablesEncryptionConfig.builder()
-                        .tableEncryptionConfigs(tableConfigs)
-                        .build())
-                .build();
+            .config(DynamoDbTablesEncryptionConfig.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build())
+            .build();
 
         // 7. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
-        final DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(encryptionInterceptor)
-                                .build())
-                .build();
+        final DynamoDbClient ddbClient = DynamoDbClient.builder()
+            .overrideConfiguration(
+                ClientOverrideConfiguration.builder()
+                    .addExecutionInterceptor(encryptionInterceptor)
+                    .build())
+            .build();
 
         // 8. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
         //    client-side, according to our configuration.
         final HashMap<String, AttributeValue> item = new HashMap<>();
-        item.put("partition_key", AttributeValue.builder().s("rawRsaKeyringItem").build());
+        item.put("partition_key", AttributeValue.builder().s("awsKmsRsaKeyringItem").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
         item.put("sensitive_data", AttributeValue.builder().s("encrypt and sign me!").build());
 
         final PutItemRequest putRequest = PutItemRequest.builder()
-                .tableName(ddbTableName)
-                .item(item)
-                .build();
+            .tableName(ddbTableName)
+            .item(item)
+            .build();
 
-        final PutItemResponse putResponse = ddb.putItem(putRequest);
+        final PutItemResponse putResponse = ddbClient.putItem(putRequest);
 
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 9. Get the item back from our table using the same client.
-        //    The client will decrypt the item client-side, and return
-        //    back the original item.
+        // 9. Get the item back from our table using the client.
+        //    The client will decrypt the item client-side using the RSA keyring
+        //    and return the original item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-        keyToGet.put("partition_key", AttributeValue.builder().s("rawRsaKeyringItem").build());
+        keyToGet.put("partition_key", AttributeValue.builder().s("awsKmsRsaKeyringItem").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
         final GetItemRequest getRequest = GetItemRequest.builder()
-                .key(keyToGet)
-                .tableName(ddbTableName)
-                .build();
+            .key(keyToGet)
+            .tableName(ddbTableName)
+            .build();
 
-        final GetItemResponse getResponse = ddb.getItem(getRequest);
+        final GetItemResponse getResponse = ddbClient.getItem(getRequest);
 
         // Demonstrate that GetItem succeeded and returned the decrypted item
         assert 200 == getResponse.sdkHttpResponse().statusCode();
@@ -216,104 +197,66 @@ public class KmsRsaKeyringExample {
     }
 
     public static void main(final String[] args) {
-        if (args.length <= 0) {
-            throw new IllegalArgumentException("To run this example, include the ddbTable in args");
+        if (args.length <= 1) {
+            throw new IllegalArgumentException("To run this example, include the ddbTable and rsaKeyArn in args");
         }
         final String ddbTableName = args[0];
+        final String rsaKeyArn = args[1];
 
-        // You may provide your own RSA key pair in the files located at
-        //  - EXAMPLE_RSA_PRIVATE_KEY_FILENAME
-        //  - EXAMPLE_RSA_PUBLIC_KEY_FILENAME
-        // If these files are not present, this will generate a pair for you
-        if (shouldGenerateNewRsaKeyPair()) {
-            generateRsaKeyPair();
+        // You may provide your own RSA public key at EXAMPLE_RSA_PUBLIC_KEY_FILENAME.
+        // This must be the public key for the RSA key represented at rsaKeyArn.
+        // If this file is not present, this will write a UTF-8 encoded PEM file for you.
+        if (shouldGetNewPublicKey()) {
+            writePublicKeyPemForRsaKey(rsaKeyArn);
         }
 
-        RawRsaKeyringGetItemPutItem(ddbTableName);
+        RsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn);
     }
 
-    static boolean shouldGenerateNewRsaKeyPair() {
-        // Check if a key pair already exists
-        File privateKeyFile = new File(EXAMPLE_RSA_PRIVATE_KEY_FILENAME);
+    static boolean shouldGetNewPublicKey() {
+        // Check if a public key file already exists
         File publicKeyFile = new File(EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
 
-        // If a key pair already exists: do not overwrite existing key pair
-        if (privateKeyFile.exists() && publicKeyFile.exists()) {
+        // If a public key file already exists: do not overwrite existing file
+        if (publicKeyFile.exists()) {
             return false;
         }
 
-        // If only one file is present: throw exception
-        if (privateKeyFile.exists() && !publicKeyFile.exists()) {
-            throw new IllegalStateException("Missing public key file at " + EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
-        }
-        if (!privateKeyFile.exists() && publicKeyFile.exists()) {
-            throw new IllegalStateException("Missing private key file at " + EXAMPLE_RSA_PRIVATE_KEY_FILENAME);
-        }
-
-        // If neither file is present, generate a new key pair
+        // If file is not present, generate a new key pair
         return true;
     }
 
-    static void generateRsaKeyPair() {
-        // Safety check: Validate neither file is present
-        File privateKeyFile = new File(EXAMPLE_RSA_PRIVATE_KEY_FILENAME);
+    static void writePublicKeyPemForRsaKey(String rsaKeyArn) {
+        // Safety check: Validate file is not present
         File publicKeyFile = new File(EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
-        if (privateKeyFile.exists() || publicKeyFile.exists()) {
-            throw new IllegalStateException("generateRsaKeyPair will not overwrite existing PEM files");
+        if (publicKeyFile.exists()) {
+            throw new IllegalStateException("getRsaPublicKey will not overwrite existing PEM files");
         }
 
-        // This code will generate a new RSA key pair for example use.
-        // The public and private key will be written to the files:
-        //  - public: EXAMPLE_RSA_PUBLIC_KEY_FILENAME
-        //  - private: EXAMPLE_RSA_PRIVATE_KEY_FILENAME
-        // This example uses BouncyCastle's KeyPairGenerator to generate the key pair.
-        // In practice, you should not generate this in your code, and should instead
-        // retrieve this key from a secure key management system (e.g. HSM)
-        // This key is created here for example purposes only.
-        KeyPairGenerator rsaGen;
-        try {
-            rsaGen = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("No such algorithm", e);
-        }
-        rsaGen.initialize(2048, new SecureRandom());
-        KeyPair keyPair = rsaGen.generateKeyPair();
-
-        StringWriter privateKeyStringWriter = new StringWriter();
-        PemWriter privateKeyPemWriter = new PemWriter(privateKeyStringWriter);
-        try {
-            privateKeyPemWriter.writeObject(new PemObject("PRIVATE KEY", keyPair.getPrivate().getEncoded()));
-            privateKeyPemWriter.close();
-        } catch (IOException e) {
-            throw new RuntimeException("IOException while writing private key PEM", e);
-        }
-
-        ByteBuffer privateKeyUtf8EncodedByteBuffer = StandardCharsets.UTF_8.encode(privateKeyStringWriter.toString());
-        // Write UTF-8 encoded PEM file
-        try {
-            FileChannel fc = new FileOutputStream(EXAMPLE_RSA_PRIVATE_KEY_FILENAME).getChannel();
-            fc.write(privateKeyUtf8EncodedByteBuffer);
-            fc.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("FileNotFoundException while opening private key FileChannel", e);
-        } catch (IOException e) {
-            throw new RuntimeException("IOException while writing private key or closing FileChannel", e);
-        }
+        // This code will call KMS to get the public key for the KMS RSA key.
+        // You must have kms:GetPublicKey permissions on the key for this to succeed.
+        // The public key will be written to the file EXAMPLE_RSA_PUBLIC_KEY_FILENAME.
+        KmsClient getterForPublicKey = KmsClient.create();
+        GetPublicKeyResponse response = getterForPublicKey.getPublicKey(GetPublicKeyRequest.builder()
+            .keyId(rsaKeyArn)
+            .build());
+        System.out.println(response.publicKey().asByteArray());
+        byte[] publicKeyByteBuffer = response.publicKey().asByteArray();
 
         StringWriter publicKeyStringWriter = new StringWriter();
         PemWriter publicKeyPemWriter = new PemWriter(publicKeyStringWriter);
         try {
             publicKeyPemWriter.writeObject(
-                new PemObject("PUBLIC KEY", keyPair.getPublic().getEncoded()));
+                new PemObject("PUBLIC KEY", publicKeyByteBuffer));
             publicKeyPemWriter.close();
         } catch (IOException e) {
             throw new RuntimeException("IOException while writing public key PEM", e);
         }
-        ByteBuffer publicKeyUtf8EncodedByteBuffer = StandardCharsets.UTF_8.encode(publicKeyStringWriter.toString());
+        ByteBuffer publicKeyUtf8EncodedByteBufferToWrite = StandardCharsets.UTF_8.encode(publicKeyStringWriter.toString());
 
         try {
             FileChannel fc = new FileOutputStream(EXAMPLE_RSA_PUBLIC_KEY_FILENAME).getChannel();
-            fc.write(publicKeyUtf8EncodedByteBuffer);
+            fc.write(publicKeyUtf8EncodedByteBufferToWrite);
             fc.close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException("FileNotFoundException while opening public key FileChannel", e);
