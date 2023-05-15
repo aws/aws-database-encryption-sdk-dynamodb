@@ -1,6 +1,5 @@
 package software.aws.cryptography.examples.clientsupplier;
 
-import java.util.Map;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -28,7 +27,6 @@ public class RegionalRoleClientSupplier implements IClientSupplier {
 
   @Override
   public KmsClient GetClient(GetClientInput getClientInput) {
-    System.out.println("Using " + getClientInput.region());
     if (!config.regionIamRoleMap.containsKey(getClientInput.region())) {
       // TODO: Create a MissingRegionException that extends AwsCryptographicMaterialProvidersException.
       // The generated code for AwsCryptographicMaterialProvidersException cannot be extended as-is,
@@ -40,7 +38,7 @@ public class RegionalRoleClientSupplier implements IClientSupplier {
     Credentials creds = stsClient.assumeRole(AssumeRoleRequest.builder()
             .roleArn(arn)
             .durationSeconds(900) // 15 minutes is the minimum value
-            .roleSessionName("Session-Name")
+            .roleSessionName("Java-Client-Supplier-Example-Session")
         .build()).credentials();
 
     return KmsClient.builder()

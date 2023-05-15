@@ -47,14 +47,18 @@ public class ClientSupplierExample {
 
     public static void ClientSupplierPutItemGetItem(String ddbTableName, String keyArn,
             List<String> accountIds, List<String> regions) {
-        // 1. Create a single MRK multi-keyring key arn.
+        // 1. Create a single MRK multi-keyring.
         //    This can be either a single-region KMS key or an MRK.
-        //    For this example to succeed, the key's region must be in the regions list.
+        //    For this example to succeed, the key's region must either
+        //    1) be in the regions list, or
+        //    2) the key must be an MRK with a replica defined in another
+        //    region, and the client must have the correct permissions
+        //    to access the replica.
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
-        // Create the multi-keyring using the client supplier
-        // and the keyArn as the generator.
+        // Create the multi-keyring using our custom client supplier
+        // defined in the RegionalRoleClientSupplier class in this directory.
         final CreateAwsKmsMrkMultiKeyringInput createAwsKmsMrkMultiKeyringInput =
             CreateAwsKmsMrkMultiKeyringInput.builder()
                 // Note: RegionalRoleClientSupplier will internally use the region of keyArn
@@ -178,6 +182,8 @@ public class ClientSupplierExample {
         //    Each component keyring has its own KMS client in a particular region.
         //    When we provide a client supplier to the multi-keyring, all component
         //    keyrings will use that client supplier configuration.
+        //    In our tests, we make `keyArn` an MRK with a replica, and
+        //    provide only the replica region in our discovery filter.
         DiscoveryFilter discoveryFilter = DiscoveryFilter.builder()
             .partition("aws")
             .accountIds(accountIds)
@@ -200,6 +206,7 @@ public class ClientSupplierExample {
             .partitionKeyName("partition_key")
             .sortKeyName("sort_key")
             .attributeActions(attributeActions)
+            // Provide discovery keyring here
             .keyring(mrkDiscoveryClientSupplierKeyring)
             .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
             .build();
@@ -219,8 +226,13 @@ public class ClientSupplierExample {
             .build();
 
         // 11. Get the item back from our table using the discovery keyring client.
-        //     The client will decrypt the item client-side using the discovery keyring,
+        //     The client will decrypt the item client-side using the keyring,
         //     and return the original item.
+        //     The discovery keyring will only use KMS keys in the provided regions and
+        //     AWS accounts. Since we have provided it with a custom client supplier
+        //     which uses different IAM roles based on the key region,
+        //     the discovery keyring will use a particular IAM role to decrypt
+        //     based on the region of the KMS key it uses to decrypt.
         final HashMap<String, AttributeValue> onlyReplicaKeyKeyToGet = new HashMap<>();
         onlyReplicaKeyKeyToGet.put("partition_key", AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build());
         onlyReplicaKeyKeyToGet.put("sort_key", AttributeValue.builder().n("0").build());
@@ -243,7 +255,7 @@ public class ClientSupplierExample {
 
     public static void main(final String[] args) {
         if (args.length <= 1) {
-            throw new IllegalArgumentException("To run this example, include the ddbTable, keyArn, keyArn, and mrkReplicaKeyArn in args");
+            throw new IllegalArgumentException("To run this example, include the ddbTable, keyArn, AWS accounts, and regions in args");
         }
         final String ddbTableName = args[0];
         final String keyArn = args[1];
