@@ -16,6 +16,7 @@ module
   import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   import SE =  StructuredEncryptionUtil
   import InternalLegacyConfig
+  import Seq
 
   // There is no sensible default, so construct something simple but invalid at runtime.
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
@@ -90,36 +91,28 @@ module
         message := "Sort key attribute action MUST be SIGN_ONLY"
       ));
 
-    var attributeActions' := config.attributeActions;
-    while attributeActions'.Keys != {}
-      invariant forall attribute <- (config.attributeActions - attributeActions'.Keys)
-      :: Operations.ForwardCompatibleAttributeAction(
-          attribute,
-          config.attributeActions[attribute],
-          config.allowedUnauthenticatedAttributes,
-          config.allowedUnauthenticatedAttributePrefix)
-      invariant forall attribute <- (config.attributeActions - attributeActions'.Keys)
-      :: UnreservedPrefix(attribute)
+    var attributeNames := Seq.SetToSeq(config.attributeActions.Keys);
+
+    for i := 0 to |attributeNames|
     {
-      var attribute :| attribute in attributeActions';
-      var action := config.attributeActions[attribute];
+      var attributeName := attributeNames[i];
+      var action := config.attributeActions[attributeName];
       if !(Operations.ForwardCompatibleAttributeAction(
-          attribute,
+          attributeName,
           action,
           config.allowedUnauthenticatedAttributes,
           config.allowedUnauthenticatedAttributePrefix
         ))
       {
         return Failure(DynamoDbItemEncryptorException(
-          message := Operations.ExplainNotForwardCompatible(attribute, action, config.allowedUnauthenticatedAttributes, config.allowedUnauthenticatedAttributePrefix)
+          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.allowedUnauthenticatedAttributes, config.allowedUnauthenticatedAttributePrefix)
         ));
       }
-      if !UnreservedPrefix(attribute) {
+      if !UnreservedPrefix(attributeName) {
         return Failure(DynamoDbItemEncryptorException(
-          message := "Attribute: " + attribute + " is reserved, and may not be configured."
+          message := "Attribute: " + attributeName + " is reserved, and may not be configured."
         ));
       }
-      attributeActions' := attributeActions' - {attribute};
     }
 
     // Create the structured encryption client

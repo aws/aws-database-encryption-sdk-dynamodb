@@ -13,6 +13,7 @@ module StructuredEncryptionCrypt {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
+  import opened DafnyLibraries
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
@@ -22,7 +23,6 @@ module StructuredEncryptionCrypt {
   import HKDF
   import AesKdfCtr
   import Seq
-
 
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Result<Bytes, Error>)
@@ -236,7 +236,7 @@ module StructuredEncryptionCrypt {
   }
 
   // Encrypt or Decrypt each entry in keys, putting results in output
-  method {:tailrecursion} CryptList(
+  method CryptList(
     mode : EncryptionSelector,
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
@@ -253,7 +253,9 @@ module StructuredEncryptionCrypt {
     requires client.ValidState()
     ensures client.ValidState()
   {
-    var output := map[];
+    // It is very inefficient to manually build Dafny maps in methods, so use
+    // a MutableMap to build the key value pairs then convert back to a Dafny map.
+    var mutMap := new MutableMap();
     for i := 0 to |fieldNames| {
       var data;
       var fieldName := fieldNames[i];
@@ -262,8 +264,10 @@ module StructuredEncryptionCrypt {
       } else {
         data :- DecryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
       }
-      output := output[fieldName := data];
+      mutMap.Put(fieldName, data);
     }
+    var mutMapItems := mutMap.content(); // Have to initialize this seperately, otherwise the map comprehension will do something very inefficient
+    var output := map k <- mutMapItems | true :: k := mutMap.Select(k);
     return Success(output);
   }
 
