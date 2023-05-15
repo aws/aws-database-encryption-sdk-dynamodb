@@ -231,7 +231,7 @@ module StructuredEncryptionCrypt {
     //# The calculated Field Root MUST have length equal to the
     //# [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
     assert |fieldRootKey| == AlgorithmSuites.GetEncryptKeyLength(alg) as int;
-    var result := CryptList(mode, client, alg, fieldRootKey, 0, fieldNames, data, map[]);
+    var result := CryptList(mode, client, alg, fieldRootKey, fieldNames, data);
     return result;
   }
 
@@ -241,31 +241,30 @@ module StructuredEncryptionCrypt {
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
     fieldRootKey : Key,
-    offset : uint32,
     fieldNames : seq<CanonicalPath>,
-    input : StructuredDataCanon,
-    output : StructuredDataCanon
+    input : StructuredDataCanon
   )
     returns (ret : Result<StructuredDataCanon, Error>)
     requires forall k <- fieldNames :: k in input
-    requires (|fieldNames| + offset as nat) * 3 < UINT32_LIMIT
+    requires (|fieldNames| as nat) * 3 < UINT32_LIMIT
     decreases |fieldNames|
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
     ensures client.ValidState()
   {
-    if |fieldNames| == 0 {
-      return Success(output);
+    var output := map[];
+    for i := 0 to |fieldNames| {
+      var data;
+      var fieldName := fieldNames[i];
+      if mode == DoEncrypt {
+        data :- EncryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
+      } else {
+        data :- DecryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
+      }
+      output := output[fieldName := data];
     }
-    var data;
-    if mode == DoEncrypt {
-      data :- EncryptTerminal(client, alg, fieldRootKey, offset, fieldNames[0], input[fieldNames[0]].content.Terminal);
-    } else {
-      data :- DecryptTerminal(client, alg, fieldRootKey, offset, fieldNames[0], input[fieldNames[0]].content.Terminal);
-    }
-    var result := CryptList(mode, client, alg, fieldRootKey, offset+1, fieldNames[1..], input, output[fieldNames[0] := data]);
-    return result;
+    return Success(output);
   }
 
   // Encrypt a single Terminal
