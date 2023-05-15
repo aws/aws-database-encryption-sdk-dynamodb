@@ -1,6 +1,5 @@
 package software.aws.cryptography.examples.clientsupplier;
 
-import java.util.HashMap;
 import java.util.Map;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -12,29 +11,32 @@ import software.amazon.cryptography.materialproviders.IClientSupplier;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.cryptography.materialproviders.model.GetClientInput;
 
+/*
+  Example class demonstrating an implementation of a custom client supplier.
+  This particular implementation will create KMS clients with different IAM roles,
+  depending on the region passed.
+ */
 public class RegionalRoleClientSupplier implements IClientSupplier {
 
-  private static Map<String, String> regionIamRoleMap;
   private static StsClient stsClient;
+  private static RegionalRoleClientSupplierConfig config;
 
   public RegionalRoleClientSupplier() {
-    regionIamRoleMap = new HashMap<>();
-    regionIamRoleMap.put("us-east-1", "arn:aws:iam::587316601012:role/GitHub-DotNet-KMS-US-East-1-Only");
-    regionIamRoleMap.put("eu-west-1", "AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_EU_WEST_1");
     stsClient = StsClient.create();
+    config = new RegionalRoleClientSupplierConfig();
   }
 
   @Override
   public KmsClient GetClient(GetClientInput getClientInput) {
     System.out.println("Using " + getClientInput.region());
-    if (!regionIamRoleMap.containsKey(getClientInput.region())) {
+    if (!config.regionIamRoleMap.containsKey(getClientInput.region())) {
       // TODO: Create a MissingRegionException that extends AwsCryptographicMaterialProvidersException.
       // The generated code for AwsCryptographicMaterialProvidersException cannot be extended as-is,
       // as its constructor requires access to a class private to itself.
       throw new RuntimeException("Missing region");
     }
 
-    String arn = regionIamRoleMap.get(getClientInput.region());
+    String arn = config.regionIamRoleMap.get(getClientInput.region());
     Credentials creds = stsClient.assumeRole(AssumeRoleRequest.builder()
             .roleArn(arn)
             .durationSeconds(900) // 15 minutes is the minimum value

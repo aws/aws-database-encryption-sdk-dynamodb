@@ -47,7 +47,9 @@ public class ClientSupplierExample {
 
     public static void ClientSupplierPutItemGetItem(String ddbTableName, String keyArn,
             List<String> accountIds, List<String> regions) {
-        // 1. Create a single MRK multi-keyring using the MRK arn and the single-region key arn.
+        // 1. Create a single MRK multi-keyring key arn.
+        //    This can be either a single-region KMS key or an MRK.
+        //    For this example to succeed, the key's region must be in the regions list.
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
@@ -151,11 +153,9 @@ public class ClientSupplierExample {
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 8. Get the item back from our table using the client.
+        // 8. Get the item back from our table using the same keyring.
         //    The client will decrypt the item client-side using the MRK
-        //    and return back the original item.
-        //    Since the generator key is the first available key in the keyring,
-        //    that is the KMS Key that will be used to decrypt this item.
+        //    and return the original item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
         keyToGet.put("partition_key", AttributeValue.builder().s("clientSupplierItem").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
@@ -173,10 +173,11 @@ public class ClientSupplierExample {
         assert returnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
 
         // 9. Create a MRK discovery multi-keyring with a custom client supplier.
-        //    We will use this to explain that a discovery MRK multi-keyring
-        //    that uses a custom client supplier will be composed of
-        //    multiple discovery MRK keyrings, each of which has its own
-        //    KMS client in a particular region, with its own RegionalClientSupplier.
+        //    A discovery MRK multi-keyring will be composed of
+        //    multiple discovery MRK keyrings, one for each region.
+        //    Each component keyring has its own KMS client in a particular region.
+        //    When we provide a client supplier to the multi-keyring, all component
+        //    keyrings will use that client supplier configuration.
         DiscoveryFilter discoveryFilter = DiscoveryFilter.builder()
             .partition("aws")
             .accountIds(accountIds)
@@ -185,7 +186,7 @@ public class ClientSupplierExample {
         final CreateAwsKmsMrkDiscoveryMultiKeyringInput mrkDiscoveryClientSupplierInput =
             CreateAwsKmsMrkDiscoveryMultiKeyringInput.builder()
                 .clientSupplier(new RegionalRoleClientSupplier())
-
+                .discoveryFilter(discoveryFilter)
                 .regions(regions)
                 .build();
         IKeyring mrkDiscoveryClientSupplierKeyring = matProv.CreateAwsKmsMrkDiscoveryMultiKeyring(
@@ -237,7 +238,7 @@ public class ClientSupplierExample {
         assert onlyReplicaKeyReturnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
 
         // TODO: After adding MissingRegionException, give an example with a fake region
-        // and demonstrating that MissingRegionException extends AwsCryptographicMaterialProvidersException
+        // demonstrating that MissingRegionException extends AwsCryptographicMaterialProvidersException
     }
 
     public static void main(final String[] args) {
