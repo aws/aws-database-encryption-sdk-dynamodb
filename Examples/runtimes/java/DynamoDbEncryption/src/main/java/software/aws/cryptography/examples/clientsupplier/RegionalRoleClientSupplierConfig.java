@@ -9,7 +9,6 @@ import software.amazon.awssdk.regions.Region;
   Class containing config for the RegionalRoleClientSupplier.
   In your own code, this might be hardcoded, or reference
   an external source, e.g. environment variables or AWS AppConfig.
-
  */
 
 public class RegionalRoleClientSupplierConfig {
