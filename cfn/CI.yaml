@@ -277,6 +277,42 @@ Resources:
               - !Sub "arn:aws:kms:eu-west-1:658956600833:key/*"
               - !Sub "arn:aws:kms:eu-west-1:658956600833:alias/*"
 
+  GitHubCIRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub "GitHub-CI-${ProjectName}-Role-${AWS::Region}"
+      Description: "Access DDB, KMS, & CA Resources for CI from GitHub"
+      ManagedPolicyArns:
+        - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
+        - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
+        - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
+        - !Ref KMSUsage
+        - !Ref DDBUsage
+      AssumeRolePolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",   
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "Federated": "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com" },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                },
+                "StringLike": {
+                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                }
+              }
+            },
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+
   GithubCIRole-only-us-east-1-keys:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -296,6 +332,19 @@ Resources:
               "Effect": "Allow",
               "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" },
               "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": { "Federated": "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com" },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                },
+                "StringLike": {
+                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                }
+              }
             },
             {
               "Effect": "Allow",
@@ -325,29 +374,6 @@ Resources:
               "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" },
               "Action": "sts:AssumeRole"
             },
-            {
-              "Effect": "Allow",
-              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
-              "Action": "sts:AssumeRole"
-            }
-          ]
-        }
-
-  GitHubCIRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      RoleName: !Sub "GitHub-CI-${ProjectName}-Role-${AWS::Region}"
-      Description: "Access DDB, KMS, & CA Resources for CI from GitHub"
-      ManagedPolicyArns:
-        - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
-        - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
-        - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
-        - !Ref KMSUsage
-        - !Ref DDBUsage
-      AssumeRolePolicyDocument: !Sub |
-        {
-          "Version": "2012-10-17",   
-          "Statement": [
             {
               "Effect": "Allow",
               "Principal": { "Federated": "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com" },
