@@ -268,6 +268,7 @@ module DynamoToStruct {
   function method {:opaque} AttrToBytes(a : AttributeValue, prefix : bool, depth : nat := 1) : (ret : Result<seq<uint8>, string>)
     decreases a
     ensures ret.Success? && prefix ==> 6 <= |ret.value|
+    ensures MAX_STRUCTURE_DEPTH < depth ==> ret.Failure?
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#boolean
     //= type=implication
@@ -978,6 +979,7 @@ module DynamoToStruct {
   )
     : (ret : Result<AttrValueAndLength, string>)
     ensures ret.Success? ==> ret.value.len <= |value|
+    ensures MAX_STRUCTURE_DEPTH < depth ==> ret.Failure?
     decreases |value|
   {
     :- Need(depth <= MAX_STRUCTURE_DEPTH, "Depth of attribute structure to deserialize exceeds limit of " + MAX_STRUCTURE_DEPTH_STR);
