@@ -245,6 +245,94 @@ Resources:
               - !Sub "arn:aws:kms:*:658956600833:key/*"
               - !Sub "arn:aws:kms:*:658956600833:alias/*"
 
+  KMSUsage-only-us-east-1-keys:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: !Sub "${ProjectName}-KMS-only-us-east-1"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey
+            Resource:
+              - !Sub "arn:aws:kms:us-east-1:658956600833:key/*"
+              - !Sub "arn:aws:kms:us-east-1:658956600833:alias/*"
+
+  KMSUsage-only-eu-west-1-keys:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: !Sub "${ProjectName}-KMS-only-eu-west-1"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey
+            Resource:
+              - !Sub "arn:aws:kms:eu-west-1:658956600833:key/*"
+              - !Sub "arn:aws:kms:eu-west-1:658956600833:alias/*"
+
+  GithubCIRole-only-us-east-1-keys:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub "GitHub-CI-${ProjectName}-Role-only-us-east-1-KMS-keys"
+      Description: "Access DDB, KMS, & CA Resources for CI from GitHub. Only grants access to use keys in us-east-1 region. Created for use by CI while executing Custom Client Supplier Example."
+      ManagedPolicyArns:
+        - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
+        - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
+        - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
+        - !Ref KMSUsage-only-us-east-1-keys
+        - !Ref DDBUsage
+      AssumeRolePolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",   
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" },
+              "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+
+  GithubCIRole-only-eu-west-1-keys:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub "GitHub-CI-${ProjectName}-Role-only-eu-west-1-KMS-keys"
+      Description: "Access DDB, KMS, & CA Resources for CI from GitHub. Only grants access to use keys in eu-west-1 region. Created for use by CI while executing Custom Client Supplier Example."
+      ManagedPolicyArns:
+        - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
+        - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
+        - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
+        - !Ref KMSUsage-only-eu-west-1-keys
+        - !Ref DDBUsage
+      AssumeRolePolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",   
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" },
+              "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+
   GitHubCIRole:
     Type: 'AWS::IAM::Role'
     Properties:
