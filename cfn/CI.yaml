@@ -322,7 +322,7 @@ Resources:
         - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
         - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
         - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
-        - !Ref KMSUsage-only-us-east-1-keys
+        - !Ref KMSUsageOnlyUsEast1Keys
         - !Ref DDBUsage
       AssumeRolePolicyDocument: !Sub |
         {
@@ -363,7 +363,7 @@ Resources:
         - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
         - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
         - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
-        - !Ref KMSUsage-only-eu-west-1-keys
+        - !Ref KMSUsageOnlyEuWest1Keys
         - !Ref DDBUsage
       AssumeRolePolicyDocument: !Sub |
         {
