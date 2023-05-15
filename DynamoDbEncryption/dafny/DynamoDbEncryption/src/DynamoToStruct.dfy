@@ -163,7 +163,7 @@ module DynamoToStruct {
     // working with the exact set of bytes when we
     // need to deserialize.
   {
-    AttrToBytes(a, false, 1)
+    AttrToBytes(a, false)
   }
 
   function method  {:opaque} AttrToStructured(item : AttributeValue) : (ret : Result<StructuredData, string>)
@@ -195,7 +195,7 @@ module DynamoToStruct {
 
     var Terminal(s) := s.content;
     :- Need(|s.typeId| == 2, "Type ID must be two bytes");
-    var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false, 1);
+    var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
     :- Need(attrValueAndLength.len == |s.value|, "Mismatch between length of encoded data and length of data");
     Success(attrValueAndLength.val)
   }
@@ -265,7 +265,7 @@ module DynamoToStruct {
 
   // convert AttributeValue to byte sequence
   // if `prefix` is true, prefix sequence with TypeID and Length
-  function method {:opaque} AttrToBytes(a : AttributeValue, prefix : bool, depth : nat) : (ret : Result<seq<uint8>, string>)
+  function method {:opaque} AttrToBytes(a : AttributeValue, prefix : bool, depth : nat := 1) : (ret : Result<seq<uint8>, string>)
     decreases a
     ensures ret.Success? && prefix ==> 6 <= |ret.value|
 
@@ -974,7 +974,7 @@ module DynamoToStruct {
     value : seq<uint8>,
     typeId : TerminalTypeId,
     hasLen : bool,
-    depth : nat
+    depth : nat := 1
   )
     : (ret : Result<AttrValueAndLength, string>)
     ensures ret.Success? ==> ret.value.len <= |value|
