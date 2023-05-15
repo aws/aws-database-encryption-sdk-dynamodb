@@ -54,7 +54,7 @@ module DynamoDbItemEncryptorTest {
       )
     );
     expect encryptRes.Failure?;
-    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Configuration missmatch partition or sort key does not exist in item.");
+    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Configuration mismatch partition or sort key does not exist in item.");
   }
 
   method {:test} TestRoundTrip() {

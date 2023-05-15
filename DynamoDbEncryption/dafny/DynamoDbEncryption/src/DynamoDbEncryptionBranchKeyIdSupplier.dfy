@@ -111,7 +111,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
           message := "Invalid serialization of DDB Attribute in encryption context."));
     var typeId := base64DecodedVal[..2];
     var serializedValue := base64DecodedVal[2..];
-    var ddbAttrValue :- DynamoToStruct.BytesToAttr(serializedValue, typeId, false)
+    var ddbAttrValue :- DynamoToStruct.BytesToAttr(serializedValue, typeId, false, 1)
         .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
 
     // Add to our AttributeMap
