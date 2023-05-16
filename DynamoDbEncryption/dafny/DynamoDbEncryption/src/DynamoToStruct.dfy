@@ -894,7 +894,7 @@ module DynamoToStruct {
     resultList : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultList.val.L?
-    requires remainingCount < MAX_LIST_LENGTH
+    requires remainingCount <= MAX_LIST_LENGTH
     ensures ret.Success? ==> ret.value.val.L?
     requires |serialized| + resultList.len == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
