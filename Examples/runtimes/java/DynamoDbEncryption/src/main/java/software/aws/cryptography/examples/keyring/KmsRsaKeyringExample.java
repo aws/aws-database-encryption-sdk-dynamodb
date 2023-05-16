@@ -82,10 +82,10 @@ public class KmsRsaKeyringExample {
         // 2. Create a KMS RSA keyring.
         //    This keyring takes in:
         //     - kmsClient
-        //     - kmsKeyId: MUST be an ARN representing a KMS RSA key
+        //     - kmsKeyId: Must be an ARN representing a KMS RSA key
         //     - publicKey: A ByteBuffer of a UTF-8 encoded PEM file representing the public
         //                  key for the key passed into kmsKeyId
-        //     - encryptionAlgorithm
+        //     - encryptionAlgorithm: Must be either RSAES_OAEP_SHA_256 or RSAES_OAEP_SHA_1
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
