@@ -198,7 +198,7 @@ public class VirtualBeaconSearchableEncryptionExample {
 
     // 5. Configure Keystore.
     //    This example expects that you have already set up a KeyStore with a single branch key.
-    //    See the "Create KeyStore Table Example" and "Create KeyStore Key Example" for how to do this.
+    //    See the "CreateKeyStoreTableExample" and "CreateKeyStoreKeyExample" files for how to do this.
     //    After you create a branch key, you should persist its ID for use in this example.
     KeyStore keyStore = KeyStore.builder()
         .KeyStoreConfig(KeyStoreConfig.builder()
