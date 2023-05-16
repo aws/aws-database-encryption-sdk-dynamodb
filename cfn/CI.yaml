@@ -60,6 +60,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_location"
           AttributeType: "S"
+        - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
+          AttributeType: "S"
       GlobalSecondaryIndexes:
         - IndexName: "state-zip-index"
           KeySchema:
