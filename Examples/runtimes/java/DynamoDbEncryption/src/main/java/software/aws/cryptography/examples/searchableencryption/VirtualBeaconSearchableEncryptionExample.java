@@ -48,6 +48,9 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
   In general, if you wish to use a field with only a handful possible values, it is suggested
   to construct a virtual field to enable effective querying while obfuscating underlying data.
 
+  For more information on virtual fields, see
+    TODO: Add docs link
+
   This example follows a use case of a database that stores customer location data. This is an
   extension of the "BasicSearchableEncryptionExample" in this directory. This example uses the same
   situation (storing customer location data) and the same table schema, but adds a virtual field
