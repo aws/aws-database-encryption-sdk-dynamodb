@@ -39,8 +39,8 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
   This example sets up DynamoDb Encryption for the AWS SDK client
   using the raw RSA Keyring. This keyring uses an RSA key pair to
   encrypt and decrypt records. This keyring accepts PEM encodings of
-  the key pair as UTF-8 interpreted bytes. The client uses the private key
-  to encrypt items it adds to the table and uses the public key to decrypt
+  the key pair as UTF-8 interpreted bytes. The client uses the public key
+  to encrypt items it adds to the table and uses the private key to decrypt
   existing table items it retrieves.
 
   This example loads a key pair from PEM files with paths defined in
