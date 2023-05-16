@@ -67,9 +67,10 @@ public class KmsRsaKeyringExample {
 
     public static void RsaKeyringGetItemPutItem(String ddbTableName, String rsaKeyArn) {
         // 1. Load UTF-8 encoded public key PEM file.
-        //    You may have an RSA public key file already defined. If not,
-        //    the main method in this class will generate a PEM
-        //    file for example use.
+        //    You may have an RSA public key file already defined.
+        //    If not, the main method in this class will call
+        //    the KMS RSA key, retrieve its public key, and store it
+        //    in a PEM file for example use.
         ByteBuffer publicKeyUtf8EncodedByteBuffer;
         try {
             publicKeyUtf8EncodedByteBuffer = ByteBuffer.wrap(
@@ -80,7 +81,7 @@ public class KmsRsaKeyringExample {
 
         // 2. Create a KMS RSA keyring.
         //    This keyring takes in:
-        //     - KmsClient
+        //     - kmsClient
         //     - kmsKeyId: MUST be an ARN representing a KMS RSA key
         //     - publicKey: A ByteBuffer of a UTF-8 encoded PEM file representing the public
         //                  key for the key passed into kmsKeyId
@@ -88,8 +89,6 @@ public class KmsRsaKeyringExample {
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
-        byte[] tmp = new byte[1];
-        tmp[0] = 0;
         final CreateAwsKmsRsaKeyringInput createAwsKmsRsaKeyringInput =
             CreateAwsKmsRsaKeyringInput.builder()
                 .kmsClient(KmsClient.create())
@@ -98,19 +97,6 @@ public class KmsRsaKeyringExample {
                 .encryptionAlgorithm(EncryptionAlgorithmSpec.RSAES_OAEP_SHA_256)
                 .build();
         IKeyring awsKmsRsaKeyring = matProv.CreateAwsKmsRsaKeyring(createAwsKmsRsaKeyringInput);
-
-        EncryptionMaterials mats = matProv.InitializeEncryptionMaterials(InitializeEncryptionMaterialsInput.builder()
-            .algorithmSuiteId(AlgorithmSuiteId.builder()
-                .ESDK(ESDKAlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF)
-                .build())
-            .encryptionContext(new HashMap<>())
-            .requiredEncryptionContextKeys(new ArrayList<>())
-            .build());
-
-        OnEncryptOutput output = awsKmsRsaKeyring.OnEncrypt(OnEncryptInput.builder()
-            .materials(mats)
-            .build());
-        output.materials();
 
         // 3. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -154,6 +140,8 @@ public class KmsRsaKeyringExample {
         final String unauthAttrPrefix = ":";
 
         // 5. Create the DynamoDb Encryption configuration for the table we will be writing to.
+        //    Note: To use the KMS RSA keyring, your table config must specify an algorithmSuite
+        //    that does not use asymmetric signing.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
             .logicalTableName(ddbTableName)
@@ -162,6 +150,7 @@ public class KmsRsaKeyringExample {
             .attributeActions(attributeActions)
             .keyring(awsKmsRsaKeyring)
             .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
+            // Specify algorithmSuite without asymmetric signing here
             .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
             .build();
         tableConfigs.put(ddbTableName, config);
