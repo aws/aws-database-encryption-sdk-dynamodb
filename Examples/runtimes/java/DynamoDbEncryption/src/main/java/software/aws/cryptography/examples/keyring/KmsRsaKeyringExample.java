@@ -14,6 +14,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -34,8 +35,16 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTable
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.AlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsRsaKeyringInput;
+import software.amazon.cryptography.materialproviders.model.CreateDefaultCryptographicMaterialsManagerInput;
+import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
+import software.amazon.cryptography.materialproviders.model.ESDKAlgorithmSuiteId;
+import software.amazon.cryptography.materialproviders.model.EncryptionMaterials;
+import software.amazon.cryptography.materialproviders.model.InitializeEncryptionMaterialsInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.materialproviders.model.OnEncryptInput;
+import software.amazon.cryptography.materialproviders.model.OnEncryptOutput;
 import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
@@ -79,6 +88,8 @@ public class KmsRsaKeyringExample {
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
+        byte[] tmp = new byte[1];
+        tmp[0] = 0;
         final CreateAwsKmsRsaKeyringInput createAwsKmsRsaKeyringInput =
             CreateAwsKmsRsaKeyringInput.builder()
                 .kmsClient(KmsClient.create())
@@ -87,6 +98,19 @@ public class KmsRsaKeyringExample {
                 .encryptionAlgorithm(EncryptionAlgorithmSpec.RSAES_OAEP_SHA_256)
                 .build();
         IKeyring awsKmsRsaKeyring = matProv.CreateAwsKmsRsaKeyring(createAwsKmsRsaKeyringInput);
+
+        EncryptionMaterials mats = matProv.InitializeEncryptionMaterials(InitializeEncryptionMaterialsInput.builder()
+            .algorithmSuiteId(AlgorithmSuiteId.builder()
+                .ESDK(ESDKAlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF)
+                .build())
+            .encryptionContext(new HashMap<>())
+            .requiredEncryptionContextKeys(new ArrayList<>())
+            .build());
+
+        OnEncryptOutput output = awsKmsRsaKeyring.OnEncrypt(OnEncryptInput.builder()
+            .materials(mats)
+            .build());
+        output.materials();
 
         // 3. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -138,6 +162,7 @@ public class KmsRsaKeyringExample {
             .attributeActions(attributeActions)
             .keyring(awsKmsRsaKeyring)
             .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
+            .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
             .build();
         tableConfigs.put(ddbTableName, config);
 
