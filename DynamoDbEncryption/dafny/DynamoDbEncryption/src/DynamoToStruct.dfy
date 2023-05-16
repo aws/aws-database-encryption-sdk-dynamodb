@@ -11,6 +11,7 @@ module DynamoToStruct {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened DynamoDbEncryptionUtil
   import AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import UTF8
   import SortedSets
@@ -264,19 +265,20 @@ module DynamoToStruct {
 
   // convert AttributeValue to byte sequence
   // if `prefix` is true, prefix sequence with TypeID and Length
-  function method {:opaque} AttrToBytes(a : AttributeValue, prefix : bool) : (ret : Result<seq<uint8>, string>)
+  function method {:opaque} AttrToBytes(a : AttributeValue, prefix : bool, depth : nat := 1) : (ret : Result<seq<uint8>, string>)
     decreases a
     ensures ret.Success? && prefix ==> 6 <= |ret.value|
+    ensures MAX_STRUCTURE_DEPTH < depth ==> ret.Failure?
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#boolean
     //= type=implication
     //# Boolean MUST be serialized as:
     //# - `0x00` if the value is `false`
     //# - `0x01` if the value is `true`
-    ensures a.BOOL? && !prefix ==>
+    ensures a.BOOL? && !prefix && depth <= MAX_STRUCTURE_DEPTH ==>
       && (a.BOOL  ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 1)
       && (!a.BOOL ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 0)
-    ensures a.BOOL? && prefix ==>
+    ensures a.BOOL? && prefix && depth <= MAX_STRUCTURE_DEPTH ==>
       && (a.BOOL  ==> (ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 1
           && ret.value[0..TYPEID_LEN] == BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1]))
       && (!a.BOOL ==> (ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 0
@@ -286,8 +288,8 @@ module DynamoToStruct {
     //= type=implication
     //# Binary MUST be serialized with the identity function;
     //# or more plainly, Binary Attribute Values are used as is.
-    ensures a.B? && !prefix ==> ret.Success? && ret.value == a.B
-    ensures a.B? && prefix && ret.Success? ==>
+    ensures a.B? && !prefix && depth <= MAX_STRUCTURE_DEPTH ==> ret.Success? && ret.value == a.B
+    ensures a.B? && prefix && ret.Success? && depth <= MAX_STRUCTURE_DEPTH ==>
       && ret.value[PREFIX_LEN..] == a.B
       && ret.value[0..TYPEID_LEN] == BINARY
       && U32ToBigEndian(|a.B|).Success?
@@ -297,8 +299,8 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#null
     //= type=implication
     //# Null MUST be serialized as a zero-length byte string.
-    ensures a.NULL? && !prefix ==> ret.Success? && |ret.value| == 0
-    ensures a.NULL? &&  prefix ==> ret.Success? && |ret.value| == PREFIX_LEN && ret.value[0..TYPEID_LEN] == NULL && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,0]
+    ensures a.NULL? && !prefix && depth <= MAX_STRUCTURE_DEPTH ==> ret.Success? && |ret.value| == 0
+    ensures a.NULL? &&  prefix && depth <= MAX_STRUCTURE_DEPTH ==> ret.Success? && |ret.value| == PREFIX_LEN && ret.value[0..TYPEID_LEN] == NULL && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,0]
   
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#string
     //= type=implication
@@ -463,6 +465,7 @@ module DynamoToStruct {
       && (|a.M| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
   {
+    :- Need(depth <= MAX_STRUCTURE_DEPTH, "Depth of attribute structure to serialize exceeds limit of " + MAX_STRUCTURE_DEPTH_STR);
     var baseBytes :- match a {
       case S(s) => UTF8.Encode(s)
       case N(n) => var nn :- Norm.NormalizeNumber(n); UTF8.Encode(nn)
@@ -470,8 +473,8 @@ module DynamoToStruct {
       case SS(ss) => StringSetAttrToBytes(ss)
       case NS(ns) => NumberSetAttrToBytes(ns)
       case BS(bs) => BinarySetAttrToBytes(bs)
-      case M(m) => MapAttrToBytes(a, m)
-      case L(l) => ListAttrToBytes(l)
+      case M(m) => MapAttrToBytes(a, m, depth)
+      case L(l) => ListAttrToBytes(l, depth)
       case NULL(n) => Success([])
       case BOOL(b) => Success([BoolToUint8(b)])
     };
@@ -516,7 +519,7 @@ module DynamoToStruct {
   // along with the corresponding precondition,
   // lets Dafny find the correct termination metric.
   // See "The Parent Trick" for details: <https://leino.science/papers/krml283.html>.
-  function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue): (ret: Result<seq<uint8>, string>)
+  function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
     requires forall kv <- m.Items :: kv.1 < parent
   {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
@@ -532,17 +535,17 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
     //# A Map MAY hold any DynamoDB Attribute Value data type,
     //# and MAY hold values of different types.
-    var bytesResults := map kv <- m.Items :: kv.0 := AttrToBytes(kv.1, true);
+    var bytesResults := map kv <- m.Items :: kv.0 := AttrToBytes(kv.1, true, depth+1);
     var count :- U32ToBigEndian(|m|);
     var bytes :- SimplifyMapValue(bytesResults);
     var body :- CollectMap(bytes);
     Success(count + body)
   }
 
-  function method ListAttrToBytes(l: ListAttributeValue): (ret: Result<seq<uint8>, string>)
+  function method ListAttrToBytes(l: ListAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
   {
     var count :- U32ToBigEndian(|l|);
-    var body :- CollectList(l);
+    var body :- CollectList(l, depth);
     Success(count + body)
   }
 
@@ -672,6 +675,7 @@ module DynamoToStruct {
   //# and MAY hold values of different types.
   function method {:opaque} CollectList(
     listToSerialize : ListAttributeValue,
+    depth : nat,
     serialized : seq<uint8> := []
   )
     : (ret : Result<seq<uint8>, string>)
@@ -681,8 +685,8 @@ module DynamoToStruct {
     if |listToSerialize| == 0 then
       Success(serialized)
     else
-      var val :- AttrToBytes(listToSerialize[0], true);
-      CollectList(listToSerialize[1..], serialized + val)
+      var val :- AttrToBytes(listToSerialize[0], true, depth+1);
+      CollectList(listToSerialize[1..], depth, serialized + val)
   }
 
   function method SerializeMapItem(key : string, value : seq<uint8>) : (ret : Result<seq<uint8>, string>)
@@ -881,7 +885,8 @@ module DynamoToStruct {
   function method {:vcs_split_on_every_assert} {:opaque} DeserializeList(
     serialized : seq<uint8>, 
     remainingCount : nat, 
-    origSerializedSize : nat, 
+    ghost origSerializedSize : nat,
+    depth : nat,
     resultList : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultList.val.L?
@@ -902,9 +907,9 @@ module DynamoToStruct {
       if |serialized| < len then
         Failure("Out of bytes reading Content of List element")
       else
-        var nval :- BytesToAttr(serialized[..len], TerminalTypeId, false);
+        var nval :- BytesToAttr(serialized[..len], TerminalTypeId, false, depth+1);
         var nattr := AttributeValue.L(resultList.val.L + [nval.val]);
-        DeserializeList(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultList.len + len + 6))
+        DeserializeList(serialized[len..], remainingCount-1, origSerializedSize, depth, AttrValueAndLength(nattr, resultList.len + len + 6))
   }
 
   // Bytes to Map
@@ -912,7 +917,8 @@ module DynamoToStruct {
   function method {:vcs_split_on_every_assert} {:opaque} DeserializeMap(
     serialized : seq<uint8>,
     remainingCount : nat,
-    origSerializedSize : nat,
+    ghost origSerializedSize : nat,
+    depth : nat,
     resultMap : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultMap.val.M?
@@ -948,7 +954,7 @@ module DynamoToStruct {
       var serialized := serialized[2..];
 
       // get value and construct result
-      var nval :- BytesToAttr(serialized, TerminalTypeId_value, true);
+      var nval :- BytesToAttr(serialized, TerminalTypeId_value, true, depth+1);
       var serialized := serialized[nval.len..];
 
       //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
@@ -960,15 +966,23 @@ module DynamoToStruct {
       var nattr := AttributeValue.M(resultMap.val.M[key := nval.val]);
       var newResultMap := AttrValueAndLength(nattr, resultMap.len + nval.len + 8 + len);
       assert |serialized| + newResultMap.len == origSerializedSize;
-      DeserializeMap(serialized, remainingCount - 1, origSerializedSize, newResultMap)
+      DeserializeMap(serialized, remainingCount - 1, origSerializedSize, depth, newResultMap)
   }
   
   // Bytes to AttributeValue
   // Can't be {:tailrecursion} because it calls DeserializeList and DeserializeMap which then call BytesToAttr
-  function method {:vcs_split_on_every_assert} {:opaque} BytesToAttr(value : seq<uint8>, typeId : TerminalTypeId, hasLen : bool) : (ret : Result<AttrValueAndLength, string>)
+  function method {:vcs_split_on_every_assert} {:opaque} BytesToAttr(
+    value : seq<uint8>,
+    typeId : TerminalTypeId,
+    hasLen : bool,
+    depth : nat := 1
+  )
+    : (ret : Result<AttrValueAndLength, string>)
     ensures ret.Success? ==> ret.value.len <= |value|
+    ensures MAX_STRUCTURE_DEPTH < depth ==> ret.Failure?
     decreases |value|
   {
+    :- Need(depth <= MAX_STRUCTURE_DEPTH, "Depth of attribute structure to deserialize exceeds limit of " + MAX_STRUCTURE_DEPTH_STR);
     var len :- if hasLen then
         if |value| < LENGTH_LEN then
           Failure("Out of bytes reading length")
@@ -1043,7 +1057,7 @@ module DynamoToStruct {
       else
         var len :- BigEndianToU32(value);
         var value := value[LENGTH_LEN..];
-        DeserializeMap(value, len, |value| + LENGTH_LEN + lengthBytes,  AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN + lengthBytes))
+        DeserializeMap(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN + lengthBytes))
 
     else if typeId == LIST then
       if |value| < LENGTH_LEN then
@@ -1051,7 +1065,7 @@ module DynamoToStruct {
       else
         var len :- BigEndianToU32(value);
         var value := value[LENGTH_LEN..];
-        DeserializeList(value, len, |value| + LENGTH_LEN + lengthBytes, AttrValueAndLength(AttributeValue.L([]), LENGTH_LEN + lengthBytes))
+        DeserializeList(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.L([]), LENGTH_LEN + lengthBytes))
 
     else
       Failure("Unsupported TerminalTypeId")

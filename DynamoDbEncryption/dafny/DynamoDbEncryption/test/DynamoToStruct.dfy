@@ -11,6 +11,7 @@ module DynamoToStructTest {
   import opened ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StandardLibrary.UInt
+  import opened DynamoDbEncryptionUtil
 
   method DoFail(data : seq<uint8>, typeId : TerminalTypeId)
   {
@@ -46,13 +47,13 @@ module DynamoToStructTest {
     DoFail([], LIST);
   }
 
-    const k := 'k' as uint8;
-    const e := 'e' as uint8;
-    const y := 'y' as uint8;
-    const A := 'A' as uint8;
-    const B := 'B' as uint8;
-    const C := 'C' as uint8;
-    const D := 'D' as uint8;
+  const k := 'k' as uint8;
+  const e := 'e' as uint8;
+  const y := 'y' as uint8;
+  const A := 'A' as uint8;
+  const B := 'B' as uint8;
+  const C := 'C' as uint8;
+  const D := 'D' as uint8;
 
   method {:test} TestBadType() {
     DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST, 5);
@@ -262,13 +263,15 @@ module DynamoToStructTest {
     //= type=test
     //# A Map MAY hold any DynamoDB Attribute Value data type,
     //# and MAY hold values of different types.
-    var encodedMapData := StructuredDataTerminal(value :=
-      [0,0,0,4,
+    var encodedMapData := StructuredDataTerminal(
+      value := [
+        0,0,0,4,
         0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5,
         0,1, 0,0,0,4, k,e,y,B, 0,0, 0,0,0,0,
         0,1, 0,0,0,4, k,e,y,C, 0,4, 0,0,0,1, 0,
-        0,1, 0,0,0,4, k,e,y,D, 3,0, 0,0,0,28, 0,0,0,3, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0],
-    typeId := [2,0]);
+        0,1, 0,0,0,4, k,e,y,D, 3,0, 0,0,0,28, 0,0,0,3, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0
+      ],
+      typeId := [2,0]);
     var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
     var mapStruct := AttrToStructured(mapValue);
     expect mapStruct.Success?;
@@ -277,7 +280,7 @@ module DynamoToStructTest {
     var newMapValue := StructuredToAttr(mapStruct.value);
     expect newMapValue.Success?;
     expect newMapValue.value == mapValue;
-}
+  }
 
   //= specification/dynamodb-encryption-client/ddb-item-conversion.md#overview
   //= type=test
@@ -306,5 +309,35 @@ module DynamoToStructTest {
     var struct :- expect ItemToStructured(attrMap);
     var nAttrMap :- expect StructuredToItem(struct);
     expect attrMap == nAttrMap;
+  }
+
+  method {:test} TestMaxDepth() {
+    var value := AttributeValue.S("hello");
+    for i := 0 to (MAX_STRUCTURE_DEPTH-1) {
+      if i % 2 == 0 {
+        value := AttributeValue.M(map["key" := value]);
+      } else {
+        value := AttributeValue.L([value]);
+      }
+    }
+    var attrMap : AttributeMap := map["key1" := value];
+    var struct :- expect ItemToStructured(attrMap);
+    var nAttrMap :- expect StructuredToItem(struct);
+    expect attrMap == nAttrMap;
+  }
+
+  method {:test} TestTooDeep() {
+    var value := AttributeValue.S("hello");
+    for i := 0 to MAX_STRUCTURE_DEPTH {
+      if i % 2 == 0 {
+        value := AttributeValue.M(map["key" := value]);
+      } else {
+        value := AttributeValue.L([value]);
+      }
+    }
+    var attrMap : AttributeMap := map["key1" := value];
+    var struct := ItemToStructured(attrMap);
+    expect struct.Failure?;
+    expect struct.error == E("Depth of attribute structure to serialize exceeds limit of 32");
   }
 }
