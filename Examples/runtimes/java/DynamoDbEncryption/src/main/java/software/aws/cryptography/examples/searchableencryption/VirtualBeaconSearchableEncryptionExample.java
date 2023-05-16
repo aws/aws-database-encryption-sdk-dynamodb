@@ -351,7 +351,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     // Assert PutItem was successful
     assert 200 == itemWithNoHasSensitiveDataPutResponse.sdkHttpResponse().statusCode();
 
-    // 11. Query by stateAndHasSensitiveData attribute.
+    // 13. Query by stateAndHasSensitiveData attribute.
     //     Note that we are constructing the query as if we were querying on plaintext values.
     //     However, the DDB encryption client will detect that this attribute name has a beacon configured.
     //     The client will add the beaconized attribute name and attribute value to the query,
