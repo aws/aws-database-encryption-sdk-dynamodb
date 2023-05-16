@@ -60,6 +60,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_location"
           AttributeType: "S"
+        - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
+          AttributeType: "S"
       GlobalSecondaryIndexes:
         - IndexName: "state-zip-index"
           KeySchema:
@@ -75,6 +77,15 @@ Resources:
         - IndexName: "location-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_location"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "stateAndHasSensitiveData-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
