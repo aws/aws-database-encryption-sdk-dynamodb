@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.cryptography.materialproviders.CryptographicMaterialsManager;
@@ -19,6 +20,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
     private final Keyring keyring;
     private final CryptographicMaterialsManager cmm;
     private final LegacyConfig legacyConfig;
+    private final PlaintextPolicy plaintextPolicy;
     private final DBEAlgorithmSuiteId algorithmSuiteId;
 
 
@@ -30,6 +32,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         this.keyring = builder.keyring();
         this.cmm = builder.cmm();
         this.legacyConfig = builder.legacyConfig();
+        this.plaintextPolicy = builder.plaintextPolicy();
         this.algorithmSuiteId = builder.algorithmSuiteId();
 
     }
@@ -60,6 +63,10 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         return this.legacyConfig;
     }
 
+    public PlaintextPolicy plaintextPolicy() {
+        return this.plaintextPolicy;
+    }
+
     public DBEAlgorithmSuiteId algorithmSuiteId() {
         return this.algorithmSuiteId;
     }
@@ -85,6 +92,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
         Builder legacyConfig(LegacyConfig legacyConfig);
         LegacyConfig legacyConfig();
+        Builder plaintextPolicy(PlaintextPolicy plaintextPolicy);
+        PlaintextPolicy plaintextPolicy();
         Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
         DBEAlgorithmSuiteId algorithmSuiteId();
         DynamoDbEnhancedTableEncryptionConfig build();
@@ -98,6 +107,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         protected Keyring keyring;
         protected CryptographicMaterialsManager cmm;
         protected LegacyConfig legacyConfig;
+        protected PlaintextPolicy plaintextPolicy;
         protected DBEAlgorithmSuiteId algorithmSuiteId;
         protected BuilderImpl() {
         }
@@ -110,6 +120,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
             this.keyring = model.keyring();
             this.cmm = model.cmm();
             this.legacyConfig = model.legacyConfig();
+            this.plaintextPolicy  = model.plaintextPolicy();
             this.algorithmSuiteId = model.algorithmSuiteId();
         }
 
@@ -139,7 +150,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         }
 
         public Builder allowedUnauthenticatedAttributePrefix(
-                String allowedUnauthenticatedAttributePrefix) {
+            String allowedUnauthenticatedAttributePrefix) {
             this.allowedUnauthenticatedAttributePrefix = allowedUnauthenticatedAttributePrefix;
             return this;
         }
@@ -173,6 +184,15 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
         public LegacyConfig legacyConfig() {
             return this.legacyConfig;
+        }
+
+        public Builder plaintextPolicy(PlaintextPolicy plaintextPolicy) {
+            this.plaintextPolicy = plaintextPolicy;
+            return this;
+        }
+
+        public PlaintextPolicy plaintextPolicy() {
+            return this.plaintextPolicy;
         }
 
         public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
