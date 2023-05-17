@@ -83,14 +83,14 @@ module TestFixtures {
     map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY]
   }
 
-  method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
+  method GetEncryptorConfigFromActions(actions : AttributeActions) returns (output : DynamoDbItemEncryptorConfig) {
     var keyring := GetKmsKeyring();
     var logicalTableName := GetTableName("foo");
     output := DynamoDbItemEncryptorConfig(
       logicalTableName := logicalTableName,
       partitionKeyName := "bar",
       sortKeyName := None(),
-      attributeActions := GetAttributeActions(),
+      attributeActions := actions,
       allowedUnauthenticatedAttributes := Some(["nothing"]),
       allowedUnauthenticatedAttributePrefix := None(),
       keyring := Some(keyring),
@@ -99,6 +99,10 @@ module TestFixtures {
       plaintextPolicy := None(),
       legacyConfig := None()
     );
+  }
+
+  method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
+    output := GetEncryptorConfigFromActions(GetAttributeActions());
   }
 
   method GetDynamoDbItemEncryptorFrom(config : DynamoDbItemEncryptorConfig)

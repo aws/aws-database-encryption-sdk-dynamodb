@@ -28,6 +28,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DynamoDbEncryptionUtil
   import StructuredEncryptionUtil
+  import StandardLibrary.String
 
   datatype Config = Config(
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
@@ -614,13 +615,19 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       ==>
         && output.value.encryptedItem == input.plaintextItem
         && output.value.parsedHeader == None
+
+    ensures output.Success? ==> |input.plaintextItem| <= MAX_ATTRIBUTE_COUNT
   {
     :- Need(
       && config.partitionKeyName in input.plaintextItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
-    , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
+    , DynamoDbItemEncryptorException( message := "Configuration mismatch partition or sort key does not exist in item."));
 
-    assert {:split_here} true;
+    if |input.plaintextItem| > MAX_ATTRIBUTE_COUNT {
+      var actCount := String.Base10Int2String(|input.plaintextItem|);
+      var maxCount := String.Base10Int2String(MAX_ATTRIBUTE_COUNT);
+      return Failure(E("Item to encrypt had " + actCount + " attributes, but maximum allowed is " + maxCount));
+    }
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
@@ -824,10 +831,17 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && output.value.plaintextItem == input.encryptedItem
         && output.value.parsedHeader == None
   {
+    var realCount := |set k <- input.encryptedItem | !(ReservedPrefix <= k)|;
+    if realCount > MAX_ATTRIBUTE_COUNT {
+      var actCount := String.Base10Int2String(realCount);
+      var maxCount := String.Base10Int2String(MAX_ATTRIBUTE_COUNT);
+      return Failure(E("Item to decrypt had " + actCount + " attributes, but maximum allowed is " + maxCount));
+    }
+
     :- Need(
       && config.partitionKeyName in input.encryptedItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
-    , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
+    , DynamoDbItemEncryptorException( message := "Configuration mismatch partition or sort key does not exist in item."));
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
