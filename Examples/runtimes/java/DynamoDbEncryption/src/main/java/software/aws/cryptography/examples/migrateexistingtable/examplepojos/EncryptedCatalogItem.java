@@ -7,7 +7,7 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoD
 import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionSignOnly;
 
 @DynamoDbBean
-public class V3CatalogItem {
+public class EncryptedCatalogItem {
   private Integer id;
   private String title;
   private String ISBN;

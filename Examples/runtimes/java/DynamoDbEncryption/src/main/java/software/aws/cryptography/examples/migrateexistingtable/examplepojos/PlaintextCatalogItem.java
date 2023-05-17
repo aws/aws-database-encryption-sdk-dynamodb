@@ -5,7 +5,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 @DynamoDbBean
-public class V2CatalogItem {
+public class PlaintextCatalogItem {
   private Integer id;
   private String title;
   private String ISBN;
