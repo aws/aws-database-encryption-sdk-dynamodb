@@ -54,6 +54,7 @@ public class InternalLegacyConfig {
     // have been customized by the customer.
     this.materialDescriptionFieldName = software
       .amazon
+      .smithy
       .dafny
       .conversion
       .ToDafny
@@ -61,6 +62,7 @@ public class InternalLegacyConfig {
       .CharacterSequence(encryptor.getMaterialDescriptionFieldName());
     this.signatureFieldName = software
       .amazon
+      .smithy
       .dafny
       .conversion
       .ToDafny
