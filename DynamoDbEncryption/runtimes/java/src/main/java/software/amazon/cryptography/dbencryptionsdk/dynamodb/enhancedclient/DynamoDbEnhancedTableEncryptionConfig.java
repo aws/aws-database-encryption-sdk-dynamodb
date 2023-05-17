@@ -150,7 +150,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         }
 
         public Builder allowedUnauthenticatedAttributePrefix(
-            String allowedUnauthenticatedAttributePrefix) {
+                String allowedUnauthenticatedAttributePrefix) {
             this.allowedUnauthenticatedAttributePrefix = allowedUnauthenticatedAttributePrefix;
             return this;
         }
