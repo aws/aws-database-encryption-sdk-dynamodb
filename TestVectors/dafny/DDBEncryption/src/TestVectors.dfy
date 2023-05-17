@@ -1106,69 +1106,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     return Success(results);
   }
 
-  method MakeConfig(
-    attributeActions : Types.AttributeActions,
-    allowed : seq<DDB.AttributeName>,
-    prefix : string,
-    keySource : Option<Types.BeaconKeySource>,
-    beacons : seq<Types.StandardBeacon>,
-    compound : seq<Types.CompoundBeacon>,
-    virtualFields : seq<Types.VirtualField>
-  )
-    returns (output : Result<Types.DynamoDbTableEncryptionConfig, string>)
-  {
-    var keyMaterial : KeyMaterial.KeyMaterial :=
-      KeyMaterial.StaticKeyStoreInformation("abc", UTF8.EncodeAscii("abc"), [1,2,3,4,5], [1,2,3,4,5]);
-    var store := SKS.CreateStaticKeyStore(keyMaterial);
-    var search := None;
-    var source : Types.BeaconKeySource :=
-      if keySource.Some? then
-        keySource.value
-      else
-        Types.single(Types.SingleKeyStore(keyId := "foo", cacheTTL := 42));
-
-    if 0 < |beacons| {
-      search := Some(Types.SearchConfig (
-                       versions := [Types.BeaconVersion(
-                                      version := 1,
-                                      keyStore := store,
-                                      keySource := source,
-                                      standardBeacons := beacons,
-                                      compoundBeacons := OptSeq(compound),
-                                      virtualFields := OptSeq(virtualFields)
-                                    )],
-                       writeVersion := 1
-                     ));
-    }
-
-    var keys :- expect KeyVectors.KeyVectors(
-      KeyVectorsTypes.KeyVectorsConfig(
-        keyManifiestPath := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
-      )
-    );
-    var keyDescription := KeyVectorsTypes.Hierarchy(KeyVectorsTypes.HierarchyKeyring(
-                                                      keyId := "static-branch-key-1"
-                                                    ));
-    var keyring :- expect keys.CreateWappedTestVectorKeyring(KeyVectorsTypes.TestVectorKeyringInput(keyDescription := keyDescription));
-
-    return Success(
-        Types.DynamoDbTableEncryptionConfig(
-          logicalTableName := TableName,
-          partitionKeyName := HashName,
-          sortKeyName := None,
-          search := search,
-          attributeActions := attributeActions,
-          allowedUnauthenticatedAttributes := OptSeq(allowed),
-          allowedUnauthenticatedAttributePrefix := OptSeq(prefix),
-          algorithmSuiteId := None,
-          keyring := Some(keyring),
-          cmm := None,
-          legacyConfig := None,
-          plaintextPolicy := None
-        )
-      );
-  }
-
   method GetAttributesFromGSI(prev : seq<DDB.AttributeDefinition>, gsi : seq<DDB.GlobalSecondaryIndex>) returns (output : seq<DDB.AttributeDefinition>)
   {
     var results := prev;
