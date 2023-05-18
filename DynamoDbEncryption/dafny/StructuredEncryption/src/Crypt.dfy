@@ -255,7 +255,7 @@ module StructuredEncryptionCrypt {
   {
     // It is very inefficient to manually build Dafny maps in methods, so use
     // a MutableMap to build the key value pairs then convert back to a Dafny map.
-    var mutMap := new MutableMap();
+    var mutMap : MutableMap<CanonicalPath, StructuredDataTerminalType> := new MutableMap();
     for i := 0 to |fieldNames| {
       var data;
       var fieldName := fieldNames[i];
@@ -267,7 +267,7 @@ module StructuredEncryptionCrypt {
       mutMap.Put(fieldName, data);
     }
     var mutMapItems := mutMap.content(); // Have to initialize this separately, otherwise the map comprehension will do something very inefficient
-    var output := map k <- mutMapItems :: k := mutMap.Select(k);
+    var output : StructuredDataCanon := map k <- mutMapItems :: k := mutMap.Select(k);
     return Success(output);
   }
 
