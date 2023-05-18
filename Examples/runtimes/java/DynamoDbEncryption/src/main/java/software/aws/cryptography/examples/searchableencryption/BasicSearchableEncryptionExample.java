@@ -44,7 +44,7 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
     - Partition key is named "aws_dbe_b_email" with type (S)
     - Sort key is named "aws_dbe_b_birthday" with type (S)
 
-  In this example for storing customer location data, this schema is utilized for the data:
+  In this example for storing customer information, this schema is utilized for the data:
    - "customer_id" stores a unique customer identifier
    - "create_time" stores a Unix timestamp
    - "email" stores a valid email address (i.e. prefix@domain)
@@ -63,7 +63,8 @@ public class BasicSearchableEncryptionExample {
 
   static String GSI_NAME = "email-birthday-index";
 
-  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
+  public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId,
+      String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 1. Configure Beacons.
     //    The beacon name must be the name of a table attribute that will be encrypted.
