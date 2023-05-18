@@ -23,11 +23,13 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoD
 /*
   Migration Step 1: This is an example demonstrating how to start using the
   AWS Database Encryption SDK with a pre-existing table with plaintext items.
-  In this example, you configure a DynamoDb Encryption Interceptor to do the following:
+  In this example, we configure a DynamoDb Encryption Interceptor to do the following:
     - Write items only in plaintext
     - Read items in plaintext or with our encryption configuration
+
   While this step configures your client to be ready to start reading encrypted items,
-  we do not yet expect to be reading any encrypted items.
+  we do not yet expect to be reading any encrypted items,
+  as our client still writes plaintext items.
   Before you move on to step 2, ensure that these changes have successfully been deployed
   to all of your readers.
 

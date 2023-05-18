@@ -21,15 +21,10 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoD
 import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 
 /*
-  Migration Step 1: This is an example demonstrating how to start using the
-  AWS Database Encryption SDK with a pre-existing table with plaintext items.
-  In this example, you configure a DynamoDb Encryption Interceptor to do the following:
-    - Write items only in plaintext
-    - Read items in plaintext or with our encryption configuration
-  While this step configures your client to be ready to start reading encrypted items,
-  we do not yet expect to be reading any encrypted items.
-  Before you move on to step 2, ensure that these changes have successfully been deployed
-  to all of your readers.
+  Migration Step 4: This is an example demonstrating how to update your configuration
+  to stop accepting reading plaintext items.
+
+  Once you complete Step 4, all items being read by your system are encrypted.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -62,6 +57,9 @@ public class MigrationExampleStep4 {
     final List<String> unauthAttributes = Arrays.asList("do_nothing");
 
     // 4. Create encryption configuration for table.
+    //    Do not specify a plaintext policy. Unspecified plaintext policy defaults to
+    //    `FORBID_WRITE_FORBID_READ`, which is the desired policy for a fully encrypted
+    //    database.
     Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
     tableConfigs.put(ddbTableName,
         DynamoDbEnhancedTableEncryptionConfig.builder()
@@ -69,15 +67,9 @@ public class MigrationExampleStep4 {
             .keyring(kmsKeyring)
             .tableSchema(tableSchema)
             .allowedUnauthenticatedAttributes(unauthAttributes)
-            // This plaintext policy means:
-            //  - Write: Items are forbidden to be written as plaintext.
-            //           Items will be written as encrypted items.
-            //  - Read: Items are forbidden to be read as plaintext.
-            //          Items are allowed to be read as encrypted items.
-            .plaintextPolicy(PlaintextPolicy.FORBID_WRITE_FORBID_READ)
             .build());
 
-    // 5. Create DynamoDbEncryptionInterceptor using the table config
+    // 5. Create DynamoDbEncryptionInterceptor using the above config
     DynamoDbEncryptionInterceptor interceptor =
         DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
             CreateDynamoDbEncryptionInterceptorInput.builder()
@@ -98,7 +90,7 @@ public class MigrationExampleStep4 {
     final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
 
     // 7. Put an item into your table using the DynamoDb Enhanced Client.
-    //    This item will be stored in plaintext.
+    //    This item will be encrypted.
     final SimpleClass item = new SimpleClass();
     item.setPartitionKey("PlaintextMigrationExample");
     item.setSortKey(4);
@@ -110,8 +102,8 @@ public class MigrationExampleStep4 {
 
     // 8. Get an item back from the table using the DynamoDb Enhanced Client.
     //    If this is an item written in plaintext (i.e. any item written
-    //    during Step 0 or 1), then the read will fail,
-    //    as we have configured our client to forbid reading plaintext items.
+    //    during Step 0 or 1), then the read will fail, as we have
+    //    configured our client to forbid reading plaintext items.
     //    If this is an item that was encrypted client-side (i.e. any item written
     //    during Step 2 or after), then the item will be decrypted client-side
     //    and surfaced as a plaintext item.

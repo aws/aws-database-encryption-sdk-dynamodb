@@ -7,13 +7,17 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 /*
-  Migration Step 0: This is an example demonstrating use with the DynamoDb Encryption Client,
-  and is the starting state for our migration from a plaintext database
-  to a client-side encrypted database encrypted using the
+  Migration Step 0: This is the pre-migration step for the
+  plaintext-to-encrypted database migration, and is the starting
+  state for our migration from a plaintext database to a
+  client-side encrypted database encrypted using the
   AWS Database Encryption SDK for DynamoDb.
 
-  In this example, we configure a DynamoDbEnhancedClient to write a plaintext
-  record to a table and read that record.
+  In this example, we configure a DynamoDbEnhancedClient to
+  write a plaintext record to a table and read that record.
+  This emulates the starting state of a plaintext-to-encrypted
+  database migration; i.e. a plaintext database you can
+  read and write to with the DynamoDbEnhancedClient.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.

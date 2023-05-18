@@ -16,6 +16,6 @@ public class TestMigrationExampleStep3 {
         MigrationExampleStep1.MigrationStep1(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 1);
         MigrationExampleStep2.MigrationStep2(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 2);
         // When: Execute Step 3, Then: Success (i.e. encrypts 2 plaintext values)
-        MigrationExampleStep3.MigrationStep3(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 0);
+        MigrationExampleStep3.MigrationStep3(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME);
     }
 }
