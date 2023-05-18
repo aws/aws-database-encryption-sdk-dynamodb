@@ -115,6 +115,9 @@ module
         ));
       }
     }
+    assert (forall attribute <- attributeNames :: UnreservedPrefix(attribute));
+    assert (forall attribute <- config.attributeActions.Keys :: UnreservedPrefix(attribute));
+    assert (forall attribute <- config.attributeActions.Keys :: !(ReservedPrefix <= attribute));
 
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
