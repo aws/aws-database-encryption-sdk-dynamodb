@@ -1,6 +1,5 @@
 package software.aws.cryptography.examples.migration.plaintext;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMappingException;
 import org.testng.annotations.Test;
 import software.aws.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.aws.cryptography.examples.awsdbe.MigrationExampleStep2;
