@@ -11,8 +11,7 @@
     Use vanilla client to damage encrypted record in subtle ways, ensure failure
 */
 
-include "../../../../DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy"
-include "../../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/KeyVectors/src/Index.dfy"
+include "../Model/AwsCryptographyDynamoDbEncryptionTypesWrapped.dfy"
 include "CreateInterceptedDDBClient.dfy"
 
 module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
