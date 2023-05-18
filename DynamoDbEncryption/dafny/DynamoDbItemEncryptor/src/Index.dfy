@@ -95,6 +95,13 @@ module
 
     var attributeNames : seq<DDB.AttributeName> := SortedSets.ComputeSetToOrderedSequence2(config.attributeActions.Keys, CharLess);
     for i := 0 to |attributeNames|
+      invariant forall j | 0 <= j < i ::
+      && UnreservedPrefix(attributeNames[j])
+      && (Operations.ForwardCompatibleAttributeAction(
+               attributeNames[j],
+               config.attributeActions[attributeNames[j]],
+               config.allowedUnauthenticatedAttributes,
+               config.allowedUnauthenticatedAttributePrefix))
     {
       var attributeName := attributeNames[i];
       var action := config.attributeActions[attributeName];
@@ -114,6 +121,8 @@ module
           message := "Attribute: " + attributeName + " is reserved, and may not be configured."
         ));
       }
+      assert UnreservedPrefix(attributeName);
+      assert UnreservedPrefix(attributeNames[i]);
     }
     assert (forall attribute <- attributeNames :: UnreservedPrefix(attribute));
     assert (forall attribute <- config.attributeActions.Keys :: UnreservedPrefix(attribute));
