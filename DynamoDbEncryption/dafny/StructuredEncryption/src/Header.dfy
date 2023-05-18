@@ -338,9 +338,9 @@ module StructuredEncryptionHeader {
   }
 
   function method MyMap<X, Y, Z>(f: X -> Y, m: map<X, Z>): map<Y, Z>
-    requires forall a, b | a in m.Keys && b in m.Keys :: a != b ==> f(a) != f(b)
+    requires forall a, b | a in m && b in m :: a != b ==> f(a) != f(b)
   {
-    map k | k in m.Keys :: f(k) := m[k]
+    map k | k in m :: f(k) := m[k]
   }
 
   // Create a Legend from the Schema
