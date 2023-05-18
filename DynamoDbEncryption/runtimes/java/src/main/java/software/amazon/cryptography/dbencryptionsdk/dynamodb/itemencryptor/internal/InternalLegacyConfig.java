@@ -54,6 +54,7 @@ public class InternalLegacyConfig {
     // have been customized by the customer.
     this.materialDescriptionFieldName = software
       .amazon
+      .smithy
       .dafny
       .conversion
       .ToDafny
@@ -61,6 +62,7 @@ public class InternalLegacyConfig {
       .CharacterSequence(encryptor.getMaterialDescriptionFieldName());
     this.signatureFieldName = software
       .amazon
+      .smithy
       .dafny
       .conversion
       .ToDafny
@@ -238,7 +240,7 @@ public class InternalLegacyConfig {
   //  Everything below this point is an implementation detail
 
   public static <T> Result<T, Error>createFailure(String message) {
-    final DafnySequence<Character> dafnyMessage = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(message);
+    final DafnySequence<Character> dafnyMessage = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(message);
     final Error dafnyEx = Error.create_DynamoDbItemEncryptorException(dafnyMessage);
     return Result.create_Failure(dafnyEx);
   }
@@ -252,12 +254,12 @@ public class InternalLegacyConfig {
 
   public static String ToNativeString(DafnySequence< ? extends Character> s)
   {
-    return software.amazon.dafny.conversion.ToNative.Simple.String(s);
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.String(s);
   }
 
   public static DafnySequence<Character> ToDafnyString(String s)
   {
-    return software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(s);
+    return software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(s);
   }
 
   public static Result<EncryptionContext, Error> legacyEncryptionContext(
