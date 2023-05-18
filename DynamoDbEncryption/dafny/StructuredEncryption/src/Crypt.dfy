@@ -13,6 +13,7 @@ module StructuredEncryptionCrypt {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
+  import opened DafnyLibraries
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
@@ -22,7 +23,6 @@ module StructuredEncryptionCrypt {
   import HKDF
   import AesKdfCtr
   import Seq
-
 
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Result<Bytes, Error>)
@@ -231,41 +231,44 @@ module StructuredEncryptionCrypt {
     //# The calculated Field Root MUST have length equal to the
     //# [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
     assert |fieldRootKey| == AlgorithmSuites.GetEncryptKeyLength(alg) as int;
-    var result := CryptList(mode, client, alg, fieldRootKey, 0, fieldNames, data, map[]);
+    var result := CryptList(mode, client, alg, fieldRootKey, fieldNames, data);
     return result;
   }
 
   // Encrypt or Decrypt each entry in keys, putting results in output
-  method {:tailrecursion} CryptList(
+  method CryptList(
     mode : EncryptionSelector,
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
     fieldRootKey : Key,
-    offset : uint32,
     fieldNames : seq<CanonicalPath>,
-    input : StructuredDataCanon,
-    output : StructuredDataCanon
+    input : StructuredDataCanon
   )
     returns (ret : Result<StructuredDataCanon, Error>)
     requires forall k <- fieldNames :: k in input
-    requires (|fieldNames| + offset as nat) * 3 < UINT32_LIMIT
+    requires (|fieldNames| as nat) * 3 < UINT32_LIMIT
     decreases |fieldNames|
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
     ensures client.ValidState()
   {
-    if |fieldNames| == 0 {
-      return Success(output);
+    // It is very inefficient to manually build Dafny maps in methods, so use
+    // a MutableMap to build the key value pairs then convert back to a Dafny map.
+    var mutMap := new MutableMap();
+    for i := 0 to |fieldNames| {
+      var data;
+      var fieldName := fieldNames[i];
+      if mode == DoEncrypt {
+        data :- EncryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
+      } else {
+        data :- DecryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
+      }
+      mutMap.Put(fieldName, data);
     }
-    var data;
-    if mode == DoEncrypt {
-      data :- EncryptTerminal(client, alg, fieldRootKey, offset, fieldNames[0], input[fieldNames[0]].content.Terminal);
-    } else {
-      data :- DecryptTerminal(client, alg, fieldRootKey, offset, fieldNames[0], input[fieldNames[0]].content.Terminal);
-    }
-    var result := CryptList(mode, client, alg, fieldRootKey, offset+1, fieldNames[1..], input, output[fieldNames[0] := data]);
-    return result;
+    var mutMapItems := mutMap.content(); // Have to initialize this separately, otherwise the map comprehension will do something very inefficient
+    var output := map k <- mutMapItems :: k := mutMap.Select(k);
+    return Success(output);
   }
 
   // Encrypt a single Terminal

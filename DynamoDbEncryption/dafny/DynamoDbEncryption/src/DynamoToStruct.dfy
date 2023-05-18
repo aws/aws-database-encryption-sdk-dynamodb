@@ -71,7 +71,7 @@ module DynamoToStruct {
       && kv.1.content.Terminal.value == TopLevelAttributeToBytes(item[kv.0]).value
 
   {
-    var structuredMap := map kv <- item.Items | true :: kv.0 := AttrToStructured(kv.1);
+    var structuredMap := map k <- item :: k := AttrToStructured(item[k]);
     MapKeysMatchItems(item);
     MapError(SimplifyMapValue(structuredMap))
   }
@@ -101,11 +101,11 @@ module DynamoToStruct {
       && kv.1 == StructuredToAttr(s[kv.0]).value
   {
     if forall k <- s.Keys :: IsValid_AttributeName(k) then
-      var structuredData := map kv <- s.Items | true :: kv.0 := StructuredToAttr(kv.1);
+      var structuredData := map k <- s :: k := StructuredToAttr(s[k]);
       MapKeysMatchItems(s);
       MapError(SimplifyMapValue(structuredData))
     else
-      var badNames := set k <- s.Keys | !IsValid_AttributeName(k) :: k;
+      var badNames := set k <- s | !IsValid_AttributeName(k) :: k;
       OneBadKey(s, badNames, IsValid_AttributeName);
       var orderedAttrNames := SetToOrderedSequence(badNames, CharLess);
       var attrNameList := Join(orderedAttrNames, ",");
@@ -1081,11 +1081,11 @@ module DynamoToStruct {
   }
 
   function method FlattenValueMap<X,Y>(m : map<X, Result<Y,string>>): map<X,Y> {
-    map kv <- m.Items | kv.1.Success? :: kv.0 := kv.1.value
+    map k <- m | m[k].Success? :: k := m[k].value
   }
 
   function method FlattenErrors<X,Y>(m : map<X, Result<Y,string>>): set<string> {
-    set k <- m.Values | k.Failure? :: k.error
+    set k <- m | m[k].Failure? :: m[k].error
   }
 
   lemma OneBadResult<X,Y>(m : map<X, Result<Y,string>>)
@@ -1128,7 +1128,7 @@ module DynamoToStruct {
     ensures ret.Success? ==> |ret.value.Keys| == |m.Keys|
     ensures ret.Success? ==> |ret.value| == |m|
   {
-    if forall v <- m.Values :: v.Success? then
+    if forall k <- m :: m[k].Success? then
       var result := FlattenValueMap(m);
       MapKeysMatchItems(m);
       Success(result)
