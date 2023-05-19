@@ -1,4 +1,4 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.software.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTag;
 

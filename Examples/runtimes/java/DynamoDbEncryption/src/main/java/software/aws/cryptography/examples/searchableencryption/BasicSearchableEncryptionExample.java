@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.searchableencryption;
+package software.software.cryptography.examples.searchableencryption;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.software.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
   This example demonstrates how to set up a beacon on an encrypted attribute,

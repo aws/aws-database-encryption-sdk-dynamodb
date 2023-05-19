@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.searchableencryption.complexexample;
+package software.software.cryptography.examples.searchableencryption.complexexample;
 
 import java.util.ArrayList;
 import java.util.HashMap;

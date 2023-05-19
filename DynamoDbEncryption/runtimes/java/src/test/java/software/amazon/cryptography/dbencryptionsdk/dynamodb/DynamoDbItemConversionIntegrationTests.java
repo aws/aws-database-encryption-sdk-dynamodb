@@ -1,4 +1,4 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb;
+package software.software.cryptography.dbencryptionsdk.dynamodb;
 
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
+import static software.software.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.assertEquals;

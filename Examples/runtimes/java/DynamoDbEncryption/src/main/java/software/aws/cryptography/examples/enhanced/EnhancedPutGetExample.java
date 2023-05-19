@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.enhanced;
+package software.software.cryptography.examples.enhanced;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -10,10 +10,10 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
+import software.software.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.software.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
+import software.software.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
+import software.software.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.HashMap;
