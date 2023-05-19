@@ -244,7 +244,7 @@ module DynamoDBFilterExpr {
     ensures ret.Success? ==> ret.value
   {
     match op {
-      case Lt | Gt | Le | Ge | Between | BeginsWith | Contains =>
+      case Ne | Lt | Gt | Le | Ge | Between | BeginsWith | Contains =>
         Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a standard beacon."))
       case _ => Success(true)
     }
