@@ -1,7 +1,7 @@
-package software.aws.cryptography.examples.searchableencryption;
+package software.amazon.cryptography.examples.searchableencryption;
 
 import org.testng.annotations.Test;
-import software.aws.cryptography.examples.CreateKeyStoreKeyExample;
+import software.amazon.cryptography.examples.CreateKeyStoreKeyExample;
 
 public class TestVirtualBeaconSearchableEncryptionExample {
 
