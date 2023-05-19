@@ -296,7 +296,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("customer_id", AttributeValue.builder().s("EFGH-5678").build());
     item.put("create_time", AttributeValue.builder().n("1681495205").build());
-    item.put("building", AttributeValue.builder().s("SEA94").build());
+    item.put("building", AttributeValue.builder().s("SEA95").build());
     item.put("floor", AttributeValue.builder().n("42").build());
 
     final PutItemRequest putRequest = PutItemRequest.builder()
