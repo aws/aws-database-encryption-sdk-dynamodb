@@ -102,8 +102,9 @@ public class BasicSearchableEncryptionExample {
     //    worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
     // This suggests we can select a beacon length between 11 and 16 and
     // have desirable security properties at both 100,000 and 3,200,000 customers:
-    //  - Closer to 11, the underlying data is better obfuscated, but more "false positives" are returned in
-    //    queries, leading to more decrypt calls and worse performance
+    //  - Closer to 11, we expect more "false positives" to be returned,
+    //    making it harder to distinguish plaintext values
+    //    but leading to more decrypt calls and worse performance
     //  - Closer to 16, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
     //    better performance, but it is easier to distinguish unique plaintext values
     // As an example, we will choose 15.
