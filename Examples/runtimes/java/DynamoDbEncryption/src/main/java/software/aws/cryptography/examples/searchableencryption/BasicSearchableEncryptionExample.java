@@ -115,8 +115,9 @@ public class BasicSearchableEncryptionExample {
     // When we have ~100,000 customers, for a particular beacon we expect
     // (100,000/32,768) ~= 3.1 emails
     // sharing that beacon value.
-    // When we have ~3,200,000 customers, we expect (3,200,000/32,768) = ~= 97.7 emails
-    // sharing the same beacon value.
+    // When we have ~3,200,000 customers, for a particular beacon we expect
+    // (3,200,000/32,768) ~= 97.7 emails
+    // sharing that beacon value.
     StandardBeacon emailBeacon = StandardBeacon.builder()
         .name("email")
         .length(15)
