@@ -10,11 +10,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -35,16 +30,9 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTable
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
-import software.amazon.cryptography.materialproviders.model.AlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsRsaKeyringInput;
-import software.amazon.cryptography.materialproviders.model.CreateDefaultCryptographicMaterialsManagerInput;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
-import software.amazon.cryptography.materialproviders.model.ESDKAlgorithmSuiteId;
-import software.amazon.cryptography.materialproviders.model.EncryptionMaterials;
-import software.amazon.cryptography.materialproviders.model.InitializeEncryptionMaterialsInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.materialproviders.model.OnEncryptInput;
-import software.amazon.cryptography.materialproviders.model.OnEncryptOutput;
 import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
@@ -65,7 +53,7 @@ public class KmsRsaKeyringExample {
 
     private static String EXAMPLE_RSA_PUBLIC_KEY_FILENAME = "KmsRsaKeyringExamplePublicKey.pem";
 
-    public static void RsaKeyringGetItemPutItem(String ddbTableName, String rsaKeyArn) {
+    public static void KmsRsaKeyringGetItemPutItem(String ddbTableName, String rsaKeyArn) {
         // 1. Load UTF-8 encoded public key PEM file.
         //    You may have an RSA public key file already defined.
         //    If not, the main method in this class will call
@@ -151,6 +139,8 @@ public class KmsRsaKeyringExample {
             .keyring(awsKmsRsaKeyring)
             .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
             // Specify algorithmSuite without asymmetric signing here
+            // As of v3.0.0, the only supported algorithmSuite without asymmetric signing is
+            // ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384.
             .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
             .build();
         tableConfigs.put(ddbTableName, config);
@@ -222,7 +212,7 @@ public class KmsRsaKeyringExample {
             writePublicKeyPemForRsaKey(rsaKeyArn);
         }
 
-        RsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn);
+        KmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn);
     }
 
     static boolean shouldGetNewPublicKey() {
@@ -252,7 +242,6 @@ public class KmsRsaKeyringExample {
         GetPublicKeyResponse response = getterForPublicKey.getPublicKey(GetPublicKeyRequest.builder()
             .keyId(rsaKeyArn)
             .build());
-        System.out.println(response.publicKey().asByteArray());
         byte[] publicKeyByteArray = response.publicKey().asByteArray();
 
         StringWriter publicKeyStringWriter = new StringWriter();

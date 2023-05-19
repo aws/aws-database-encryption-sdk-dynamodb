@@ -16,7 +16,7 @@ public class TestKmsRsaKeyringExample {
             writePublicKeyPemForRsaKey(TestUtils.TEST_KMS_RSA_KEY_ID);
         }
 
-        KmsRsaKeyringExample.RsaKeyringGetItemPutItem(
+        KmsRsaKeyringExample.KmsRsaKeyringGetItemPutItem(
                 TestUtils.TEST_DDB_TABLE_NAME,
                 TestUtils.TEST_KMS_RSA_KEY_ID);
     }
