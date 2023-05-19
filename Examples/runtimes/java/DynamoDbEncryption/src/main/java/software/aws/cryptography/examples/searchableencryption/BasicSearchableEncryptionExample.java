@@ -104,18 +104,22 @@ public class BasicSearchableEncryptionExample {
     //    worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
     // This suggests we can select a beacon length between 11 and 16 and
     // have desirable security properties at both 100,000 and 3,200,000 customers:
-    //  - Closer to 11, the underlying data is better obfuscated, but more "false positives" are returned in
-    //    queries, leading to more decrypt calls and worse performance
-    //  - Closer to 16, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
-    //    better performance, but it is easier to distinguish unique plaintext values
+    //  - Closer to 11, we expect more "false positives" to be returned,
+    //    making it harder to distinguish plaintext values
+    //    but leading to more decrypt calls and worse performance
+    //  - Closer to 16, we expect fewer "false positives" returned in queries,
+    //    leading to fewer decrypt calls and better performance,
+    //    but it is easier to distinguish unique plaintext values
     // As an example, we will choose 15.
     //
     // Values stored in aws_dbe_b_email will be 15 bits long (0x0000 - 0x8fff)
     // There will be 2^15 = 32,768 possible HMAC values.
-    // When we have ~100,000 customers, we expect (100,000/32,768) = ~= 3.1 emails
-    // sharing the same beacon value.
-    // When we have ~3,200,000 customers, we expect (3,200,000/32,768) = ~= 97.7 emails
-    // sharing the same beacon value.
+    // When we have ~100,000 customers, for a particular beacon we expect
+    // (100,000/32,768) ~= 3.1 emails
+    // sharing that beacon value.
+    // When we have ~3,200,000 customers, for a particular beacon we expect
+    // (3,200,000/32,768) ~= 97.7 emails
+    // sharing that beacon value.
     StandardBeacon emailBeacon = StandardBeacon.builder()
         .name("email")
         .length(15)
@@ -129,7 +133,8 @@ public class BasicSearchableEncryptionExample {
     //   This implies that there are 40,177 unique possible values for this field.
     // - Birthdays are uniformly distributed across this range.
     //   In practice, this will not be true (we expect very few early birthdays and very few recent
-    //   birthdays), but a more careful analysis is outside the scope of this example.
+    //   birthdays). A more complex analysis would show that a stricter
+    //   upper bound is necessary to hide information from the underlying distribution.
     // With these assumptions, we have a uniformly-distributed dataset of birthdays
     // with 40,177 unique values.
     //
@@ -138,9 +143,10 @@ public class BasicSearchableEncryptionExample {
     // We follow the guidance in the link above to determine reasonable bounds for beacon length:
     //  - min: log(sqrt(40,177))/log(2) ~= 7.6, round up to 8
     //  - max: log((40,177/2))/log(2) ~= 14.3, round down to 14
-    // We can safely choose a beacon length between 8 and 14:
-    //  - Closer to 8, the underlying data is better obfuscated, but more "false positives" are returned in
-    //    queries, leading to more decrypt calls and worse performance
+    // We can choose a beacon length between 8 and 14:
+    //  - Closer to 8, the more "false positives" are returned in queries,
+    //     making it harder to distinguish plaintext values
+    //     but leading to more decrypt calls and worse performance
     //  - Closer to 14, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
     //    better performance, but it is easier to distinguish unique plaintext values
     // As an example, we will choose 10.
