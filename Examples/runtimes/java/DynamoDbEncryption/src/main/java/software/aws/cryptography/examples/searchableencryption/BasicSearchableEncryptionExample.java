@@ -87,7 +87,9 @@ public class BasicSearchableEncryptionExample {
     // and expect to double our customer base every year. We would like to select a beacon length
     // that would be safe now and still be safe in ~5 years, when we expect to have 3.2M customers.
     //
-    // We follow the guidance in the link above to determine acceptable bounds for beacon length:
+    // This link provides guidance for choosing a beacon length:
+    //    TODO: add link
+    // We follow the guidance in the link above to determine reasonable bounds for beacon length:
     // 100,000 customers:
     //  - min: log(sqrt(100,000))/log(2) ~= 8.3, round down to 8
     //  - max: log((100,000/2))/log(2) ~= 15.6, round up to 16
@@ -96,9 +98,9 @@ public class BasicSearchableEncryptionExample {
     //  - max: log((3,200,000/2))/log(2) ~= 20.6, round up to 21
     // You will somehow need to round results to the nearest integer.
     // We choose to round to the nearest number; you might consider a different rounding approach.
-    // Rounding up will return fewer "false positives" in queries, leading to fewer decrypt calls and
+    // Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
     //    better performance, but it is easier to distinguish unique plaintext values in encrypted data.
-    // Rounding down will return more "false positives" in queries, leading to more decrypt calls and
+    // Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
     //    worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
     // This suggests we can select a beacon length between 11 and 16 and
     // have desirable security properties at both 100,000 and 3,200,000 customers:
@@ -131,7 +133,9 @@ public class BasicSearchableEncryptionExample {
     // With these assumptions, we have a uniformly-distributed dataset of birthdays
     // with 40,177 unique values.
     //
-    // We follow the guidance in the link above to determine acceptable bounds for beacon length:
+    // This link provides guidance for choosing a beacon length:
+    //    TODO: add link
+    // We follow the guidance in the link above to determine reasonable bounds for beacon length:
     //  - min: log(sqrt(40,177))/log(2) ~= 7.6, round up to 8
     //  - max: log((40,177/2))/log(2) ~= 14.3, round down to 14
     // We can safely choose a beacon length between 8 and 14:
