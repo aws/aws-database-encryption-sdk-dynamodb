@@ -33,8 +33,8 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
   For more information on discovery keyrings, see
   https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-kms-keyring.html#kms-keyring-discovery
 
-  This example encrypts a test item using an MRK multi-keyring and puts the
-  encrypted item to the provided DynamoDb table. Then, it gets the item
+  This example encrypts an item using an MRK multi-keyring and puts the
+  encrypted item to the configured DynamoDb table. Then, it gets the item
   from the table and decrypts it using the discovery keyring.
 
   Running this example requires access to the DDB Table whose name
