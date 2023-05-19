@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.keyring;
+package software.amazon.cryptography.examples.keyring;
 
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.IDynamoDbKeyBranchKeyIdSupplier;

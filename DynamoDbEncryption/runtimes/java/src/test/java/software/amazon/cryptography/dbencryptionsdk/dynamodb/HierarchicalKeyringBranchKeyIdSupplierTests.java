@@ -1,4 +1,4 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.testng.Assert.*;
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
 import org.testng.annotations.Test;
 
