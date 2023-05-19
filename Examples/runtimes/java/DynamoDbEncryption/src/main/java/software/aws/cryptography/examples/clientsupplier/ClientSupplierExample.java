@@ -51,9 +51,9 @@ public class ClientSupplierExample {
         //    This can be either a single-region KMS key or an MRK.
         //    For this example to succeed, the key's region must either
         //    1) be in the regions list, or
-        //    2) the key must be an MRK with a replica defined in another
-        //    region, and the client must have the correct permissions
-        //    to access the replica.
+        //    2) the key must be an MRK with a replica defined
+        //    in a region in the regions list, and the client
+        //    must have the correct permissions to access the replica.
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
@@ -61,7 +61,7 @@ public class ClientSupplierExample {
         // defined in the RegionalRoleClientSupplier class in this directory.
         final CreateAwsKmsMrkMultiKeyringInput createAwsKmsMrkMultiKeyringInput =
             CreateAwsKmsMrkMultiKeyringInput.builder()
-                // Note: RegionalRoleClientSupplier will internally use the region of keyArn
+                // Note: RegionalRoleClientSupplier will internally use the keyArn's region
                 // to retrieve the correct IAM role.
                 .clientSupplier(new RegionalRoleClientSupplier())
                 .generator(keyArn)
@@ -72,7 +72,7 @@ public class ClientSupplierExample {
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
         //    we must explicitly configure how they should be treated during item encryption:
         //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
-        //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
+        //      - SIGN_ONLY: The attribute is not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
         final Map<String, CryptoAction> attributeActions = new HashMap<>();
         attributeActions.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
