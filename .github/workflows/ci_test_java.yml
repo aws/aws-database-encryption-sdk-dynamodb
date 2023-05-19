@@ -40,7 +40,7 @@ jobs:
           macos-latest
         ]
     runs-on: ${{ matrix.os }}
-    environment: "ESDK CI"
+    environment: "MPL CI"
     permissions:
       id-token: write
       contents: read
@@ -57,11 +57,11 @@ jobs:
       - name: Init Submodules
         env:
           # This secret is in the configured environment
-          # Token created on # 11/28/2022
-          # expires in ~30 days 12/28/2022
-          PRIVATE_ESDK_PAT: ${{ secrets.PRIVATE_ESDK_PAT }}
+          # Token created on # 05/12/2023
+          # expires in ~30 days 05/22/2023
+          MPL_PAT: ${{ secrets.MPL_PAT }}
         run: |
-          AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
+          AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
           git config --global --add url.https://github.com/.insteadOf git@github.com:
           git submodule update --init --recursive submodules/MaterialProviders
@@ -86,7 +86,7 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
           # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
-          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || 'nightly-2023-04-12-f4836e9' }}
+          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.1.0' }}
 
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v3

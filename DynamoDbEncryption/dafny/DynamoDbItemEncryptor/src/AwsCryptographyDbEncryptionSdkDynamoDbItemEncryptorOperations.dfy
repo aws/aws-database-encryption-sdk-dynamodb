@@ -28,6 +28,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DynamoDbEncryptionUtil
   import StructuredEncryptionUtil
+  import StandardLibrary.String
 
   datatype Config = Config(
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
@@ -437,7 +438,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
                       ret.value.content.SchemaMap[k].content ==
                       CSE.CryptoSchemaContent.Action(config.attributeActions[k]))
   {
-    var schema := map kv <- item.Items | true :: kv.0 := GetCryptoSchemaAction(config, kv.0);
+    var schema := map k <- item :: k := GetCryptoSchemaAction(config, k);
     DynamoToStruct.MapKeysMatchItems(item);
     DynamoToStruct.SimplifyMapValueSuccess(schema);
     var actionMapRes := DynamoToStruct.SimplifyMapValue(schema);
@@ -499,8 +500,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   //# An item MUST be determined to be plaintext if it does not contain
   //# attributes with the names "aws_dbe_head" and "aws_dbe_foot".
   predicate method IsPlaintextItem(ddbItem: ComAmazonawsDynamodbTypes.AttributeMap) {
-    && StructuredEncryptionUtil.HeaderField !in ddbItem.Keys
-    && StructuredEncryptionUtil.FooterField !in ddbItem.Keys
+    && StructuredEncryptionUtil.HeaderField !in ddbItem
+    && StructuredEncryptionUtil.FooterField !in ddbItem
   }
 
   function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchema)
@@ -516,7 +517,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
             DynamoDbItemEncryptorException( message := "Recieved unexpected Crypto Schema: mismatch with signature scope"));
     :- Need(forall k <- schema.content.SchemaMap :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
             DynamoDbItemEncryptorException( message := "Recieved unexpected Crypto Schema: Invalid attribute names"));
-    Success(map k <- schema.content.SchemaMap.Keys | true :: k := schema.content.SchemaMap[k].content.Action)
+    Success(map k <- schema.content.SchemaMap :: k := schema.content.SchemaMap[k].content.Action)
   }
 
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
@@ -614,13 +615,19 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       ==>
         && output.value.encryptedItem == input.plaintextItem
         && output.value.parsedHeader == None
+
+    ensures output.Success? ==> |input.plaintextItem| <= MAX_ATTRIBUTE_COUNT
   {
     :- Need(
       && config.partitionKeyName in input.plaintextItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
-    , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
+    , DynamoDbItemEncryptorException( message := "Configuration mismatch partition or sort key does not exist in item."));
 
-    assert {:split_here} true;
+    if |input.plaintextItem| > MAX_ATTRIBUTE_COUNT {
+      var actCount := String.Base10Int2String(|input.plaintextItem|);
+      var maxCount := String.Base10Int2String(MAX_ATTRIBUTE_COUNT);
+      return Failure(E("Item to encrypt had " + actCount + " attributes, but maximum allowed is " + maxCount));
+    }
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
@@ -643,8 +650,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       );
       return Success(passthroughOutput);
     }
-
-    assert {:split_here} true;
 
     var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
@@ -824,10 +829,17 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && output.value.plaintextItem == input.encryptedItem
         && output.value.parsedHeader == None
   {
+    var realCount := |set k <- input.encryptedItem | !(ReservedPrefix <= k)|;
+    if realCount > MAX_ATTRIBUTE_COUNT {
+      var actCount := String.Base10Int2String(realCount);
+      var maxCount := String.Base10Int2String(MAX_ATTRIBUTE_COUNT);
+      return Failure(E("Item to decrypt had " + actCount + " attributes, but maximum allowed is " + maxCount));
+    }
+
     :- Need(
       && config.partitionKeyName in input.encryptedItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
-    , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
+    , DynamoDbItemEncryptorException( message := "Configuration mismatch partition or sort key does not exist in item."));
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of

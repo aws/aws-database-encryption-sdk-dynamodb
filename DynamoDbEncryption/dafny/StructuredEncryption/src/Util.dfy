@@ -126,21 +126,21 @@ module StructuredEncryptionUtil {
   function method CryptoSchemaMapIsFlat(data : CryptoSchemaMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Action?)
   {
-    forall v <- data.Values :: v.content.Action?
+    forall k <- data :: data[k].content.Action?
   }
 
   // Schema must contain only Actions
   function method AuthSchemaIsFlat(data : AuthenticateSchemaMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Action?)
   {
-    forall v <- data.Values :: v.content.Action?
+    forall k <- data :: data[k].content.Action?
   }
 
   // Map must contain only Terminals
   function method DataMapIsFlat(data : StructuredDataMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Terminal?)
   {
-    forall v <- data.Values :: v.content.Terminal?
+    forall k <- data :: data[k].content.Terminal?
   }
 
   // attribute is "authorized", a.k.a. included in the signature
