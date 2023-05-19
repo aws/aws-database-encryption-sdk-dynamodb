@@ -42,48 +42,44 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   A virtual field is a field consisting of a transformation of one or more attributes in a DDB item.
   Virtual fields are not stored in the DDB table. However, they are used to construct
   a beacon, the value of which is stored. For our example, we will construct a virtual field
-  from two DDB attributes `state` and `hasSensitiveData` as `state`+prefix(`hasSensitiveData`, 1).
+  from two DDB attributes `state` and `hasTestResult` as `state`+prefix(`hasTestResult`, 1).
   We will then create beacon out of this virtual field and use it to search.
 
-  In general, if you wish to use a field with only a handful possible values, it is suggested
+  In general, if you wish to query a field with only a handful of possible values, it is suggested
   to construct a virtual field to enable effective querying while obfuscating underlying data.
 
   For more information on virtual fields, see
     TODO: Add docs link
 
-  This example follows a use case of a database that stores customer location data. This is an
-  extension of the "BasicSearchableEncryptionExample" in this directory. This example uses the same
-  situation (storing customer location data) and the same table schema, but adds a virtual field
-  `stateAndHasSensitiveData`.
+  This example follows a use case of a database that stores customer test result metadata.
+  Records are indexed by `customer_id` and store a `state` attribute, representing the
+  US state or territory where the customer lives, and a `hasTestResult` boolean attribute,
+  representing whether the customer has a test result available.
 
   The motivation behind this example is to demonstrate how and why one would use a virtual beacon.
-  In this example, our table stores records with an encrypted boolean `hasSensitiveData` attribute.
-  We would like to be able to query for customers in a given state with a `true` hasSensitiveData
-  attribute. In practice, this setup might be used to identify customers with particular types
-  of data in a particular state to comply with different state's data processing laws
-  (e.g. CA's CCPA, IL's BIPA). If a customer provides particularly sensitive (e.g. biometric)
-  data, we want a flag indicating that. Please note that this is a streamlined example to facilitate
-  understanding, and we do not suggest using this setup for production purpose.
+  In this example, our table stores records with an encrypted boolean `hasTestResult` attribute.
+  We would like to be able to query for customers in a given state with a `true` hasTestResult
+  attribute.
 
   To be able to execute this query securely and efficiently, we want the following
   properties on our table:
-   1. Obfuscate whether a record's `hasSensitiveData` attribute is `true` or `false`
-   2. Query against a combination of whether `hasSensitiveData` is true/false and the `state` field
-  We could not achieve these properties with a standard beacon on an true/false attribute.Following
+   1. Obfuscate whether a record's `hasTestResult` attribute is `true` or `false`
+   2. Query against a combination of whether `hasTestResult` is true/false and the `state` field
+  We could not achieve these properties with a standard beacon on an true/false attribute. Following
   the guidance to choose a beacon length:
     TODO: link
-  For a boolean value (in our case, whether `hasSensitiveData` is true or false), the acceptable
+  For a boolean value (in our case, whether `hasTestResult` is true or false), the acceptable
   bounds for beacon length are either 0 or 1. This corresponds to either not storing a beacon
   (length 0), or effectively directly storing an true/false attribute (length 1). With
   length 0, this beacon is useless for searching (violating property 2); with length 1, this
   beacon does not obfuscate the attribute (violating property 1).
 
   (A compound beacon also does not help. To (over)simplify, a compound beacon is a
-   concatenation of standard beacons, i.e. beacon(`state`)+beacon(`hasSensitiveData`).
+   concatenation of standard beacons, i.e. beacon(`state`)+beacon(`hasTestResult`).
    The `state` beacon is still visible, so we would still have the problems above.)
 
   To achieve these properties, we instead construct a virtual field and use that in our beacon,
-  i.e. beacon(`state`+`hasSensitiveData`). This gives us both desired properties; we can query
+  i.e. beacon(`state`+`hasTestResult`). This gives us both desired properties; we can query
   against both attributes while obfuscating the underlying data. This is demonstrated in more
   detail below.
 
@@ -91,16 +87,15 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   following primary key configuration:
     - Partition key is named "customer_id" with type (S)
     - Sort key is named "create_time" with type (S)
-  This table must have a Global Secondary Index (GSI) configured named "stateAndHasSensitiveData-index":
-    - Partition key is named "aws_dbe_b_stateAndHasSensitiveData" with type (S)
+  This table must have a Global Secondary Index (GSI) configured named "stateAndHasTestResult-index":
+    - Partition key is named "aws_dbe_b_stateAndHasTestResult" with type (S)
 
   In this example for storing customer location data, this schema is utilized for the data:
    - "customer_id" stores a unique customer identifier
    - "create_time" stores a Unix timestamp
    - "state" stores an encrypted 2-letter US state or territory abbreviation
          (https://www.faa.gov/air_traffic/publications/atpubs/cnt_html/appendix_a.html)
-   - "zip" stores an encrypted 5-digit US zipcode (00000 - 99999)
-   - "hasSensitiveData" is not part of the schema, but is an attribute utilized in this example.
+   - "hasTestResult" is not part of the schema, but is an attribute utilized in this example.
       It stores a boolean attribute (false/true) indicating whether this customer has sensitive
       data stored.
 
@@ -114,14 +109,14 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 
 public class VirtualBeaconSearchableEncryptionExample {
 
-  static String GSI_NAME = "stateAndHasSensitiveData-index";
+  static String GSI_NAME = "stateAndHasTestResult-index";
 
   public static void PutItemQueryItemWithVirtualBeacon(String ddbTableName, String branchKeyId,
       String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
     // 1. Construct a length-1 prefix virtual transform.
-    //    `hasSensitiveData` is a binary attribute, containing either `true` or `false`.
+    //    `hasTestResult` is a binary attribute, containing either `true` or `false`.
     //    As an example to demonstrate virtual transforms, we will truncate the value
-    //    of `hasSensitiveData` in the virtual field to the length-1 prefix of the binary value, i.e.:
+    //    of `hasTestResult` in the virtual field to the length-1 prefix of the binary value, i.e.:
     //     - "true" -> "t"
     //     - "false -> "f"
     //    This is not necessary. This is done as a demonstration of virtual transforms.
@@ -137,8 +132,8 @@ public class VirtualBeaconSearchableEncryptionExample {
     length1PrefixVirtualTransformList.add(length1PrefixVirtualTransform);
 
     // 2. Construct the VirtualParts required for the VirtualField
-    VirtualPart hasSensitiveDataPart = VirtualPart.builder()
-        .loc("hasSensitiveData")
+    VirtualPart hasTestResultPart = VirtualPart.builder()
+        .loc("hasTestResult")
         // Here, we apply the length-1 prefix virtual transform
         .trans(length1PrefixVirtualTransformList)
         .build();
@@ -154,50 +149,49 @@ public class VirtualBeaconSearchableEncryptionExample {
     //    You must add virtual parts in the same order on write as you do on read.
     List<VirtualPart> virtualPartList = new ArrayList<>();
     virtualPartList.add(statePart);
-    virtualPartList.add(hasSensitiveDataPart);
+    virtualPartList.add(hasTestResultPart);
 
-    VirtualField stateAndHasSensitiveDataField = VirtualField.builder()
-        .name("stateAndHasSensitiveData")
+    VirtualField stateAndHasTestResultField = VirtualField.builder()
+        .name("stateAndHasTestResult")
         .parts(virtualPartList)
         .build();
 
     List<VirtualField> virtualFieldList = new ArrayList<>();
-    virtualFieldList.add(stateAndHasSensitiveDataField);
+    virtualFieldList.add(stateAndHasTestResultField);
 
     // 4. Configure our beacon.
     //    The virtual field is assumed to hold a well-distributed US 2-letter state abbreviation
     //      (56 possible values = 50 states + 6 territories) concatenated with a binary attribute
-    //      (2 possible values: true/false hasSensitiveData field), we expect a population size of
-    //      (56 * 2 = 112) possible values.
+    //      (2 possible values: true/false hasTestResult field), we expect a population size of
+    //      56 * 2 = 112 possible values.
     //    The following link provides guidance on choosing a beacon length:
     //       TODO: add link
     //    We follow the guidance in the link above to determine acceptable bounds for beacon length:
-    //     - min: log(sqrt(112))/log(2) ~= 3.4, round up to 4
+    //     - min: log(sqrt(112))/log(2) ~= 3.4, round down to 3
     //     - max: log((112/2))/log(2) ~= 5.8, round up to 6
-    //    We can safely choose a beacon length between 4 and 6:
-    //     - Closer to 4, the underlying data is better obfuscated, but more "false positives" are returned in
+    //    You will somehow need to round results to a nearby integer.
+    //    We choose to round to the nearest integer; you might consider a different rounding approach.
+    //    Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
+    //       better performance, but it is easier to distinguish unique plaintext values in encrypted data.
+    //    Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
+    //       worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
+    //    We can safely choose a beacon length between 3 and 6:
+    //     - Closer to 3, the underlying data is better obfuscated, but more "false positives" are returned in
     //       queries, leading to more decrypt calls and worse performance
     //     - Closer to 6, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
     //       better performance, but it is easier to distinguish unique plaintext values
     //    As an example, we will choose 5.
-    //    Values stored in aws_dbe_b_stateAndHasSensitiveData will be 5 bits long (0x00 - 0x1f)
+    //    Values stored in aws_dbe_b_stateAndHasTestResult will be 5 bits long (0x00 - 0x1f)
     //    There will be 2^5 = 32 possible HMAC values.
     //    With well-distributed plaintext data (112 values), we expect (112/32) = 3.5 combinations of
     //       abbreviation + true/false attribute sharing the same beacon value.
-    //    NOTE: This example assumes that the field values are well-distributed. In practice, this will not be true.
-    //          Some flaws in this assumption:
-    //           - More populous states would be expected to have more records; those beacons will be overused
-    //           - States where a business is not operating would expect no customer records for that state; those
-    //             beacons will be underused
-    //          This is a streamlined example and should not be used as a basis for determining beacon length
-    //          in production. Users should analyze their specific dataset to determine acceptable beacon length bounds.
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
-    StandardBeacon stateAndHasSensitiveDataBeacon = StandardBeacon.builder()
-        // This name is the same as our virtual field's name above;
-        .name("stateAndHasSensitiveData")
+    StandardBeacon stateAndHasTestResultBeacon = StandardBeacon.builder()
+        // This name is the same as our virtual field's name above
+        .name("stateAndHasTestResult")
         .length(5)
         .build();
-    standardBeaconList.add(stateAndHasSensitiveDataBeacon);
+    standardBeaconList.add(stateAndHasTestResultBeacon);
 
     // 5. Configure Keystore.
     //    This example expects that you have already set up a KeyStore with a single branch key.
@@ -273,8 +267,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     attributeActions.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActions.put("create_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
     attributeActions.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("hasSensitiveData", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("hasTestResult", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
     // 9. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
@@ -309,81 +302,79 @@ public class VirtualBeaconSearchableEncryptionExample {
 
     // 12. Put two items into our table using the above client.
     //     The two items will differ only in their `customer_id` attribute (primary key)
-    //         and their `hasSensitiveData` attribute.
+    //         and their `hasTestResult` attribute.
     //     We will query against these items to demonstrate how to use our setup above
-    //         to query against our `stateAndHasSensitiveData` beacon.
+    //         to query against our `stateAndHasTestResult` beacon.
     //     Before the item gets sent to DynamoDb, it will be encrypted
     //         client-side, according to our configuration.
     //     Since our configuration includes a beacon on a virtual field named
-    //         `stateAndHasSensitiveData`, the client will add an attribute
-    //         to the item with name `aws_dbe_b_stateAndHasSensitiveData`.
+    //         `stateAndHasTestResult`, the client will add an attribute
+    //         to the item with name `aws_dbe_b_stateAndHasTestResult`.
     //         Its value will be an HMAC truncated to as many bits as the
     //         beacon's `length` parameter; i.e. 5.
 
-    // Add record with hasSensitiveData=true
-    final HashMap<String, AttributeValue> itemWithHasSensitiveData = new HashMap<>();
-    itemWithHasSensitiveData.put("customer_id", AttributeValue.builder().s("ABC-123").build());
-    itemWithHasSensitiveData.put("create_time", AttributeValue.builder().n("1681495205").build());
-    itemWithHasSensitiveData.put("state", AttributeValue.builder().s("CA").build());
-    itemWithHasSensitiveData.put("zip", AttributeValue.builder().s("94111").build());
-    itemWithHasSensitiveData.put("hasSensitiveData", AttributeValue.builder().bool(true).build());
+    // Add record with hasTestResult=true
+    final HashMap<String, AttributeValue> itemWithHasTestResult = new HashMap<>();
+    itemWithHasTestResult.put("customer_id", AttributeValue.builder().s("ABC-123").build());
+    itemWithHasTestResult.put("create_time", AttributeValue.builder().n("1681495205").build());
+    itemWithHasTestResult.put("state", AttributeValue.builder().s("CA").build());
+    itemWithHasTestResult.put("hasTestResult", AttributeValue.builder().bool(true).build());
 
-    final PutItemRequest itemWithHasSensitiveDataPutRequest = PutItemRequest.builder()
+    final PutItemRequest itemWithHasTestResultPutRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
-        .item(itemWithHasSensitiveData)
+        .item(itemWithHasTestResult)
         .build();
 
-    final PutItemResponse itemWithHasSensitiveDataPutResponse = ddb.putItem(itemWithHasSensitiveDataPutRequest);
+    final PutItemResponse itemWithHasTestResultPutResponse = ddb.putItem(itemWithHasTestResultPutRequest);
     // Assert PutItem was successful
-    assert 200 == itemWithHasSensitiveDataPutResponse.sdkHttpResponse().statusCode();
+    assert 200 == itemWithHasTestResultPutResponse.sdkHttpResponse().statusCode();
 
-    // Add record with hasSensitiveData=false
-    final HashMap<String, AttributeValue> itemWithNoHasSensitiveData = new HashMap<>();
-    itemWithNoHasSensitiveData.put("customer_id", AttributeValue.builder().s("DEF-456").build());
-    itemWithNoHasSensitiveData.put("create_time", AttributeValue.builder().n("1681495205").build());
-    itemWithNoHasSensitiveData.put("state", AttributeValue.builder().s("CA").build());
-    itemWithNoHasSensitiveData.put("zip", AttributeValue.builder().s("94111").build());
-    itemWithNoHasSensitiveData.put("hasSensitiveData", AttributeValue.builder().bool(false).build());
+    // Add record with hasTestResult=false
+    final HashMap<String, AttributeValue> itemWithNoHasTestResult = new HashMap<>();
+    itemWithNoHasTestResult.put("customer_id", AttributeValue.builder().s("DEF-456").build());
+    itemWithNoHasTestResult.put("create_time", AttributeValue.builder().n("1681495205").build());
+    itemWithNoHasTestResult.put("state", AttributeValue.builder().s("CA").build());
+    itemWithNoHasTestResult.put("hasTestResult", AttributeValue.builder().bool(false).build());
 
-    final PutItemRequest itemWithNoHasSensitiveDataPutRequest = PutItemRequest.builder()
+    final PutItemRequest itemWithNoHasTestResultPutRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
-        .item(itemWithNoHasSensitiveData)
+        .item(itemWithNoHasTestResult)
         .build();
 
-    final PutItemResponse itemWithNoHasSensitiveDataPutResponse = ddb.putItem(itemWithNoHasSensitiveDataPutRequest);
+    final PutItemResponse itemWithNoHasTestResultPutResponse = ddb.putItem(itemWithNoHasTestResultPutRequest);
     // Assert PutItem was successful
-    assert 200 == itemWithNoHasSensitiveDataPutResponse.sdkHttpResponse().statusCode();
+    assert 200 == itemWithNoHasTestResultPutResponse.sdkHttpResponse().statusCode();
 
-    // 13. Query by stateAndHasSensitiveData attribute.
+    // 13. Query by stateAndHasTestResult attribute.
     //     Note that we are constructing the query as if we were querying on plaintext values.
     //     However, the DDB encryption client will detect that this attribute name has a beacon configured.
     //     The client will add the beaconized attribute name and attribute value to the query,
     //         and transform the query to use the beaconized name and value.
     //     Internally, the client will query for and receive all items with a matching HMAC value in the beacon field.
     //     This may include a number of "false positives" with different ciphertext, but the same truncated HMAC.
-    //     e.g. if truncate(HMAC("CAt"), t) == truncate(HMAC("DCf"), 5), the query will return both items.
+    //     e.g. if truncate(HMAC("CAt"), 5) == truncate(HMAC("DCf"), 5), the query will return both items.
     //     The client will decrypt all returned items to determine which ones have the expected attribute values,
     //         and only surface items with the correct plaintext to the user.
     //     This procedure is internal to the client and is abstracted away from the user;
     //     e.g. the user will only see "CAt" and never "DCf", though the actual query returned both.
     Map<String,String> expressionAttributesNames = new HashMap<>();
-    expressionAttributesNames.put("#scd", "stateAndHasSensitiveData");
+    expressionAttributesNames.put("#stateAndHasTestResult", "stateAndHasTestResult");
 
     Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
-    // We are querying for the item with `state`="CA" and `hasSensitiveData`=`true`.
-    // Since we added virtual parts as `state` then `hasSensitiveData`,
+    // We are querying for the item with `state`="CA" and `hasTestResult`=`true`.
+    // Since we added virtual parts as `state` then `hasTestResult`,
     //     we must write our query expression in the same order.
-    // We constructed our virtual field as `state`+`hasSensitiveData`,
+    // We constructed our virtual field as `state`+`hasTestResult`,
     //     so we add the two parts in that order.
-    // Since we also created a virtual transform that truncated `hasSensitiveData`
+    // Since we also created a virtual transform that truncated `hasTestResult`
     //     to its length-1 prefix, i.e. "true" -> "t",
     //     we write that field as its length-1 prefix in the query.
-    expressionAttributeValues.put(":scd", AttributeValue.builder().s("CAt").build());
+    expressionAttributeValues.put(":stateAndHasTestResult", AttributeValue.builder().s("CAt").build());
 
     QueryRequest queryRequest = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
-        .keyConditionExpression("#scd = :scd")
+        .keyConditionExpression("#stateAndHasTestResult = :stateAndHasTestResult")
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
@@ -397,7 +388,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
     // Validate the item has the expected attributes
     assert returnedItem.get("state").s().equals("CA");
-    assert returnedItem.get("hasSensitiveData").bool().equals(true);
+    assert returnedItem.get("hasTestResult").bool().equals(true);
   }
 
   public static void main(final String[] args) {
