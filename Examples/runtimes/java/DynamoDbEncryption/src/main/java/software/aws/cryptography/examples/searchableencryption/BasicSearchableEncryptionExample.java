@@ -131,7 +131,8 @@ public class BasicSearchableEncryptionExample {
     //   This implies that there are 40,177 unique possible values for this field.
     // - Birthdays are uniformly distributed across this range.
     //   In practice, this will not be true (we expect very few early birthdays and very few recent
-    //   birthdays), but a more careful analysis is outside the scope of this example.
+    //   birthdays). A more complex analysis would show that a stricter
+    //   upper bound is necessary to hide information from the underlying distribution.
     // With these assumptions, we have a uniformly-distributed dataset of birthdays
     // with 40,177 unique values.
     //
