@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.itemencryptor;
+package software.amazon.cryptography.examples.itemencryptor;
 
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;

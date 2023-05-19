@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.clientsupplier;
+package software.amazon.cryptography.examples.clientsupplier;
 
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;

@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples;
+package software.amazon.cryptography.examples;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
