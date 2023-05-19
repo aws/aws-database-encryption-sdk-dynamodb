@@ -112,8 +112,9 @@ public class BasicSearchableEncryptionExample {
     //
     // Values stored in aws_dbe_b_email will be 15 bits long (0x0000 - 0x8fff)
     // There will be 2^15 = 32,768 possible HMAC values.
-    // When we have ~100,000 customers, we expect (100,000/32,768) = ~= 3.1 emails
-    // sharing the same beacon value.
+    // When we have ~100,000 customers, for a particular beacon we expect
+    // (100,000/32,768) ~= 3.1 emails
+    // sharing that beacon value.
     // When we have ~3,200,000 customers, we expect (3,200,000/32,768) = ~= 97.7 emails
     // sharing the same beacon value.
     StandardBeacon emailBeacon = StandardBeacon.builder()
