@@ -38,25 +38,24 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
 /*
   This example demonstrates how to set up a compound beacon on encrypted attributes,
       put an item with the beacon, and query against that beacon.
-  This example follows a use case of a database that stores customer location data. This is an
-      extension of the "BasicSearchableEncryptionExample" in this directory. This example uses the same
-      situation (storing customer location data) and the same table schema, but adds a compound beacon
-      `location` that uses both the `state` and `zip` attributes.
+  This example follows a use case of a database that stores associates a customer
+      with a particular building ID and floor number. (Maybe this is a database for
+      a storage business, and this is where a customer's belongings are stored.)
+  We will set up a compound beacon on these attributes so we can query against them.
 
   Running this example requires access to a DDB table with the
   following primary key configuration:
     - Partition key is named "customer_id" with type (S)
     - Sort key is named "create_time" with type (S)
-  This table must have a Global Secondary Index (GSI) configured named "location-index:
-    - Partition key is named "aws_dbe_b_location" with type (S)
+  This table must have a Global Secondary Index (GSI) configured named "buildingAndFloor-index:
+    - Partition key is named "aws_dbe_b_buildingAndFloor" with type (S)
 
   In this example for storing customer location data, this schema is utilized for the data:
    - "customer_id" stores a unique customer identifier
    - "create_time" stores a Unix timestamp
-   - "state" attribute stores an encrypted 2-letter US state or territory abbreviation
-         (https://www.faa.gov/air_traffic/publications/atpubs/cnt_html/appendix_a.html)
-   - "zip" attribute stores an encrypted 5-digit US zipcode (00000 - 99999)
-   - "aws_dbe_b_location" stores a beaconized concatenation of state and zip
+   - "building" attribute stores a building ID; see below
+   - "floor" attribute stores a floor number; see below
+   - "aws_dbe_b_buildingAndFloor stores a beaconized concatenation of building and floor
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
@@ -69,16 +68,37 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
 
 public class CompoundBeaconSearchableEncryptionExample {
 
-  static String GSI_NAME = "location-index";
+  static String GSI_NAME = "buildingAndFloor-index";
 
   public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
-    // 1. Create Beacons.
-    //    These are the same beacons as in the "BasicSearchableEncryptionExample" in this directory.
-    //    See that file to see details on beacon construction and parameters.
-    //    While we will not query against these beacons, you must create standard beacons on fields
-    //        that we wish to use in compound beacons.
+    // 1. Create Standard Beacons.
+    //    Any encrypted components of a Compound Beacon
+    //    must have an associated Standard Beacon definition.
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
+
+    // The `buildingAndFloor` compound beacon will use the `building` field.
+    // This field is assumed to hold a two-digit building ID prefixed with SEA; i.e. SEA00-SEA99.
+    // We will assume that `building`s are uniformly distributed across customer IDs.
+    // (In practice, this will not be true. If a building is larger, we would expect
+    //  it to have more customer IDs associated with it.)
+    // With these assumptions, we have a uniformly-distributed dataset of building IDs
+    // with 100 unique values.
+    //
+    // We follow the guidance in the link above to determine acceptable bounds for beacon length:
+    //  - min: log(sqrt(100))/log(2) ~= 3.3, round down to 3
+    //  - max: log((100/2))/log(2) ~= 14.3, round down to 14
+    // We can safely choose a beacon length between 8 and 14:
+    //  - Closer to 8, the underlying data is better obfuscated, but more "false positives" are returned in
+    //    queries, leading to more decrypt calls and worse performance
+    //  - Closer to 14, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
+    //    better performance, but it is easier to distinguish unique plaintext values
+    // As an example, we will choose 10.
+    //
+    // Values stored in aws_dbe_b_birthday will be 10 bits long (0x000 - 0x3ff).
+    // There will be 2^10 = 1024 possible HMAC values.
+    // With well-distributed birthdays (40,177 values), we expect (40,177/1024) ~= 39 birthdays sharing the same
+    //   beacon value.
     StandardBeacon stringBeacon = StandardBeacon.builder()
         .name("state")
         .length(4)
