@@ -1,4 +1,4 @@
-package software.software.cryptography.examples.migration;
+package software.aws.cryptography.examples.migration;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;

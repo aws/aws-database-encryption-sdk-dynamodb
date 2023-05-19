@@ -1,4 +1,4 @@
-package software.software.cryptography.examples.searchableencryption.complexexample;
+package software.aws.cryptography.examples.searchableencryption.complexexample;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
-import software.software.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 public class BeaconConfig {
 

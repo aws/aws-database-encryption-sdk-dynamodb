@@ -1,4 +1,4 @@
-package software.software.cryptography.examples;
+package software.aws.cryptography.examples;
 
 import org.testng.annotations.Test;
 

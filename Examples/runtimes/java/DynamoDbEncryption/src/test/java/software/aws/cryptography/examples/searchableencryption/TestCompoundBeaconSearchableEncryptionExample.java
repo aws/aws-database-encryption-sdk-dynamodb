@@ -1,8 +1,8 @@
-package software.software.cryptography.examples.searchableencryption;
+package software.aws.cryptography.examples.searchableencryption;
 
 import org.testng.annotations.Test;
-import software.software.cryptography.examples.CreateKeyStoreKeyExample;
-import software.software.cryptography.examples.TestUtils;
+import software.aws.cryptography.examples.CreateKeyStoreKeyExample;
+import software.aws.cryptography.examples.TestUtils;
 
 public class TestCompoundBeaconSearchableEncryptionExample {
 

@@ -1,4 +1,4 @@
-package software.software.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -21,14 +21,14 @@ import software.amazon.awssdk.services.kms.model.KmsException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
-import software.software.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
-import static software.software.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
+import static software.aws.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
 import org.testng.annotations.Test;
 

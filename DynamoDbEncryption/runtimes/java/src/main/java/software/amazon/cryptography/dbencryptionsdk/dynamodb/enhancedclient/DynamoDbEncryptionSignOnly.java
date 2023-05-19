@@ -1,4 +1,4 @@
-package software.software.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

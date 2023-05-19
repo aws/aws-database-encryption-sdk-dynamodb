@@ -1,4 +1,4 @@
-package software.software.cryptography.dbencryptionsdk.dynamodb;
+package software.aws.cryptography.dbencryptionsdk.dynamodb;
 
 import software.amazon.cryptography.services.kms.internaldafny.KMSClientConfigType;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -31,7 +31,7 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static software.software.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
+import static software.aws.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
 
 /*

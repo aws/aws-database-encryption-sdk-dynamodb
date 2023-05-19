@@ -1,4 +1,4 @@
-package software.software.cryptography.dbencryptionsdk.dynamodb;
+package software.aws.cryptography.dbencryptionsdk.dynamodb;
 
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.interceptor.ExecutionAttribute;

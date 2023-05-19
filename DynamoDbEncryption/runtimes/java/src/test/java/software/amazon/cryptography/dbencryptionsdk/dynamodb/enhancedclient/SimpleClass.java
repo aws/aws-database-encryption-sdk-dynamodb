@@ -1,4 +1,4 @@
-package software.software.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;

@@ -1,4 +1,4 @@
-package software.software.cryptography.examples.searchableencryption;
+package software.aws.cryptography.examples.searchableencryption;
 
 public class SearchableEncryptionTestUtils {
   // Our tests require access to DDB Table with this name

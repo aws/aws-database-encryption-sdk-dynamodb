@@ -1,4 +1,4 @@
-package software.software.cryptography.examples;
+package software.aws.cryptography.examples;
 
 public class TestUtils {
     public static final String TEST_KEYSTORE_NAME = "KeyStoreTestTable";

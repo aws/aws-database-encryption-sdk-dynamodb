@@ -1,4 +1,4 @@
-package software.software.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import java.util.Map;
 import java.util.Objects;

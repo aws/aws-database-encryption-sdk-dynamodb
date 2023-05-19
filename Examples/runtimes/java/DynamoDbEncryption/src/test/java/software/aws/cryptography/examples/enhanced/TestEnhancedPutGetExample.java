@@ -1,7 +1,7 @@
-package software.software.cryptography.examples.enhanced;
+package software.aws.cryptography.examples.enhanced;
 
 import org.testng.annotations.Test;
-import software.software.cryptography.examples.TestUtils;
+import software.aws.cryptography.examples.TestUtils;
 
 public class TestEnhancedPutGetExample {
     @Test
