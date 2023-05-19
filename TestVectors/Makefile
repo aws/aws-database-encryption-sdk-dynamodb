@@ -35,6 +35,7 @@ PROJECT_INDEX := \
 	submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy \
+	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/KeyVectors/src/Index.dfy \
 	DynamoDbEncryption/dafny/StructuredEncryption/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy \
 
