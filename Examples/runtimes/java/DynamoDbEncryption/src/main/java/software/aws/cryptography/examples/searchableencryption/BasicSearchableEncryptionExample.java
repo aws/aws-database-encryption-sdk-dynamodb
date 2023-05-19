@@ -87,7 +87,7 @@ public class BasicSearchableEncryptionExample {
     // and expect to double our customer base every year. We would like to select a beacon length
     // that would be safe now and still be safe in ~5 years, when we expect to have 3.2M customers.
     //
-    // We follow the guidance in the link above to determine acceptable bounds for beacon length:
+    // We follow the guidance in the link above to determine reasonable bounds for beacon length:
     // 100,000 customers:
     //  - min: log(sqrt(100,000))/log(2) ~= 8.3, round down to 8
     //  - max: log((100,000/2))/log(2) ~= 15.6, round up to 16
