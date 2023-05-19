@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.keyring;
+package software.amazon.cryptography.examples.keyring;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -19,7 +19,7 @@ import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;

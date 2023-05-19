@@ -1,7 +1,7 @@
-package software.aws.cryptography.examples.itemencryptor;
+package software.amazon.cryptography.examples.itemencryptor;
 
 import org.testng.annotations.Test;
-import software.aws.cryptography.examples.TestUtils;
+import software.amazon.cryptography.examples.TestUtils;
 
 public class TestItemEncryptDecryptExample {
     @Test
