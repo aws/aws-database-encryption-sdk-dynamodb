@@ -145,16 +145,17 @@ public class BasicSearchableEncryptionExample {
     //  - max: log((40,177/2))/log(2) ~= 14.3, round down to 14
     // We can choose a beacon length between 8 and 14:
     //  - Closer to 8, the more "false positives" are returned in queries,
-    //     making it harder to distinguish plaintext values
-    //     but leading to more decrypt calls and worse performance
+    //    making it harder to distinguish plaintext values
+    //    but leading to more decrypt calls and worse performance
     //  - Closer to 14, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
     //    better performance, but it is easier to distinguish unique plaintext values
     // As an example, we will choose 10.
     //
     // Values stored in aws_dbe_b_birthday will be 10 bits long (0x000 - 0x3ff).
     // There will be 2^10 = 1024 possible HMAC values.
-    // With well-distributed birthdays (40,177 values), we expect (40,177/1024) ~= 39 birthdays sharing the same
-    //   beacon value.
+    // With well-distributed birthdays (40,177 values), for a particular beacon we expect
+    //   (40,177/1024) ~= 39 birthdays
+    //   sharing that beacon value.
     StandardBeacon birthdayBeacon = StandardBeacon.builder()
         .name("birthday")
         .length(10)
