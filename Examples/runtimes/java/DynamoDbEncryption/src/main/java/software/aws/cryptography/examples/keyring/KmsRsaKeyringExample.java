@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec;
 import software.amazon.awssdk.services.kms.model.GetPublicKeyRequest;
 import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
@@ -33,7 +34,6 @@ import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsRsaKeyringInput;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
