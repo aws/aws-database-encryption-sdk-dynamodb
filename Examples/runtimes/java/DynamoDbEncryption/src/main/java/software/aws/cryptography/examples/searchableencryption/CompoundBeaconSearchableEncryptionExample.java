@@ -55,7 +55,7 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInte
    - "create_time" stores a Unix timestamp
    - "building" attribute stores a building ID; see below
    - "floor" attribute stores a floor number; see below
-   - "aws_dbe_b_buildingAndFloor stores a beaconized concatenation of building and floor
+   - "aws_dbe_b_buildingAndFloor" stores a beaconized concatenation of building and floor
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
@@ -89,7 +89,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     //    TODO: add link
     // We follow the guidance in the link above to determine reasonable bounds for beacon length:
     //  - min: log(sqrt(100))/log(2) ~= 3.3, round down to 3
-    //  - max: log((100/2))/log(2) ~= 5.6, round down to 6
+    //  - max: log((100/2))/log(2) ~= 5.6, round up to 6
     // You will somehow need to round results to the nearest integer.
     // We choose to round to the nearest number; you might consider a different rounding approach.
     // Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
@@ -97,27 +97,63 @@ public class CompoundBeaconSearchableEncryptionExample {
     // Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
     //    worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
     // We can choose a beacon length between 3 and 6:
-    //  - Closer to 3, the more "false positives" are returned in queries,
+    //  - Closer to 8, we expect more "false positives" to be returned,
     //    making it harder to distinguish plaintext values
     //    but leading to more decrypt calls and worse performance
-    //  - Closer to 6, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
-    //    better performance, but it is easier to distinguish unique plaintext values
-    // As an example, we will choose 10.
+    //  - Closer to 14, we expect fewer "false positives" returned in queries,
+    //    leading to fewer decrypt calls and better performance,
+    //    but it is easier to distinguish unique plaintext values
+    // As an example, we will choose 4.
     //
-    // Values stored in aws_dbe_b_birthday will be 10 bits long (0x000 - 0x3ff).
-    // There will be 2^10 = 1024 possible HMAC values.
-    // With well-distributed birthdays (40,177 values), we expect (40,177/1024) ~= 39 birthdays sharing the same
-    //   beacon value.
-    StandardBeacon stringBeacon = StandardBeacon.builder()
-        .name("state")
+    // Values stored in aws_dbe_b_building will be 4 bits long (0x0 - 0xf).
+    // There will be 2^4 = 16 possible HMAC values.
+    // With well-distributed building IDs (100 values), for a particular beacon we expect
+    //   (100/16) = 6.25 building IDs
+    //   sharing that beacon value.
+    StandardBeacon buildingBeacon = StandardBeacon.builder()
+        .name("building")
         .length(4)
         .build();
-    standardBeaconList.add(stringBeacon);
-    StandardBeacon numberBeacon = StandardBeacon.builder()
-        .name("zip")
-        .length(10)
+    standardBeaconList.add(buildingBeacon);
+
+    // The `buildingAndFloor` compound beacon will also use the `floor` field.
+    // This field is assumed to hold an integer from 1 to 50.
+    // We will make some assumptions about the distribution of floors:
+    //  - All buildings have exactly 50 floors.
+    //    In practice, this will not be true. If the tallest building is 50 floors,
+    //    but some buildings are shorter than the tallest building,
+    //    we expect a left-skewed floor frequency distribution.
+    //    Such a dataset would require a stricter upper bound on beacon length
+    //    to hide the underlying distribution.
+    //  - Floors are uniformly distributed across customer IDs.
+    //  - Floors, building IDs, and customer IDs have no correlation.
+    // With these assumptions, we have a dataset of floors with 50 possible values
+    // uniformly distributed across customer IDs.
+    //
+    // This link provides guidance for choosing a beacon length:
+    //    TODO: add link
+    // We follow the guidance in the link above to determine reasonable bounds for beacon length:
+    //  - min: log(sqrt(50))/log(2) ~= 2.8, round up to 3
+    //  - max: log((50/2))/log(2) ~= 4.6, round up to 5
+    // We can choose a beacon length between 3 and 5:
+    //  - Closer to 3, we expect more "false positives" to be returned,
+    //    making it harder to distinguish plaintext values
+    //    but leading to more decrypt calls and worse performance
+    //  - Closer to 5, we expect fewer "false positives" returned in queries,
+    //    leading to fewer decrypt calls and better performance,
+    //    but it is easier to distinguish unique plaintext values
+    // As an example, we will choose 4.
+    //
+    // Values stored in aws_dbe_b_floor will be 4 bits long (0x0 - 0xf).
+    // There will be 2^4 = 16 possible HMAC values.
+    // With well-distributed floors (50 values), for a particular beacon we expect
+    //   (50/16) = 3.125 building IDs
+    //   sharing that beacon value.
+    StandardBeacon floorBeacon = StandardBeacon.builder()
+        .name("floor")
+        .length(4)
         .build();
-    standardBeaconList.add(numberBeacon);
+    standardBeaconList.add(floorBeacon);
 
     // 2. Define encrypted parts.
     //    Encrypted parts define the beacons that can be used to construct a compound beacon,
@@ -129,28 +165,27 @@ public class CompoundBeaconSearchableEncryptionExample {
     //            Prefixes must be unique across the configuration, and must not be a prefix of another prefix;
     //            i.e. for all configured prefixes, the first N characters of a prefix must not equal another prefix.
     // In practice, it is suggested to have a short value distinguishable from other parts served on the prefix.
-    // For this example, we will choose "S-" as the prefix for "State abbreviation".
-    // With this prefix and the standard beacon's bit length definition (4), a state abbreviation beacon will appear
-    //     as `S-0` to `S-f` inside a compound beacon.
-    EncryptedPart encryptedPartStr = EncryptedPart.builder()
-        .name("state")
-        .prefix("S-")
+    // For this example, we will choose "B-" as the prefix for "Building".
+    // With this prefix and the standard beacon's bit length definition (4), a building ID beacon will appear
+    //     as `B-0` to `B-f` inside a compound beacon.
+    EncryptedPart buildingEncryptedPart = EncryptedPart.builder()
+        .name("building")
+        .prefix("B-")
         .build();
-    encryptedPartList.add(encryptedPartStr);
-    // For this example, we will choose "Z-" as the prefix for "Zipcode".
-    // With this prefix and the standard beacon's bit length definition (10), a zipcode beacon will appear
-    //     as `Z-000` to `Z-3ff` inside a compound beacon.
-    EncryptedPart encryptedPartNum = EncryptedPart.builder()
-        .name("zip")
-        .prefix("Z-")
+    encryptedPartList.add(buildingEncryptedPart);
+    // For this example, we will choose "F-" as the prefix for "Floor".
+    // With this prefix and the standard beacon's bit length definition (4), a floor beacon will appear
+    //     as `F-0` to `F-f` inside a compound beacon.
+    EncryptedPart floorEncryptedPart = EncryptedPart.builder()
+        .name("floor")
+        .prefix("F-")
         .build();
-    encryptedPartList.add(encryptedPartNum);
-
+    encryptedPartList.add(floorEncryptedPart);
 
     // 3. Define compound beacon.
     //    A compound beacon allows one to serve multiple beacons or attributes from a single index.
     //    A compound beacon must receive:
-    //     - name: The name of the beacon. Compound beacon values will be written to `aws_ddb_e_[name]`.
+    //     - name: The name of the beacon. Compound beacon values will be written to `aws_ddb_b_[name]`.
     //     - split: A character separating parts in a compound beacon
     //    A compound beacon may also receive:
     //     - encrypted: A list of encrypted parts. This is effectively a list of beacons. We provide the list
@@ -160,18 +195,18 @@ public class CompoundBeaconSearchableEncryptionExample {
     //                     The client will provide a default constructor, which will write a compound beacon as:
     //                     all signed parts in the order they are added to the signed list;
     //                     all encrypted parts in order they are added to the encrypted list; all parts required.
-    //                     In this example, we expect compound beacons to be written as `S-X.Z-YYY`, since our
-    //                     encrypted list looks like [encryptedPartStr, encryptedPartNum].
+    //                     In this example, we expect compound beacons to be written as `B-X.F-Y`, since our
+    //                     encrypted list looks like [buildingEncryptedPart, floorEncryptedPart].
     //     - signed: A list of signed parts, i.e. plaintext attributes. This would be provided if we
     //                     wanted to use plaintext values as part of constructing our compound beacon. We do not
     //                     provide this here; see the Complex example for an example.
     List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
-    CompoundBeacon cpbeacon1 = CompoundBeacon.builder()
-        .name("location")
+    CompoundBeacon buildingAndFloorCompoundBeacon = CompoundBeacon.builder()
+        .name("buildingAndFloor")
         .split(".")
         .encrypted(encryptedPartList)
         .build();
-    compoundBeaconList.add(cpbeacon1);
+    compoundBeaconList.add(buildingAndFloorCompoundBeacon);
 
     // 4. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
@@ -187,7 +222,7 @@ public class CompoundBeaconSearchableEncryptionExample {
 
     // 5. Create BeaconVersion.
     //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
-    //    We must also continue to provide all of the standard beacons that compose a compound beacon list.
+    //    We must also continue to provide all the standard beacons that compose a compound beacon list.
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()
@@ -221,10 +256,10 @@ public class CompoundBeaconSearchableEncryptionExample {
     final Map<String, CryptoAction> attributeActions = new HashMap<>();
     attributeActions.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActions.put("create_time", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("building", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActions.put("floor", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
-    // We do not need to define a crypto action on location.
+    // We do not need to define a crypto action on buildingAndFloor.
     // We only need to define crypto actions on attributes that we pass to PutItem.
 
     // 8. Create the DynamoDb Encryption configuration for the table we will be writing to.
@@ -257,44 +292,44 @@ public class CompoundBeaconSearchableEncryptionExample {
                 .build())
         .build();
 
-    // 11. Put an item with both a state abbreviation and a zipcode into the table.
+    // 11. Put an item with both a building ID and a floor into the table.
     final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("customer_id", AttributeValue.builder().s("Both-State-And-Zip").build());
+    item.put("customer_id", AttributeValue.builder().s("EFGH-5678").build());
     item.put("create_time", AttributeValue.builder().n("1681495205").build());
-    item.put("state", AttributeValue.builder().s("WA").build());
-    item.put("zip", AttributeValue.builder().n("98109").build());
+    item.put("building", AttributeValue.builder().s("SEA94").build());
+    item.put("floor", AttributeValue.builder().n("42").build());
 
-    final PutItemRequest putRequestBoth = PutItemRequest.builder()
+    final PutItemRequest putRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
         .item(item)
         .build();
 
-    final PutItemResponse putResponse = ddb.putItem(putRequestBoth);
+    final PutItemResponse putResponse = ddb.putItem(putRequest);
     // Validate object put successfully
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    // 12. Query for the item with both state abbreviation and zipcode.
+    // 12. Query for the item with both building ID and floor
     Map<String ,String> expressionAttributesNames = new HashMap<>();
-    expressionAttributesNames.put("#c", "location");
+    expressionAttributesNames.put("#bAndF", "buildingAndFloor");
 
     Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
     // This query expression takes a few factors into consideration:
-    //  - The configured state abbreviation prefix is "S-"; zipcode abbreviation prefix is "Z-"
+    //  - The configured building ID abbreviation prefix is "B-"; floor abbreviation prefix is "F-"
     //  - The configured split character, separating component parts, is "."
     //  - The default constructor adds encrypted parts in the order they are in the encrypted list, which
-    //    configures the state abbreviation to come before the zipcode
+    //    configures the building ID to come before the floor
     // NOTE: We did not need to create a compound beacon for this query. This query could have also been
     //       done by querying on the partition and sort key, as was done in the Basic example.
     //       This is intended to be a simple example to demonstrate how one might set up a compound beacon.
     //       For examples where compound beacons are required, see the Complex example.
     //       The most basic extension to this example that would require a compound beacon would add a third
     //       part to the compound beacon, then query against three parts.
-    expressionAttributeValues.put(":v", AttributeValue.builder().s("S-WA.Z-98109").build());
+    expressionAttributeValues.put(":bAndF", AttributeValue.builder().s("B-SEA95.F-42").build());
 
     QueryRequest queryRequest = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
-        .keyConditionExpression("#c = :v")
+        .keyConditionExpression("#bAndF = :bAndF")
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
@@ -307,8 +342,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     assert attributeValues.size() == 1;
     Map<String, AttributeValue> returnedItem = attributeValues.get(0);
     // Validate the item has the expected attributes
-    assert returnedItem.get("state").s().equals("WA");
-    assert returnedItem.get("zip").n().equals("98109");
+    assert returnedItem.get("building").s().equals("SEA95");
+    assert returnedItem.get("floor").n().equals("42");
   }
 
   public static void main(final String[] args) {
