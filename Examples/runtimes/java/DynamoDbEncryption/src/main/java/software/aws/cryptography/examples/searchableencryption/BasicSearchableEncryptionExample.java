@@ -105,8 +105,9 @@ public class BasicSearchableEncryptionExample {
     //  - Closer to 11, we expect more "false positives" to be returned,
     //    making it harder to distinguish plaintext values
     //    but leading to more decrypt calls and worse performance
-    //  - Closer to 16, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
-    //    better performance, but it is easier to distinguish unique plaintext values
+    //  - Closer to 16, we expect fewer "false positives" returned in queries,
+    //    leading to fewer decrypt calls and better performance,
+    //    but it is easier to distinguish unique plaintext values
     // As an example, we will choose 15.
     //
     // Values stored in aws_dbe_b_email will be 15 bits long (0x0000 - 0x8fff)
