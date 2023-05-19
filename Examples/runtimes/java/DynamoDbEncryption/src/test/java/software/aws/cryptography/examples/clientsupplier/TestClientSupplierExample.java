@@ -1,10 +1,10 @@
-package software.aws.cryptography.examples.clientsupplier;
+package software.amazon.cryptography.examples.clientsupplier;
 
 import java.util.Collections;
 import java.util.List;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.regions.Region;
-import software.aws.cryptography.examples.TestUtils;
+import software.amazon.cryptography.examples.TestUtils;
 
 public class TestClientSupplierExample {
     @Test
