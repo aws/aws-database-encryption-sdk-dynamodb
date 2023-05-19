@@ -80,6 +80,10 @@ public class DynamoDbEnhancedClientEncryption {
             builder = builder.logicalTableName(configWithSchema.logicalTableName());
         }
 
+        if (!Objects.isNull(configWithSchema.plaintextPolicy())) {
+            builder = builder.plaintextPolicy(configWithSchema.plaintextPolicy());
+        }
+
         return builder.allowedUnauthenticatedAttributePrefix(configWithSchema.allowedUnauthenticatedAttributePrefix())
                 .allowedUnauthenticatedAttributes(configWithSchema.allowedUnauthenticatedAttributes())
                 .attributeActions(actions)

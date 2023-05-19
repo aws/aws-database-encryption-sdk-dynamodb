@@ -14,6 +14,13 @@ module DynamoDbEncryptionUtil {
   const BeaconPrefix := "aws_dbe_b_"
   const VersionPrefix := "aws_dbe_v_"
 
+  const MAX_STRUCTURE_DEPTH := 32
+  const MAX_STRUCTURE_DEPTH_STR := "32"
+  const MAX_LIST_LENGTH := 100
+  const MAX_LIST_LENGTH_STR := "100"
+  const MAX_MAP_SIZE := 100
+  const MAX_MAP_SIZE_STR := "100"
+
   type HmacKeyMap = map<string, Bytes>
 
   // For Multi-Tenant Queries, it's OK to have no KeyId in the query
