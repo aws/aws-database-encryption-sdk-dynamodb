@@ -1,9 +1,9 @@
-package software.aws.cryptography.examples.searchableencryption.complexexample;
+package software.amazon.cryptography.examples.searchableencryption.complexexample;
 
 import org.testng.annotations.Test;
-import software.aws.cryptography.examples.CreateKeyStoreKeyExample;
-import software.aws.cryptography.examples.TestUtils;
-import software.aws.cryptography.examples.searchableencryption.SearchableEncryptionTestUtils;
+import software.amazon.cryptography.examples.CreateKeyStoreKeyExample;
+import software.amazon.cryptography.examples.TestUtils;
+import software.amazon.cryptography.examples.searchableencryption.SearchableEncryptionTestUtils;
 
 public class TestComplexSearchableEncryptionExample {
 

@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.clientsupplier;
+package software.amazon.cryptography.examples.clientsupplier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkDisco
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialproviders.model.DiscoveryFilter;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
   This example sets up an MRK multi-keyring and an MRK discovery

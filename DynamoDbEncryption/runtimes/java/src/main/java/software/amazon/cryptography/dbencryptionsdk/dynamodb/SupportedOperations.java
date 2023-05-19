@@ -1,4 +1,4 @@
-package software.software.cryptography.dbencryptionsdk.dynamodb;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
 import java.util.Arrays;
 import java.util.List;

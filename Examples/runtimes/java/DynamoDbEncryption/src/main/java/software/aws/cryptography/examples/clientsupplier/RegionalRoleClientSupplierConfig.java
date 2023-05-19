@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.clientsupplier;
+package software.amazon.cryptography.examples.clientsupplier;
 
 import java.util.HashMap;
 import java.util.Map;
