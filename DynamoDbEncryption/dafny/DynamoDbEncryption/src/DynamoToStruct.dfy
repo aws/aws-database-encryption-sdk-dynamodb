@@ -71,7 +71,7 @@ module DynamoToStruct {
       && kv.1.content.Terminal.value == TopLevelAttributeToBytes(item[kv.0]).value
 
   {
-    var structuredMap := map kv <- item.Items | true :: kv.0 := AttrToStructured(kv.1);
+    var structuredMap := map k <- item :: k := AttrToStructured(item[k]);
     MapKeysMatchItems(item);
     MapError(SimplifyMapValue(structuredMap))
   }
@@ -101,11 +101,11 @@ module DynamoToStruct {
       && kv.1 == StructuredToAttr(s[kv.0]).value
   {
     if forall k <- s.Keys :: IsValid_AttributeName(k) then
-      var structuredData := map kv <- s.Items | true :: kv.0 := StructuredToAttr(kv.1);
+      var structuredData := map k <- s :: k := StructuredToAttr(s[k]);
       MapKeysMatchItems(s);
       MapError(SimplifyMapValue(structuredData))
     else
-      var badNames := set k <- s.Keys | !IsValid_AttributeName(k) :: k;
+      var badNames := set k <- s | !IsValid_AttributeName(k) :: k;
       OneBadKey(s, badNames, IsValid_AttributeName);
       var orderedAttrNames := SetToOrderedSequence(badNames, CharLess);
       var attrNameList := Join(orderedAttrNames, ",");
@@ -521,7 +521,9 @@ module DynamoToStruct {
   // See "The Parent Trick" for details: <https://leino.science/papers/krml283.html>.
   function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
     requires forall kv <- m.Items :: kv.1 < parent
+    ensures MAX_MAP_SIZE < |m| ==> ret.Failure?
   {
+    :- Need(|m| <= MAX_MAP_SIZE, "Map exceeds limit of " + MAX_MAP_SIZE_STR + " entries.");
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
     //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
 
@@ -543,7 +545,9 @@ module DynamoToStruct {
   }
 
   function method ListAttrToBytes(l: ListAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
+    ensures MAX_LIST_LENGTH < |l| ==> ret.Failure?
   {
+    :- Need(|l| <= MAX_LIST_LENGTH, "List exceeds limit of " + MAX_LIST_LENGTH_STR + " entries.");
     var count :- U32ToBigEndian(|l|);
     var body :- CollectList(l, depth);
     Success(count + body)
@@ -890,6 +894,7 @@ module DynamoToStruct {
     resultList : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultList.val.L?
+    requires remainingCount <= MAX_LIST_LENGTH
     ensures ret.Success? ==> ret.value.val.L?
     requires |serialized| + resultList.len == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
@@ -922,6 +927,7 @@ module DynamoToStruct {
     resultMap : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultMap.val.M?
+    requires remainingCount <= MAX_MAP_SIZE
     ensures ret.Success? ==> ret.value.val.M?
     requires |serialized| + resultMap.len == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
@@ -1056,6 +1062,7 @@ module DynamoToStruct {
         Failure("List Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
+        :- Need(len <= MAX_MAP_SIZE, "Map exceeds limit of " + MAX_MAP_SIZE_STR + " entries.");
         var value := value[LENGTH_LEN..];
         DeserializeMap(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN + lengthBytes))
 
@@ -1064,6 +1071,7 @@ module DynamoToStruct {
         Failure("List Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
+        :- Need(len <= MAX_LIST_LENGTH, "List exceeds limit of " + MAX_LIST_LENGTH_STR + " entries.");
         var value := value[LENGTH_LEN..];
         DeserializeList(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.L([]), LENGTH_LEN + lengthBytes))
 
@@ -1073,11 +1081,11 @@ module DynamoToStruct {
   }
 
   function method FlattenValueMap<X,Y>(m : map<X, Result<Y,string>>): map<X,Y> {
-    map kv <- m.Items | kv.1.Success? :: kv.0 := kv.1.value
+    map k <- m | m[k].Success? :: k := m[k].value
   }
 
   function method FlattenErrors<X,Y>(m : map<X, Result<Y,string>>): set<string> {
-    set k <- m.Values | k.Failure? :: k.error
+    set k <- m | m[k].Failure? :: m[k].error
   }
 
   lemma OneBadResult<X,Y>(m : map<X, Result<Y,string>>)
@@ -1120,7 +1128,7 @@ module DynamoToStruct {
     ensures ret.Success? ==> |ret.value.Keys| == |m.Keys|
     ensures ret.Success? ==> |ret.value| == |m|
   {
-    if forall v <- m.Values :: v.Success? then
+    if forall k <- m :: m[k].Success? then
       var result := FlattenValueMap(m);
       MapKeysMatchItems(m);
       Success(result)
