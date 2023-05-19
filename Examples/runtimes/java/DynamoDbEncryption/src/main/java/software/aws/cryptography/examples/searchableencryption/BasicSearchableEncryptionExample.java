@@ -96,9 +96,9 @@ public class BasicSearchableEncryptionExample {
     //  - max: log((3,200,000/2))/log(2) ~= 20.6, round up to 21
     // You will somehow need to round results to the nearest integer.
     // We choose to round to the nearest number; you might consider a different rounding approach.
-    // Rounding up will return fewer "false positives" in queries, leading to fewer decrypt calls and
+    // Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
     //    better performance, but it is easier to distinguish unique plaintext values in encrypted data.
-    // Rounding down will return more "false positives" in queries, leading to more decrypt calls and
+    // Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
     //    worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
     // This suggests we can select a beacon length between 11 and 16 and
     // have desirable security properties at both 100,000 and 3,200,000 customers:
