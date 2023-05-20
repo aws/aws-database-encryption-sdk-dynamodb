@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 include "Paths.dfy"
 include "Util.dfy"
 include "../../../../submodules/MaterialProviders/libraries/src/Functions.dfy"
@@ -11,7 +11,7 @@ module StructuredEncryptionHeader {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
 
   import CMP = AwsCryptographyMaterialProvidersTypes
@@ -49,8 +49,8 @@ module StructuredEncryptionHeader {
   type CMPEncryptionContext  = x : CMP.EncryptionContext | ValidEncryptionContext(x) witness *
   type CMPEncryptedDataKeyListEmptyOK = x : seq<CMPEncryptedDataKey> | |x| < UINT8_LIMIT
   type LegendByte = x : uint8 | ValidLegendByte(x) witness SIGN_ONLY_LEGEND
-  type Legend = x : seq<LegendByte> | |x| < UINT16_LIMIT
-  type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
+  type Legend = x : seq<LegendByte> | |x| <= UINT16_LIMIT
+  type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| <= UINT16_LIMIT
 
   predicate method ValidVersion(x : uint8) {
     x == 1
@@ -62,8 +62,8 @@ module StructuredEncryptionHeader {
   //# [DBE supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
   // | Value | Algorithm Suite ID | Algorithm Suite Enum |
   // |---|---|---|
-  // | 0x01 | 0x67 0x01 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 |
-  // | 0x00 | 0x67 0x00 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
+  // | 0x00 | 0x67 0x00 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 |
+  // | 0x01 | 0x67 0x01 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
   predicate method ValidFlavor(x : uint8) {
     x in [0, 1]
   }
@@ -73,15 +73,15 @@ module StructuredEncryptionHeader {
   }
   
   predicate method ValidEncryptionContext(x : CMP.EncryptionContext) {
-    && |x| < UINT16_LIMIT
-    && (forall k <- x :: |k| < UINT16_LIMIT && |x[k]| < UINT16_LIMIT)
+    && |x| <= UINT16_LIMIT
+    && (forall k <- x :: |k| <= UINT16_LIMIT && |x[k]| <= UINT16_LIMIT)
   }
 
   predicate method ValidEncryptedDataKey(x : CMP.EncryptedDataKey)
   {
-    && |x.keyProviderId| < UINT16_LIMIT
-    && |x.keyProviderInfo| < UINT16_LIMIT
-    && |x.ciphertext| < UINT16_LIMIT
+    && |x.keyProviderId| <= UINT16_LIMIT
+    && |x.keyProviderInfo| <= UINT16_LIMIT
+    && |x.ciphertext| <= UINT16_LIMIT
   }
 
   // header without commitment
@@ -226,7 +226,7 @@ module StructuredEncryptionHeader {
     //# that are not included in the
     //# [required encryption context keys](../framework/structures.md#required-encryption-context-keys) list.
     var storedEC := map k <- mat.encryptionContext | k !in mat.requiredEncryptionContextKeys :: k := mat.encryptionContext[k];
-    // TODO - should be able to prove ValidEncryptionContext
+    // It is difficult for dafny to prove ValidEncryptionContext here, so perform a runtime check instead
     :- Need(ValidEncryptionContext(storedEC), E("Invalid Encryption Context"));
     Success(PartialHeader(
       version := 1,
@@ -331,16 +331,16 @@ module StructuredEncryptionHeader {
 
   function method ToUInt16(x : nat)
     : (ret : Result<uint16, Error>)
-    ensures x < UINT16_LIMIT ==> ret.Success?
+    ensures x <= UINT16_LIMIT ==> ret.Success?
   {
-    :- Need(x < UINT16_LIMIT, E("Value too big for 16 bits"));
+    :- Need(x <= UINT16_LIMIT, E("Value too big for 16 bits"));
     Success(x as uint16)
   }
 
   function method MyMap<X, Y, Z>(f: X -> Y, m: map<X, Z>): map<Y, Z>
-    requires forall a, b | a in m.Keys && b in m.Keys :: a != b ==> f(a) != f(b)
+    requires forall a, b | a in m && b in m :: a != b ==> f(a) != f(b)
   {
-    map k | k in m.Keys :: f(k) := m[k]
+    map k | k in m :: f(k) := m[k]
   }
 
   // Create a Legend from the Schema
@@ -408,7 +408,7 @@ module StructuredEncryptionHeader {
     if |attrs| == 0 then
       Success(serialized)
     else
-      :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
+      :- Need((|serialized| + 1) <= UINT16_LIMIT, E("Legend Too Long."));
       :- Need(data[attrs[0]].content.Action?, E("Schema must be flat"));
       var legendChar := GetActionLegend(data[attrs[0]].content.Action);
       MakeLegend2(attrs[1..], data, serialized + [legendChar])
@@ -579,7 +579,7 @@ module StructuredEncryptionHeader {
     if count == 0 then
       Success(deserialized)
     else
-      :- Need(|deserialized.0| + 1  < UINT16_LIMIT, E("Too much context"));
+      :- Need(|deserialized.0| + 1  <= UINT16_LIMIT, E("Too much context"));
       var kv :- GetOneKVPair(data);
       //= specification/structured-encryption/header.md#key-value-pair-entries
       //# This sequence MUST NOT contain duplicate entries.
@@ -852,6 +852,13 @@ module StructuredEncryptionHeader {
       assert provIdSize + 2 < |data|;
       var provId := data[2..2+provIdSize];
       assert provId == k.keyProviderId;
+
+      var part1Size := 2 + provIdSize;
+      assert part1Size+2 <= |data|;
+      var provInfoSize := SeqToUInt16(data[part1Size..part1Size+2]) as nat;
+      assert part1Size + provInfoSize + 2 < |data|;
+      var provInfo := data[part1Size+2..part1Size+2+provInfoSize];
+      assert provInfo == k.keyProviderInfo;
     }
 
   // GetOneDataKey ==> SerializeOneDataKey

@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.enhanced;
+package software.amazon.cryptography.examples.enhanced;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -6,14 +6,14 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.DynamoDbEnhancedClientEncryption;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.HashMap;
@@ -89,6 +89,7 @@ public class EnhancedPutGetExample {
         final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
                         .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
                         .tableSchema(tableSchema)

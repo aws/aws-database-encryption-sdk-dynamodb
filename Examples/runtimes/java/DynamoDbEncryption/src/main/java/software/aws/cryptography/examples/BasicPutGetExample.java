@@ -1,16 +1,16 @@
-package software.aws.cryptography.examples;
+package software.amazon.cryptography.examples;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -89,6 +89,7 @@ public class BasicPutGetExample {
         // 3. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+                .logicalTableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActions(attributeActions)

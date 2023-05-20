@@ -3,12 +3,10 @@
 include "../src/Index.dfy"
 include "StructuredDataTestFixtures.dfy"
 
-// TODO -- add a test with only signed attributes, no encrypted attributes.
-
 module HappyCaseTests {
   import opened Wrappers
   import opened StandardLibrary.UInt
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
   import StructuredEncryption
   import AwsCryptographyMaterialProvidersTypes

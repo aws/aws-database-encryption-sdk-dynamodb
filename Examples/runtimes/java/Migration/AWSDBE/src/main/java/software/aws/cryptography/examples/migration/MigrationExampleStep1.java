@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.migration;
+package software.amazon.cryptography.examples.migration;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
@@ -12,19 +12,19 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.DynamoDbEnhancedClientEncryption;
-import software.aws.cryptography.dynamoDbEncryption.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,6 +114,7 @@ public class MigrationExampleStep1 {
         final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
                         .allowedUnauthenticatedAttributes(unauthAttributes)
                         .tableSchema(tableSchema)

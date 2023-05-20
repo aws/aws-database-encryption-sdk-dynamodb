@@ -1,6 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-namespace aws.cryptography.dynamoDbEncryption.transforms
+namespace aws.cryptography.dbEncryptionSdk.dynamoDb.transforms
 
 use com.amazonaws.dynamodb#PutItemInput
 use com.amazonaws.dynamodb#PutItemOutput
@@ -34,9 +34,6 @@ use com.amazonaws.dynamodb#UpdateTableInput
 use com.amazonaws.dynamodb#UpdateTableOutput
 use com.amazonaws.dynamodb#DescribeTableInput
 use com.amazonaws.dynamodb#DescribeTableOutput
-
-// TODO: Model passthrough APIs
-// TODO: Do we model an "unknown operation" somewhere, that just spits out an error?
 
 operation PutItemInputTransform {
     input: PutItemInputTransformInput,

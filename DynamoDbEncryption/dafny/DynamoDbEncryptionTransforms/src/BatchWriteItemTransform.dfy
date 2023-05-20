@@ -8,8 +8,8 @@ module BatchWriteItemTransform {
   import opened DynamoDbMiddlewareSupport
   import opened Wrappers
   import DDB = ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
-  import EncTypes = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import Seq
   import Util = DynamoDbEncryptionUtil
 

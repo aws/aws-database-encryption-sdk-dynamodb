@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.searchableencryption;
+package software.amazon.cryptography.examples.searchableencryption;
 
 public class SearchableEncryptionTestUtils {
   // Our tests require access to DDB Table with this name
@@ -11,5 +11,6 @@ public class SearchableEncryptionTestUtils {
 
   // Our tests require access to DDB Table with this name configured as a branch keystore
   public static final String TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME = "CiKeystoreTestTable";
+  public static final String TEST_LOGICAL_KEYSTORE_NAME = "CiKeystoreTestTable";
 
 }

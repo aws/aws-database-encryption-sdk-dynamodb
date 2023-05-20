@@ -24,7 +24,7 @@ module TermLoc {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened DynamoDbEncryptionUtil
   import StandardLibrary.String
   import DDB = ComAmazonawsDynamodbTypes
@@ -37,7 +37,17 @@ module TermLoc {
 
   type Bytes = seq<uint8>
   type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
+
+    //= specification/searchable-encryption/virtual.md#terminal-location
+    //= type=implication
+    //# A Terminal Location specification MUST be a list of one more [Segments](#segments),
+    //# the first one of which must be a string index.
   type TermLoc = x : seq<Selector> | ValidTermLoc(x) witness *
+  predicate method ValidTermLoc(s : seq<Selector>)
+  {
+    && 0 < |s| < UINT64_LIMIT
+    && s[0].Map?
+  }
 
   function method TermLocToString(t : TermLoc) : string
   {
@@ -51,12 +61,6 @@ module TermLoc {
       "." + s[0].key + SelectorListToString(s[1..])
     else
       "[" + String.Base10Int2String(s[0].pos as int) + "]" + SelectorListToString(s[1..])
-  }
-
-  predicate method ValidTermLoc(s : seq<Selector>)
-  {
-    && 0 < |s| < UINT64_LIMIT
-    && s[0].Map?
   }
 
   // return true if item does not have the given terminal

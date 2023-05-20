@@ -1,16 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyStructuredEncryptionTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 
 module StructuredEncryptionUtil {
-  import opened AwsCryptographyStructuredEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes
-  import CSE = AwsCryptographyStructuredEncryptionTypes
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import AlgorithmSuites
 
   // all attributes with this prefix reserved for the implementation
@@ -126,21 +126,21 @@ module StructuredEncryptionUtil {
   function method CryptoSchemaMapIsFlat(data : CryptoSchemaMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Action?)
   {
-    forall v <- data.Values :: v.content.Action?
+    forall k <- data :: data[k].content.Action?
   }
 
   // Schema must contain only Actions
   function method AuthSchemaIsFlat(data : AuthenticateSchemaMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Action?)
   {
-    forall v <- data.Values :: v.content.Action?
+    forall k <- data :: data[k].content.Action?
   }
 
   // Map must contain only Terminals
   function method DataMapIsFlat(data : StructuredDataMap) : (ret : bool)
     ensures ret ==> (forall v <- data.Values :: v.content.Terminal?)
   {
-    forall v <- data.Values :: v.content.Terminal?
+    forall k <- data :: data[k].content.Terminal?
   }
 
   // attribute is "authorized", a.k.a. included in the signature

@@ -63,8 +63,6 @@ String MUST be serialized as UTF-8 encoded bytes.
 Number MUST be serialized as UTF-8 encoded bytes.
 Note that DynamoDB Number Attribute Values are strings.
 
-TODO: consider fixed-length serialization for numeric types
-
 #### Binary
 
 Binary MUST be serialized with the identity function;
@@ -124,7 +122,7 @@ In DynamoDB, Set Entry Value can only be a [Value](#value) of the following type
 - [Number](#number)
 - [Binary](#binary)
 
-#### Map (TODO: Duvet currently can't handle headers named "Map")
+#### Map Attribute
 
 Map MUST be serialized as:
 

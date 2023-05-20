@@ -8,7 +8,7 @@ module BatchWriteItemTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestBatchWriteItemInputTransform() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -25,7 +25,7 @@ module BatchWriteItemTransformTest {
       ReturnItemCollectionMetrics := None
     );
     var transformed := middlewareUnderTest.BatchWriteItemInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchWriteItemInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.BatchWriteItemInputTransformInput(
         sdkInput := input
       )
     );
@@ -55,7 +55,7 @@ module BatchWriteItemTransformTest {
       ReturnItemCollectionMetrics := None
     );
     var transformed := middlewareUnderTest.BatchWriteItemOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.BatchWriteItemOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.BatchWriteItemOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

@@ -6,13 +6,27 @@ on:
   push:
     branches:
       - main
-  # TODO: pior to GA, enable Run once a day
-  # schedule:
-  #   - cron: '0 0 * * *'
-
+  workflow_dispatch:
+    # Manual trigger for this workflow, either the normal version
+    # or the nightly build that uses the latest Dafny prerelease
+    # (accordingly to the "nightly" parameter).
+    inputs:
+      nightly:
+        description: 'Run the nightly build'
+        required: false
+        type: boolean
+  schedule:
+    # Nightly build against Dafny's nightly prereleases,
+    # for early warning of verification issues or regressions.
+    # Timing chosen to be adequately after Dafny's own nightly build,
+    # but this might need to be tweaked:
+    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
+    - cron: "30 16 * * *"
       
 jobs:
   testJava:
+    # Don't run the nightly build on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'awslabs'
     strategy:
       matrix:
         library: [
@@ -25,7 +39,7 @@ jobs:
           macos-latest
         ]
     runs-on: ${{ matrix.os }}
-    environment: "ESDK CI"
+    environment: "MPL CI"
     permissions:
       id-token: write
       contents: read
@@ -42,11 +56,11 @@ jobs:
       - name: Init Submodules
         env:
           # This secret is in the configured environment
-          # Token created on # 11/28/2022
-          # expires in ~30 days 12/28/2022
-          PRIVATE_ESDK_PAT: ${{ secrets.PRIVATE_ESDK_PAT }}
+          # Token created on # 05/12/2023
+          # expires in ~30 days 05/22/2023
+          MPL_PAT: ${{ secrets.MPL_PAT }}
         run: |
-          AUTH="$(echo -n "pat:${PRIVATE_ESDK_PAT}" | base64 | tr -d '\n')"
+          AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
           git config --global --add url.https://github.com/.insteadOf git@github.com:
           git submodule update --init --recursive submodules/MaterialProviders
@@ -70,7 +84,8 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
-          dafny-version: "nightly-2023-04-12-f4836e9"
+          # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
+          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.1.0' }}
 
       - name: Setup Java 8
         uses: actions/setup-java@v3

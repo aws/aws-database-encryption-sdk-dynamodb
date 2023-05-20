@@ -8,7 +8,7 @@ module ExecuteTransactionTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
 
   method {:test} TestExecuteTransactionInputPassthrough() {
@@ -26,7 +26,7 @@ module ExecuteTransactionTransformTest {
       ReturnConsumedCapacity := None()
     );
     var good_transformed := middlewareUnderTest.ExecuteTransactionInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteTransactionInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ExecuteTransactionInputTransformInput(
         sdkInput := good_input
       )
     );
@@ -49,7 +49,7 @@ module ExecuteTransactionTransformTest {
       ReturnConsumedCapacity := None()
     );
     var bad_transformed := middlewareUnderTest.ExecuteTransactionInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteTransactionInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ExecuteTransactionInputTransformInput(
         sdkInput := bad_input
       )
     );
@@ -64,18 +64,18 @@ module ExecuteTransactionTransformTest {
       ConsumedCapacity := None()
     );
     var statement := GetStatement("foo");
+    var pstatement := DDB.ParameterizedStatement (
+      Statement := statement,
+      Parameters := None()
+    );
+    var pstatements := GetPStatements([pstatement]);
     var input := DDB.ExecuteTransactionInput(
-      TransactStatements :=  [
-        DDB.ParameterizedStatement (
-          Statement := statement,
-          Parameters := None()
-        )
-      ],
+      TransactStatements := pstatements,
       ClientRequestToken := None(),
       ReturnConsumedCapacity := None()
     );
     var transformed := middlewareUnderTest.ExecuteTransactionOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.ExecuteTransactionOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ExecuteTransactionOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

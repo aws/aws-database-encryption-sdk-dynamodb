@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AwsCryptographyDynamoDbEncryptionOperations.dfy"
+include "AwsCryptographyDbEncryptionSdkDynamoDbOperations.dfy"
 include "Beacon.dfy"
 include "CompoundBeacon.dfy"
 include "ConfigToInfo.dfy"
@@ -10,6 +10,7 @@ include "DDBSupport.dfy"
 include "DynamoDbEncryptionBranchKeyIdSupplier.dfy"
 include "DynamoToStruct.dfy"
 include "FilterExpr.dfy"
+include "NormalizeNumber.dfy"
 include "SearchInfo.dfy"
 include "TermLoc.dfy"
 include "UpdateExpr.dfy"
@@ -17,10 +18,10 @@ include "Util.dfy"
 include "Virtual.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption" }
-  DynamoDbEncryption refines AbstractAwsCryptographyDynamoDbEncryptionService
+  {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny" }
+  DynamoDbEncryption refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
 {
-  import Operations = AwsCryptographyDynamoDbEncryptionOperations
+  import Operations = AwsCryptographyDbEncryptionSdkDynamoDbOperations
 
   function method DefaultDynamoDbEncryptionConfig(): DynamoDbEncryptionConfig
   {

@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.searchableencryption;
+package software.amazon.cryptography.examples.searchableencryption;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,27 +13,27 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbEncryption.model.BeaconKeySource;
-import software.amazon.cryptography.dynamoDbEncryption.model.BeaconVersion;
-import software.amazon.cryptography.dynamoDbEncryption.model.CompoundBeacon;
-import software.amazon.cryptography.dynamoDbEncryption.model.Constructor;
-import software.amazon.cryptography.dynamoDbEncryption.model.ConstructorPart;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.SearchConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.SensitivePart;
-import software.amazon.cryptography.dynamoDbEncryption.model.SingleKeyStore;
-import software.amazon.cryptography.dynamoDbEncryption.model.StandardBeacon;
-import software.amazon.cryptography.keyStore.KeyStore;
-import software.amazon.cryptography.keyStore.model.CreateKeyInput;
-import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
-import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsHierarchicalKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySource;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconVersion;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CompoundBeacon;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Constructor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.ConstructorPart;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
+import software.amazon.cryptography.keystore.KeyStore;
+import software.amazon.cryptography.keystore.model.CreateKeyOutput;
+import software.amazon.cryptography.keystore.model.KMSConfiguration;
+import software.amazon.cryptography.keystore.model.KeyStoreConfig;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
   This example demonstrates how to set up a compound beacon on encrypted attributes,
@@ -60,15 +60,18 @@ import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionIntercepto
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
-    2. Branch key wrapping KMS key ARN for the KMS key used to create the branch key
-    3. Branch key DDB table ARN for the DDB table representing the branch key store
+    2. Branch key ID for a branch key that was previously created in your key store. See the
+       CreateKeyStoreKeyExample.
+    3. Branch key wrapping KMS key ARN for the KMS key used to create the branch key with ID
+       provided in arg 2
+    4. Branch key DDB table ARN for the DDB table representing the branch key store
  */
 
 public class CompoundBeaconSearchableEncryptionExample {
 
   static String GSI_NAME = "location-index";
 
-  public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
+  public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 1. Create Beacons.
     //    These are the same beacons as in the "BasicSearchableEncryptionExample" in this directory.
@@ -87,11 +90,11 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     standardBeaconList.add(numberBeacon);
 
-    // 2. Define sensitive parts.
-    //    Sensitive parts define the beacons that can be used to construct a compound beacon,
+    // 2. Define encrypted parts.
+    //    Encrypted parts define the beacons that can be used to construct a compound beacon,
     //        and how the compound beacon prefixes those beacon values.
-    List<SensitivePart> sensitivePartList = new ArrayList<>();
-    // A sensitive part must receive:
+    List<EncryptedPart> encryptedPartList = new ArrayList<>();
+    // A encrypted part must receive:
     //  - name: Name of a standard beacon
     //  - prefix: Any string. This is plaintext that prefixes the beaconized value in the compound beacon.
     //            Prefixes must be unique across the configuration, and must not be a prefix of another prefix;
@@ -100,19 +103,19 @@ public class CompoundBeaconSearchableEncryptionExample {
     // For this example, we will choose "S-" as the prefix for "State abbreviation".
     // With this prefix and the standard beacon's bit length definition (4), a state abbreviation beacon will appear
     //     as `S-0` to `S-f` inside a compound beacon.
-    SensitivePart sensitivePartStr = SensitivePart.builder()
+    EncryptedPart encryptedPartStr = EncryptedPart.builder()
         .name("state")
         .prefix("S-")
         .build();
-    sensitivePartList.add(sensitivePartStr);
+    encryptedPartList.add(encryptedPartStr);
     // For this example, we will choose "Z-" as the prefix for "Zipcode".
     // With this prefix and the standard beacon's bit length definition (10), a zipcode beacon will appear
     //     as `Z-000` to `Z-3ff` inside a compound beacon.
-    SensitivePart sensitivePartNum = SensitivePart.builder()
+    EncryptedPart encryptedPartNum = EncryptedPart.builder()
         .name("zip")
         .prefix("Z-")
         .build();
-    sensitivePartList.add(sensitivePartNum);
+    encryptedPartList.add(encryptedPartNum);
 
 
     // 3. Define compound beacon.
@@ -121,38 +124,37 @@ public class CompoundBeaconSearchableEncryptionExample {
     //     - name: The name of the beacon. Compound beacon values will be written to `aws_ddb_e_[name]`.
     //     - split: A character separating parts in a compound beacon
     //    A compound beacon may also receive:
-    //     - sensitive: A list of sensitive parts. This is effectively a list of beacons. We provide the list
+    //     - encrypted: A list of encrypted parts. This is effectively a list of beacons. We provide the list
     //                  that we created above.
     //     - constructors: A list of constructors. This is an ordered list of possible ways to create a beacon.
     //                     We have not defined any constructors here; see the complex example for how to do this.
     //                     The client will provide a default constructor, which will write a compound beacon as:
-    //                     all non-sensitive parts in the order they are added to the nonSensitive list;
-    //                     all sensitive parts in order they are added to the sensitive list; all parts required.
+    //                     all signed parts in the order they are added to the signed list;
+    //                     all encrypted parts in order they are added to the encrypted list; all parts required.
     //                     In this example, we expect compound beacons to be written as `S-X.Z-YYY`, since our
-    //                     sensitive list looks like [sensitivePartStr, sensitivePartNum].
-    //     - nonSensitive: A list of non-sensitive parts, i.e. plaintext attributes. This would be provided if we
+    //                     encrypted list looks like [encryptedPartStr, encryptedPartNum].
+    //     - signed: A list of signed parts, i.e. plaintext attributes. This would be provided if we
     //                     wanted to use plaintext values as part of constructing our compound beacon. We do not
     //                     provide this here; see the Complex example for an example.
     List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
     CompoundBeacon cpbeacon1 = CompoundBeacon.builder()
         .name("location")
         .split(".")
-        .sensitive(sensitivePartList)
+        .encrypted(encryptedPartList)
         .build();
     compoundBeaconList.add(cpbeacon1);
 
-    // 4. Create Keystore and branch key.
+    // 4. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
     KeyStore keyStore = KeyStore.builder()
         .KeyStoreConfig(KeyStoreConfig.builder()
             .kmsClient(KmsClient.create())
             .ddbClient(DynamoDbClient.create())
             .ddbTableName(branchKeyDdbTableName)
-            .kmsKeyArn(branchKeyWrappingKmsKeyArn)
+            .logicalKeyStoreName(branchKeyDdbTableName)
+            .kmsConfiguration(KMSConfiguration.builder().kmsKeyArn(branchKeyWrappingKmsKeyArn).build())
             .build())
         .build();
-    CreateKeyOutput output = keyStore.CreateKey(CreateKeyInput.builder().build());
-    String branchKeyId = output.branchKeyIdentifier();
 
     // 5. Create BeaconVersion.
     //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
@@ -200,6 +202,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
+        .logicalTableName(ddbTableName)
         .partitionKeyName("customer_id")
         .attributeActions(attributeActions)
         .keyring(kmsKeyring)
@@ -249,7 +252,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     // This query expression takes a few factors into consideration:
     //  - The configured state abbreviation prefix is "S-"; zipcode abbreviation prefix is "Z-"
     //  - The configured split character, separating component parts, is "."
-    //  - The default constructor adds sensitive parts in the order they are in the sensitive list, which
+    //  - The default constructor adds encrypted parts in the order they are in the encrypted list, which
     //    configures the state abbreviation to come before the zipcode
     // NOTE: We did not need to create a compound beacon for this query. This query could have also been
     //       done by querying on the partition and sort key, as was done in the Basic example.
@@ -280,12 +283,14 @@ public class CompoundBeaconSearchableEncryptionExample {
   }
 
   public static void main(final String[] args) {
-    if (args.length != 4) {
-      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
+    if (args.length <= 1) {
+      throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], branchKeyId as args[1], "
+              + "branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
     }
     final String ddbTableName = args[0];
-    final String branchKeyWrappingKmsKeyId = args[1];
-    final String branchKeyDdbTableName = args[2];
-    PutItemQueryItemWithCompoundBeacon(ddbTableName, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
+    final String branchKeyId = args[1];
+    final String branchKeyWrappingKmsKeyId = args[2];
+    final String branchKeyDdbTableName = args[3];
+    PutItemQueryItemWithCompoundBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyId, branchKeyDdbTableName);
   }
 }

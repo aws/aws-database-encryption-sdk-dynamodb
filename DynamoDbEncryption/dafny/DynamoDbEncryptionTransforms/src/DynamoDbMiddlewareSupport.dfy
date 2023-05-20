@@ -12,13 +12,13 @@ include "../../DynamoDbEncryption/src/DDBSupport.dfy"
 module DynamoDbMiddlewareSupport {
 
   import DDB = ComAmazonawsDynamodbTypes
-  import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened BS = DynamoDBSupport
   import opened DdbMiddlewareConfig
-  import AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
+  import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   import Util = DynamoDbEncryptionUtil
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
@@ -27,7 +27,7 @@ module DynamoDbMiddlewareSupport {
     : Result<bool, Error>
   {
     BS.IsWriteable(item)
-      .MapFailure(e => E(e))
+    .MapFailure(e => E(e))
   }
 
   // TestConditionExpression fails if a condition expression is not suitable for the
@@ -42,7 +42,7 @@ module DynamoDbMiddlewareSupport {
     : Result<bool, Error>
   {
     BS.TestConditionExpression(config.itemEncryptor.config.attributeActions, expr, attrNames, attrValues)
-      .MapFailure(e => E(e))
+    .MapFailure(e => E(e))
   }
 
   // TestUpdateExpression fails if an update expression is not suitable for the
@@ -57,36 +57,37 @@ module DynamoDbMiddlewareSupport {
     : Result<bool, Error>
   {
     BS.TestUpdateExpression(config.itemEncryptor.config.attributeActions, expr, attrNames, attrValues)
-      .MapFailure(e => E(e))
+    .MapFailure(e => E(e))
   }
 
   // AddSignedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
   method AddSignedBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
     returns (output : Result<DDB.AttributeMap, Error>)
-    requires AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
+    requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
     var ret := BS.AddSignedBeacons(config.search, item);
-    return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+    return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
   // GetEncryptedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning just the new items.
   method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Util.MaybeKeyId)
     returns (output : Result<DDB.AttributeMap, Error>)
-    requires AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
+    requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
     var ret := BS.GetEncryptedBeacons(config.search, item, keyId);
-    return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+    return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
-  function method GetBeaconKeyId(config : ValidTableConfig,
+  function method GetBeaconKeyId(
+    config : ValidTableConfig,
     keyExpr : Option<DDB.ConditionExpression>,
     filterExpr : Option<DDB.ConditionExpression>,
     values: Option<DDB.ExpressionAttributeValueMap>,
@@ -95,20 +96,53 @@ module DynamoDbMiddlewareSupport {
     : Result<Util.MaybeKeyId, Error>
   {
     BS.GetBeaconKeyId(config.search, keyExpr, filterExpr, values, names)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+    .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e))
   }
 
+  const HierarchicalKeyringId := UTF8.EncodeAscii("aws-kms-hierarchy")
+
   // Return Beacon Key ID for use in beaconizing records to be written
-  function method GetKeyIdFromHeader(config : ValidTableConfig, output : AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.EncryptItemOutput) :
-    Result<Option<string>, Error>
+  function method GetKeyIdFromHeader(config : ValidTableConfig, output : AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.EncryptItemOutput) :
+    (ret : Result<Option<string>, Error>)
+    ensures ret.Success? && config.search.Some? && config.search.value.curr().keySource.keyLoc.MultiLoc? ==>
+              && output.parsedHeader.Some?
+                 //= specification/searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header
+                 //= type=implication
+                 //# If the [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header)'s encrypted data keys
+                 //# do not contain only one encrypted data key
+                 //# this function MUST fail.
+              && var keys := output.parsedHeader.value.encryptedDataKeys;
+              && |keys| == 1
+
+              //= specification/searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header
+              //= type=implication
+              //# If this single encrypted data key's
+              //# [Key Provider ID](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/../structured-encryption/structures.md#key-provider-id)
+              //# does not equal the provider ID
+              //# for the [AWS KMS Hierarchical Keyring](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#ondecrypt)
+              //# this function MUST fail.
+              && keys[0].keyProviderId == HierarchicalKeyringId
+
+              //= specification/searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header
+              //= type=implication
+              //# This function MUST return the [Key Provider Information](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/../structured-encryption/structures.md#key-provider-id).
+              && UTF8.Decode(keys[0].keyProviderInfo).Success?
+              && ret.value == Some(UTF8.Decode(keys[0].keyProviderInfo).value)
   {
     if config.search.Some? && config.search.value.curr().keySource.keyLoc.MultiLoc? then
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-after-encrypt
+      //# If the [Beacon Key Source](#beacon-key-source) is a [Multi Key Store](#multi-key-store-initialization)
+      //# then `beacon key id` MUST be obtained from [Get beacon key id from parsed header](#get-beacon-key-id-from-parsed-header).
       :- Need(output.parsedHeader.Some?, E("In multi-tenant mode, the parsed header is required."));
       var keys := output.parsedHeader.value.encryptedDataKeys;
       :- Need(|keys| == 1, E("Encrypt header has more than one Encrypted Data Key"));
+      :- Need(keys[0].keyProviderId == HierarchicalKeyringId, E("In multi-tenant mode, keyProviderId must be aws-kms-hierarchy"));
       var keyId :- UTF8.Decode(keys[0].keyProviderInfo).MapFailure(e => E(e));
       Success(Some(keyId))
     else
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-after-encrypt
+      //# If the [Beacon Key Source](#beacon-key-source) is a [Single Key Store](#single-key-store-initialization)
+      //# then `beacon key id` MUST be the configured [beacon key id](#beacon-key-id)
       Success(None)
   }
 
@@ -118,7 +152,7 @@ module DynamoDbMiddlewareSupport {
     : Result<DDB.AttributeMap, Error>
   {
     BS.RemoveBeacons(config.search, item)
-      .MapFailure(e => E(e))
+    .MapFailure(e => E(e))
   }
 
   // Transform a CreateTableInput object for searchable encryption.
@@ -126,7 +160,7 @@ module DynamoDbMiddlewareSupport {
     : Result<DDB.CreateTableInput, Error>
   {
     BS.CreateTableInputForBeacons(config.search, config.itemEncryptor.config.attributeActions, req)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+    .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e))
   }
 
   // Transform a UpdateTableInput object for searchable encryption.
@@ -134,7 +168,7 @@ module DynamoDbMiddlewareSupport {
     : Result<DDB.UpdateTableInput, Error>
   {
     BS.UpdateTableInputForBeacons(config.search, config.itemEncryptor.config.attributeActions, req)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+    .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e))
   }
 
   // Transform a DescribeTableOutput object for searchable encryption.
@@ -142,7 +176,7 @@ module DynamoDbMiddlewareSupport {
     : Result<DDB.DescribeTableOutput, Error>
   {
     BS.DescribeTableOutputForBeacons(config.search, req)
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(e))
+    .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e))
   }
 
   // Transform a QueryInput object for searchable encryption.
@@ -152,8 +186,8 @@ module DynamoDbMiddlewareSupport {
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.QueryInputForBeacons(config.search, req);
-    return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+    var ret := BS.QueryInputForBeacons(config.search, config.itemEncryptor.config.attributeActions, req);
+    return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
   // Transform a QueryOutput object for searchable encryption.
@@ -166,7 +200,7 @@ module DynamoDbMiddlewareSupport {
     modifies OneSearchModifies(config)
   {
     var ret := BS.QueryOutputForBeacons(config.search, req, resp);
-    return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+    return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
   // Transform a ScanInput object for searchable encryption.
@@ -176,8 +210,8 @@ module DynamoDbMiddlewareSupport {
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.ScanInputForBeacons(config.search, req);
-    return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+    var ret := BS.ScanInputForBeacons(config.search, config.itemEncryptor.config.attributeActions, req);
+    return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
   // Transform a ScanOutput object for searchable encryption.
@@ -190,6 +224,6 @@ module DynamoDbMiddlewareSupport {
     modifies OneSearchModifies(config)
   {
     var ret := BS.ScanOutputForBeacons(config.search, req, resp);
-    return ret.MapFailure(e => AwsCryptographyDynamoDbEncryption(e));
+    return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 }

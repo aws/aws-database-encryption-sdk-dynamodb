@@ -6,14 +6,14 @@ module TestFixtures {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened AwsCryptographyDynamoDbEncryptionTransformsTypes
-  import opened AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DynamoDbEncryptionTransforms
   import DynamoDbItemEncryptor
   import AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
-  import CSE = AwsCryptographyStructuredEncryptionTypes
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import DDB = ComAmazonawsDynamodbTypes
 
   method GetTableName(s : string) returns (output : DDB.TableName)
@@ -83,14 +83,14 @@ module TestFixtures {
     map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY]
   }
 
-  method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
+  method GetEncryptorConfigFromActions(actions : AttributeActions) returns (output : DynamoDbItemEncryptorConfig) {
     var keyring := GetKmsKeyring();
-    var tableName := GetTableName("foo");
+    var logicalTableName := GetTableName("foo");
     output := DynamoDbItemEncryptorConfig(
-      tableName := tableName,
+      logicalTableName := logicalTableName,
       partitionKeyName := "bar",
       sortKeyName := None(),
-      attributeActions := GetAttributeActions(),
+      attributeActions := actions,
       allowedUnauthenticatedAttributes := Some(["nothing"]),
       allowedUnauthenticatedAttributePrefix := None(),
       keyring := Some(keyring),
@@ -101,6 +101,10 @@ module TestFixtures {
     );
   }
 
+  method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
+    output := GetEncryptorConfigFromActions(GetAttributeActions());
+  }
+
   method GetDynamoDbItemEncryptorFrom(config : DynamoDbItemEncryptorConfig)
     returns (encryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient)
     ensures encryptor.ValidState()
@@ -109,7 +113,7 @@ module TestFixtures {
   {
     var keyring := GetKmsKeyring();
     var encryptorConfig := DynamoDbItemEncryptorConfig(
-      tableName := config.tableName,
+      logicalTableName := config.logicalTableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,
       attributeActions := config.attributeActions,
@@ -135,7 +139,7 @@ module TestFixtures {
   }
 
 
-  method expect_ok<X>(tag : string, actual : Result<X, AwsCryptographyDynamoDbEncryptionTransformsTypes.Error>)
+  method expect_ok<X>(tag : string, actual : Result<X, AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error>)
     ensures actual.Success?
   {
     if actual.Failure? {
@@ -151,7 +155,7 @@ module TestFixtures {
     expect actual == expected;
   }
 
-  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDynamoDbEncryptionTransformsTypes.Error>, s : string)
+  method ExpectFailure<X>(ret : Result<X, AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error>, s : string)
   {
     if !ret.Failure? {
       print "Got Success when expected failure ", s, "\n";
@@ -211,6 +215,7 @@ module TestFixtures {
       DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
+            logicalTableName := "foo",
             partitionKeyName := "bar",
             sortKeyName := None(),
             attributeActions := map[

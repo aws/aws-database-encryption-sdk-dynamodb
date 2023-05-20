@@ -15,10 +15,10 @@ The first category is for general support, used across multiple DynamoDB API tra
  * [Writable](#writable) - are the attributes in this item ok to write
  * [TestConditionExpression](#testconditionexpression) - Is this condition expression suitable for use
  * [TestUpdateExpression](#testupdateexpression) - Is this update expression suitable for use
- * [AddNonSensitiveBeacons](#addnonsensitivebeacons) - Add non sensitive attributes to an item to enable searchable encryption
- * [AddSensitiveBeacons](#addsensitivebeacons) - Add attributes to an item to enable searchable encryption
+ * [AddSignedBeacons](#addsignedbeacons) - Add non encrypted attributes to an item to enable searchable encryption
+ * [GetEncryptedBeacons](#getencryptedbeacons) - Get new attributes for an item to enable searchable encryption
  * [RemoveBeacons](#removebeacons) - Remove all private attributes from an item,
- e.g. the ones added in [AddNonSensitiveBeacons](#addnonsensitivebeacons) and [AddSensitiveBeacons](#addsensitivebeacons)
+ e.g. the ones added in [AddSignedBeacons](#addsignedbeacons) and [GetEncryptedBeacons](#getencryptedbeacons)
  * [HandleBeaconKeyFieldName](#handlebeaconkeyfieldname) - Handle the beacon key field name for Multi Key Store configurations
 
 The second category is support for specific interceptors, where the whole input or output structure is modified.
@@ -32,10 +32,11 @@ The second category is support for specific interceptors, where the whole input 
 
 ## Writable
 
-Writeable MUST reject any item containing an attribute which
-* begins with `aws_dbe_`
-* has the same name as a [virtual field](../searchable-encryption/virtual.md)
-* has the same name as a [compound beacon](../searchable-encryption/beacons.md#compound-beacon)
+Writeable MUST reject any item containing an attribute which begins with `aws_dbe_`.
+
+One needn't worry about attributes with the same names as beacons or virtual fields, 
+because elsewhere we make sure that the beacons do not overlap with configured fields,
+and so trying to write those fields will result in "writing unconfigured field" errors already.
 
 ## TestConditionExpression
 
@@ -45,51 +46,49 @@ TestConditionExpression MUST fail if any operand in the condition expression is 
 
 TestUpdateExpression MUST fail if any operand in the update expression is a signed attribute name.
 
-## AddNonSensitiveBeacons
+## AddSignedBeacons
 
-AddNonSensitiveBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
+AddSignedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
 returning a replacement AttributeMap.
 
-AddNonSensitiveBeacons MUST only operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
-that do not have any [sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
+AddSignedBeacons MUST only operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
+that do not have any [encrypted parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
 
-For every configured compound beacons which only contains non sensitive parts
+For every configured compound beacons which only contains non encrypted parts
 that can be successfully built from the attributes in the input AttributeMap,
-AddNonSensitiveBeacons MUST add an attribute named NAME,
+AddSignedBeacons MUST add an attribute named NAME,
 where NAME is the name of the beacon.
 The value of this attribute MUST be a string,
 and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
-This new NonSensitiveBeacons MUST be added to [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
-as a [SIGN_ONLY](../structured-encryption/structures.md#sign_only) action.
 
 If the attribute NAME already exists,
 if the constructed compound beacon does not match
-the existing attribute value AddNonSensitiveBeacons MUST fail.
+the existing attribute value AddSignedBeacons MUST fail.
 
-AddNonSensitiveBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
+AddSignedBeacons MUST also add an attribute with name `aws_dbe_v_1` and whose value is a string containing a single space.
 
-The result of AddNonSensitiveBeacons MUST be a super set of everything in the input AttributeMap.
+The result of AddSignedBeacons MUST be a super set of everything in the input AttributeMap.
 
-## AddSensitiveBeacons
+## GetEncryptedBeacons
 
-AddSensitiveBeacons examines the [Encrypt Item Input](./encrypt-item.md#input)
+GetEncryptedBeacons examines the [Encrypt Item Input](./encrypt-item.md#input)
 and [Encrypt Item Output](./encrypt-item.md#output).
 
-To obtain [Beacon Key Materials] AddSensitiveBeacons
+To obtain [Beacon Key Materials] GetEncryptedBeacons
 MUST call [Get beacon key after encrypt](../searchable-encryption/search-config.md#get-beacon-key-after-encrypt).
 
-AddSensitiveBeacons MUST NOT operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
-that only have [non-sensitive parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
+GetEncryptedBeacons MUST NOT operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
+that only have [signed parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
 
 For all other configured beacons
 that can be successfully built from the attributes in the input AttributeMap,
-AddSensitiveBeacons MUST add an attribute named aws_dbe_b_NAME,
+GetEncryptedBeacons MUST add an attribute named aws_dbe_b_NAME,
 where NAME is the name of the beacon.
 The value of this attribute MUST be a string,
 and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value)
 
-The result of AddSensitiveBeacons MUST contain, unaltered,
-everything in the [Encrypt Item Output](./encrypt-item.md#output) AttributeMap.
+The result of GetEncryptedBeacons MUST NOT contain any keys
+in the [Encrypt Item Output](./encrypt-item.md#output) AttributeMap.
 
 ## RemoveBeacons
 
@@ -177,10 +176,10 @@ Transform an unencrypted [QueryInput](#queryinput) object for searchable encrypt
 
 The KeyConditions property MUST NOT be defined on [QueryInput](#queryinput).
 
-If the [QueryObject has sensitive values](#queryobject-has-sensitive-values)
+If the [QueryObject has encrypted values](#queryobject-has-encrypted-values)
 then QueryInputForBeacons MUST obtain [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials)
 from [Get beacon key for query](../searchable-encryption/search-config.md#get-beacon-key-for-query).
-If the [QueryObject does not have sensitive values](#queryobject-has-sensitive-values)
+If the [QueryObject does not have encrypted values](#queryobject-has-encrypted-values)
 then QueryInputForBeacons MUST NOT attempt to obtain [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials).
 
 For any operand in the KeyConditionExpression or FilterExpression which is a beacon name,
@@ -208,13 +207,26 @@ For example if the query is
 then the ExpressionAttributeValues must be changed to (:value = 13fd),
 where "13fd" is the calculated beacon value.
 
-### QueryObject has sensitive values
+If a single value in ExpressionAttributeValues is used in more than one context,
+for example an expression of `this = :foo OR that = :foo` where `this` and `that`
+are both beacons, this operation MUST fail.
+This includes the case where the KeyConditionExpression contains `this = :foo`
+and the FilterExpression includes `that = :foo`.
+This is because `:foo` can only hold one value, but the beaconization of `:foo`
+would be different for different beacons.
 
-Determines if a Query Object has sensitive values (ENCRYPT_AND_SIGN fields)
+Hypothetically, this operation could split `:foo` into `:foo1` and `:foo2`
+in this situation, but that risks leaking the connection between the two beacons and spoiling k-anonymity.
+Similarly, if one of the two was not a beacon, then we would be leaking the fact that
+this beacon came from that text.
+
+### QueryObject has encrypted values
+
+Determines if a Query Object has encrypted values (ENCRYPT_AND_SIGN fields)
 
 If there are any ExpressionAttributeValues that are referred to by
-a beacon name that contain sensitive values (ENCRYPT_AND_SIGN field)
-then QueryObject has sensitive values MUST return true.
+a beacon name that contain encrypted values (ENCRYPT_AND_SIGN field)
+then QueryObject has encrypted values MUST return true.
 Otherwise it MUST return false.
 
 ### QueryInput
@@ -229,7 +241,7 @@ We expect that the list of items returned will contain some extra records
 that matched the beacon values, but do not match the plaintext values
 if the customer has made a query over any encrypted fields.
 
-If the [QueryObject does not have sensitive values](#queryobject-has-sensitive-values)
+If the [QueryObject does not have encrypted values](#queryobject-has-encrypted-values)
 then QueryOutputForBeacons MUST not filter the results and MUST return.
 This is because the query may not have a beacon key id filed.
 

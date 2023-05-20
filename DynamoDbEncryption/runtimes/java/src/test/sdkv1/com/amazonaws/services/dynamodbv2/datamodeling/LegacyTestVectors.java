@@ -1,21 +1,21 @@
 package com.amazonaws.services.dynamodbv2.datamodeling;
 
-import Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Internal.InternalLegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal.InternalLegacyConfig;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.amazonaws.services.dynamodbv2.testing.types.*;
 import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.*;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.AesWrappingAlg;
-import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.*;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.AesWrappingAlg;
+import software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
@@ -146,7 +146,7 @@ public class LegacyTestVectors {
 
     final DynamoDbItemEncryptorConfig.Builder config = DynamoDbItemEncryptorConfig
       .builder()
-      .tableName(tableName)
+      .logicalTableName(tableName)
       .partitionKeyName(HASH_KEY)
       .legacyConfig(legacyConfig)
       // **Not** trying to write things,

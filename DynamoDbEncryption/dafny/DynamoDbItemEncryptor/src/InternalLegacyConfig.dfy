@@ -1,12 +1,12 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Model/AwsCryptographyDynamoDbEncryptionItemEncryptorTypes.dfy"
+include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy"
 
-module {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor.Internal"} InternalLegacyConfig {
+module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal"} InternalLegacyConfig {
   import opened Wrappers
-  import Types = AwsCryptographyDynamoDbEncryptionItemEncryptorTypes
-  import DDBE = AwsCryptographyDynamoDbEncryptionTypes
+  import Types = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+  import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
 
   class {:extern} InternalLegacyConfig {
 

@@ -7,10 +7,10 @@ module BeaconTestFixtures {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened AwsCryptographyDynamoDbEncryptionTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened DynamoDbEncryptionUtil
   import DDB = ComAmazonawsDynamodbTypes
-  import SE = AwsCryptographyStructuredEncryptionTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import KeyStore
   import Seq
   import KMS = Com.Amazonaws.Kms
@@ -31,66 +31,75 @@ module BeaconTestFixtures {
     expect a == b;
   }
 
-  const std2 := StandardBeacon(name := "std2", length := 2, loc := None)
-  const std4 := StandardBeacon(name := "std4", length := 4, loc := Some("std4"))
-  const std6 := StandardBeacon(name := "std6", length := 6, loc := Some("std6[0]"))
-  const NameB := StandardBeacon(name := "Name", length := 12, loc := None)
-  const TitleB := StandardBeacon(name := "Title", length := 12, loc := None)
-  const TooBadB := StandardBeacon(name := "TooBad", length := 12, loc := None)
+  const std2 := StandardBeacon(name := "std2", length := 24, loc := None)
+  const std4 := StandardBeacon(name := "std4", length := 24, loc := Some("std4"))
+  const std6 := StandardBeacon(name := "std6", length := 26, loc := Some("std6[0]"))
+  const NameB := StandardBeacon(name := "Name", length := 32, loc := None)
+  const TitleB := StandardBeacon(name := "Title", length := 32, loc := None)
+  const TooBadB := StandardBeacon(name := "TooBad", length := 32, loc := None)
 
-  const Year := NonSensitivePart(name := "Year", prefix := "Y_", loc := None)
-  const Month := NonSensitivePart(name := "Month", prefix := "M_", loc := Some("Date.Month"))
-  const Nothing := NonSensitivePart(name := "Nothing", prefix := "N__", loc := None)
+  const Year := SignedPart(name := "Year", prefix := "Y_", loc := None)
+  const Month := SignedPart(name := "Month", prefix := "M_", loc := Some("Date.Month"))
+  const Nothing := SignedPart(name := "Nothing", prefix := "N__", loc := None)
 
-  const Name := SensitivePart(name := "Name", prefix := "N_")
-  const Title := SensitivePart(name := "Title", prefix := "T_")
-  const TooBad := SensitivePart(name := "TooBad", prefix := "T")
+  const Name := EncryptedPart(name := "Name", prefix := "N_")
+  const Title := EncryptedPart(name := "Title", prefix := "T_")
+  const TooBad := EncryptedPart(name := "TooBad", prefix := "T")
 
   const NameTitle := CompoundBeacon (
                        name := "NameTitle",
                        split := ".",
-                       sensitive := Some([Name,Title]),
-                       nonSensitive := None,
+                       encrypted := Some([Name,Title]),
+                       signed := None,
                        constructors := None
                      )
   const YearName := CompoundBeacon (
                       name := "YearName",
                       split := ".",
-                      sensitive := Some([Name]),
-                      nonSensitive := Some([Year]),
+                      encrypted := Some([Name]),
+                      signed := Some([Year]),
                       constructors := None
                     )
   const BadPrefix := CompoundBeacon (
                        name := "BadPrefix",
                        split := ".",
-                       sensitive := Some([Name,Title,TooBad]),
-                       nonSensitive := None,
+                       encrypted := Some([Name,Title,TooBad]),
+                       signed := None,
                        constructors := None
                      )
   const BadPrefix2 := CompoundBeacon (
                         name := "BadPrefix2",
                         split := ".",
-                        sensitive := Some([Name]),
-                        nonSensitive := Some([Nothing]),
+                        encrypted := Some([Name]),
+                        signed := Some([Nothing]),
                         constructors := None
                       )
   const JustSigned := CompoundBeacon (
                         name := "JustSigned",
                         split := ".",
-                        sensitive := None,
-                        nonSensitive := Some([Year,Month]),
+                        encrypted := None,
+                        signed := Some([Year,Month]),
                         constructors := None
                       )
   const Mixed := CompoundBeacon (
                    name := "Mixed",
                    split := ".",
-                   sensitive := Some([Name,Title]),
-                   nonSensitive := Some([Year,Month]),
+                   encrypted := Some([Name,Title]),
+                   signed := Some([Year,Month]),
                    constructors := Some([
                                           Constructor(parts := [ConstructorPart(name := "Name", required := true), ConstructorPart(name := "Year", required := true)]),
                                           Constructor(parts := [ConstructorPart(name := "Title", required := true), ConstructorPart(name := "Month", required := false)])
                                         ])
                  )
+
+  const std2_beacon := "ac6f5d"
+  const Name_beacon := "7d9bfa40"
+  const Title_beacon := "e4feb833"
+  const std4_beacon := "0e9064"
+  const std6_beacon := "2d99222"
+  const NameTitle_beacon := "4c577d7"
+  const EmptyName_beacon := "e0e88994"
+  const EmptyTitle_beacon := "af34f26f"
 
   const Std2String := DDB.AttributeValue.N("1.23")
   const Std4String := DDB.AttributeValue.S("abc")
@@ -107,7 +116,7 @@ module BeaconTestFixtures {
   const VPart1 := VirtualPart(loc := "Name", trans := Some([insert(Insert(literal := "__"))]))
   const VPart2 := VirtualPart(loc := "Title", trans := Some([lower(Lower)]))
   const NameTitleField := VirtualField(name := "NameTitleField", parts := [VPart1, VPart2])
-  const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 8, loc := None)
+  const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 28, loc := None)
   const NameVirtField := VirtualField(name := "NameVirtField", parts := [VPart1])
 
   method GetKeyStore() returns (output : SI.ValidStore)
@@ -115,10 +124,15 @@ module BeaconTestFixtures {
   {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDBC.DynamoDBClient();
+    var kmsConfig := KTypes.KMSConfiguration.kmsKeyArn(
+      "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+    );
     var keyStoreConfig := KTypes.KeyStoreConfig(
       id := None,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := "foo",
+      grantTokens := None,
       ddbTableName := "foo",
-      kmsKeyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126",
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
@@ -160,6 +174,7 @@ module BeaconTestFixtures {
   }
 
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
+                              logicalTableName := "Foo",
                               partitionKeyName := "foo",
                               sortKeyName := None,
                               search := None,

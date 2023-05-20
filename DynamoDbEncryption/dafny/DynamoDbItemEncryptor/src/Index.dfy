@@ -1,29 +1,30 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AwsCryptographyDynamoDbEncryptionItemEncryptorOperations.dfy"
+include "AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.dfy"
 include "Util.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.DynamoDbEncryption.ItemEncryptor" }
-  DynamoDbItemEncryptor refines AbstractAwsCryptographyDynamoDbEncryptionItemEncryptorService
+  {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny" }
+  DynamoDbItemEncryptor refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService
 {
   import opened DynamoDbItemEncryptorUtil
   import StructuredEncryption
-  import CSE = AwsCryptographyStructuredEncryptionTypes
-  import DDBE = AwsCryptographyDynamoDbEncryptionTypes
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import MaterialProviders
-  import Operations = AwsCryptographyDynamoDbEncryptionItemEncryptorOperations
+  import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   import SE =  StructuredEncryptionUtil
   import InternalLegacyConfig
+  import SortedSets
+  import DDB = ComAmazonawsDynamodbTypes
 
-  // TODO there is no sensible default, so what should this do?
-  // As is, the default config is invalid. Can we update the codegen to *not*
-  // build a default config?
+
+  // There is no sensible default, so construct something simple but invalid at runtime.
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
   {
     DynamoDbItemEncryptorConfig(
-      tableName := "foo",
+      logicalTableName := "foo",
       partitionKeyName := "bar",
       sortKeyName := None(),
       attributeActions := map[],
@@ -46,7 +47,7 @@ module
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<DynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
-      && res.value.config.tableName == config.tableName
+      && res.value.config.logicalTableName == config.logicalTableName
       && res.value.config.partitionKeyName == config.partitionKeyName
       && res.value.config.sortKeyName == config.sortKeyName
       && res.value.config.attributeActions == config.attributeActions
@@ -92,42 +93,45 @@ module
         message := "Sort key attribute action MUST be SIGN_ONLY"
       ));
 
-    var attributeActions' := config.attributeActions;
-    while attributeActions'.Keys != {}
-      invariant forall attribute <- (config.attributeActions - attributeActions'.Keys)
-      :: Operations.ForwardCompatibleAttributeAction(
-          attribute,
-          config.attributeActions[attribute],
-          config.allowedUnauthenticatedAttributes,
-          config.allowedUnauthenticatedAttributePrefix)
-      invariant forall attribute <- (config.attributeActions - attributeActions'.Keys)
-      :: UnreservedPrefix(attribute)
+    var attributeNames : seq<DDB.AttributeName> := SortedSets.ComputeSetToOrderedSequence2(config.attributeActions.Keys, CharLess);
+    for i := 0 to |attributeNames|
+      invariant forall j | 0 <= j < i ::
+      && UnreservedPrefix(attributeNames[j])
+      && (Operations.ForwardCompatibleAttributeAction(
+               attributeNames[j],
+               config.attributeActions[attributeNames[j]],
+               config.allowedUnauthenticatedAttributes,
+               config.allowedUnauthenticatedAttributePrefix))
     {
-      var attribute :| attribute in attributeActions';
-      var action := config.attributeActions[attribute];
+      var attributeName := attributeNames[i];
+      var action := config.attributeActions[attributeName];
       if !(Operations.ForwardCompatibleAttributeAction(
-          attribute,
+          attributeName,
           action,
           config.allowedUnauthenticatedAttributes,
           config.allowedUnauthenticatedAttributePrefix
         ))
       {
         return Failure(DynamoDbItemEncryptorException(
-          message := Operations.ExplainNotForwardCompatible(attribute, action, config.allowedUnauthenticatedAttributes, config.allowedUnauthenticatedAttributePrefix)
+          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.allowedUnauthenticatedAttributes, config.allowedUnauthenticatedAttributePrefix)
         ));
       }
-      if !UnreservedPrefix(attribute) {
+      if !UnreservedPrefix(attributeName) {
         return Failure(DynamoDbItemEncryptorException(
-          message := "Attribute: " + attribute + " is reserved, and may not be configured."
+          message := "Attribute: " + attributeName + " is reserved, and may not be configured."
         ));
       }
-      attributeActions' := attributeActions' - {attribute};
+      assert UnreservedPrefix(attributeName);
+      assert UnreservedPrefix(attributeNames[i]);
     }
+    assert (forall attribute <- attributeNames :: UnreservedPrefix(attribute));
+    assert (forall attribute <- config.attributeActions.Keys :: UnreservedPrefix(attribute));
+    assert (forall attribute <- config.attributeActions.Keys :: !(ReservedPrefix <= attribute));
 
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
     var structuredEncryption :- structuredEncryptionRes
-      .MapFailure(e => AwsCryptographyDynamoDbEncryption(DDBE.AwsCryptographyStructuredEncryption(e)));
+      .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
 
     var cmm;
     if (config.cmm.Some?) {
@@ -175,7 +179,7 @@ module
 
     var internalConfig := Operations.Config(
       cmpClient := cmpClient,
-      tableName := config.tableName,
+      logicalTableName := config.logicalTableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,
       attributeActions := config.attributeActions,

@@ -50,8 +50,8 @@ The algorithm suite indicated by the flavor MUST be a
 
 | Value | Algorithm Suite ID | Algorithm Suite Enum |
 |---|---|---|
-| 0x01 | 0x67 0x01 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 |
-| 0x00 | 0x67 0x00 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
+| 0x00 | 0x67 0x00 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 |
+| 0x01 | 0x67 0x01 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
 
 ### Message ID
 
@@ -112,8 +112,6 @@ followed by the length of the key, followed by the key as a UTF8 string.
 
 ### Encryption Context
 
-TODO: Link directly to the MPL definition once it is more generalized.
-
 The Encryption Context MUST be serialized as follows
 
 | Field | Length (bytes) | Interpreted as |
@@ -144,8 +142,6 @@ Each Key Value Pair MUST be serialized as follows
 | Value | Variable. Equal to the value specified in the previous 2 bytes (Value Length). | UTF-8 encoded bytes |
 
 ### Encrypted Data Keys
-
-TODO : This is the same as in ESDK and MPL. Should they be unified somehow?
 
 The Encrypted Data Keys MUST be serialized as follows
 

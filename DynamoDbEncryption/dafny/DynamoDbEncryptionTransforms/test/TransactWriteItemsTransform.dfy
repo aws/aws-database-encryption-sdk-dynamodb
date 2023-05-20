@@ -8,7 +8,7 @@ module TransactWriteItemsTransformTest {
   import opened DynamoDbEncryptionTransforms
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
-  import AwsCryptographyDynamoDbEncryptionTransformsTypes
+  import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 
   method {:test} TestTransactWriteItemsInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
@@ -34,7 +34,7 @@ module TransactWriteItemsTransformTest {
       ClientRequestToken := None()
     );
     var transformed := middlewareUnderTest.TransactWriteItemsInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactWriteItemsInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.TransactWriteItemsInputTransformInput(
         sdkInput := input
       )
     );
@@ -59,7 +59,7 @@ module TransactWriteItemsTransformTest {
       ClientRequestToken := None()
     );
     var transformed := middlewareUnderTest.TransactWriteItemsInputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactWriteItemsInputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.TransactWriteItemsInputTransformInput(
         sdkInput := input
       )
     );
@@ -86,7 +86,7 @@ module TransactWriteItemsTransformTest {
       ClientRequestToken := None()
     );
     var transformed := middlewareUnderTest.TransactWriteItemsOutputTransform(
-      AwsCryptographyDynamoDbEncryptionTransformsTypes.TransactWriteItemsOutputTransformInput(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.TransactWriteItemsOutputTransformInput(
         sdkOutput := output,
         originalInput := input
       )

@@ -1,29 +1,23 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-namespace aws.cryptography.dynamoDbEncryption.transforms
+namespace aws.cryptography.dbEncryptionSdk.dynamoDb.transforms
 
-use aws.cryptography.dynamoDbEncryption#DynamoDbTablesEncryptionConfig
+use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbTablesEncryptionConfig
+
+use com.amazonaws.dynamodb#DynamoDB_20120810
+use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
+use aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor#DynamoDbItemEncryptor
 
 use aws.polymorph#localService
 
-// TODO The middleware trait is not yet implemented,
-// Ideally, this trait will:
-//     1. Be syntactic sugar to represent the verbose Transform operation smithy models.
-//     2. Additionally implement all the Transform operations in Dafny as passthrough,
-//        with an ability to easily add more specific impl via specific Transform*' methods.
-//     3. Generate the language-idiomatic way to integrate with the SDK
-//        (e.g. the Java SDK Interceptor)
-//        that takes in DynamoDbTablesEncryptionConfig as input.
-// 
-// @middleware(
-//     awsService: DynamoDB_20120810,
-//     config: DynamoDbTablesEncryptionConfig,
-//     errors: [DynamoDbEncryptionException]
-//     name: "DynamoDbEncryptionTransforms"
-// )
 @localService(
   sdkId: "DynamoDbEncryptionTransforms",
   config: DynamoDbTablesEncryptionConfig,
+  dependencies: [
+    DynamoDB_20120810,
+    DynamoDbEncryption,
+    DynamoDbItemEncryptor,
+  ]
 )
 service DynamoDbEncryptionTransforms {
     version: "2022-11-21",
@@ -64,10 +58,10 @@ service DynamoDbEncryptionTransforms {
     errors: [ DynamoDbEncryptionTransformsException ]
 }
 
-@aws.polymorph#reference(service: aws.cryptography.dynamoDbEncryption.itemEncryptor#DynamoDbItemEncryptor)
+@aws.polymorph#reference(service: aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor#DynamoDbItemEncryptor)
 structure DynamoDbItemEncryptorReference {}
 
-@aws.polymorph#reference(service: aws.cryptography.dynamoDbEncryption#DynamoDbEncryption)
+@aws.polymorph#reference(service: aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption)
 structure DynamoDbEncryptionReference {}
 
 @error("client")

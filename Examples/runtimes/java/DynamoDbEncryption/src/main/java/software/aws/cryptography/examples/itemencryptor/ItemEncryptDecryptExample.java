@@ -1,15 +1,15 @@
-package software.aws.cryptography.examples.itemencryptor;
+package software.amazon.cryptography.examples.itemencryptor;
 
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DecryptItemInput;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.EncryptItemInput;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemInput;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -92,7 +92,7 @@ public class ItemEncryptDecryptExample {
 
         // 3. Create the configuration for the DynamoDb Item Encryptor
         final DynamoDbItemEncryptorConfig config = DynamoDbItemEncryptorConfig.builder()
-                .tableName(ddbTableName)
+                .logicalTableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActions(attributeActions)
