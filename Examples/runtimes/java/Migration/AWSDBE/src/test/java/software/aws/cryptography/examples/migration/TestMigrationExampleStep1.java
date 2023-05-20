@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.migration;
+package software.amazon.cryptography.examples.migration;
 
 import org.testng.annotations.Test;
 

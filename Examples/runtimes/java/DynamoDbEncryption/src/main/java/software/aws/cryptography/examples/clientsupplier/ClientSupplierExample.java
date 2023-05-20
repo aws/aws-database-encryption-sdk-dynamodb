@@ -1,7 +1,6 @@
-package software.amazon.cryptography.examples.keyring;
+package software.amazon.cryptography.examples.clientsupplier;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,18 +23,18 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
-  This example sets up a MRK discovery multi-keyring to decrypt data using
-  the DynamoDB encryption client. A discovery keyring is not provided with any wrapping
-  keys; instead, it recognizes the KMS key that was used to encrypt a data key,
-  and asks KMS to decrypt with that KMS key. Discovery keyrings cannot be used
-  to encrypt data.
+  This example sets up an MRK multi-keyring and an MRK discovery
+  multi-keyring using a custom client supplier.
+  A custom client supplier grants users access to more granular
+  configuration aspects of their authentication details and KMS
+  client. In this example, we create a simple custom client supplier
+  that authenticates with a different IAM role based on the
+  region of the KMS key.
 
-  For more information on discovery keyrings, see
-  https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-kms-keyring.html#kms-keyring-discovery
-
-  This example encrypts an item using an MRK multi-keyring and puts the
-  encrypted item to the configured DynamoDb table. Then, it gets the item
-  from the table and decrypts it using the discovery keyring.
+  This example creates a MRK multi-keyring configured with a custom
+  client supplier using a single MRK and puts an encrypted item to the
+  table. Then, it creates a MRK discovery multi-keyring to decrypt the item
+  and retrieves the item from the table.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -44,32 +43,36 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
  */
-public class MrkDiscoveryMultiKeyringExample {
+public class ClientSupplierExample {
 
-    public static void MultiMrkDiscoveryKeyringGetItemPutItem(String ddbTableName, String keyArn,
+    public static void ClientSupplierPutItemGetItem(String ddbTableName, String keyArn,
             List<String> accountIds, List<String> regions) {
-        // 1. Create a single MRK multi-keyring using the key arn.
-        //    Although this example demonstrates use of the MRK discovery multi-keyring,
-        //    a discovery keyring cannot be used to encrypt. So we will need to construct
-        //    a non-discovery keyring for this example to encrypt. For more information on MRK
-        //    multi-keyrings, see the MultiMrkKeyringExample in this directory.
-        //    Though this is an "MRK multi-keyring", we do not need to provide multiple keys,
-        //    and can use single-region KMS keys. We will provide a single key here; this
-        //    can be either an MRK or a single-region key.
+        // 1. Create a single MRK multi-keyring.
+        //    This can be either a single-region KMS key or an MRK.
+        //    For this example to succeed, the key's region must either
+        //    1) be in the regions list, or
+        //    2) the key must be an MRK with a replica defined
+        //    in a region in the regions list, and the client
+        //    must have the correct permissions to access the replica.
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
+        // Create the multi-keyring using our custom client supplier
+        // defined in the RegionalRoleClientSupplier class in this directory.
         final CreateAwsKmsMrkMultiKeyringInput createAwsKmsMrkMultiKeyringInput =
             CreateAwsKmsMrkMultiKeyringInput.builder()
+                // Note: RegionalRoleClientSupplier will internally use the keyArn's region
+                // to retrieve the correct IAM role.
+                .clientSupplier(new RegionalRoleClientSupplier())
                 .generator(keyArn)
                 .build();
-        IKeyring encryptKeyring = matProv.CreateAwsKmsMrkMultiKeyring(createAwsKmsMrkMultiKeyringInput);
+        IKeyring mrkKeyringWithClientSupplier = matProv.CreateAwsKmsMrkMultiKeyring(createAwsKmsMrkMultiKeyringInput);
 
         // 2. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
         //    we must explicitly configure how they should be treated during item encryption:
-        //      - ENCRYPT_AND_SIGN: The attribute is encrypted and icncluded in the signature
-        //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
+        //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
+        //      - SIGN_ONLY: The attribute is not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
         final Map<String, CryptoAction> attributeActions = new HashMap<>();
         attributeActions.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
@@ -113,7 +116,7 @@ public class MrkDiscoveryMultiKeyringExample {
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActions(attributeActions)
-                .keyring(encryptKeyring)
+                .keyring(mrkKeyringWithClientSupplier)
                 .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
                 .build();
         tableConfigs.put(ddbTableName, config);
@@ -136,8 +139,11 @@ public class MrkDiscoveryMultiKeyringExample {
         // 7. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
         //    client-side using the MRK multi-keyring.
+        //    The data key protecting this item will be encrypted
+        //    with all the KMS Keys in this keyring, so that it can be
+        //    decrypted with any one of those KMS Keys.
         final HashMap<String, AttributeValue> item = new HashMap<>();
-        item.put("partition_key", AttributeValue.builder().s("awsKmsMrkDiscoveryMultiKeyringItem").build());
+        item.put("partition_key", AttributeValue.builder().s("clientSupplierItem").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
         item.put("sensitive_data", AttributeValue.builder().s("encrypt and sign me!").build());
 
@@ -151,65 +157,11 @@ public class MrkDiscoveryMultiKeyringExample {
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 8. Construct a discovery filter.
-        //    A discovery filter limits the set of encrypted data keys
-        //    the keyring can use to decrypt data.
-        //    We will only let the keyring use keys in the selected AWS accounts
-        //    and in the `aws` partition.
-        //    This is the suggested config for most users; for more detailed config, see
-        //      https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-kms-keyring.html#kms-keyring-discovery
-        DiscoveryFilter discoveryFilter = DiscoveryFilter.builder()
-            .partition("aws")
-            .accountIds(accountIds)
-            .build();
-
-        // 9. Construct a discovery keyring.
-        //    Note that we choose to use the MRK discovery multi-keyring, even though
-        //    our original keyring used a single KMS key.
-        CreateAwsKmsMrkDiscoveryMultiKeyringInput createAwsKmsMrkDiscoveryMultiKeyringInput =
-            CreateAwsKmsMrkDiscoveryMultiKeyringInput.builder()
-                .discoveryFilter(discoveryFilter)
-                .regions(regions)
-                .build();
-        IKeyring decryptKeyring = matProv.CreateAwsKmsMrkDiscoveryMultiKeyring(
-            createAwsKmsMrkDiscoveryMultiKeyringInput);
-
-        // 10. Create new DDB config and client using the decrypt discovery keyring.
-        //     This is the same as the above config, except we pass in the decrypt keyring.
-        final Map<String, DynamoDbTableEncryptionConfig> tableConfigsForDecrypt = new HashMap<>();
-        final DynamoDbTableEncryptionConfig configForDecrypt = DynamoDbTableEncryptionConfig.builder()
-            .logicalTableName(ddbTableName)
-            .partitionKeyName("partition_key")
-            .sortKeyName("sort_key")
-            .attributeActions(attributeActions)
-            // Add decrypt keyring here
-            .keyring(decryptKeyring)
-            .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
-            .build();
-        tableConfigsForDecrypt.put(ddbTableName, configForDecrypt);
-
-        DynamoDbEncryptionInterceptor encryptionInterceptorForDecrypt = DynamoDbEncryptionInterceptor.builder()
-            .config(DynamoDbTablesEncryptionConfig.builder()
-                .tableEncryptionConfigs(tableConfigsForDecrypt)
-                .build())
-            .build();
-
-        final DynamoDbClient ddbClientForDecrypt = DynamoDbClient.builder()
-            .overrideConfiguration(
-                ClientOverrideConfiguration.builder()
-                    .addExecutionInterceptor(encryptionInterceptorForDecrypt)
-                    .build())
-            .build();
-
-        // 11. Get the item back from our table using the client.
-        //     The client will retrieve encrypted items from the DDB table, then
-        //     detect the KMS key that was used to encrypt their data keys.
-        //     The client will make a request to KMS to decrypt with the encrypting KMS key.
-        //     If the client has permission to decrypt with the KMS key,
-        //     the client will decrypt the item client-side using the keyring
-        //     and return the original item.
+        // 8. Get the item back from our table using the same keyring.
+        //    The client will decrypt the item client-side using the MRK
+        //    and return the original item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-        keyToGet.put("partition_key", AttributeValue.builder().s("awsKmsMrkDiscoveryMultiKeyringItem").build());
+        keyToGet.put("partition_key", AttributeValue.builder().s("clientSupplierItem").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
         final GetItemRequest getRequest = GetItemRequest.builder()
@@ -217,20 +169,96 @@ public class MrkDiscoveryMultiKeyringExample {
                 .tableName(ddbTableName)
                 .build();
 
-        final GetItemResponse getResponse = ddbClientForDecrypt.getItem(getRequest);
+        final GetItemResponse getResponse = ddbClient.getItem(getRequest);
 
         // Demonstrate that GetItem succeeded and returned the decrypted item
         assert 200 == getResponse.sdkHttpResponse().statusCode();
         final Map<String, AttributeValue> returnedItem = getResponse.item();
         assert returnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
+
+        // 9. Create a MRK discovery multi-keyring with a custom client supplier.
+        //    A discovery MRK multi-keyring will be composed of
+        //    multiple discovery MRK keyrings, one for each region.
+        //    Each component keyring has its own KMS client in a particular region.
+        //    When we provide a client supplier to the multi-keyring, all component
+        //    keyrings will use that client supplier configuration.
+        //    In our tests, we make `keyArn` an MRK with a replica, and
+        //    provide only the replica region in our discovery filter.
+        DiscoveryFilter discoveryFilter = DiscoveryFilter.builder()
+            .partition("aws")
+            .accountIds(accountIds)
+            .build();
+
+        final CreateAwsKmsMrkDiscoveryMultiKeyringInput mrkDiscoveryClientSupplierInput =
+            CreateAwsKmsMrkDiscoveryMultiKeyringInput.builder()
+                .clientSupplier(new RegionalRoleClientSupplier())
+                .discoveryFilter(discoveryFilter)
+                .regions(regions)
+                .build();
+        IKeyring mrkDiscoveryClientSupplierKeyring = matProv.CreateAwsKmsMrkDiscoveryMultiKeyring(
+            mrkDiscoveryClientSupplierInput);
+
+        // 10. Create a new config and client using the discovery keyring.
+        //     This is the same setup as above, except we provide the discovery keyring to the config.
+        final Map<String, DynamoDbTableEncryptionConfig> onlyReplicaKeyTableConfigs = new HashMap<>();
+        final DynamoDbTableEncryptionConfig onlyReplicaKeyConfig = DynamoDbTableEncryptionConfig.builder()
+            .logicalTableName(ddbTableName)
+            .partitionKeyName("partition_key")
+            .sortKeyName("sort_key")
+            .attributeActions(attributeActions)
+            // Provide discovery keyring here
+            .keyring(mrkDiscoveryClientSupplierKeyring)
+            .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
+            .build();
+        onlyReplicaKeyTableConfigs.put(ddbTableName, onlyReplicaKeyConfig);
+
+        DynamoDbEncryptionInterceptor onlyReplicaKeyEncryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
+            .config(DynamoDbTablesEncryptionConfig.builder()
+                .tableEncryptionConfigs(onlyReplicaKeyTableConfigs)
+                .build())
+            .build();
+
+        final DynamoDbClient onlyReplicaKeyDdbClient = DynamoDbClient.builder()
+            .overrideConfiguration(
+                ClientOverrideConfiguration.builder()
+                    .addExecutionInterceptor(onlyReplicaKeyEncryptionInterceptor)
+                    .build())
+            .build();
+
+        // 11. Get the item back from our table using the discovery keyring client.
+        //     The client will decrypt the item client-side using the keyring,
+        //     and return the original item.
+        //     The discovery keyring will only use KMS keys in the provided regions and
+        //     AWS accounts. Since we have provided it with a custom client supplier
+        //     which uses different IAM roles based on the key region,
+        //     the discovery keyring will use a particular IAM role to decrypt
+        //     based on the region of the KMS key it uses to decrypt.
+        final HashMap<String, AttributeValue> onlyReplicaKeyKeyToGet = new HashMap<>();
+        onlyReplicaKeyKeyToGet.put("partition_key", AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build());
+        onlyReplicaKeyKeyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+
+        final GetItemRequest onlyReplicaKeyGetRequest = GetItemRequest.builder()
+            .key(onlyReplicaKeyKeyToGet)
+            .tableName(ddbTableName)
+            .build();
+
+        final GetItemResponse onlyReplicaKeyGetResponse = onlyReplicaKeyDdbClient.getItem(onlyReplicaKeyGetRequest);
+
+        // Demonstrate that GetItem succeeded and returned the decrypted item
+        assert 200 == onlyReplicaKeyGetResponse.sdkHttpResponse().statusCode();
+        final Map<String, AttributeValue> onlyReplicaKeyReturnedItem = onlyReplicaKeyGetResponse.item();
+        assert onlyReplicaKeyReturnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
+
+        // TODO: After adding MissingRegionException, give an example with a fake region
+        // demonstrating that MissingRegionException extends AwsCryptographicMaterialProvidersException
     }
 
     public static void main(final String[] args) {
         if (args.length <= 1) {
-            throw new IllegalArgumentException("To run this example, include the ddbTable, mrkKeyArn, accounts, and region in args");
+            throw new IllegalArgumentException("To run this example, include the ddbTable, keyArn, AWS accounts, and regions in args");
         }
         final String ddbTableName = args[0];
-        final String mrkArn = args[1];
+        final String keyArn = args[1];
 
         // We will assume only 1 AWS account and 1 region will be passed into args.
         // To add more of either, change this number, then pass them into args.
@@ -247,6 +275,6 @@ public class MrkDiscoveryMultiKeyringExample {
         for (int i = firstRegionIndex; i < firstRegionIndex + numberOfRegions; i++) {
             regions.add(args[i]);
         }
-        MultiMrkDiscoveryKeyringGetItemPutItem(ddbTableName, mrkArn, accounts, regions);
+        ClientSupplierPutItemGetItem(ddbTableName, keyArn, accounts, regions);
     }
 }
