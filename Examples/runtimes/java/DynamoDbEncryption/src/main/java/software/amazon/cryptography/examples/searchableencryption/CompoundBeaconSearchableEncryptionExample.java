@@ -38,7 +38,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 /*
   This example demonstrates how to set up a compound beacon on encrypted attributes,
       put an item with the beacon, and query against that beacon.
-  This example follows a use case of a database that stores associates a customer
+  This example follows a use case of a database that associates a customer
       with a particular building ID and floor number. (Maybe this is a database for
       a storage business, and this is where a customer's belongings are stored.)
   We will set up a compound beacon on these attributes so we can query against them.
