@@ -65,12 +65,8 @@ val dynamodb by configurations.creating
 
 dependencies {
     implementation("org.dafny:DafnyRuntime:4.1.0")
-    implementation("software.amazon.dafny:conversion:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:StandardLibrary:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:AwsCryptographyPrimitives:1.0-SNAPSHOT")
+    implementation("software.amazon.smithy.dafny:conversion:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:ComAmazonawsDynamodb:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:ComAmazonawsKms:1.0-SNAPSHOT")
 
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")

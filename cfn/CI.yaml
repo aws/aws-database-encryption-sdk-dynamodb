@@ -60,6 +60,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_location"
           AttributeType: "S"
+        - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
+          AttributeType: "S"
       GlobalSecondaryIndexes:
         - IndexName: "state-zip-index"
           KeySchema:
@@ -75,6 +77,15 @@ Resources:
         - IndexName: "location-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_location"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "stateAndHasSensitiveData-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
@@ -241,9 +252,44 @@ Resources:
               - kms:Encrypt
               - kms:Decrypt
               - kms:GenerateDataKey
+              - kms:GetPublicKey
             Resource:
               - !Sub "arn:aws:kms:*:658956600833:key/*"
               - !Sub "arn:aws:kms:*:658956600833:alias/*"
+
+  KMSUsageOnlyUsEast1Keys:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: !Sub "${ProjectName}-KMS-only-us-east-1"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey
+              - kms:GetPublicKey
+            Resource:
+              - !Sub "arn:aws:kms:us-east-1:658956600833:key/*"
+              - !Sub "arn:aws:kms:us-east-1:658956600833:alias/*"
+
+  KMSUsageOnlyEuWest1Keys:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: !Sub "${ProjectName}-KMS-only-eu-west-1"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey
+              - kms:GetPublicKey
+            Resource:
+              - !Sub "arn:aws:kms:eu-west-1:658956600833:key/*"
+              - !Sub "arn:aws:kms:eu-west-1:658956600833:alias/*"
 
   GitHubCIRole:
     Type: 'AWS::IAM::Role'
@@ -260,6 +306,88 @@ Resources:
         {
           "Version": "2012-10-17",   
           "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "Federated": "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com" },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                },
+                "StringLike": {
+                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                }
+              }
+            },
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+
+  GithubCIRoleOnlyUsEast1Keys:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub "GitHub-CI-${ProjectName}-Role-only-us-east-1-KMS-keys"
+      Description: "Access DDB, KMS, & CA Resources for CI from GitHub. Only grants access to use keys in us-east-1 region. Created for use by CI while executing Custom Client Supplier Example."
+      ManagedPolicyArns:
+        - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
+        - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
+        - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
+        - !Ref KMSUsageOnlyUsEast1Keys
+        - !Ref DDBUsage
+      AssumeRolePolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",   
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" },
+              "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": { "Federated": "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com" },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                },
+                "StringLike": {
+                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                }
+              }
+            },
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+
+  GithubCIRoleOnlyEuWest1Keys:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub "GitHub-CI-${ProjectName}-Role-only-eu-west-1-KMS-keys"
+      Description: "Access DDB, KMS, & CA Resources for CI from GitHub. Only grants access to use keys in eu-west-1 region. Created for use by CI while executing Custom Client Supplier Example."
+      ManagedPolicyArns:
+        - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
+        - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
+        - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
+        - !Ref KMSUsageOnlyEuWest1Keys
+        - !Ref DDBUsage
+      AssumeRolePolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",   
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" },
+              "Action": "sts:AssumeRole"
+            },
             {
               "Effect": "Allow",
               "Principal": { "Federated": "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com" },
