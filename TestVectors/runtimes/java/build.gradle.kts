@@ -1,5 +1,7 @@
 import java.net.URI
 import javax.annotation.Nullable
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 tasks.wrapper {
     gradleVersion = "7.6"
