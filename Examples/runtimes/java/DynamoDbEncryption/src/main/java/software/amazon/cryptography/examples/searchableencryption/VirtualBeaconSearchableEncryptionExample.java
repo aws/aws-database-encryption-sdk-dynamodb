@@ -63,7 +63,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 
   To be able to execute this query securely and efficiently, we want the following
   properties on our table:
-   1. Obfuscate whether a record's `hasTestResult` attribute is `true` or `false`
+   1. Hide whether a record's `hasTestResult` attribute is `true` or `false`
    2. Query against a combination of whether `hasTestResult` is true/false and the `state` field
   We could not achieve these properties with a standard beacon on an true/false attribute. Following
   the guidance to choose a beacon length:
@@ -72,7 +72,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   bounds for beacon length are either 0 or 1. This corresponds to either not storing a beacon
   (length 0), or effectively directly storing an true/false attribute (length 1). With
   length 0, this beacon is useless for searching (violating property 2); with length 1, this
-  beacon does not obfuscate the attribute (violating property 1).
+  beacon does not hide the attribute (violating property 1).
 
   (A compound beacon also does not help. To (over)simplify, a compound beacon is a
    concatenation of standard beacons, i.e. beacon(`state`)+beacon(`hasTestResult`).
@@ -96,8 +96,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
    - "state" stores an encrypted 2-letter US state or territory abbreviation
          (https://www.faa.gov/air_traffic/publications/atpubs/cnt_html/appendix_a.html)
    - "hasTestResult" is not part of the schema, but is an attribute utilized in this example.
-      It stores a boolean attribute (false/true) indicating whether this customer has sensitive
-      data stored.
+      It stores a boolean attribute (false/true) indicating whether this customer has a test result
+      available.
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
@@ -176,7 +176,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //    Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
     //       worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
     //    We can safely choose a beacon length between 3 and 6:
-    //     - Closer to 3, the underlying data is better obfuscated, but more "false positives" are returned in
+    //     - Closer to 3, obfuscated, but more "false positives" are returned in
     //       queries, leading to more decrypt calls and worse performance
     //     - Closer to 6, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
     //       better performance, but it is easier to distinguish unique plaintext values
