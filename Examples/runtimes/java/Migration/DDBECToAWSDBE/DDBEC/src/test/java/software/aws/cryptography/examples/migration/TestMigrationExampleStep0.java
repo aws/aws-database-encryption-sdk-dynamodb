@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.migration;
+package software.amazon.cryptography.examples.migration;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMappingException;
 import org.testng.annotations.Test;
