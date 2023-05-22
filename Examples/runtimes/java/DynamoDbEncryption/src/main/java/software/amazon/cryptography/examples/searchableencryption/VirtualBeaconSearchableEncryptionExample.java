@@ -54,7 +54,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   This example follows a use case of a database that stores customer test result metadata.
   Records are indexed by `customer_id` and store a `state` attribute, representing the
   US state or territory where the customer lives, and a `hasTestResult` boolean attribute,
-  representing whether the customer has a test result available.
+  representing whether the customer has a "test result" available. (Maybe this represents
+  some medical test result, and this table stores "result available" metadata.)
 
   The motivation behind this example is to demonstrate how and why one would use a virtual beacon.
   In this example, our table stores records with an encrypted boolean `hasTestResult` attribute.
