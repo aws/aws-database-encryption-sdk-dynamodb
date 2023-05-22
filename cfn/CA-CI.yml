@@ -23,7 +23,7 @@ Outputs:
     Value: !Ref CAReadWriteDeletePolicy
     Export:
       Name: !Sub '${AWS::StackName}-GitHubCAReadWriteDeletePolicyArn'
-  # This policy SHOULD be given to the ESDK-Dafny & Gazelle Repos
+  # This policy SHOULD be given to the dbesdk-ddb Repo
   GitHubCAReadPolicyArn:
     Description: "Arn for IAM Policy github-dbesdk-ddb-CA-Read"
     Value: !Ref CAReadPolicy
