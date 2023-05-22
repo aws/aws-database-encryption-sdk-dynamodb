@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.plaintext;
+package software.amazon.cryptography.examples.plaintext;
 
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;

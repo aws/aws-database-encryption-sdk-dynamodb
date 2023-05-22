@@ -1,10 +1,10 @@
-package software.aws.cryptography.examples.migration.awsdbe;
+package software.amazon.cryptography.examples.migration.awsdbe;
 
 import org.testng.annotations.Test;
-import software.aws.cryptography.examples.awsdbe.MigrationExampleStep1;
-import software.aws.cryptography.examples.awsdbe.MigrationExampleStep2;
-import software.aws.cryptography.examples.awsdbe.MigrationExampleStep3;
-import software.aws.cryptography.examples.plaintext.MigrationExampleStep0;
+import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
+import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
+import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep3;
+import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 
 import static org.testng.Assert.assertThrows;
 

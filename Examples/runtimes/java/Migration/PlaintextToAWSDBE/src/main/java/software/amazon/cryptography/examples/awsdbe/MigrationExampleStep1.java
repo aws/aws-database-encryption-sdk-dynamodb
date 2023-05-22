@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.awsdbe;
+package software.amazon.cryptography.examples.awsdbe;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,20 +15,23 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 
 /*
-  Migration Step 2: This is an example demonstrating how to update your configuration
-  to start writing encrypted items, but still continue to read any plaintext or
-  encrypted items.
+  Migration Step 1: This is an example demonstrating how to start using the
+  AWS Database Encryption SDK with a pre-existing table with plaintext items.
+  In this example, we configure a DynamoDb Encryption Interceptor to do the following:
+    - Write items only in plaintext
+    - Read items in plaintext or with our encryption configuration
 
-  Once you deploy this change to your system, you will have a dataset
-  containing both encrypted and plaintext items.
-  Because the changes in Step 1 have been deployed to all our readers,
-  we can be sure that our entire system is ready to read this new data.
+  While this step configures your client to be ready to start reading encrypted items,
+  we do not yet expect to be reading any encrypted items,
+  as our client still writes plaintext items.
+  Before you move on to step 2, ensure that these changes have successfully been deployed
+  to all of your readers.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -37,11 +40,19 @@ import software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoD
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
  */
-public class MigrationExampleStep2 {
+public class MigrationExampleStep1 {
 
-    public static void MigrationStep2(String kmsKeyId, String ddbTableName, int sortReadValue) {
-        // 1. Continue to configure your Keyring, Table Schema, legacy attribute actions,
-        //    and allowedUnauthenticatedAttributes, and old DynamoDBEncryptor as you did in Step 1.
+    public static void MigrationStep1(String kmsKeyId, String ddbTableName, int sortReadValue) {
+        // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
+        //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
+        //    as it will correctly handle both single region and Multi-Region KMS Keys.
+        //
+        //    Note that while we still are not writing encrypted items,
+        //    and our key will not be used to encrypt items in this example,
+        //    our configuration specifies that we may read encrypted items,
+        //    and we should expect to be able to decrypt and process any encrypted items.
+        //    To that end, we must fully define our encryption configuration in
+        //    this step.
         MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
@@ -50,17 +61,27 @@ public class MigrationExampleStep2 {
             .build();
         final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
+        // 2. Create a Table Schema over your annotated class.
+        //    See SimpleClass.java in this directory for the update to use the new DynamoDb Enhanced Client annotations.
+        //    All primary key attributes will be signed but not encrypted (SIGN_ONLY)
+        //    and by default all non-primary key attributes will be encrypted and signed (ENCRYPT_AND_SIGN).
+        //    If you want a particular non-primary key attribute to be signed but not encrypted,
+        //    use the `DynamoDbEncryptionSignOnly` annotation.
+        //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
+        //    use the `DynamoDbEncryptionDoNothing` annotation.
         final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
+        // 3. Configure which attributes we expect to be excluded in the signature
+        //    when reading items. This value represents all unsigned attributes
+        //    across our entire dataset. If you ever want to add new unsigned attributes
+        //    in the future, you must make an update to this field to all your readers
+        //    before deploying any change to start writing that new data. It is not safe
+        //    to remove attributes from this field.
         final List<String> unauthAttributes = Arrays.asList("do_nothing");
 
-        // 2. When creating encryption configuration for your table,
-        //    you must use the plaintext policy `FORBID_WRITE_ALLOW_READ`.
-        //    This plaintext policy means:
-        //     - Write: Items are forbidden to be written as plaintext.
-        //              Items will be written as encrypted items.
-        //     - Read: Items are allowed to be read as plaintext.
-        //             Items are allowed to be read as encrypted items.
+        // 4. Create encryption configuration for table.
+        //    Again, while we are not writing encrypted items,
+        //    we should expect to be able to read encrypted items.
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
             DynamoDbEnhancedTableEncryptionConfig.builder()
@@ -68,18 +89,22 @@ public class MigrationExampleStep2 {
                 .keyring(kmsKeyring)
                 .tableSchema(tableSchema)
                 .allowedUnauthenticatedAttributes(unauthAttributes)
-                // Update plaintext policy here
-                .plaintextPolicy(PlaintextPolicy.FORBID_WRITE_ALLOW_READ)
+                // This plaintext policy means:
+                //  - Write: Items are required to be written as plaintext.
+                //           Items may not be written as encrypted items.
+                //  - Read: Items are allowed to be read as plaintext.
+                //          Items are allowed to be read as encrypted items.
+                .plaintextPolicy(PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ)
                 .build());
 
-        // 3. Create DynamoDbEncryptionInterceptor using the above config
+        // 5. Create DynamoDbEncryptionInterceptor using the table config
         DynamoDbEncryptionInterceptor interceptor =
             DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
                 CreateDynamoDbEncryptionInterceptorInput.builder()
                     .tableEncryptionConfigs(tableConfigs)
                     .build());
 
-        // 4. Create the EnhancedClient using the interceptor, and create a table from the schema
+        // 6. Create the EnhancedClient using the interceptor, and create a table from the schema
         DynamoDbClient ddb = DynamoDbClient.builder()
             .region(Region.US_WEST_2)
             .overrideConfiguration(
@@ -92,11 +117,11 @@ public class MigrationExampleStep2 {
             .build();
         final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
 
-        // 5. Put an item into your table using the DynamoDb Enhanced Client.
-        //    This item will be encrypted.
+        // 7. Put an item into your table using the DynamoDb Enhanced Client.
+        //    This item will be stored in plaintext.
         final SimpleClass item = new SimpleClass();
         item.setPartitionKey("PlaintextMigrationExample");
-        item.setSortKey(2);
+        item.setSortKey(1);
         item.setEncryptAndSign("this will be encrypted and signed");
         item.setDoNothing("this will never be encrypted nor signed");
         item.setSignOnly("this will never be encrypted, but it will be signed");
@@ -107,8 +132,8 @@ public class MigrationExampleStep2 {
         //    If this is an item written in plaintext (i.e. any item written
         //    during Step 0 or 1), then the item will still be in plaintext.
         //    If this is an item that was encrypted client-side (i.e. any item written
-        //    during Step 2 or after), then the DDB enhanced client will decrypt the
-        //    item client-sid and surface it in our code as a plaintext item.
+        //    during Step 2 or after), then the item will be decrypted client-side
+        //    and surfaced as a plaintext item.
         SimpleClass itemToGet = new SimpleClass();
         itemToGet.setPartitionKey("PlaintextMigrationExample");
         itemToGet.setSortKey(sortReadValue);
@@ -128,6 +153,6 @@ public class MigrationExampleStep2 {
         final String ddbTableName = args[1];
         // You can manipulate this value to demonstrate reading records written in other steps
         final int sortReadValue = Integer.parseInt(args[2]);
-        MigrationStep2(kmsKeyId, ddbTableName, sortReadValue);
+        MigrationStep1(kmsKeyId, ddbTableName, sortReadValue);
     }
 }

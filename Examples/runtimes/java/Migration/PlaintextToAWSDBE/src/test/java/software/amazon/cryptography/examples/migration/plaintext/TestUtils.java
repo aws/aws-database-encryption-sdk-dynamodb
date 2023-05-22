@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.migration.plaintext;
+package software.amazon.cryptography.examples.migration.plaintext;
 
 public class TestUtils {
     // This is a public KMS Key that MUST only be used for testing, and MUST NOT be used for any production data
