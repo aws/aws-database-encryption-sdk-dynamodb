@@ -13,6 +13,7 @@
 
 include "../Model/AwsCryptographyDynamoDbEncryptionTypesWrapped.dfy"
 include "CreateInterceptedDDBClient.dfy"
+include "JsonItem.dfy"
 
 module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import opened Wrappers
@@ -20,11 +21,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import opened StandardLibrary.UInt
   import opened JSON.Values
   import opened DynamoDbEncryptionUtil
+  import opened DdbItemJson
+
+  import FileIO
+  import JSON.API
+  import opened JSONHelpers
 
   import Types = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DDB = ComAmazonawsDynamodbTypes
   import Filter = DynamoDBFilterExpr
-  import StandardLibrary.String
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import SKS = CreateStaticKeyStores
   import KeyMaterial
@@ -66,6 +71,17 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     failures : seq<SimpleQuery>
   )
 
+  datatype WriteTest = WriteTest (
+    config : TableConfig,
+    records : seq<Record>,
+    fileName : string
+  )
+  datatype DecryptTest = DecryptTest (
+    config : TableConfig,
+    encryptedRecords : seq<Record>,
+    plaintextRecords : seq<Record>
+  )
+
   datatype IoTest = IoTest (
     name : string,
     writeConfig : TableConfig,
@@ -93,7 +109,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     complexTests : seq<ComplexTest>,
     ioTests : seq<IoTest>,
     configsForIoTest : PairList,
-    configsForModTest : PairList
+    configsForModTest : PairList,
+    writeTests : seq<WriteTest>,
+    decryptTests : seq<DecryptTest>
   ) {
 
     method RunAllTests()
@@ -115,6 +133,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BasicQueryTest();
       ConfigModTest();
       ComplexTests();
+      WriteTests();
+      DecryptTests();
       var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
       DeleteTable(client);
     }
@@ -462,6 +482,46 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
+    method WriteTests()
+    {
+      print "WriteTests\n";
+      for i := 0 to |writeTests| {
+        var client :- expect newGazelle(writeTests[i].config);
+        WriteAllRecords(client, writeTests[i].records);
+        var vanillaClient :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
+        var encRecords := ReadAllRecords(vanillaClient);
+        expect |encRecords| == |writeTests[i].records|;
+        WriteJsonRecords(encRecords, writeTests[i].fileName);
+      }
+    }
+
+    method DecryptTests()
+    {
+      print "DecryptTests\n";
+      for i := 0 to |decryptTests| {
+        var vanillaClient :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
+        WriteAllRecords(vanillaClient, decryptTests[i].encryptedRecords);
+        var client :- expect newGazelle(decryptTests[i].config);
+        var plainRecords := ReadAllRecords(client);
+        expect |plainRecords| == |decryptTests[i].plaintextRecords|;
+        CompareRecordsDisordered(decryptTests[i].plaintextRecords, plainRecords);
+      }
+    }
+
+    method WriteJsonRecords(records : DDB.ItemList, fileName : string)
+    {
+      var jsonItems : seq<JSON> := [];
+      for i := 0 to |records| {
+        var item :- expect DdbItemToJson(records[i]);
+        jsonItems := jsonItems + [item];
+      }
+      var jsonBytes :- expect API.Serialize(Array(jsonItems));
+      var jsonBv := BytesBv(jsonBytes);
+      var x := FileIO.WriteBytesToFile(fileName, jsonBv);
+      expect x.Success?;
+    }
+
+
     method BasicQueryTest()
     {
       print "BasicQueryTest\n";
@@ -652,6 +712,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var results := FullScan(client, emptyQuery, None, None);
       expect |results| == |records|;
       CompareRecordsDisordered(records, results);
+    }
+
+    method ReadAllRecords(client : DDB.IDynamoDBClient) returns (output : DDB.ItemList)
+      requires client.ValidState()
+      ensures client.ValidState()
+      modifies client.Modifies
+    {
+      var emptyQuery := SimpleQuery(None, None, None, []);
+      output := FullScan(client, emptyQuery, None, None);
     }
 
     method BasicIoTestGetItem(client : DDB.IDynamoDBClient, records : seq<Record>)
@@ -874,7 +943,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   function MakeEmptyTestVector() : TestVectorConfig
   {
-    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [])
+    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [], [], [])
   }
 
   method ParseTestVector(data : JSON, prev : TestVectorConfig) returns (output : Result<TestVectorConfig, string>)
@@ -891,6 +960,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     var ioTests : seq<IoTest> := [];
     var gsi : seq<DDB.GlobalSecondaryIndex> := [];
     var tableEncryptionConfigs : map<string, TableConfig> := map[];
+    var writeTests : seq<WriteTest> := [];
+    var decryptTests : seq<DecryptTest> := [];
 
     for i := 0 to |data.obj| {
       match data.obj[i].0 {
@@ -905,6 +976,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         case "IoTests" => ioTests :- GetIoTests(data.obj[i].1);
         case "GSI" => gsi :- GetGSIs(data.obj[i].1);
         case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1);
+        case "WriteTests" => writeTests :- GetWriteTests(data.obj[i].1);
+        case "DecryptTests" => decryptTests :- GetDecryptTests(data.obj[i].1);
         case _ => return Failure("Unexpected top level tag " + data.obj[i].0);
       }
     }
@@ -922,9 +995,78 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         complexTests := prev.complexTests + complexTests,
         ioTests := prev.ioTests + ioTests,
         configsForIoTest := prev.configsForIoTest + ioPairs,
-        configsForModTest := prev.configsForModTest + queryPairs
+        configsForModTest := prev.configsForModTest + queryPairs,
+        writeTests := prev.writeTests + writeTests,
+        decryptTests := prev.decryptTests + decryptTests
       )
     );
+  }
+
+  method GetWriteTests(data : JSON) returns (output : Result<seq<WriteTest> , string>)
+  {
+    :- Need(data.Array?, "Write Test list must be an array.");
+    var results : seq<WriteTest> := [];
+    for i := 0 to |data.arr| {
+      var obj := data.arr[i];
+      var item :- GetOneWriteTest(obj);
+      results := results + [item];
+    }
+    return Success(results);
+  }
+  method GetOneWriteTest(data : JSON) returns (output : Result<WriteTest, string>)
+  {
+    :- Need(data.Object?, "A Write Test must be an object.");
+    var config : Option<TableConfig> := None;
+    var fileName : string := "";
+    var records : seq<Record> := [];
+
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "Config" => var src :- GetOneTableConfig("foo", obj.1); config := Some(src);
+        case "FileName" =>
+          :- Need(obj.1.String?, "Write Test file name must be a string.");
+          fileName := obj.1.str;
+        case "Records" => records :- GetRecords(obj.1);
+        case _ => return Failure("Unexpected part of a write test : '" + obj.0 + "'");
+      }
+    }
+    :- Need(config.Some?, "Every Write Test needs a config.");
+    :- Need(0 < |fileName|, "Every Write Test needs a file name.");
+    return Success(WriteTest(config.value, records, fileName));
+  }
+
+  method GetDecryptTests(data : JSON) returns (output : Result<seq<DecryptTest> , string>)
+  {
+    :- Need(data.Array?, "Decrypt Test list must be an array.");
+    var results : seq<DecryptTest> := [];
+    for i := 0 to |data.arr| {
+      var obj := data.arr[i];
+      var item :- GetOneDecryptTest(obj);
+      results := results + [item];
+    }
+    return Success(results);
+  }
+  method GetOneDecryptTest(data : JSON) returns (output : Result<DecryptTest, string>)
+  {
+    :- Need(data.Object?, "A Decrypt Test must be an object.");
+    var config : Option<TableConfig> := None;
+    var encRecords : seq<Record> := [];
+    var plainRecords : seq<Record> := [];
+
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "Config" => var src :- GetOneTableConfig("foo", obj.1); config := Some(src);
+        case "EncryptedRecords" => encRecords :- GetRecords(obj.1);
+        case "PlainTextRecords" => plainRecords :- GetRecords(obj.1);
+        case _ => return Failure("Unexpected part of a encrypt test : '" + obj.0 + "'");
+      }
+    }
+    :- Need(config.Some?, "Every Decrypt Test needs a config.");
+    :- Need(|encRecords| == |plainRecords|, "A Decrypt Test needs the same number of EncryptedRecords and PlainTextRecords.");
+    :- Need(0 < |encRecords|, "Every Decrypt Test needs at least on record.");
+    return Success(DecryptTest(config.value, encRecords, plainRecords));
   }
 
   method GetTableConfigs(data : JSON) returns (output : Result<map<string, TableConfig> , string>)
@@ -1874,28 +2016,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       Success(GetPower(num.n, num.e10))
   }
 
-  // Return a string of this many zeros
-  function Zeros(n : nat) : (ret : string)
-  {
-    seq(n, i => '0')
-  }
-
-  function DecimalToStr(num: Decimal) : Result<string, string>
-  {
-    if num.n == 0 then
-      Success("0")
-    else
-      :- Need(-1000 < num.e10 < 1000, "Exponent must be between -1000 and 1000");
-      var str := String.Base10Int2String(num.n);
-      if num.e10 >= 0 then
-        Success(str + Zeros(num.e10))
-      else if -num.e10 < |str| then
-        var pos := |str| + num.e10;
-        Success(str[..pos] + "." + str[pos..])
-      else
-        Success("0." + Zeros(|str| - num.e10) + str)
-  }
-
   function GetOnePair(data : JSON) : Result<ConfigPair, string>
   {
     :- Need(data.Array? && |data.arr| == 2 && data.arr[0].String? && data.arr[1].String?, "A Config Pair must be an array of two strings.");
@@ -1915,95 +2035,19 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     return Success(results);
   }
 
-  // unsigned base 10 string to integer
-  function {:tailrecursion} GetNumber(s : string, acc : nat := 0) : Result<nat, string>
-  {
-    if |s| == 0 then
-      Success(acc)
-    else if '0' <= s[0] <= '9' then
-      GetNumber(s[1..], acc * 10 + s[0] as int - '0' as int)
-    else
-      Failure("Number must be all decimal digits : '" + s + "'")
-  }
-
-  method GetAttrValue(data : JSON) returns (output : Result<DDB.AttributeValue, string>)
-  {
-    if data.String? {
-      return Success(DDB.AttributeValue.S(data.str));
-    } else if data.Number? {
-      var n :- DecimalToStr(data.num);
-      return Success(DDB.AttributeValue.N(n));
-    } else if data.Object? {
-      :- Need(|data.obj| == 1, "Attribute Value Objects must contain only one thing.");
-      output := GetAttrValueObj(data.obj[0].0,data.obj[0].1);
-    } else {
-      return Failure("Attribute Value must be a string or an object.");
-    }
-
-  }
-  method GetAttrValueObj(typeStr : string, data : JSON) returns (output : Result<DDB.AttributeValue, string>)
-    decreases data
-  {
-    match typeStr {
-      case "S" =>
-        :- Need(data.String?, "Value for 'S' must be a string");
-        return Success(DDB.AttributeValue.S(data.str));
-      case "SS" =>
-        :- Need(data.Array?, "Value for 'SS' must be a Array");
-        var result : seq<string> := [];
-        for i := 0 to |data.arr| {
-          :- Need(data.arr[i].String?, "Values for 'SS' must be Strings");
-          result := result + [data.arr[i].str];
-        }
-        return Success(DDB.AttributeValue.SS(result));
-      case "NS" =>
-        :- Need(data.Array?, "Value for 'NS' must be a Array");
-        var result : seq<string> := [];
-        for i := 0 to |data.arr| {
-          :- Need(data.arr[i].String?, "Values for 'NS' must be Strings");
-          result := result + [data.arr[i].str];
-        }
-        return Success(DDB.AttributeValue.NS(result));
-      case "L" =>
-        :- Need(data.Array?, "Value for 'NS' must be a Array");
-        var result : seq<DDB.AttributeValue> := [];
-        for i := 0 to |data.arr| {
-          var val :- GetAttrValue(data.arr[i]);
-          result := result + [val];
-        }
-        return Success(DDB.AttributeValue.L(result));
-      case "N" =>
-        :- Need(data.String?, "Value for 'S' must be a string");
-        return Success(DDB.AttributeValue.N(data.str));
-      case "BOOL" =>
-        :- Need(data.Bool?, "Value for 'BOOL' must be a Bool");
-        return Success(DDB.AttributeValue.BOOL(data.b));
-      case "NULL" =>
-        return Success(DDB.AttributeValue.NULL(true));
-      case _ => return Failure("Unexpected Attribute Type '" + typeStr + "'.\n");
-    }
-  }
 
   method GetRecord(data : JSON) returns (output : Result<Record, string>)
   {
-    :- Need(data.Object?, "Value for a record must be a JSON object.");
-    var item : DDB.AttributeMap := map[];
-    var num : int := -1;
-
-    for i := 0 to |data.obj| {
-      var obj := data.obj[i];
-      :- Need(DDB.IsValid_AttributeName(obj.0), obj.0 + " is not a valid attribute name");
-      if obj.0 == HashName && obj.1.Object? && |obj.1.obj| == 1 {
-        var val := obj.1.obj[0];
-        :- Need(val.0 == "N", "For the '" + HashName + "' field, type must be 'N' not '" + val.0 + "'");
-        :- Need(val.1.String?, "For the '" + HashName + "' field, value must be a string");
-        num :- GetNumber(val.1.str);
-      }
-      var value :- GetAttrValue(obj.1);
-      item := item[obj.0 := value];
-
+    var item :- JsonToDdbItem(data);
+    if HashName !in item {
+      return Failure("Every record must specify the " + HashName + " field");
     }
-    :- Need(0 <= num, "Every record must specify the 'Number' field");
+    var hash := item[HashName];
+    if !hash.N? {
+      return Failure("Value for " + HashName + " must be a number");
+    }
+    var num :- StrToNat(hash.N);
     return Success(Record(num, item));
   }
+
 }
