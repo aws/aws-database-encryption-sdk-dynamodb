@@ -1,10 +1,9 @@
-package software.aws.cryptography.examples.keyring;
+package software.amazon.cryptography.examples.keyring;
 
 import static software.aws.cryptography.examples.keyring.KmsRsaKeyringExample.shouldGetNewPublicKey;
 import static software.aws.cryptography.examples.keyring.KmsRsaKeyringExample.writePublicKeyPemForRsaKey;
 
 import org.testng.annotations.Test;
-import software.aws.cryptography.examples.TestUtils;
 
 public class TestKmsRsaKeyringExample {
     @Test
