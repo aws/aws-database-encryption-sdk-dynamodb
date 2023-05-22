@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.keyring;
+package software.amazon.cryptography.examples.keyring;
 
 import java.io.File;
 import java.io.FileNotFoundException;
