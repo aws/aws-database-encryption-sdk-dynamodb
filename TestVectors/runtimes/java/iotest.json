@@ -34,6 +34,156 @@
           "Junk": "JunkData"
         }
       ]
+    },
+    {
+      "Config": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "One": "ENCRYPT_AND_SIGN",
+          "Two": "ENCRYPT_AND_SIGN",
+          "Three": "ENCRYPT_AND_SIGN",
+          "Four": "ENCRYPT_AND_SIGN",
+          "Five": "ENCRYPT_AND_SIGN",
+          "Six": "SIGN_ONLY",
+          "Seven": "ENCRYPT_AND_SIGN",
+          "Eight": "ENCRYPT_AND_SIGN",
+          "Nine": "SIGN_ONLY",
+          "Ten": "ENCRYPT_AND_SIGN"
+        }
+      },
+      "EncryptedRecords": [
+        {
+          "Six": {
+            "L": [
+              {
+                "S": "one"
+              },
+              {
+                "S": "two"
+              },
+              {
+                "S": "three"
+              },
+              {
+                "L": [
+                  {
+                    "N": "1"
+                  },
+                  {
+                    "N": "2"
+                  },
+                  {
+                    "N": "3"
+                  },
+                  {
+                    "N": "4"
+                  }
+                ]
+              }
+            ]
+          },
+          "aws_dbe_head": {
+            "B": "AQFYa5YzRy3qHi3905fc9e7QnqSrZjNqNp72WUdB1EtyNgALZXNlZWVlc2VlZXMAAQAVYXdzLWNyeXB0by1wdWJsaWMta2V5AERBdHhFUG9ueElPemFjMHdZWjFjSzRpZ1RIWUs0bFJ1ZHc4eWhFRG9QUmxKV0VrQjJuY2NaL2pPS1dBSEcreisvL0E9PQEAEWF3cy1rbXMtaGllcmFyY2h5ACRiZDM4NDJmZi0zMDc2LTQwOTItOTkxOC00Mzk1NzMwMDUwYjgAjAZF9wIgWzF96qZx0Vj+bnIGYTGOspRwAvzDYo3OKeCuqMx8Hz9hFTB2q+UJMiWFOkKi8Dbw/ECPZw9qFAxrnrwTcf/znIYzYytIa1jpzhij7bVCcp+GHKy3mX/2ie4CWvJVpncYhwW7InUBfNkIyIxwGbO+HM/jtug7ro5fHJu1RqWdtHiMuSBLAY0SOkjT/oetXx3w2KxHHjqSsvIjt0TCn959PMQroYmgyd0="
+          },
+          "One": {
+            "B": "AAE6bbNHtF5kAxYSSGs8/phvuWm+iZIZhJAW"
+          },
+          "Four": {
+            "B": "AADOjx8GCHOtU8ZKR6sAg9AH"
+          },
+          "Seven": {
+            "B": "AgBxKYKrUZt+9Fa4eOi6PZcqqjzY2Z0kT9Xx4vt6L7xweM20JnheysBhfGhs0wyDtkYW2lYQhqKKFpDCVDBOBdZRz0AO0QfNbzhgGgeSe3+R2kwj4iePCoxALgobHLmF9i4lSgiJOD4z7auhde73J5TfXrVRHQ=="
+          },
+          "Two": {
+            "B": "AAJGhgCr4gA2vMCvATnbzT7Xm1g="
+          },
+          "Three": {
+            "B": "///txK6iEYWpB0Bf/i971DKrEGi8TjVo1KsO/cRQ7QP+hCyg"
+          },
+          "Eight": {
+            "B": "AQE/LwgnDbiIL6DtMIEpSJFWWHo9fI/Y8YVAiAfhuGswCUcDRNH9VrGb62dg"
+          },
+          "Five": {
+            "B": "AAT86BN82LyV5opMbqYX/zkAOw=="
+          },
+          "aws_dbe_foot": {
+            "B": "DicIEGOtkwTW2dVaIMr+p4TpfuQV8As4ASiccL+1gu61p+qqYb3iucSLEhBeKFo2MGUCMQD2lINUHNjevbRXwp+lEDDicuzXo/lLxY8AGFCV3a6Y2Sx0B4MvkbjX3AuNRDOcArgCMFG+jy6o5dJIxfFvtukgL6DQtxlIh5IwhkMWsFcnRSaXHfBbaZbbmWI7DxGl7RPKnQ=="
+          },
+          "Nine": {
+            "NS": [
+              "1.2",
+              "3.4",
+              "5.6"
+            ]
+          },
+          "RecNum": {
+            "N": "1"
+          },
+          "Ten": {
+            "B": "Af+SWtTBlObFKF5xwICqdOoBINCwTg=="
+          }
+        }
+      ],
+      "PlainTextRecords": [
+        {
+          "RecNum": 1,
+          "One": "StuffData",
+          "Two": 42,
+          "Three": {
+            "B": "VGhpcyBJcyBTb21lIERhdGEu"
+          },
+          "Four": {
+            "NULL": true
+          },
+          "Five": {
+            "BOOL": false
+          },
+          "Six": {
+            "L": [
+              "one",
+              "two",
+              "three",
+              {
+                "L": [
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              }
+            ]
+          },
+          "Seven": {
+            "M": {
+              "this": "that",
+              "stuff": "junk",
+              "map": {
+                "M": {
+                  "one": "two",
+                  "three": 4
+                }
+              }
+            }
+          },
+          "Eight": {
+            "SS": [
+              "one",
+              "two",
+              "three"
+            ]
+          },
+          "Nine": {
+            "NS": [
+              "1.2",
+              3.4,
+              "5.6"
+            ]
+          },
+          "Ten": {
+            "BS": []
+          }
+        }
+      ]
     }
   ],
   "WriteTests": [
@@ -42,15 +192,76 @@
       "Config": {
         "attributeActions": {
           "RecNum": "SIGN_ONLY",
-          "Stuff": "ENCRYPT_AND_SIGN",
-          "Junk": "ENCRYPT_AND_SIGN"
+          "One": "ENCRYPT_AND_SIGN",
+          "Two": "ENCRYPT_AND_SIGN",
+          "Three": "ENCRYPT_AND_SIGN",
+          "Four": "ENCRYPT_AND_SIGN",
+          "Five": "ENCRYPT_AND_SIGN",
+          "Six": "SIGN_ONLY",
+          "Seven": "ENCRYPT_AND_SIGN",
+          "Eight": "ENCRYPT_AND_SIGN",
+          "Nine": "SIGN_ONLY",
+          "Ten": "ENCRYPT_AND_SIGN"
         }
       },
       "Records": [
         {
           "RecNum": 1,
-          "Stuff": "StuffData",
-          "Junk": "JunkData"
+          "One": "StuffData",
+          "Two": 42,
+          "Three": {
+            "B": "VGhpcyBJcyBTb21lIERhdGEu"
+          },
+          "Four": {
+            "NULL": true
+          },
+          "Five": {
+            "BOOL": false
+          },
+          "Six": {
+            "L": [
+              "one",
+              "two",
+              "three",
+              {
+                "L": [
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              }
+            ]
+          },
+          "Seven": {
+            "M": {
+              "this": "that",
+              "stuff": "junk",
+              "map": {
+                "M": {
+                  "one": "two",
+                  "three": 4
+                }
+              }
+            }
+          },
+          "Eight": {
+            "SS": [
+              "one",
+              "two",
+              "three"
+            ]
+          },
+          "Nine": {
+            "NS": [
+              "1.2",
+              3.4,
+              "5.6"
+            ]
+          },
+          "Ten": {
+            "BS": []
+          }
         }
       ]
     }

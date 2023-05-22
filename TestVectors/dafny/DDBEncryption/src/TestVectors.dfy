@@ -373,7 +373,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       print "RunIoTests\n";
       for i := 0 to |ioTests| {
-        print "RunIoTest ", i, "\n";
         BasicIoTestBatchWriteItem(ioTests[i].writeConfig, ioTests[i].readConfig, ioTests[i].records);
         BasicIoTestPutItem(ioTests[i].writeConfig, ioTests[i].readConfig, ioTests[i].records);
         BasicIoTestTransactWriteItems(ioTests[i].writeConfig, ioTests[i].readConfig, ioTests[i].records);
