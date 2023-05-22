@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.searchableencryption.complexexample;
+package software.amazon.cryptography.examples.searchableencryption.complexexample;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 

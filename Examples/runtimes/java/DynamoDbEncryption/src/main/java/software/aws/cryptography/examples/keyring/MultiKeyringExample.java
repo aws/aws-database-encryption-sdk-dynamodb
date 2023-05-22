@@ -1,4 +1,4 @@
-package software.aws.cryptography.examples.keyring;
+package software.amazon.cryptography.examples.keyring;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.internal.Utils;
 import java.nio.ByteBuffer;
@@ -28,7 +28,7 @@ import software.amazon.cryptography.materialproviders.model.CreateMultiKeyringIn
 import software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client

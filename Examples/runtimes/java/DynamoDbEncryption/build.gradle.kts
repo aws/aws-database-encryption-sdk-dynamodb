@@ -61,9 +61,11 @@ dependencies {
 
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:arns")
+    implementation("software.amazon.awssdk:auth")
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
+    implementation("software.amazon.awssdk:sts")
 
     implementation("org.bouncycastle:bcprov-jdk18on:1.72")
 

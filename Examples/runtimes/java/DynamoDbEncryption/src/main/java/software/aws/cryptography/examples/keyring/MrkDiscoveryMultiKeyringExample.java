@@ -1,12 +1,10 @@
 package software.amazon.cryptography.examples.keyring;
 
-import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -16,30 +14,28 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
-import software.amazon.cryptography.materialproviders.model.AesWrappingAlg;
-import software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkDiscoveryMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.DiscoveryFilter;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 /*
-  This example sets up DynamoDb Encryption for the AWS SDK client
-  using the raw AES Keyring. This keyring takes in an AES key
-  and uses that key to protect the data keys that encrypt and
-  decrypt DynamoDb table items.
+  This example sets up a MRK discovery multi-keyring to decrypt data using
+  the DynamoDB encryption client. A discovery keyring is not provided with any wrapping
+  keys; instead, it recognizes the KMS key that was used to encrypt a data key,
+  and asks KMS to decrypt with that KMS key. Discovery keyrings cannot be used
+  to encrypt data.
 
-  This example takes in an `aesKeyBytes` parameter. This parameter
-  should be a ByteBuffer representing a 256-bit AES key. If this example
-  is run through the class' main method, it will create a new key.
-  In practice, users of this library should not randomly generate a key,
-  and should instead retrieve an existing key from a secure key
-  management system (e.g. an HSM).
+  For more information on discovery keyrings, see
+  https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-kms-keyring.html#kms-keyring-discovery
 
-  This example encrypts a test item using the provided AES key and puts the
-  encrypted item to the provided DynamoDb table. Then, it gets the
-  item from the table and decrypts it.
+  This example encrypts an item using an MRK multi-keyring and puts the
+  encrypted item to the configured DynamoDb table. Then, it gets the item
+  from the table and decrypts it using the discovery keyring.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -48,26 +44,31 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
  */
-public class RawAesKeyringExample {
+public class MrkDiscoveryMultiKeyringExample {
 
-    public static void RawAesKeyringGetItemPutItem(String ddbTableName, ByteBuffer aesKeyBytes) {
-        // 1. Create the keyring.
-        //    The DynamoDb encryption client uses this to encrypt and decrypt items.
-        final CreateRawAesKeyringInput keyringInput = CreateRawAesKeyringInput.builder()
-            .keyName("my-aes-key-name")
-            .keyNamespace("my-key-namespace")
-            .wrappingKey(aesKeyBytes)
-            .wrappingAlg(AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16)
-            .build();
+    public static void MultiMrkDiscoveryKeyringGetItemPutItem(String ddbTableName, String keyArn,
+            List<String> accountIds, List<String> regions) {
+        // 1. Create a single MRK multi-keyring using the key arn.
+        //    Although this example demonstrates use of the MRK discovery multi-keyring,
+        //    a discovery keyring cannot be used to encrypt. So we will need to construct
+        //    a non-discovery keyring for this example to encrypt. For more information on MRK
+        //    multi-keyrings, see the MultiMrkKeyringExample in this directory.
+        //    Though this is an "MRK multi-keyring", we do not need to provide multiple keys,
+        //    and can use single-region KMS keys. We will provide a single key here; this
+        //    can be either an MRK or a single-region key.
         final MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
-        IKeyring rawAesKeyring = matProv.CreateRawAesKeyring(keyringInput);
+        final CreateAwsKmsMrkMultiKeyringInput createAwsKmsMrkMultiKeyringInput =
+            CreateAwsKmsMrkMultiKeyringInput.builder()
+                .generator(keyArn)
+                .build();
+        IKeyring encryptKeyring = matProv.CreateAwsKmsMrkMultiKeyring(createAwsKmsMrkMultiKeyringInput);
 
         // 2. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
         //    we must explicitly configure how they should be treated during item encryption:
-        //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
+        //      - ENCRYPT_AND_SIGN: The attribute is encrypted and icncluded in the signature
         //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
         final Map<String, CryptoAction> attributeActions = new HashMap<>();
@@ -112,7 +113,7 @@ public class RawAesKeyringExample {
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActions(attributeActions)
-                .keyring(rawAesKeyring)
+                .keyring(encryptKeyring)
                 .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
                 .build();
         tableConfigs.put(ddbTableName, config);
@@ -125,7 +126,7 @@ public class RawAesKeyringExample {
                 .build();
 
         // 6. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
-        final DynamoDbClient ddb = DynamoDbClient.builder()
+        final DynamoDbClient ddbClient = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
                                 .addExecutionInterceptor(encryptionInterceptor)
@@ -134,9 +135,9 @@ public class RawAesKeyringExample {
 
         // 7. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
-        //    client-side, according to our configuration.
+        //    client-side using the MRK multi-keyring.
         final HashMap<String, AttributeValue> item = new HashMap<>();
-        item.put("partition_key", AttributeValue.builder().s("rawAesKeyringItem").build());
+        item.put("partition_key", AttributeValue.builder().s("awsKmsMrkDiscoveryMultiKeyringItem").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
         item.put("sensitive_data", AttributeValue.builder().s("encrypt and sign me!").build());
 
@@ -145,16 +146,70 @@ public class RawAesKeyringExample {
                 .item(item)
                 .build();
 
-        final PutItemResponse putResponse = ddb.putItem(putRequest);
+        final PutItemResponse putResponse = ddbClient.putItem(putRequest);
 
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 8. Get the item back from our table using the same client.
-        //    The client will decrypt the item client-side, and return
-        //    back the original item.
+        // 8. Construct a discovery filter.
+        //    A discovery filter limits the set of encrypted data keys
+        //    the keyring can use to decrypt data.
+        //    We will only let the keyring use keys in the selected AWS accounts
+        //    and in the `aws` partition.
+        //    This is the suggested config for most users; for more detailed config, see
+        //      https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-kms-keyring.html#kms-keyring-discovery
+        DiscoveryFilter discoveryFilter = DiscoveryFilter.builder()
+            .partition("aws")
+            .accountIds(accountIds)
+            .build();
+
+        // 9. Construct a discovery keyring.
+        //    Note that we choose to use the MRK discovery multi-keyring, even though
+        //    our original keyring used a single KMS key.
+        CreateAwsKmsMrkDiscoveryMultiKeyringInput createAwsKmsMrkDiscoveryMultiKeyringInput =
+            CreateAwsKmsMrkDiscoveryMultiKeyringInput.builder()
+                .discoveryFilter(discoveryFilter)
+                .regions(regions)
+                .build();
+        IKeyring decryptKeyring = matProv.CreateAwsKmsMrkDiscoveryMultiKeyring(
+            createAwsKmsMrkDiscoveryMultiKeyringInput);
+
+        // 10. Create new DDB config and client using the decrypt discovery keyring.
+        //     This is the same as the above config, except we pass in the decrypt keyring.
+        final Map<String, DynamoDbTableEncryptionConfig> tableConfigsForDecrypt = new HashMap<>();
+        final DynamoDbTableEncryptionConfig configForDecrypt = DynamoDbTableEncryptionConfig.builder()
+            .logicalTableName(ddbTableName)
+            .partitionKeyName("partition_key")
+            .sortKeyName("sort_key")
+            .attributeActions(attributeActions)
+            // Add decrypt keyring here
+            .keyring(decryptKeyring)
+            .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
+            .build();
+        tableConfigsForDecrypt.put(ddbTableName, configForDecrypt);
+
+        DynamoDbEncryptionInterceptor encryptionInterceptorForDecrypt = DynamoDbEncryptionInterceptor.builder()
+            .config(DynamoDbTablesEncryptionConfig.builder()
+                .tableEncryptionConfigs(tableConfigsForDecrypt)
+                .build())
+            .build();
+
+        final DynamoDbClient ddbClientForDecrypt = DynamoDbClient.builder()
+            .overrideConfiguration(
+                ClientOverrideConfiguration.builder()
+                    .addExecutionInterceptor(encryptionInterceptorForDecrypt)
+                    .build())
+            .build();
+
+        // 11. Get the item back from our table using the client.
+        //     The client will retrieve encrypted items from the DDB table, then
+        //     detect the KMS key that was used to encrypt their data keys.
+        //     The client will make a request to KMS to decrypt with the encrypting KMS key.
+        //     If the client has permission to decrypt with the KMS key,
+        //     the client will decrypt the item client-side using the keyring
+        //     and return the original item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-        keyToGet.put("partition_key", AttributeValue.builder().s("rawAesKeyringItem").build());
+        keyToGet.put("partition_key", AttributeValue.builder().s("awsKmsMrkDiscoveryMultiKeyringItem").build());
         keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
         final GetItemRequest getRequest = GetItemRequest.builder()
@@ -162,7 +217,7 @@ public class RawAesKeyringExample {
                 .tableName(ddbTableName)
                 .build();
 
-        final GetItemResponse getResponse = ddb.getItem(getRequest);
+        final GetItemResponse getResponse = ddbClientForDecrypt.getItem(getRequest);
 
         // Demonstrate that GetItem succeeded and returned the decrypted item
         assert 200 == getResponse.sdkHttpResponse().statusCode();
@@ -171,31 +226,27 @@ public class RawAesKeyringExample {
     }
 
     public static void main(final String[] args) {
-        if (args.length <= 0) {
-            throw new IllegalArgumentException("To run this example, include the ddbTable in args");
+        if (args.length <= 1) {
+            throw new IllegalArgumentException("To run this example, include the ddbTable, mrkKeyArn, accounts, and region in args");
         }
         final String ddbTableName = args[0];
+        final String mrkArn = args[1];
 
-        // Generate a new AES key
-        ByteBuffer aesKeyBytes = generateAesKeyBytes();
+        // We will assume only 1 AWS account and 1 region will be passed into args.
+        // To add more of either, change this number, then pass them into args.
+        int numberOfAwsAccounts = 1;
+        int numberOfRegions = 1;
 
-        RawAesKeyringGetItemPutItem(ddbTableName, aesKeyBytes);
-    }
-
-    static ByteBuffer generateAesKeyBytes() {
-        // This example uses BouncyCastle's KeyGenerator to generate the key bytes.
-        // In practice, you should not generate this key in your code, and should instead
-        //     retrieve this key from a secure key management system (e.g. HSM).
-        // This key is created here for example purposes only and should not be used for any other purpose.
-        KeyGenerator aesGen;
-        try {
-            aesGen = KeyGenerator.getInstance("AES");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("No such algorithm", e);
+        List<String> accounts = new ArrayList<>();
+        int firstAccountIndex = 2; // 2 because args[0] is ddbTableName and args[1] is mrkArn
+        for (int i = firstAccountIndex; i < firstAccountIndex + numberOfAwsAccounts; i++) {
+            accounts.add(args[i]);
         }
-        aesGen.init(256, new SecureRandom());
-        SecretKey encryptionKey = aesGen.generateKey();
-        ByteBuffer encryptionKeyByteBuffer = ByteBuffer.wrap(encryptionKey.getEncoded());
-        return encryptionKeyByteBuffer;
+        List<String> regions = new ArrayList<>();
+        int firstRegionIndex = firstAccountIndex + numberOfAwsAccounts;
+        for (int i = firstRegionIndex; i < firstRegionIndex + numberOfRegions; i++) {
+            regions.add(args[i]);
+        }
+        MultiMrkDiscoveryKeyringGetItemPutItem(ddbTableName, mrkArn, accounts, regions);
     }
 }
