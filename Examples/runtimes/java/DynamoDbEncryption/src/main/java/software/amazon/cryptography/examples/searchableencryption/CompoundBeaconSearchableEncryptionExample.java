@@ -100,7 +100,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     //  - Closer to 8, we expect more "false positives" to be returned,
     //    making it harder to distinguish plaintext values
     //    but leading to more decrypt calls and worse performance
-    //  - Closer to 14, we expect fewer "false positives" returned in queries,
+    //  - Closer to 6, we expect fewer "false positives" returned in queries,
     //    leading to fewer decrypt calls and better performance,
     //    but it is easier to distinguish unique plaintext values
     // As an example, we will choose 4.
