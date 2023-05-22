@@ -1,16 +1,16 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DoNothingTag.CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX;
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.SignOnlyTag.CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DoNothingTag.CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.SignOnlyTag.CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX;
 
 public class DynamoDbEnhancedClientEncryption {
     public static DynamoDbEncryptionInterceptor CreateDynamoDbEncryptionInterceptor(
@@ -78,6 +78,10 @@ public class DynamoDbEnhancedClientEncryption {
 
         if (!Objects.isNull(configWithSchema.logicalTableName())) {
             builder = builder.logicalTableName(configWithSchema.logicalTableName());
+        }
+
+        if (!Objects.isNull(configWithSchema.plaintextPolicy())) {
+            builder = builder.plaintextPolicy(configWithSchema.plaintextPolicy());
         }
 
         return builder.allowedUnauthenticatedAttributePrefix(configWithSchema.allowedUnauthenticatedAttributePrefix())

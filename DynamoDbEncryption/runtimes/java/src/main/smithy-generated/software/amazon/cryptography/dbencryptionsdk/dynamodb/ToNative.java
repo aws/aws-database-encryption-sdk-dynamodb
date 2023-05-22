@@ -63,7 +63,7 @@ public class ToNative {
   public static CollectionOfErrors Error(Error_CollectionOfErrors dafnyValue) {
     CollectionOfErrors.Builder nativeBuilder = CollectionOfErrors.builder();
     nativeBuilder.list(
-        software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue.dtor_list(), 
         ToNative::Error));
     return nativeBuilder.build();
@@ -71,7 +71,7 @@ public class ToNative {
 
   public static DynamoDbEncryptionException Error(Error_DynamoDbEncryptionException dafnyValue) {
     DynamoDbEncryptionException.Builder nativeBuilder = DynamoDbEncryptionException.builder();
-    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
+    nativeBuilder.message(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
 
@@ -121,8 +121,8 @@ public class ToNative {
   public static CompoundBeacon CompoundBeacon(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CompoundBeacon dafnyValue) {
     CompoundBeacon.Builder nativeBuilder = CompoundBeacon.builder();
-    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
-    nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
+    nativeBuilder.name(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.split(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
     if (dafnyValue.dtor_encrypted().is_Some()) {
       nativeBuilder.encrypted(ToNative.EncryptedPartsList(dafnyValue.dtor_encrypted().dtor_value()));
     }
@@ -145,7 +145,7 @@ public class ToNative {
   public static ConstructorPart ConstructorPart(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.ConstructorPart dafnyValue) {
     ConstructorPart.Builder nativeBuilder = ConstructorPart.builder();
-    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.name(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
     nativeBuilder.required((dafnyValue.dtor_required()));
     return nativeBuilder.build();
   }
@@ -173,10 +173,10 @@ public class ToNative {
   public static DynamoDbTableEncryptionConfig DynamoDbTableEncryptionConfig(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbTableEncryptionConfig dafnyValue) {
     DynamoDbTableEncryptionConfig.Builder nativeBuilder = DynamoDbTableEncryptionConfig.builder();
-    nativeBuilder.logicalTableName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_logicalTableName()));
-    nativeBuilder.partitionKeyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_partitionKeyName()));
+    nativeBuilder.logicalTableName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_logicalTableName()));
+    nativeBuilder.partitionKeyName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_partitionKeyName()));
     if (dafnyValue.dtor_sortKeyName().is_Some()) {
-      nativeBuilder.sortKeyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_sortKeyName().dtor_value()));
+      nativeBuilder.sortKeyName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_sortKeyName().dtor_value()));
     }
     if (dafnyValue.dtor_search().is_Some()) {
       nativeBuilder.search(ToNative.SearchConfig(dafnyValue.dtor_search().dtor_value()));
@@ -186,7 +186,7 @@ public class ToNative {
       nativeBuilder.allowedUnauthenticatedAttributes(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.AttributeNameList(dafnyValue.dtor_allowedUnauthenticatedAttributes().dtor_value()));
     }
     if (dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().is_Some()) {
-      nativeBuilder.allowedUnauthenticatedAttributePrefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().dtor_value()));
+      nativeBuilder.allowedUnauthenticatedAttributePrefix(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().dtor_value()));
     }
     if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
       nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId().dtor_value()));
@@ -216,8 +216,8 @@ public class ToNative {
   public static EncryptedPart EncryptedPart(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.EncryptedPart dafnyValue) {
     EncryptedPart.Builder nativeBuilder = EncryptedPart.builder();
-    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
-    nativeBuilder.prefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
+    nativeBuilder.name(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.prefix(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
     return nativeBuilder.build();
   }
 
@@ -231,7 +231,7 @@ public class ToNative {
   public static GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKeyOutput(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput dafnyValue) {
     GetBranchKeyIdFromDdbKeyOutput.Builder nativeBuilder = GetBranchKeyIdFromDdbKeyOutput.builder();
-    nativeBuilder.branchKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyId()));
+    nativeBuilder.branchKeyId(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyId()));
     return nativeBuilder.build();
   }
 
@@ -245,7 +245,7 @@ public class ToNative {
   public static GetSegment GetSegment(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetSegment dafnyValue) {
     GetSegment.Builder nativeBuilder = GetSegment.builder();
-    nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
+    nativeBuilder.split(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
     nativeBuilder.index((dafnyValue.dtor_index()));
     return nativeBuilder.build();
   }
@@ -253,7 +253,7 @@ public class ToNative {
   public static GetSegments GetSegments(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetSegments dafnyValue) {
     GetSegments.Builder nativeBuilder = GetSegments.builder();
-    nativeBuilder.split(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
+    nativeBuilder.split(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_split()));
     nativeBuilder.low((dafnyValue.dtor_low()));
     nativeBuilder.high((dafnyValue.dtor_high()));
     return nativeBuilder.build();
@@ -277,7 +277,7 @@ public class ToNative {
   public static Insert Insert(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Insert dafnyValue) {
     Insert.Builder nativeBuilder = Insert.builder();
-    nativeBuilder.literal(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_literal()));
+    nativeBuilder.literal(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_literal()));
     return nativeBuilder.build();
   }
 
@@ -302,7 +302,7 @@ public class ToNative {
   public static MultiKeyStore MultiKeyStore(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.MultiKeyStore dafnyValue) {
     MultiKeyStore.Builder nativeBuilder = MultiKeyStore.builder();
-    nativeBuilder.keyFieldName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyFieldName()));
+    nativeBuilder.keyFieldName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyFieldName()));
     nativeBuilder.cacheTTL((dafnyValue.dtor_cacheTTL()));
     nativeBuilder.maxCacheSize((dafnyValue.dtor_maxCacheSize()));
     return nativeBuilder.build();
@@ -319,10 +319,10 @@ public class ToNative {
   public static SignedPart SignedPart(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SignedPart dafnyValue) {
     SignedPart.Builder nativeBuilder = SignedPart.builder();
-    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
-    nativeBuilder.prefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
+    nativeBuilder.name(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.prefix(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_prefix()));
     if (dafnyValue.dtor_loc().is_Some()) {
-      nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
+      nativeBuilder.loc(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -330,7 +330,7 @@ public class ToNative {
   public static SingleKeyStore SingleKeyStore(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SingleKeyStore dafnyValue) {
     SingleKeyStore.Builder nativeBuilder = SingleKeyStore.builder();
-    nativeBuilder.keyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyId()));
+    nativeBuilder.keyId(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyId()));
     nativeBuilder.cacheTTL((dafnyValue.dtor_cacheTTL()));
     return nativeBuilder.build();
   }
@@ -338,10 +338,10 @@ public class ToNative {
   public static StandardBeacon StandardBeacon(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.StandardBeacon dafnyValue) {
     StandardBeacon.Builder nativeBuilder = StandardBeacon.builder();
-    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.name(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
     nativeBuilder.length((dafnyValue.dtor_length()));
     if (dafnyValue.dtor_loc().is_Some()) {
-      nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
+      nativeBuilder.loc(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -355,7 +355,7 @@ public class ToNative {
   public static VirtualField VirtualField(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualField dafnyValue) {
     VirtualField.Builder nativeBuilder = VirtualField.builder();
-    nativeBuilder.name(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
+    nativeBuilder.name(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_name()));
     nativeBuilder.parts(ToNative.VirtualPartList(dafnyValue.dtor_parts()));
     return nativeBuilder.build();
   }
@@ -363,7 +363,7 @@ public class ToNative {
   public static VirtualPart VirtualPart(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualPart dafnyValue) {
     VirtualPart.Builder nativeBuilder = VirtualPart.builder();
-    nativeBuilder.loc(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc()));
+    nativeBuilder.loc(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc()));
     if (dafnyValue.dtor_trans().is_Some()) {
       nativeBuilder.trans(ToNative.VirtualTransformList(dafnyValue.dtor_trans().dtor_value()));
     }
@@ -442,87 +442,87 @@ public class ToNative {
 
   public static List<BeaconVersion> BeaconVersionList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconVersion> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::BeaconVersion);
   }
 
   public static List<CompoundBeacon> CompoundBeaconList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CompoundBeacon> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::CompoundBeacon);
   }
 
   public static List<Constructor> ConstructorList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Constructor> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::Constructor);
   }
 
   public static List<ConstructorPart> ConstructorPartList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.ConstructorPart> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::ConstructorPart);
   }
 
   public static List<EncryptedPart> EncryptedPartsList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.EncryptedPart> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::EncryptedPart);
   }
 
   public static List<SignedPart> SignedPartsList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SignedPart> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::SignedPart);
   }
 
   public static List<StandardBeacon> StandardBeaconList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.StandardBeacon> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::StandardBeacon);
   }
 
   public static List<VirtualField> VirtualFieldList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualField> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::VirtualField);
   }
 
   public static List<VirtualPart> VirtualPartList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualPart> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::VirtualPart);
   }
 
   public static List<VirtualTransform> VirtualTransformList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualTransform> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::VirtualTransform);
   }
 
   public static Map<String, CryptoAction> AttributeActions(
       DafnyMap<? extends DafnySequence<? extends Character>, ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
         dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::String, 
+        software.amazon.smithy.dafny.conversion.ToNative.Simple::String, 
         software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::CryptoAction);
   }
 
   public static Map<String, DynamoDbTableEncryptionConfig> DynamoDbTableEncryptionConfigList(
       DafnyMap<? extends DafnySequence<? extends Character>, ? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbTableEncryptionConfig> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
         dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::String, 
+        software.amazon.smithy.dafny.conversion.ToNative.Simple::String, 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::DynamoDbTableEncryptionConfig);
   }
 

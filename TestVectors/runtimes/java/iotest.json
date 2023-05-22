@@ -1,0 +1,126 @@
+{
+  "DecryptTests": [
+    {
+      "Config": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "Stuff": "ENCRYPT_AND_SIGN",
+          "Junk": "ENCRYPT_AND_SIGN"
+        }
+      },
+      "EncryptedRecords": [
+        {
+          "aws_dbe_head": {
+            "B": "AQFepLzSuwrjtOJEt6nqBC7X0wbjsuBTcuuuYL1YUd+wtQADZWVzAAEAFWF3cy1jcnlwdG8tcHVibGljLWtleQBEQXVFek13d1EwQ0I0VVZ3dk95am9jSStjRHY4TnZtN0JHSEp1NVN6ZUdIWE1ETzI5Sjd5aWI0K1ZPcVRPWk9rODR3PT0BABFhd3Mta21zLWhpZXJhcmNoeQAkYmQzODQyZmYtMzA3Ni00MDkyLTk5MTgtNDM5NTczMDA1MGI4AIybmS6iEFhM9VEFWg+TZ8Ba+HD0WHJgyegcL3FmcjfiyJ9GlWmq6FN6N81VBwE9iVvoz5ZnneO++8Xx6Qe0Rb+WM0SQqIxrK9q2d3Ki6c4Yo+21QnKfhhyst5l/9gE1qcf1WoYNZOAxUcGOrsK1U+ryZ9lPS05pZI4NRYvzf7Xrja9/cRj/28rn/mw0IoM5MqeSX5N6ehnK3Rt++GHLvYH4lQ+sDbJwRbwhkVDO"
+          },
+          "aws_dbe_foot": {
+            "B": "zZMlpZzB4XutT+QCs8hiYvrsqsfR72CXa+N4pwwdVT4EHa2wAIPaz0TZykk0CRX/MGUCMQDGiWqFrcD7bZ/G1iSe3649YyZZc4g3G+6FcT3erUzhTdtnRXekKB+IThhJnXwhSZgCMEo7AjT/E8vuXGVDYOVtmyqHRTKNKS+UYM21eOhcXyUnD+mSMz1ZI2VEE2zvybqLaA=="
+          },
+          "Junk": {
+            "B": "AAELnJey3+k7PE5D6Zc3z4LzmVU2xzBAZU8="
+          },
+          "RecNum": {
+            "N": "1"
+          },
+          "Stuff": {
+            "B": "AAGDYurMsFqHmWDEM5ATm6eGu79I/rNe5C5J"
+          }
+        }
+      ],
+      "PlainTextRecords": [
+        {
+          "RecNum": 1,
+          "Stuff": "StuffData",
+          "Junk": "JunkData"
+        }
+      ]
+    }
+  ],
+  "WriteTests": [
+    {
+      "FileName": "WriteTests1.json",
+      "Config": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "Stuff": "ENCRYPT_AND_SIGN",
+          "Junk": "ENCRYPT_AND_SIGN"
+        }
+      },
+      "Records": [
+        {
+          "RecNum": 1,
+          "Stuff": "StuffData",
+          "Junk": "JunkData"
+        }
+      ]
+    }
+  ],
+  "IoTests": {
+    "IoTest1": {
+      "WriteConfig": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "Stuff": "ENCRYPT_AND_SIGN",
+          "Junk": "ENCRYPT_AND_SIGN"
+        }
+      },
+      "ReadConfig": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "Stuff": "ENCRYPT_AND_SIGN"
+        }
+      },
+      "Records": [
+        {
+          "RecNum": {
+            "N": "0"
+          },
+          "Stuff": "StuffValue",
+          "Junk": "JunkValue"
+        }
+      ]
+    },
+    "IoTest2": {
+      "WriteConfig": {
+        "attributeActions": {
+          "RecNum": "SIGN_ONLY",
+          "Stuff": "SIGN_ONLY",
+          "Junk": "ENCRYPT_AND_SIGN"
+        },
+        "search": {
+          "versions": [
+            {
+              "keySource": {
+                "keyFieldName": "Stuff"
+              },
+              "standardBeacons": [
+                {
+                  "Name": "Junk",
+                  "Length": 32
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "Records": [
+        {
+          "RecNum": {
+            "N": "0"
+          },
+          "Stuff": "StuffValue",
+          "Junk": "JunkValue"
+        }
+      ],
+      "Queries": [
+        {
+          "Filter": "Stuff = :stuff AND Junk = :junk"
+        }
+      ],
+      "Values": {
+        ":stuff": "Stuff",
+        ":junk": "Junk"
+      }
+    }
+  }
+}
