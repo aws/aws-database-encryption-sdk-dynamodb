@@ -38,9 +38,10 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
   using the KMS RSA Keyring. This keyring uses a KMS RSA key pair to
-  encrypt and decrypt records. The client uses the public key
-  to encrypt items it adds to the table and uses the private key to decrypt
-  existing table items it retrieves.
+  encrypt and decrypt records. The client uses the downloaded public key
+  to encrypt items it adds to the table.
+  The keyring uses the private key to decrypt existing table items it retrieves,
+  by calling KMS' decrypt API.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
