@@ -252,6 +252,7 @@ Resources:
               - kms:Encrypt
               - kms:Decrypt
               - kms:GenerateDataKey
+              - kms:GetPublicKey
             Resource:
               - !Sub "arn:aws:kms:*:658956600833:key/*"
               - !Sub "arn:aws:kms:*:658956600833:alias/*"
@@ -268,6 +269,7 @@ Resources:
               - kms:Encrypt
               - kms:Decrypt
               - kms:GenerateDataKey
+              - kms:GetPublicKey
             Resource:
               - !Sub "arn:aws:kms:us-east-1:658956600833:key/*"
               - !Sub "arn:aws:kms:us-east-1:658956600833:alias/*"
@@ -284,6 +286,7 @@ Resources:
               - kms:Encrypt
               - kms:Decrypt
               - kms:GenerateDataKey
+              - kms:GetPublicKey
             Resource:
               - !Sub "arn:aws:kms:eu-west-1:658956600833:key/*"
               - !Sub "arn:aws:kms:eu-west-1:658956600833:alias/*"
