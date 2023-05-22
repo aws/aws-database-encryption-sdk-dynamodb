@@ -90,8 +90,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     // We follow the guidance in the link above to determine reasonable bounds for beacon length:
     //  - min: log(sqrt(100))/log(2) ~= 3.3, round down to 3
     //  - max: log((100/2))/log(2) ~= 5.6, round up to 6
-    // You will somehow need to round results to the nearest integer.
-    // We choose to round to the nearest number; you might consider a different rounding approach.
+    // You will somehow need to round results to a nearby integer.
+    // We choose to round to the nearest integer; you might consider a different rounding approach.
     // Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
     //    better performance, but it is easier to distinguish unique plaintext values in encrypted data.
     // Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
