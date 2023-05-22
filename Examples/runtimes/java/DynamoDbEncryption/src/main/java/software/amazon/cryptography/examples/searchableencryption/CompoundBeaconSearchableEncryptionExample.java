@@ -124,7 +124,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     //    but some buildings are shorter than the tallest building,
     //    we expect a left-skewed floor frequency distribution.
     //    Such a dataset would require a stricter upper bound on beacon length
-    //    to hide the underlying distribution.
+    //    to better hide information from the underlying distribution.
     //  - Floors are uniformly distributed across customer IDs.
     //  - Floors, building IDs, and customer IDs have no correlation.
     // With these assumptions, we have a dataset of floors with 50 possible values
