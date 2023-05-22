@@ -11,7 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
@@ -48,7 +48,7 @@ public class MigrationExampleStep3 {
 
     public static void MigrationStep3(String kmsKeyId, String ddbTableName, int sortReadValue) {
         // 1. Continue to configure your Keyring, Table Schema,
-        // and allowedUnauthenticatedAttributes as you did in Step 1.
+        // and allowedUnsignedAttributes as you did in Step 1.
         // However, now you can remove the configuration for the old DynamoDBEncryptor
         // and the legacy attribute actions.
         final MaterialProviders matProv = MaterialProviders.builder()
@@ -59,7 +59,7 @@ public class MigrationExampleStep3 {
                 .build();
         final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
-        final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass> tableSchemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
 
         final List<String> unauthAttributes = Arrays.asList("do_nothing");
 
@@ -70,8 +70,8 @@ public class MigrationExampleStep3 {
                 DynamoDbEnhancedTableEncryptionConfig.builder()
                         .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
-                        .allowedUnauthenticatedAttributes(unauthAttributes)
-                        .tableSchema(tableSchema)
+                        .allowedUnsignedAttributes(unauthAttributes)
+                        .tableSchemaOnEncrypt(tableSchemaOnEncrypt)
                         .build());
         final DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
@@ -93,7 +93,7 @@ public class MigrationExampleStep3 {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
+        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchemaOnEncrypt);
 
         // 6. Put an item into your table using the DynamoDb Enhanced Client.
         //    This item will be encrypted in the latest format, using the

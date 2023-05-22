@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
@@ -52,7 +52,7 @@ public class MigrationExampleStep2 {
 
     public static void MigrationStep2(String kmsKeyId, String ddbTableName, int sortReadValue) {
         // 1. Continue to configure your Keyring, Table Schema, legacy attribute actions,
-        // and allowedUnauthenticatedAttributes, and old DynamoDBEncryptor as you did in Step 1.
+        // and allowedUnsignedAttributes, and old DynamoDBEncryptor as you did in Step 1.
         final MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
@@ -61,7 +61,7 @@ public class MigrationExampleStep2 {
                 .build();
         final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
-        final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass> tableSchemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
 
         final List<String> unauthAttributes = Arrays.asList("do_nothing");
 
@@ -76,14 +76,14 @@ public class MigrationExampleStep2 {
         final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(kmsClient, kmsKeyId);
         final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
 
-        // 2. When configuring our legacy behavior, use `FORBID_ENCRYPT_ALLOW_DECRYPT`.
+        // 2. When configuring our legacy behavior, use `FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT`.
         //    With this policy, you will continue to read items in both formats,
         //    but will only write new items using the new format.
-        final LegacyConfig legacyConfig = LegacyConfig
+        final LegacyOverride legacyOverride = LegacyOverride
                 .builder()
                 .encryptor(oldEncryptor)
-                .policy(LegacyPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT)
-                .attributeFlags(legacyActions)
+                .policy(LegacyPolicy.FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT)
+                .attributeActionsOnEncrypt(legacyActions)
                 .build();
 
         // 3. Create the DynamoDb Encryption Interceptor with the above configuration.
@@ -92,9 +92,9 @@ public class MigrationExampleStep2 {
                 DynamoDbEnhancedTableEncryptionConfig.builder()
                         .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
-                        .allowedUnauthenticatedAttributes(unauthAttributes)
-                        .tableSchema(tableSchema)
-                        .legacyConfig(legacyConfig)
+                        .allowedUnsignedAttributes(unauthAttributes)
+                        .tableSchemaOnEncrypt(tableSchemaOnEncrypt)
+                        .legacyOverride(legacyOverride)
                         .build());
         final DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
@@ -116,7 +116,7 @@ public class MigrationExampleStep2 {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
+        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchemaOnEncrypt);
 
         // 6. Put an item into your table using the DynamoDb Enhanced Client.
         //    This item will be encrypted in the latest format, using the

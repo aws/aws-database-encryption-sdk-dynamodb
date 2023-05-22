@@ -54,12 +54,12 @@ public class EnhancedPutGetExample {
         //    use the `DynamoDbEncryptionSignOnly` annotation.
         //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
         //    use the `DynamoDbEncryptionDoNothing` annotation.
-        final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass> tableSchemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
         //
-        //    - (Recommended) Configure `allowedUnauthenticatedAttributesPrefix`:
+        //    - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
         //      When defining your DynamoDb schema and deciding on attribute names,
         //      choose a distinguishing prefix (such as ":") for all attributes that
         //      you do not want to include in the signature.
@@ -71,7 +71,7 @@ public class EnhancedPutGetExample {
         //        as long as it's name uses this prefix, without any other configuration update needed.
         //      Once you configure this field, it is not safe to update it.
         //
-        //    - Configure `allowedUnauthenticatedAttributes`: You may also explicitly list
+        //    - Configure `allowedUnsignedAttributes`: You may also explicitly list
         //      a set of attributes that should be considered unauthenticated when encountered
         //      on read. Be careful if you use this configuration. Do not remove an attribute
         //      name from this configuration, even if you are no longer writing with that attribute,
@@ -91,8 +91,8 @@ public class EnhancedPutGetExample {
                 DynamoDbEnhancedTableEncryptionConfig.builder()
                         .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
-                        .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
-                        .tableSchema(tableSchema)
+                        .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+                        .tableSchemaOnEncrypt(tableSchemaOnEncrypt)
                         .build());
 
         // 4. Create the DynamoDb Encryption Interceptor, using the DynamoDbEnhancedClientEncryption helper
@@ -116,7 +116,7 @@ public class EnhancedPutGetExample {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
+        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchemaOnEncrypt);
 
         // 7. Put an item into your table using the DynamoDb Enhanced Client.
         //    The item will be encrypted client-side according to your

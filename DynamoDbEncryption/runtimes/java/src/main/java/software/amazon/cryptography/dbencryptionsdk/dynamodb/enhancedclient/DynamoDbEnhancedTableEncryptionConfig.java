@@ -3,8 +3,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 import java.util.List;
 import java.util.Objects;
 
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.cryptography.materialproviders.CryptographicMaterialsManager;
@@ -14,41 +14,41 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
 public class DynamoDbEnhancedTableEncryptionConfig {
     private final String logicalTableName;
-    private final TableSchema tableSchema;
-    private final List<String> allowedUnauthenticatedAttributes;
-    private final String allowedUnauthenticatedAttributePrefix;
+    private final TableSchema tableSchemaOnEncrypt;
+    private final List<String> allowedUnsignedAttributes;
+    private final String allowedUnsignedAttributePrefix;
     private final Keyring keyring;
     private final CryptographicMaterialsManager cmm;
-    private final LegacyConfig legacyConfig;
-    private final PlaintextPolicy plaintextPolicy;
+    private final LegacyOverride legacyOverride;
+    private final PlaintextOverride plaintextOverride;
     private final DBEAlgorithmSuiteId algorithmSuiteId;
 
 
     protected DynamoDbEnhancedTableEncryptionConfig(BuilderImpl builder) {
         this.logicalTableName = builder.logicalTableName();
-        this.tableSchema = builder.tableSchema();
-        this.allowedUnauthenticatedAttributes = builder.allowedUnauthenticatedAttributes();
-        this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
+        this.tableSchemaOnEncrypt = builder.tableSchemaOnEncrypt();
+        this.allowedUnsignedAttributes = builder.allowedUnsignedAttributes();
+        this.allowedUnsignedAttributePrefix = builder.allowedUnsignedAttributePrefix();
         this.keyring = builder.keyring();
         this.cmm = builder.cmm();
-        this.legacyConfig = builder.legacyConfig();
-        this.plaintextPolicy = builder.plaintextPolicy();
+        this.legacyOverride = builder.legacyOverride();
+        this.plaintextOverride = builder.plaintextOverride();
         this.algorithmSuiteId = builder.algorithmSuiteId();
 
     }
 
     public String logicalTableName() { return this.logicalTableName; }
 
-    public TableSchema tableSchema() {
-        return this.tableSchema;
+    public TableSchema tableSchemaOnEncrypt() {
+        return this.tableSchemaOnEncrypt;
     }
 
-    public List<String> allowedUnauthenticatedAttributes() {
-        return this.allowedUnauthenticatedAttributes;
+    public List<String> allowedUnsignedAttributes() {
+        return this.allowedUnsignedAttributes;
     }
 
-    public String allowedUnauthenticatedAttributePrefix() {
-        return this.allowedUnauthenticatedAttributePrefix;
+    public String allowedUnsignedAttributePrefix() {
+        return this.allowedUnsignedAttributePrefix;
     }
 
     public Keyring keyring() {
@@ -59,12 +59,12 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         return this.cmm;
     }
 
-    public LegacyConfig legacyConfig() {
-        return this.legacyConfig;
+    public LegacyOverride legacyOverride() {
+        return this.legacyOverride;
     }
 
-    public PlaintextPolicy plaintextPolicy() {
-        return this.plaintextPolicy;
+    public PlaintextOverride plaintextOverride() {
+        return this.plaintextOverride;
     }
 
     public DBEAlgorithmSuiteId algorithmSuiteId() {
@@ -82,18 +82,18 @@ public class DynamoDbEnhancedTableEncryptionConfig {
     public interface Builder {
         String logicalTableName();
         Builder logicalTableName(String logicalTableName);
-        Builder tableSchema(TableSchema tableSchema);
-        TableSchema tableSchema();
-        Builder allowedUnauthenticatedAttributes(List<String> allowedUnauthenticatedAttributes);
-        List<String> allowedUnauthenticatedAttributes();
-        Builder allowedUnauthenticatedAttributePrefix(String allowedUnauthenticatedAttributePrefix);
-        String allowedUnauthenticatedAttributePrefix();
+        Builder tableSchemaOnEncrypt(TableSchema tableSchemaOnEncrypt);
+        TableSchema tableSchemaOnEncrypt();
+        Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
+        List<String> allowedUnsignedAttributes();
+        Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix);
+        String allowedUnsignedAttributePrefix();
         <I extends IKeyring> Builder keyring(I keyring);
         <I extends ICryptographicMaterialsManager> Builder cmm(I cmm);
-        Builder legacyConfig(LegacyConfig legacyConfig);
-        LegacyConfig legacyConfig();
-        Builder plaintextPolicy(PlaintextPolicy plaintextPolicy);
-        PlaintextPolicy plaintextPolicy();
+        Builder legacyOverride(LegacyOverride legacyOverride);
+        LegacyOverride legacyOverride();
+        Builder plaintextOverride(PlaintextOverride plaintextOverride);
+        PlaintextOverride plaintextOverride();
         Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
         DBEAlgorithmSuiteId algorithmSuiteId();
         DynamoDbEnhancedTableEncryptionConfig build();
@@ -101,26 +101,26 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
     protected static class BuilderImpl implements Builder {
         protected String logicalTableName;
-        protected TableSchema tableSchema;
-        protected List<String> allowedUnauthenticatedAttributes;
-        protected String allowedUnauthenticatedAttributePrefix;
+        protected TableSchema tableSchemaOnEncrypt;
+        protected List<String> allowedUnsignedAttributes;
+        protected String allowedUnsignedAttributePrefix;
         protected Keyring keyring;
         protected CryptographicMaterialsManager cmm;
-        protected LegacyConfig legacyConfig;
-        protected PlaintextPolicy plaintextPolicy;
+        protected LegacyOverride legacyOverride;
+        protected PlaintextOverride plaintextOverride;
         protected DBEAlgorithmSuiteId algorithmSuiteId;
         protected BuilderImpl() {
         }
 
         protected BuilderImpl(DynamoDbEnhancedTableEncryptionConfig model) {
             this.logicalTableName = model.logicalTableName();
-            this.tableSchema = model.tableSchema();
-            this.allowedUnauthenticatedAttributes = model.allowedUnauthenticatedAttributes();
-            this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
+            this.tableSchemaOnEncrypt = model.tableSchemaOnEncrypt();
+            this.allowedUnsignedAttributes = model.allowedUnsignedAttributes();
+            this.allowedUnsignedAttributePrefix = model.allowedUnsignedAttributePrefix();
             this.keyring = model.keyring();
             this.cmm = model.cmm();
-            this.legacyConfig = model.legacyConfig();
-            this.plaintextPolicy  = model.plaintextPolicy();
+            this.legacyOverride = model.legacyOverride();
+            this.plaintextOverride  = model.plaintextOverride();
             this.algorithmSuiteId = model.algorithmSuiteId();
         }
 
@@ -131,32 +131,32 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
         public String logicalTableName() { return this.logicalTableName; }
 
-        public Builder tableSchema(TableSchema tableSchema) {
-            this.tableSchema = tableSchema;
+        public Builder tableSchemaOnEncrypt(TableSchema tableSchemaOnEncrypt) {
+            this.tableSchemaOnEncrypt = tableSchemaOnEncrypt;
             return this;
         }
 
-        public TableSchema tableSchema() {
-            return this.tableSchema;
+        public TableSchema tableSchemaOnEncrypt() {
+            return this.tableSchemaOnEncrypt;
         }
 
-        public Builder allowedUnauthenticatedAttributes(List<String> allowedUnauthenticatedAttributes) {
-            this.allowedUnauthenticatedAttributes = allowedUnauthenticatedAttributes;
+        public Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes) {
+            this.allowedUnsignedAttributes = allowedUnsignedAttributes;
             return this;
         }
 
-        public List<String> allowedUnauthenticatedAttributes() {
-            return this.allowedUnauthenticatedAttributes;
+        public List<String> allowedUnsignedAttributes() {
+            return this.allowedUnsignedAttributes;
         }
 
-        public Builder allowedUnauthenticatedAttributePrefix(
-                String allowedUnauthenticatedAttributePrefix) {
-            this.allowedUnauthenticatedAttributePrefix = allowedUnauthenticatedAttributePrefix;
+        public Builder allowedUnsignedAttributePrefix(
+                String allowedUnsignedAttributePrefix) {
+            this.allowedUnsignedAttributePrefix = allowedUnsignedAttributePrefix;
             return this;
         }
 
-        public String allowedUnauthenticatedAttributePrefix() {
-            return this.allowedUnauthenticatedAttributePrefix;
+        public String allowedUnsignedAttributePrefix() {
+            return this.allowedUnsignedAttributePrefix;
         }
 
         public <I extends IKeyring> Builder keyring(I keyring) {
@@ -177,22 +177,22 @@ public class DynamoDbEnhancedTableEncryptionConfig {
             return this.cmm;
         }
 
-        public Builder legacyConfig(LegacyConfig legacyConfig) {
-            this.legacyConfig = legacyConfig;
+        public Builder legacyOverride(LegacyOverride legacyOverride) {
+            this.legacyOverride = legacyOverride;
             return this;
         }
 
-        public LegacyConfig legacyConfig() {
-            return this.legacyConfig;
+        public LegacyOverride legacyOverride() {
+            return this.legacyOverride;
         }
 
-        public Builder plaintextPolicy(PlaintextPolicy plaintextPolicy) {
-            this.plaintextPolicy = plaintextPolicy;
+        public Builder plaintextOverride(PlaintextOverride plaintextOverride) {
+            this.plaintextOverride = plaintextOverride;
             return this;
         }
 
-        public PlaintextPolicy plaintextPolicy() {
-            return this.plaintextPolicy;
+        public PlaintextOverride plaintextOverride() {
+            return this.plaintextOverride;
         }
 
         public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
@@ -205,8 +205,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         }
 
         public DynamoDbEnhancedTableEncryptionConfig build() {
-            if (Objects.isNull(this.tableSchema())) {
-                throw new IllegalArgumentException("Missing value for required field `tableSchema`");
+            if (Objects.isNull(this.tableSchemaOnEncrypt())) {
+                throw new IllegalArgumentException("Missing value for required field `tableSchemaOnEncrypt`");
             }
             return new DynamoDbEnhancedTableEncryptionConfig(this);
         }

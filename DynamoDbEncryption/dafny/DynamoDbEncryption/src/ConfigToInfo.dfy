@@ -77,14 +77,14 @@ module SearchConfigToInfo {
   function method ShouldDeleteKeyField(outer : DynamoDbTableEncryptionConfig, keyFieldName : string)
     : (ret : Result<bool, Error>)
     ensures
-      && keyFieldName in outer.attributeActions
-      && outer.attributeActions[keyFieldName] == SE.ENCRYPT_AND_SIGN
+      && keyFieldName in outer.attributeActionsOnEncrypt
+      && outer.attributeActionsOnEncrypt[keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> ret.Failure?
   {
-    if keyFieldName !in outer.attributeActions then
+    if keyFieldName !in outer.attributeActionsOnEncrypt then
       Success(true)
     else
-      match outer.attributeActions[keyFieldName] {
+      match outer.attributeActionsOnEncrypt[keyFieldName] {
         case DO_NOTHING => Success(true)
         case SIGN_ONLY => Success(false)
         case ENCRYPT_AND_SIGN => Failure(E("Beacon key field name " + keyFieldName + " is configured as ENCRYPT_AND_SIGN which is not allowed."))
@@ -114,8 +114,8 @@ module SearchConfigToInfo {
     //# with [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign).
     ensures
       && config.multi?
-      && config.multi.keyFieldName in outer.attributeActions
-      && outer.attributeActions[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
+      && config.multi.keyFieldName in outer.attributeActionsOnEncrypt
+      && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
   {
     var mplR := MaterialProviders.MaterialProviders();
@@ -214,7 +214,7 @@ module SearchConfigToInfo {
         source,
         beacons,
         virtualFields,
-        outer.attributeActions
+        outer.attributeActionsOnEncrypt
       );
   }
 
@@ -232,24 +232,24 @@ module SearchConfigToInfo {
   predicate method IsSigned(outer : DynamoDbTableEncryptionConfig, loc : TermLoc)
   {
     && var name := loc[0].key;
-    && name in outer.attributeActions
-    && outer.attributeActions[name] != SE.DO_NOTHING
+    && name in outer.attributeActionsOnEncrypt
+    && outer.attributeActionsOnEncrypt[name] != SE.DO_NOTHING
   }
 
   // is this terminal location signed, but not encrypted
   predicate method IsSignOnly(outer : DynamoDbTableEncryptionConfig, loc : TermLoc)
   {
     && var name := loc[0].key;
-    && name in outer.attributeActions
-    && outer.attributeActions[name] == SE.SIGN_ONLY
+    && name in outer.attributeActionsOnEncrypt
+    && outer.attributeActionsOnEncrypt[name] == SE.SIGN_ONLY
   }
 
   // is this terminal location encrypted
   predicate method IsEncrypted(outer : DynamoDbTableEncryptionConfig, loc : TermLoc)
   {
     && var name := loc[0].key;
-    && name in outer.attributeActions
-    && outer.attributeActions[name] == SE.ENCRYPT_AND_SIGN
+    && name in outer.attributeActionsOnEncrypt
+    && outer.attributeActionsOnEncrypt[name] == SE.ENCRYPT_AND_SIGN
   }
 
   // is this terminal location encrypted, OR does it refer to an encrypted virtual field
@@ -267,15 +267,15 @@ module SearchConfigToInfo {
     context : string,
     isSignedBeacon : bool := false)
     : (ret : Result<bool, Error>)
-    ensures name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN ==> ret.Failure?
+    ensures name in outer.attributeActionsOnEncrypt && outer.attributeActionsOnEncrypt[name] != SE.ENCRYPT_AND_SIGN ==> ret.Failure?
   {
-    if name in outer.attributeActions && outer.attributeActions[name] != SE.ENCRYPT_AND_SIGN then
+    if name in outer.attributeActionsOnEncrypt && outer.attributeActionsOnEncrypt[name] != SE.ENCRYPT_AND_SIGN then
       Failure(E(name + " not allowed as a " + context + " because it is already an unencrypted attribute."))
-    else if isSignedBeacon && name in outer.attributeActions then
+    else if isSignedBeacon && name in outer.attributeActionsOnEncrypt then
       Failure(E(name + " not allowed as a " + context + " because a fully signed beacon cannot have the same name as an existing attribute."))
-    else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
+    else if outer.allowedUnsignedAttributes.Some? && name in outer.allowedUnsignedAttributes.value then
       Failure(E(name + " not allowed as a " + context + " because it is already an allowed unauthenticated attribute."))
-    else if outer.allowedUnauthenticatedAttributePrefix.Some? && outer.allowedUnauthenticatedAttributePrefix.value <= name then
+    else if outer.allowedUnsignedAttributePrefix.Some? && outer.allowedUnsignedAttributePrefix.value <= name then
       Failure(E(name + " not allowed as a " + context + " because it begins with the allowed unauthenticated prefix."))
     else if ReservedPrefix <= name then
       Failure(E(name + " not allowed as a " + context + " because it begins with the reserved prefix."))
@@ -287,11 +287,11 @@ module SearchConfigToInfo {
   function method VirtualFieldNameAllowed(outer : DynamoDbTableEncryptionConfig, name : string)
     : Result<bool, Error>
   {
-    if name in outer.attributeActions then
+    if name in outer.attributeActionsOnEncrypt then
       Failure(E(name + " not allowed as a Virtual Field because it is already a configured attribute."))
-    else if outer.allowedUnauthenticatedAttributes.Some? && name in outer.allowedUnauthenticatedAttributes.value then
+    else if outer.allowedUnsignedAttributes.Some? && name in outer.allowedUnsignedAttributes.value then
       Failure(E(name + " not allowed as a Virtual Field because it is already an allowed unauthenticated attribute."))
-    else if outer.allowedUnauthenticatedAttributePrefix.Some? && outer.allowedUnauthenticatedAttributePrefix.value <= name then
+    else if outer.allowedUnsignedAttributePrefix.Some? && outer.allowedUnsignedAttributePrefix.value <= name then
       Failure(E(name + " not allowed as a Virtual Field because it begins with the allowed unauthenticated prefix."))
     else if ReservedPrefix <= name then
       Failure(E(name + " not allowed as a Virtual Field because it begins with the reserved prefix."))
@@ -402,7 +402,7 @@ module SearchConfigToInfo {
     //= type=implication
     //# Initialization MUST fail if the name of any [standard beacon](beacons.md#standard-beacon)
     //# matches that of any unencrypted [configured field](#configured-field).
-    ensures 0 < |beacons| && beacons[0].name in outer.attributeActions && outer.attributeActions[beacons[0].name] != SE.ENCRYPT_AND_SIGN ==> output.Failure?
+    ensures 0 < |beacons| && beacons[0].name in outer.attributeActionsOnEncrypt && outer.attributeActionsOnEncrypt[beacons[0].name] != SE.ENCRYPT_AND_SIGN ==> output.Failure?
 
     ensures output.Success? && 0 < |beacons| ==>
               && beacons[0].name !in converted
@@ -786,7 +786,7 @@ module SearchConfigToInfo {
     //= type=implication
     //# Initialization MUST fail if the name of any [compound beacon](beacons.md#compound-beacon)
     //# matches that of any unencrypted [configured field](#configured-field).
-    ensures 0 < |beacons| && beacons[0].name in outer.attributeActions && outer.attributeActions[beacons[0].name] != SE.ENCRYPT_AND_SIGN ==> output.Failure?
+    ensures 0 < |beacons| && beacons[0].name in outer.attributeActionsOnEncrypt && outer.attributeActionsOnEncrypt[beacons[0].name] != SE.ENCRYPT_AND_SIGN ==> output.Failure?
   {
     if |beacons| == 0 {
       return Success(converted);
