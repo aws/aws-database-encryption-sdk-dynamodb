@@ -1,4 +1,4 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
