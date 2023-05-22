@@ -1,4 +1,4 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
 import software.amazon.awssdk.awscore.AwsRequest;
 import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
@@ -15,8 +15,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.*;
 import java.util.Objects;
 import java.util.Optional;
 
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionExecutionAttribute.ORIGINAL_REQUEST;
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.SupportedOperations.SUPPORTED_OPERATION_NAMES;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionExecutionAttribute.ORIGINAL_REQUEST;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.SupportedOperations.SUPPORTED_OPERATION_NAMES;
 
 /**
  * Implementation of {@link ExecutionInterceptor} that enables client side encryption with DynamoDb.
