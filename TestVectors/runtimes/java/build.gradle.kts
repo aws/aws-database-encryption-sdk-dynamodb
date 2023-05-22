@@ -41,6 +41,10 @@ if (!caPasswordString.isNullOrBlank()) {
 }
 
 repositories {
+    maven {
+        name = "DynamoDB Local Release Repository - US West (Oregon) Region"
+        url  = URI.create("https://s3-us-west-2.amazonaws.com/dynamodb-local/release")
+    }
     mavenCentral()
     mavenLocal()
     if (caUrl != null && caPassword != null) {
@@ -54,6 +58,10 @@ repositories {
         }
     }
 }
+
+// Configuration to hold SQLLite information.
+// DynamoDB-Local needs to have access to native sqllite4java.
+val dynamodb by configurations.creating
 
 dependencies {
     implementation("org.dafny:DafnyRuntime:4.0.0")
@@ -71,7 +79,16 @@ dependencies {
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:core:2.19.1")
     implementation("software.amazon.awssdk:kms")
-
+    testImplementation("com.amazonaws:DynamoDBLocal:1.+")
+    // This is where we gather the SQLLite files to copy over
+    dynamodb("com.amazonaws:DynamoDBLocal:1.+")
+    // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
+    // This checks the dependencies and adds a native library
+    // to support this architecture.
+    if (org.apache.tools.ant.taskdefs.condition.Os.isArch("aarch64")) {
+        testImplementation("io.github.ganadist.sqlite4java:libsqlite4java-osx-aarch64:1.0.392")
+        dynamodb("io.github.ganadist.sqlite4java:libsqlite4java-osx-aarch64:1.0.392")
+    }
 }
 
 publishing {
@@ -87,6 +104,46 @@ tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
 }
 
+tasks.test {
+    useTestNG()
+    dependsOn("CopyDynamoDb")
+    systemProperty("java.library.path", "build/libs")
+
+    // This will show System.out.println statements
+    testLogging.showStandardStreams = true
+
+    testLogging {
+        lifecycle {
+            events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
+            exceptionFormat = TestExceptionFormat.FULL
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+            showStandardStreams = true
+        }
+        info.events = lifecycle.events
+        info.exceptionFormat = lifecycle.exceptionFormat
+    }
+
+    // See https://github.com/gradle/kotlin-dsl/issues/836
+    addTestListener(object : TestListener {
+        override fun beforeSuite(suite: TestDescriptor) {}
+        override fun beforeTest(testDescriptor: TestDescriptor) {}
+        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
+
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+            if (suite.parent == null) { // root suite
+                logger.lifecycle("----")
+                logger.lifecycle("Test result: ${result.resultType}")
+                logger.lifecycle("Test summary: ${result.testCount} tests, " +
+                        "${result.successfulTestCount} succeeded, " +
+                        "${result.failedTestCount} failed, " +
+                        "${result.skippedTestCount} skipped")
+            }
+        }
+    })
+}
+
 tasks.register<JavaExec>("runTests") {
     dependsOn("copyKeysJSON")
     mainClass.set("TestsFromDafny")
@@ -96,4 +153,13 @@ tasks.register<JavaExec>("runTests") {
 tasks.register<Copy>("copyKeysJSON") {
     from(layout.projectDirectory.file("../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"))
     into(layout.projectDirectory.dir("dafny/DDBEncryption/test"))
+}
+
+tasks.register<Copy>("CopyDynamoDb")  {
+    from (dynamodb) {
+        include("*.dll")
+        include("*.dylib")
+        include("*.so")
+    }
+    into("build/libs")
 }
