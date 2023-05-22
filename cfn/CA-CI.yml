@@ -1,0 +1,185 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CodeArtifact Domain, Repositories, and related IAM Policies/Roles for packages in the DBESDK-DDB Repo"
+Parameters:
+  DomainName:
+    Type: String
+    Description: The name of the CodeArtifact Domain
+    Default: github-dbesdk
+
+  ProjectName:
+    Type: String
+    Description: A prefix that will be applied to any names
+    Default: DBESDK-DDB-Java
+
+  RepositoryName:
+    Type: String
+    Description: A prefix that will be applied to any names
+    Default: DBESDK-DDB-Java
+
+Outputs:
+  # This policy SHOULD be given to the dbesdk-ddb repo
+  GitHubCAReadWriteDeletePolicyArn:
+    Description: "Arn for IAM Policy github-dbesdk-ddb-CA-ReadWriteDelete"
+    Value: !Ref CAReadWriteDeletePolicy
+    Export:
+      Name: !Sub '${AWS::StackName}-GitHubCAReadWriteDeletePolicyArn'
+  # This policy SHOULD be given to the dbesdk-ddb Repo
+  GitHubCAReadPolicyArn:
+    Description: "Arn for IAM Policy github-dbesdk-ddb-CA-Read"
+    Value: !Ref CAReadPolicy
+    Export:
+      Name: !Sub '${AWS::StackName}-GitHubCAReadPolicyArn'
+  # This policy COULD be imported by stack that creates the ToolsDevelopment role
+  ToolDevelopmentAssumePolicyArn:
+    Description: "Arn for IAM Policy that can Assume Roles created for DBESDK-DDB CA"
+    Value: !Ref ToolDevelopmentAssumePolicy
+    Export:
+      Name: !Sub '${AWS::StackName}-ToolDevelopmentAssumePolicyArn'
+
+Resources:
+  Domain:
+    Type: AWS::CodeArtifact::Domain
+    Properties:
+      DomainName: !Ref DomainName
+
+  CIRepo:
+    Type: AWS::CodeArtifact::Repository
+    Properties:
+      DomainName: !GetAtt Domain.Name
+      DomainOwner: !GetAtt Domain.Owner
+      RepositoryName: "DBESDK-DDB-Java-CI"
+
+  # This policy SHOULD be given to the dbesdk-ddb repo
+  CAReadWriteDeletePolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      Description: "Allow Read, Write, and Delete of CodeArtifact Domain github-dbesdk-ddb"
+      ManagedPolicyName: !Sub "${DomainName}-CA-ReadWriteDelete-${AWS::Region}"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - codeartifact:DeletePackageVersions
+              - codeartifact:DescribeDomain
+              - codeartifact:DescribeRepository
+              - codeartifact:DescribePackage
+              - codeartifact:DescribePackageVersion
+              - codeartifact:DisposePackageVersions
+              - codeartifact:GetAuthorizationToken
+              - codeartifact:GetPackageVersionAsset
+              - codeartifact:GetPackageVersionReadme
+              - codeartifact:GetRepositoryEndpoint
+              - codeartifact:ListPackages
+              - codeartifact:ListPackageVersionAssets
+              - codeartifact:ListPackageVersionDependencies
+              - codeartifact:ListPackageVersions
+              - codeartifact:PublishPackageVersion
+              - codeartifact:PutPackageMetadata
+              - codeartifact:ReadFromRepository
+              - codeartifact:UpdatePackageVersionsStatus
+              - codeartifact:UpdateRepository
+            Resource:
+              - !Ref CIRepo
+              - !Ref Domain
+              - !Sub "arn:aws:codeartifact:${AWS::Region}:${AWS::AccountId}:package/${DomainName}/${CIRepo.Name}/*/*/*"
+          - Effect: Allow
+            Action:
+              - sts:GetServiceBearerToken
+            Resource: "*"
+            Condition:
+              StringEquals:
+                'sts:AWSServiceName': "codeartifact.amazonaws.com"
+
+  # This policy SHOULD be given to the ESDK-Dafny & Gazelle Repos
+  CAReadPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      Description: "Allow Read of CodeArtifact Domain github-dbesdk-ddb"
+      ManagedPolicyName: !Sub "${DomainName}-CA-Read-${AWS::Region}"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - codeartifact:DescribeDomain
+              - codeartifact:DescribeRepository
+              - codeartifact:DescribePackage
+              - codeartifact:DescribePackageVersion
+              - codeartifact:GetAuthorizationToken
+              - codeartifact:GetPackageVersionAsset
+              - codeartifact:GetPackageVersionReadme
+              - codeartifact:GetRepositoryEndpoint
+              - codeartifact:ListPackages
+              - codeartifact:ListPackageVersionAssets
+              - codeartifact:ListPackageVersionDependencies
+              - codeartifact:ListPackageVersions
+              - codeartifact:ReadFromRepository
+            Resource:
+              - !Ref CIRepo
+              - !Ref Domain
+              - !Sub "arn:aws:codeartifact:${AWS::Region}:${AWS::AccountId}:package/${DomainName}/${CIRepo.Name}/*/*/*"
+          - Effect: Allow
+            Action:
+              - sts:GetServiceBearerToken
+            Resource: "*"
+            Condition:
+              StringEquals:
+                'sts:AWSServiceName': "codeartifact.amazonaws.com"
+
+  CASourceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub "${ProjectName}-CA-SourceRole-${AWS::Region}"
+      Description: "For the Source Repo, allows Publish, Pull, and Delete"
+      ManagedPolicyArns: [!Ref CAReadWriteDeletePolicy]
+      # This is missing the GitHub ODIC, which I do not have in my account
+      # Really, that ODIC should be exported by a stack
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: 'sts:AssumeRole'
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
+            Action: 'sts:AssumeRole'
+
+  CAPullRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub "${ProjectName}-CA-PullRole-${AWS::Region}"
+      Description: "For consuming Repos, only allows Pull"
+      ManagedPolicyArns: [!Ref CAReadPolicy]
+      # This is missing the GitHub ODIC, which I do not have in my account
+      # Really, that ODIC should be exported by a stack
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: 'sts:AssumeRole'
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
+            Action: 'sts:AssumeRole'
+
+  ToolDevelopmentAssumePolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      Description: "Allows Tools Development to assume roles defined for DBESDK-DDB CA"
+      ManagedPolicyName: !Sub "Assume-${ProjectName}-CA-Roles-${AWS::Region}"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'sts:AssumeRole'
+              - 'sts:AssumeRoleWithSAML'
+              - 'sts:AssumeRoleWithWebIdentity'
+            Resource:
+              - !GetAtt CASourceRole.Arn
+              - !GetAtt CAPullRole.Arn
