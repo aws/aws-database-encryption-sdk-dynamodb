@@ -48,12 +48,23 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
   primary key configuration:
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
+  This example also requires access to a KMS RSA key.
+  Our tests provide a KMS RSA ARN that anyone can use, but you
+  can also provide your own KMS RSA key.
+  To use your own KMS RSA key, you must have either:
+   - Its public key downloaded in a UTF-8 encoded PEM file
+   - kms:GetPublicKey permissions on that key
+  If you do not have the public key downloaded, running this example
+  through its main method will download the public key for you
+  by calling kms:GetPublicKey.
+  You must also have kms:Decrypt permissions on the KMS RSA key.
  */
 public class KmsRsaKeyringExample {
 
-    private static String EXAMPLE_RSA_PUBLIC_KEY_FILENAME = "KmsRsaKeyringExamplePublicKey.pem";
+    private static String DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME = "KmsRsaKeyringExamplePublicKey.pem";
 
-    public static void KmsRsaKeyringGetItemPutItem(String ddbTableName, String rsaKeyArn) {
+    public static void KmsRsaKeyringGetItemPutItem(String ddbTableName, String rsaKeyArn,
+            String rsaPublicKeyFilename) {
         // 1. Load UTF-8 encoded public key PEM file.
         //    You may have an RSA public key file already defined.
         //    If not, the main method in this class will call
@@ -62,7 +73,7 @@ public class KmsRsaKeyringExample {
         ByteBuffer publicKeyUtf8EncodedByteBuffer;
         try {
             publicKeyUtf8EncodedByteBuffer = ByteBuffer.wrap(
-                Files.readAllBytes(Paths.get(EXAMPLE_RSA_PUBLIC_KEY_FILENAME)));
+                Files.readAllBytes(Paths.get(rsaPublicKeyFilename)));
         } catch (IOException e) {
             throw new RuntimeException("IOException while reading public key from file", e);
         }
@@ -198,26 +209,40 @@ public class KmsRsaKeyringExample {
         assert returnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
     }
 
+    public static void KmsRsaKeyringGetItemPutItem(String ddbTableName, String rsaKeyArn) {
+        KmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
+    }
+
     public static void main(final String[] args) {
         if (args.length <= 1) {
-            throw new IllegalArgumentException("To run this example, include the ddbTable and rsaKeyArn in args");
+            throw new IllegalArgumentException("To run this example, include the ddbTable and rsaKeyArn in args; optionally include rsaPublicKeyFilename");
         }
         final String ddbTableName = args[0];
         final String rsaKeyArn = args[1];
+        String rsaPublicKeyFilename;
+        if (args.length == 3) {
+            rsaPublicKeyFilename = args[2];
+        } else {
+            rsaPublicKeyFilename = DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME;
+        }
 
         // You may provide your own RSA public key at EXAMPLE_RSA_PUBLIC_KEY_FILENAME.
         // This must be the public key for the RSA key represented at rsaKeyArn.
         // If this file is not present, this will write a UTF-8 encoded PEM file for you.
-        if (shouldGetNewPublicKey()) {
-            writePublicKeyPemForRsaKey(rsaKeyArn);
+        if (shouldGetNewPublicKey(rsaPublicKeyFilename)) {
+            writePublicKeyPemForRsaKey(rsaKeyArn, rsaPublicKeyFilename);
         }
 
-        KmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn);
+        KmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, rsaPublicKeyFilename);
     }
 
     static boolean shouldGetNewPublicKey() {
+        return shouldGetNewPublicKey(DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
+    }
+
+    static boolean shouldGetNewPublicKey(String rsaPublicKeyFilename) {
         // Check if a public key file already exists
-        File publicKeyFile = new File(EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
+        File publicKeyFile = new File(rsaPublicKeyFilename);
 
         // If a public key file already exists: do not overwrite existing file
         if (publicKeyFile.exists()) {
@@ -229,8 +254,12 @@ public class KmsRsaKeyringExample {
     }
 
     static void writePublicKeyPemForRsaKey(String rsaKeyArn) {
+        writePublicKeyPemForRsaKey(rsaKeyArn, DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
+    }
+
+    static void writePublicKeyPemForRsaKey(String rsaKeyArn, String rsaPublicKeyFilename) {
         // Safety check: Validate file is not present
-        File publicKeyFile = new File(EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
+        File publicKeyFile = new File(rsaPublicKeyFilename);
         if (publicKeyFile.exists()) {
             throw new IllegalStateException("getRsaPublicKey will not overwrite existing PEM files");
         }
@@ -256,7 +285,7 @@ public class KmsRsaKeyringExample {
         ByteBuffer publicKeyUtf8EncodedByteBufferToWrite = StandardCharsets.UTF_8.encode(publicKeyStringWriter.toString());
 
         try {
-            FileChannel fc = new FileOutputStream(EXAMPLE_RSA_PUBLIC_KEY_FILENAME).getChannel();
+            FileChannel fc = new FileOutputStream(rsaPublicKeyFilename).getChannel();
             fc.write(publicKeyUtf8EncodedByteBufferToWrite);
             fc.close();
         } catch (FileNotFoundException e) {
