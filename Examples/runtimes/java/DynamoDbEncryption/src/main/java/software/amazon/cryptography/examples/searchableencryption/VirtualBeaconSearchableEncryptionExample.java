@@ -120,8 +120,8 @@ public class VirtualBeaconSearchableEncryptionExample {
     //     - "true" -> "t"
     //     - "false -> "f"
     //    This is not necessary. This is done as a demonstration of virtual transforms.
-    //    Virtual transform operations treat all attributes as strings,
-    //      i.e. the binary `true` is interpreted as a string "true",
+    //    Virtual transform operations treat all attributes as strings
+    //    (i.e. the boolean value `true` is interpreted as a string "true"),
     //    so its length-1 prefix is just "t".
     List<VirtualTransform> length1PrefixVirtualTransformList = new ArrayList<>();
     VirtualTransform length1PrefixVirtualTransform = VirtualTransform.builder()
@@ -160,13 +160,20 @@ public class VirtualBeaconSearchableEncryptionExample {
     virtualFieldList.add(stateAndHasTestResultField);
 
     // 4. Configure our beacon.
-    //    The virtual field is assumed to hold a well-distributed US 2-letter state abbreviation
-    //      (56 possible values = 50 states + 6 territories) concatenated with a binary attribute
-    //      (2 possible values: true/false hasTestResult field), we expect a population size of
-    //      56 * 2 = 112 possible values.
-    //    The following link provides guidance on choosing a beacon length:
+    //    The virtual field is assumed to hold a US 2-letter state abbreviation
+    //    (56 possible values = 50 states + 6 territories) concatenated with a binary attribute
+    //    (2 possible values: true/false hasTestResult field), we expect a population size of
+    //    56 * 2 = 112 possible values.
+    //    We will also assume that these values are reasonably well-distributed across
+    //    customer IDs. In practice, this will not be true. We would expect
+    //    more populous states to appear more frequently in the database.
+    //    A more complex analysis would show that a stricter upper bound
+    //    is necessary to account for this by hiding information from the
+    //    underlying distribution.
+    //
+    //    This link provides guidance for choosing a beacon length:
     //       TODO: add link
-    //    We follow the guidance in the link above to determine acceptable bounds for beacon length:
+    //    We follow the guidance in the link above to determine reasonable bounds for beacon length:
     //     - min: log(sqrt(112))/log(2) ~= 3.4, round down to 3
     //     - max: log((112/2))/log(2) ~= 5.8, round up to 6
     //    You will somehow need to round results to a nearby integer.
@@ -175,16 +182,19 @@ public class VirtualBeaconSearchableEncryptionExample {
     //       better performance, but it is easier to distinguish unique plaintext values in encrypted data.
     //    Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
     //       worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
-    //    We can safely choose a beacon length between 3 and 6:
-    //     - Closer to 3, obfuscated, but more "false positives" are returned in
-    //       queries, leading to more decrypt calls and worse performance
-    //     - Closer to 6, fewer "false positives" are returned in queries, leading to fewer decrypt calls and
-    //       better performance, but it is easier to distinguish unique plaintext values
+    //    We can choose a beacon length between 3 and 6:
+    //     - Closer to 3, we expect more "false positives" to be returned,
+    //       making it harder to distinguish plaintext values
+    //       but leading to more decrypt calls and worse performance
+    //     - Closer to 6, we expect fewer "false positives" returned in queries,
+    //       leading to fewer decrypt calls and better performance,
+    //       but it is easier to distinguish unique plaintext values
     //    As an example, we will choose 5.
     //    Values stored in aws_dbe_b_stateAndHasTestResult will be 5 bits long (0x00 - 0x1f)
     //    There will be 2^5 = 32 possible HMAC values.
-    //    With well-distributed plaintext data (112 values), we expect (112/32) = 3.5 combinations of
-    //       abbreviation + true/false attribute sharing the same beacon value.
+    //    With a well-distributed dataset (112 values), for a particular beacon we expect
+    //    (112/32) = 3.5 combinations of abbreviation + true/false attribute
+    //    sharing that beacon value.
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
     StandardBeacon stateAndHasTestResultBeacon = StandardBeacon.builder()
         // This name is the same as our virtual field's name above
