@@ -1,8 +1,9 @@
 package software.amazon.cryptography.examples.keyring;
 
+import software.amazon.cryptography.examples.TestUtils;
+
 import static software.amazon.cryptography.examples.keyring.KmsRsaKeyringExample.shouldGetNewPublicKey;
 import static software.amazon.cryptography.examples.keyring.KmsRsaKeyringExample.writePublicKeyPemForRsaKey;
-import static software.amazon.cryptography.examples.TestUtils;
 
 import org.testng.annotations.Test;
 
