@@ -2,7 +2,6 @@ package software.amazon.cryptography.examples.searchableencryption;
 
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.CreateKeyStoreKeyExample;
-import software.amazon.cryptography.examples.TestUtils;
 
 public class TestBasicSearchableEncryptionExample {
 
