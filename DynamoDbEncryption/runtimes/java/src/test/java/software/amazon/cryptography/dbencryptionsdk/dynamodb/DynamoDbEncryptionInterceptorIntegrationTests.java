@@ -89,6 +89,28 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
     }
 
+    @Test(
+            expectedExceptions = DynamoDbEncryptionException.class,
+            expectedExceptionsMessageRegExp = "No Crypto Action configured for attribute attr3"
+    )
+    public void TestPutItemInvalidItem() {
+        // Put item into table
+        String partitionValue = "get";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        String attrValue3 = "Please fail";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+        item.put("attr3", AttributeValue.builder().s(attrValue3).build());
+
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        ddbKmsKeyring.putItem(putRequest);
+    }
+
     @Test
     public void TestBatchWriteBatchGet() {
         // Batch write items to table
