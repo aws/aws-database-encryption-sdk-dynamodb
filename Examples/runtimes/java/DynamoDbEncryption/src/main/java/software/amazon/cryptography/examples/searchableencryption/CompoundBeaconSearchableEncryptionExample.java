@@ -97,7 +97,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     // Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
     //    worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
     // We can choose a beacon length between 3 and 6:
-    //  - Closer to 8, we expect more "false positives" to be returned,
+    //  - Closer to 3, we expect more "false positives" to be returned,
     //    making it harder to distinguish plaintext values
     //    but leading to more decrypt calls and worse performance
     //  - Closer to 6, we expect fewer "false positives" returned in queries,
