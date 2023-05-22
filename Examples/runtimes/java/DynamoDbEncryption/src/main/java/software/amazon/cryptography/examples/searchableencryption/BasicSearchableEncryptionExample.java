@@ -96,8 +96,8 @@ public class BasicSearchableEncryptionExample {
     // 3,200,000 customers:
     //  - min: log(sqrt(3,200,000))/log(2) ~= 10.8, round up to 11
     //  - max: log((3,200,000/2))/log(2) ~= 20.6, round up to 21
-    // You will somehow need to round results to the nearest integer.
-    // We choose to round to the nearest number; you might consider a different rounding approach.
+    // You will somehow need to round results to a nearby integer.
+    // We choose to round to the nearest integer; you might consider a different rounding approach.
     // Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
     //    better performance, but it is easier to distinguish unique plaintext values in encrypted data.
     // Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
