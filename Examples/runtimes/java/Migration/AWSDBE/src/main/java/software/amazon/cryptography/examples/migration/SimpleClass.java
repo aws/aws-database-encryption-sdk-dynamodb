@@ -1,4 +1,4 @@
-package software.amazon.cryptography.examples.enhanced;
+package software.amazon.cryptography.examples.migration;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -40,6 +40,7 @@ public class SimpleClass {
         this.sortKey = sortKey;
     }
 
+    @DynamoDbAttribute(value = "attribute1")
     public String getAttribute1() {
         return this.attribute1;
     }
@@ -49,6 +50,7 @@ public class SimpleClass {
     }
 
     @DynamoDbEncryptionSignOnly
+    @DynamoDbAttribute(value = "attribute2")
     public String getAttribute2() {
         return this.attribute2;
     }
@@ -58,11 +60,11 @@ public class SimpleClass {
     }
 
     @DynamoDbEncryptionDoNothing
+    @DynamoDbAttribute(value = "attribute3")
     public String getAttribute3() {
         return this.attribute3;
     }
 
-    @DynamoDbAttribute(value = ":attribute3")
     public void setAttribute3(String attribute3) {
         this.attribute3 = attribute3;
     }

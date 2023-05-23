@@ -1,17 +1,17 @@
-package software.amazon.cryptography.examples.enhanced;
+package software.amazon.cryptography.examples.migration;
 
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionDoNothing;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionSignOnly;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotEncrypt;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotTouch;
 
 /**
- * This class is used by the Enhanced Client Tests
+ * This class is used by the Migration Examples
  */
 
-@DynamoDbBean
+@DynamoDBTable(tableName = "my-ddb-table")
 public class SimpleClass {
 
     private String partitionKey;
@@ -20,8 +20,7 @@ public class SimpleClass {
     private String attribute2;
     private String attribute3;
 
-    @DynamoDbPartitionKey
-    @DynamoDbAttribute(value = "partition_key")
+    @DynamoDBHashKey(attributeName="partition_key")
     public String getPartitionKey() {
         return this.partitionKey;
     }
@@ -30,8 +29,7 @@ public class SimpleClass {
         this.partitionKey = partitionKey;
     }
 
-    @DynamoDbSortKey
-    @DynamoDbAttribute(value = "sort_key")
+    @DynamoDBRangeKey(attributeName="sort_key")
     public int getSortKey() {
         return this.sortKey;
     }
@@ -40,6 +38,7 @@ public class SimpleClass {
         this.sortKey = sortKey;
     }
 
+    @DynamoDBAttribute(attributeName="encrypt_and_sign")
     public String getAttribute1() {
         return this.attribute1;
     }
@@ -48,7 +47,8 @@ public class SimpleClass {
         this.attribute1 = attribute1;
     }
 
-    @DynamoDbEncryptionSignOnly
+    @DoNotEncrypt
+    @DynamoDBAttribute(attributeName="attribute2")
     public String getAttribute2() {
         return this.attribute2;
     }
@@ -57,12 +57,12 @@ public class SimpleClass {
         this.attribute2 = attribute2;
     }
 
-    @DynamoDbEncryptionDoNothing
+    @DoNotTouch
+    @DynamoDBAttribute(attributeName="attribute3")
     public String getAttribute3() {
         return this.attribute3;
     }
 
-    @DynamoDbAttribute(value = ":attribute3")
     public void setAttribute3(String attribute3) {
         this.attribute3 = attribute3;
     }
