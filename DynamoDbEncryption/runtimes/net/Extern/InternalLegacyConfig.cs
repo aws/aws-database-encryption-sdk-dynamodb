@@ -6,25 +6,25 @@ using software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.intern
 namespace software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal
 {
 
-  public partial class InternalLegacyConfig
+  public partial class InternalLegacyOverride
   {
 
     public static Wrappers_Compile._IResult<
-      Wrappers_Compile._IOption<InternalLegacyConfig>,
+      Wrappers_Compile._IOption<InternalLegacyOverride>,
       _IError
     > Build(_IDynamoDbItemEncryptorConfig config)
     {
-      if (config.dtor_legacyConfig.is_None)
+      if (config.dtor_legacyOverride.is_None)
       {
         return Wrappers_Compile
-          .Result<Wrappers_Compile._IOption<InternalLegacyConfig>, _IError>
-          .create_Success(Wrappers_Compile.Option<InternalLegacyConfig>.create_None());
+          .Result<Wrappers_Compile._IOption<InternalLegacyOverride>, _IError>
+          .create_Success(Wrappers_Compile.Option<InternalLegacyOverride>.create_None());
       }
       // .Net does not support the Legacy DDB-EC
       var ex = new Error_DynamoDbItemEncryptorException(
         Dafny.Sequence<char>.FromString("Legacy configuration unsupported."));
       return Wrappers_Compile
-        .Result<Wrappers_Compile._IOption<InternalLegacyConfig>, _IError>
+        .Result<Wrappers_Compile._IOption<InternalLegacyOverride>, _IError>
         .create_Failure(ex);
     }
 

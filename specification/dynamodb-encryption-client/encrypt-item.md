@@ -77,7 +77,7 @@ representing the deserialized form of the header of the input encrypted structur
 ## Behavior
 
 If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
-`REQUIRE_ENCRYPT_ALLOW_DECRYPT` is specified,
+`FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT` is specified,
 this operation MUST delegate encryption of this item to the
 [Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor),
 using the configured [Attribute Flags](./ddb-table-encryption-config.md) as input.
@@ -86,7 +86,7 @@ The item returned by this operation MUST be the item outputted by the
 Otherwise, this operations continues as follows.
 
 If a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) of
-`REQUIRE_WRITE_ALLOW_READ` is specified,
+`FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ` is specified,
 this operation MUST NOT encrypt the input item,
 and MUST passthrough that item as the output.
 

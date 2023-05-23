@@ -32,7 +32,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public class InternalLegacyConfig {
+public class InternalLegacyOverride {
   private DynamoDBEncryptor encryptor;
   private Map<String, Set<EncryptionFlags>> actions;
   private EncryptionContext encryptionContext;
@@ -40,7 +40,7 @@ public class InternalLegacyConfig {
   private DafnySequence<Character> materialDescriptionFieldName;
   private DafnySequence<Character> signatureFieldName;
 
-  private InternalLegacyConfig(
+  private InternalLegacyOverride(
     DynamoDBEncryptor encryptor,
     Map<String, Set<EncryptionFlags>> actions,
     EncryptionContext encryptionContext,
@@ -70,8 +70,8 @@ public class InternalLegacyConfig {
       .CharacterSequence(encryptor.getSignatureFieldName());
   }
 
-  public static TypeDescriptor<InternalLegacyConfig> _typeDescriptor() {
-    return TypeDescriptor.referenceWithInitializer(InternalLegacyConfig.class, () -> null);
+  public static TypeDescriptor<InternalLegacyOverride> _typeDescriptor() {
+    return TypeDescriptor.referenceWithInitializer(InternalLegacyOverride.class, () -> null);
   }
 
   public Boolean IsLegacyInput(
@@ -94,7 +94,7 @@ public class InternalLegacyConfig {
   ) {
 
     // Precondition: Policy MUST allow the caller to encrypt.
-    if (!_policy.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT()) {
+    if (!_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
       return createFailure("Legacy Policy does not support encrypt.");
     }
 
@@ -148,10 +148,10 @@ public class InternalLegacyConfig {
     // Precondition: Policy MUST allow the caller to decrypt.
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
-    //# `FORBID_ENCRYPT_FORBID_DECRYPT` is configured,
+    //# `FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT` is configured,
     //# and the input item [is an item written in the legacy format](#determining-legacy-items),
     //# this operation MUST fail.
-    if (!_policy.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT() && !_policy.is_FORBID__ENCRYPT__ALLOW__DECRYPT()) {
+    if (!_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT() && !_policy.is_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
       return createFailure("Legacy Policy does not support decrypt.");
     }
     try {
@@ -197,20 +197,20 @@ public class InternalLegacyConfig {
     }
   }
 
-  public static Result<Option<InternalLegacyConfig>, Error> Build(
+  public static Result<Option<InternalLegacyOverride>, Error> Build(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig encryptorConfig
   ) {
 
-    // Check for early return (Postcondition): If there is no legacyConfig there is nothing to do.
-    if (encryptorConfig.dtor_legacyConfig().is_None()) {
+    // Check for early return (Postcondition): If there is no legacyOverride there is nothing to do.
+    if (encryptorConfig.dtor_legacyOverride().is_None()) {
       return Result.create_Success(Option.create_None());
     }
-    final software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyConfig legacyConfig = encryptorConfig
-      .dtor_legacyConfig()
+    final software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyOverride legacyOverride = encryptorConfig
+      .dtor_legacyOverride()
       .dtor_value();
 
     final ILegacyDynamoDbEncryptor maybeEncryptor = software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative
-      .LegacyDynamoDbEncryptor(legacyConfig.dtor_encryptor());
+      .LegacyDynamoDbEncryptor(legacyOverride.dtor_encryptor());
 
     // Precondition: The encryptor MUST be a DynamoDBEncryptor
     if (!isDynamoDBEncryptor(maybeEncryptor)) {
@@ -222,19 +222,19 @@ public class InternalLegacyConfig {
       return Result.create_Failure(maybeEncryptionContext.dtor_error());
     }
     // Precondition: All actions MUST be supported types
-    final Result<Map<String, Set<EncryptionFlags>>, Error> maybeActions = legacyActions(legacyConfig.dtor_attributeFlags());
+    final Result<Map<String, Set<EncryptionFlags>>, Error> maybeActions = legacyActions(legacyOverride.dtor_attributeActionsOnEncrypt());
     if (maybeActions.is_Failure()) {
       return Result.create_Failure(maybeEncryptionContext.dtor_error());
     }
 
-    final InternalLegacyConfig internalLegacyConfig = new InternalLegacyConfig(
+    final InternalLegacyOverride internalLegacyOverride = new InternalLegacyOverride(
       (DynamoDBEncryptor) maybeEncryptor,
       maybeActions.dtor_value(),
       maybeEncryptionContext.dtor_value(),
-      legacyConfig.dtor_policy()
+      legacyOverride.dtor_policy()
     );
 
-    return Result.create_Success(Option.create_Some(internalLegacyConfig));
+    return Result.create_Success(Option.create_Some(internalLegacyOverride));
   }
 
   //  Everything below this point is an implementation detail
@@ -282,7 +282,7 @@ public class InternalLegacyConfig {
   }
 
   public static Result<Map<String, Set<EncryptionFlags>>, Error> legacyActions(
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeFlags
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActionsOnEncrypt
   ) {
     try {
       final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
@@ -302,7 +302,7 @@ public class InternalLegacyConfig {
           throw new IllegalArgumentException("Unsupported CryptoAction.");
         }
       };
-      attributeFlags.forEach(buildLegacyActions);
+      attributeActionsOnEncrypt.forEach(buildLegacyActions);
       return Result.create_Success(legacyActions);
     } catch (IllegalArgumentException ex) {
       final Error dafnyEx = Error.create_DynamoDbItemEncryptorException(ToDafnyString(ex.getMessage()));

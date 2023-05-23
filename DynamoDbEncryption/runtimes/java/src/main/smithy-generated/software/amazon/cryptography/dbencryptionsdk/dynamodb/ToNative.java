@@ -37,12 +37,12 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetSegments;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetSubstring;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetSuffix;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Insert;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Lower;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.MultiKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SignedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
@@ -181,12 +181,12 @@ public class ToNative {
     if (dafnyValue.dtor_search().is_Some()) {
       nativeBuilder.search(ToNative.SearchConfig(dafnyValue.dtor_search().dtor_value()));
     }
-    nativeBuilder.attributeActions(ToNative.AttributeActions(dafnyValue.dtor_attributeActions()));
-    if (dafnyValue.dtor_allowedUnauthenticatedAttributes().is_Some()) {
-      nativeBuilder.allowedUnauthenticatedAttributes(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.AttributeNameList(dafnyValue.dtor_allowedUnauthenticatedAttributes().dtor_value()));
+    nativeBuilder.attributeActionsOnEncrypt(ToNative.AttributeActions(dafnyValue.dtor_attributeActionsOnEncrypt()));
+    if (dafnyValue.dtor_allowedUnsignedAttributes().is_Some()) {
+      nativeBuilder.allowedUnsignedAttributes(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.AttributeNameList(dafnyValue.dtor_allowedUnsignedAttributes().dtor_value()));
     }
-    if (dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().is_Some()) {
-      nativeBuilder.allowedUnauthenticatedAttributePrefix(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().dtor_value()));
+    if (dafnyValue.dtor_allowedUnsignedAttributePrefix().is_Some()) {
+      nativeBuilder.allowedUnsignedAttributePrefix(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_allowedUnsignedAttributePrefix().dtor_value()));
     }
     if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
       nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId().dtor_value()));
@@ -197,11 +197,11 @@ public class ToNative {
     if (dafnyValue.dtor_cmm().is_Some()) {
       nativeBuilder.cmm(software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm().dtor_value()));
     }
-    if (dafnyValue.dtor_legacyConfig().is_Some()) {
-      nativeBuilder.legacyConfig(ToNative.LegacyConfig(dafnyValue.dtor_legacyConfig().dtor_value()));
+    if (dafnyValue.dtor_legacyOverride().is_Some()) {
+      nativeBuilder.legacyOverride(ToNative.LegacyOverride(dafnyValue.dtor_legacyOverride().dtor_value()));
     }
-    if (dafnyValue.dtor_plaintextPolicy().is_Some()) {
-      nativeBuilder.plaintextPolicy(ToNative.PlaintextPolicy(dafnyValue.dtor_plaintextPolicy().dtor_value()));
+    if (dafnyValue.dtor_plaintextOverride().is_Some()) {
+      nativeBuilder.plaintextOverride(ToNative.PlaintextOverride(dafnyValue.dtor_plaintextOverride().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -281,12 +281,12 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static LegacyConfig LegacyConfig(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyConfig dafnyValue) {
-    LegacyConfig.Builder nativeBuilder = LegacyConfig.builder();
+  public static LegacyOverride LegacyOverride(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyOverride dafnyValue) {
+    LegacyOverride.Builder nativeBuilder = LegacyOverride.builder();
     nativeBuilder.policy(ToNative.LegacyPolicy(dafnyValue.dtor_policy()));
     nativeBuilder.encryptor(ToNative.LegacyDynamoDbEncryptor(dafnyValue.dtor_encryptor()));
-    nativeBuilder.attributeFlags(ToNative.AttributeActions(dafnyValue.dtor_attributeFlags()));
+    nativeBuilder.attributeActionsOnEncrypt(ToNative.AttributeActions(dafnyValue.dtor_attributeActionsOnEncrypt()));
     if (dafnyValue.dtor_defaultAttributeFlag().is_Some()) {
       nativeBuilder.defaultAttributeFlag(software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative.CryptoAction(dafnyValue.dtor_defaultAttributeFlag().dtor_value()));
     }
@@ -372,30 +372,30 @@ public class ToNative {
 
   public static LegacyPolicy LegacyPolicy(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy dafnyValue) {
-    if (dafnyValue.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT()) {
-      return LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
+    if (dafnyValue.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
+      return LegacyPolicy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT;
     }
-    if (dafnyValue.is_FORBID__ENCRYPT__ALLOW__DECRYPT()) {
-      return LegacyPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
+    if (dafnyValue.is_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
+      return LegacyPolicy.FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT;
     }
-    if (dafnyValue.is_FORBID__ENCRYPT__FORBID__DECRYPT()) {
-      return LegacyPolicy.FORBID_ENCRYPT_FORBID_DECRYPT;
+    if (dafnyValue.is_FORBID__LEGACY__ENCRYPT__FORBID__LEGACY__DECRYPT()) {
+      return LegacyPolicy.FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT;
     }
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy matches the input : " + dafnyValue);
   }
 
-  public static PlaintextPolicy PlaintextPolicy(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextPolicy dafnyValue) {
-    if (dafnyValue.is_REQUIRE__WRITE__ALLOW__READ()) {
-      return PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ;
+  public static PlaintextOverride PlaintextOverride(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextOverride dafnyValue) {
+    if (dafnyValue.is_FORCE__PLAINTEXT__WRITE__ALLOW__PLAINTEXT__READ()) {
+      return PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ;
     }
-    if (dafnyValue.is_FORBID__WRITE__ALLOW__READ()) {
-      return PlaintextPolicy.FORBID_WRITE_ALLOW_READ;
+    if (dafnyValue.is_FORBID__PLAINTEXT__WRITE__ALLOW__PLAINTEXT__READ()) {
+      return PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ;
     }
-    if (dafnyValue.is_FORBID__WRITE__FORBID__READ()) {
-      return PlaintextPolicy.FORBID_WRITE_FORBID_READ;
+    if (dafnyValue.is_FORBID__PLAINTEXT__WRITE__FORBID__PLAINTEXT__READ()) {
+      return PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ;
     }
-    throw new IllegalArgumentException("No entry of software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy matches the input : " + dafnyValue);
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride matches the input : " + dafnyValue);
   }
 
   public static BeaconKeySource BeaconKeySource(

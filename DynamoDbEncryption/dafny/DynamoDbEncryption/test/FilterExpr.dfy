@@ -147,10 +147,10 @@ module TestDynamoDBFilterExpr {
     expect newContext.Failure?;
     expect newContext.error == E("Field std4 is encrypted, and cannot be searched without a beacon.");
 
-    var badBeacon := TestBeaconize(FullTableConfig.attributeActions, None, Some("std2 <> :A AND #Field4 = :B"), None);
+    var badBeacon := TestBeaconize(FullTableConfig.attributeActionsOnEncrypt, None, Some("std2 <> :A AND #Field4 = :B"), None);
     expect badBeacon.Failure?;
     expect badBeacon.error == E("Query is using encrypted field : std2.");
-    badBeacon := TestBeaconize(FullTableConfig.attributeActions, Some("std2 = :A AND #Field4 = :B"), None, None);
+    badBeacon := TestBeaconize(FullTableConfig.attributeActionsOnEncrypt, Some("std2 = :A AND #Field4 = :B"), None, None);
     expect badBeacon.Failure?;
     expect badBeacon.error == E("Query is using encrypted field : std2.");
   }

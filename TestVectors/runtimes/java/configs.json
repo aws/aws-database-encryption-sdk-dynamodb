@@ -2,7 +2,7 @@
   "tableEncryptionConfigs": {
     "0": {},
     "1": {
-      "attributeActions": {
+      "attributeActionsOnEncrypt": {
         "RecNum": "SIGN_ONLY",
         "Stuff": "ENCRYPT_AND_SIGN",
         "Two": "ENCRYPT_AND_SIGN",
@@ -15,7 +15,7 @@
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING"
       },
-      "allowedUnauthenticatedAttributes": [
+      "allowedUnsignedAttributes": [
         "One",
         "Seven",
         "Eight",
@@ -43,7 +43,7 @@
       }
     },
     "2": {
-      "attributeActions": {
+      "attributeActionsOnEncrypt": {
         "RecNum": "SIGN_ONLY",
         "Stuff": "ENCRYPT_AND_SIGN",
         "Four": "ENCRYPT_AND_SIGN",
@@ -56,7 +56,7 @@
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING"
       },
-      "allowedUnauthenticatedAttributes": [
+      "allowedUnsignedAttributes": [
         "One",
         "Seven",
         "Eight",
@@ -88,7 +88,7 @@
       }
     },
     "3": {
-      "attributeActions": {
+      "attributeActionsOnEncrypt": {
         "RecNum": "SIGN_ONLY",
         "Stuff": "SIGN_ONLY",
         "Four": "SIGN_ONLY",
@@ -101,7 +101,7 @@
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING"
       },
-      "allowedUnauthenticatedAttributes": [
+      "allowedUnsignedAttributes": [
         "One",
         "Seven",
         "Eight",
@@ -109,7 +109,7 @@
       ]
     },
     "4": {
-      "attributeActions": {
+      "attributeActionsOnEncrypt": {
         "RecNum": "SIGN_ONLY",
         "Stuff": "ENCRYPT_AND_SIGN",
         "Two": "ENCRYPT_AND_SIGN",
@@ -122,7 +122,7 @@
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING"
       },
-      "allowedUnauthenticatedAttributes": [
+      "allowedUnsignedAttributes": [
         "One",
         "Seven",
         "Eight",
@@ -130,7 +130,7 @@
       ]
     },
     "5": {
-      "attributeActions": {
+      "attributeActionsOnEncrypt": {
         "RecNum": "SIGN_ONLY",
         "Stuff": "ENCRYPT_AND_SIGN",
         "Two": "ENCRYPT_AND_SIGN",
@@ -143,7 +143,7 @@
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING"
       },
-      "allowedUnauthenticatedAttributes": [
+      "allowedUnsignedAttributes": [
         "One",
         "Seven",
         "Eight",

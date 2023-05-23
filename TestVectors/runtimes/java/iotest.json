@@ -2,7 +2,7 @@
   "DecryptTests": [
     {
       "Config": {
-        "attributeActions": {
+        "attributeActionsOnEncrypt": {
           "RecNum": "SIGN_ONLY",
           "Stuff": "ENCRYPT_AND_SIGN",
           "Junk": "ENCRYPT_AND_SIGN"
@@ -190,7 +190,7 @@
     {
       "FileName": "WriteTests1.json",
       "Config": {
-        "attributeActions": {
+        "attributeActionsOnEncrypt": {
           "RecNum": "SIGN_ONLY",
           "One": "ENCRYPT_AND_SIGN",
           "Two": "ENCRYPT_AND_SIGN",
@@ -269,14 +269,14 @@
   "IoTests": {
     "IoTest1": {
       "WriteConfig": {
-        "attributeActions": {
+        "attributeActionsOnEncrypt": {
           "RecNum": "SIGN_ONLY",
           "Stuff": "ENCRYPT_AND_SIGN",
           "Junk": "ENCRYPT_AND_SIGN"
         }
       },
       "ReadConfig": {
-        "attributeActions": {
+        "attributeActionsOnEncrypt": {
           "RecNum": "SIGN_ONLY",
           "Stuff": "ENCRYPT_AND_SIGN"
         }
@@ -293,7 +293,7 @@
     },
     "IoTest2": {
       "WriteConfig": {
-        "attributeActions": {
+        "attributeActionsOnEncrypt": {
           "RecNum": "SIGN_ONLY",
           "Stuff": "SIGN_ONLY",
           "Junk": "ENCRYPT_AND_SIGN"

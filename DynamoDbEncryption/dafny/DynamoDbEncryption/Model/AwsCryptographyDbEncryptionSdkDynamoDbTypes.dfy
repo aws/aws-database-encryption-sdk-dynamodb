@@ -209,14 +209,14 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
  nameonly search: Option<SearchConfig> ,
- nameonly attributeActions: AttributeActions ,
- nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
- nameonly allowedUnauthenticatedAttributePrefix: Option<string> ,
+ nameonly attributeActionsOnEncrypt: AttributeActions ,
+ nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
+ nameonly allowedUnsignedAttributePrefix: Option<string> ,
  nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly legacyConfig: Option<LegacyConfig> ,
- nameonly plaintextPolicy: Option<PlaintextPolicy>
+ nameonly legacyOverride: Option<LegacyOverride> ,
+ nameonly plaintextOverride: Option<PlaintextOverride>
  )
  type DynamoDbTableEncryptionConfigList = map<ComAmazonawsDynamodbTypes.TableName, DynamoDbTableEncryptionConfig>
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
@@ -258,12 +258,6 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype Insert = | Insert (
  nameonly literal: string
  )
- datatype LegacyConfig = | LegacyConfig (
- nameonly policy: LegacyPolicy ,
- nameonly encryptor: ILegacyDynamoDbEncryptor ,
- nameonly attributeFlags: AttributeActions ,
- nameonly defaultAttributeFlag: Option<AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
- )
  class ILegacyDynamoDbEncryptorCallHistory {
  ghost constructor() {
  
@@ -299,10 +293,16 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
   ghost const History: ILegacyDynamoDbEncryptorCallHistory
  
 }
+ datatype LegacyOverride = | LegacyOverride (
+ nameonly policy: LegacyPolicy ,
+ nameonly encryptor: ILegacyDynamoDbEncryptor ,
+ nameonly attributeActionsOnEncrypt: AttributeActions ,
+ nameonly defaultAttributeFlag: Option<AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
+ )
  datatype LegacyPolicy =
-	| REQUIRE_ENCRYPT_ALLOW_DECRYPT
-	| FORBID_ENCRYPT_ALLOW_DECRYPT
-	| FORBID_ENCRYPT_FORBID_DECRYPT
+	| FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT
+	| FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT
+	| FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT
  datatype Lower = | Lower (
  
  )
@@ -311,10 +311,10 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly cacheTTL: int32 ,
  nameonly maxCacheSize: int32
  )
- datatype PlaintextPolicy =
-	| REQUIRE_WRITE_ALLOW_READ
-	| FORBID_WRITE_ALLOW_READ
-	| FORBID_WRITE_FORBID_READ
+ datatype PlaintextOverride =
+	| FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+	| FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+	| FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ
  type Prefix = x: string | IsValid_Prefix(x) witness *
  predicate method IsValid_Prefix(x: string) {
  ( 1 <= |x|  )

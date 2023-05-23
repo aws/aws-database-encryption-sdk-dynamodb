@@ -75,12 +75,12 @@ representing the deserialized form of the header of the input encrypted structur
 ## Behavior
 
 If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
-`FORBID_ENCRYPT_FORBID_DECRYPT` is configured,
+`FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT` is configured,
 and the input item [is an item written in the legacy format](#determining-legacy-items),
 this operation MUST fail.
 
 If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
-`REQUIRE_ENCRYPT_ALLOW_DECRYPT` or `FORBID_ENCRYPT_ALLOW_DECRYPT` is configured,
+`FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT` or `FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT` is configured,
 and the input item [is an item written in the legacy format](#determining-legacy-items),
 this operation MUST delegate decryption of this item to the
 [Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor),
@@ -90,7 +90,7 @@ The item returned by this operation MUST be the item outputted by the
 Otherwise, this operations continues as follows.
 
 If a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) of
-`REQUIRE_WRITE_ALLOW_READ` or `FORBID_WRITE_ALLOW_READ` is specified,
+`FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ` or `FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ` is specified,
 and the input item [is a plaintext item](#determining-plaintext-items)
 this operation MUST NOT decrypt the input item,
 and MUST passthrough that item as the output.

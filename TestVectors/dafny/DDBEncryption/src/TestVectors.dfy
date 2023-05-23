@@ -99,7 +99,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   type PairList = seq<ConfigPair>
 
   datatype TestVectorConfig = TestVectorConfig (
-    tableSchema : DDB.CreateTableInput,
+    schemaOnEncrypt : DDB.CreateTableInput,
     globalRecords : seq<Record>,
     tableEncryptionConfigs : map<ConfigName, TableConfig>,
     queries : seq<SimpleQuery>,
@@ -337,7 +337,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       modifies client.Modifies
     {
       DeleteTable(client);
-      var _ :-  expect client.CreateTable(tableSchema);
+      var _ :-  expect client.CreateTable(schemaOnEncrypt);
       for i := 0 to |records| {
         var input := DDB.PutItemInput(
           TableName := TableName,
@@ -586,7 +586,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
       DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(tableSchema);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
       var i := 0;
       while i < |records| {
         var count := 10;
@@ -625,7 +625,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
       DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(tableSchema);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
       var i := 0;
       while i < |records| {
         var count := 10;
@@ -981,10 +981,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    var newSchema :- MergeGSI(prev.tableSchema, gsi);
+    var newSchema :- MergeGSI(prev.schemaOnEncrypt, gsi);
     output := Success(
       TestVectorConfig (
-        tableSchema := newSchema,
+        schemaOnEncrypt := newSchema,
         globalRecords := prev.globalRecords + records,
         tableEncryptionConfigs := prev.tableEncryptionConfigs + tableEncryptionConfigs,
         queries := prev.queries + queries,
@@ -1083,7 +1083,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   {
     :- Need(data.Object?, "A Table Config must be an object.");
     var encrypt : seq<string>  := [];
-    var attributeActions : Types.AttributeActions  := map[];
+    var attributeActionsOnEncrypt : Types.AttributeActions  := map[];
     var allowed : seq<DDB.AttributeName>  := [];
     var prefix : string  := "";
     var stdBeacons : seq<Types.StandardBeacon> := [];
@@ -1095,11 +1095,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
-        case "attributeActions" => attributeActions :- GetAttributeActions(obj.1);
-        case "allowedUnauthenticatedAttributePrefix" =>
+        case "attributeActionsOnEncrypt" => attributeActionsOnEncrypt :- GetAttributeActions(obj.1);
+        case "allowedUnsignedAttributePrefix" =>
           :- Need(obj.1.String?, "Prefix must be of type String.");
           prefix := obj.1.str;
-        case "allowedUnauthenticatedAttributes" => allowed :- GetAttrNames(obj.1);
+        case "allowedUnsignedAttributes" => allowed :- GetAttrNames(obj.1);
         case "search" => var src :- GetOneSearchConfig(obj.1); search := Some(src);
         case _ => return Failure("Unexpected part of a table config : '" + obj.0 + "'");
       }
@@ -1121,14 +1121,14 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         partitionKeyName := HashName,
         sortKeyName := None,
         search := search,
-        attributeActions := attributeActions,
-        allowedUnauthenticatedAttributes := OptSeq(allowed),
-        allowedUnauthenticatedAttributePrefix := OptSeq(prefix),
+        attributeActionsOnEncrypt := attributeActionsOnEncrypt,
+        allowedUnsignedAttributes := OptSeq(allowed),
+        allowedUnsignedAttributePrefix := OptSeq(prefix),
         algorithmSuiteId := None,
         keyring := Some(keyring),
         cmm := None,
-        legacyConfig := None,
-        plaintextPolicy := None
+        legacyOverride := None,
+        plaintextOverride := None
       );
     return Success(TableConfig(name, config, |data.obj| == 0));
   }
@@ -1202,7 +1202,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   method GetAttributeActions(data : JSON) returns (output : Result<Types.AttributeActions, string>)
   {
-    :- Need(data.Object?, "attributeActions must be an object");
+    :- Need(data.Object?, "attributeActionsOnEncrypt must be an object");
     var result : Types.AttributeActions := map[];
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
