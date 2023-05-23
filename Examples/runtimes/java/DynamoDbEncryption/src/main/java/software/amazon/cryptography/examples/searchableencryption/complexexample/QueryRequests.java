@@ -31,6 +31,8 @@ public class QueryRequests {
     runQuery7(ddbTableName, ddb);
     runQuery8(ddbTableName, ddb);
     runQuery9(ddbTableName, ddb);
+    runQuery10(ddbTableName, ddb);
+    runQuery11(ddbTableName, ddb);
     runQuery13(ddbTableName, ddb);
     runQuery14(ddbTableName, ddb);
   }
@@ -364,38 +366,106 @@ public class QueryRequests {
 
   public static void runQuery9(String ddbTableName, DynamoDbClient ddb) {
     // Query 9: Get employee info by employee ID
-    // Key condition: PK1=employeeID SK starts with "E"
-    Map<String,String> query8AttributeNames = new HashMap<>();
-    query8AttributeNames.put("#p", "PK");
-    query8AttributeNames.put("#s", "SK");
+    // Key condition: PK1=employeeID SK starts with "E-"
+    Map<String,String> query9AttributeNames = new HashMap<>();
+    query9AttributeNames.put("#p", "PK");
+    query9AttributeNames.put("#s", "SK");
 
-    Map<String,AttributeValue> query8AttributeValues = new HashMap<>();
-    query8AttributeValues.put(":e", AttributeValue.builder().s("E-emp_001").build());
-    query8AttributeValues.put(":s", AttributeValue.builder().s("E-").build());
+    Map<String,AttributeValue> query9AttributeValues = new HashMap<>();
+    query9AttributeValues.put(":e", AttributeValue.builder().s("E-emp_001").build());
+    query9AttributeValues.put(":s", AttributeValue.builder().s("E-").build());
 
-    QueryRequest query8Request = QueryRequest.builder()
+    QueryRequest query9Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-0")
         .keyConditionExpression("#p = :e AND begins_with(#s, :s)")
-        .expressionAttributeNames(query8AttributeNames)
-        .expressionAttributeValues(query8AttributeValues)
+        .expressionAttributeNames(query9AttributeNames)
+        .expressionAttributeValues(query9AttributeValues)
         .build();
 
-    QueryResponse query8Response = ddb.query(query8Request);
+    QueryResponse query9Response = ddb.query(query9Request);
     // Validate query was returned successfully
-    assert 200 == query8Response.sdkHttpResponse().statusCode();
+    assert 200 == query9Response.sdkHttpResponse().statusCode();
     // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    System.out.println(query8Response.items().size());
-    assert query8Response.items().size() == 1;
+    assert query9Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
-    boolean foundKnownValueItemQuery8 = false;
-    for (Map<String, AttributeValue> item : query8Response.items()) {
+    boolean foundKnownValueItemQuery9 = false;
+    for (Map<String, AttributeValue> item : query9Response.items()) {
       if (item.get("partition_key").s().equals("employee1")) {
-        foundKnownValueItemQuery8 = true;
+        foundKnownValueItemQuery9 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
       }
     }
-    assert foundKnownValueItemQuery8;
+    assert foundKnownValueItemQuery9;
+  }
+
+  public static void runQuery10(String ddbTableName, DynamoDbClient ddb) {
+    // Query 10: Get employee info by email
+    // Key condition: PK1=email
+    // Filter condition: SK starts with "E-"
+    Map<String,String> query10AttributeNames = new HashMap<>();
+    query10AttributeNames.put("#p", "PK1");
+    query10AttributeNames.put("#s", "SK1");
+
+    Map<String,AttributeValue> query10AttributeValues = new HashMap<>();
+    query10AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
+    query10AttributeValues.put(":s", AttributeValue.builder().s("E-").build());
+
+    QueryRequest query10Request = QueryRequest.builder()
+        .tableName(ddbTableName)
+        .indexName("GSI-1")
+        .keyConditionExpression("#p = :e AND begins_with(#s, :s)")
+        .expressionAttributeNames(query10AttributeNames)
+        .expressionAttributeValues(query10AttributeValues)
+        .build();
+
+    QueryResponse query10Response = ddb.query(query10Request);
+    // Validate query was returned successfully
+    assert 200 == query10Response.sdkHttpResponse().statusCode();
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query10Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery10 = false;
+    for (Map<String, AttributeValue> item : query10Response.items()) {
+      if (item.get("partition_key").s().equals("employee1")) {
+        foundKnownValueItemQuery10 = true;
+        assert item.get("EmployeeID").s().equals("emp_001");
+      }
+    }
+    assert foundKnownValueItemQuery10;
+  }
+
+  public static void runQuery11(String ddbTableName, DynamoDbClient ddb) {
+    // Query 11: Get ticket history by ticket number
+    // Key condition: PK=TicketNumber
+    Map<String,String> query11AttributeNames = new HashMap<>();
+    query11AttributeNames.put("#p", "PK");
+
+    Map<String,AttributeValue> query11AttributeValues = new HashMap<>();
+    query11AttributeValues.put(":t", AttributeValue.builder().s("T-ticket_001").build());
+
+    QueryRequest query11Request = QueryRequest.builder()
+        .tableName(ddbTableName)
+        .indexName("GSI-0")
+        .keyConditionExpression("#p = :t")
+        .expressionAttributeNames(query11AttributeNames)
+        .expressionAttributeValues(query11AttributeValues)
+        .build();
+
+    QueryResponse query11Response = ddb.query(query11Request);
+    // Validate query was returned successfully
+    assert 200 == query11Response.sdkHttpResponse().statusCode();
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query11Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery11 = false;
+    for (Map<String, AttributeValue> item : query11Response.items()) {
+      if (item.get("partition_key").s().equals("ticket1")) {
+        foundKnownValueItemQuery11 = true;
+        assert item.get("TicketNumber").s().equals("ticket_001");
+      }
+    }
+    assert foundKnownValueItemQuery11;
   }
 
   public static void runQuery13(String ddbTableName, DynamoDbClient ddb) {

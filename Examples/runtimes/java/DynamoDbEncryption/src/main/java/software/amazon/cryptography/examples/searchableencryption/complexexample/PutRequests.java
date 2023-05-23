@@ -122,8 +122,8 @@ public class PutRequests {
     );
   }
 
-// ticket.json
-public static void putAllTicketItemsToTable(String ddbTableName, DynamoDbClient ddb) {
+  // ticket.json
+  public static void putAllTicketItemsToTable(String ddbTableName, DynamoDbClient ddb) {
     final HashMap<String, AttributeValue> ticket1 = new HashMap<>();
     ticket1.put("partition_key", AttributeValue.builder().s("ticket1").build());
     ticket1.put("TicketNumber", AttributeValue.builder().s("ticket_001").build());
