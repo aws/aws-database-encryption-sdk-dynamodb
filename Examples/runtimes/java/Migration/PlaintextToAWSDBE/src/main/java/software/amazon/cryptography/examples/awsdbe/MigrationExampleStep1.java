@@ -10,7 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
@@ -77,7 +77,7 @@ public class MigrationExampleStep1 {
         //    in the future, you must make an update to this field to all your readers
         //    before deploying any change to start writing that new data. It is not safe
         //    to remove attributes from this field.
-        final List<String> unauthAttributes = Arrays.asList("do_nothing");
+        final List<String> unsignedAttributes = Arrays.asList("do_nothing");
 
         // 4. Create encryption configuration for table.
         //    Again, while we are not writing encrypted items,
@@ -87,14 +87,14 @@ public class MigrationExampleStep1 {
             DynamoDbEnhancedTableEncryptionConfig.builder()
                 .logicalTableName(ddbTableName)
                 .keyring(kmsKeyring)
-                .tableSchema(tableSchema)
-                .allowedUnauthenticatedAttributes(unauthAttributes)
-                // This plaintext policy means:
-                //  - Write: Items are required to be written as plaintext.
+                .schemaOnEncrypt(tableSchema)
+                .allowedUnsignedAttributes(unsignedAttributes)
+                // This plaintext override means:
+                //  - Write: Items are forced to be written as plaintext.
                 //           Items may not be written as encrypted items.
                 //  - Read: Items are allowed to be read as plaintext.
                 //          Items are allowed to be read as encrypted items.
-                .plaintextPolicy(PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ)
+                .plaintextOverride(PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
                 .build());
 
         // 5. Create DynamoDbEncryptionInterceptor using the table config

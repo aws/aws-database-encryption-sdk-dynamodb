@@ -10,7 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
@@ -44,7 +44,7 @@ public class MigrationExampleStep2 {
 
     public static void MigrationStep2(String kmsKeyId, String ddbTableName, int sortReadValue) {
         // 1. Continue to configure your Keyring, Table Schema, legacy attribute actions,
-        //    and allowedUnauthenticatedAttributes, and old DynamoDBEncryptor as you did in Step 1.
+        //    and allowedUnsignedAttributes, and old DynamoDBEncryptor as you did in Step 1.
         MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
@@ -55,11 +55,11 @@ public class MigrationExampleStep2 {
 
         final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
-        final List<String> unauthAttributes = Arrays.asList("do_nothing");
+        final List<String> unsignedAttributes = Arrays.asList("do_nothing");
 
         // 2. When creating encryption configuration for your table,
-        //    you must use the plaintext policy `FORBID_WRITE_ALLOW_READ`.
-        //    This plaintext policy means:
+        //    you must use the plaintext override `FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`.
+        //    This plaintext override means:
         //     - Write: Items are forbidden to be written as plaintext.
         //              Items will be written as encrypted items.
         //     - Read: Items are allowed to be read as plaintext.
@@ -69,10 +69,10 @@ public class MigrationExampleStep2 {
             DynamoDbEnhancedTableEncryptionConfig.builder()
                 .logicalTableName(ddbTableName)
                 .keyring(kmsKeyring)
-                .tableSchema(tableSchema)
-                .allowedUnauthenticatedAttributes(unauthAttributes)
-                // Update plaintext policy here
-                .plaintextPolicy(PlaintextPolicy.FORBID_WRITE_ALLOW_READ)
+                .schemaOnEncrypt(tableSchema)
+                .allowedUnsignedAttributes(unsignedAttributes)
+                // Update plaintext override here
+                .plaintextOverride(PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
                 .build());
 
         // 3. Create DynamoDbEncryptionInterceptor using the above config

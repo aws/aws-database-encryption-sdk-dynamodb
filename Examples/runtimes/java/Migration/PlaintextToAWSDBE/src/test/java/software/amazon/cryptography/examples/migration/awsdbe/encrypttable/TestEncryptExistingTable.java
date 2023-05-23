@@ -19,7 +19,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.awsdbe.SimpleClass;
@@ -55,7 +55,7 @@ public class TestEncryptExistingTable {
 
     public static void EncryptExistingTable(String kmsKeyId, String ddbTableName) {
         // 1. Continue to configure your Keyring, Table Schema,
-        //    and allowedUnauthenticatedAttributes as you did in Step 1.
+        //    and allowedUnsignedAttributes as you did in Step 1.
         MaterialProviders matProv = MaterialProviders.builder()
             .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
             .build();
@@ -66,18 +66,19 @@ public class TestEncryptExistingTable {
 
         final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
-        final List<String> unauthAttributes = Arrays.asList("do_nothing");
+        final List<String> unsignedAttributes = Arrays.asList("do_nothing");
 
         // 2. Create encryption configuration for table,
-        //    using the same plaintext policy as Step 2 (`FORBID_WRITE_ALLOW_READ`).
+        //    using the same plaintext override as Step 2
+        //    (`FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`).
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
             DynamoDbEnhancedTableEncryptionConfig.builder()
                 .logicalTableName(ddbTableName)
                 .keyring(kmsKeyring)
-                .tableSchema(tableSchema)
-                .allowedUnauthenticatedAttributes(unauthAttributes)
-                .plaintextPolicy(PlaintextPolicy.FORBID_WRITE_ALLOW_READ)
+                .schemaOnEncrypt(tableSchema)
+                .allowedUnsignedAttributes(unsignedAttributes)
+                .plaintextOverride(PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
                 .build());
 
         // 3. Create DynamoDbEncryptionInterceptor using the above config

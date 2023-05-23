@@ -56,19 +56,19 @@ public class MigrationExampleStep3 {
 
     // 3. Configure which attributes we expect to be excluded in the signature
     //    when reading items. This value MUST be the same as in Steps 1 and 2.
-    final List<String> unauthAttributes = Arrays.asList("do_nothing");
+    final List<String> unsignedAttributes = Arrays.asList("do_nothing");
 
     // 4. Create encryption configuration for table.
-    //    Do not specify a plaintext policy. Unspecified plaintext policy defaults to
-    //    `FORBID_WRITE_FORBID_READ`, which is the desired policy for a fully encrypted
-    //    database.
+    //    Do not specify a plaintext override. Unspecified plaintext override defaults to
+    //    `FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ`, which is the desired behavior
+    //    for a client interacting with a fully encrypted database.
     Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
     tableConfigs.put(ddbTableName,
         DynamoDbEnhancedTableEncryptionConfig.builder()
             .logicalTableName(ddbTableName)
             .keyring(kmsKeyring)
-            .tableSchema(tableSchema)
-            .allowedUnauthenticatedAttributes(unauthAttributes)
+            .schemaOnEncrypt(tableSchema)
+            .allowedUnsignedAttributes(unsignedAttributes)
             .build());
 
     // 5. Create DynamoDbEncryptionInterceptor using the above config
