@@ -7,14 +7,9 @@ import java.util.Map;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
-import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextPolicy;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
@@ -25,21 +20,10 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 
 /*
-  Migration Step 3: This is an example demonstrating a possible approach
-  to encrypting all plaintext items from a table.
+  Migration Step 3: This is an example demonstrating how to update your configuration
+  to stop accepting reading plaintext items.
 
-  In this example, we configure a DynamoDbEnhancedClient to
-  read plaintext items and write encrypted items. Then, we perform
-  a scan on the table. For each item in the scan, we Put the
-  item back to the table. The client will transparently encrypt
-  the item when it is Put.
-
-  This approach would only work for tables of a certain size.
-  You would need to scale this approach based on the size
-  of your table, possibly by batching the scan and PutItem requests.
-
-  Once you complete Step 3, you can be sure that all table items
-  have been encrypted using our configuration.
+  Once you complete Step 3, all items being read by your system are encrypted.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -50,113 +34,97 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
  */
 public class MigrationExampleStep3 {
 
-    public static void MigrationStep3(String kmsKeyId, String ddbTableName) {
-        // 1. Continue to configure your Keyring, Table Schema,
-        //    and allowedUnauthenticatedAttributes as you did in Step 1.
-        MaterialProviders matProv = MaterialProviders.builder()
-            .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-            .build();
-        final CreateAwsKmsMrkMultiKeyringInput keyringInput = CreateAwsKmsMrkMultiKeyringInput.builder()
-            .generator(kmsKeyId)
-            .build();
-        final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
+  public static void MigrationStep3(String kmsKeyId, String ddbTableName, int sortReadValue) {
+    // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
+    //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
+    //    as it will correctly handle both single region and Multi-Region KMS Keys.
+    MaterialProviders matProv = MaterialProviders.builder()
+        .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+        .build();
+    final CreateAwsKmsMrkMultiKeyringInput keyringInput = CreateAwsKmsMrkMultiKeyringInput.builder()
+        .generator(kmsKeyId)
+        .build();
+    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
-        final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+    // 2. Create a Table Schema over your annotated class.
+    //    This uses the same annotated class as Step 2, which MUST be deployed to all hosts
+    //    before deploying Step 2.
+    final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
-        final List<String> unauthAttributes = Arrays.asList("do_nothing");
+    // 3. Configure which attributes we expect to be excluded in the signature
+    //    when reading items. This value MUST be the same as in Steps 1 and 2.
+    final List<String> unauthAttributes = Arrays.asList("do_nothing");
 
-        // 2. Create encryption configuration for table,
-        //    using the same plaintext policy as Step 2 (`FORBID_WRITE_ALLOW_READ`).
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(ddbTableName,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(ddbTableName)
-                .keyring(kmsKeyring)
-                .tableSchema(tableSchema)
-                .allowedUnauthenticatedAttributes(unauthAttributes)
-                .plaintextPolicy(PlaintextPolicy.FORBID_WRITE_ALLOW_READ)
+    // 4. Create encryption configuration for table.
+    //    Do not specify a plaintext policy. Unspecified plaintext policy defaults to
+    //    `FORBID_WRITE_FORBID_READ`, which is the desired policy for a fully encrypted
+    //    database.
+    Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+    tableConfigs.put(ddbTableName,
+        DynamoDbEnhancedTableEncryptionConfig.builder()
+            .logicalTableName(ddbTableName)
+            .keyring(kmsKeyring)
+            .tableSchema(tableSchema)
+            .allowedUnauthenticatedAttributes(unauthAttributes)
+            .build());
+
+    // 5. Create DynamoDbEncryptionInterceptor using the above config
+    DynamoDbEncryptionInterceptor interceptor =
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
                 .build());
 
-        // 3. Create DynamoDbEncryptionInterceptor using the above config
-        DynamoDbEncryptionInterceptor interceptor =
-            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-                CreateDynamoDbEncryptionInterceptorInput.builder()
-                    .tableEncryptionConfigs(tableConfigs)
-                    .build());
-
-        // 4. Create the EnhancedClient using the interceptor, and create a table from the schema
-        DynamoDbClient ddb = DynamoDbClient.builder()
-            .region(Region.US_WEST_2)
-            .overrideConfiguration(
-                ClientOverrideConfiguration.builder()
-                    .addExecutionInterceptor(interceptor)
-                    .build())
-            .build();
-        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-            .dynamoDbClient(ddb)
-            .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
-
-        // 5. Scan the table for items with no `aws_dbe_head` attribute.
-        //    Any record with the `aws_dbe_head` attribute is an encrypted record.
-        //    Any record without the attribute is a plaintext record.
-        //    To limit the number of affected records, we also
-        //    add a condition to our filter expression that the `partition_key`
-        //    partition key attribute is specific to our example, i.e.
-        //    equals "PlaintextMigrationExample". We do this because our
-        //    table contains multiple types of records, and we are only encrypting
-        //    some in this example. You should modify this approach if you need
-        //    to selectively encrypt items according to your specific use case.
-        Map<String,String> expressionAttributesNames = new HashMap<>();
-        expressionAttributesNames.put("#header", "aws_dbe_head");
-        expressionAttributesNames.put("#pk", "partition_key");
-
-        Map<String,AttributeValue> expressionAttributesValues = new HashMap<>();
-        expressionAttributesValues.put(":plaintextexample", AttributeValue.builder().s("PlaintextMigrationExample").build());
-
-        ScanEnhancedRequest scanEnhancedRequest = ScanEnhancedRequest.builder()
-            // We use consistent reads because we run these examples in our CI,
-            // where we put items then scan for them very quickly.
-            // This ensures our scan has data from all write requests.
-            // You do not need to use consistent reads in your approach.
-            .consistentRead(true)
-            .filterExpression(Expression.builder()
-                .expression("attribute_not_exists(#header) and #pk = :plaintextexample")
-                .expressionNames(expressionAttributesNames)
-                .expressionValues(expressionAttributesValues)
+    // 6. Create the EnhancedClient using the interceptor, and create a table from the schema
+    DynamoDbClient ddb = DynamoDbClient.builder()
+        .region(Region.US_WEST_2)
+        .overrideConfiguration(
+            ClientOverrideConfiguration.builder()
+                .addExecutionInterceptor(interceptor)
                 .build())
-            .build();
-        PageIterable<SimpleClass> scanIterable = table.scan(scanEnhancedRequest);
+        .build();
+    DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
+        .dynamoDbClient(ddb)
+        .build();
+    final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
 
-        // Verify we are about to modify an acceptable number of items.
-        // In our example migration, this should be exactly 2.
-        // Steps 0, 1, and 2 were run previously.
-        // Steps 0 and 1 added plaintext items that did not have the header attribute,
-        // while Step 2 added an encrypted item that did have the header attribute.
-        // The scan should return the items from Steps 0 and 1.
-        assert scanIterable.items().stream().count() == 2;
+    // 7. Put an item into your table using the DynamoDb Enhanced Client.
+    //    This item will be encrypted.
+    final SimpleClass item = new SimpleClass();
+    item.setPartitionKey("PlaintextMigrationExample");
+    item.setSortKey(4);
+    item.setEncryptAndSign("this will be encrypted and signed");
+    item.setDoNothing("this will never be encrypted nor signed");
+    item.setSignOnly("this will never be encrypted, but it will be signed");
 
-        // 6. Encrypt each item.
-        //    Since we have configured our table to write encrypted records,
-        //    we can simply put each item back to the table,
-        //    and the client will overwrite the plaintext record with the encrypted record.
-        scanIterable.stream().forEach(
-            p -> p.items().forEach(
-                table::putItem
-            )
-        );
+    table.putItem(item);
 
-        // Demonstrate that the same scan now returns no results
-        scanIterable = table.scan(scanEnhancedRequest);
-        assert scanIterable.items().stream().count() == 0;
+    // 8. Get an item back from the table using the DynamoDb Enhanced Client.
+    //    If this is an item written in plaintext (i.e. any item written
+    //    during Step 0 or 1), then the read will fail, as we have
+    //    configured our client to forbid reading plaintext items.
+    //    If this is an item that was encrypted client-side (i.e. any item written
+    //    during Step 2 or after), then the item will be decrypted client-side
+    //    and surfaced as a plaintext item.
+    SimpleClass itemToGet = new SimpleClass();
+    itemToGet.setPartitionKey("PlaintextMigrationExample");
+    itemToGet.setSortKey(sortReadValue);
+
+    SimpleClass returnedItem = table.getItem(itemToGet);
+
+    // Demonstrate we get the expected item back
+    assert returnedItem.getPartitionKey().equals("PlaintextMigrationExample");
+    assert returnedItem.getEncryptAndSign().equals("this will be encrypted and signed");
+  }
+
+  public static void main(final String[] args) {
+    if (args.length < 3) {
+      throw new IllegalArgumentException("To run this example, include the kmsKeyId, ddbTableName, and sortReadValue as args.");
     }
-
-    public static void main(final String[] args) {
-        if (args.length < 2) {
-            throw new IllegalArgumentException("To run this example, include the kmsKeyId and ddbTableName as args.");
-        }
-        final String kmsKeyId = args[0];
-        final String ddbTableName = args[1];
-        MigrationStep3(kmsKeyId, ddbTableName);
-    }
+    final String kmsKeyId = args[0];
+    final String ddbTableName = args[1];
+    // You can manipulate this value to demonstrate reading records written in other steps
+    final int sortReadValue = Integer.parseInt(args[2]);
+    MigrationStep3(kmsKeyId, ddbTableName, sortReadValue);
+  }
 }

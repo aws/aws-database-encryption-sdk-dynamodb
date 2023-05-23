@@ -30,17 +30,11 @@ When you deploy changes in Step 2,
 you are introducing a new encryption format to your system,
 and must make sure that all your readers are updated with the changes from Step 1.
 
+Before you move onto the next step, you will need to re-encrypt all old items in your dataset
+to use the newest format. How you will want to do this, and how long you may want to remain in this Step,
+depends on your system and your desired security properties for old and new items.
+
 ## Step 3
-
-Step 3 does not introduce any configuration updates.
-It demonstrates one approach to encrypting all plaintext items
-using the configuration from Step 2.
-
-Before you move onto the next step, you will need to encrypt all plaintext items in your dataset.
-How you will want to do this, and how long you may want to remain in the configuration in Step 2,
-depends on your system and your desired security properties for plaintext and encrypted items.
-
-## Step 4
 
 Once all old items are encrypted,
 update your system to do the following:

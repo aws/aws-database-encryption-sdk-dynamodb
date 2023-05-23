@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
-import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep4;
+import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep3;
 
 public class TestMigrationExampleStep1 {
     @Test
@@ -22,8 +22,8 @@ public class TestMigrationExampleStep1 {
         // When: Execute Step 1 with sortReadValue=2, Then: Success (i.e. can read encrypted values)
         MigrationExampleStep1.MigrationStep1(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 2);
 
-        // Given: Step 4 has succeeded
-        MigrationExampleStep4.MigrationStep4(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 4);
+        // Given: Step 3 has succeeded
+        MigrationExampleStep3.MigrationStep3(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 4);
         // When: Execute Step 1 with sortReadValue=4, Then: Success (i.e. can read encrypted values)
         MigrationExampleStep1.MigrationStep1(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 4);
     }

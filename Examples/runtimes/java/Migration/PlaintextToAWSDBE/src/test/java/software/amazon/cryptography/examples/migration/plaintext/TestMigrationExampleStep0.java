@@ -3,7 +3,7 @@ package software.amazon.cryptography.examples.migration.plaintext;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
-import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep4;
+import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep3;
 import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 
 import static org.testng.Assert.assertThrows;
@@ -26,8 +26,8 @@ public class TestMigrationExampleStep0 {
             MigrationExampleStep0.MigrationStep0(TestUtils.TEST_DDB_TABLE_NAME, 2);
         });
 
-        // Given: Step 4 has succeeded
-        MigrationExampleStep4.MigrationStep4(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 4);
+        // Given: Step 3 has succeeded
+        MigrationExampleStep3.MigrationStep3(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 4);
         // When: Execute Step 0 with sortReadValue=4, Then: throws AssertionError (i.e. cannot read encrypted values)
         assertThrows(AssertionError.class, () -> {
             MigrationExampleStep0.MigrationStep0(TestUtils.TEST_DDB_TABLE_NAME, 4);
