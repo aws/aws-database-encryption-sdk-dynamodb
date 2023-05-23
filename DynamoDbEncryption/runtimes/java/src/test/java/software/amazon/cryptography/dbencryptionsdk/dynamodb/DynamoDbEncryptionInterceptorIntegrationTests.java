@@ -319,7 +319,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         legacyDDB.putItem(new com.amazonaws.services.dynamodbv2.model.PutItemRequest(TEST_TABLE_NAME, encrypted_record));
 
         DynamoDbEncryptionInterceptor interceptor =
-                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT, null);
+                createInterceptor(createKmsKeyring(), LegacyPolicy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT, null);
         DynamoDbClient ddbWithLegacy = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -364,7 +364,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
         // Configure interceptor with legacy behavior
         DynamoDbEncryptionInterceptor interceptor =
-                createInterceptor(createKmsKeyring(), LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT, null);
+                createInterceptor(createKmsKeyring(), LegacyPolicy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT, null);
         DynamoDbClient ddbWithLegacy = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -424,7 +424,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         DynamoDbEncryptionInterceptor interceptor = createInterceptor(
                 createKmsKeyring(), // Just need to configure some valid keyring
                 null,
-                PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ);
+                PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ);
         DynamoDbClient clientWithPolicy = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -460,7 +460,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         DynamoDbEncryptionInterceptor interceptor = createInterceptor(
                 createKmsKeyring(), // Just need to configure some valid keyring
                 null,
-                PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ);
+                PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ);
         DynamoDbClient clientWithPolicy = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
