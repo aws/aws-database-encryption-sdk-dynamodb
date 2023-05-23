@@ -55,7 +55,7 @@ public class EnhancedPutGetExample {
         //    use the `DynamoDbEncryptionSignOnly` annotation.
         //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
         //    use the `DynamoDbEncryptionDoNothing` annotation.
-        final TableSchema<SimpleClass> tableSchemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
@@ -93,7 +93,7 @@ public class EnhancedPutGetExample {
                         .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
                         .allowedUnsignedAttributePrefix(unauthAttrPrefix)
-                        .tableSchemaOnEncrypt(tableSchema)
+                        .schemaOnEncrypt(tableSchema)
                         // Specifying an algorithm suite is not required,
                         // but is done here to demonstrate how to do so.
                         // We suggest using the
@@ -129,7 +129,7 @@ public class EnhancedPutGetExample {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchemaOnEncrypt);
+        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
 
         // 7. Put an item into your table using the DynamoDb Enhanced Client.
         //    The item will be encrypted client-side according to your

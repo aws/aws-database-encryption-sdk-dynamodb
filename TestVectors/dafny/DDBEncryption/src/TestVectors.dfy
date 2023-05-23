@@ -99,7 +99,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   type PairList = seq<ConfigPair>
 
   datatype TestVectorConfig = TestVectorConfig (
-    tableSchemaOnEncrypt : DDB.CreateTableInput,
+    schemaOnEncrypt : DDB.CreateTableInput,
     globalRecords : seq<Record>,
     tableEncryptionConfigs : map<ConfigName, TableConfig>,
     queries : seq<SimpleQuery>,
@@ -337,7 +337,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       modifies client.Modifies
     {
       DeleteTable(client);
-      var _ :-  expect client.CreateTable(tableSchemaOnEncrypt);
+      var _ :-  expect client.CreateTable(schemaOnEncrypt);
       for i := 0 to |records| {
         var input := DDB.PutItemInput(
           TableName := TableName,
@@ -587,7 +587,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
       DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(tableSchemaOnEncrypt);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
       var i := 0;
       while i < |records| {
         var count := 10;
@@ -626,7 +626,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
       DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(tableSchemaOnEncrypt);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
       var i := 0;
       while i < |records| {
         var count := 10;
@@ -982,10 +982,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    var newSchema :- MergeGSI(prev.tableSchemaOnEncrypt, gsi);
+    var newSchema :- MergeGSI(prev.schemaOnEncrypt, gsi);
     output := Success(
       TestVectorConfig (
-        tableSchemaOnEncrypt := newSchema,
+        schemaOnEncrypt := newSchema,
         globalRecords := prev.globalRecords + records,
         tableEncryptionConfigs := prev.tableEncryptionConfigs + tableEncryptionConfigs,
         queries := prev.queries + queries,

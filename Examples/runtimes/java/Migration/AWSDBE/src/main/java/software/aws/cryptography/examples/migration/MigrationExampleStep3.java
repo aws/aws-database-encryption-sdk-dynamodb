@@ -59,7 +59,7 @@ public class MigrationExampleStep3 {
                 .build();
         final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
-        final TableSchema<SimpleClass> tableSchemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
 
         final List<String> unauthAttributes = Arrays.asList("do_nothing");
 
@@ -71,7 +71,7 @@ public class MigrationExampleStep3 {
                         .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
                         .allowedUnsignedAttributes(unauthAttributes)
-                        .tableSchemaOnEncrypt(tableSchemaOnEncrypt)
+                        .schemaOnEncrypt(schemaOnEncrypt)
                         .build());
         final DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
@@ -93,7 +93,7 @@ public class MigrationExampleStep3 {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchemaOnEncrypt);
+        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, schemaOnEncrypt);
 
         // 6. Put an item into your table using the DynamoDb Enhanced Client.
         //    This item will be encrypted in the latest format, using the

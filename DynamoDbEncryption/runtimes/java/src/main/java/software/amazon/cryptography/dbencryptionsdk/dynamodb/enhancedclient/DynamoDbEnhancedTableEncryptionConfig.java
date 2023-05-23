@@ -14,7 +14,7 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
 public class DynamoDbEnhancedTableEncryptionConfig {
     private final String logicalTableName;
-    private final TableSchema tableSchemaOnEncrypt;
+    private final TableSchema schemaOnEncrypt;
     private final List<String> allowedUnsignedAttributes;
     private final String allowedUnsignedAttributePrefix;
     private final Keyring keyring;
@@ -26,7 +26,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
     protected DynamoDbEnhancedTableEncryptionConfig(BuilderImpl builder) {
         this.logicalTableName = builder.logicalTableName();
-        this.tableSchemaOnEncrypt = builder.tableSchemaOnEncrypt();
+        this.schemaOnEncrypt = builder.schemaOnEncrypt();
         this.allowedUnsignedAttributes = builder.allowedUnsignedAttributes();
         this.allowedUnsignedAttributePrefix = builder.allowedUnsignedAttributePrefix();
         this.keyring = builder.keyring();
@@ -39,8 +39,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
     public String logicalTableName() { return this.logicalTableName; }
 
-    public TableSchema tableSchemaOnEncrypt() {
-        return this.tableSchemaOnEncrypt;
+    public TableSchema schemaOnEncrypt() {
+        return this.schemaOnEncrypt;
     }
 
     public List<String> allowedUnsignedAttributes() {
@@ -82,8 +82,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
     public interface Builder {
         String logicalTableName();
         Builder logicalTableName(String logicalTableName);
-        Builder tableSchemaOnEncrypt(TableSchema tableSchemaOnEncrypt);
-        TableSchema tableSchemaOnEncrypt();
+        Builder schemaOnEncrypt(TableSchema schemaOnEncrypt);
+        TableSchema schemaOnEncrypt();
         Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
         List<String> allowedUnsignedAttributes();
         Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix);
@@ -101,7 +101,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
     protected static class BuilderImpl implements Builder {
         protected String logicalTableName;
-        protected TableSchema tableSchemaOnEncrypt;
+        protected TableSchema schemaOnEncrypt;
         protected List<String> allowedUnsignedAttributes;
         protected String allowedUnsignedAttributePrefix;
         protected Keyring keyring;
@@ -114,7 +114,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
         protected BuilderImpl(DynamoDbEnhancedTableEncryptionConfig model) {
             this.logicalTableName = model.logicalTableName();
-            this.tableSchemaOnEncrypt = model.tableSchemaOnEncrypt();
+            this.schemaOnEncrypt = model.schemaOnEncrypt();
             this.allowedUnsignedAttributes = model.allowedUnsignedAttributes();
             this.allowedUnsignedAttributePrefix = model.allowedUnsignedAttributePrefix();
             this.keyring = model.keyring();
@@ -131,13 +131,13 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
         public String logicalTableName() { return this.logicalTableName; }
 
-        public Builder tableSchemaOnEncrypt(TableSchema tableSchemaOnEncrypt) {
-            this.tableSchemaOnEncrypt = tableSchemaOnEncrypt;
+        public Builder schemaOnEncrypt(TableSchema schemaOnEncrypt) {
+            this.schemaOnEncrypt = schemaOnEncrypt;
             return this;
         }
 
-        public TableSchema tableSchemaOnEncrypt() {
-            return this.tableSchemaOnEncrypt;
+        public TableSchema schemaOnEncrypt() {
+            return this.schemaOnEncrypt;
         }
 
         public Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes) {
@@ -205,8 +205,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         }
 
         public DynamoDbEnhancedTableEncryptionConfig build() {
-            if (Objects.isNull(this.tableSchemaOnEncrypt())) {
-                throw new IllegalArgumentException("Missing value for required field `tableSchemaOnEncrypt`");
+            if (Objects.isNull(this.schemaOnEncrypt())) {
+                throw new IllegalArgumentException("Missing value for required field `schemaOnEncrypt`");
             }
             return new DynamoDbEnhancedTableEncryptionConfig(this);
         }

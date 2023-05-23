@@ -75,7 +75,7 @@ public class MigrationExampleStep1 {
         //    use the `DynamoDbEncryptionSignOnly` annotation.
         //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
         //    use the `DynamoDbEncryptionDoNothing` annotation.
-        final TableSchema<SimpleClass> tableSchemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
 
         // 3. Configure which attributes we expect to be excluded in the signature
         //    when reading items. This value represents all unsigned attributes
@@ -117,7 +117,7 @@ public class MigrationExampleStep1 {
                         .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
                         .allowedUnsignedAttributes(unauthAttributes)
-                        .tableSchemaOnEncrypt(tableSchemaOnEncrypt)
+                        .schemaOnEncrypt(schemaOnEncrypt)
                         .legacyOverride(legacyOverride)
                         .build());
         final DynamoDbEncryptionInterceptor interceptor =
@@ -140,7 +140,7 @@ public class MigrationExampleStep1 {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchemaOnEncrypt);
+        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, schemaOnEncrypt);
 
         // 10. Put an item into your table using the DynamoDb Enhanced Client.
         //     This item will be encrypted in the legacy format, using the

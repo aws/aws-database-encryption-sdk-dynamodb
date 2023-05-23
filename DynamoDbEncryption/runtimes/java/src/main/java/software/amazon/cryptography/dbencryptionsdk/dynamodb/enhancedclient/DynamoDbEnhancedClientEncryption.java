@@ -30,9 +30,9 @@ public class DynamoDbEnhancedClientEncryption {
     private static DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEnhancedTableEncryptionConfig configWithSchema) {
         Map<String, CryptoAction> actions = new HashMap<>();
 
-        Set<String> signOnlyAttributes = configWithSchema.tableSchemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class).orElseGet(HashSet::new);
-        Set<String> doNothingAttributes = configWithSchema.tableSchemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX, Set.class).orElseGet(HashSet::new);
-        Set<String> keyAttributes = configWithSchema.tableSchemaOnEncrypt().tableMetadata().keyAttributes().stream().map(val -> val.name()).collect(Collectors.toSet());
+        Set<String> signOnlyAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class).orElseGet(HashSet::new);
+        Set<String> doNothingAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX, Set.class).orElseGet(HashSet::new);
+        Set<String> keyAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().keyAttributes().stream().map(val -> val.name()).collect(Collectors.toSet());
 
         if (!Collections.disjoint(keyAttributes, doNothingAttributes)) {
             throw DynamoDbEncryptionException.builder()
@@ -44,7 +44,7 @@ public class DynamoDbEnhancedClientEncryption {
                     .build();
         }
 
-        List<String> attributeNames = configWithSchema.tableSchemaOnEncrypt().attributeNames();
+        List<String> attributeNames = configWithSchema.schemaOnEncrypt().attributeNames();
         for (String attributeName : attributeNames) {
             if (keyAttributes.contains(attributeName)) {
                 // key attributes are always SIGN_ONLY
@@ -60,10 +60,10 @@ public class DynamoDbEnhancedClientEncryption {
         }
 
         DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder();
-        String partitionName = configWithSchema.tableSchemaOnEncrypt().tableMetadata().primaryPartitionKey();
+        String partitionName = configWithSchema.schemaOnEncrypt().tableMetadata().primaryPartitionKey();
         builder = builder.partitionKeyName(partitionName);
 
-        Optional<String> sortName = configWithSchema.tableSchemaOnEncrypt().tableMetadata().primarySortKey();
+        Optional<String> sortName = configWithSchema.schemaOnEncrypt().tableMetadata().primarySortKey();
         if (sortName.isPresent()) {
             builder = builder.sortKeyName(sortName.get());
         }
