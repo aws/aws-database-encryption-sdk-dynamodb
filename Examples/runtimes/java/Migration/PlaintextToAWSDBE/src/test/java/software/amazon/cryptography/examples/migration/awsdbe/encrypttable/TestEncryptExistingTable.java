@@ -114,7 +114,7 @@ public class TestEncryptExistingTable {
         expressionAttributesNames.put("#pk", "partition_key");
 
         Map<String, AttributeValue> expressionAttributesValues = new HashMap<>();
-        expressionAttributesValues.put(":plaintexttest", AttributeValue.builder().s("PlaintextMigrationTest").build());
+        expressionAttributesValues.put(":plaintexttest", AttributeValue.builder().s("PlaintextMigrationExample").build());
 
         ScanEnhancedRequest scanEnhancedRequest = ScanEnhancedRequest.builder()
             // We use consistent reads because we run this test in our CI,
@@ -157,7 +157,7 @@ public class TestEncryptExistingTable {
         MigrationExampleStep0.MigrationStep0(TestUtils.TEST_DDB_TABLE_NAME, 0);
         MigrationExampleStep1.MigrationStep1(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 1);
         MigrationExampleStep2.MigrationStep2(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 2);
-        // When: Execute Step 3, Then: Success (i.e. encrypts 2 plaintext values)
+        // When: Execute migration, Then: Success (i.e. encrypts 2 plaintext values)
         EncryptExistingTable(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME);
     }
 }
