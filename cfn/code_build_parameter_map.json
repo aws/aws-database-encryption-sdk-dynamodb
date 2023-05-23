@@ -1,0 +1,7 @@
+{
+    "NumberOfBuildsInBatch": 50,
+    "ProjectDescription": "CD for Java DBESDK DDB",
+    "ProjectName": "AWS-DBESDK-DDB-Java",
+    "SourceLocation": "https://github.com/awslabs/aws-dynamodb-encryption-dafny.git"
+  }
+  
