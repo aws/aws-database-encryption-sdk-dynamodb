@@ -31,8 +31,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
   we can be sure that our entire system is ready to read this new data.
 
   Before you move onto the next step, you will need to encrypt all plaintext items in your dataset.
-  How you will want to do this, and how long you may want to remain in this Step,
-  depends on your system and your desired security properties for plaintext and encrypted items.
+  How you will want to do this depends on your system.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
