@@ -1,6 +1,6 @@
 package com.amazonaws.services.dynamodbv2.datamodeling;
 
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal.InternalLegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal.InternalLegacyOverride;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.model.*;
@@ -8,7 +8,7 @@ import com.amazonaws.services.dynamodbv2.testing.types.*;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.*;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
@@ -96,7 +96,7 @@ public class LegacyTestVectors {
 
     final DecryptItemInput decryptInput = DecryptItemInput
       .builder()
-      .encryptedItem(InternalLegacyConfig.V1MapToV2Map(item.getItem()))
+      .encryptedItem(InternalLegacyOverride.V1MapToV2Map(item.getItem()))
       .build();
     return encryptor.DecryptItem(decryptInput);
   }
@@ -117,7 +117,7 @@ public class LegacyTestVectors {
       .build();
     EncryptItemOutput encryptOutput = encryptor.EncryptItem(encryptInput);
 
-    return client.putItem(putRequest(InternalLegacyConfig.V2MapToV1Map(encryptOutput.encryptedItem()), TEST_VALUE));
+    return client.putItem(putRequest(InternalLegacyOverride.V2MapToV1Map(encryptOutput.encryptedItem()), TEST_VALUE));
   }
 
   public static DynamoDbItemEncryptorConfig getConfig(
@@ -129,13 +129,13 @@ public class LegacyTestVectors {
 
     final HashMap<String, CryptoAction> legacyAttributeFlags = ActionsFromClass(TEST_VALUE);
 
-    final LegacyConfig legacyConfig = LegacyConfig
+    final LegacyOverride legacyOverride = LegacyOverride
       .builder()
       .encryptor(legacyEncryptor)
       // This is not testing Policy requirements
       // This config works for both encrypt and decrypt test vectors.
-      .policy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
-      .attributeFlags(legacyAttributeFlags)
+      .policy(LegacyPolicy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT)
+      .attributeActionsOnEncrypt(legacyAttributeFlags)
       .build();
 
     final Map<String, CryptoAction> onlyHashRange = legacyAttributeFlags
@@ -148,10 +148,10 @@ public class LegacyTestVectors {
       .builder()
       .logicalTableName(tableName)
       .partitionKeyName(HASH_KEY)
-      .legacyConfig(legacyConfig)
+      .legacyOverride(legacyOverride)
       // **Not** trying to write things,
-      // just trying to get to test the legacyConfig.
-      .attributeActions(onlyHashRange)
+      // just trying to get to test the legacyOverride.
+      .attributeActionsOnEncrypt(onlyHashRange)
       .keyring(createStaticKeyring());
 
     if (hasRange) {
@@ -223,61 +223,61 @@ public class LegacyTestVectors {
   // that would make this more compact.
   // However, for tests I prefer verbosity.
   public static HashMap<String, CryptoAction> ActionsFromClass(final Object value) {
-    HashMap<String, CryptoAction> attributeFlags = new HashMap();
+    HashMap<String, CryptoAction> attributeActionsOnEncrypt = new HashMap();
 
     if (value instanceof Mixed) {
-      attributeFlags.put(HASH_KEY, CryptoAction.SIGN_ONLY);
-      attributeFlags.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
-      attributeFlags.put("stringValue", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("intValue", CryptoAction.DO_NOTHING);
-      attributeFlags.put("byteArrayValue", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("stringSet", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("intSet", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("version", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("doubleValue", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("doubleSet", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("stringValue", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("intValue", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("byteArrayValue", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("stringSet", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("intSet", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("version", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("doubleValue", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("doubleSet", CryptoAction.SIGN_ONLY);
     } else if (value instanceof SignOnly) {
-      attributeFlags.put(HASH_KEY, CryptoAction.SIGN_ONLY);
-      attributeFlags.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
-      attributeFlags.put("stringValue", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("intValue", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("byteArrayValue", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("stringSet", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("intSet", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("version", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("doubleValue", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("doubleSet", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("stringValue", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("intValue", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("byteArrayValue", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("stringSet", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("intSet", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("version", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("doubleValue", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("doubleSet", CryptoAction.SIGN_ONLY);
     } else if (value instanceof Untouched) {
-      attributeFlags.put(HASH_KEY, CryptoAction.SIGN_ONLY );
-      attributeFlags.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
-      attributeFlags.put("stringValue", CryptoAction.DO_NOTHING);
-      attributeFlags.put("intValue", CryptoAction.DO_NOTHING);
-      attributeFlags.put("byteArrayValue", CryptoAction.DO_NOTHING);
-      attributeFlags.put("stringSet", CryptoAction.DO_NOTHING);
-      attributeFlags.put("intSet", CryptoAction.DO_NOTHING);
-      attributeFlags.put("version", CryptoAction.DO_NOTHING);
-      attributeFlags.put("doubleValue", CryptoAction.DO_NOTHING);
-      attributeFlags.put("doubleSet", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY );
+      attributeActionsOnEncrypt.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("stringValue", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("intValue", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("byteArrayValue", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("stringSet", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("intSet", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("version", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("doubleValue", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("doubleSet", CryptoAction.DO_NOTHING);
     } else if (value instanceof BaseClass) {
       // This is a BaseClass
-      attributeFlags.put(HASH_KEY, CryptoAction.SIGN_ONLY);
-      attributeFlags.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
-      attributeFlags.put("stringValue", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("intValue", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("byteArrayValue", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("stringSet", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("intSet", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("version", CryptoAction.SIGN_ONLY);
-      attributeFlags.put("doubleValue", CryptoAction.ENCRYPT_AND_SIGN);
-      attributeFlags.put("doubleSet", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("stringValue", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("intValue", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("byteArrayValue", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("stringSet", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("intSet", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("version", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("doubleValue", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put("doubleSet", CryptoAction.ENCRYPT_AND_SIGN);
     } else if (value instanceof KeysOnly) {
-      attributeFlags.put(HASH_KEY, CryptoAction.SIGN_ONLY);
-      attributeFlags.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
     } else if (value instanceof  HashKeyOnly) {
-      attributeFlags.put(HASH_KEY, CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
     }
 
-    return attributeFlags;
+    return attributeActionsOnEncrypt;
   }
 
   public static BaseClass attributeMapToBaseClass(

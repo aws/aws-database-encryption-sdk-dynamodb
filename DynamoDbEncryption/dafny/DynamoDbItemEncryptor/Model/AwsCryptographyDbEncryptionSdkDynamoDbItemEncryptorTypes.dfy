@@ -97,14 +97,14 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly logicalTableName: string ,
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
  nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
- nameonly attributeActions: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
- nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
- nameonly allowedUnauthenticatedAttributePrefix: Option<string> ,
+ nameonly attributeActionsOnEncrypt: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
+ nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
+ nameonly allowedUnsignedAttributePrefix: Option<string> ,
  nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
  nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
  nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly legacyConfig: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyConfig> ,
- nameonly plaintextPolicy: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextPolicy>
+ nameonly legacyOverride: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride> ,
+ nameonly plaintextOverride: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>
  )
  datatype EncryptItemInput = | EncryptItemInput (
  nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap
@@ -114,7 +114,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly parsedHeader: Option<ParsedHeader>
  )
  datatype ParsedHeader = | ParsedHeader (
- nameonly attributeActions: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
+ nameonly attributeActionsOnEncrypt: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
  nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
  nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
  nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
@@ -171,16 +171,16 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  config.keyring.value.ValidState()
  requires config.cmm.Some? ==>
  config.cmm.value.ValidState()
- requires config.legacyConfig.Some? ==>
- config.legacyConfig.value.encryptor.ValidState()
+ requires config.legacyOverride.Some? ==>
+ config.legacyOverride.value.encryptor.ValidState()
  modifies if config.keyring.Some? then 
  config.keyring.value.Modifies
  else {}
  modifies if config.cmm.Some? then 
  config.cmm.value.Modifies
  else {}
- modifies if config.legacyConfig.Some? then 
- config.legacyConfig.value.encryptor.Modifies
+ modifies if config.legacyOverride.Some? then 
+ config.legacyOverride.value.encryptor.Modifies
  else {}
  ensures res.Success? ==> 
  && fresh(res.value)
@@ -191,8 +191,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ) - ( if config.cmm.Some? then 
  config.cmm.value.Modifies
  else {}
- ) - ( if config.legacyConfig.Some? then 
- config.legacyConfig.value.encryptor.Modifies
+ ) - ( if config.legacyOverride.Some? then 
+ config.legacyOverride.value.encryptor.Modifies
  else {}
  ) )
  && fresh(res.value.History)
@@ -201,8 +201,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  config.keyring.value.ValidState()
  ensures config.cmm.Some? ==>
  config.cmm.value.ValidState()
- ensures config.legacyConfig.Some? ==>
- config.legacyConfig.value.encryptor.ValidState()
+ ensures config.legacyOverride.Some? ==>
+ config.legacyOverride.value.encryptor.ValidState()
 
  class DynamoDbItemEncryptorClient extends IDynamoDbItemEncryptorClient
  {
