@@ -28,6 +28,10 @@ java {
     }
 }
 
+tasks.withType<JavaCompile>() {
+    options.encoding = "UTF-8"
+}
+
 var caUrl: URI? = null
 @Nullable
 val caUrlStr: String? = System.getenv("CODEARTIFACT_URL_JAVA_CONVERSION")
@@ -102,55 +106,6 @@ publishing {
     repositories { mavenLocal() }
 }
 
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
-}
-
-tasks.test {
-    useTestNG()
-    dependsOn("CopyDynamoDb")
-    systemProperty("java.library.path", "build/libs")
-
-    // This will show System.out.println statements
-    testLogging.showStandardStreams = true
-
-    testLogging {
-        lifecycle {
-            events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
-            exceptionFormat = TestExceptionFormat.FULL
-            showExceptions = true
-            showCauses = true
-            showStackTraces = true
-            showStandardStreams = true
-        }
-        info.events = lifecycle.events
-        info.exceptionFormat = lifecycle.exceptionFormat
-    }
-
-    // See https://github.com/gradle/kotlin-dsl/issues/836
-    addTestListener(object : TestListener {
-        override fun beforeSuite(suite: TestDescriptor) {}
-        override fun beforeTest(testDescriptor: TestDescriptor) {}
-        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
-
-        override fun afterSuite(suite: TestDescriptor, result: TestResult) {
-            if (suite.parent == null) { // root suite
-                logger.lifecycle("----")
-                logger.lifecycle("Test result: ${result.resultType}")
-                logger.lifecycle("Test summary: ${result.testCount} tests, " +
-                        "${result.successfulTestCount} succeeded, " +
-                        "${result.failedTestCount} failed, " +
-                        "${result.skippedTestCount} skipped")
-            }
-        }
-    })
-}
-
-tasks.register<JavaExec>("runTests") {
-    dependsOn("copyKeysJSON")
-    mainClass.set("TestsFromDafny")
-    classpath = sourceSets["test"].runtimeClasspath
-}
 
 tasks.register<Copy>("copyKeysJSON") {
     from(layout.projectDirectory.file("../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"))
@@ -164,4 +119,12 @@ tasks.register<Copy>("CopyDynamoDb")  {
         include("*.so")
     }
     into("build/libs")
+}
+
+tasks.register<JavaExec>("runTests") {
+    dependsOn("CopyDynamoDb")
+    dependsOn("copyKeysJSON")
+    systemProperty("java.library.path", "build/libs")
+    mainClass.set("TestsFromDafny")
+    classpath = sourceSets["test"].runtimeClasspath
 }
