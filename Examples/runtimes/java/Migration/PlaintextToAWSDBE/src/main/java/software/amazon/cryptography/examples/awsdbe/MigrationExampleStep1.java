@@ -25,7 +25,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
   AWS Database Encryption SDK with a pre-existing table with plaintext items.
   In this example, we configure a DynamoDb Encryption Interceptor to do the following:
     - Write items only in plaintext
-    - Read items in plaintext or with our encryption configuration
+    - Read items in plaintext or, if the item is encrypted, decrypt with our encryption configuration
 
   While this step configures your client to be ready to start reading encrypted items,
   we do not yet expect to be reading any encrypted items,
