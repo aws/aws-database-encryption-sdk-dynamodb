@@ -116,9 +116,9 @@ structure DynamoDbTableEncryptionConfig {
     search: SearchConfig,
     
     @required
-    attributeActions: AttributeActions,
-    allowedUnauthenticatedAttributes: AttributeNameList,
-    allowedUnauthenticatedAttributePrefix: String,
+    attributeActionsOnEncrypt: AttributeActions,
+    allowedUnsignedAttributes: AttributeNameList,
+    allowedUnsignedAttributePrefix: String,
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suite
     //= type=implication
     //# This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md).
@@ -128,8 +128,8 @@ structure DynamoDbTableEncryptionConfig {
     keyring: KeyringReference,
     cmm: CryptographicMaterialsManagerReference,
 
-    legacyConfig: LegacyConfig,
-    plaintextPolicy: PlaintextPolicy
+    legacyOverride: LegacyOverride,
+    plaintextOverride: PlaintextOverride
 }
 
 map AttributeActions {
@@ -139,16 +139,16 @@ map AttributeActions {
 
 @enum([
   {
-    name: "REQUIRE_ENCRYPT_ALLOW_DECRYPT",
-    value: "REQUIRE_ENCRYPT_ALLOW_DECRYPT",
+    name: "FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT",
+    value: "FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT",
   },
   {
-    name: "FORBID_ENCRYPT_ALLOW_DECRYPT",
-    value: "FORBID_ENCRYPT_ALLOW_DECRYPT",
+    name: "FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT",
+    value: "FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT",
   },
   {
-    name: "FORBID_ENCRYPT_FORBID_DECRYPT",
-    value: "FORBID_ENCRYPT_FORBID_DECRYPT",
+    name: "FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT",
+    value: "FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT",
   },
 ])
 string LegacyPolicy
@@ -167,7 +167,7 @@ structure LegacyDynamoDbEncryptorReference {}
 //# - [Legacy Encryptor](#legacy-encryptor)
 //# - [Attributes Flags](#attribute-flags)
 //# - [Legacy Policy](#legacy-policy)
-structure LegacyConfig {
+structure LegacyOverride {
     @required
     policy: LegacyPolicy,
     @required
@@ -177,26 +177,26 @@ structure LegacyConfig {
     //= type=implication
     //# This map MAY be different from the top level [Attribute Actions](#attribute-actions).
     @required
-    attributeFlags: AttributeActions,
+    attributeActionsOnEncrypt: AttributeActions,
 
     defaultAttributeFlag: CryptoAction,
 }
 
 @enum([
   {
-    name: "REQUIRE_WRITE_ALLOW_READ",
-    value: "REQUIRE_WRITE_ALLOW_READ",
+    name: "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ",
+    value: "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ",
   },
   {
-    name: "FORBID_WRITE_ALLOW_READ",
-    value: "FORBID_WRITE_ALLOW_READ",
+    name: "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ",
+    value: "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ",
   },
   {
-    name: "FORBID_WRITE_FORBID_READ",
-    value: "FORBID_WRITE_FORBID_READ",
+    name: "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ",
+    value: "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ",
   },
 ])
-string PlaintextPolicy
+string PlaintextOverride
 
 @range(min: 1, max: 63)
 integer BeaconBitLength

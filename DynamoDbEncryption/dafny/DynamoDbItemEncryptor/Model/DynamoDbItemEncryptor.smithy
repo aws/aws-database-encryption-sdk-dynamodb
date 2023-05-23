@@ -15,9 +15,9 @@ use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
 use aws.cryptography.dbEncryptionSdk.dynamoDb#AttributeActions
-use aws.cryptography.dbEncryptionSdk.dynamoDb#LegacyConfig
+use aws.cryptography.dbEncryptionSdk.dynamoDb#LegacyOverride
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#Version
-use aws.cryptography.dbEncryptionSdk.dynamoDb#PlaintextPolicy
+use aws.cryptography.dbEncryptionSdk.dynamoDb#PlaintextOverride
 
 use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 use aws.cryptography.primitives#AwsCryptographicPrimitives
@@ -73,17 +73,17 @@ structure DynamoDbItemEncryptorConfig {
     sortKeyName: KeySchemaAttributeName,
 
     @required
-    attributeActions: AttributeActions,
+    attributeActionsOnEncrypt: AttributeActions,
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#unauthenticated-attributes
     //= type=implication
     //# Unauthenticated Attributes MUST be a set of Attribute Names.
-    allowedUnauthenticatedAttributes: AttributeNameList,
+    allowedUnsignedAttributes: AttributeNameList,
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#unauthenticated-attribute-prefix
     //= type=implication
     //# Unauthenticated Attribute Prefix MUST be a string.
-    allowedUnauthenticatedAttributePrefix: String,
+    allowedUnsignedAttributePrefix: String,
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suite
     //= type=implication
@@ -94,9 +94,9 @@ structure DynamoDbItemEncryptorConfig {
     keyring: KeyringReference,
     cmm: CryptographicMaterialsManagerReference,
 
-    legacyConfig: LegacyConfig,
+    legacyOverride: LegacyOverride,
 
-    plaintextPolicy: PlaintextPolicy,
+    plaintextOverride: PlaintextOverride,
 }
 
 //= specification/dynamodb-encryption-client/decrypt-item.md#parsed-header
@@ -110,7 +110,7 @@ structure DynamoDbItemEncryptorConfig {
 //#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
 structure ParsedHeader {
     @required
-    attributeActions: AttributeActions,
+    attributeActionsOnEncrypt: AttributeActions,
     @required
     algorithmSuiteId: DBEAlgorithmSuiteId,
     @required

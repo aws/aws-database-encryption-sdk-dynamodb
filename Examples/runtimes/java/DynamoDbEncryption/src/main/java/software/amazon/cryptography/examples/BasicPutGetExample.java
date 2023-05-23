@@ -50,17 +50,17 @@ public class BasicPutGetExample {
         //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
         //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
-        final Map<String, CryptoAction> attributeActions = new HashMap<>();
-        attributeActions.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-        attributeActions.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-        attributeActions.put("data_to_encrypt", CryptoAction.ENCRYPT_AND_SIGN);
-        attributeActions.put("data_to_sign", CryptoAction.SIGN_ONLY);
-        attributeActions.put(":data_to_ignore", CryptoAction.DO_NOTHING);
+        final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
+        attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+        attributeActionsOnEncrypt.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
+        attributeActionsOnEncrypt.put("data_to_encrypt", CryptoAction.ENCRYPT_AND_SIGN);
+        attributeActionsOnEncrypt.put("data_to_sign", CryptoAction.SIGN_ONLY);
+        attributeActionsOnEncrypt.put(":data_to_ignore", CryptoAction.DO_NOTHING);
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
         //
-        //    - (Recommended) Configure `allowedUnauthenticatedAttributesPrefix`:
+        //    - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
         //      When defining your DynamoDb schema and deciding on attribute names,
         //      choose a distinguishing prefix (such as ":") for all attributes that
         //      you do not want to include in the signature.
@@ -68,12 +68,12 @@ public class BasicPutGetExample {
         //      - It is easier to reason about the security and authenticity of data within your item
         //        when all unauthenticated data is easily distinguishable by their attribute name.
         //      - If you need to add new unauthenticated attributes in the future,
-        //        you can easily make the corresponding update to your `attributeActions`
+        //        you can easily make the corresponding update to your `attributeActionsOnEncrypt`
         //        and immediately start writing to that new attribute, without
         //        any other configuration update needed.
         //      Once you configure this field, it is not safe to update it.
         //
-        //    - Configure `allowedUnauthenticatedAttributes`: You may also explicitly list
+        //    - Configure `allowedUnsignedAttributes`: You may also explicitly list
         //      a set of attributes that should be considered unauthenticated when encountered
         //      on read. Be careful if you use this configuration. Do not remove an attribute
         //      name from this configuration, even if you are no longer writing with that attribute,
@@ -93,9 +93,9 @@ public class BasicPutGetExample {
                 .logicalTableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
-                .attributeActions(attributeActions)
+                .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
                 .keyring(kmsKeyring)
-                .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
+                .allowedUnsignedAttributePrefix(unauthAttrPrefix)
                 // Specifying an algorithm suite is not required,
                 // but is done here to demonstrate how to do so.
                 // We suggest using the
