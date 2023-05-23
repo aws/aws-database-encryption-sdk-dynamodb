@@ -15,7 +15,7 @@ public class TestMigrationExampleStep3 {
     public void TestMigrationStep0() {
         // Successfully executes step 3
         MigrationExampleStep3.MigrationStep3(
-            software.amazon.cryptography.examples.migration.plaintext.TestUtils.TEST_KMS_KEY_ID, software.amazon.cryptography.examples.migration.plaintext.TestUtils.TEST_DDB_TABLE_NAME, 4);
+            software.amazon.cryptography.examples.migration.plaintext.TestUtils.TEST_KMS_KEY_ID, software.amazon.cryptography.examples.migration.plaintext.TestUtils.TEST_DDB_TABLE_NAME, 3);
 
         // Given: Step 0 has succeeded
         MigrationExampleStep0.MigrationStep0(

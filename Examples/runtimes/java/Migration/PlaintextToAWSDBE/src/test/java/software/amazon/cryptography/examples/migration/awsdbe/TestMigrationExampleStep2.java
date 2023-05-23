@@ -23,8 +23,8 @@ public class TestMigrationExampleStep2 {
         MigrationExampleStep2.MigrationStep2(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 1);
 
         // Given: Step 3 has succeeded
-        MigrationExampleStep3.MigrationStep3(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 4);
-        // When: Execute Step 2 with sortReadValue=4, Then: Success (i.e. can read encrypted values)
-        MigrationExampleStep2.MigrationStep2(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 4);
+        MigrationExampleStep3.MigrationStep3(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 3);
+        // When: Execute Step 2 with sortReadValue=3, Then: Success (i.e. can read encrypted values)
+        MigrationExampleStep2.MigrationStep2(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 3);
     }
 }

@@ -25,6 +25,10 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
 
   Once you complete Step 3, all items being read by your system are encrypted.
 
+  Before you move onto this step, you will need to encrypt all plaintext items in your dataset.
+  How you will want to do this, and how long you may want to remain in Step 2,
+  depends on your system and your desired security properties for plaintext and encrypted items.
+
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
   This table must be configured with the following
@@ -92,7 +96,7 @@ public class MigrationExampleStep3 {
     //    This item will be encrypted.
     final SimpleClass item = new SimpleClass();
     item.setPartitionKey("PlaintextMigrationExample");
-    item.setSortKey(4);
+    item.setSortKey(3);
     item.setEncryptAndSign("this will be encrypted and signed");
     item.setDoNothing("this will never be encrypted nor signed");
     item.setSignOnly("this will never be encrypted, but it will be signed");
