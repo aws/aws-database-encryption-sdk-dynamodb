@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
@@ -93,6 +94,18 @@ public class EnhancedPutGetExample {
                         .keyring(kmsKeyring)
                         .allowedUnauthenticatedAttributePrefix(unauthAttrPrefix)
                         .tableSchema(tableSchema)
+                        // Specifying an algorithm suite is not required,
+                        // but is done here to demonstrate how to do so.
+                        // We suggest using the
+                        // `ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384` suite,
+                        // which includes AES-GCM with key derivation, signing, and key commitment.
+                        // This is also the default algorithm suite if one is not specified in this config.
+                        // For more information on supported algorithm suites, see
+                        //   TODO: Add DB ESDK-specific link, similar to
+                        //   https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/supported-algorithms.html,
+                        //   but with accurate information for DB ESDK
+                        .algorithmSuiteId(
+                            DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384)
                         .build());
 
         // 4. Create the DynamoDb Encryption Interceptor, using the DynamoDbEnhancedClientEncryption helper
