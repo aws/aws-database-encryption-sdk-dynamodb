@@ -38,7 +38,7 @@ public class SimpleClass {
         this.sortKey = sortKey;
     }
 
-    @DynamoDBAttribute(attributeName="encrypt_and_sign")
+    @DynamoDBAttribute(attributeName="attribute1")
     public String getAttribute1() {
         return this.attribute1;
     }
