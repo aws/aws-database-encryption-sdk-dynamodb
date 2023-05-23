@@ -504,10 +504,10 @@ public class BeaconConfig {
     //       and add constructors with general conditions at the end of the list. This would allow a given
     //       item would trigger the constructor most specific to its attributes.
     List<Constructor> pk0ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(employeeIdConstructor);
     pk0ConstructorList.add(buildingConstructor);
     pk0ConstructorList.add(ticketNumberConstructor);
     pk0ConstructorList.add(projectNameConstructor);
-    pk0ConstructorList.add(employeeIdConstructor);
 
     List<Constructor> sk0ConstructorList = new ArrayList<>();
     sk0ConstructorList.add(ticketModTimeConstructor);

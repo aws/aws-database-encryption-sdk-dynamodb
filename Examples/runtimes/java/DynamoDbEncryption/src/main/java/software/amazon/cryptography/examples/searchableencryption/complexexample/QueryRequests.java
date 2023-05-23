@@ -30,6 +30,7 @@ public class QueryRequests {
     runQuery6(ddbTableName, ddb);
     runQuery7(ddbTableName, ddb);
     runQuery8(ddbTableName, ddb);
+    runQuery9(ddbTableName, ddb);
     runQuery13(ddbTableName, ddb);
     runQuery14(ddbTableName, ddb);
   }
@@ -356,6 +357,42 @@ public class QueryRequests {
       if (item.get("partition_key").s().equals("timecard1")) {
         foundKnownValueItemQuery8 = true;
         assert item.get("ProjectName").s().equals("project_002");
+      }
+    }
+    assert foundKnownValueItemQuery8;
+  }
+
+  public static void runQuery9(String ddbTableName, DynamoDbClient ddb) {
+    // Query 9: Get employee info by employee ID
+    // Key condition: PK1=employeeID SK starts with "E"
+    Map<String,String> query8AttributeNames = new HashMap<>();
+    query8AttributeNames.put("#p", "PK");
+    query8AttributeNames.put("#s", "SK");
+
+    Map<String,AttributeValue> query8AttributeValues = new HashMap<>();
+    query8AttributeValues.put(":e", AttributeValue.builder().s("E-emp_001").build());
+    query8AttributeValues.put(":s", AttributeValue.builder().s("E-").build());
+
+    QueryRequest query8Request = QueryRequest.builder()
+        .tableName(ddbTableName)
+        .indexName("GSI-0")
+        .keyConditionExpression("#p = :e AND begins_with(#s, :s)")
+        .expressionAttributeNames(query8AttributeNames)
+        .expressionAttributeValues(query8AttributeValues)
+        .build();
+
+    QueryResponse query8Response = ddb.query(query8Request);
+    // Validate query was returned successfully
+    assert 200 == query8Response.sdkHttpResponse().statusCode();
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    System.out.println(query8Response.items().size());
+    assert query8Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery8 = false;
+    for (Map<String, AttributeValue> item : query8Response.items()) {
+      if (item.get("partition_key").s().equals("employee1")) {
+        foundKnownValueItemQuery8 = true;
+        assert item.get("EmployeeID").s().equals("emp_001");
       }
     }
     assert foundKnownValueItemQuery8;
