@@ -178,17 +178,17 @@ module BeaconTestFixtures {
                               partitionKeyName := "foo",
                               sortKeyName := None,
                               search := None,
-                              attributeActions := map[],
-                              allowedUnauthenticatedAttributes := None,
-                              allowedUnauthenticatedAttributePrefix := None,
+                              attributeActionsOnEncrypt := map[],
+                              allowedUnsignedAttributes := None,
+                              allowedUnsignedAttributePrefix := None,
                               algorithmSuiteId := None,
                               keyring := None,
                               cmm := None,
-                              legacyConfig := None,
-                              plaintextPolicy := None
+                              legacyOverride := None,
+                              plaintextOverride := None
                             );
   const FullTableConfig := EmptyTableConfig.(
-                           attributeActions := map[
+                           attributeActionsOnEncrypt := map[
                              "std2" := SE.ENCRYPT_AND_SIGN,
                              "std4" := SE.ENCRYPT_AND_SIGN,
                              "std6" := SE.ENCRYPT_AND_SIGN,
