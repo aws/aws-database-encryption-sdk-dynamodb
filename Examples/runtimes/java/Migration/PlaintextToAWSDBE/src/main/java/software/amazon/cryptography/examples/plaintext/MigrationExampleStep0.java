@@ -51,9 +51,9 @@ public class MigrationExampleStep0 {
         SimpleClass itemToPut = new SimpleClass();
         itemToPut.setPartitionKey("PlaintextMigrationExample");
         itemToPut.setSortKey(0);
-        itemToPut.setEncryptAndSign("this will be encrypted and signed");
-        itemToPut.setDoNothing("this will never be encrypted nor signed");
-        itemToPut.setSignOnly("this will never be encrypted, but it will be signed");
+        itemToPut.setAttribute1("this will be encrypted and signed");
+        itemToPut.setAttribute3("this will never be encrypted nor signed");
+        itemToPut.setAttribute2("this will never be encrypted, but it will be signed");
 
         table.putItem(itemToPut);
 
@@ -74,7 +74,7 @@ public class MigrationExampleStep0 {
 
         // Demonstrate we get the expected item back
         assert returnedItem.getPartitionKey().equals("PlaintextMigrationExample");
-        assert returnedItem.getEncryptAndSign().equals("this will be encrypted and signed");
+        assert returnedItem.getAttribute1().equals("this will be encrypted and signed");
     }
 
     public static void main(final String[] args) {

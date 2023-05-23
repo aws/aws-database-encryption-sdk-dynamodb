@@ -55,7 +55,7 @@ public class MigrationExampleStep2 {
 
         final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
-        final List<String> unsignedAttributes = Arrays.asList("do_nothing");
+        final List<String> unsignedAttributes = Arrays.asList("attribute3");
 
         // 2. When creating encryption configuration for your table,
         //    you must use the plaintext override `FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`.
@@ -100,9 +100,9 @@ public class MigrationExampleStep2 {
         final SimpleClass item = new SimpleClass();
         item.setPartitionKey("PlaintextMigrationExample");
         item.setSortKey(2);
-        item.setEncryptAndSign("this will be encrypted and signed");
-        item.setDoNothing("this will never be encrypted nor signed");
-        item.setSignOnly("this will never be encrypted, but it will be signed");
+        item.setAttribute1("this will be encrypted and signed");
+        item.setAttribute3("this will never be encrypted nor signed");
+        item.setAttribute2("this will never be encrypted, but it will be signed");
 
         table.putItem(item);
 
@@ -120,7 +120,7 @@ public class MigrationExampleStep2 {
 
         // Demonstrate we get the expected item back
         assert returnedItem.getPartitionKey().equals("PlaintextMigrationExample");
-        assert returnedItem.getEncryptAndSign().equals("this will be encrypted and signed");
+        assert returnedItem.getAttribute1().equals("this will be encrypted and signed");
     }
 
     public static void main(final String[] args) {

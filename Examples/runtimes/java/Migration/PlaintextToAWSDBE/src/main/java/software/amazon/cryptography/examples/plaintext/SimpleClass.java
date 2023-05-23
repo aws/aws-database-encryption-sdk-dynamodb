@@ -14,17 +14,9 @@ public class SimpleClass {
 
     private String partitionKey;
     private int sortKey;
-    // The next three fields represent plaintext attributes in our unencrypted table.
-    // Their variable names indicate the encryption operation we will perform
-    // when we migrate the table to an encrypted table, but these operations
-    // have not been performed for any attributes in this Plaintext example.
-
-    // encryptAndSign: Encrypt the data and sign it for authenticity
-    private String encryptAndSign;
-    // doNothing: Do not encrypt and do not sign
-    private String doNothing;
-    // signOnly: Do not encrypt but sign for authenticity
-    private String signOnly;
+    private String attribute1;
+    private String attribute2;
+    private String attribute3;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = "partition_key")
@@ -46,31 +38,31 @@ public class SimpleClass {
         this.sortKey = sortKey;
     }
 
-    @DynamoDbAttribute(value="encrypt_and_sign")
-    public String getEncryptAndSign() {
-        return this.encryptAndSign;
+    @DynamoDbAttribute(value="attribute1")
+    public String getAttribute1() {
+        return this.attribute1;
     }
 
-    public void setEncryptAndSign(String encryptAndSign) {
-        this.encryptAndSign = encryptAndSign;
+    public void setAttribute1(String attribute1) {
+        this.attribute1 = attribute1;
     }
 
-    @DynamoDbAttribute(value="sign_only")
-    public String getSignOnly() {
-        return this.signOnly;
+    @DynamoDbAttribute(value="attribute2")
+    public String getAttribute2() {
+        return this.attribute2;
     }
 
-    public void setSignOnly(String signOnly) {
-        this.signOnly = signOnly;
+    public void setAttribute2(String attribute2) {
+        this.attribute2 = attribute2;
     }
 
-    @DynamoDbAttribute(value="do_nothing")
-    public String getDoNothing() {
-        return this.doNothing;
+    @DynamoDbAttribute(value="attribute3")
+    public String getAttribute3() {
+        return this.attribute3;
     }
 
-    public void setDoNothing(String doNothing) {
-        this.doNothing = doNothing;
+    public void setAttribute3(String attribute3) {
+        this.attribute3 = attribute3;
     }
 }
 

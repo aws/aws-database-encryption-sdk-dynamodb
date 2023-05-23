@@ -66,7 +66,7 @@ public class TestEncryptExistingTable {
 
         final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
 
-        final List<String> unsignedAttributes = Arrays.asList("do_nothing");
+        final List<String> unsignedAttributes = Arrays.asList("attribute3");
 
         // 2. Create encryption configuration for table,
         //    using the same plaintext override as Step 2
@@ -150,6 +150,7 @@ public class TestEncryptExistingTable {
 
         // Demonstrate that the same scan now returns no results
         scanIterable = table.scan(scanEnhancedRequest);
+        System.out.println(scanIterable.items().stream().count());
         assert scanIterable.items().stream().count() == 0;
     }
     @Test

@@ -77,7 +77,7 @@ public class MigrationExampleStep1 {
         //    in the future, you must make an update to this field to all your readers
         //    before deploying any change to start writing that new data. It is not safe
         //    to remove attributes from this field.
-        final List<String> unsignedAttributes = Arrays.asList("do_nothing");
+        final List<String> unsignedAttributes = Arrays.asList("attribute3");
 
         // 4. Create encryption configuration for table.
         //    Again, while we are not writing encrypted items,
@@ -122,9 +122,9 @@ public class MigrationExampleStep1 {
         final SimpleClass item = new SimpleClass();
         item.setPartitionKey("PlaintextMigrationExample");
         item.setSortKey(1);
-        item.setEncryptAndSign("this will be encrypted and signed");
-        item.setDoNothing("this will never be encrypted nor signed");
-        item.setSignOnly("this will never be encrypted, but it will be signed");
+        item.setAttribute1("this will be encrypted and signed");
+        item.setAttribute3("this will never be encrypted nor signed");
+        item.setAttribute2("this will never be encrypted, but it will be signed");
 
         table.putItem(item);
 
@@ -142,7 +142,7 @@ public class MigrationExampleStep1 {
 
         // Demonstrate we get the expected item back
         assert returnedItem.getPartitionKey().equals("PlaintextMigrationExample");
-        assert returnedItem.getEncryptAndSign().equals("this will be encrypted and signed");
+        assert returnedItem.getAttribute1().equals("this will be encrypted and signed");
     }
 
     public static void main(final String[] args) {
