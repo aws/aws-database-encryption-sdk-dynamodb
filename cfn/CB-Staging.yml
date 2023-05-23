@@ -199,14 +199,6 @@ Resources:
           ]
         }
 
-  AccountIdParameter:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Description: Parameter to store our account id so CodeBuild specs can access it
-      Name: /CodeBuild/AccountIdentity
-      Type: String
-      Value: !Sub "${AWS::AccountId}"
-
   SecretsManagerPolicyRelease:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
