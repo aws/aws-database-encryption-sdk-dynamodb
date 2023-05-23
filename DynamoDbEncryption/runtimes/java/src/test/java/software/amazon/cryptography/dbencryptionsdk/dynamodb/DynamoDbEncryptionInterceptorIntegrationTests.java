@@ -1,5 +1,6 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredEncryptionException;
 import software.amazon.cryptography.services.kms.internaldafny.KMSClientConfigType;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -94,12 +95,11 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
             expectedExceptionsMessageRegExp = "No Crypto Action configured for attribute attr3"
     )
     public void TestPutItemInvalidItem() {
-        // Put item into table
-        String partitionValue = "get";
-        String sortValue = "42";
-        String attrValue = "bar";
-        String attrValue2 = "hello world";
-        String attrValue3 = "Please fail";
+        String partitionValue = "missingCryptoAction";
+        String sortValue = "12";
+        String attrValue = "Scooby";
+        String attrValue2 = "Dooby";
+        String attrValue3 = "Doo";
         Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
         item.put("attr3", AttributeValue.builder().s(attrValue3).build());
 
@@ -109,6 +109,26 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .build();
 
         ddbKmsKeyring.putItem(putRequest);
+    }
+
+    @Test(
+            expectedExceptions = StructuredEncryptionException.class,
+            expectedExceptionsMessageRegExp = ".*Schema changed : something that was unsigned is now signed.*"
+    )
+    public void TestIllegallyModifiedItem() throws Throwable {
+        String partitionValue = "illegallyModifiedItem";
+        String sortValue = "13";
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+
+        GetItemRequest getRequest = GetItemRequest.builder()
+                .key(keyToGet)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+        try {
+            ddbKmsKeyring.getItem(getRequest);
+        } catch (software.amazon.awssdk.core.exception.SdkClientException wrapped) {
+            throw wrapped.getCause();
+        }
     }
 
     @Test

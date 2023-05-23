@@ -106,6 +106,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc
     testImplementation("edu.umd.cs.mtc:multithreadedtc:1.01")
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    testImplementation("org.slf4j:slf4j-simple:2.0.7")
 }
 
 publishing {
