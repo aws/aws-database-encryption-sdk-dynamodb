@@ -137,9 +137,9 @@ public class EnhancedPutGetExample {
         final SimpleClass item = new SimpleClass();
         item.setPartitionKey("EnhancedPutGetExample");
         item.setSortKey(0);
-        item.setEncryptAndSign("encrypt and sign me!");
-        item.setSignOnly("sign me!");
-        item.setDoNothing("ignore me!");
+        item.setAttribute1("encrypt and sign me!");
+        item.setAttribute2("sign me!");
+        item.setAttribute3("ignore me!");
 
         table.putItem(item);
 
@@ -154,7 +154,7 @@ public class EnhancedPutGetExample {
                 (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
 
         // Demonstrate we get the original item back
-        assert result.getEncryptAndSign().equals("encrypt and sign me!");
+        assert result.getAttribute1().equals("encrypt and sign me!");
     }
 
     public static void main(final String[] args) {
