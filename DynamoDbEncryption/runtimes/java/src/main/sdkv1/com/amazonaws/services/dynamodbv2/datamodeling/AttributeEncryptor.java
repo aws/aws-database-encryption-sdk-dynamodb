@@ -61,7 +61,7 @@ public class AttributeEncryptor implements AttributeTransformer {
 
   @Override
   public Map<String, AttributeValue> transform(final Parameters<?> parameters) {
-    // one map of attributeFlags per model class
+    // one map of attributeActionsOnEncrypt per model class
     final ModelClassMetadata metadata = getModelClassMetadata(parameters);
 
     final Map<String, AttributeValue> attributeValues = parameters.getAttributeValues();
@@ -96,11 +96,11 @@ public class AttributeEncryptor implements AttributeTransformer {
 
   @Override
   public Map<String, AttributeValue> untransform(final Parameters<?> parameters) {
-    final Map<String, Set<EncryptionFlags>> attributeFlags = getEncryptionFlags(parameters);
+    final Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = getEncryptionFlags(parameters);
 
     try {
       return encryptor.decryptRecord(
-          parameters.getAttributeValues(), attributeFlags, paramsToContext(parameters));
+          parameters.getAttributeValues(), attributeActionsOnEncrypt, paramsToContext(parameters));
     } catch (Exception ex) {
       throw new DynamoDBMappingException(ex);
     }
@@ -122,19 +122,19 @@ public class AttributeEncryptor implements AttributeTransformer {
     }
 
     final Set<EncryptionFlags> unknownAttributeBehavior = metadata.getUnknownAttributeBehavior();
-    final Map<String, Set<EncryptionFlags>> attributeFlags = new HashMap<>();
-    attributeFlags.putAll(metadata.getEncryptionFlags());
+    final Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<>();
+    attributeActionsOnEncrypt.putAll(metadata.getEncryptionFlags());
 
     for (final String attributeName : parameters.getAttributeValues().keySet()) {
-      if (!attributeFlags.containsKey(attributeName)
+      if (!attributeActionsOnEncrypt.containsKey(attributeName)
           && !encryptor.getSignatureFieldName().equals(attributeName)
           && !encryptor.getMaterialDescriptionFieldName().equals(attributeName)) {
 
-        attributeFlags.put(attributeName, unknownAttributeBehavior);
+        attributeActionsOnEncrypt.put(attributeName, unknownAttributeBehavior);
       }
     }
 
-    return attributeFlags;
+    return attributeActionsOnEncrypt;
   }
 
   private <T> ModelClassMetadata getModelClassMetadata(Parameters<T> parameters) {
@@ -147,7 +147,7 @@ public class AttributeEncryptor implements AttributeTransformer {
     ModelClassMetadata metadata = metadataCache.get(clazz);
 
     if (metadata == null) {
-      Map<String, Set<EncryptionFlags>> attributeFlags = new HashMap<>();
+      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<>();
 
       final boolean handleUnknownAttributes = handleUnknownAttributes(clazz);
       final EnumSet<EncryptionFlags> unknownAttributeBehavior =
@@ -166,7 +166,7 @@ public class AttributeEncryptor implements AttributeTransformer {
             }
             flags.add(EncryptionFlags.SIGN);
           }
-          attributeFlags.put(mapping.getAttributeName(), Collections.unmodifiableSet(flags));
+          attributeActionsOnEncrypt.put(mapping.getAttributeName(), Collections.unmodifiableSet(flags));
         }
 
         if (handleUnknownAttributes) {
@@ -180,7 +180,7 @@ public class AttributeEncryptor implements AttributeTransformer {
 
       metadata =
           new ModelClassMetadata(
-              Collections.unmodifiableMap(attributeFlags),
+              Collections.unmodifiableMap(attributeActionsOnEncrypt),
               doNotTouch(clazz),
               Collections.unmodifiableSet(unknownAttributeBehavior));
       metadataCache.put(clazz, metadata);

@@ -69,28 +69,28 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.DbEncryptionSDK.Dyn
  return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput ( ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S30_GetBranchKeyIdFromDdbKeyOutput__M11_branchKeyId(value.BranchKeyId) ) ;
 }
  internal static AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S12_LegacyPolicy (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ILegacyPolicy value) {
- if (value.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
- if (value.is_FORBID__ENCRYPT__ALLOW__DECRYPT) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
- if (value.is_FORBID__ENCRYPT__FORBID__DECRYPT) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORBID_ENCRYPT_FORBID_DECRYPT;
+ if (value.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT;
+ if (value.is_FORBID__ENCRYPT__ALLOW__DECRYPT) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT;
+ if (value.is_FORBID__ENCRYPT__FORBID__DECRYPT) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT;
 throw new System.ArgumentException("Invalid AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy value");
 }
  internal static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ILegacyPolicy ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S12_LegacyPolicy (AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy value) {
- if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.create_REQUIRE__ENCRYPT__ALLOW__DECRYPT();
- if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.create_FORBID__ENCRYPT__ALLOW__DECRYPT();
- if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORBID_ENCRYPT_FORBID_DECRYPT.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.create_FORBID__ENCRYPT__FORBID__DECRYPT();
+ if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.create_REQUIRE__ENCRYPT__ALLOW__DECRYPT();
+ if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.create_FORBID__ENCRYPT__ALLOW__DECRYPT();
+ if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy.FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.create_FORBID__ENCRYPT__FORBID__DECRYPT();
 throw new System.ArgumentException("Invalid AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyPolicy value");
 }
- internal static AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_PlaintextPolicy (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IPlaintextPolicy value) {
- if (value.is_REQUIRE__WRITE__ALLOW__READ) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ;
- if (value.is_FORBID__WRITE__ALLOW__READ) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy.FORBID_WRITE_ALLOW_READ;
- if (value.is_FORBID__WRITE__FORBID__READ) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy.FORBID_WRITE_FORBID_READ;
-throw new System.ArgumentException("Invalid AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy value");
+ internal static AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_PlaintextOverride (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IPlaintextOverride value) {
+ if (value.is_REQUIRE__WRITE__ALLOW__READ) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ;
+ if (value.is_FORBID__WRITE__ALLOW__READ) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ;
+ if (value.is_FORBID__WRITE__FORBID__READ) return AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ;
+throw new System.ArgumentException("Invalid AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride value");
 }
- internal static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IPlaintextPolicy ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_PlaintextPolicy (AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy value) {
- if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy.REQUIRE_WRITE_ALLOW_READ.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextPolicy.create_REQUIRE__WRITE__ALLOW__READ();
- if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy.FORBID_WRITE_ALLOW_READ.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextPolicy.create_FORBID__WRITE__ALLOW__READ();
- if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy.FORBID_WRITE_FORBID_READ.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextPolicy.create_FORBID__WRITE__FORBID__READ();
-throw new System.ArgumentException("Invalid AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextPolicy value");
+ internal static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IPlaintextOverride ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_PlaintextOverride (AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride value) {
+ if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextOverride.create_REQUIRE__WRITE__ALLOW__READ();
+ if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextOverride.create_FORBID__WRITE__ALLOW__READ();
+ if (AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ.Equals(value)) return software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextOverride.create_FORBID__WRITE__FORBID__READ();
+throw new System.ArgumentException("Invalid AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride value");
 }
  internal static AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualTransform FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S16_VirtualTransform (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualTransform value) {
  software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualTransform concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualTransform)value;

@@ -22,11 +22,11 @@ public class DynamoDbTableEncryptionConfig {
 
   private final SearchConfig search;
 
-  private final Map<String, CryptoAction> attributeActions;
+  private final Map<String, CryptoAction> attributeActionsOnEncrypt;
 
-  private final List<String> allowedUnauthenticatedAttributes;
+  private final List<String> allowedUnsignedAttributes;
 
-  private final String allowedUnauthenticatedAttributePrefix;
+  private final String allowedUnsignedAttributePrefix;
 
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -34,23 +34,23 @@ public class DynamoDbTableEncryptionConfig {
 
   private final ICryptographicMaterialsManager cmm;
 
-  private final LegacyConfig legacyConfig;
+  private final LegacyOverride legacyOverride;
 
-  private final PlaintextPolicy plaintextPolicy;
+  private final PlaintextOverride plaintextOverride;
 
   protected DynamoDbTableEncryptionConfig(BuilderImpl builder) {
     this.logicalTableName = builder.logicalTableName();
     this.partitionKeyName = builder.partitionKeyName();
     this.sortKeyName = builder.sortKeyName();
     this.search = builder.search();
-    this.attributeActions = builder.attributeActions();
-    this.allowedUnauthenticatedAttributes = builder.allowedUnauthenticatedAttributes();
-    this.allowedUnauthenticatedAttributePrefix = builder.allowedUnauthenticatedAttributePrefix();
+    this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
+    this.allowedUnsignedAttributes = builder.allowedUnsignedAttributes();
+    this.allowedUnsignedAttributePrefix = builder.allowedUnsignedAttributePrefix();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
-    this.legacyConfig = builder.legacyConfig();
-    this.plaintextPolicy = builder.plaintextPolicy();
+    this.legacyOverride = builder.legacyOverride();
+    this.plaintextOverride = builder.plaintextOverride();
   }
 
   public String logicalTableName() {
@@ -69,16 +69,16 @@ public class DynamoDbTableEncryptionConfig {
     return this.search;
   }
 
-  public Map<String, CryptoAction> attributeActions() {
-    return this.attributeActions;
+  public Map<String, CryptoAction> attributeActionsOnEncrypt() {
+    return this.attributeActionsOnEncrypt;
   }
 
-  public List<String> allowedUnauthenticatedAttributes() {
-    return this.allowedUnauthenticatedAttributes;
+  public List<String> allowedUnsignedAttributes() {
+    return this.allowedUnsignedAttributes;
   }
 
-  public String allowedUnauthenticatedAttributePrefix() {
-    return this.allowedUnauthenticatedAttributePrefix;
+  public String allowedUnsignedAttributePrefix() {
+    return this.allowedUnsignedAttributePrefix;
   }
 
   public DBEAlgorithmSuiteId algorithmSuiteId() {
@@ -93,12 +93,12 @@ public class DynamoDbTableEncryptionConfig {
     return this.cmm;
   }
 
-  public LegacyConfig legacyConfig() {
-    return this.legacyConfig;
+  public LegacyOverride legacyOverride() {
+    return this.legacyOverride;
   }
 
-  public PlaintextPolicy plaintextPolicy() {
-    return this.plaintextPolicy;
+  public PlaintextOverride plaintextOverride() {
+    return this.plaintextOverride;
   }
 
   public Builder toBuilder() {
@@ -126,17 +126,17 @@ public class DynamoDbTableEncryptionConfig {
 
     SearchConfig search();
 
-    Builder attributeActions(Map<String, CryptoAction> attributeActions);
+    Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
 
-    Map<String, CryptoAction> attributeActions();
+    Map<String, CryptoAction> attributeActionsOnEncrypt();
 
-    Builder allowedUnauthenticatedAttributes(List<String> allowedUnauthenticatedAttributes);
+    Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
 
-    List<String> allowedUnauthenticatedAttributes();
+    List<String> allowedUnsignedAttributes();
 
-    Builder allowedUnauthenticatedAttributePrefix(String allowedUnauthenticatedAttributePrefix);
+    Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix);
 
-    String allowedUnauthenticatedAttributePrefix();
+    String allowedUnsignedAttributePrefix();
 
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
@@ -150,13 +150,13 @@ public class DynamoDbTableEncryptionConfig {
 
     ICryptographicMaterialsManager cmm();
 
-    Builder legacyConfig(LegacyConfig legacyConfig);
+    Builder legacyOverride(LegacyOverride legacyOverride);
 
-    LegacyConfig legacyConfig();
+    LegacyOverride legacyOverride();
 
-    Builder plaintextPolicy(PlaintextPolicy plaintextPolicy);
+    Builder plaintextOverride(PlaintextOverride plaintextOverride);
 
-    PlaintextPolicy plaintextPolicy();
+    PlaintextOverride plaintextOverride();
 
     DynamoDbTableEncryptionConfig build();
   }
@@ -170,11 +170,11 @@ public class DynamoDbTableEncryptionConfig {
 
     protected SearchConfig search;
 
-    protected Map<String, CryptoAction> attributeActions;
+    protected Map<String, CryptoAction> attributeActionsOnEncrypt;
 
-    protected List<String> allowedUnauthenticatedAttributes;
+    protected List<String> allowedUnsignedAttributes;
 
-    protected String allowedUnauthenticatedAttributePrefix;
+    protected String allowedUnsignedAttributePrefix;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -182,9 +182,9 @@ public class DynamoDbTableEncryptionConfig {
 
     protected ICryptographicMaterialsManager cmm;
 
-    protected LegacyConfig legacyConfig;
+    protected LegacyOverride legacyOverride;
 
-    protected PlaintextPolicy plaintextPolicy;
+    protected PlaintextOverride plaintextOverride;
 
     protected BuilderImpl() {
     }
@@ -194,14 +194,14 @@ public class DynamoDbTableEncryptionConfig {
       this.partitionKeyName = model.partitionKeyName();
       this.sortKeyName = model.sortKeyName();
       this.search = model.search();
-      this.attributeActions = model.attributeActions();
-      this.allowedUnauthenticatedAttributes = model.allowedUnauthenticatedAttributes();
-      this.allowedUnauthenticatedAttributePrefix = model.allowedUnauthenticatedAttributePrefix();
+      this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
+      this.allowedUnsignedAttributes = model.allowedUnsignedAttributes();
+      this.allowedUnsignedAttributePrefix = model.allowedUnsignedAttributePrefix();
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.keyring = model.keyring();
       this.cmm = model.cmm();
-      this.legacyConfig = model.legacyConfig();
-      this.plaintextPolicy = model.plaintextPolicy();
+      this.legacyOverride = model.legacyOverride();
+      this.plaintextOverride = model.plaintextOverride();
     }
 
     public Builder logicalTableName(String logicalTableName) {
@@ -240,32 +240,31 @@ public class DynamoDbTableEncryptionConfig {
       return this.search;
     }
 
-    public Builder attributeActions(Map<String, CryptoAction> attributeActions) {
-      this.attributeActions = attributeActions;
+    public Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt) {
+      this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
       return this;
     }
 
-    public Map<String, CryptoAction> attributeActions() {
-      return this.attributeActions;
+    public Map<String, CryptoAction> attributeActionsOnEncrypt() {
+      return this.attributeActionsOnEncrypt;
     }
 
-    public Builder allowedUnauthenticatedAttributes(List<String> allowedUnauthenticatedAttributes) {
-      this.allowedUnauthenticatedAttributes = allowedUnauthenticatedAttributes;
+    public Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes) {
+      this.allowedUnsignedAttributes = allowedUnsignedAttributes;
       return this;
     }
 
-    public List<String> allowedUnauthenticatedAttributes() {
-      return this.allowedUnauthenticatedAttributes;
+    public List<String> allowedUnsignedAttributes() {
+      return this.allowedUnsignedAttributes;
     }
 
-    public Builder allowedUnauthenticatedAttributePrefix(
-        String allowedUnauthenticatedAttributePrefix) {
-      this.allowedUnauthenticatedAttributePrefix = allowedUnauthenticatedAttributePrefix;
+    public Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix) {
+      this.allowedUnsignedAttributePrefix = allowedUnsignedAttributePrefix;
       return this;
     }
 
-    public String allowedUnauthenticatedAttributePrefix() {
-      return this.allowedUnauthenticatedAttributePrefix;
+    public String allowedUnsignedAttributePrefix() {
+      return this.allowedUnsignedAttributePrefix;
     }
 
     public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
@@ -295,22 +294,22 @@ public class DynamoDbTableEncryptionConfig {
       return this.cmm;
     }
 
-    public Builder legacyConfig(LegacyConfig legacyConfig) {
-      this.legacyConfig = legacyConfig;
+    public Builder legacyOverride(LegacyOverride legacyOverride) {
+      this.legacyOverride = legacyOverride;
       return this;
     }
 
-    public LegacyConfig legacyConfig() {
-      return this.legacyConfig;
+    public LegacyOverride legacyOverride() {
+      return this.legacyOverride;
     }
 
-    public Builder plaintextPolicy(PlaintextPolicy plaintextPolicy) {
-      this.plaintextPolicy = plaintextPolicy;
+    public Builder plaintextOverride(PlaintextOverride plaintextOverride) {
+      this.plaintextOverride = plaintextOverride;
       return this;
     }
 
-    public PlaintextPolicy plaintextPolicy() {
-      return this.plaintextPolicy;
+    public PlaintextOverride plaintextOverride() {
+      return this.plaintextOverride;
     }
 
     public DynamoDbTableEncryptionConfig build() {
@@ -332,11 +331,11 @@ public class DynamoDbTableEncryptionConfig {
       if (Objects.nonNull(this.sortKeyName()) && this.sortKeyName().length() > 255) {
         throw new IllegalArgumentException("The size of `sortKeyName` must be less than or equal to 255");
       }
-      if (Objects.isNull(this.attributeActions()))  {
-        throw new IllegalArgumentException("Missing value for required field `attributeActions`");
+      if (Objects.isNull(this.attributeActionsOnEncrypt()))  {
+        throw new IllegalArgumentException("Missing value for required field `attributeActionsOnEncrypt`");
       }
-      if (Objects.nonNull(this.allowedUnauthenticatedAttributes()) && this.allowedUnauthenticatedAttributes().size() < 1) {
-        throw new IllegalArgumentException("The size of `allowedUnauthenticatedAttributes` must be greater than or equal to 1");
+      if (Objects.nonNull(this.allowedUnsignedAttributes()) && this.allowedUnsignedAttributes().size() < 1) {
+        throw new IllegalArgumentException("The size of `allowedUnsignedAttributes` must be greater than or equal to 1");
       }
       return new DynamoDbTableEncryptionConfig(this);
     }

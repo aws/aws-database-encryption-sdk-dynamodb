@@ -180,16 +180,16 @@ This map MAY be different from the top level [Attribute Actions](#attribute-acti
 
 An enum that represent three different ways in which the legacy format should be used with this table.
 
-- REQUIRE_ENCRYPT_ALLOW_DECRYPT: On encrypt, items are encrypted using the legacy format,
+- FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT: On encrypt, items are encrypted using the legacy format,
   using the legacy configuration as input.
   On decrypt, items written by the legacy format are attempted to be decrypted using the
   legacy configuration.
   All other items are attempted to be decrypted using the normal decrypt path.
-- FORBID_ENCRYPT_ALLOW_DECRYPT: On encrypt, items are encrypted using the normal encrypt path.
+- FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT: On encrypt, items are encrypted using the normal encrypt path.
   On decrypt, items written by the legacy format are attempted to be decrypted using the
   legacy configuration.
   All other items are attempted to be decrypted using the normal decrypt path.
-- FORBID_ENCRYPT_FORBID_DECRYPT: On encrypt, items are encrypted using the normal encrypt path.
+- FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT: On encrypt, items are encrypted using the normal encrypt path.
   On decrypt, items written by the legacy format result in a failure.
   All other items are attempted to be decrypted using the normal decrypt path.
 
@@ -197,11 +197,11 @@ An enum that represent three different ways in which the legacy format should be
 
 An enum that indicates whether plaintext is allowed to be read or written to this table:
 
-- REQUIRE_WRITE_ALLOW_READ: On write, items are written as plaintext.
+- FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ: On write, items are written as plaintext.
   On read, plaintext items are passed-through and all other items are attempted to be decrypted.
-- FORBID_WRITE_ALLOW_READ: On write, items are encrypted.
+- FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ: On write, items are encrypted.
   On read, plaintext items are passed-through and all other items are attempted to be decrypted.
-- FORBID_WRITE_FORBID_READ: On write, items are encrypted.
+- FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ: On write, items are encrypted.
   On read, attempt to decrypt all items.
 
-If not specified, encryption and decryption MUST behave according to `FORBID_WRITE_FORBID_READ`.
+If not specified, encryption and decryption MUST behave according to `FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ`.

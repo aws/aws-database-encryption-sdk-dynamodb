@@ -68,9 +68,9 @@ module
 
   predicate method IsConfigured(config : AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig, name : string)
   {
-    || name in config.attributeActions
-    || (config.allowedUnauthenticatedAttributes.Some? && name in config.allowedUnauthenticatedAttributes.value)
-    || (config.allowedUnauthenticatedAttributePrefix.Some? && config.allowedUnauthenticatedAttributePrefix.value <= name)
+    || name in config.attributeActionsOnEncrypt
+    || (config.allowedUnsignedAttributes.Some? && name in config.allowedUnsignedAttributes.value)
+    || (config.allowedUnsignedAttributePrefix.Some? && config.allowedUnsignedAttributePrefix.value <= name)
   }
 
   predicate {:opaque} AllTableConfigsValid?(configs: map<string, TableConfig>)
@@ -123,7 +123,7 @@ module
       o <- (
             (if tableConfig.keyring.Some? then tableConfig.keyring.value.Modifies else {})
           + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
-          + (if tableConfig.legacyConfig.Some? then tableConfig.legacyConfig.value.encryptor.Modifies else {})
+          + (if tableConfig.legacyOverride.Some? then tableConfig.legacyOverride.value.encryptor.Modifies else {})
       )
       :: o;
 
@@ -151,7 +151,7 @@ module
         var search :- searchR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
         assert search.None? || search.value.ValidState();
 
-        // Add Signed Beacons to attributeActions
+        // Add Signed Beacons to attributeActionsOnEncrypt
         var signedBeacons := if search.None? then [] else search.value.curr().ListSignedBeacons();
         //= specification/searchable-encryption/beacons.md#signed-beacons
         //# Initialization MUST fail if `NAME` is explicitly configured with an
@@ -165,20 +165,20 @@ module
         :- Need(forall k <- signedBeacons :: DDB.IsValid_AttributeName(k), E("Beacon configured with bad name"));
         //= specification/searchable-encryption/beacons.md#signed-beacons
         //# `NAME` MUST be automatically configured with an attribute action of SIGN_ONLY.
-        var newActions := AddSignedBeaconActions(signedBeacons, inputConfig.attributeActions);
+        var newActions := AddSignedBeaconActions(signedBeacons, inputConfig.attributeActionsOnEncrypt);
 
         var encryptorConfig := AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.DynamoDbItemEncryptorConfig(
           logicalTableName := inputConfig.logicalTableName,
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
-          attributeActions := newActions,
-          allowedUnauthenticatedAttributes := inputConfig.allowedUnauthenticatedAttributes,
-          allowedUnauthenticatedAttributePrefix := inputConfig.allowedUnauthenticatedAttributePrefix,
+          attributeActionsOnEncrypt := newActions,
+          allowedUnsignedAttributes := inputConfig.allowedUnsignedAttributes,
+          allowedUnsignedAttributePrefix := inputConfig.allowedUnsignedAttributePrefix,
           algorithmSuiteId := inputConfig.algorithmSuiteId,
           keyring := inputConfig.keyring,
           cmm := inputConfig.cmm,
-          legacyConfig := inputConfig.legacyConfig,
-          plaintextPolicy := inputConfig.plaintextPolicy
+          legacyOverride := inputConfig.legacyOverride,
+          plaintextOverride := inputConfig.plaintextOverride
         );
         var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
         var itemEncryptor :- itemEncryptorRes
@@ -245,8 +245,8 @@ module
         && tmp17ModifyEntry in tmp17Modifies 
         :: tmp17ModifyEntry)
         ) - ( var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values
-          && t18.legacyConfig.Some? 
-          :: t18.legacyConfig.value.encryptor;
+          && t18.legacyOverride.Some? 
+          :: t18.legacyOverride.value.encryptor;
         var tmps18FlattenedModifiesSet: set<set<object>> := set t0
         | t0 in tmps18 :: t0.Modifies;
         (set tmp19ModifyEntry, tmp19Modifies | 

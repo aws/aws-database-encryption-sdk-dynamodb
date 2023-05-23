@@ -9,19 +9,19 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncr
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.LegacyDynamoDbEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 
-public class LegacyConfig {
+public class LegacyOverride {
   private final LegacyPolicy policy;
 
   private final ILegacyDynamoDbEncryptor encryptor;
 
-  private final Map<String, CryptoAction> attributeFlags;
+  private final Map<String, CryptoAction> attributeActionsOnEncrypt;
 
   private final CryptoAction defaultAttributeFlag;
 
-  protected LegacyConfig(BuilderImpl builder) {
+  protected LegacyOverride(BuilderImpl builder) {
     this.policy = builder.policy();
     this.encryptor = builder.encryptor();
-    this.attributeFlags = builder.attributeFlags();
+    this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
     this.defaultAttributeFlag = builder.defaultAttributeFlag();
   }
 
@@ -33,8 +33,8 @@ public class LegacyConfig {
     return this.encryptor;
   }
 
-  public Map<String, CryptoAction> attributeFlags() {
-    return this.attributeFlags;
+  public Map<String, CryptoAction> attributeActionsOnEncrypt() {
+    return this.attributeActionsOnEncrypt;
   }
 
   public CryptoAction defaultAttributeFlag() {
@@ -58,15 +58,15 @@ public class LegacyConfig {
 
     ILegacyDynamoDbEncryptor encryptor();
 
-    Builder attributeFlags(Map<String, CryptoAction> attributeFlags);
+    Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
 
-    Map<String, CryptoAction> attributeFlags();
+    Map<String, CryptoAction> attributeActionsOnEncrypt();
 
     Builder defaultAttributeFlag(CryptoAction defaultAttributeFlag);
 
     CryptoAction defaultAttributeFlag();
 
-    LegacyConfig build();
+    LegacyOverride build();
   }
 
   static class BuilderImpl implements Builder {
@@ -74,17 +74,17 @@ public class LegacyConfig {
 
     protected ILegacyDynamoDbEncryptor encryptor;
 
-    protected Map<String, CryptoAction> attributeFlags;
+    protected Map<String, CryptoAction> attributeActionsOnEncrypt;
 
     protected CryptoAction defaultAttributeFlag;
 
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(LegacyConfig model) {
+    protected BuilderImpl(LegacyOverride model) {
       this.policy = model.policy();
       this.encryptor = model.encryptor();
-      this.attributeFlags = model.attributeFlags();
+      this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
       this.defaultAttributeFlag = model.defaultAttributeFlag();
     }
 
@@ -106,13 +106,13 @@ public class LegacyConfig {
       return this.encryptor;
     }
 
-    public Builder attributeFlags(Map<String, CryptoAction> attributeFlags) {
-      this.attributeFlags = attributeFlags;
+    public Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt) {
+      this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
       return this;
     }
 
-    public Map<String, CryptoAction> attributeFlags() {
-      return this.attributeFlags;
+    public Map<String, CryptoAction> attributeActionsOnEncrypt() {
+      return this.attributeActionsOnEncrypt;
     }
 
     public Builder defaultAttributeFlag(CryptoAction defaultAttributeFlag) {
@@ -124,17 +124,17 @@ public class LegacyConfig {
       return this.defaultAttributeFlag;
     }
 
-    public LegacyConfig build() {
+    public LegacyOverride build() {
       if (Objects.isNull(this.policy()))  {
         throw new IllegalArgumentException("Missing value for required field `policy`");
       }
       if (Objects.isNull(this.encryptor()))  {
         throw new IllegalArgumentException("Missing value for required field `encryptor`");
       }
-      if (Objects.isNull(this.attributeFlags()))  {
-        throw new IllegalArgumentException("Missing value for required field `attributeFlags`");
+      if (Objects.isNull(this.attributeActionsOnEncrypt()))  {
+        throw new IllegalArgumentException("Missing value for required field `attributeActionsOnEncrypt`");
       }
-      return new LegacyConfig(this);
+      return new LegacyOverride(this);
     }
   }
 }
