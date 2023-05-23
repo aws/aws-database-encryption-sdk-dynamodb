@@ -1,4 +1,4 @@
-package software.amazon.cryptography.examples.migration;
+package software.amazon.cryptography.examples.migration.awsdbe;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;

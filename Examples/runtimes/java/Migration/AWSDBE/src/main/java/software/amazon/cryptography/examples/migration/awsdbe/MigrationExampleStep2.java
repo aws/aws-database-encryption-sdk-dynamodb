@@ -1,4 +1,4 @@
-package software.amazon.cryptography.examples.migration;
+package software.amazon.cryptography.examples.migration.awsdbe;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
@@ -29,16 +29,14 @@ import java.util.List;
 import java.util.Map;
 
 /*
-  Migration Step 1: This is an example demonstrating how to start using the
-  AWS Database Encryption SDK with a pre-existing table used with DynamoDB Encryption Client.
-  In this example, you configure a DynamoDb Encryption Interceptor to do the following:
-    - Read items encrypted in the old format
-    - Continue to encrypt items in the old format on write
-    - Read items encrypted in the new format
-  While this step configures your client to be ready to start reading items encrypted,
-  we do not yet expect to be reading any items in the new format.
-  Before you move on to step 2, ensure that these changes have successfully been deployed
-  to all of your readers.
+  Migration Step 2: This is an example demonstrating how to update your configuration
+  to start writing items using the latest encryption format, but still continue
+  to read any items written using the old encryption format.
+
+  Once you deploy this change to your system, you will have a dataset
+  containing items in both the old and new format.
+  Because the changes in Step 1 have been deployed to all our readers,
+  we can be sure that our entire system is ready to read this new data.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -47,15 +45,11 @@ import java.util.Map;
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
  */
-public class MigrationExampleStep1 {
+public class MigrationExampleStep2 {
 
-    public static void MigrationStep1(String kmsKeyId, String ddbTableName, int sortReadValue) {
-        // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
-        //    For this migration, we will continue to encrypt and decrypt data using the kmsKeyId
-        //    used in Step 0 by configuring an AWS KMS Keyring with that same kmsKeyId.
-        //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
-        //    as it will correctly handle both single region and Multi-Region KMS Keys.
-        //    Note that we are now using the AWS SDK for Java v2 KMS client.
+    public static void MigrationStep2(String kmsKeyId, String ddbTableName, int sortReadValue) {
+        // 1. Continue to configure your Keyring, Table Schema, legacy attribute actions,
+        // and allowedUnsignedAttributes, and old DynamoDBEncryptor as you did in Step 1.
         final MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
@@ -64,26 +58,10 @@ public class MigrationExampleStep1 {
                 .build();
         final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
-        // 2. Create a Table Schema over your annotated class.
-        //    See SimpleClass.java in this directory for the update to use the new DynamoDb Enhanced Client annotations.
-        //    All primary key attributes will be signed but not encrypted (SIGN_ONLY)
-        //    and by default all non-primary key attributes will be encrypted and signed (ENCRYPT_AND_SIGN).
-        //    If you want a particular non-primary key attribute to be signed but not encrypted,
-        //    use the `DynamoDbEncryptionSignOnly` annotation.
-        //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
-        //    use the `DynamoDbEncryptionDoNothing` annotation.
         final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
 
-        // 3. Configure which attributes we expect to be excluded in the signature
-        //    when reading items. This value represents all unsigned attributes
-        //    across our entire dataset. If you ever want to add new unsigned attributes
-        //    in the future, you must make an update to this field to all your readers
-        //    before deploying any change to start writing that new data. It is not safe
-        //    to remove attributes from this field.
         final List<String> allowedUnsignedAttributes = Arrays.asList("attribute3");
 
-        // 4. Configure the attributeActionsOnEncrypt that are configured on our modelled class in Step 0
-        //    in an explicit map.
         final Map<String, CryptoAction> legacyActions = new HashMap<>();
         legacyActions.put("partition_key", CryptoAction.SIGN_ONLY);
         legacyActions.put("sort_key", CryptoAction.SIGN_ONLY);
@@ -91,23 +69,21 @@ public class MigrationExampleStep1 {
         legacyActions.put("attribute2", CryptoAction.SIGN_ONLY);
         legacyActions.put("attribute3", CryptoAction.DO_NOTHING);
 
-        // 5. Configure the same DynamoDBEncryptor that we did in Step 0.
         final AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
         final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(kmsClient, kmsKeyId);
         final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
 
-        // 6. Configure our legacy behavior, inputting the DynamoDBEncryptor and attribute actions
-        //    created above. For Legacy Policy, use `FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT`.
-        //    With this policy, you will continue to read and write items using the old format,
-        //    but will be able to start reading new items in the new format as soon as they appear.
+        // 2. When configuring our legacy behavior, use `FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT`.
+        //    With this policy, you will continue to read items in both formats,
+        //    but will only write new items using the new format.
         final LegacyOverride legacyOverride = LegacyOverride
                 .builder()
                 .encryptor(oldEncryptor)
-                .policy(LegacyPolicy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT)
+                .policy(LegacyPolicy.FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT)
                 .attributeActionsOnEncrypt(legacyActions)
                 .build();
 
-        // 7. Create the DynamoDb Encryption Interceptor with the above configuration.
+        // 3. Create the DynamoDb Encryption Interceptor with the above configuration.
         final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
@@ -124,7 +100,7 @@ public class MigrationExampleStep1 {
                                 .build()
                 );
 
-        // 8. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+        // 4. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
         final DynamoDbClient ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -132,34 +108,33 @@ public class MigrationExampleStep1 {
                                 .build())
                 .build();
 
-        // 9. Create the DynamoDbEnhancedClient using the AWS SDK Client created above,
+        // 5. Create the DynamoDbEnhancedClient using the AWS SDK Client created above,
         //    and create a Table with your modelled class
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
         final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, schemaOnEncrypt);
 
-        // 10. Put an item into your table using the DynamoDb Enhanced Client.
-        //     This item will be encrypted in the legacy format, using the
-        //     old DynamoDBEncryptor and the legacy attribute actions.
-        //     In this step, we do not expect items to be encrypted any differently
-        //     from before.
+        // 6. Put an item into your table using the DynamoDb Enhanced Client.
+        //    This item will be encrypted in the latest format, using the
+        //    configuration from your modelled class to decide
+        //    which attribute to encrypt and/or sign.
         final SimpleClass item = new SimpleClass();
         item.setPartitionKey("MigrationExample");
-        item.setSortKey(1);
+        item.setSortKey(2);
         item.setAttribute1("encrypt and sign me!");
         item.setAttribute2("sign me!");
         item.setAttribute3("ignore me!");
 
         table.putItem(item);
 
-        // 11. Get an item back from the table using the DynamoDb Enhanced Client.
-        //     If this is an item written in the old format (e.g. any item written
-        //     during Step 0 or 1), then we will attempt to decrypt the item
-        //     using the legacy behavior.
-        //     If this is an item written in the new format (e.g. any item written
-        //     during Step 2 or after), then we will attempt to decrypt the item using
-        //     the non-legacy behavior.
+        // 7. Get an item back from the table using the DynamoDb Enhanced Client.
+        //    If this is an item written in the old format (e.g. any item written
+        //    during Step 0 or 1), then we will attempt to decrypt the item
+        //    using the legacy behavior.
+        //    If this is an item written in the new format (e.g. any item written
+        //    during Step 2 or after), then we will attempt to decrypt the item using
+        //    the non-legacy behavior.
         final Key key = Key.builder()
                 .partitionValue("MigrationExample").sortValue(sortReadValue)
                 .build();
@@ -180,6 +155,6 @@ public class MigrationExampleStep1 {
         final String ddbTableName = args[1];
         // You can manipulate this value to demonstrate reading records written in other steps
         final int sortReadValue = Integer.parseInt(args[2]);
-        MigrationStep1(kmsKeyId, ddbTableName, sortReadValue);
+        MigrationStep2(kmsKeyId, ddbTableName, sortReadValue);
     }
 }

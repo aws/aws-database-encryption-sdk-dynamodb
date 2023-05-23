@@ -1,4 +1,4 @@
-package software.amazon.cryptography.examples.migration;
+package ddbec;
 
 public class TestUtils {
     // This is a public KMS Key that MUST only be used for testing, and MUST NOT be used for any production data
