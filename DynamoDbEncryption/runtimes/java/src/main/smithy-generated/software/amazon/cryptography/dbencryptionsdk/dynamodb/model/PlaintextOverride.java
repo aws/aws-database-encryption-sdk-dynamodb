@@ -3,16 +3,16 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
-public enum PlaintextPolicy {
-  REQUIRE_WRITE_ALLOW_READ("REQUIRE_WRITE_ALLOW_READ"),
+public enum PlaintextOverride {
+  FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ("FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"),
 
-  FORBID_WRITE_ALLOW_READ("FORBID_WRITE_ALLOW_READ"),
+  FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ("FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"),
 
-  FORBID_WRITE_FORBID_READ("FORBID_WRITE_FORBID_READ");
+  FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ("FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ");
 
   private final String value;
 
-  private PlaintextPolicy(String value) {
+  private PlaintextOverride(String value) {
     this.value = value;
   }
 
