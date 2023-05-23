@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="software.amazon.cryptography.examples.migration.awsdbe.TestMigrationExampleStep1" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-05-23T19:57:53" hostname="3c22fb3827a1.ant.amazon.com" time="4.541">
-  <properties/>
-  <testcase name="TestMigrationStep1" classname="software.amazon.cryptography.examples.migration.awsdbe.TestMigrationExampleStep1" time="4.541"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
