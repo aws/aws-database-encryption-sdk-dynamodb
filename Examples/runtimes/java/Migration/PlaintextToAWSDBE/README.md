@@ -43,7 +43,7 @@ depends on your system and your desired security properties for plaintext and en
 ## Step 4
 
 Once all old items are encrypted,
-you may update your system to do the following:
+update your system to do the following:
 - continue to write encrypted items
 - continue to read encrypted items
 - do not accept reading plaintext items
