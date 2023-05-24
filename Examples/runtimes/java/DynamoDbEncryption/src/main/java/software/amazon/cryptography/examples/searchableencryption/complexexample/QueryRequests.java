@@ -36,6 +36,8 @@ public class QueryRequests {
     runQuery12(ddbTableName, ddb);
     runQuery13(ddbTableName, ddb);
     runQuery14(ddbTableName, ddb);
+    runQuery15(ddbTableName, ddb);
+    runQuery16(ddbTableName, ddb);
   }
 
   public static void runQuery1(String ddbTableName, DynamoDbClient ddb) {
@@ -568,7 +570,6 @@ public class QueryRequests {
     assert 200 == query14Response.sdkHttpResponse().statusCode();
 
     // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    System.out.println(query14Response);
     assert query14Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery14 = false;
@@ -580,6 +581,112 @@ public class QueryRequests {
       }
     }
     assert foundKnownValueItemQuery14;
+  }
+
+  public static void runQuery15(String ddbTableName, DynamoDbClient ddb) {
+    // Query 15: Get employees by manager email
+    // Key condition: PK2 = ManagerEmail
+    Map<String,String> query15AttributeNames = new HashMap<>();
+    query15AttributeNames.put("#pk2", "PK2");
+
+    Map<String,AttributeValue> query15AttributeValues = new HashMap<>();
+    query15AttributeValues.put(":manageremail", AttributeValue.builder().s("ME-zorro@gmail.com").build());
+
+    QueryRequest query15Request = QueryRequest.builder()
+        .tableName(ddbTableName)
+        .indexName("GSI-2")
+        .keyConditionExpression("#pk2 = :manageremail")
+        .expressionAttributeNames(query15AttributeNames)
+        .expressionAttributeValues(query15AttributeValues)
+        .build();
+
+    QueryResponse query15Response = ddb.query(query15Request);
+    // Validate query was returned successfully
+    assert 200 == query15Response.sdkHttpResponse().statusCode();
+
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query15Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery15 = false;
+    for (Map<String, AttributeValue> item : query15Response.items()) {
+      if (item.get("partition_key").s().equals("employee1")) {
+        foundKnownValueItemQuery15 = true;
+        assert item.get("EmployeeID").s().equals("emp_001");
+        assert item.get("Location").m().get("Desk").s().equals("3");
+      }
+    }
+    assert foundKnownValueItemQuery15;
+  }
+
+  public static void runQuery16(String ddbTableName, DynamoDbClient ddb) {
+    // Query 16: Get assigned tickets by assignee email
+    // Key condition: PK2 = AssigneeEmail
+    Map<String,String> query16AttributeNames = new HashMap<>();
+    query16AttributeNames.put("#pk2", "PK2");
+
+    Map<String,AttributeValue> query16AttributeValues = new HashMap<>();
+    query16AttributeValues.put(":assigneeemail", AttributeValue.builder().s("AE-able@gmail.com").build());
+
+    QueryRequest query16Request = QueryRequest.builder()
+        .tableName(ddbTableName)
+        .indexName("GSI-2")
+        .keyConditionExpression("#pk2 = :assigneeemail")
+        .expressionAttributeNames(query16AttributeNames)
+        .expressionAttributeValues(query16AttributeValues)
+        .build();
+
+    QueryResponse query16Response = ddb.query(query16Request);
+    // Validate query was returned successfully
+    assert 200 == query16Response.sdkHttpResponse().statusCode();
+
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query16Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery16 = false;
+    for (Map<String, AttributeValue> item : query16Response.items()) {
+      if (item.get("partition_key").s().equals("ticket1")) {
+        foundKnownValueItemQuery16 = true;
+        assert item.get("TicketNumber").s().equals("ticket_001");
+      }
+    }
+    assert foundKnownValueItemQuery16;
+  }
+
+  public static void runQuery17(String ddbTableName, DynamoDbClient ddb) {
+    // Query 17: Get tickets updated within the last 24 hours
+    // Key condition: PK3 = Severity, SK3 > 24 hours ago
+    Map<String,String> query17AttributeNames = new HashMap<>();
+    query17AttributeNames.put("#pk3", "PK3");
+    query17AttributeNames.put("#sk3", "SK3");
+
+    Map<String,AttributeValue> query17AttributeValues = new HashMap<>();
+    query17AttributeValues.put(":severity", AttributeValue.builder().s("S-3").build());
+    // pick up here
+//    query17AttributeValues.put(":severity", AttributeValue.builder().s("S-3").build());
+
+    QueryRequest query17Request = QueryRequest.builder()
+        .tableName(ddbTableName)
+        .indexName("GSI-2")
+        .keyConditionExpression("#pk2 = :assigneeemail")
+        .expressionAttributeNames(query17AttributeNames)
+        .expressionAttributeValues(query17AttributeValues)
+        .build();
+
+    QueryResponse query17Response = ddb.query(query17Request);
+    // Validate query was returned successfully
+    assert 200 == query17Response.sdkHttpResponse().statusCode();
+
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query17Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery17 = false;
+    for (Map<String, AttributeValue> item : query17Response.items()) {
+      if (item.get("partition_key").s().equals("ticket1")) {
+        foundKnownValueItemQuery17 = true;
+        assert item.get("TicketNumber").s().equals("ticket_001");
+      }
+    }
+    assert foundKnownValueItemQuery17;
   }
 
 }
