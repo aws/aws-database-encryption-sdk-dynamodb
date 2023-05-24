@@ -202,11 +202,11 @@ public class VirtualBeaconSearchableEncryptionExample {
     //       but it is harder to identify which beacon values encode distinct plaintexts.
     //    We can choose a beacon length between 3 and 6:
     //     - Closer to 3, we expect more "false positives" to be returned,
-    //       making it harder to distinguish plaintext values
+    //       making it harder to identify which beacon values encode distinct plaintexts,
     //       but leading to more decrypt calls and worse performance
     //     - Closer to 6, we expect fewer "false positives" returned in queries,
     //       leading to fewer decrypt calls and better performance,
-    //       but it is easier to distinguish unique plaintext values
+    //       but it is easier to identify which beacon values encode distinct plaintexts.
     //    As an example, we will choose 5.
     //    Values stored in aws_dbe_b_stateAndHasTestResult will be 5 bits long (0x00 - 0x1f)
     //    There will be 2^5 = 32 possible HMAC values.
