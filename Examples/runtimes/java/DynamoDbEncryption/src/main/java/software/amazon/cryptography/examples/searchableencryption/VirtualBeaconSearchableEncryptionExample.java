@@ -84,8 +84,9 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   beacon may not hide the attribute (violating property 1).
   In addition, choosing a longer beacon length does not help us.
   Each attribute value is mapped to a distinct beacon.
-  Since booleans only have 2 possible attribute values, we will only have 2 possible beacon values,
-  making a longer beacon length provide no advantages over a beacon of length 1.
+  Since booleans only have 2 possible attribute values, we will still only have 2 possible
+  beacon values, though those values may be longer. A longer beacon provides no advantages over
+  beacon of length 1 in this situation.
 
   A compound beacon also does not help.
   To (over)simplify, a compound beacon is a concatenation of standard beacons,
