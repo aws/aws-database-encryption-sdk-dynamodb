@@ -16,33 +16,35 @@ import java.util.Random;
  * and is mainly for debugging purpose (and avoid handwriting data).
  */
 public class GenerateDataNested {
-    public static void main(String[] args) throws Exception {
-        File myFile = new File("nested_attributes.json");
+    public static void main(final String[] args) throws Exception {
+        final File myFile = new File("nested_attributes.json");
         myFile.createNewFile();
-        Map<String, AttributeValue.Builder> jsonData = new HashMap<>();
-        for (Integer i = 0; i < 200; i++) {
+        final Map<String, AttributeValue.Builder> jsonData = new HashMap<>();
+        //First 2 attributes are pk and sk
+        for (Integer topLevelAttributeIndex = 2; topLevelAttributeIndex < 100; topLevelAttributeIndex++) {
             //Randomise level of nesting
-            for (Integer j = 0; j < new Random().nextInt(100); j++) {
-                byte[] randomData = new byte[100];
-                new Random().nextBytes(randomData);
-                jsonData.put("Attribute".concat(i.toString()), AttributeValue.builder().m(gen(j)));
-            }
-            FileOutputStream fileOutputStream = new FileOutputStream(myFile);
-            fileOutputStream.write(JsonMapper.builder().serializationInclusion(JsonInclude.Include.NON_NULL).build().writeValueAsBytes(jsonData));
-            fileOutputStream.close();
+            final Integer nestedChildAttributeIndex = new Random().nextInt(31);
+            jsonData.put("Attribute".concat(topLevelAttributeIndex.toString()),
+                         AttributeValue.builder().m(generateNestedChildren(nestedChildAttributeIndex)));
         }
+        final FileOutputStream fileOutputStream = new FileOutputStream(myFile);
+        fileOutputStream.write(JsonMapper.builder()
+                                         .serializationInclusion(JsonInclude.Include.NON_NULL)
+                                         .build()
+                                         .writeValueAsBytes(jsonData));
+        fileOutputStream.close();
     }
-    static Map<String, AttributeValue> gen(Integer j) {
-        if(j == 0) {
+    static Map<String, AttributeValue> generateNestedChildren(final Integer nestedChildAttributeIndex) {
+        if (nestedChildAttributeIndex == 0) {
             byte[] randomData = new byte[1000];
             new Random().nextBytes(randomData);
-            Map<String, AttributeValue> val = new HashMap<>();
-            val.put("Attribute".concat(j.toString()), AttributeValue.fromB(SdkBytes.fromByteArray(randomData)));
-            return val;
+            Map<String, AttributeValue> leafNode = new HashMap<>();
+            leafNode.put("Attribute".concat(nestedChildAttributeIndex.toString()), AttributeValue.fromB(SdkBytes.fromByteArray(randomData)));
+            return leafNode;
         }
-        Map<String, AttributeValue> nested = gen(j-1);
+        Map<String, AttributeValue> nested = generateNestedChildren(nestedChildAttributeIndex - 1);
         Map<String, AttributeValue> parent = new HashMap<>();
-        parent.put("Attribute".concat(j.toString()), AttributeValue.fromM(nested));
+        parent.put("Attribute".concat(nestedChildAttributeIndex.toString()), AttributeValue.fromM(nested));
         return parent;
     }
 }

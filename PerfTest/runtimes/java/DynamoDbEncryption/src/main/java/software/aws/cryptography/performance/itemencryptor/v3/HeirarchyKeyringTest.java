@@ -1,8 +1,6 @@
 package software.aws.cryptography.performance.itemencryptor.v3;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -11,26 +9,26 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptography.dynamoDbEncryption.DynamoDbEncryption;
-import software.amazon.cryptography.dynamoDbEncryption.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTableEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.GetBranchKeyIdFromDdbKeyOutput;
-import software.amazon.cryptography.keyStore.KeyStore;
-import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
-import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
-import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsHierarchicalKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.aws.cryptography.dynamoDbEncryption.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryption;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyOutput;
+import software.amazon.cryptography.keystore.KeyStore;
+import software.amazon.cryptography.keystore.model.CreateKeyStoreInput;
+import software.amazon.cryptography.keystore.model.KMSConfiguration;
+import software.amazon.cryptography.keystore.model.KeyStoreConfig;
+import software.amazon.cryptography.materialproviders.IBranchKeyIdSupplier;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static software.aws.cryptography.performance.itemencryptor.TestConstants.DATA_TO_ENCRYPT;
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.KMS_KEY_ARN;
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.PARTITION_ATTRIBUTE;
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.SORT_ATTRIBUTE;
@@ -58,7 +56,9 @@ public class HeirarchyKeyringTest extends TestBase {
 
         final KeyStoreConfig keyStoreConfig = KeyStoreConfig.builder()
                                                             .ddbTableName(TEST_KEYSTORE_NAME)
-                                                            .kmsKeyArn(KMS_KEY_ARN)
+                                                            .kmsConfiguration(KMSConfiguration.builder()
+                                                                                              .kmsKeyArn(KMS_KEY_ARN)
+                                                                                              .build())
                                                             .kmsClient(kmsClient)
                                                             .ddbClient(dynamoDbClient)
                                                             .build();
@@ -71,18 +71,18 @@ public class HeirarchyKeyringTest extends TestBase {
         final String tenant2BranchKey = keystore.CreateKey().branchKeyIdentifier();
 
         ddbEnc = DynamoDbEncryption.builder()
-                                                            .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build()).build();
+                                   .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build()).build();
 
         final IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
-                CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
-                                                                .ddbKeyBranchKeyIdSupplier((getBranchKeyIdFromDdbKeyInput) -> {
+                                                                       CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
+                                                                                                                       .ddbKeyBranchKeyIdSupplier((getBranchKeyIdFromDdbKeyInput) -> {
                                                                     String tenantKeyId = getBranchKeyIdFromDdbKeyInput.ddbKey().get(PARTITION_ATTRIBUTE).s();
                                                                     if (tenantKeyId.equals(TEST_PK)) {
                                                                         return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(tenant1BranchKey).build();
                                                                     }
                                                                     return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(tenant2BranchKey).build();
                                                                 })
-                                                                .build())
+                                                                                                                       .build())
                                                                .branchKeyIdSupplier();
 
 
@@ -106,9 +106,9 @@ public class HeirarchyKeyringTest extends TestBase {
                                                                                   .logicalTableName(TEST_DDB_TABLE_NAME)
                                                                                   .partitionKeyName(PARTITION_ATTRIBUTE)
                                                                                   .sortKeyName(SORT_ATTRIBUTE)
-                                                                                  .attributeActions(getAttributeActions(plainTextAttribute))
+                                                                                  .attributeActionsOnEncrypt(getAttributeActions(plainTextAttribute))
                                                                                   .keyring(createKeyring())
-                                                                                  .allowedUnauthenticatedAttributePrefix(UNAUTH_PREFIX)
+                                                                                  .allowedUnsignedAttributePrefix(UNAUTH_PREFIX)
                                                                                   .build();
         tableConfigs.put(TEST_DDB_TABLE_NAME, config);
 

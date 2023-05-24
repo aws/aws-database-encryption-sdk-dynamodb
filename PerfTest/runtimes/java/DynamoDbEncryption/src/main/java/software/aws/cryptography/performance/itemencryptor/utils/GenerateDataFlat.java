@@ -16,18 +16,21 @@ import java.util.Random;
  * and is mainly for debugging purpose (and avoid handwriting data).
  */
 public class GenerateDataFlat {
-    public static void main(String[] args) throws Exception {
-        File myFile = new File("flat_attributes.json");
+    public static void main(final String[] args) throws Exception {
+        final File myFile = new File("flat_attributes.json");
         myFile.createNewFile();
-        Map<String, AttributeValue.Builder> jsonData = new HashMap<>();
-        //2000 * 100 bytes = 200 KB
-        for (Integer i = 0; i < 2000; i++) {
-                byte[] randomData = new byte[100];
-                new Random().nextBytes(randomData);
-                jsonData.put("Attribute".concat(i.toString()), AttributeValue.builder().b(SdkBytes.fromByteArray(randomData)));
-            FileOutputStream fileOutputStream = new FileOutputStream(myFile);
-            fileOutputStream.write(JsonMapper.builder().serializationInclusion(JsonInclude.Include.NON_NULL).build().writeValueAsBytes(jsonData));
-            fileOutputStream.close();
+        final Map<String, AttributeValue.Builder> jsonData = new HashMap<>();
+        //First 2 attributes are pk and sk
+        for (Integer topLevelAttributeIndex = 2; topLevelAttributeIndex < 100; topLevelAttributeIndex++) {
+            byte[] randomData = new byte[2000];
+            new Random().nextBytes(randomData);
+            jsonData.put("Attribute".concat(topLevelAttributeIndex.toString()), AttributeValue.builder().b(SdkBytes.fromByteArray(randomData)));
         }
+        final FileOutputStream fileOutputStream = new FileOutputStream(myFile);
+        fileOutputStream.write(JsonMapper.builder()
+                                         .serializationInclusion(JsonInclude.Include.NON_NULL)
+                                         .build()
+                                         .writeValueAsBytes(jsonData));
+        fileOutputStream.close();
     }
 }

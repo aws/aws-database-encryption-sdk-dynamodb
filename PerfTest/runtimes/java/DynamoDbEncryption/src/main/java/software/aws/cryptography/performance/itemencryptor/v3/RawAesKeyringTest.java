@@ -1,10 +1,10 @@
 package software.aws.cryptography.performance.itemencryptor.v3;
 
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.AesWrappingAlg;
-import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.AesWrappingAlg;
+import software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
 import java.nio.ByteBuffer;
 

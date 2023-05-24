@@ -4,17 +4,17 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncrypt
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.WrappedMaterialsProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyConfig;
-import software.amazon.cryptography.dynamoDbEncryption.model.LegacyPolicy;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.MaterialProviders;
-import software.amazon.cryptography.materialProviders.model.AesWrappingAlg;
-import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
-import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.AesWrappingAlg;
+import software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput;
+import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -62,20 +62,20 @@ public class LegacyConfigTest extends TestBase {
             }
         }
 
-        final LegacyConfig legacyConfig = LegacyConfig
+        final LegacyOverride legacyConfig = LegacyOverride
                                                   .builder()
                                                   .encryptor(DynamoDBEncryptor.getInstance(createLegacyMaterialProvider()))
-                                                  .policy(LegacyPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
-                                                  .attributeFlags(legacyActions)
+                                                  .policy(LegacyPolicy.FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT)
+                                                  .attributeActionsOnEncrypt(legacyActions)
                                                   .build();
 
         final DynamoDbItemEncryptorConfig config = DynamoDbItemEncryptorConfig.builder().logicalTableName(TEST_TABLE)
                                                                               .partitionKeyName(PARTITION_ATTRIBUTE)
                                                                               .sortKeyName(SORT_ATTRIBUTE)
-                                                                              .attributeActions(getAttributeActions(plainTextAttribute))
+                                                                              .attributeActionsOnEncrypt(getAttributeActions(plainTextAttribute))
                                                                               .keyring(createKeyring())
-                                                                              .legacyConfig(legacyConfig)
-                                                                              .allowedUnauthenticatedAttributePrefix(UNAUTH_PREFIX)
+                                                                              .legacyOverride(legacyConfig)
+                                                                              .allowedUnsignedAttributePrefix(UNAUTH_PREFIX)
                                                                               .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                                                                               .build();
         dynamoDbItemEncryptor = DynamoDbItemEncryptor.builder().DynamoDbItemEncryptorConfig(config)

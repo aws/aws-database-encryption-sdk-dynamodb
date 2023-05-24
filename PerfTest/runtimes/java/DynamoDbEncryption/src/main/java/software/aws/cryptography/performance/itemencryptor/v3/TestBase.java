@@ -24,13 +24,13 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.DynamoDbItemEncryptor;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DecryptItemInput;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.DynamoDbItemEncryptorConfig;
-import software.amazon.cryptography.dynamoDbEncryption.itemEncryptor.model.EncryptItemInput;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId;
-import software.amazon.cryptography.structuredEncryption.model.CryptoAction;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemInput;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -93,9 +93,9 @@ public abstract class TestBase {
         final DynamoDbItemEncryptorConfig config = DynamoDbItemEncryptorConfig.builder().logicalTableName(TEST_TABLE)
                                                                               .partitionKeyName(PARTITION_ATTRIBUTE)
                                                                               .sortKeyName(SORT_ATTRIBUTE)
-                                                                              .attributeActions(getAttributeActions(plainTextAttribute))
+                                                                              .attributeActionsOnEncrypt(getAttributeActions(plainTextAttribute))
                                                                               .keyring(createKeyring())
-                                                                              .allowedUnauthenticatedAttributePrefix(UNAUTH_PREFIX)
+                                                                              .allowedUnsignedAttributePrefix(UNAUTH_PREFIX)
                                                                               .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                                                                               .build();
 
