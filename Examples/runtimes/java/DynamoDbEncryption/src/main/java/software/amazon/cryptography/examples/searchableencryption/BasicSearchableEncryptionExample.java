@@ -70,7 +70,7 @@ public class BasicSearchableEncryptionExample {
     //    The beacon name must be the name of a table attribute that will be encrypted.
     //    The `length` parameter dictates how many bits are in the beacon attribute value.
     //    The following link provides guidance on choosing a beacon length:
-    //    TODO: add link
+    //        https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
 
     // The configured DDB table has a GSI on the `aws_dbe_b_state` AttributeName
@@ -151,8 +151,8 @@ public class BasicSearchableEncryptionExample {
     //        statically configures a single beaconKey. That is the approach this example takes.
     //        For use cases where you want to use different beacon keys depending on the data
     //        (for example if your table holds data for multiple tenants, and you want to use
-    //        a different beacon key per tenant), look into configuring a MultiKeyStore.
-    //        Source: TODO example
+    //        a different beacon key per tenant), look into configuring a MultiKeyStore:
+    //          https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption-multitenant.html
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()

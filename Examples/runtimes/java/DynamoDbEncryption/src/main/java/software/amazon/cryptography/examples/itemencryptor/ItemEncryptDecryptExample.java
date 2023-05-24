@@ -105,10 +105,8 @@ public class ItemEncryptDecryptExample {
                 // `ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384` suite,
                 // which includes AES-GCM with key derivation, signing, and key commitment.
                 // This is also the default algorithm suite if one is not specified in this config.
-                // For more information on supported algorithm suites, see
-                //   TODO: Add DB ESDK-specific link, similar to
-                //   https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/supported-algorithms.html,
-                //   but with accurate information for DB ESDK
+                // For more information on supported algorithm suites, see:
+                //   https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/supported-algorithms.html
                 .algorithmSuiteId(
                     DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384)
                 .build();
