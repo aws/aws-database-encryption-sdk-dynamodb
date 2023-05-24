@@ -1,5 +1,5 @@
-# This workflow performs tests in Java.
-name: Library Java tests
+# This workflow performs test vectors in Java.
+name: Library Java Test Vectors
 
 on: 
   pull_request:
@@ -30,14 +30,11 @@ jobs:
     strategy:
       matrix:
         library: [
-          DynamoDbEncryption
+          TestVectors
         ]
         java-version: [ 8, 11, 16, 17 ]
         os: [
-          # TODO just test on mac for now
-          #windows-latest,
-          #ubuntu-latest,
-          macos-latest
+          ubuntu-latest
         ]
     runs-on: ${{ matrix.os }}
     environment: "MPL CI"
@@ -45,6 +42,12 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v2.0.1
+        with:
+          port: 8000
+          cors: '*'
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
