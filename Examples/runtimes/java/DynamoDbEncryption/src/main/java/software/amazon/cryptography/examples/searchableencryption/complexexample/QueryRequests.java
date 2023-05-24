@@ -33,6 +33,7 @@ public class QueryRequests {
     runQuery9(ddbTableName, ddb);
     runQuery10(ddbTableName, ddb);
     runQuery11(ddbTableName, ddb);
+    runQuery12(ddbTableName, ddb);
     runQuery13(ddbTableName, ddb);
     runQuery14(ddbTableName, ddb);
   }
@@ -468,9 +469,46 @@ public class QueryRequests {
     assert foundKnownValueItemQuery11;
   }
 
+  public static void runQuery12(String ddbTableName, DynamoDbClient ddb) {
+    // Query 12: Get Ticket History by employee email
+    // Key condition: PK1=CreatorEmail
+    // Filter condition: PK=TicketNumber
+    Map<String,String> query12AttributeNames = new HashMap<>();
+    query12AttributeNames.put("#pk1", "PK1");
+    query12AttributeNames.put("#pk", "PK");
+
+    Map<String,AttributeValue> query12AttributeValues = new HashMap<>();
+    query12AttributeValues.put(":email", AttributeValue.builder().s("CE-zorro@gmail.com").build());
+    query12AttributeValues.put(":ticket", AttributeValue.builder().s("T-ticket_001").build());
+
+    QueryRequest query12Request = QueryRequest.builder()
+        .tableName(ddbTableName)
+        .indexName("GSI-1")
+        .keyConditionExpression("#pk1 = :email")
+        .filterExpression("#pk = :ticket")
+        .expressionAttributeNames(query12AttributeNames)
+        .expressionAttributeValues(query12AttributeValues)
+        .build();
+
+    QueryResponse query12Response = ddb.query(query12Request);
+    // Validate query was returned successfully
+    assert 200 == query12Response.sdkHttpResponse().statusCode();
+    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    assert query12Response.items().size() == 1;
+    // Known value test: Assert some properties on one of the items
+    boolean foundKnownValueItemQuery12 = false;
+    for (Map<String, AttributeValue> item : query12Response.items()) {
+      if (item.get("partition_key").s().equals("ticket1")) {
+        foundKnownValueItemQuery12 = true;
+        assert item.get("TicketNumber").s().equals("ticket_001");
+      }
+    }
+    assert foundKnownValueItemQuery12;
+  }
+
   public static void runQuery13(String ddbTableName, DynamoDbClient ddb) {
     // Query 13: Get ticket history by assignee email
-    // Key condition: PK=AssigneeEmail SK between(date1, date2)
+    // Key condition: PK=AssigneeEmail
     // Filter condition: PK=ticketNumber
     Map<String,String> query13AttributeNames = new HashMap<>();
     query13AttributeNames.put("#p", "PK2");
