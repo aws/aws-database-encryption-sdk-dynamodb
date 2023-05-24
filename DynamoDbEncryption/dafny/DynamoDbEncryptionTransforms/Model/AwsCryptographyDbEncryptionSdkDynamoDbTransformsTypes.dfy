@@ -860,8 +860,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  tmp1.cmm.value.ValidState()
  requires var tmps2 := set t2 | t2 in config.tableEncryptionConfigs.Values;
  forall tmp2 :: tmp2 in tmps2 ==>
- tmp2.legacyConfig.Some? ==>
- tmp2.legacyConfig.value.encryptor.ValidState()
+ tmp2.legacyOverride.Some? ==>
+ tmp2.legacyOverride.value.encryptor.ValidState()
  requires var tmps3 := set t3 | t3 in config.tableEncryptionConfigs.Values;
  forall tmp3 :: tmp3 in tmps3 ==>
  tmp3.search.Some? ==>
@@ -887,8 +887,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  && tmp8ModifyEntry in tmp8Modifies 
  :: tmp8ModifyEntry)
  modifies var tmps9 := set t9 | t9 in config.tableEncryptionConfigs.Values
-  && t9.legacyConfig.Some? 
-  :: t9.legacyConfig.value.encryptor;
+  && t9.legacyOverride.Some? 
+  :: t9.legacyOverride.value.encryptor;
  var tmps9FlattenedModifiesSet: set<set<object>> := set t0
  | t0 in tmps9 :: t0.Modifies;
  (set tmp10ModifyEntry, tmp10Modifies | 
@@ -926,8 +926,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  && tmp17ModifyEntry in tmp17Modifies 
  :: tmp17ModifyEntry)
  ) - ( var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values
-  && t18.legacyConfig.Some? 
-  :: t18.legacyConfig.value.encryptor;
+  && t18.legacyOverride.Some? 
+  :: t18.legacyOverride.value.encryptor;
  var tmps18FlattenedModifiesSet: set<set<object>> := set t0
  | t0 in tmps18 :: t0.Modifies;
  (set tmp19ModifyEntry, tmp19Modifies | 
@@ -956,8 +956,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  tmp24.cmm.value.ValidState()
  ensures var tmps25 := set t25 | t25 in config.tableEncryptionConfigs.Values;
  forall tmp25 :: tmp25 in tmps25 ==>
- tmp25.legacyConfig.Some? ==>
- tmp25.legacyConfig.value.encryptor.ValidState()
+ tmp25.legacyOverride.Some? ==>
+ tmp25.legacyOverride.value.encryptor.ValidState()
  ensures var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
  forall tmp26 :: tmp26 in tmps26 ==>
  tmp26.search.Some? ==>

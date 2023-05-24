@@ -15,7 +15,10 @@ module
   import MaterialProviders
   import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   import SE =  StructuredEncryptionUtil
-  import InternalLegacyConfig
+  import InternalLegacyOverride
+  import SortedSets
+  import DDB = ComAmazonawsDynamodbTypes
+
 
   // There is no sensible default, so construct something simple but invalid at runtime.
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
@@ -24,14 +27,14 @@ module
       logicalTableName := "foo",
       partitionKeyName := "bar",
       sortKeyName := None(),
-      attributeActions := map[],
-      allowedUnauthenticatedAttributes := None(),
-      allowedUnauthenticatedAttributePrefix := None(),
+      attributeActionsOnEncrypt := map[],
+      allowedUnsignedAttributes := None(),
+      allowedUnsignedAttributePrefix := None(),
       keyring := None(),
       cmm := None(),
       algorithmSuiteId := None(),
-      legacyConfig := None(),
-      plaintextPolicy := None()
+      legacyOverride := None(),
+      plaintextOverride := None()
     )
   }
 
@@ -47,28 +50,28 @@ module
       && res.value.config.logicalTableName == config.logicalTableName
       && res.value.config.partitionKeyName == config.partitionKeyName
       && res.value.config.sortKeyName == config.sortKeyName
-      && res.value.config.attributeActions == config.attributeActions
-      && res.value.config.allowedUnauthenticatedAttributes == config.allowedUnauthenticatedAttributes
-      && res.value.config.allowedUnauthenticatedAttributePrefix == config.allowedUnauthenticatedAttributePrefix
+      && res.value.config.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
+      && res.value.config.allowedUnsignedAttributes == config.allowedUnsignedAttributes
+      && res.value.config.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
       && res.value.config.algorithmSuiteId == config.algorithmSuiteId
 
       //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-actions
       //= type=implication
       //# The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
       //# MUST be configured to the partition attribute and, if present, sort attribute.
-      && config.partitionKeyName in config.attributeActions
-      && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY
+      && config.partitionKeyName in config.attributeActionsOnEncrypt
+      && config.attributeActionsOnEncrypt[config.partitionKeyName] == CSE.SIGN_ONLY
       && (config.sortKeyName.Some? ==>
-          && config.sortKeyName.value in config.attributeActions
-          && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY)
+          && config.sortKeyName.value in config.attributeActionsOnEncrypt
+          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == CSE.SIGN_ONLY)
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#plaintext-policy
-    //# If not specified, encryption and decryption MUST behave according to `FORBID_WRITE_FORBID_READ`.
+    //# If not specified, encryption and decryption MUST behave according to `FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ`.
     ensures
         && res.Success?
-        && config.plaintextPolicy.None?
+        && config.plaintextOverride.None?
       ==>
-        res.value.config.plaintextPolicy.FORBID_WRITE_FORBID_READ?
+        res.value.config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
   {
     :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
       message := "Cannot provide both a keyring and a CMM"
@@ -77,50 +80,53 @@ module
       message := "Must provide either a keyring or a CMM"
     ));
     :- Need(
-        && config.partitionKeyName in config.attributeActions
-        && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY,
+        && config.partitionKeyName in config.attributeActionsOnEncrypt
+        && config.attributeActionsOnEncrypt[config.partitionKeyName] == CSE.SIGN_ONLY,
       DynamoDbItemEncryptorException(
         message := "Partition key attribute action MUST be SIGN_ONLY"
       ));
     :- Need(
       (config.sortKeyName.Some? ==>
-        && config.sortKeyName.value in config.attributeActions
-        && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY),
+        && config.sortKeyName.value in config.attributeActionsOnEncrypt
+        && config.attributeActionsOnEncrypt[config.sortKeyName.value] == CSE.SIGN_ONLY),
       DynamoDbItemEncryptorException(
         message := "Sort key attribute action MUST be SIGN_ONLY"
       ));
 
-    var attributeActions' := config.attributeActions;
-    while attributeActions'.Keys != {}
-      invariant forall attribute <- (config.attributeActions - attributeActions'.Keys)
-      :: Operations.ForwardCompatibleAttributeAction(
-          attribute,
-          config.attributeActions[attribute],
-          config.allowedUnauthenticatedAttributes,
-          config.allowedUnauthenticatedAttributePrefix)
-      invariant forall attribute <- (config.attributeActions - attributeActions'.Keys)
-      :: UnreservedPrefix(attribute)
+    var attributeNames : seq<DDB.AttributeName> := SortedSets.ComputeSetToOrderedSequence2(config.attributeActionsOnEncrypt.Keys, CharLess);
+    for i := 0 to |attributeNames|
+      invariant forall j | 0 <= j < i ::
+      && UnreservedPrefix(attributeNames[j])
+      && (Operations.ForwardCompatibleAttributeAction(
+               attributeNames[j],
+               config.attributeActionsOnEncrypt[attributeNames[j]],
+               config.allowedUnsignedAttributes,
+               config.allowedUnsignedAttributePrefix))
     {
-      var attribute :| attribute in attributeActions';
-      var action := config.attributeActions[attribute];
+      var attributeName := attributeNames[i];
+      var action := config.attributeActionsOnEncrypt[attributeName];
       if !(Operations.ForwardCompatibleAttributeAction(
-          attribute,
+          attributeName,
           action,
-          config.allowedUnauthenticatedAttributes,
-          config.allowedUnauthenticatedAttributePrefix
+          config.allowedUnsignedAttributes,
+          config.allowedUnsignedAttributePrefix
         ))
       {
         return Failure(DynamoDbItemEncryptorException(
-          message := Operations.ExplainNotForwardCompatible(attribute, action, config.allowedUnauthenticatedAttributes, config.allowedUnauthenticatedAttributePrefix)
+          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.allowedUnsignedAttributes, config.allowedUnsignedAttributePrefix)
         ));
       }
-      if !UnreservedPrefix(attribute) {
+      if !UnreservedPrefix(attributeName) {
         return Failure(DynamoDbItemEncryptorException(
-          message := "Attribute: " + attribute + " is reserved, and may not be configured."
+          message := "Attribute: " + attributeName + " is reserved, and may not be configured."
         ));
       }
-      attributeActions' := attributeActions' - {attribute};
+      assert UnreservedPrefix(attributeName);
+      assert UnreservedPrefix(attributeNames[i]);
     }
+    assert (forall attribute <- attributeNames :: UnreservedPrefix(attribute));
+    assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
+    assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
 
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
@@ -149,7 +155,7 @@ module
     }
 
     var maybeCmpClient := MaterialProviders.MaterialProviders();
-    var internalLegacyConfig :- InternalLegacyConfig.InternalLegacyConfig.Build(config);
+    var internalLegacyOverride :- InternalLegacyOverride.InternalLegacyOverride.Build(config);
     var cmpClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
@@ -157,41 +163,41 @@ module
     //# and a [Plaintext Policy](#plaintext-policy)
     //# both specified on the same config is invalid,
     //# and MUST result in an error.
-    // :- Need(internalLegacyConfig.None? || config.plaintextPolicy.None?, DynamoDbItemEncryptorException(
+    // :- Need(internalLegacyOverride.None? || config.plaintextOverride.None?, DynamoDbItemEncryptorException(
     //   message := "Cannot configure both a plaintext policy and a legacy config."
     // ));
-    if !(internalLegacyConfig.None? || config.plaintextPolicy.None?) {
+    if !(internalLegacyOverride.None? || config.plaintextOverride.None?) {
       return Failure(DynamoDbItemEncryptorException(
         message := "Cannot configure both a plaintext policy and a legacy config."
       ));
     }
 
-    var plaintextPolicy := if config.plaintextPolicy.Some? then
-      config.plaintextPolicy.value
+    var plaintextOverride := if config.plaintextOverride.Some? then
+      config.plaintextOverride.value
     else
-      DDBE.PlaintextPolicy.FORBID_WRITE_FORBID_READ;      
+      DDBE.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ;      
 
     var internalConfig := Operations.Config(
       cmpClient := cmpClient,
       logicalTableName := config.logicalTableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,
-      attributeActions := config.attributeActions,
-      allowedUnauthenticatedAttributes := config.allowedUnauthenticatedAttributes,
-      allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
+      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
+      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
+      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
       //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suite
       //= type=implication
       //# The [algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption,
-      internalLegacyConfig := internalLegacyConfig,
-      plaintextPolicy := plaintextPolicy
+      internalLegacyOverride := internalLegacyOverride,
+      plaintextOverride := plaintextOverride
     );
 
     // Dafny needs some extra help here
-    assert (forall attribute <- internalConfig.attributeActions.Keys :: UnreservedPrefix(attribute));
-    assert (forall attribute <- internalConfig.attributeActions.Keys :: !(ReservedPrefix <= attribute));
+    assert (forall attribute <- internalConfig.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
+    assert (forall attribute <- internalConfig.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
     assert Operations.ValidInternalConfig?(internalConfig);
 
     var client := new DynamoDbItemEncryptorClient(internalConfig);

@@ -83,22 +83,26 @@ module TestFixtures {
     map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY]
   }
 
-  method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
+  method GetEncryptorConfigFromActions(actions : AttributeActions) returns (output : DynamoDbItemEncryptorConfig) {
     var keyring := GetKmsKeyring();
     var logicalTableName := GetTableName("foo");
     output := DynamoDbItemEncryptorConfig(
       logicalTableName := logicalTableName,
       partitionKeyName := "bar",
       sortKeyName := None(),
-      attributeActions := GetAttributeActions(),
-      allowedUnauthenticatedAttributes := Some(["nothing"]),
-      allowedUnauthenticatedAttributePrefix := None(),
+      attributeActionsOnEncrypt := actions,
+      allowedUnsignedAttributes := Some(["nothing"]),
+      allowedUnsignedAttributePrefix := None(),
       keyring := Some(keyring),
       cmm := None(),
       algorithmSuiteId := None(),
-      plaintextPolicy := None(),
-      legacyConfig := None()
+      plaintextOverride := None(),
+      legacyOverride := None()
     );
+  }
+
+  method GetEncryptorConfig() returns (output : DynamoDbItemEncryptorConfig) {
+    output := GetEncryptorConfigFromActions(GetAttributeActions());
   }
 
   method GetDynamoDbItemEncryptorFrom(config : DynamoDbItemEncryptorConfig)
@@ -112,14 +116,14 @@ module TestFixtures {
       logicalTableName := config.logicalTableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,
-      attributeActions := config.attributeActions,
-      allowedUnauthenticatedAttributes := config.allowedUnauthenticatedAttributes,
-      allowedUnauthenticatedAttributePrefix := config.allowedUnauthenticatedAttributePrefix,
+      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
+      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
+      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
       keyring := Some(keyring),
       cmm := None(),
       algorithmSuiteId := None(),
-      legacyConfig := None(),
-      plaintextPolicy := None()
+      legacyOverride := None(),
+      plaintextOverride := None()
     );
     encryptor :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
   }
@@ -214,20 +218,20 @@ module TestFixtures {
             logicalTableName := "foo",
             partitionKeyName := "bar",
             sortKeyName := None(),
-            attributeActions := map[
+            attributeActionsOnEncrypt := map[
               "bar" := CSE.SIGN_ONLY,
               "sign" := CSE.SIGN_ONLY,
               "encrypt" := CSE.ENCRYPT_AND_SIGN,
               "plain" := CSE.DO_NOTHING
               ],
-            allowedUnauthenticatedAttributes := Some(["plain"]),
-            allowedUnauthenticatedAttributePrefix := None(),
+            allowedUnsignedAttributes := Some(["plain"]),
+            allowedUnsignedAttributePrefix := None(),
             algorithmSuiteId := None(),
             keyring := Some(keyring),
             cmm := None(),
             search := None,
-            legacyConfig := None,
-            plaintextPolicy := None
+            legacyOverride := None,
+            plaintextOverride := None
           )
         ]
       )

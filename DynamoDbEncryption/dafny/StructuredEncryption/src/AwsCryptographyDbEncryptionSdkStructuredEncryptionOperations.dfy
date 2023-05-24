@@ -285,7 +285,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     reveal Maps.Injective();
     Paths.SimpleCanonUnique(tableName);
-    map k <- data.Keys | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k
+    map k <- data | schema[k].content.Action != DO_NOTHING :: Paths.SimpleCanon(tableName, k) := k
   }
 
   // construct the EncryptCanon
@@ -323,7 +323,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
     var encFields_c := FilterEncrypt(signedFields_c, fieldMap, schema);
-    var trimmedSchema := map k <- fieldMap.Values :: k := schema[k];
+    var trimmedSchema := map k <- fieldMap :: fieldMap[k] := schema[fieldMap[k]];
 
     assert |data_c| == |trimmedSchema| by {
       assert data_c.Keys == fieldMap.Keys;
@@ -379,7 +379,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
     reveal Maps.Injective();
     Paths.SimpleCanonUnique(input.tableName);
-    var fieldMap := map k <- input.data.Keys | input.authSchema[k].content.Action == SIGN ::
+    var fieldMap := map k <- input.data | input.authSchema[k].content.Action == SIGN ::
       Paths.SimpleCanon(input.tableName, k) := k;
     assert Maps.Injective(fieldMap);
 
@@ -401,8 +401,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, input.legend);
     :- Need(|encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
 
-    var actionMap := map v <- fieldMap.Values ::
-      v := if Paths.SimpleCanon(input.tableName, v) in encFields_c then
+    var actionMap := map k <- fieldMap ::
+      fieldMap[k] := if Paths.SimpleCanon(input.tableName, fieldMap[k]) in encFields_c then
         CryptoSchema(
           content := CryptoSchemaContent.Action(ENCRYPT_AND_SIGN),
           attributes := None
@@ -543,7 +543,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(|canonData.encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields"));
     var encryptedItems :- Crypt.Encrypt(config.primitives, alg, key, head, canonData.encFields_c, canonData.data_c);
 
-    var result : map<string, StructuredData> := map k | k in plainRecord.Keys :: k :=
+    var result : map<string, StructuredData> := map k <- plainRecord | true :: k :=
       var c := Paths.SimpleCanon(input.tableName, k);
       if c in encryptedItems then
         encryptedItems[c]
@@ -839,7 +839,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                             canonData.signedFields_c, canonData.encFields_c, map[], canonData.data_c, headerSerialized);
     var decryptedItems :- Crypt.Decrypt(config.primitives, postCMMAlg, key, head, canonData.encFields_c, canonData.data_c);
 
-    var result : map<string, StructuredData> := map k | k in encRecord.Keys :: k :=
+    var result : map<string, StructuredData> := map k <- encRecord | true :: k :=
       var c := Paths.SimpleCanon(input.tableName, k);
       if c in decryptedItems then
         decryptedItems[c]

@@ -95,7 +95,7 @@ module TestDynamoDBFilterExpr {
   method {:test} TestBasicParse() {
     var context := ExprContext (
       None,
-      Some("std2 <> :A AND #Field4 = :B"),
+      Some("std2 = :A AND #Field4 = :B"),
       Some(map[
              ":A" := DDB.AttributeValue.N("1.23"),
              ":B" := DDB.AttributeValue.S("abc")
@@ -117,13 +117,13 @@ module TestDynamoDBFilterExpr {
 
     var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys, map[]);
     var exprString := ParsedExprToString(newContext.expr);
-    expect exprString == "aws_dbe_b_std2 <> :A AND #Field4 = :B";
+    expect exprString == "aws_dbe_b_std2 = :A AND #Field4 = :B";
   }
 
     method {:test} TestNoBeaconFail() {
     var context := ExprContext (
       None,
-      Some("std2 <> :A AND #Field4 = :B"),
+      Some("std2 = :A AND #Field4 = :B"),
       Some(map[
              ":A" := DDB.AttributeValue.N("1.23"),
              ":B" := DDB.AttributeValue.S("abc")
@@ -147,10 +147,10 @@ module TestDynamoDBFilterExpr {
     expect newContext.Failure?;
     expect newContext.error == E("Field std4 is encrypted, and cannot be searched without a beacon.");
 
-    var badBeacon := TestBeaconize(FullTableConfig.attributeActions, None, Some("std2 <> :A AND #Field4 = :B"), None);
+    var badBeacon := TestBeaconize(FullTableConfig.attributeActionsOnEncrypt, None, Some("std2 <> :A AND #Field4 = :B"), None);
     expect badBeacon.Failure?;
     expect badBeacon.error == E("Query is using encrypted field : std2.");
-    badBeacon := TestBeaconize(FullTableConfig.attributeActions, Some("std2 <> :A AND #Field4 = :B"), None, None);
+    badBeacon := TestBeaconize(FullTableConfig.attributeActionsOnEncrypt, Some("std2 = :A AND #Field4 = :B"), None, None);
     expect badBeacon.Failure?;
     expect badBeacon.error == E("Query is using encrypted field : std2.");
   }
@@ -158,7 +158,7 @@ module TestDynamoDBFilterExpr {
   method {:test} {:vcs_split_on_every_assert} TestBasicBeacons() {
     var context := ExprContext (
       None,
-      Some("std2 <> :A AND #Field4 = :B"),
+      Some("std2 = :A AND #Field4 = :B"),
       Some(map[
              ":A" := Std2String,
              ":B" := Std4String
@@ -171,7 +171,7 @@ module TestDynamoDBFilterExpr {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
-    expect_equal(newContext.filterExpr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
+    expect_equal(newContext.filterExpr, Some("aws_dbe_b_std2 = :A AND #Field4 = :B"));
     var newName := "aws_dbe_b_std4";
     expect IsValid_AttributeName(newName);
     var expectedNames: DDB.ExpressionAttributeNameMap := map["#Field4" := newName];
@@ -579,6 +579,34 @@ module TestDynamoDBFilterExpr {
     var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val4"), None, Some(values));
     expect newItems.Failure?;
     expect newItems.error == E("To use BETWEEN with a compound beacon, the part after any common prefix must be LessThanComparable : BETWEEN T_ATitle AND T_MyTitle");
+  }
+
+  method {:test} TestBadStandard() {
+
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":val" := DS("foo")
+    ];
+
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var newItems := FilterResults(bv, [SimpleItem], None, Some("std2 = :val"), None, Some(values));
+    expect newItems.Success?;
+    newItems := FilterResults(bv, [SimpleItem], None, Some("std2 <> :val"), None, Some(values));
+    expect newItems.Failure?;
+    expect newItems.error == E("The operation '<>' cannot be used with a standard beacon.");
+    newItems := FilterResults(bv, [SimpleItem], None, Some("std2 < :val"), None, Some(values));
+    expect newItems.Failure?;
+    expect newItems.error == E("The operation '<' cannot be used with a standard beacon.");
+    newItems := FilterResults(bv, [SimpleItem], None, Some("std2 > :val"), None, Some(values));
+    expect newItems.Failure?;
+    expect newItems.error == E("The operation '>' cannot be used with a standard beacon.");
+    newItems := FilterResults(bv, [SimpleItem], None, Some("std2 <= :val"), None, Some(values));
+    expect newItems.Failure?;
+    expect newItems.error == E("The operation '<=' cannot be used with a standard beacon.");
+    newItems := FilterResults(bv, [SimpleItem], None, Some("std2 >= :val"), None, Some(values));
+    expect newItems.Failure?;
+    expect newItems.error == E("The operation '>=' cannot be used with a standard beacon.");
   }
 
   method {:test} TestComparisons() {

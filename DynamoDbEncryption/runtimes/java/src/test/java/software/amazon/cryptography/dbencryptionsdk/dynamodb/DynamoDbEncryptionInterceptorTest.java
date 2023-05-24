@@ -1,4 +1,4 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
 import org.testng.annotations.BeforeTest;
 import software.amazon.awssdk.core.ClientType;
@@ -14,7 +14,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Dy
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 
 import static org.testng.Assert.*;
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
 import org.testng.annotations.Test;
 
@@ -505,7 +505,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test(
             expectedExceptions = DynamoDbItemEncryptorException.class,
-            expectedExceptionsMessageRegExp = "Configuration missmatch partition or sort key does not exist in item."
+            expectedExceptionsMessageRegExp = "Configuration mismatch partition or sort key does not exist in item."
     )
     public void TestPutMissingPartition() {
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");
@@ -529,7 +529,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test(
             expectedExceptions = DynamoDbItemEncryptorException.class,
-            expectedExceptionsMessageRegExp = "Configuration missmatch partition or sort key does not exist in item."
+            expectedExceptionsMessageRegExp = "Configuration mismatch partition or sort key does not exist in item."
     )
     public void TestPutMissingSort() {
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");

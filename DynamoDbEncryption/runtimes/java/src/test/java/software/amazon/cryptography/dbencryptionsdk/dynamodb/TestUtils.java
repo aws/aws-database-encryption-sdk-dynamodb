@@ -1,4 +1,4 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
@@ -108,23 +108,23 @@ public class TestUtils {
     }
 
     public static DynamoDbEncryptionInterceptor createInterceptor(
-            Map<String, CryptoAction> actions, List<String> allowedUnauth, IKeyring keyring, LegacyPolicy legacyPolicy, PlaintextPolicy ptPolicy) {
+            Map<String, CryptoAction> actions, List<String> allowedUnauth, IKeyring keyring, LegacyPolicy legacyPolicy, PlaintextOverride ptPolicy) {
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder()
                 .logicalTableName(TEST_TABLE_NAME)
                 .partitionKeyName(TEST_PARTITION_NAME)
                 .sortKeyName(TEST_SORT_NAME)
-                .attributeActions(actions)
+                .attributeActionsOnEncrypt(actions)
                 .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                 .keyring(keyring);
         if (!allowedUnauth.isEmpty()) {
-            builder = builder.allowedUnauthenticatedAttributes(allowedUnauth);
+            builder = builder.allowedUnsignedAttributes(allowedUnauth);
         }
         if (null != legacyPolicy) {
-            builder = builder.legacyConfig(createLegacyConfig(legacyPolicy));
+            builder = builder.legacyOverride(createLegacyOverride(legacyPolicy));
         }
         if (null != ptPolicy) {
-            builder = builder.plaintextPolicy(ptPolicy);
+            builder = builder.plaintextOverride(ptPolicy);
         }
         tableConfigs.put(TEST_TABLE_NAME, builder.build());
 
@@ -135,7 +135,7 @@ public class TestUtils {
                 .build();
     }
 
-    public static DynamoDbEncryptionInterceptor createInterceptor(IKeyring keyring, LegacyPolicy legacyPolicy, PlaintextPolicy ptPolicy) {
+    public static DynamoDbEncryptionInterceptor createInterceptor(IKeyring keyring, LegacyPolicy legacyPolicy, PlaintextOverride ptPolicy) {
         Map<String, CryptoAction> actions = new HashMap<>();
         actions.put(TEST_PARTITION_NAME, CryptoAction.SIGN_ONLY);
         actions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
@@ -175,7 +175,7 @@ public class TestUtils {
         return key;
     }
 
-    public static LegacyConfig createLegacyConfig(LegacyPolicy policy) {
+    public static LegacyOverride createLegacyOverride(LegacyPolicy policy) {
         DynamoDBEncryptor legacyEncryptor = createLegacyEncryptor();
 
         // These do not have to match the schema for non-Legacy items,
@@ -185,11 +185,11 @@ public class TestUtils {
         legacyActions.put(TEST_SORT_NAME, CryptoAction.SIGN_ONLY);
         legacyActions.put(TEST_ATTR_NAME, CryptoAction.ENCRYPT_AND_SIGN);
         legacyActions.put(TEST_ATTR2_NAME, CryptoAction.DO_NOTHING);
-        return LegacyConfig
+        return LegacyOverride
             .builder()
             .encryptor(legacyEncryptor)
             .policy(policy)
-            .attributeFlags(legacyActions)
+            .attributeActionsOnEncrypt(legacyActions)
             .build();
     }
 

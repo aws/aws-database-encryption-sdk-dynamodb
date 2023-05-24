@@ -29,7 +29,7 @@ public class ToNative {
   public static CollectionOfErrors Error(Error_CollectionOfErrors dafnyValue) {
     CollectionOfErrors.Builder nativeBuilder = CollectionOfErrors.builder();
     nativeBuilder.list(
-        software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue.dtor_list(), 
         ToNative::Error));
     return nativeBuilder.build();
@@ -38,7 +38,7 @@ public class ToNative {
   public static DynamoDbItemEncryptorException Error(
       Error_DynamoDbItemEncryptorException dafnyValue) {
     DynamoDbItemEncryptorException.Builder nativeBuilder = DynamoDbItemEncryptorException.builder();
-    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
+    nativeBuilder.message(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
 
@@ -89,17 +89,17 @@ public class ToNative {
   public static DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig dafnyValue) {
     DynamoDbItemEncryptorConfig.Builder nativeBuilder = DynamoDbItemEncryptorConfig.builder();
-    nativeBuilder.logicalTableName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_logicalTableName()));
-    nativeBuilder.partitionKeyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_partitionKeyName()));
+    nativeBuilder.logicalTableName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_logicalTableName()));
+    nativeBuilder.partitionKeyName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_partitionKeyName()));
     if (dafnyValue.dtor_sortKeyName().is_Some()) {
-      nativeBuilder.sortKeyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_sortKeyName().dtor_value()));
+      nativeBuilder.sortKeyName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_sortKeyName().dtor_value()));
     }
-    nativeBuilder.attributeActions(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.AttributeActions(dafnyValue.dtor_attributeActions()));
-    if (dafnyValue.dtor_allowedUnauthenticatedAttributes().is_Some()) {
-      nativeBuilder.allowedUnauthenticatedAttributes(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.AttributeNameList(dafnyValue.dtor_allowedUnauthenticatedAttributes().dtor_value()));
+    nativeBuilder.attributeActionsOnEncrypt(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.AttributeActions(dafnyValue.dtor_attributeActionsOnEncrypt()));
+    if (dafnyValue.dtor_allowedUnsignedAttributes().is_Some()) {
+      nativeBuilder.allowedUnsignedAttributes(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.AttributeNameList(dafnyValue.dtor_allowedUnsignedAttributes().dtor_value()));
     }
-    if (dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().is_Some()) {
-      nativeBuilder.allowedUnauthenticatedAttributePrefix(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_allowedUnauthenticatedAttributePrefix().dtor_value()));
+    if (dafnyValue.dtor_allowedUnsignedAttributePrefix().is_Some()) {
+      nativeBuilder.allowedUnsignedAttributePrefix(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_allowedUnsignedAttributePrefix().dtor_value()));
     }
     if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
       nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId().dtor_value()));
@@ -110,11 +110,11 @@ public class ToNative {
     if (dafnyValue.dtor_cmm().is_Some()) {
       nativeBuilder.cmm(software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm().dtor_value()));
     }
-    if (dafnyValue.dtor_legacyConfig().is_Some()) {
-      nativeBuilder.legacyConfig(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.LegacyConfig(dafnyValue.dtor_legacyConfig().dtor_value()));
+    if (dafnyValue.dtor_legacyOverride().is_Some()) {
+      nativeBuilder.legacyOverride(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.LegacyOverride(dafnyValue.dtor_legacyOverride().dtor_value()));
     }
-    if (dafnyValue.dtor_plaintextPolicy().is_Some()) {
-      nativeBuilder.plaintextPolicy(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.PlaintextPolicy(dafnyValue.dtor_plaintextPolicy().dtor_value()));
+    if (dafnyValue.dtor_plaintextOverride().is_Some()) {
+      nativeBuilder.plaintextOverride(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.PlaintextOverride(dafnyValue.dtor_plaintextOverride().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -139,7 +139,7 @@ public class ToNative {
   public static ParsedHeader ParsedHeader(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.ParsedHeader dafnyValue) {
     ParsedHeader.Builder nativeBuilder = ParsedHeader.builder();
-    nativeBuilder.attributeActions(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.AttributeActions(dafnyValue.dtor_attributeActions()));
+    nativeBuilder.attributeActionsOnEncrypt(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.AttributeActions(dafnyValue.dtor_attributeActionsOnEncrypt()));
     nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
     nativeBuilder.encryptedDataKeys(software.amazon.cryptography.materialproviders.ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
     nativeBuilder.storedEncryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_storedEncryptionContext()));

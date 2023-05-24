@@ -10,8 +10,8 @@ import java.lang.Byte;
 import java.lang.Character;
 import java.lang.RuntimeException;
 import java.util.Objects;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextPolicy;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyOverride;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig;
@@ -50,7 +50,7 @@ public class ToDafny {
   }
 
   public static Error Error(CollectionOfErrors nativeValue) {
-    DafnySequence<? extends Error> list = software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    DafnySequence<? extends Error> list = software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue.list(), 
         ToDafny::Error, 
         Error._typeDescriptor());
@@ -78,22 +78,22 @@ public class ToDafny {
   public static DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig nativeValue) {
     DafnySequence<? extends Character> logicalTableName;
-    logicalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.logicalTableName());
+    logicalTableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.logicalTableName());
     DafnySequence<? extends Character> partitionKeyName;
-    partitionKeyName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.partitionKeyName());
+    partitionKeyName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.partitionKeyName());
     Option<DafnySequence<? extends Character>> sortKeyName;
     sortKeyName = Objects.nonNull(nativeValue.sortKeyName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sortKeyName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sortKeyName()))
         : Option.create_None();
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActions;
-    attributeActions = software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.AttributeActions(nativeValue.attributeActions());
-    Option<DafnySequence<? extends DafnySequence<? extends Character>>> allowedUnauthenticatedAttributes;
-    allowedUnauthenticatedAttributes = (Objects.nonNull(nativeValue.allowedUnauthenticatedAttributes()) && nativeValue.allowedUnauthenticatedAttributes().size() > 0) ?
-        Option.create_Some(software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.AttributeNameList(nativeValue.allowedUnauthenticatedAttributes()))
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActionsOnEncrypt;
+    attributeActionsOnEncrypt = software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.AttributeActions(nativeValue.attributeActionsOnEncrypt());
+    Option<DafnySequence<? extends DafnySequence<? extends Character>>> allowedUnsignedAttributes;
+    allowedUnsignedAttributes = (Objects.nonNull(nativeValue.allowedUnsignedAttributes()) && nativeValue.allowedUnsignedAttributes().size() > 0) ?
+        Option.create_Some(software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.AttributeNameList(nativeValue.allowedUnsignedAttributes()))
         : Option.create_None();
-    Option<DafnySequence<? extends Character>> allowedUnauthenticatedAttributePrefix;
-    allowedUnauthenticatedAttributePrefix = Objects.nonNull(nativeValue.allowedUnauthenticatedAttributePrefix()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.allowedUnauthenticatedAttributePrefix()))
+    Option<DafnySequence<? extends Character>> allowedUnsignedAttributePrefix;
+    allowedUnsignedAttributePrefix = Objects.nonNull(nativeValue.allowedUnsignedAttributePrefix()) ?
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.allowedUnsignedAttributePrefix()))
         : Option.create_None();
     Option<DBEAlgorithmSuiteId> algorithmSuiteId;
     algorithmSuiteId = Objects.nonNull(nativeValue.algorithmSuiteId()) ?
@@ -107,15 +107,15 @@ public class ToDafny {
     cmm = Objects.nonNull(nativeValue.cmm()) ?
         Option.create_Some(software.amazon.cryptography.materialproviders.ToDafny.CryptographicMaterialsManager(nativeValue.cmm()))
         : Option.create_None();
-    Option<LegacyConfig> legacyConfig;
-    legacyConfig = Objects.nonNull(nativeValue.legacyConfig()) ?
-        Option.create_Some(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.LegacyConfig(nativeValue.legacyConfig()))
+    Option<LegacyOverride> legacyOverride;
+    legacyOverride = Objects.nonNull(nativeValue.legacyOverride()) ?
+        Option.create_Some(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.LegacyOverride(nativeValue.legacyOverride()))
         : Option.create_None();
-    Option<PlaintextPolicy> plaintextPolicy;
-    plaintextPolicy = Objects.nonNull(nativeValue.plaintextPolicy()) ?
-        Option.create_Some(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.PlaintextPolicy(nativeValue.plaintextPolicy()))
+    Option<PlaintextOverride> plaintextOverride;
+    plaintextOverride = Objects.nonNull(nativeValue.plaintextOverride()) ?
+        Option.create_Some(software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.PlaintextOverride(nativeValue.plaintextOverride()))
         : Option.create_None();
-    return new DynamoDbItemEncryptorConfig(logicalTableName, partitionKeyName, sortKeyName, attributeActions, allowedUnauthenticatedAttributes, allowedUnauthenticatedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyConfig, plaintextPolicy);
+    return new DynamoDbItemEncryptorConfig(logicalTableName, partitionKeyName, sortKeyName, attributeActionsOnEncrypt, allowedUnsignedAttributes, allowedUnsignedAttributePrefix, algorithmSuiteId, keyring, cmm, legacyOverride, plaintextOverride);
   }
 
   public static EncryptItemInput EncryptItemInput(
@@ -138,20 +138,20 @@ public class ToDafny {
 
   public static ParsedHeader ParsedHeader(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.ParsedHeader nativeValue) {
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActions;
-    attributeActions = software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.AttributeActions(nativeValue.attributeActions());
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActionsOnEncrypt;
+    attributeActionsOnEncrypt = software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.AttributeActions(nativeValue.attributeActionsOnEncrypt());
     DBEAlgorithmSuiteId algorithmSuiteId;
     algorithmSuiteId = software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(nativeValue.algorithmSuiteId());
     DafnySequence<? extends EncryptedDataKey> encryptedDataKeys;
     encryptedDataKeys = software.amazon.cryptography.materialproviders.ToDafny.EncryptedDataKeyList(nativeValue.encryptedDataKeys());
     DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> storedEncryptionContext;
     storedEncryptionContext = software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(nativeValue.storedEncryptionContext());
-    return new ParsedHeader(attributeActions, algorithmSuiteId, encryptedDataKeys, storedEncryptionContext);
+    return new ParsedHeader(attributeActionsOnEncrypt, algorithmSuiteId, encryptedDataKeys, storedEncryptionContext);
   }
 
   public static Error Error(DynamoDbItemEncryptorException nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_DynamoDbItemEncryptorException(message);
   }
 

@@ -1,16 +1,16 @@
-package software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DoNothingTag.CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX;
-import static software.aws.cryptography.dbencryptionsdk.dynamodb.enhancedclient.SignOnlyTag.CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DoNothingTag.CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.SignOnlyTag.CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX;
 
 public class DynamoDbEnhancedClientEncryption {
     public static DynamoDbEncryptionInterceptor CreateDynamoDbEncryptionInterceptor(
@@ -30,9 +30,9 @@ public class DynamoDbEnhancedClientEncryption {
     private static DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEnhancedTableEncryptionConfig configWithSchema) {
         Map<String, CryptoAction> actions = new HashMap<>();
 
-        Set<String> signOnlyAttributes = configWithSchema.tableSchema().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class).orElseGet(HashSet::new);
-        Set<String> doNothingAttributes = configWithSchema.tableSchema().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX, Set.class).orElseGet(HashSet::new);
-        Set<String> keyAttributes = configWithSchema.tableSchema().tableMetadata().keyAttributes().stream().map(val -> val.name()).collect(Collectors.toSet());
+        Set<String> signOnlyAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class).orElseGet(HashSet::new);
+        Set<String> doNothingAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX, Set.class).orElseGet(HashSet::new);
+        Set<String> keyAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().keyAttributes().stream().map(val -> val.name()).collect(Collectors.toSet());
 
         if (!Collections.disjoint(keyAttributes, doNothingAttributes)) {
             throw DynamoDbEncryptionException.builder()
@@ -44,7 +44,7 @@ public class DynamoDbEnhancedClientEncryption {
                     .build();
         }
 
-        List<String> attributeNames = configWithSchema.tableSchema().attributeNames();
+        List<String> attributeNames = configWithSchema.schemaOnEncrypt().attributeNames();
         for (String attributeName : attributeNames) {
             if (keyAttributes.contains(attributeName)) {
                 // key attributes are always SIGN_ONLY
@@ -60,10 +60,10 @@ public class DynamoDbEnhancedClientEncryption {
         }
 
         DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder();
-        String partitionName = configWithSchema.tableSchema().tableMetadata().primaryPartitionKey();
+        String partitionName = configWithSchema.schemaOnEncrypt().tableMetadata().primaryPartitionKey();
         builder = builder.partitionKeyName(partitionName);
 
-        Optional<String> sortName = configWithSchema.tableSchema().tableMetadata().primarySortKey();
+        Optional<String> sortName = configWithSchema.schemaOnEncrypt().tableMetadata().primarySortKey();
         if (sortName.isPresent()) {
             builder = builder.sortKeyName(sortName.get());
         }
@@ -80,10 +80,14 @@ public class DynamoDbEnhancedClientEncryption {
             builder = builder.logicalTableName(configWithSchema.logicalTableName());
         }
 
-        return builder.allowedUnauthenticatedAttributePrefix(configWithSchema.allowedUnauthenticatedAttributePrefix())
-                .allowedUnauthenticatedAttributes(configWithSchema.allowedUnauthenticatedAttributes())
-                .attributeActions(actions)
-                .legacyConfig(configWithSchema.legacyConfig())
+        if (!Objects.isNull(configWithSchema.plaintextOverride())) {
+            builder = builder.plaintextOverride(configWithSchema.plaintextOverride());
+        }
+
+        return builder.allowedUnsignedAttributePrefix(configWithSchema.allowedUnsignedAttributePrefix())
+                .allowedUnsignedAttributes(configWithSchema.allowedUnsignedAttributes())
+                .attributeActionsOnEncrypt(actions)
+                .legacyOverride(configWithSchema.legacyOverride())
                 .build();
     }
 }

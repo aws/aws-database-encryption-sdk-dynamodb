@@ -5,7 +5,7 @@ include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProvid
 include "../../DynamoDbEncryption/src/DynamoToStruct.dfy"
 include "../../DynamoDbEncryption/src/SearchInfo.dfy"
 include "Util.dfy"
-include "InternalLegacyConfig.dfy"
+include "InternalLegacyOverride.dfy"
 include "../../DynamoDbEncryption/src/Util.dfy"
 include "../../StructuredEncryption/src/Util.dfy"
 
@@ -21,13 +21,14 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import Seq
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import SE =  StructuredEncryptionUtil
-  import InternalLegacyConfig
+  import InternalLegacyOverride
   import MaterialProviders
   import ExpectedEncryptionContextCMM
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DynamoDbEncryptionUtil
   import StructuredEncryptionUtil
+  import StandardLibrary.String
 
   datatype Config = Config(
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
@@ -35,13 +36,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName,
     nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>,
     nameonly cmm: CMP.ICryptographicMaterialsManager,
-    nameonly attributeActions: DDBE.AttributeActions,
-    nameonly allowedUnauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
-    nameonly allowedUnauthenticatedAttributePrefix: Option<string>,
+    nameonly attributeActionsOnEncrypt: DDBE.AttributeActions,
+    nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
+    nameonly allowedUnsignedAttributePrefix: Option<string>,
     nameonly algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
     nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient,
-    nameonly plaintextPolicy: DDBE.PlaintextPolicy,
-    nameonly internalLegacyConfig: Option<InternalLegacyConfig.InternalLegacyConfig> := None
+    nameonly plaintextOverride: DDBE.PlaintextOverride,
+    nameonly internalLegacyOverride: Option<InternalLegacyOverride.InternalLegacyOverride> := None
   )
 
   type InternalConfig = Config
@@ -58,7 +59,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   const SORT_NAME : ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-sort-name");
 
   // Is the attribute name an allowed unauthenticated name?
-  predicate method AllowedUnauthenticated(
+  predicate method AllowedUnsigned(
     unauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
     unauthenticatedPrefix: Option<string>,
     attr : string)
@@ -67,7 +68,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     || (unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attr)
     || ReservedPrefix <= attr
        // Attributes with the reserved prefix are "allowed unauthenticated" in that
-       // they are not specified as signed within attributeActions.
+       // they are not specified as signed within attributeActionsOnEncrypt.
        // These attributes MAY still be authenticated via other methods,
        // such as "aws_dbe_head" which is explicitly added to the canonical hash
        // used in signing.
@@ -87,9 +88,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   )
   {
     if action == CSE.DO_NOTHING then
-      AllowedUnauthenticated(unauthenticatedAttributes, unauthenticatedPrefix, attribute)
+      AllowedUnsigned(unauthenticatedAttributes, unauthenticatedPrefix, attribute)
     else
-      !AllowedUnauthenticated(unauthenticatedAttributes, unauthenticatedPrefix, attribute)
+      !AllowedUnsigned(unauthenticatedAttributes, unauthenticatedPrefix, attribute)
   }
 
   function method CryptoActionString(action: CSE.CryptoAction) : string
@@ -127,8 +128,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   predicate method UnknownAttribute(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
     && InSignatureScope(config, attr)
-    && attr !in config.attributeActions
-       // Attributes in signature scope MUST be configured in attributeActions
+    && attr !in config.attributeActionsOnEncrypt
+       // Attributes in signature scope MUST be configured in attributeActionsOnEncrypt
        // so these two lines are saying "in scope && not in scope"
        // and that's why it's an error
   }
@@ -136,15 +137,15 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   // Is the attribute SIGN_ONLY?
   predicate method IsSignOnly(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
-    attr in config.attributeActions && config.attributeActions[attr] == CSE.SIGN_ONLY
+    attr in config.attributeActionsOnEncrypt && config.attributeActionsOnEncrypt[attr] == CSE.SIGN_ONLY
   }
 
   // Is the attribute name in signature scope?
   predicate method InSignatureScope(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
-    !AllowedUnauthenticated(
-      config.allowedUnauthenticatedAttributes,
-      config.allowedUnauthenticatedAttributePrefix,
+    !AllowedUnsigned(
+      config.allowedUnsignedAttributes,
+      config.allowedUnsignedAttributePrefix,
       attr)
   }
 
@@ -297,51 +298,51 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     && (config.cmm.Modifies !! config.structuredEncryption.Modifies)
 
     // The partition key MUST be CSE.SIGN_ONLY
-    && config.partitionKeyName in config.attributeActions
-    && config.attributeActions[config.partitionKeyName] == CSE.SIGN_ONLY
+    && config.partitionKeyName in config.attributeActionsOnEncrypt
+    && config.attributeActionsOnEncrypt[config.partitionKeyName] == CSE.SIGN_ONLY
        // The sort key MUST be CSE.SIGN_ONLY
     && (config.sortKeyName.Some? ==>
-          && config.sortKeyName.value in config.attributeActions
-          && config.attributeActions[config.sortKeyName.value] == CSE.SIGN_ONLY)
+          && config.sortKeyName.value in config.attributeActionsOnEncrypt
+          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == CSE.SIGN_ONLY)
 
-    // attributeActions only apply on Encrypt.
+    // attributeActionsOnEncrypt only apply on Encrypt.
     // The config on Encrypt MAY NOT be the same as the config on Decrypt.
     // This means that Encrypt MUST be "forward compatible" with Decrypt.
     // Every current and *past* CSE.DO_NOTHING action
-    // MUST be derivable from allowedUnauthenticated information
+    // MUST be derivable from allowedUnsigned information
     // otherwise Decrypt will attempt to authenticate an attribute that was unauthenticated on Encrypt.
     // Also, every current and *past* CSE.ENCRYPT_AND_SIGN or CSE.SIGN_ONLY action
-    // MUST NOT overlap with allowedUnauthenticated information
+    // MUST NOT overlap with allowedUnsigned information
     // otherwise Decrypt will not authenticate at attribute that was authenticate on Encrypt.
-    // For this to work the scope of allowedUnauthenticated information MUST only increase.
-    // This means that an attribute that is added to allowedUnauthenticatedAttributes
+    // For this to work the scope of allowedUnsigned information MUST only increase.
+    // This means that an attribute that is added to allowedUnsignedAttributes
     // MUST NOT ever be removed.
-    // This means that is a allowedUnauthenticatedAttributePrefix is added
-    // allowedUnauthenticatedAttributePrefix <= old(allowedUnauthenticatedAttributePrefix).
-    // The simple case is do not change allowedUnauthenticatedAttributePrefix.
-    // But allowedUnauthenticatedAttributePrefix MAY get shorter,
+    // This means that is a allowedUnsignedAttributePrefix is added
+    // allowedUnsignedAttributePrefix <= old(allowedUnsignedAttributePrefix).
+    // The simple case is do not change allowedUnsignedAttributePrefix.
+    // But allowedUnsignedAttributePrefix MAY get shorter,
     // however this is a dangerous operation as it may impact other attributes.
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
     //# If an Authenticate Action other than DO_NOTHING is configured for an attribute name included in [Unauthenticated Attributes](./ddb-table-encryption-config.md#unauthenticated-attributes)
     //# or beginning with the prefix specified in [Unauthenticated Attribute Prefix](./ddb-table-encryption-config.md#unauthenticated-attribute-prefix),
     //# this operation MUST yield an error.
-    && (forall attribute <- config.attributeActions.Keys
+    && (forall attribute <- config.attributeActionsOnEncrypt.Keys
           :: ForwardCompatibleAttributeAction(
                attribute,
-               config.attributeActions[attribute],
-               config.allowedUnauthenticatedAttributes,
-               config.allowedUnauthenticatedAttributePrefix))
+               config.attributeActionsOnEncrypt[attribute],
+               config.allowedUnsignedAttributes,
+               config.allowedUnsignedAttributePrefix))
 
     // It is forbidden to explicitly configure an attribute with the reserved prefix
-    && (forall attribute <- config.attributeActions.Keys ::
+    && (forall attribute <- config.attributeActionsOnEncrypt.Keys ::
           !(ReservedPrefix <= attribute))
 
-    && (config.internalLegacyConfig.Some? ==> config.plaintextPolicy.FORBID_WRITE_FORBID_READ?)
+    && (config.internalLegacyOverride.Some? ==> config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?)
     && (
-         (|| config.plaintextPolicy.FORBID_WRITE_ALLOW_READ?
-          || config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?)
+         (|| config.plaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+          || config.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?)
          ==>
-           config.internalLegacyConfig.None?)
+           config.internalLegacyOverride.None?)
   }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
@@ -356,10 +357,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
     : (ret : Result<CSE.CryptoAction, string>)
-    ensures (attr !in config.attributeActions && InSignatureScope(config, attr)) ==> ret.Failure?
+    ensures (attr !in config.attributeActionsOnEncrypt && InSignatureScope(config, attr)) ==> ret.Failure?
   {
-    if attr in config.attributeActions then
-      Success(config.attributeActions[attr])
+    if attr in config.attributeActionsOnEncrypt then
+      Success(config.attributeActionsOnEncrypt[attr])
     else if !InSignatureScope(config, attr) then
       Success(CSE.CryptoAction.DO_NOTHING)
     else
@@ -371,7 +372,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
     : (ret : Result<CSE.CryptoSchema, string>)
-    ensures (attr !in config.attributeActions && InSignatureScope(config, attr)) ==> ret.Failure?
+    ensures (attr !in config.attributeActionsOnEncrypt && InSignatureScope(config, attr)) ==> ret.Failure?
   {
     var action :- GetCryptoSchemaActionInner(config, attr);
     var newElement := CSE.CryptoSchemaContent.Action(action);
@@ -417,7 +418,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# (Attribute Actions MAY specify a Crypto Action for an attribute not
     //# in the input DynamoDB Item).
     ensures forall k <- item.Keys ::
-              (k !in config.attributeActions && InSignatureScope(config, k)) ==> ret.Failure?
+              (k !in config.attributeActionsOnEncrypt && InSignatureScope(config, k)) ==> ret.Failure?
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -433,11 +434,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     ensures ret.Success? ==> forall k <-item.Keys ::
                 && GetCryptoSchemaAction(config, k).Success?
                 && ret.value.content.SchemaMap[k] == GetCryptoSchemaAction(config, k).value
-                && (k in config.attributeActions ==>
+                && (k in config.attributeActionsOnEncrypt ==>
                       ret.value.content.SchemaMap[k].content ==
-                      CSE.CryptoSchemaContent.Action(config.attributeActions[k]))
+                      CSE.CryptoSchemaContent.Action(config.attributeActionsOnEncrypt[k]))
   {
-    var schema := map kv <- item.Items | true :: kv.0 := GetCryptoSchemaAction(config, kv.0);
+    var schema := map k <- item :: k := GetCryptoSchemaAction(config, k);
     DynamoToStruct.MapKeysMatchItems(item);
     DynamoToStruct.SimplifyMapValueSuccess(schema);
     var actionMapRes := DynamoToStruct.SimplifyMapValue(schema);
@@ -499,8 +500,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   //# An item MUST be determined to be plaintext if it does not contain
   //# attributes with the names "aws_dbe_head" and "aws_dbe_foot".
   predicate method IsPlaintextItem(ddbItem: ComAmazonawsDynamodbTypes.AttributeMap) {
-    && StructuredEncryptionUtil.HeaderField !in ddbItem.Keys
-    && StructuredEncryptionUtil.FooterField !in ddbItem.Keys
+    && StructuredEncryptionUtil.HeaderField !in ddbItem
+    && StructuredEncryptionUtil.FooterField !in ddbItem
   }
 
   function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchema)
@@ -516,7 +517,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
             DynamoDbItemEncryptorException( message := "Recieved unexpected Crypto Schema: mismatch with signature scope"));
     :- Need(forall k <- schema.content.SchemaMap :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
             DynamoDbItemEncryptorException( message := "Recieved unexpected Crypto Schema: Invalid attribute names"));
-    Success(map k <- schema.content.SchemaMap.Keys | true :: k := schema.content.SchemaMap[k].content.Action)
+    Success(map k <- schema.content.SchemaMap :: k := schema.content.SchemaMap[k].content.Action)
   }
 
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
@@ -549,8 +550,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     ensures
       && output.Success?
-      && !(config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.policy.REQUIRE_ENCRYPT_ALLOW_DECRYPT?)
-      && !(config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?)
+      && !(config.internalLegacyOverride.Some? && config.internalLegacyOverride.value.policy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT?)
+      && !(config.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?)
       ==>
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //= type=implication
@@ -596,7 +597,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
         && output.value.parsedHeader.value == ParsedHeader(
-                                                attributeActions := maybeCryptoSchema.value,
+                                                attributeActionsOnEncrypt := maybeCryptoSchema.value,
                                                 algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
                                                 storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
                                                 encryptedDataKeys := structuredEncParsed.encryptedDataKeys
@@ -605,46 +606,50 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
     //# If a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) of
-    //# `REQUIRE_WRITE_ALLOW_READ` is specified,
+    //# `FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ` is specified,
     //# this operation MUST NOT encrypt the input item,
     //# and MUST passthrough that item as the output.
     ensures
-      && config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?
+      && config.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
       && output.Success?
       ==>
         && output.value.encryptedItem == input.plaintextItem
         && output.value.parsedHeader == None
+
+    ensures output.Success? ==> |input.plaintextItem| <= MAX_ATTRIBUTE_COUNT
   {
     :- Need(
       && config.partitionKeyName in input.plaintextItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
-    , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
+    , DynamoDbItemEncryptorException( message := "Configuration mismatch partition or sort key does not exist in item."));
 
-    assert {:split_here} true;
+    if |input.plaintextItem| > MAX_ATTRIBUTE_COUNT {
+      var actCount := String.Base10Int2String(|input.plaintextItem|);
+      var maxCount := String.Base10Int2String(MAX_ATTRIBUTE_COUNT);
+      return Failure(E("Item to encrypt had " + actCount + " attributes, but maximum allowed is " + maxCount));
+    }
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
-    //# `REQUIRE_ENCRYPT_ALLOW_DECRYPT` is specified,
+    //# `FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT` is specified,
     //# this operation MUST delegate encryption of this item to the
     //# [Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor),
     //# using the configured [Attribute Flags](./ddb-table-encryption-config.md) as input.
-    if config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.policy.REQUIRE_ENCRYPT_ALLOW_DECRYPT? {
-      var encryptItemOutput :- config.internalLegacyConfig.value.EncryptItem(input);
+    if config.internalLegacyOverride.Some? && config.internalLegacyOverride.value.policy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT? {
+      var encryptItemOutput :- config.internalLegacyOverride.value.EncryptItem(input);
       //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
       //# The item returned by this operation MUST be the item outputted by the
       //# [Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor).
       return Success(encryptItemOutput);
     }
 
-    if (config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?) {
+    if (config.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?) {
       var passthroughOutput := EncryptItemOutput(
         encryptedItem := input.plaintextItem,
         parsedHeader := None
       );
       return Success(passthroughOutput);
     }
-
-    assert {:split_here} true;
 
     var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
@@ -702,7 +707,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     var parsedActions :- ConvertCryptoSchemaToAttributeActions(config, encryptVal.parsedHeader.cryptoSchema);
     var parsedHeader := ParsedHeader(
-      attributeActions := parsedActions,
+      attributeActionsOnEncrypt := parsedActions,
       algorithmSuiteId := encryptVal.parsedHeader.algorithmSuiteId,
       storedEncryptionContext := encryptVal.parsedHeader.storedEncryptionContext,
       encryptedDataKeys := encryptVal.parsedHeader.encryptedDataKeys
@@ -745,8 +750,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     ensures
       && output.Success?
-      && !(config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.IsLegacyInput(input))
-      && (config.plaintextPolicy.FORBID_WRITE_FORBID_READ? || !IsPlaintextItem(input.encryptedItem))
+      && !(config.internalLegacyOverride.Some? && config.internalLegacyOverride.value.IsLegacyInput(input))
+      && (config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ? || !IsPlaintextItem(input.encryptedItem))
       ==>
         //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
         //= type=implication
@@ -802,7 +807,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
         && output.value.parsedHeader.value == ParsedHeader(
-                                                attributeActions := maybeCryptoSchema.value,
+                                                attributeActionsOnEncrypt := maybeCryptoSchema.value,
                                                 algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
                                                 storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
                                                 encryptedDataKeys := structuredEncParsed.encryptedDataKeys
@@ -811,34 +816,41 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
     //# If a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) of
-    //# `REQUIRE_WRITE_ALLOW_READ` or `FORBID_WRITE_ALLOW_READ` is specified,
+    //# `FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ` or `FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ` is specified,
     //# and the input item [is a plaintext item](#determining-plaintext-items)
     //# this operation MUST NOT decrypt the input item,
     //# and MUST passthrough that item as the output.
     ensures
-      && (|| config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?
-          || config.plaintextPolicy.FORBID_WRITE_ALLOW_READ?)
+      && (|| config.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+          || config.plaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?)
       && IsPlaintextItem(input.encryptedItem)
       && output.Success?
       ==>
         && output.value.plaintextItem == input.encryptedItem
         && output.value.parsedHeader == None
   {
+    var realCount := |set k <- input.encryptedItem | !(ReservedPrefix <= k)|;
+    if realCount > MAX_ATTRIBUTE_COUNT {
+      var actCount := String.Base10Int2String(realCount);
+      var maxCount := String.Base10Int2String(MAX_ATTRIBUTE_COUNT);
+      return Failure(E("Item to decrypt had " + actCount + " attributes, but maximum allowed is " + maxCount));
+    }
+
     :- Need(
       && config.partitionKeyName in input.encryptedItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
-    , DynamoDbItemEncryptorException( message := "Configuration missmatch partition or sort key does not exist in item."));
+    , DynamoDbItemEncryptorException( message := "Configuration mismatch partition or sort key does not exist in item."));
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
-    //# `REQUIRE_ENCRYPT_ALLOW_DECRYPT` or `FORBID_ENCRYPT_ALLOW_DECRYPT` is configured,
+    //# `FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT` or `FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT` is configured,
     //# and the input item [is an item written in the legacy format](#determining-legacy-items),
     //# this operation MUST delegate decryption of this item to the
     //# [Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor),
     //# using the configured [Attribute Flags](./ddb-table-encryption-config.md) as input.
-    // Note: InternalLegacyConfig.DecryptItem checks that the legacy policy is correct.
-    if config.internalLegacyConfig.Some? && config.internalLegacyConfig.value.IsLegacyInput(input) {
-      var decryptItemOutput :- config.internalLegacyConfig.value.DecryptItem(input);
+    // Note: InternalLegacyOverride.DecryptItem checks that the legacy policy is correct.
+    if config.internalLegacyOverride.Some? && config.internalLegacyOverride.value.IsLegacyInput(input) {
+      var decryptItemOutput :- config.internalLegacyOverride.value.DecryptItem(input);
       //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
       //# The item returned by this operation MUST be the item outputted by the
       //# [Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor).
@@ -846,8 +858,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     }
 
     if (
-        && (|| config.plaintextPolicy.REQUIRE_WRITE_ALLOW_READ?
-            || config.plaintextPolicy.FORBID_WRITE_ALLOW_READ?)
+        && (|| config.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+            || config.plaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?)
         && IsPlaintextItem(input.encryptedItem)
       ) {
       var passthroughOutput := DecryptItemOutput(
@@ -908,7 +920,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var parsedAuthActions :- ConvertCryptoSchemaToAttributeActions(config, schemaToConvert);
 
     var parsedHeader := ParsedHeader(
-      attributeActions := parsedAuthActions,
+      attributeActionsOnEncrypt := parsedAuthActions,
       algorithmSuiteId := decryptVal.parsedHeader.algorithmSuiteId,
       storedEncryptionContext := decryptVal.parsedHeader.storedEncryptionContext,
       encryptedDataKeys := decryptVal.parsedHeader.encryptedDataKeys
