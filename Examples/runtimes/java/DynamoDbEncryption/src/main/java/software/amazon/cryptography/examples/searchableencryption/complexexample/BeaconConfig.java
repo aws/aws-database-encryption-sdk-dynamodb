@@ -34,8 +34,7 @@ public class BeaconConfig {
 
   /*
    * This file sets up all the searchable encryption configuration required to execute the examples from
-   * https://github.com/aws-samples/searchable-encryption-dynamodb-howto/blob/main/BeaconPOC/Demo.md
-   * using the encryption client.
+   * our workshop using the encryption client.
    */
 
   public static DynamoDbClient SetupBeaconConfig(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {

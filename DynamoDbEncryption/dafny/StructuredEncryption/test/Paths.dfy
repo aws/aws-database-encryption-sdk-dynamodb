@@ -10,21 +10,22 @@ module PathsTests {
   import opened StructuredEncryptionPaths
 
   method {:test} TestSpecExamples() {
-    /*
-    TODO - remake these tests without the parsing step
-
     var tableName : GoodString := "example_table";
     assert(ValidString("example_table"));
-    var nameSrc :- expect MakeTerminalLocation("name");
-    expect nameSrc.canonicalPath(tableName) == 
+    var name := Selector.Map("name");
+    var pathToTest := TerminalLocation([name]);
+    expect pathToTest.canonicalPath(tableName) == 
          UTF8.EncodeAscii("example_table")
       + [0,0,0,0,0,0,0,1] // depth
       + ['$' as uint8] // map
       + [0,0,0,0,0,0,0,4] // length
       + UTF8.EncodeAscii("name");
 
-    var stampSrc :- expect MakeTerminalLocation("status-history[0].timestamp");
-    expect stampSrc.canonicalPath(tableName) == 
+    var history := Selector.Map("status-history");
+    var index := Selector.List(0);
+    var timestamp := Selector.Map("timestamp");
+    var pathToTest2 := TerminalLocation([history, index, timestamp]);
+    expect pathToTest2.canonicalPath(tableName) == 
         UTF8.EncodeAscii("example_table")
       + [0,0,0,0,0,0,0,3] // depth
       + ['$' as uint8] // map
@@ -35,6 +36,5 @@ module PathsTests {
       + ['$' as uint8] // map
       + [0,0,0,0,0,0,0,9] // length of "timestamp"
       + UTF8.EncodeAscii("timestamp");
-  */
   }
 }
