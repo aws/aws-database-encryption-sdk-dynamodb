@@ -92,10 +92,12 @@ public class CompoundBeaconSearchableEncryptionExample {
     //  - max: log((100/2))/log(2) ~= 5.6, round up to 6
     // You will somehow need to round results to a nearby integer.
     // We choose to round to the nearest integer; you might consider a different rounding approach.
-    // Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
-    //    better performance, but it is easier to distinguish unique plaintext values in encrypted data.
-    // Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
-    //    worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
+    // Rounding up will return fewer expected "false positives" in queries,
+    //    leading to fewer decrypt calls and better performance,
+    //    but it is easier to identify which beacon values encode distinct plaintexts.
+    // Rounding down will return more expected "false positives" in queries,
+    //    leading to more decrypt calls and worse performance,
+    //    but it is harder to identify which beacon values encode distinct plaintexts.
     // We can choose a beacon length between 3 and 6:
     //  - Closer to 3, we expect more "false positives" to be returned,
     //    making it harder to distinguish plaintext values
