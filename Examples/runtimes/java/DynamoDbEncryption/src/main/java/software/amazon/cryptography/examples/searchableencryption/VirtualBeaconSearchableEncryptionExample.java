@@ -40,22 +40,28 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   that beacon, and query against that beacon.
 
   A virtual field is a field consisting of a transformation of one or more attributes in a DDB item.
+  Virtual fields are useful in querying against encrypted fields that only have a handful of
+  possible values. They allow you to take fields with few possible values, concatenate
+  them to other fields, then query against the combined field. This enables effective querying,
+  while also hiding information from the underlying dataset. This is explained in more detail below.
   Virtual fields are not stored in the DDB table. However, they are used to construct
-  a beacon, the value of which is stored. For our example, we will construct a virtual field
-  from two DDB attributes `state` and `hasTestResult` as `state`+prefix(`hasTestResult`, 1).
-  We will then create beacon out of this virtual field and use it to search.
-
-  In general, if you wish to query a field with only a handful of possible values, it is suggested
-  to construct a virtual field to enable effective querying while obfuscating underlying data.
+  a beacon, the value of which is stored.
 
   For more information on virtual fields, see
-    TODO: Add docs link
+  TODO: Add docs link
+
+  For our example, we will construct a virtual field
+  from two DDB attributes `state` and `hasTestResult` as `state`+prefix(`hasTestResult`, 1).
+  We will then create beacon out of this virtual field and use it to search.
 
   This example follows a use case of a database that stores customer test result metadata.
   Records are indexed by `customer_id` and store a `state` attribute, representing the
   US state or territory where the customer lives, and a `hasTestResult` boolean attribute,
   representing whether the customer has a "test result" available. (Maybe this represents
-  some medical test result, and this table stores "result available" metadata.)
+  some medical test result, and this table stores "result available" metadata.) We assume
+  that values in these fields are uniformly distributed across all possible values for
+  these fields (56 for `state`, 2 for `hasTestResult`), and are uniformly distributed across
+  customer IDs.
 
   The motivation behind this example is to demonstrate how and why one would use a virtual beacon.
   In this example, our table stores records with an encrypted boolean `hasTestResult` attribute.
@@ -64,24 +70,32 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 
   To be able to execute this query securely and efficiently, we want the following
   properties on our table:
-   1. Hide whether a record's `hasTestResult` attribute is `true` or `false`
+   1. Hide the distribution of `hasTestResult` attribute values (i.e. it should be infeasible
+      to determine the percentage of `true`s to `false`s across the dataset from beaconized
+      values)
    2. Query against a combination of whether `hasTestResult` is true/false and the `state` field
-  We could not achieve these properties with a standard beacon on an true/false attribute. Following
+  We cannot achieve these properties with a standard beacon on an true/false attribute. Following
   the guidance to choose a beacon length:
     TODO: link
   For a boolean value (in our case, whether `hasTestResult` is true or false), the acceptable
   bounds for beacon length are either 0 or 1. This corresponds to either not storing a beacon
-  (length 0), or effectively directly storing an true/false attribute (length 1). With
+  (length 0), or effectively storing another boolean attribute (length 1). With
   length 0, this beacon is useless for searching (violating property 2); with length 1, this
-  beacon does not hide the attribute (violating property 1).
+  beacon may not hide the attribute (violating property 1).
+  In addition, choosing a longer beacon length does not help us.
+  Each attribute value is mapped to a distinct beacon.
+  Since booleans only have 2 possible attribute values, we will only have 2 possible beacon values,
+  making a longer beacon length provide no advantages over a beacon of length 1.
 
-  (A compound beacon also does not help. To (over)simplify, a compound beacon is a
-   concatenation of standard beacons, i.e. beacon(`state`)+beacon(`hasTestResult`).
-   The `state` beacon is still visible, so we would still have the problems above.)
+  A compound beacon also does not help.
+  To (over)simplify, a compound beacon is a concatenation of standard beacons,
+  i.e. beacon(`state`)+beacon(`hasTestResult`).
+  The `hasTestResult` beacon is still visible, so we would still have the problems above.
 
   To achieve these properties, we instead construct a virtual field and use that in our beacon,
-  i.e. beacon(`state`+`hasTestResult`). This gives us both desired properties; we can query
-  against both attributes while obfuscating the underlying data. This is demonstrated in more
+  i.e. beacon(`state`+`hasTestResult`). Assuming these fields are well-distributed across
+  customer IDs and possible values, this gives us both desired properties; we can query against
+  both attributes while hiding information from the underlying data. This is demonstrated in more
   detail below.
 
   Running this example requires access to a DDB table  with the
@@ -179,10 +193,12 @@ public class VirtualBeaconSearchableEncryptionExample {
     //     - max: log((112/2))/log(2) ~= 5.8, round up to 6
     //    You will somehow need to round results to a nearby integer.
     //    We choose to round to the nearest integer; you might consider a different rounding approach.
-    //    Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
-    //       better performance, but it is easier to distinguish unique plaintext values in encrypted data.
-    //    Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
-    //       worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
+    //    Rounding up will return fewer expected "false positives" in queries,
+    //       leading to fewer decrypt calls and better performance,
+    //       but it is easier to identify which beacon values encode distinct plaintexts.
+    //    Rounding down will return more expected "false positives" in queries,
+    //       leading to more decrypt calls and worse performance,
+    //       but it is harder to identify which beacon values encode distinct plaintexts.
     //    We can choose a beacon length between 3 and 6:
     //     - Closer to 3, we expect more "false positives" to be returned,
     //       making it harder to distinguish plaintext values
