@@ -64,23 +64,6 @@ jobs:
           git config --global --add url.https://github.com/.insteadOf git@github.com:
           git submodule update --init --recursive submodules/MaterialProviders
 
-      # Set up env vars for CodeArtifact
-      # Necessary to build and deploy dependencies for examples locally
-      - name: Set Up Env Vars for CodeArtifact
-        run: |
-          export URL=`aws codeartifact get-repository-endpoint \
-            --domain github-polymorph \
-            --domain-owner "370957321024" \
-            --repository DafnyJavaConversion \
-            --format maven | jq -r .repositoryEndpoint`
-          export TOKEN=`aws codeartifact get-authorization-token \
-            --domain github-polymorph \
-            --domain-owner "370957321024" \
-            --query authorizationToken \
-            --output text`
-          echo "CODEARTIFACT_URL_JAVA_CONVERSION=$URL" >> $GITHUB_ENV
-          echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
-
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v3
         with:
@@ -109,6 +92,5 @@ jobs:
           # Run simple examples
           gradle -p runtimes/java/DynamoDbEncryption test 
           # Run migration examples
-          gradle -p runtimes/java/Migration/AWSDBE test
-          gradle -p runtimes/java/Migration/DDBEC test
+          gradle -p runtimes/java/Migration/DDBECToAWSDBE test
 

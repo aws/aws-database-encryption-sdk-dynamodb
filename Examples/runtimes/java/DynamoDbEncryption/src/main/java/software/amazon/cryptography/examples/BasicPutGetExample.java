@@ -53,9 +53,9 @@ public class BasicPutGetExample {
         final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
         attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
         attributeActionsOnEncrypt.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.put("data_to_encrypt", CryptoAction.ENCRYPT_AND_SIGN);
-        attributeActionsOnEncrypt.put("data_to_sign", CryptoAction.SIGN_ONLY);
-        attributeActionsOnEncrypt.put(":data_to_ignore", CryptoAction.DO_NOTHING);
+        attributeActionsOnEncrypt.put("attribute1", CryptoAction.ENCRYPT_AND_SIGN);
+        attributeActionsOnEncrypt.put("attribute2", CryptoAction.SIGN_ONLY);
+        attributeActionsOnEncrypt.put(":attribute3", CryptoAction.DO_NOTHING);
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
@@ -130,9 +130,9 @@ public class BasicPutGetExample {
         final HashMap<String, AttributeValue> item = new HashMap<>();
         item.put("partition_key", AttributeValue.builder().s("BasicPutGetExample").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
-        item.put("data_to_encrypt", AttributeValue.builder().s("encrypt and sign me!").build());
-        item.put("data_to_sign", AttributeValue.builder().s("sign me!").build());
-        item.put(":data_to_ignore", AttributeValue.builder().s("ignore me!").build());
+        item.put("attribute1", AttributeValue.builder().s("encrypt and sign me!").build());
+        item.put("attribute2", AttributeValue.builder().s("sign me!").build());
+        item.put(":attribute3", AttributeValue.builder().s("ignore me!").build());
 
         final PutItemRequest putRequest = PutItemRequest.builder()
                 .tableName(ddbTableName)
@@ -161,7 +161,7 @@ public class BasicPutGetExample {
         // Demonstrate that GetItem succeeded and returned the decrypted item
         assert 200 == getResponse.sdkHttpResponse().statusCode();
         final Map<String, AttributeValue> returnedItem = getResponse.item();
-        assert returnedItem.get("data_to_encrypt").s().equals("encrypt and sign me!");
+        assert returnedItem.get("attribute1").s().equals("encrypt and sign me!");
 
     }
 
