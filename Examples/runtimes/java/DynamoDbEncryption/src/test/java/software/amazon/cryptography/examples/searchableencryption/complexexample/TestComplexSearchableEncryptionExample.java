@@ -16,7 +16,6 @@ public class TestComplexSearchableEncryptionExample {
 
     // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood
     // our test fails due to eventual consistency issues.
-    // TODO: poll the table, with retries and backoff, to do this more elegantly.
     Thread.sleep(5000);
 
     ComplexSearchableEncryptionExample.runExample(

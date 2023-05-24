@@ -151,7 +151,7 @@ public class BasicSearchableEncryptionExample {
     //        statically configures a single beaconKey. That is the approach this example takes.
     //        For use cases where you want to use different beacon keys depending on the data
     //        (for example if your table holds data for multiple tenants, and you want to use
-    //        a different beacon key per tenant), look into configuring a Multi Beacon Key.
+    //        a different beacon key per tenant), look into configuring a MultiKeyStore.
     //        Source: TODO example
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
