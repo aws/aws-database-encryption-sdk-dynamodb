@@ -269,12 +269,12 @@ public class VirtualBeaconSearchableEncryptionExample {
     //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
     //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
     //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
-    final Map<String, CryptoAction> attributeActions = new HashMap<>();
-    attributeActions.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("create_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-    attributeActions.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("hasSensitiveData", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
+    attributeActionsOnEncrypt.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("create_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("hasSensitiveData", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
     // 9. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
@@ -283,7 +283,7 @@ public class VirtualBeaconSearchableEncryptionExample {
         .logicalTableName(ddbTableName)
         .partitionKeyName("customer_id")
         .sortKeyName("create_time")
-        .attributeActions(attributeActions)
+        .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
         .keyring(kmsKeyring)
         .search(SearchConfig.builder()
             .writeVersion(1) // MUST be 1

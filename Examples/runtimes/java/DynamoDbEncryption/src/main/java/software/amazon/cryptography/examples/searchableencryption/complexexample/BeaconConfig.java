@@ -629,46 +629,46 @@ public class BeaconConfig {
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
     // 12. Define crypto actions
-    final Map<String, CryptoAction> attributeActions = new HashMap<>();
+    final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     // Our partition key must be configured as SIGN_ONLY
-    attributeActions.put("partition_key", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY);
     // Attributes used in beacons must be configured as ENCRYPT_AND_SIGN
-    attributeActions.put("EmployeeID", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("TicketNumber", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("ProjectName", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("EmployeeName", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("EmployeeEmail", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("CreatorEmail", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("ProjectStatus", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("OrganizerEmail", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("ManagerEmail", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("AssigneeEmail", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("City", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("Severity", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("Location", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("EmployeeID", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("TicketNumber", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("ProjectName", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("EmployeeName", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("EmployeeEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("CreatorEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("ProjectStatus", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("OrganizerEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("ManagerEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("AssigneeEmail", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("City", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("Severity", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("Location", CryptoAction.ENCRYPT_AND_SIGN);
     // These are not beaconized attributes, but are sensitive data that must be encrypted
-    attributeActions.put("Attendees", CryptoAction.ENCRYPT_AND_SIGN);
-    attributeActions.put("Subject", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("Attendees", CryptoAction.ENCRYPT_AND_SIGN);
+    attributeActionsOnEncrypt.put("Subject", CryptoAction.ENCRYPT_AND_SIGN);
     // signed parts and unencrypted attributes can be configured as SIGN_ONLY or DO_NOTHING
     // For this example, we will set these to SIGN_ONLY to ensure authenticity
-    attributeActions.put("TicketModTime", CryptoAction.SIGN_ONLY);
-    attributeActions.put("MeetingStart", CryptoAction.SIGN_ONLY);
-    attributeActions.put("TimeCardStart", CryptoAction.SIGN_ONLY);
-    attributeActions.put("EmployeeTitle", CryptoAction.SIGN_ONLY);
-    attributeActions.put("Description", CryptoAction.SIGN_ONLY);
-    attributeActions.put("ProjectTarget", CryptoAction.SIGN_ONLY);
-    attributeActions.put("Hours", CryptoAction.SIGN_ONLY);
-    attributeActions.put("Role", CryptoAction.SIGN_ONLY);
-    attributeActions.put("Message", CryptoAction.SIGN_ONLY);
-    attributeActions.put("ProjectStart", CryptoAction.SIGN_ONLY);
-    attributeActions.put("Duration", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("TicketModTime", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("MeetingStart", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("TimeCardStart", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("EmployeeTitle", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("Description", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("ProjectTarget", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("Hours", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("Role", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("Message", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("ProjectStart", CryptoAction.SIGN_ONLY);
+    attributeActionsOnEncrypt.put("Duration", CryptoAction.SIGN_ONLY);
 
     // 13. Set up table config
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .logicalTableName(ddbTableName)
         .partitionKeyName("partition_key")
-        .attributeActions(attributeActions)
+        .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
         .keyring(kmsKeyring)
         .search(SearchConfig.builder()
             .writeVersion(1) // MUST be 1

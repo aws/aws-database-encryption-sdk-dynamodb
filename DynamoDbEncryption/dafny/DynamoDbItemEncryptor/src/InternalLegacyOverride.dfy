@@ -3,15 +3,15 @@
 
 include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy"
 
-module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal"} InternalLegacyConfig {
+module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal"} InternalLegacyOverride {
   import opened Wrappers
   import Types = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
 
-  class {:extern} InternalLegacyConfig {
+  class {:extern} InternalLegacyOverride {
 
     static method {:extern} Build(encryptorConfig: Types.DynamoDbItemEncryptorConfig)
-      returns (output: Result<Option<InternalLegacyConfig>, Types.Error>)
+      returns (output: Result<Option<InternalLegacyOverride>, Types.Error>)
 
     const policy: DDBE.LegacyPolicy
 

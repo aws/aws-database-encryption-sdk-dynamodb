@@ -11,7 +11,7 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
 
 public class ParsedHeader {
-  private final Map<String, CryptoAction> attributeActions;
+  private final Map<String, CryptoAction> attributeActionsOnEncrypt;
 
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -20,14 +20,14 @@ public class ParsedHeader {
   private final Map<String, String> storedEncryptionContext;
 
   protected ParsedHeader(BuilderImpl builder) {
-    this.attributeActions = builder.attributeActions();
+    this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.encryptedDataKeys = builder.encryptedDataKeys();
     this.storedEncryptionContext = builder.storedEncryptionContext();
   }
 
-  public Map<String, CryptoAction> attributeActions() {
-    return this.attributeActions;
+  public Map<String, CryptoAction> attributeActionsOnEncrypt() {
+    return this.attributeActionsOnEncrypt;
   }
 
   public DBEAlgorithmSuiteId algorithmSuiteId() {
@@ -51,9 +51,9 @@ public class ParsedHeader {
   }
 
   public interface Builder {
-    Builder attributeActions(Map<String, CryptoAction> attributeActions);
+    Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
 
-    Map<String, CryptoAction> attributeActions();
+    Map<String, CryptoAction> attributeActionsOnEncrypt();
 
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
@@ -71,7 +71,7 @@ public class ParsedHeader {
   }
 
   static class BuilderImpl implements Builder {
-    protected Map<String, CryptoAction> attributeActions;
+    protected Map<String, CryptoAction> attributeActionsOnEncrypt;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -83,19 +83,19 @@ public class ParsedHeader {
     }
 
     protected BuilderImpl(ParsedHeader model) {
-      this.attributeActions = model.attributeActions();
+      this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.encryptedDataKeys = model.encryptedDataKeys();
       this.storedEncryptionContext = model.storedEncryptionContext();
     }
 
-    public Builder attributeActions(Map<String, CryptoAction> attributeActions) {
-      this.attributeActions = attributeActions;
+    public Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt) {
+      this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
       return this;
     }
 
-    public Map<String, CryptoAction> attributeActions() {
-      return this.attributeActions;
+    public Map<String, CryptoAction> attributeActionsOnEncrypt() {
+      return this.attributeActionsOnEncrypt;
     }
 
     public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
@@ -126,8 +126,8 @@ public class ParsedHeader {
     }
 
     public ParsedHeader build() {
-      if (Objects.isNull(this.attributeActions()))  {
-        throw new IllegalArgumentException("Missing value for required field `attributeActions`");
+      if (Objects.isNull(this.attributeActionsOnEncrypt()))  {
+        throw new IllegalArgumentException("Missing value for required field `attributeActionsOnEncrypt`");
       }
       if (Objects.isNull(this.algorithmSuiteId()))  {
         throw new IllegalArgumentException("Missing value for required field `algorithmSuiteId`");

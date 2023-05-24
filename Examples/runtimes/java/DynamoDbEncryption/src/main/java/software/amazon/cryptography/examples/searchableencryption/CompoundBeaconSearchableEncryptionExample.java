@@ -189,11 +189,11 @@ public class CompoundBeaconSearchableEncryptionExample {
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
     // 7. Configure which attributes are encrypted and/or signed when writing new items.
-    final Map<String, CryptoAction> attributeActions = new HashMap<>();
-    attributeActions.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("create_time", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActions.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActions.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
+    attributeActionsOnEncrypt.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("create_time", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
     // We do not need to define a crypto action on location.
     // We only need to define crypto actions on attributes that we pass to PutItem.
@@ -204,7 +204,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .logicalTableName(ddbTableName)
         .partitionKeyName("customer_id")
-        .attributeActions(attributeActions)
+        .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
         .keyring(kmsKeyring)
         .search(SearchConfig.builder()
             .writeVersion(1) // MUST be 1
