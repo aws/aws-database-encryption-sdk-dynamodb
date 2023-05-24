@@ -40,14 +40,14 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   following primary key configuration:
     - Partition key is named "customer_id" with type (S)
     - Sort key is named "create_time" with type (S)
-  This table must have a Global Secondary Index (GSI) configured named "email-birthday-index":
-    - Partition key is named "aws_dbe_b_email" with type (S)
+  This table must have a Global Secondary Index (GSI) configured named "address-birthday-index":
+    - Partition key is named "aws_dbe_b_address" with type (S)
     - Sort key is named "aws_dbe_b_birthday" with type (S)
 
   In this example for storing customer information, this schema is utilized for the data:
    - "customer_id" stores a unique customer identifier
    - "create_time" stores a Unix timestamp
-   - "email" stores a valid email address (i.e. prefix@domain)
+   - "address" stores a postal address (e.g. "440 Terry Ave N, Seattle, WA, 98109")
    - "birthday" stores a birthday in DD/MM/YYYY format
 
   The example requires the following ordered input command line parameters:
@@ -61,7 +61,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 
 public class BasicSearchableEncryptionExample {
 
-  static String GSI_NAME = "email-birthday-index";
+  static String GSI_NAME = "address-birthday-index";
 
   public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId,
       String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
@@ -73,14 +73,16 @@ public class BasicSearchableEncryptionExample {
     //    TODO: add link
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
 
-    // The configured DDB table has a GSI on the `aws_dbe_b_email` AttributeName.
-    // This field is assumed to hold a valid email address (prefix@domain).
-    // We will also assume that each customer ID corresponds to a single email address.
-    // (This is not enforced by our schema, but we assume our writer code enforces this.)
+    // The configured DDB table has a GSI on the `aws_dbe_b_address` AttributeName.
+    // This field is assumed to hold a postal address.
+    // We will allow multiple customer IDs to share the same postal address,
+    // though we will assume that customer IDs roughly correspond to a single address.
+    // (In practice, the vast majority of customers live at different addresses,
+    //  though we do allow multiple customers to live at the same address.)
     //
-    // To select a beacon length, we must consider how many email addresses we expect
-    // to have in our system; from our assumptions above, there will be as many email addresses
-    // as there are customer IDs, i.e. one per customer. So the email beacon length
+    // To select a beacon length, we must consider how many addresses we expect
+    // to have in our system; from our assumptions above, there will be roughly as many addresses
+    // as there are customer IDs, i.e. one per customer. So the address beacon length
     // should correlate with the number of customers in our database.
     //
     // Let's assume we have 100,000 customers in our database right now, but are growing quickly
@@ -98,33 +100,51 @@ public class BasicSearchableEncryptionExample {
     //  - max: log((3,200,000/2))/log(2) ~= 20.6, round up to 21
     // You will somehow need to round results to a nearby integer.
     // We choose to round to the nearest integer; you might consider a different rounding approach.
-    // Rounding up will return fewer expected "false positives" in queries, leading to fewer decrypt calls and
-    //    better performance, but it is easier to distinguish unique plaintext values in encrypted data.
-    // Rounding down will return more expected "false positives" in queries, leading to more decrypt calls and
-    //    worse performance, but it is harder to distinguish unique plaintext values in encrypted data.
+    // Rounding up will return fewer expected "false positives" in queries,
+    //    leading to fewer decrypt calls and better performance,
+    //    but it is easier to identify which beacon values encode distinct plaintexts.
+    // Rounding down will return more expected "false positives" in queries,
+    //    leading to more decrypt calls and worse performance,
+    //    but it is harder to identify which beacon values encode distinct plaintexts.
     // This suggests we can select a beacon length between 11 and 16 and
     // have desirable security properties at both 100,000 and 3,200,000 customers:
     //  - Closer to 11, we expect more "false positives" to be returned,
-    //    making it harder to distinguish plaintext values
+    //    making it harder to identify which beacon values encode distinct plaintexts,
     //    but leading to more decrypt calls and worse performance
     //  - Closer to 16, we expect fewer "false positives" returned in queries,
     //    leading to fewer decrypt calls and better performance,
-    //    but it is easier to distinguish unique plaintext values
+    //    but it is easier to identify which beacon values encode distinct plaintexts.
     // As an example, we will choose 15.
     //
-    // Values stored in aws_dbe_b_email will be 15 bits long (0x0000 - 0x8fff)
+    // Values stored in aws_dbe_b_address will be 15 bits long (0x0000 - 0x8fff)
     // There will be 2^15 = 32,768 possible HMAC values.
     // When we have ~100,000 customers, for a particular beacon we expect
-    // (100,000/32,768) ~= 3.1 emails
+    // (100,000/32,768) ~= 3.1 addresses
     // sharing that beacon value.
     // When we have ~3,200,000 customers, for a particular beacon we expect
-    // (3,200,000/32,768) ~= 97.7 emails
+    // (3,200,000/32,768) ~= 97.7 addresses
     // sharing that beacon value.
-    StandardBeacon emailBeacon = StandardBeacon.builder()
-        .name("email")
+    // Note that as the dataset grows, we expect that this will impact
+    // our performance and security properties:
+    //  - The number of decrypt calls will grow linearly with the dataset.
+    //    At 100k customers, we expect ~3.1 decrypt calls per query.
+    //    At 3.2M customers, we expect ~97.7 decrypt calls per query.
+    //  - The performance of queries will slow linearly with the dataset.
+    //    Based on the growth in the number of decrypt calls,
+    //    we expect queries to take (97.7/3.1 ~= 31.5) times as long
+    //    at 3.2M customers than they did at 100k customers.
+    //  - It will become harder to distinguish which beacon values encode distinct plaintexts.
+    //    At 100k customers, it will be relatively easy to distinguish
+    //    which beacon values encode distinct plaintexts,
+    //    as a beacon value is only expected to encode ~3.1 addresses.
+    //    At 3.2M customers, a beacon value is expected to encode ~97.7 distinct
+    //    plaintext values, so it will be harder to distinguish which
+    //    beacon values encode distinct plaintexts.
+    StandardBeacon addressBeacon = StandardBeacon.builder()
+        .name("address")
         .length(15)
         .build();
-    standardBeaconList.add(emailBeacon);
+    standardBeaconList.add(addressBeacon);
 
     // The configured DDB table has a GSI on the `aws_dbe_b_birthday` AttributeName.
     // This field is assumed to hold birthday represented as a string in DD/MM/YYYY format.
@@ -145,11 +165,11 @@ public class BasicSearchableEncryptionExample {
     //  - max: log((40,177/2))/log(2) ~= 14.3, round down to 14
     // We can choose a beacon length between 8 and 14:
     //  - Closer to 8, we expect more "false positives" to be returned,
-    //    making it harder to distinguish plaintext values
+    //    making it harder to identify which beacon values encode distinct plaintexts,
     //    but leading to more decrypt calls and worse performance
     //  - Closer to 14, we expect fewer "false positives" returned in queries,
     //    leading to fewer decrypt calls and better performance,
-    //    but it is easier to distinguish unique plaintext values
+    //    but it is easier to identify which beacon values encode distinct plaintexts.
     // As an example, we will choose 10.
     //
     // Values stored in aws_dbe_b_birthday will be 10 bits long (0x000 - 0x3ff).
@@ -237,7 +257,7 @@ public class BasicSearchableEncryptionExample {
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     attributeActionsOnEncrypt.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActionsOnEncrypt.put("create_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-    attributeActionsOnEncrypt.put("email", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("address", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActionsOnEncrypt.put("birthday", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
     // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
@@ -274,16 +294,16 @@ public class BasicSearchableEncryptionExample {
     // 9. Put an item into our table using the above client.
     //    Before the item gets sent to DynamoDb, it will be encrypted
     //        client-side, according to our configuration.
-    //    Since our configuration includes beacons for `email` and `birthday`,
+    //    Since our configuration includes beacons for `address` and `birthday`,
     //        the client will add two additional attributes to the item. These attributes will have names
-    //        `aws_dbe_b_email` and `aws_dbe_b_birthday`. Their values will be HMACs
+    //        `aws_dbe_b_address` and `aws_dbe_b_birthday`. Their values will be HMACs
     //        truncated to as many bits as the beacon's `length` parameter; e.g.
-    //    aws_dbe_b_email = truncate(HMAC("able@amazon.com"), 15)
+    //    aws_dbe_b_address = truncate(HMAC("440 Terry Ave N, Seattle, WA, 98109"), 15)
     //    aws_dbe_b_birthday = truncate(HMAC("07/05/1994"), 10)
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("customer_id", AttributeValue.builder().s("ABCD-1234").build());
     item.put("create_time", AttributeValue.builder().n("1681495205").build());
-    item.put("email", AttributeValue.builder().s("able@amazon.com").build());
+    item.put("address", AttributeValue.builder().s("440 Terry Ave N, Seattle, WA, 98109").build());
     item.put("birthday", AttributeValue.builder().s("07/05/1994").build());
 
     final PutItemRequest putRequest = PutItemRequest.builder()
@@ -301,25 +321,26 @@ public class BasicSearchableEncryptionExample {
     //         and transform the query to use the beaconized name and value.
     //     Internally, the client will query for and receive all items with a matching HMAC value in the beacon field.
     //     This may include a number of "false positives" with different ciphertext, but the same truncated HMAC.
-    //     e.g. if truncate(HMAC("able@amazon.com"), 15) == truncate(HMAC("bob@amazon.com"), 15),
+    //     e.g. if truncate(HMAC("440 Terry Ave N, Seattle, WA, 98109"), 15)
+    //          == truncate(HMAC("525 Market St, San Francisco, CA, 94105"), 15),
     //     the query will return both items.
     //     The client will decrypt all returned items to determine which ones have the expected attribute values,
     //         and only surface items with the correct plaintext to the user.
     //     This procedure is internal to the client and is abstracted away from the user;
-    //     e.g. the user will only see "able@amazon.com" and never "bob@amazon.com",
-    //         though the actual query returned both.
+    //     e.g. the user will only see "440 Terry Ave N, Seattle, WA, 98109" and never
+    //        "525 Market St, San Francisco, CA, 94105", though the actual query returned both.
     Map<String,String> expressionAttributesNames = new HashMap<>();
-    expressionAttributesNames.put("#email", "email");
+    expressionAttributesNames.put("#address", "address");
     expressionAttributesNames.put("#birthday", "birthday");
 
     Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
-    expressionAttributeValues.put(":email", AttributeValue.builder().s("able@amazon.com").build());
+    expressionAttributeValues.put(":address", AttributeValue.builder().s("440 Terry Ave N, Seattle, WA, 98109").build());
     expressionAttributeValues.put(":birthday", AttributeValue.builder().s("07/05/1994").build());
 
     QueryRequest queryRequest = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
-        .keyConditionExpression("#email = :email and #birthday = :birthday")
+        .keyConditionExpression("#address = :address and #birthday = :birthday")
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
@@ -332,7 +353,7 @@ public class BasicSearchableEncryptionExample {
     assert attributeValues.size() == 1;
     final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
     // Validate the item has the expected attributes
-    assert returnedItem.get("email").s().equals("able@amazon.com");
+    assert returnedItem.get("address").s().equals("440 Terry Ave N, Seattle, WA, 98109");
     assert returnedItem.get("birthday").s().equals("07/05/1994");
   }
 
