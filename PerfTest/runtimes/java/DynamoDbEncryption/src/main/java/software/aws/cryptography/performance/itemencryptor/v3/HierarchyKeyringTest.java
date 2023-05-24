@@ -36,17 +36,17 @@ import static software.aws.cryptography.performance.itemencryptor.TestConstants.
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.TEST_PK;
 import static software.aws.cryptography.performance.itemencryptor.TestConstants.UNAUTH_PREFIX;
 
-public class HeirarchyKeyringTest extends TestBase {
+public class HierarchyKeyringTest extends TestBase {
     private static final String TEST_KEYSTORE_NAME = "KeyStoreTestTable";
     private static final String TEST_DDB_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
 
     private DynamoDbEncryption ddbEnc;
     private DynamoDbClient ddb;
 
-    public HeirarchyKeyringTest() {
+    public HierarchyKeyringTest() {
     }
 
-    HeirarchyKeyringTest(final String plainTextFile) {
+    HierarchyKeyringTest(final String plainTextFile) {
         this.plainTextFile = plainTextFile;
     }
     @Override
@@ -56,6 +56,7 @@ public class HeirarchyKeyringTest extends TestBase {
 
         final KeyStoreConfig keyStoreConfig = KeyStoreConfig.builder()
                                                             .ddbTableName(TEST_KEYSTORE_NAME)
+                                                            .logicalKeyStoreName(TEST_KEYSTORE_NAME)
                                                             .kmsConfiguration(KMSConfiguration.builder()
                                                                                               .kmsKeyArn(KMS_KEY_ARN)
                                                                                               .build())
@@ -76,12 +77,12 @@ public class HeirarchyKeyringTest extends TestBase {
         final IBranchKeyIdSupplier branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
                                                                        CreateDynamoDbEncryptionBranchKeyIdSupplierInput.builder()
                                                                                                                        .ddbKeyBranchKeyIdSupplier((getBranchKeyIdFromDdbKeyInput) -> {
-                                                                    String tenantKeyId = getBranchKeyIdFromDdbKeyInput.ddbKey().get(PARTITION_ATTRIBUTE).s();
-                                                                    if (tenantKeyId.equals(TEST_PK)) {
-                                                                        return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(tenant1BranchKey).build();
-                                                                    }
-                                                                    return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(tenant2BranchKey).build();
-                                                                })
+                                                                                                                           String tenantKeyId = getBranchKeyIdFromDdbKeyInput.ddbKey().get(PARTITION_ATTRIBUTE).s();
+                                                                                                                           if (tenantKeyId.equals(TEST_PK)) {
+                                                                                                                               return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(tenant1BranchKey).build();
+                                                                                                                           }
+                                                                                                                           return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(tenant2BranchKey).build();
+                                                                                                                       })
                                                                                                                        .build())
                                                                .branchKeyIdSupplier();
 
@@ -89,7 +90,7 @@ public class HeirarchyKeyringTest extends TestBase {
         CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput.builder()
                                                                                                 .maxCacheSize(10)
                                                                                                 .keyStore(keystore)
-                                                                    .branchKeyIdSupplier(branchKeyIdSupplier).ttlSeconds(60)
+                                                                                                .branchKeyIdSupplier(branchKeyIdSupplier).ttlSeconds(60)
                                                                                                 .maxCacheSize(100)
                                                                                                 .build();
         MaterialProviders matProv = MaterialProviders.builder().MaterialProvidersConfig(MaterialProvidersConfig.builder().build()).build();
@@ -169,7 +170,7 @@ public class HeirarchyKeyringTest extends TestBase {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        TestBase testBase = new HeirarchyKeyringTest("single_attribute.json");
+        TestBase testBase = new HierarchyKeyringTest("single_attribute.json");
         testBase.setup();
         testBase.decrypt();
 
