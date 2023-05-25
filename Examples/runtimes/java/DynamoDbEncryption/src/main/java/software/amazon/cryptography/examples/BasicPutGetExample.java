@@ -53,9 +53,9 @@ public class BasicPutGetExample {
         final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
         attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
         attributeActionsOnEncrypt.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.put("data_to_encrypt", CryptoAction.ENCRYPT_AND_SIGN);
-        attributeActionsOnEncrypt.put("data_to_sign", CryptoAction.SIGN_ONLY);
-        attributeActionsOnEncrypt.put(":data_to_ignore", CryptoAction.DO_NOTHING);
+        attributeActionsOnEncrypt.put("attribute1", CryptoAction.ENCRYPT_AND_SIGN);
+        attributeActionsOnEncrypt.put("attribute2", CryptoAction.SIGN_ONLY);
+        attributeActionsOnEncrypt.put(":attribute3", CryptoAction.DO_NOTHING);
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
@@ -102,10 +102,8 @@ public class BasicPutGetExample {
                 // `ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384` suite,
                 // which includes AES-GCM with key derivation, signing, and key commitment.
                 // This is also the default algorithm suite if one is not specified in this config.
-                // For more information on supported algorithm suites, see
-                //   TODO: Add DB ESDK-specific link, similar to
-                //   https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/supported-algorithms.html,
-                //   but with accurate information for DB ESDK
+                // For more information on supported algorithm suites, see:
+                //   https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/supported-algorithms.html
                 .algorithmSuiteId(
                     DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384)
                 .build();
@@ -132,9 +130,9 @@ public class BasicPutGetExample {
         final HashMap<String, AttributeValue> item = new HashMap<>();
         item.put("partition_key", AttributeValue.builder().s("BasicPutGetExample").build());
         item.put("sort_key", AttributeValue.builder().n("0").build());
-        item.put("data_to_encrypt", AttributeValue.builder().s("encrypt and sign me!").build());
-        item.put("data_to_sign", AttributeValue.builder().s("sign me!").build());
-        item.put(":data_to_ignore", AttributeValue.builder().s("ignore me!").build());
+        item.put("attribute1", AttributeValue.builder().s("encrypt and sign me!").build());
+        item.put("attribute2", AttributeValue.builder().s("sign me!").build());
+        item.put(":attribute3", AttributeValue.builder().s("ignore me!").build());
 
         final PutItemRequest putRequest = PutItemRequest.builder()
                 .tableName(ddbTableName)
@@ -163,7 +161,7 @@ public class BasicPutGetExample {
         // Demonstrate that GetItem succeeded and returned the decrypted item
         assert 200 == getResponse.sdkHttpResponse().statusCode();
         final Map<String, AttributeValue> returnedItem = getResponse.item();
-        assert returnedItem.get("data_to_encrypt").s().equals("encrypt and sign me!");
+        assert returnedItem.get("attribute1").s().equals("encrypt and sign me!");
 
     }
 

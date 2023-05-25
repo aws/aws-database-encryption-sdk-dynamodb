@@ -48,8 +48,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   In general, if you wish to use a field with only a handful possible values, it is suggested
   to construct a virtual field to enable effective querying while obfuscating underlying data.
 
-  For more information on virtual fields, see
-    TODO: Add docs link
+  For more information on virtual fields, see:
+    https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/beacons.html#virtual-field
 
   This example follows a use case of a database that stores customer location data. This is an
   extension of the "BasicSearchableEncryptionExample" in this directory. This example uses the same
@@ -69,9 +69,9 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   properties on our table:
    1. Obfuscate whether a record's `hasSensitiveData` attribute is `true` or `false`
    2. Query against a combination of whether `hasSensitiveData` is true/false and the `state` field
-  We could not achieve these properties with a standard beacon on an true/false attribute.Following
-  the guidance to choose a beacon length:
-    TODO: link
+  We could not achieve these properties with a standard beacon on an true/false attribute
+  Following the guidance to choose a beacon length:
+    https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
   For a boolean value (in our case, whether `hasSensitiveData` is true or false), the acceptable
   bounds for beacon length are either 0 or 1. This corresponds to either not storing a beacon
   (length 0), or effectively directly storing an true/false attribute (length 1). With
@@ -170,7 +170,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //      (2 possible values: true/false hasSensitiveData field), we expect a population size of
     //      (56 * 2 = 112) possible values.
     //    The following link provides guidance on choosing a beacon length:
-    //       TODO: add link
+    //       https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
     //    We follow the guidance in the link above to determine acceptable bounds for beacon length:
     //     - min: log(sqrt(112))/log(2) ~= 3.4, round up to 4
     //     - max: log((112/2))/log(2) ~= 5.8, round up to 6
@@ -223,8 +223,8 @@ public class VirtualBeaconSearchableEncryptionExample {
     //        statically configures a single beaconKey. That is the approach this example takes.
     //        For use cases where you want to use different beacon keys depending on the data
     //        (for example if your table holds data for multiple tenants, and you want to use
-    //        a different beacon key per tenant), look into configuring a Multi Beacon Key.
-    //        Source: TODO example
+    //        a different beacon key per tenant), look into configuring a MultiKeyStore:
+    //          https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption-multitenant.html
     //    We also provide our standard beacon list and virtual fields here.
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(

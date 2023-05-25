@@ -248,9 +248,6 @@ public class ClientSupplierExample {
         assert 200 == onlyReplicaKeyGetResponse.sdkHttpResponse().statusCode();
         final Map<String, AttributeValue> onlyReplicaKeyReturnedItem = onlyReplicaKeyGetResponse.item();
         assert onlyReplicaKeyReturnedItem.get("sensitive_data").s().equals("encrypt and sign me!");
-
-        // TODO: After adding MissingRegionException, give an example with a fake region
-        // demonstrating that MissingRegionException extends AwsCryptographicMaterialProvidersException
     }
 
     public static void main(final String[] args) {
