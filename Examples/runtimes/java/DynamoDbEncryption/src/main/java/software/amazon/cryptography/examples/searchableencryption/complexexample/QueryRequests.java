@@ -69,7 +69,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query1Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `meeting1`
     assert query1Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery1 = false;
@@ -113,7 +113,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query2Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `meeting1`
     assert query2Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery2 = false;
@@ -165,7 +165,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query3Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `reservation1`
     assert query3Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery3 = false;
@@ -174,7 +174,7 @@ public class QueryRequests {
         foundKnownValueItemQuery3 = true;
         assert item.get("Subject").s().equals("Scan beacons");
         assert item.get("Location").m().get("Building").s().equals("SEA33");
-        assert item.get("Attendees").l().contains(AttributeValue.builder().s("betty@gmail.com").build());
+        assert item.get("Attendees").l().contains(AttributeValue.builder().s("barney@gmail.com").build());
       }
     }
     assert foundKnownValueItemQuery3;
@@ -203,7 +203,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query4Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `employee1`
     assert query4Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery4 = false;
@@ -241,7 +241,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query5Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `meeting1`
     assert query5Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery5 = false;
@@ -280,8 +280,9 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query6Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    assert query6Response.items().size() == 1;
+    // Assert 2 items returned:
+    // Expected to be `ticket1` and `ticket3`
+    assert query6Response.items().size() == 2;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery6 = false;
     for (Map<String, AttributeValue> item : query6Response.items()) {
@@ -316,7 +317,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query7Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `reservation1`
     assert query7Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery7 = false;
@@ -326,7 +327,7 @@ public class QueryRequests {
         assert item.get("Subject").s().equals("Scan beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
         assert item.get("Attendees").l()
-            .contains(AttributeValue.builder().s("betty@gmail.com").build());
+            .contains(AttributeValue.builder().s("barney@gmail.com").build());
       }
     }
     assert foundKnownValueItemQuery7;
@@ -355,7 +356,8 @@ public class QueryRequests {
     QueryResponse query8Response = ddb.query(query8Request);
     // Validate query was returned successfully
     assert 200 == query8Response.sdkHttpResponse().statusCode();
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+
+    // Assert 1 item was returned: `timecard1`
     assert query8Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery8 = false;
@@ -390,7 +392,8 @@ public class QueryRequests {
     QueryResponse query9Response = ddb.query(query9Request);
     // Validate query was returned successfully
     assert 200 == query9Response.sdkHttpResponse().statusCode();
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+
+    // Assert 1 item was returned: `employee1`
     assert query9Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery9 = false;
@@ -426,7 +429,8 @@ public class QueryRequests {
     QueryResponse query10Response = ddb.query(query10Request);
     // Validate query was returned successfully
     assert 200 == query10Response.sdkHttpResponse().statusCode();
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+
+    // Assert 1 item was returned: `employee1`
     assert query10Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery10 = false;
@@ -459,8 +463,10 @@ public class QueryRequests {
     QueryResponse query11Response = ddb.query(query11Request);
     // Validate query was returned successfully
     assert 200 == query11Response.sdkHttpResponse().statusCode();
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    assert query11Response.items().size() == 1;
+
+    // Assert 2 items returned:
+    // Expected to be `ticket1` and `ticket2`
+    assert query11Response.items().size() == 2;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery11 = false;
     for (Map<String, AttributeValue> item : query11Response.items()) {
@@ -496,7 +502,8 @@ public class QueryRequests {
     QueryResponse query12Response = ddb.query(query12Request);
     // Validate query was returned successfully
     assert 200 == query12Response.sdkHttpResponse().statusCode();
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+
+    // Assert 1 item was returned: `ticket1`
     assert query12Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery12 = false;
@@ -534,7 +541,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query13Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `ticket1`
     assert query13Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery13 = false;
@@ -570,7 +577,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query14Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `employee1`
     assert query14Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery14 = false;
@@ -605,8 +612,9 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query15Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    assert query15Response.items().size() == 1;
+    // Assert 4 items returned:
+    // Expected to be `employee1`, `employee2`, `employee3`, and `employee4`
+    assert query15Response.items().size() == 4;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery15 = false;
     for (Map<String, AttributeValue> item : query15Response.items()) {
@@ -640,8 +648,9 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query16Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    assert query16Response.items().size() == 1;
+    // Assert 2 items returned:
+    // Expected to be `ticket1` and `ticket4`
+    assert query16Response.items().size() == 2;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery16 = false;
     for (Map<String, AttributeValue> item : query16Response.items()) {
@@ -680,8 +689,9 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query17Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    assert query17Response.items().size() == 1;
+    // Assert 3 items returned:
+    // Expected to be `ticket1`, `ticket2`, and `ticket4`
+    assert query17Response.items().size() == 3;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery17 = false;
     for (Map<String, AttributeValue> item : query17Response.items()) {
@@ -707,7 +717,6 @@ public class QueryRequests {
     query18AttributeValues.put(":startdate", AttributeValue.builder().s("PS-2022-01-01").build());
     query18AttributeValues.put(":target", AttributeValue.builder().s("2025-01-01").build());
 
-
     QueryRequest query18Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
@@ -721,7 +730,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query18Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `project1`
     assert query18Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery18 = false;
@@ -756,7 +765,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query19Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `project1`
     assert query19Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery19 = false;
@@ -793,8 +802,9 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query20Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    assert query20Response.items().size() == 1;
+    // Assert 2 items returned:
+    // Expected to be `timecard1` and `timecard2`
+    assert query20Response.items().size() == 2;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery20 = false;
     for (Map<String, AttributeValue> item : query20Response.items()) {
@@ -831,7 +841,7 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query21Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
+    // Assert 1 item was returned: `timecard1`
     assert query21Response.items().size() == 1;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery21 = false;
@@ -865,8 +875,9 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query22Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    assert query22Response.items().size() == 1;
+    // Assert 2 items returned:
+    // Expected to be `reservation1` and `reservation2`
+    assert query22Response.items().size() == 2;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery22 = false;
     for (Map<String, AttributeValue> item : query22Response.items()) {
@@ -906,8 +917,9 @@ public class QueryRequests {
     // Validate query was returned successfully
     assert 200 == query23Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned; only 1 item is expected until we add more items in PutRequests
-    assert query23Response.items().size() == 1;
+    // Assert 2 items returned:
+    // Expected to be `reservation1` and `reservation2`
+    assert query23Response.items().size() == 2;
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery23 = false;
     for (Map<String, AttributeValue> item : query23Response.items()) {
