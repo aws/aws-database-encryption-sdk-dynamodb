@@ -512,8 +512,8 @@ public class BeaconConfig {
     List<Constructor> sk0ConstructorList = new ArrayList<>();
     sk0ConstructorList.add(ticketModTimeConstructor);
     sk0ConstructorList.add(meetingStartFloorRoomConstructor);
-    sk0ConstructorList.add(projectNameConstructor);
     sk0ConstructorList.add(timeCardStartEmployeeEmailConstructor);
+    sk0ConstructorList.add(projectNameConstructor);
     sk0ConstructorList.add(employeeIdConstructor);
 
     List<Constructor> pk1ConstructorList = new ArrayList<>();
