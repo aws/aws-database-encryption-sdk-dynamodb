@@ -4,11 +4,6 @@ duvet_extract:
 	rm -rf compliance
 	$(foreach file, $(shell find specification -name '*.md'), duvet extract -o compliance -f MARKDOWN $(file);)
 
-# TODO add these arguments to duvet_report as the work completes
-#		--ci \
-#		--require-citations true \
-#		--require-tests true \
-
 duvet_report:
 	duvet \
 		report \
