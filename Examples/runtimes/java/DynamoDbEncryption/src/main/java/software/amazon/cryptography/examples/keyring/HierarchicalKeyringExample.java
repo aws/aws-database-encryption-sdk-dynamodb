@@ -156,7 +156,7 @@ public class HierarchicalKeyringExample {
         //
         //   For this example, we currently authenticate all attributes. To make it easier to
         //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
-        final String unauthAttrPrefix = ":";
+        final String unsignAttrPrefix = ":";
 
         // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
@@ -166,7 +166,7 @@ public class HierarchicalKeyringExample {
                 .sortKeyName("sort_key")
                 .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
                 .keyring(hierarchicalKeyring)
-                .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+                .allowedUnsignedAttributePrefix(unsignAttrPrefix)
                 .build();
         tableConfigs.put(ddbTableName, config);
 

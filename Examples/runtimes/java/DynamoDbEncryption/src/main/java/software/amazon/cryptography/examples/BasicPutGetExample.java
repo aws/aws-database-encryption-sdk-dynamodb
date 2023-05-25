@@ -85,9 +85,9 @@ public class BasicPutGetExample {
         //
         //   For this example, we have designed our DynamoDb table such that any attribute name with
         //   the ":" prefix should be considered unauthenticated.
-        final String unauthAttrPrefix = ":";
+        final String unsignAttrPrefix = ":";
 
-        // 3. Create the DynamoDb Encryption configuration for the table we will be writing to.
+        // 4. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
         final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
                 .logicalTableName(ddbTableName)
@@ -95,7 +95,7 @@ public class BasicPutGetExample {
                 .sortKeyName("sort_key")
                 .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
                 .keyring(kmsKeyring)
-                .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+                .allowedUnsignedAttributePrefix(unsignAttrPrefix)
                 // Specifying an algorithm suite is not required,
                 // but is done here to demonstrate how to do so.
                 // We suggest using the
@@ -109,14 +109,14 @@ public class BasicPutGetExample {
                 .build();
         tableConfigs.put(ddbTableName, config);
 
-        // 4. Create the DynamoDb Encryption Interceptor
+        // 5. Create the DynamoDb Encryption Interceptor
         DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
                 .config(DynamoDbTablesEncryptionConfig.builder()
                         .tableEncryptionConfigs(tableConfigs)
                         .build())
                 .build();
 
-        // 5. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+        // 6. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
         final DynamoDbClient ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
@@ -124,7 +124,7 @@ public class BasicPutGetExample {
                                 .build())
                 .build();
 
-        // 6. Put an item into our table using the above client.
+        // 7. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
         //    client-side, according to our configuration.
         final HashMap<String, AttributeValue> item = new HashMap<>();
@@ -144,7 +144,7 @@ public class BasicPutGetExample {
         // Demonstrate that PutItem succeeded
         assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-        // 7. Get the item back from our table using the same client.
+        // 8. Get the item back from our table using the same client.
         //    The client will decrypt the item client-side, and return
         //    back the original item.
         final HashMap<String, AttributeValue> keyToGet = new HashMap<>();

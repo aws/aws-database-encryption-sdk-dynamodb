@@ -136,7 +136,7 @@ public class MultiKeyringExample {
         //
         //   For this example, we currently authenticate all attributes. To make it easier to
         //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
-        final String unauthAttrPrefix = ":";
+        final String unsignAttrPrefix = ":";
 
         // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
         //    Note that this example creates one config/client combination for PUT, and another
@@ -151,7 +151,7 @@ public class MultiKeyringExample {
                 .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
                 // Multi-keyring is added here
                 .keyring(multiKeyring)
-                .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+                .allowedUnsignedAttributePrefix(unsignAttrPrefix)
                 .build();
         tableConfigs.put(ddbTableName, config);
 
@@ -221,7 +221,7 @@ public class MultiKeyringExample {
             .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
             // Raw AES keyring is added here
             .keyring(rawAesKeyring)
-            .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+            .allowedUnsignedAttributePrefix(unsignAttrPrefix)
             .build();
         onlyAesKeyringTableConfigs.put(ddbTableName, onlyAesKeyringConfig);
 
