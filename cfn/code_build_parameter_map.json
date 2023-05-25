@@ -2,6 +2,6 @@
     "NumberOfBuildsInBatch": 50,
     "ProjectDescription": "CD for Java DBESDK DDB",
     "ProjectName": "AWS-DBESDK-DDB-Java",
-    "SourceLocation": "https://github.com/awslabs/aws-database-encryption-sdk-java.git"
+    "SourceLocation": "https://github.com/awslabs/aws-database-encryption-sdk-dynamodb-java.git"
   }
   
