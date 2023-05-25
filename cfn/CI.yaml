@@ -25,7 +25,7 @@ Parameters:
   GitHubRepo:
     Type: String
     Description: GitHub Repo that invokes CI
-    Default: awslabs/aws-dynamodb-encryption-dafny
+    Default: awslabs/aws-database-encryption-sdk-java
 
 Resources:
   TestTable:
@@ -209,7 +209,7 @@ Resources:
       TableName: !Ref KeystoreTableName
 
   # This policy SHOULD be given to:
-  #  - awslabs/aws-dynamodb-encryption-dafny
+  #  - awslabs/aws-database-encryption-sdk-java
   #  - ToolsDevelopment
   DDBUsage:
     Type: "AWS::IAM::ManagedPolicy"
