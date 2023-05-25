@@ -89,16 +89,16 @@ public class ItemEncryptDecryptExample {
         //
         //   For this example, we have designed our DynamoDb table such that any attribute name with
         //   the ":" prefix should be considered unauthenticated.
-        final String unauthAttrPrefix = ":";
+        final String unsignAttrPrefix = ":";
 
-        // 3. Create the configuration for the DynamoDb Item Encryptor
+        // 4. Create the configuration for the DynamoDb Item Encryptor
         final DynamoDbItemEncryptorConfig config = DynamoDbItemEncryptorConfig.builder()
                 .logicalTableName(ddbTableName)
                 .partitionKeyName("partition_key")
                 .sortKeyName("sort_key")
                 .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
                 .keyring(kmsKeyring)
-                .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+                .allowedUnsignedAttributePrefix(unsignAttrPrefix)
                 // Specifying an algorithm suite is not required,
                 // but is done here to demonstrate how to do so.
                 // We suggest using the
@@ -111,12 +111,12 @@ public class ItemEncryptDecryptExample {
                     DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384)
                 .build();
 
-        // 4. Create the DynamoDb Item Encryptor
+        // 5. Create the DynamoDb Item Encryptor
         final DynamoDbItemEncryptor itemEncryptor = DynamoDbItemEncryptor.builder()
                 .DynamoDbItemEncryptorConfig(config)
                 .build();
 
-        // 5. Directly encrypt a DynamoDb item using the DynamoDb Item Encryptor
+        // 6. Directly encrypt a DynamoDb item using the DynamoDb Item Encryptor
         final Map<String, AttributeValue> originalItem = new HashMap<>();
         originalItem.put("partition_key", AttributeValue.builder().s("ItemEncryptDecryptExample").build());
         originalItem.put("sort_key", AttributeValue.builder().n("0").build());
@@ -135,7 +135,7 @@ public class ItemEncryptDecryptExample {
         assert encryptedItem.get("sort_key").n().equals("0");
         assert encryptedItem.get("attribute1").b() != null;
 
-        // 6. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
+        // 7. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
         final Map<String, AttributeValue> decryptedItem = itemEncryptor.DecryptItem(
                 DecryptItemInput.builder()
                         .encryptedItem(encryptedItem)
