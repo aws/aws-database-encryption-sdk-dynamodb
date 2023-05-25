@@ -8,7 +8,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 
-import software.aws.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import java.net.URI;
