@@ -11,9 +11,6 @@ import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
  * This class implements query access patterns from our workshop.
  * The queries in this file are more complicated than in other searchable encryption examples,
  *   and should demonstrate how one can structure queries on beacons in a broader variety of applications.
- * Currently, only queries 1-8, and 13-14 are implemented. These queries cover all 6 record types and all 4 GSIs
- *    from Demo.md, providing partial test coverage. Adding the remaining queries (9-12 and 15-23) would
- *    expand the test and example coverage.
  */
 
 public class QueryRequests {
@@ -49,21 +46,21 @@ public class QueryRequests {
     // Key condition: PK1=email SK1 between(date1, date2)
     // Filter condition: duration > 0
     final Map<String, String> query1AttributeNames = new HashMap<>();
-    query1AttributeNames.put("#p", "PK1");
+    query1AttributeNames.put("#pk1", "PK1");
     query1AttributeNames.put("#sk1", "SK1");
-    query1AttributeNames.put("#dur", "Duration");
+    query1AttributeNames.put("#duration", "Duration");
 
     final Map<String, AttributeValue> query1AttributeValues = new HashMap<>();
     query1AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
     query1AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
     query1AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
-    query1AttributeValues.put(":dur", AttributeValue.builder().s("0").build());
+    query1AttributeValues.put(":zero", AttributeValue.builder().s("0").build());
 
     final QueryRequest query1Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
-        .keyConditionExpression("#p = :e AND #sk1 BETWEEN :date1 AND :date2")
-        .filterExpression("#dur > :dur")
+        .keyConditionExpression("#pk1 = :e AND #sk1 BETWEEN :date1 AND :date2")
+        .filterExpression("#duration > :zero")
         .expressionAttributeNames(query1AttributeNames)
         .expressionAttributeValues(query1AttributeValues)
         .build();
@@ -93,21 +90,21 @@ public class QueryRequests {
     // Key condition: PK=employeeID SK between(date1, date2)
     // Filter condition: duration > 0
     Map<String, String> query2AttributeNames = new HashMap<>();
-    query2AttributeNames.put("#p", "PK");
-    query2AttributeNames.put("#s", "SK");
-    query2AttributeNames.put("#dur", "Duration");
+    query2AttributeNames.put("#pk", "PK");
+    query2AttributeNames.put("#sk", "SK");
+    query2AttributeNames.put("#duration", "Duration");
 
     Map<String, AttributeValue> query2AttributeValues = new HashMap<>();
-    query2AttributeValues.put(":e", AttributeValue.builder().s("E-emp_001").build());
+    query2AttributeValues.put(":employee", AttributeValue.builder().s("E-emp_001").build());
     query2AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
     query2AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
-    query2AttributeValues.put(":dur", AttributeValue.builder().s("0").build());
+    query2AttributeValues.put(":zero", AttributeValue.builder().s("0").build());
 
     QueryRequest query2Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-0")
-        .keyConditionExpression("#p = :e AND #s BETWEEN :date1 AND :date2")
-        .filterExpression("#dur > :dur")
+        .keyConditionExpression("#pk = :employee AND #sk BETWEEN :date1 AND :date2")
+        .filterExpression("#duration > :zero")
         .expressionAttributeNames(query2AttributeNames)
         .expressionAttributeValues(query2AttributeValues)
         .build();
@@ -141,25 +138,25 @@ public class QueryRequests {
     //       However, one cannot use primary keys (partition nor sort) in a filter expression.
     //       Instead, this query filters on the individual beacon attributes: building, floor, and room.
     Map<String,String> query3AttributeNames = new HashMap<>();
-    query3AttributeNames.put("#p", "PK");
-    query3AttributeNames.put("#s", "SK");
-    query3AttributeNames.put("#b", "Building");
-    query3AttributeNames.put("#f", "Floor");
-    query3AttributeNames.put("#r", "Room");
+    query3AttributeNames.put("#pk", "PK");
+    query3AttributeNames.put("#sk", "SK");
+    query3AttributeNames.put("#building", "Building");
+    query3AttributeNames.put("#floor", "Floor");
+    query3AttributeNames.put("#room", "Room");
 
     Map<String,AttributeValue> query3AttributeValues = new HashMap<>();
-    query3AttributeValues.put(":bc", AttributeValue.builder().s("B-SEA33").build());
-    query3AttributeValues.put(":b", AttributeValue.builder().s("SEA33").build());
-    query3AttributeValues.put(":f", AttributeValue.builder().s("12").build());
-    query3AttributeValues.put(":r", AttributeValue.builder().s("403").build());
+    query3AttributeValues.put(":buildingbeacon", AttributeValue.builder().s("B-SEA33").build());
+    query3AttributeValues.put(":building", AttributeValue.builder().s("SEA33").build());
+    query3AttributeValues.put(":floor", AttributeValue.builder().s("12").build());
+    query3AttributeValues.put(":room", AttributeValue.builder().s("403").build());
     query3AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
     query3AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
 
     QueryRequest query3Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-0")
-        .keyConditionExpression("#p = :bc AND #s BETWEEN :date1 AND :date2")
-        .filterExpression("#b = :b AND #f = :f AND #r = :r")
+        .keyConditionExpression("#pk = :buildingbeacon AND #sk BETWEEN :date1 AND :date2")
+        .filterExpression("#building = :building AND #floor = :floor AND #room = :room")
         .expressionAttributeNames(query3AttributeNames)
         .expressionAttributeValues(query3AttributeValues)
         .build();
@@ -187,17 +184,17 @@ public class QueryRequests {
     // Query 4: Get employee data by email
     // Key condition: PK1=email SK1=employee ID
     Map<String, String> query4AttributeNames = new HashMap<>();
-    query4AttributeNames.put("#p", "PK1");
-    query4AttributeNames.put("#s", "SK1");
+    query4AttributeNames.put("#pk1", "PK1");
+    query4AttributeNames.put("#sk1", "SK1");
 
     Map<String, AttributeValue> query4AttributeValues = new HashMap<>();
-    query4AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
-    query4AttributeValues.put(":s", AttributeValue.builder().s("E-emp_001").build());
+    query4AttributeValues.put(":email", AttributeValue.builder().s("EE-able@gmail.com").build());
+    query4AttributeValues.put(":employee", AttributeValue.builder().s("E-emp_001").build());
 
     QueryRequest query4Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
-        .keyConditionExpression("#p = :e AND #s = :s")
+        .keyConditionExpression("#pk1 = :email AND #sk1 = :employee")
         .expressionAttributeNames(query4AttributeNames)
         .expressionAttributeValues(query4AttributeValues)
         .build();
@@ -224,18 +221,18 @@ public class QueryRequests {
     // Query 5: Get meetings by email
     // Key condition: PK1=email SK1 > 30 days ago
     Map<String, String> query5AttributeNames = new HashMap<>();
-    query5AttributeNames.put("#p", "PK1");
-    query5AttributeNames.put("#s", "SK1");
+    query5AttributeNames.put("#pk1", "PK1");
+    query5AttributeNames.put("#sk1", "SK1");
 
     Map<String, AttributeValue> query5AttributeValues = new HashMap<>();
-    query5AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
-    query5AttributeValues.put(":s", AttributeValue.builder().s("MS-2023-03-20").build());
+    query5AttributeValues.put(":email", AttributeValue.builder().s("EE-able@gmail.com").build());
+    query5AttributeValues.put(":thirtydaysago", AttributeValue.builder().s("MS-2023-03-20").build());
     query5AttributeValues.put(":prefix", AttributeValue.builder().s("MS-").build());
 
     QueryRequest query5Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
-        .keyConditionExpression("#p = :e AND #s BETWEEN :prefix AND :s")
+        .keyConditionExpression("#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago")
         .expressionAttributeNames(query5AttributeNames)
         .expressionAttributeValues(query5AttributeValues)
         .build();
@@ -264,17 +261,17 @@ public class QueryRequests {
     // Query 6: Get tickets by email
     // Key condition: PK1=email SK1 > 30 days ago
     Map<String, String> query6AttributeNames = new HashMap<>();
-    query6AttributeNames.put("#p", "PK1");
-    query6AttributeNames.put("#s", "SK1");
+    query6AttributeNames.put("#pk1", "PK1");
+    query6AttributeNames.put("#sk1", "SK1");
 
     Map<String, AttributeValue> query6AttributeValues = new HashMap<>();
-    query6AttributeValues.put(":e", AttributeValue.builder().s("CE-zorro@gmail.com").build());
-    query6AttributeValues.put(":s", AttributeValue.builder().s("MS-2023-03-20").build());
+    query6AttributeValues.put(":creatoremail", AttributeValue.builder().s("CE-zorro@gmail.com").build());
+    query6AttributeValues.put(":thirtydaysago", AttributeValue.builder().s("MS-2023-03-20").build());
 
     QueryRequest query6Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
-        .keyConditionExpression("#p = :e AND #s < :s")
+        .keyConditionExpression("#pk1 = :creatoremail AND #sk1 < :thirtydaysago")
         .expressionAttributeNames(query6AttributeNames)
         .expressionAttributeValues(query6AttributeValues)
         .build();
@@ -300,17 +297,17 @@ public class QueryRequests {
     // Query 7: Get reservations by email
     // Key condition: PK1=organizeremail SK1 > 30 days ago
     Map<String, String> query7AttributeNames = new HashMap<>();
-    query7AttributeNames.put("#p", "PK1");
-    query7AttributeNames.put("#s", "SK1");
+    query7AttributeNames.put("#pk1", "PK1");
+    query7AttributeNames.put("#sk1", "SK1");
 
     Map<String, AttributeValue> query7AttributeValues = new HashMap<>();
-    query7AttributeValues.put(":e", AttributeValue.builder().s("OE-able@gmail.com").build());
-    query7AttributeValues.put(":s", AttributeValue.builder().s("MS-2023-03-20").build());
+    query7AttributeValues.put(":organizeremail", AttributeValue.builder().s("OE-able@gmail.com").build());
+    query7AttributeValues.put(":thirtydaysago", AttributeValue.builder().s("MS-2023-03-20").build());
 
     QueryRequest query7Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
-        .keyConditionExpression("#p = :e AND #s < :s")
+        .keyConditionExpression("#pk1 = :organizeremail AND #sk1 < :thirtydaysago")
         .expressionAttributeNames(query7AttributeNames)
         .expressionAttributeValues(query7AttributeValues)
         .build();
@@ -339,18 +336,18 @@ public class QueryRequests {
     // Query 8: Get time cards by email
     // Key condition: PK1=employeeemail SK1 > 30 days ago
     Map<String,String> query8AttributeNames = new HashMap<>();
-    query8AttributeNames.put("#p", "PK1");
-    query8AttributeNames.put("#s", "SK1");
+    query8AttributeNames.put("#pk1", "PK1");
+    query8AttributeNames.put("#sk1", "SK1");
 
     Map<String,AttributeValue> query8AttributeValues = new HashMap<>();
-    query8AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
+    query8AttributeValues.put(":email", AttributeValue.builder().s("EE-able@gmail.com").build());
     query8AttributeValues.put(":prefix", AttributeValue.builder().s("TC-").build());
-    query8AttributeValues.put(":s", AttributeValue.builder().s("TC-2023-03-20").build());
+    query8AttributeValues.put(":thirtydaysago", AttributeValue.builder().s("TC-2023-03-20").build());
 
     QueryRequest query8Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
-        .keyConditionExpression("#p = :e AND #s BETWEEN :prefix AND :s")
+        .keyConditionExpression("#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago")
         .expressionAttributeNames(query8AttributeNames)
         .expressionAttributeValues(query8AttributeValues)
         .build();
@@ -375,17 +372,17 @@ public class QueryRequests {
     // Query 9: Get employee info by employee ID
     // Key condition: PK1=employeeID SK starts with "E-"
     Map<String,String> query9AttributeNames = new HashMap<>();
-    query9AttributeNames.put("#p", "PK");
-    query9AttributeNames.put("#s", "SK");
+    query9AttributeNames.put("#pk", "PK");
+    query9AttributeNames.put("#sk", "SK");
 
     Map<String,AttributeValue> query9AttributeValues = new HashMap<>();
-    query9AttributeValues.put(":e", AttributeValue.builder().s("E-emp_001").build());
-    query9AttributeValues.put(":s", AttributeValue.builder().s("E-").build());
+    query9AttributeValues.put(":employee", AttributeValue.builder().s("E-emp_001").build());
+    query9AttributeValues.put(":prefix", AttributeValue.builder().s("E-").build());
 
     QueryRequest query9Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-0")
-        .keyConditionExpression("#p = :e AND begins_with(#s, :s)")
+        .keyConditionExpression("#pk = :employee AND begins_with(#sk, :prefix)")
         .expressionAttributeNames(query9AttributeNames)
         .expressionAttributeValues(query9AttributeValues)
         .build();
@@ -411,17 +408,17 @@ public class QueryRequests {
     // Key condition: PK1=email
     // Filter condition: SK starts with "E-"
     Map<String,String> query10AttributeNames = new HashMap<>();
-    query10AttributeNames.put("#p", "PK1");
-    query10AttributeNames.put("#s", "SK1");
+    query10AttributeNames.put("#pk1", "PK1");
+    query10AttributeNames.put("#sk1", "SK1");
 
     Map<String,AttributeValue> query10AttributeValues = new HashMap<>();
-    query10AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
-    query10AttributeValues.put(":s", AttributeValue.builder().s("E-").build());
+    query10AttributeValues.put(":email", AttributeValue.builder().s("EE-able@gmail.com").build());
+    query10AttributeValues.put(":prefix", AttributeValue.builder().s("E-").build());
 
     QueryRequest query10Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-1")
-        .keyConditionExpression("#p = :e AND begins_with(#s, :s)")
+        .keyConditionExpression("#pk1 = :email AND begins_with(#sk1, :prefix)")
         .expressionAttributeNames(query10AttributeNames)
         .expressionAttributeValues(query10AttributeValues)
         .build();
@@ -446,15 +443,15 @@ public class QueryRequests {
     // Query 11: Get ticket history by ticket number
     // Key condition: PK=TicketNumber
     Map<String,String> query11AttributeNames = new HashMap<>();
-    query11AttributeNames.put("#p", "PK");
+    query11AttributeNames.put("#pk", "PK");
 
     Map<String,AttributeValue> query11AttributeValues = new HashMap<>();
-    query11AttributeValues.put(":t", AttributeValue.builder().s("T-ticket_001").build());
+    query11AttributeValues.put(":ticket", AttributeValue.builder().s("T-ticket_001").build());
 
     QueryRequest query11Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-0")
-        .keyConditionExpression("#p = :t")
+        .keyConditionExpression("#pk = :ticket")
         .expressionAttributeNames(query11AttributeNames)
         .expressionAttributeValues(query11AttributeValues)
         .build();
@@ -517,17 +514,17 @@ public class QueryRequests {
     // Key condition: PK=AssigneeEmail
     // Filter condition: PK=ticketNumber
     Map<String,String> query13AttributeNames = new HashMap<>();
-    query13AttributeNames.put("#p", "PK2");
+    query13AttributeNames.put("#pk2", "PK2");
     query13AttributeNames.put("#pk", "PK");
 
     Map<String,AttributeValue> query13AttributeValues = new HashMap<>();
-    query13AttributeValues.put(":e", AttributeValue.builder().s("AE-able@gmail.com").build());
+    query13AttributeValues.put(":assigneeemail", AttributeValue.builder().s("AE-able@gmail.com").build());
     query13AttributeValues.put(":ticket", AttributeValue.builder().s("T-ticket_001").build());
 
     QueryRequest query13Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-2")
-        .keyConditionExpression("#p = :e")
+        .keyConditionExpression("#pk2 = :assigneeemail")
         .filterExpression("#pk = :ticket")
         .expressionAttributeNames(query13AttributeNames)
         .expressionAttributeValues(query13AttributeValues)
@@ -554,17 +551,17 @@ public class QueryRequests {
     // Query 14: Get employees by city.building.floor.desk
     // Key condition: PK3=city SK3 begins_with(building.floor.desk)
     Map<String,String> query14AttributeNames = new HashMap<>();
-    query14AttributeNames.put("#p", "PK3");
-    query14AttributeNames.put("#s", "SK3");
+    query14AttributeNames.put("#pk3", "PK3");
+    query14AttributeNames.put("#sk3", "SK3");
 
     Map<String,AttributeValue> query14AttributeValues = new HashMap<>();
-    query14AttributeValues.put(":c", AttributeValue.builder().s("C-Seattle").build());
-    query14AttributeValues.put(":l", AttributeValue.builder().s("B-44~F-12~D-3").build());
+    query14AttributeValues.put(":city", AttributeValue.builder().s("C-Seattle").build());
+    query14AttributeValues.put(":location", AttributeValue.builder().s("B-44~F-12~D-3").build());
 
     QueryRequest query14Request = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName("GSI-3")
-        .keyConditionExpression("#p = :c AND begins_with(#s, :l)")
+        .keyConditionExpression("#pk3 = :city AND begins_with(#sk3, :location)")
         .expressionAttributeNames(query14AttributeNames)
         .expressionAttributeValues(query14AttributeValues)
         .build();
@@ -662,7 +659,7 @@ public class QueryRequests {
     // (For the sake of this example, we will assume
     //  the date is 2022-10-08T09:30:00, such that "24 hours ago"
     //  is 2022-10-07T09:30:00, and that our sample ticket record
-    //  with TicketModTime=2022-10-07T14:32:25 will be returned.
+    //  with TicketModTime=2022-10-07T14:32:25 will be returned.)
     Map<String,String> query17AttributeNames = new HashMap<>();
     query17AttributeNames.put("#pk3", "PK3");
     query17AttributeNames.put("#sk3", "SK3");
