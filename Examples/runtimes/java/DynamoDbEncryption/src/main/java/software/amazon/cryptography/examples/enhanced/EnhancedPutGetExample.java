@@ -84,15 +84,15 @@ public class EnhancedPutGetExample {
         //
         //   For this example, we have designed our DynamoDb table such that any attribute name with
         //   the ":" prefix should be considered unauthenticated.
-        final String unauthAttrPrefix = ":";
+        final String unsignAttrPrefix = ":";
 
-        // 3. Create the DynamoDb Encryption configuration for the table we will be writing to,
+        // 4. Create the DynamoDb Encryption configuration for the table we will be writing to,
         final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
                 DynamoDbEnhancedTableEncryptionConfig.builder()
                         .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
-                        .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+                        .allowedUnsignedAttributePrefix(unsignAttrPrefix)
                         .schemaOnEncrypt(tableSchema)
                         // Specifying an algorithm suite is not required,
                         // but is done here to demonstrate how to do so.
@@ -100,38 +100,36 @@ public class EnhancedPutGetExample {
                         // `ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384` suite,
                         // which includes AES-GCM with key derivation, signing, and key commitment.
                         // This is also the default algorithm suite if one is not specified in this config.
-                        // For more information on supported algorithm suites, see
-                        //   TODO: Add DB ESDK-specific link, similar to
-                        //   https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/supported-algorithms.html,
-                        //   but with accurate information for DB ESDK
+                        // For more information on supported algorithm suites, see:
+                        //   https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/supported-algorithms.html
                         .algorithmSuiteId(
                             DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384)
                         .build());
 
-        // 4. Create the DynamoDb Encryption Interceptor, using the DynamoDbEnhancedClientEncryption helper
-        final DynamoDbEncryptionInterceptor interceptor =
+        // 5. Create the DynamoDb Encryption Interceptor, using the DynamoDbEnhancedClientEncryption helper
+        final DynamoDbEncryptionInterceptor encryptionInterceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
                         CreateDynamoDbEncryptionInterceptorInput.builder()
                                 .tableEncryptionConfigs(tableConfigs)
                                 .build()
                 );
 
-        // 5. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+        // 6. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
         final DynamoDbClient ddb = DynamoDbClient.builder()
                 .overrideConfiguration(
                         ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
+                                .addExecutionInterceptor(encryptionInterceptor)
                                 .build())
                 .build();
 
-        // 6. Create the DynamoDbEnhancedClient using the AWS SDK Client created above,
+        // 7. Create the DynamoDbEnhancedClient using the AWS SDK Client created above,
         //    and create a Table with your modelled class
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
         final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
 
-        // 7. Put an item into your table using the DynamoDb Enhanced Client.
+        // 8. Put an item into your table using the DynamoDb Enhanced Client.
         //    The item will be encrypted client-side according to your
         //    configuration above before it is sent to DynamoDb.
         final SimpleClass item = new SimpleClass();
@@ -143,7 +141,7 @@ public class EnhancedPutGetExample {
 
         table.putItem(item);
 
-        // 8. Get the item back from the table using the DynamoDb Enhanced Client.
+        // 9. Get the item back from the table using the DynamoDb Enhanced Client.
         //    The item will be decrypted client-side, and you will get back the
         //    original item.
         final Key key = Key.builder()

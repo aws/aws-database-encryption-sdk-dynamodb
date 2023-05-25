@@ -285,8 +285,14 @@ module {:options "-functionSyntax:4"} DdbItemJson {
         :- Need(data.Array?, "Value for 'NS' must be a Array");
         var result : seq<string> := [];
         for i := 0 to |data.arr| {
-          :- Need(data.arr[i].String?, "Values for 'NS' must be Strings");
-          result := result + [data.arr[i].str];
+          if data.arr[i].String? {
+            result := result + [data.arr[i].str];
+          } else if data.arr[i].Number? {
+            var val :- DecimalToStr(data.arr[i].num);
+            result := result + [val];
+          } else {
+            return Failure("Values for 'NS' must be Strings or Numbers");
+          }
         }
         return Success(DDB.AttributeValue.NS(result));
       case "B" =>
