@@ -206,7 +206,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | CollectionOfErrors(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>, nameonly message: string)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
