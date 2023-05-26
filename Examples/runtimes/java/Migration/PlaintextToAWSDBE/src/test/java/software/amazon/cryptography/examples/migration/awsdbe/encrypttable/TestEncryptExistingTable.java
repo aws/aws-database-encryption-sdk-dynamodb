@@ -70,7 +70,7 @@ public class TestEncryptExistingTable {
 
         // 2. Create encryption configuration for table,
         //    using the same plaintext override as Step 2
-        //    (`FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`).
+        //    (`FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`).
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(ddbTableName,
             DynamoDbEnhancedTableEncryptionConfig.builder()
@@ -78,7 +78,7 @@ public class TestEncryptExistingTable {
                 .keyring(kmsKeyring)
                 .schemaOnEncrypt(tableSchema)
                 .allowedUnsignedAttributes(unsignedAttributes)
-                .plaintextOverride(PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
+                .plaintextOverride(PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
                 .build());
 
         // 3. Create DynamoDbEncryptionInterceptor using the above config
