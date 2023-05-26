@@ -153,7 +153,7 @@ To enable transparent encryption and signing, create a keyring and a DynamoDbEnc
     SimpleClass returnedItem = table.getItem(itemToGet);
 ```
 
-See a related [example][] for more context and description.
+See a related [example][TODOplaintextexample] for more context and description.
 
 ### Downloads
 
