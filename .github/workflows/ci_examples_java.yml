@@ -92,5 +92,6 @@ jobs:
           # Run simple examples
           gradle -p runtimes/java/DynamoDbEncryption test 
           # Run migration examples
+          gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
           gradle -p runtimes/java/Migration/DDBECToAWSDBE test
 
