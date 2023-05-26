@@ -66,7 +66,7 @@ Common Makefile targets are:
 ### Development Requirements
 
 * Dafny 4.1.0: https://github.com/dafny-lang/dafny
-* A
+* A Java 8 or newer development environment
 
 #### (Optional) Dafny Report Generator Requirements
 
