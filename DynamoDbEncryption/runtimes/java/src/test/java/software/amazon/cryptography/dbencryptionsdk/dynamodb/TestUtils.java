@@ -54,15 +54,19 @@ public class TestUtils {
     }
 
     public static IKeyring createStaticKeyring() {
+        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
+        return createStaticKeyring(key);
+    }
+
+    public static IKeyring createStaticKeyring(ByteBuffer aesKey) {
         MaterialProviders matProv = MaterialProviders.builder()
                 .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
                 .build();
-        ByteBuffer key = ByteBuffer.wrap(new byte[32]);
         CreateRawAesKeyringInput keyringInput = CreateRawAesKeyringInput.builder()
                 .keyName("name")
                 .keyNamespace("namespace")
                 .wrappingAlg(AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16)
-                .wrappingKey(key)
+                .wrappingKey(aesKey)
                 .build();
         return matProv.CreateRawAesKeyring(keyringInput);
     }
