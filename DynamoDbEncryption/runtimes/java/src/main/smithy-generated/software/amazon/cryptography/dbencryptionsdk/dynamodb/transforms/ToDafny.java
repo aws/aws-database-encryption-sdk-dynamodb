@@ -132,7 +132,8 @@ public class ToDafny {
         nativeValue.list(), 
         ToDafny::Error, 
         Error._typeDescriptor());
-    return Error.create_CollectionOfErrors(list);
+    DafnySequence<? extends Character> message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage());
+    return Error.create_CollectionOfErrors(list, message);
   }
 
   public static BatchExecuteStatementInputTransformInput BatchExecuteStatementInputTransformInput(
