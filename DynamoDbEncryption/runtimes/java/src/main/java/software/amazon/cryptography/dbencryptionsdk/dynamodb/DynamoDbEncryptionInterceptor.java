@@ -134,13 +134,11 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                 // Our current Java->Dafny conversion squashes empty maps into the "None" type.
                 // In order to avoid gray failures for invalid `exclusiveStartKey`,
                 // and because our transforms do not act on or modify this value currently,
-                // copy over the original `exclusiveStartKey` in the case that it is an
-                // empty map so that the server can correctly reject it as invalid.
-                if (queryRequest.exclusiveStartKey().isEmpty()) {
-                    transformedRequest = transformedRequest.toBuilder()
-                            .exclusiveStartKey(queryRequest.exclusiveStartKey())
-                            .build();
-                }
+                // copy over the original `exclusiveStartKey`
+                // so that the server can correctly reject it as invalid if it is empty.
+                transformedRequest = transformedRequest.toBuilder()
+                        .exclusiveStartKey(queryRequest.exclusiveStartKey())
+                        .build();
 
                 outgoingRequest = copyOverrideConfig(queryRequest, transformedRequest);
                 break;
@@ -154,13 +152,11 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                 // Our current Java->Dafny conversion squashes empty maps into the "None" type.
                 // In order to avoid gray failures for invalid `exclusiveStartKey`,
                 // and because our transforms do not act on or modify this value currently,
-                // copy over the original `exclusiveStartKey` in the case that it is an
-                // empty map so that the server can correctly reject it as invalid.
-                if (scanRequest.exclusiveStartKey().isEmpty()) {
-                    transformedRequest = transformedRequest.toBuilder()
-                            .exclusiveStartKey(scanRequest.exclusiveStartKey())
-                            .build();
-                }
+                // copy over the original `exclusiveStartKey`
+                // so that the server can correctly reject it as invalid if it is empty.
+                transformedRequest = transformedRequest.toBuilder()
+                        .exclusiveStartKey(scanRequest.exclusiveStartKey())
+                        .build();
 
                 outgoingRequest = copyOverrideConfig(scanRequest, transformedRequest);
                 break;
