@@ -33,7 +33,7 @@ public class SimpleClass {
 
   private String partitionKey;
   private int sortKey;
-  // The next three fields represent attributes that we will perform cryptographic operations on.
+  // The next three fields represent DynamoDB item attributes that we will perform cryptographic operations on.
   
   // attribute1: Encrypt the data and sign it for authenticity
   private String attribute1;
@@ -52,17 +52,17 @@ public class SimpleClass {
   public int getSortKey() { return this.sortKey; }
   public void setSortKey(int sortKey) { this.sortKey = sortKey; }
 
-  @DynamoDbAttribute(value = "encrypt_and_sign")
+  @DynamoDbAttribute(value = "attribute1")
   public String getAttribute1() { return this.attribute1; }
   public void setAttribute1(String attribute1) { this.attribute1 = attribute1; }
 
   @DynamoDbEncryptionSignOnly
-  @DynamoDbAttribute(value = "sign_only")
+  @DynamoDbAttribute(value = "attribute2")
   public String getAttribute2() { return this.attribute2; }
   public void setAttribute2(String attribute2) { this.attribute2 = attribute2; }
 
   @DynamoDbEncryptionDoNothing
-  @DynamoDbAttribute(value = "do_nothing")
+  @DynamoDbAttribute(value = "attribute3")
   public String getAttribute3() { return this.attribute3; }
   public void setAttribute3(String attribute3) { this.attribute3 = attribute3; }
 }
