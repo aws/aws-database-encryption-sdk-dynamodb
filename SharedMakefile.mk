@@ -57,7 +57,7 @@ verify:
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:csv \
-		-timeLimit:200 \
+		-timeLimit:100 \
 		-trace \
 		`find . -name *.dfy`
 
@@ -74,7 +74,7 @@ verify_single:
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:text \
-		-timeLimit:200 \
+		-timeLimit:100 \
 		-trace \
 		$(if ${PROC},-proc:*$(PROC)*,) \
 		$(FILE)
@@ -90,7 +90,7 @@ verify_service:
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:csv \
-		-timeLimit:200 \
+		-timeLimit:100 \
 		-trace \
 		`find ./dafny/$(SERVICE) -name '*.dfy'` \
 

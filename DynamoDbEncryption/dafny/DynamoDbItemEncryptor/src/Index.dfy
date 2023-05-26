@@ -124,6 +124,7 @@ module
       assert UnreservedPrefix(attributeName);
       assert UnreservedPrefix(attributeNames[i]);
     }
+
     assert (forall attribute <- attributeNames :: UnreservedPrefix(attribute));
     assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
     assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
@@ -201,6 +202,12 @@ module
     assert Operations.ValidInternalConfig?(internalConfig);
 
     var client := new DynamoDbItemEncryptorClient(internalConfig);
+
+    assert fresh(client.Modifies
+      - ( if config.keyring.Some? then config.keyring.value.Modifies else {})
+      - ( if config.cmm.Some? then config.cmm.value.Modifies else {} )
+      - ( if config.legacyOverride.Some? then config.legacyOverride.value.encryptor.Modifies else {}));
+
     return Success(client);
   }
 
