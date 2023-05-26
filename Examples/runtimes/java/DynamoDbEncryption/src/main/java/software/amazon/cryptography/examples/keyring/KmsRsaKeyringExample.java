@@ -137,7 +137,7 @@ public class KmsRsaKeyringExample {
         //
         //   For this example, we currently authenticate all attributes. To make it easier to
         //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
-        final String unauthAttrPrefix = ":";
+        final String unsignAttrPrefix = ":";
 
         // 5. Create the DynamoDb Encryption configuration for the table we will be writing to.
         //    Note: To use the KMS RSA keyring, your table config must specify an algorithmSuite
@@ -149,7 +149,7 @@ public class KmsRsaKeyringExample {
             .sortKeyName("sort_key")
             .attributeActionsOnEncrypt(attributeActions)
             .keyring(awsKmsRsaKeyring)
-            .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+            .allowedUnsignedAttributePrefix(unsignAttrPrefix)
             // Specify algorithmSuite without asymmetric signing here
             // As of v3.0.0, the only supported algorithmSuite without asymmetric signing is
             // ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384.
