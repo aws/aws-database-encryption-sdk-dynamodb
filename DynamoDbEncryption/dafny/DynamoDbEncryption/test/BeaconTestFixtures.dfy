@@ -42,9 +42,53 @@ module BeaconTestFixtures {
   const Month := SignedPart(name := "Month", prefix := "M_", loc := Some("Date.Month"))
   const Nothing := SignedPart(name := "Nothing", prefix := "N__", loc := None)
 
+  const Signed1 := SignedPart(name := "Signed1", prefix := "S1_", loc := None)
+  const Signed2 := SignedPart(name := "Signed2", prefix := "S2_", loc := None)
+  const Signed3 := SignedPart(name := "Signed3", prefix := "S3_", loc := None)
+  const Signed4 := SignedPart(name := "Signed4", prefix := "S4_", loc := None)
+  const Signed5 := SignedPart(name := "Signed5", prefix := "S5_", loc := None)
+
+  const Std2Part := EncryptedPart(name := "std2", prefix := "std2_")
   const Name := EncryptedPart(name := "Name", prefix := "N_")
   const Title := EncryptedPart(name := "Title", prefix := "T_")
   const TooBad := EncryptedPart(name := "TooBad", prefix := "T")
+
+  const PK := CompoundBeacon (
+                name := "PK",
+                split := ".",
+                encrypted := None,
+                signed := Some([Year,Month]),
+                constructors := None
+              )
+  const SK := CompoundBeacon (
+                name := "SK",
+                split := ".",
+                encrypted := None,
+                signed := Some([Signed1,Signed2]),
+                constructors := None
+              )
+
+  const PK1 := CompoundBeacon (
+                 name := "PK1",
+                 split := ".",
+                 encrypted := Some([Title]),
+                 signed := Some([Signed3]),
+                 constructors := None
+               )
+  const SK1 := CompoundBeacon (
+                 name := "SK1",
+                 split := ".",
+                 encrypted := Some([Name]),
+                 signed := Some([Signed4]),
+                 constructors := None
+               )
+  const Local := CompoundBeacon (
+                   name := "Local",
+                   split := ".",
+                   encrypted := Some([Std2Part]),
+                   signed := Some([Signed5]),
+                   constructors := None
+                 )
 
   const NameTitle := CompoundBeacon (
                        name := "NameTitle",
@@ -173,6 +217,23 @@ module BeaconTestFixtures {
       );
   }
 
+  method GetIndexBeacons() returns (output : BeaconVersion)
+    ensures output.keyStore.ValidState()
+    ensures fresh(output.keyStore.Modifies)
+    ensures output.version == 1
+  {
+    var store := GetKeyStore();
+    return BeaconVersion (
+        version := 1,
+        keyStore := store,
+        keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+        standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
+        compoundBeacons := Some([PK, SK, PK1, SK1, Local]),
+        virtualFields := Some([NameTitleField])
+      );
+  }
+
+
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
                               logicalTableName := "Foo",
                               partitionKeyName := "foo",
@@ -196,7 +257,12 @@ module BeaconTestFixtures {
                              "Title" := SE.ENCRYPT_AND_SIGN,
                              "TooBad" := SE.ENCRYPT_AND_SIGN,
                              "Year" := SE.SIGN_ONLY,
-                             "Date" := SE.SIGN_ONLY
+                             "Date" := SE.SIGN_ONLY,
+                             "Signed1" := SE.SIGN_ONLY,
+                             "Signed2" := SE.SIGN_ONLY,
+                             "Signed3" := SE.SIGN_ONLY,
+                             "Signed4" := SE.SIGN_ONLY,
+                             "Signed5" := SE.SIGN_ONLY
                            ]
                            );
 

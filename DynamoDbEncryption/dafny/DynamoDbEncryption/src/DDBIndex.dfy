@@ -148,28 +148,6 @@ module DynamoDBIndexSupport {
     BeaconPrefix + name
   }
 
-  // make beacon name from attribute name, fail if it's not a valid Key Schema Attribute Name
-  function method MakeKeySchemaBeaconName(name : string)
-    : Result<DDB.KeySchemaAttributeName, Error>
-  {
-    var newName := MakeBeaconName(name);
-    if DDB.IsValid_KeySchemaAttributeName(newName) then
-      Success(newName)
-    else
-      Failure(E("Can't make valid KeySchemaAttributeName from beacon for " + name))
-  }
-
-  // make beacon name from attribute name, fail if it's not a valid Non Key Attribute Name
-  function method MakeNonKeyBeaconName(name : string)
-    : Result<DDB.NonKeyAttributeName, Error>
-  {
-    var newName := MakeBeaconName(name);
-    if DDB.IsValid_NonKeyAttributeName(newName) then
-      Success(newName)
-    else
-      Failure(E("Can't make valid NonKeySchemaAttributeName from beacon for " + name))
-  }
-
   // replace oldName with newName, and old type with String
   function method {:tailrecursion} ReplaceAttrDef(
     attrs : DDB.AttributeDefinitions,
@@ -203,7 +181,8 @@ module DynamoDBIndexSupport {
     : Result<(DDB.KeySchemaElement, DDB.AttributeDefinitions), Error>
   {
     if search.IsBeacon(element.AttributeName) then
-      var newName :- MakeKeySchemaBeaconName(element.AttributeName);
+      var newName := search.BeaconName(element.AttributeName);
+      :- Need(DDB.IsValid_KeySchemaAttributeName(newName), E("bad name"));
       var newAttrs := ReplaceAttrDef(attrs, element.AttributeName, newName);
       Success((element.(AttributeName := newName), newAttrs))
     else if IsEncrypted(actions, element.AttributeName) then

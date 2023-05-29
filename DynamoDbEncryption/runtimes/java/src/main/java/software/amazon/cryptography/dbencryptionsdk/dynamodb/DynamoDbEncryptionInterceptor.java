@@ -89,12 +89,26 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                                 .build()).transformedInput();
                 outgoingRequest = copyOverrideConfig((BatchWriteItemRequest) originalRequest, transformedRequest);
                 break;
+            } case "CreateTable": {
+                CreateTableRequest transformedRequest = transformer.CreateTableInputTransform(
+                        CreateTableInputTransformInput.builder()
+                                .sdkInput((CreateTableRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((CreateTableRequest) originalRequest, transformedRequest);
+                break;
             } case "DeleteItem": {
                 DeleteItemRequest transformedRequest = transformer.DeleteItemInputTransform(
                         DeleteItemInputTransformInput.builder()
                                 .sdkInput((DeleteItemRequest) originalRequest)
                                 .build()).transformedInput();
                 outgoingRequest = copyOverrideConfig((DeleteItemRequest) originalRequest, transformedRequest);
+                break;
+            } case "DescribeTable": {
+                DescribeTableRequest transformedRequest = transformer.DescribeTableInputTransform(
+                        DescribeTableInputTransformInput.builder()
+                                .sdkInput((DescribeTableRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((DescribeTableRequest) originalRequest, transformedRequest);
                 break;
             } case "ExecuteStatement": {
                 ExecuteStatementRequest transformedRequest = transformer.ExecuteStatementInputTransform(
@@ -175,6 +189,13 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                 outgoingRequest = copyOverrideConfig((TransactWriteItemsRequest) originalRequest, transformedRequest);
                 break;
             } case "UpdateItem": {
+                UpdateItemRequest transformedRequest = transformer.UpdateItemInputTransform(
+                        UpdateItemInputTransformInput.builder()
+                                .sdkInput((UpdateItemRequest) originalRequest)
+                                .build()).transformedInput();
+                outgoingRequest = copyOverrideConfig((UpdateItemRequest) originalRequest, transformedRequest);
+                break;
+            } case "UpdateTable": {
                 UpdateItemRequest transformedRequest = transformer.UpdateItemInputTransform(
                         UpdateItemInputTransformInput.builder()
                                 .sdkInput((UpdateItemRequest) originalRequest)

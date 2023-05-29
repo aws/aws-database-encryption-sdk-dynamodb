@@ -220,7 +220,7 @@ module DynamoDBSupport {
     : Result<(Option<DDB.LocalSecondaryIndexList>, DDB.AttributeDefinitions), Error>
   {
     if schema.None? then
-      Success((schema, []))
+      Success((schema, attrs))
     else
       var (newSchema, newAttrs) :- LsiWithAttrs(search, actions, schema.value, attrs);
       Success((Some(newSchema), newAttrs))
@@ -236,7 +236,7 @@ module DynamoDBSupport {
     : Result<(Option<DDB.GlobalSecondaryIndexList>, DDB.AttributeDefinitions), Error>
   {
     if schema.None? then
-      Success((schema, []))
+      Success((schema, attrs))
     else
       var (newSchema, newAttrs) :- GsiWithAttrs(search, actions, schema.value, attrs);
       Success((Some(newSchema), newAttrs))

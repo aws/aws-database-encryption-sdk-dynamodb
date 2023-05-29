@@ -341,6 +341,13 @@ module SearchableEncryptionInfo {
       versions[currWrite].IsBeacon(field)
     }
 
+    function method BeaconName(field : string) : string
+      requires ValidState()
+      requires field in versions[currWrite].beacons
+    {
+      versions[currWrite].beacons[field].getBeaconName()
+    }
+
     predicate method IsVirtualField(field : string)
       requires ValidState()
     {
