@@ -82,6 +82,25 @@ module BeaconTestFixtures {
                  signed := Some([Signed4]),
                  constructors := None
                )
+
+  const SK2 := CompoundBeacon (
+                 name := "SK2",
+                 split := ".",
+                 signed := Some([Signed4, Signed5]),
+                 encrypted := None,
+                 constructors := Some([
+                  Constructor(
+                    parts := [
+                      ConstructorPart(name := "Signed4", required := true)
+                    ]
+                  ),
+                  Constructor(
+                    parts := [
+                      ConstructorPart(name := "Signed5", required := true)
+                    ]
+                  )
+                 ])
+               )
   const Local := CompoundBeacon (
                    name := "Local",
                    split := ".",
@@ -217,7 +236,7 @@ module BeaconTestFixtures {
       );
   }
 
-  method GetIndexBeacons() returns (output : BeaconVersion)
+  method GetAllIndexBeacons() returns (output : BeaconVersion)
     ensures output.keyStore.ValidState()
     ensures fresh(output.keyStore.Modifies)
     ensures output.version == 1
@@ -228,7 +247,7 @@ module BeaconTestFixtures {
         keyStore := store,
         keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
         standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
-        compoundBeacons := Some([PK, SK, PK1, SK1, Local]),
+        compoundBeacons := Some([PK, SK, PK1, SK1, SK2, Local]),
         virtualFields := Some([NameTitleField])
       );
   }

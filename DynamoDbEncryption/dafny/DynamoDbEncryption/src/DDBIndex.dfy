@@ -182,7 +182,8 @@ module DynamoDBIndexSupport {
   {
     if search.IsBeacon(element.AttributeName) then
       var newName := search.BeaconName(element.AttributeName);
-      :- Need(DDB.IsValid_KeySchemaAttributeName(newName), E("bad name"));
+      // The following error is impossible, as we checked at configuration time
+      :- Need(DDB.IsValid_KeySchemaAttributeName(newName), E(newName + " is not a valid Key Schema Attribute Name."));
       var newAttrs := ReplaceAttrDef(attrs, element.AttributeName, newName);
       Success((element.(AttributeName := newName), newAttrs))
     else if IsEncrypted(actions, element.AttributeName) then

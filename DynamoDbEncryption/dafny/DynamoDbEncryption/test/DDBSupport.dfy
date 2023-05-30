@@ -118,7 +118,7 @@ module TestDDBSupport {
   }
 
     method {:test} TestCreateTableIndexesAndBeacons() {
-    var version := GetIndexBeacons();
+    var version := GetAllIndexBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var search := SI.SearchInfo([bv], 0);
@@ -128,6 +128,7 @@ module TestDDBSupport {
         AttributeDefinition(AttributeName := "SK", AttributeType := ScalarAttributeType.S),
         AttributeDefinition(AttributeName := "PK1", AttributeType := ScalarAttributeType.S),
         AttributeDefinition(AttributeName := "SK1", AttributeType := ScalarAttributeType.S),
+        AttributeDefinition(AttributeName := "SK2", AttributeType := ScalarAttributeType.S),
         AttributeDefinition(AttributeName := "Local", AttributeType := ScalarAttributeType.S)
       ],
       TableName := "MyTableName",
@@ -162,7 +163,23 @@ module TestDDBSupport {
             ReadCapacityUnits := 42 ,
             WriteCapacityUnits := 43
           ))
+        ),
+        DDB.GlobalSecondaryIndex(
+          IndexName := "GSI2",
+          KeySchema := [
+            KeySchemaElement(AttributeName := "PK1", KeyType := HASH),
+            KeySchemaElement(AttributeName := "SK2", KeyType := RANGE)
+          ],
+          Projection := Projection(
+            ProjectionType := Some(ProjectionType.ALL),
+            NonKeyAttributes := None
+          ),
+          ProvisionedThroughput := Some(ProvisionedThroughput (
+            ReadCapacityUnits := 42 ,
+            WriteCapacityUnits := 43
+          ))
         )
+
       ]),
       BillingMode := None,
       ProvisionedThroughput := None,
@@ -177,6 +194,7 @@ module TestDDBSupport {
         AttributeDefinition(AttributeName := "SK", AttributeType := ScalarAttributeType.S),
         AttributeDefinition(AttributeName := "aws_dbe_b_PK1", AttributeType := ScalarAttributeType.S),
         AttributeDefinition(AttributeName := "aws_dbe_b_SK1", AttributeType := ScalarAttributeType.S),
+        AttributeDefinition(AttributeName := "SK2", AttributeType := ScalarAttributeType.S),
         AttributeDefinition(AttributeName := "aws_dbe_b_Local", AttributeType := ScalarAttributeType.S)
       ],
       TableName := "MyTableName",
@@ -202,6 +220,21 @@ module TestDDBSupport {
           KeySchema := [
             KeySchemaElement(AttributeName := "aws_dbe_b_PK1", KeyType := HASH),
             KeySchemaElement(AttributeName := "aws_dbe_b_SK1", KeyType := RANGE)
+          ],
+          Projection := Projection(
+            ProjectionType := Some(ProjectionType.ALL),
+            NonKeyAttributes := None
+          ),
+          ProvisionedThroughput := Some(ProvisionedThroughput (
+            ReadCapacityUnits := 42 ,
+            WriteCapacityUnits := 43
+          ))
+        ),
+        DDB.GlobalSecondaryIndex(
+          IndexName := "GSI2",
+          KeySchema := [
+            KeySchemaElement(AttributeName := "aws_dbe_b_PK1", KeyType := HASH),
+            KeySchemaElement(AttributeName := "SK2", KeyType := RANGE)
           ],
           Projection := Projection(
             ProjectionType := Some(ProjectionType.ALL),
