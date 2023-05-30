@@ -196,11 +196,11 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                 outgoingRequest = copyOverrideConfig((UpdateItemRequest) originalRequest, transformedRequest);
                 break;
             } case "UpdateTable": {
-                UpdateItemRequest transformedRequest = transformer.UpdateItemInputTransform(
-                        UpdateItemInputTransformInput.builder()
-                                .sdkInput((UpdateItemRequest) originalRequest)
+                UpdateTableRequest transformedRequest = transformer.UpdateTableInputTransform(
+                        UpdateTableInputTransformInput.builder()
+                                .sdkInput((UpdateTableRequest) originalRequest)
                                 .build()).transformedInput();
-                outgoingRequest = copyOverrideConfig((UpdateItemRequest) originalRequest, transformedRequest);
+                outgoingRequest = copyOverrideConfig((UpdateTableRequest) originalRequest, transformedRequest);
                 break;
             } default: {
                 // Currently we only transform the above hardcoded set of APIs.
