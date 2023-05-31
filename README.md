@@ -18,6 +18,19 @@ Please do **not** create a public GitHub issue.
 See [Support Policy](./SUPPORT_POLICY.rst) for details 
 on the current support status of all major versions of this library.
 
+## Giving Feedback
+We need your help in making this SDK great.
+Please participate in the community and contribute to this effort by
+submitting issues,
+participating in discussion forums and
+submitting pull requests through the following channels:
+
+* Submit [issues](https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/issues)
+  \- this is the **preferred** channel to interact with our team
+* Articulate your
+  [feature request](https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/issues?q=is%3Aopen+is%3Aissue+label%3A%22feature-request%22)
+  or upvote existing ones
+
 # Getting Started
 
 ## Required Prerequisites
