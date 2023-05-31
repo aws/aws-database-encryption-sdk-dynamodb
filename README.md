@@ -5,7 +5,7 @@ provides client-side encryption and signing of Amazon DynamoDB items
 to help you protect your table's data before you send it to DynamoDB.
 
 For more details about the design and architecture of the
-AWS Database Encryption SDK (DB ESDK) for DynamoDB, 
+AWS Database Encryption SDK (DB-ESDK) for DynamoDB, 
 see the [AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/).
 
 # Security
@@ -21,7 +21,7 @@ on the current support status of all major versions of this library.
 # Getting Started
 
 ## Required Prerequisites
-To use the DB ESDK for DynamoDB in Java, you must have:
+To use the DB-ESDK for DynamoDB in Java, you must have:
 
 * **A Java 8 or newer development environment**
 
@@ -34,27 +34,80 @@ To use the DB ESDK for DynamoDB in Java, you must have:
   you must also download and install 
   the [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html).
 
-* **Declared a Dependency on the DB ESDK for DynamoDB in Java**
+* **Declared a Dependency on the DB-ESDK for DynamoDB in Java and it's dependencies**
 
   * Via Gradle Kotlin
    In a Gradle Java Project, add the following to the _dependencies_ section:
    ```kotlin
    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0")
+   implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:3.0.0")
+   implementation(platform("software.amazon.awssdk:bom:2.19.1"))
+   implementation("software.amazon.awssdk:dynamodb")
+   implementation("software.amazon.awssdk:dynamodb-enhanced")
+   implementation("software.amazon.awssdk:kms")
    ```
 
   * Via Apache Maven
-  Add the following to the project's `pom.xml`:
+  The DB-ESDK for DynamoDB in Java requires the DynamoDB, 
+  Dynamodb-Enhanced, and KMS clients from the AWS SDK for Java V2.
+  It also requires the AwsCryptographicMaterialProviders library.
+  your project's `pom.xml`.
   ```xml
-  <dependency>
-    <groupId>software.amazon.cryptography</groupId>
-    <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
-    <version>3.0.0</version>
-  </dependency>
+  <project>
+  <dependencyManagement>
+   <dependencies>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>2.19.1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+   </dependencies>
+  </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>dynamodb-enhanced</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>dynamodb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>kms</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.cryptography</groupId>
+      <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.cryptography</groupId>
+      <artifactId>AwsCryptographicMaterialProviders</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+  </dependencies>
+  ...
+  </project>
   ```
 
-## Configuring the DB ESDK for DynamoDB in Java
+### AWS Integration
+You need an Amazon Web Services (AWS) account to use
+the AWS Database Encryption SDK for DynamoDB
+(a KMS Key is optional).
+
+* **To create an AWS account**, go to 
+  [Sign In or Create an AWS Account](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html)
+  and then choose **I am a new user.**  
+  Follow the instructions to create an AWS account.
+
+* **To create a key in AWS KMS**, see
+  [Creating Keys](https://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html).
+## Configuring the DB-ESDK for DynamoDB in Java
 There are several ways to use the
-AWS Database Encryption SDK (DB ESDK) for DynamoDB in Java.  
+AWS Database Encryption SDK (DB-ESDK) for DynamoDB in Java.  
 More details are provided in the
 [AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/).  
 Also see the [Examples](Examples/runtimes/java/DynamoDbEncryption).
@@ -66,7 +119,7 @@ Suppose you have created a DynamoDB table via the request in
 and want to store some objects.  
 The security requirements for these objects involves classifying particular
 attributes as sensitive information.  
-You can use annotations from the Enhanced DynamoDB Client and the DB ESDK to define
+You can use annotations from the Enhanced DynamoDB Client and the DB-ESDK to define
 the objects types and which fields are encrypted:
 
 ```java
