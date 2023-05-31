@@ -239,12 +239,12 @@ public class CompoundBeaconSearchableEncryptionExample {
     item.put("inspector_id_last4", AttributeValue.builder().s("5678").build());
     item.put("unit", AttributeValue.builder().s("011899988199").build());
 
-    final PutItemRequest putRequestBoth = PutItemRequest.builder()
+    final PutItemRequest putRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
         .item(item)
         .build();
 
-    final PutItemResponse putResponse = ddb.putItem(putRequestBoth);
+    final PutItemResponse putResponse = ddb.putItem(putRequest);
     // Validate object put successfully
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
