@@ -1,31 +1,68 @@
-## AWS Database Encryption SDK for DynamoDB in Java
+# AWS Database Encryption SDK for DynamoDB in Java
 
 The AWS Database Encryption SDK for DynamoDB in Java
 provides client-side encryption and signing of Amazon DynamoDB items
 to help you protect your table's data before you send it to DynamoDB.
 
-For more details about the design and architecture of the AWS Database Encryption SDK for DynamoDB, see the [AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/).
+For more details about the design and architecture of the
+AWS Database Encryption SDK (DB ESDK) for DynamoDB, 
+see the [AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/).
 
 [Security issue notifications](./CONTRIBUTING.md#security-issue-notifications)
 
-See [Support Policy](./SUPPORT_POLICY.rst) for details on the current support status of all major versions of this library.
+See [Support Policy](./SUPPORT_POLICY.rst) for details 
+on the current support status of all major versions of this library.
 
-## Getting Started
+# Getting Started
 
-### Required Prerequisites
+## Required Prerequisites
 To use the DB ESDK for DynamoDB in Java, you must have:
 
 * **A Java 8 or newer development environment**
 
-  If you do not have one, go to [Java SE Downloads](https://www.oracle.com/technetwork/java/javase/downloads/index.html) on the Oracle website, then download and install the Java SE Development Kit (JDK). Java 8 or higher is required.
+  If you do not have one, 
+  go to [Java SE Downloads](https://www.oracle.com/technetwork/java/javase/downloads/index.html) on the Oracle website, 
+  then download and install the Java SE Development Kit (JDK). 
+  Java 8 or higher is required.
 
-  **Note:** If you use the Oracle JDK, you must also download and install the [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html).
+  **Note:** If you use the Oracle JDK, 
+  you must also download and install 
+  the [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html).
 
-### Get Started
+* **Declared a Dependency on the DB ESDK for DynamoDB in Java**
 
-Suppose you have created ([sample code][createtable]) and a DynamoDB table, and want to store some objects.
-The security requirement involves classifying particular attributes as sensitive information. 
-This is how the annotated class may look like:
+  * Via Gradle Kotlin
+   In a Gradle Java Project, add the following to the _dependencies_ section:
+   ```kotlin
+   implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0")
+   ```
+
+  * Via Apache Maven
+  Add the following to the project's `pom.xml`:
+  ```xml
+  <dependency>
+    <groupId>software.amazon.cryptography</groupId>
+    <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
+    <version>3.0.0</version>
+  </dependency>
+  ```
+
+## Configuring the DB ESDK for DynamoDB in Java
+There are several ways to use the
+AWS Database Encryption SDK (DB ESDK) for DynamoDB in Java.  
+More details are provided in the
+[AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/).  
+Also see the [Examples](Examples/runtimes/java/DynamoDbEncryption).
+
+### Using Annotations
+
+Suppose you have created a DynamoDB table via the request in 
+[Examples/CreateSimpleTable](Examples/runtimes/java/DynamoDbEncryption/src/main/java/software/amazon/cryptography/examples/enhanced/CreateSimpleTable.java), 
+and want to store some objects.  
+The security requirements for these objects involves classifying particular
+attributes as sensitive information.  
+You can use annotations from the Enhanced DynamoDB Client and the DB ESDK to define
+the objects types and which fields are encrypted:
 
 ```java
 @DynamoDbBean
@@ -68,7 +105,10 @@ public class SimpleClass {
 }
 ```
 
-As a typical use case of the [DynamoDBEnhancedClient][ddbenhanced], you can easily save and retrieve a SimpleClass object to and from Amazon DynamoDB _without encryption (nor signing)_.  For example,
+As a typical use case of the [DynamoDBEnhancedClient][ddbenhanced],
+you can easily save and retrieve a SimpleClass object
+to and from Amazon DynamoDB _without encryption (nor signing)_.
+For example,
 
 ```java
   // Create the DynamoDBEnhancedClient and our table
@@ -93,7 +133,13 @@ As a typical use case of the [DynamoDBEnhancedClient][ddbenhanced], you can easi
   SimpleClass returnedItem = table.getItem(itemToGet);
 ```
 
-To enable transparent encryption and signing, create a keyring and a DynamoDbEncryptionInterceptor, then add it to the client.  For example:
+See 
+[EnhancedPlaintextPutGetExample](Examples/runtimes/java/DynamoDbEncryption/src/main/java/software/amazon/cryptography/examples/enhanced/EnhancedPlaintextPutGetExample.java).
+
+To enable transparent encryption and signing, 
+create a keyring and a DynamoDbEncryptionInterceptor,
+then add it to the client.  
+For example:
 
 ```java
     // Use an example KMS key for encrypting your data
@@ -153,27 +199,21 @@ To enable transparent encryption and signing, create a keyring and a DynamoDbEnc
     SimpleClass returnedItem = table.getItem(itemToGet);
 ```
 
-See a related [example][TODOplaintextexample] for more context and description.
-
-### Downloads
-
-You can get the latest release from Maven:
-
-```xml
-  <dependency>
-    <groupId>software.amazon.cryptography</groupId>
-    <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
-    <version>3.0.0</version>
-  </dependency>
-```
+See
+[EnhancedPutGetExample](Examples/runtimes/java/DynamoDbEncryption/src/main/java/software/amazon/cryptography/examples/enhanced/EnhancedPutGetExample.java)
+for more context and description.
 
 ### Development
 
 This repo contains several projects:
-- `DynamoDbEncryption`: Contains the implementation of the Database Encryption SDK for DynamoDB in Java.
-A specification of this project exists at `specification`.
-- `Examples`: Contains example projects that demonstrate use of the features of the Database Encryption SDK for DynamoDB
-- `TestVectors`: Contains project that encrypts and decrypts a suite of DynamoDB items to validate the Database Encryption SDK's cross-version compatibility
+- `DynamoDbEncryption`: Contains the implementation of the Database Encryption 
+  SDK for DynamoDB in Java.
+- A specification of this project exists at `specification`.
+- `Examples`: Contains example projects that demonstrate use of 
+  the features of the Database Encryption SDK for DynamoDB
+- `TestVectors`: Contains project that encrypts and decrypts
+  a suite of DynamoDB items to validate the Database Encryption 
+  SDK's cross-version compatibility
 
 ## Security
 
@@ -183,5 +223,4 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 
 This project is licensed under the Apache-2.0 License.
 
-[createtable]: todofix
 [ddbenhanced]: https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/dynamodb-enhanced-client.html
