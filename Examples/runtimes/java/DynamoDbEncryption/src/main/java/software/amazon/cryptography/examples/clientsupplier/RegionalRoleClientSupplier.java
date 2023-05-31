@@ -28,9 +28,6 @@ public class RegionalRoleClientSupplier implements IClientSupplier {
   @Override
   public KmsClient GetClient(GetClientInput getClientInput) {
     if (!config.regionIamRoleMap.containsKey(getClientInput.region())) {
-      // TODO: Create a MissingRegionException that extends AwsCryptographicMaterialProvidersException.
-      // The generated code for AwsCryptographicMaterialProvidersException cannot be extended as-is,
-      // as its constructor requires access to a class private to itself.
       throw new RuntimeException("Missing region");
     }
 

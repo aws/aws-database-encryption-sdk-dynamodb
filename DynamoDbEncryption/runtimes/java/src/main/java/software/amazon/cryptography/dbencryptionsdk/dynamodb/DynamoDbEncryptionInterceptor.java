@@ -125,18 +125,40 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                 outgoingRequest = copyOverrideConfig((PutItemRequest) originalRequest, transformedRequest);
                 break;
             } case "Query": {
+                QueryRequest queryRequest = (QueryRequest) originalRequest;
                 QueryRequest transformedRequest = transformer.QueryInputTransform(
                         QueryInputTransformInput.builder()
-                                .sdkInput((QueryRequest) originalRequest)
+                                .sdkInput(queryRequest)
                                 .build()).transformedInput();
-                outgoingRequest = copyOverrideConfig((QueryRequest) originalRequest, transformedRequest);
+
+                // Our current Java->Dafny conversion squashes empty maps into the "None" type.
+                // In order to avoid gray failures for invalid `exclusiveStartKey`,
+                // and because our transforms do not act on or modify this value currently,
+                // copy over the original `exclusiveStartKey`
+                // so that the server can correctly reject it as invalid if it is empty.
+                transformedRequest = transformedRequest.toBuilder()
+                        .exclusiveStartKey(queryRequest.exclusiveStartKey())
+                        .build();
+
+                outgoingRequest = copyOverrideConfig(queryRequest, transformedRequest);
                 break;
             } case "Scan": {
+                ScanRequest scanRequest = (ScanRequest) originalRequest;
                 ScanRequest transformedRequest = transformer.ScanInputTransform(
                         ScanInputTransformInput.builder()
-                                .sdkInput((ScanRequest) originalRequest)
+                                .sdkInput(scanRequest)
                                 .build()).transformedInput();
-                outgoingRequest = copyOverrideConfig((ScanRequest) originalRequest, transformedRequest);
+
+                // Our current Java->Dafny conversion squashes empty maps into the "None" type.
+                // In order to avoid gray failures for invalid `exclusiveStartKey`,
+                // and because our transforms do not act on or modify this value currently,
+                // copy over the original `exclusiveStartKey`
+                // so that the server can correctly reject it as invalid if it is empty.
+                transformedRequest = transformedRequest.toBuilder()
+                        .exclusiveStartKey(scanRequest.exclusiveStartKey())
+                        .build();
+
+                outgoingRequest = copyOverrideConfig(scanRequest, transformedRequest);
                 break;
             } case "TransactGetItems": {
                 TransactGetItemsRequest transformedRequest = transformer.TransactGetItemsInputTransform(

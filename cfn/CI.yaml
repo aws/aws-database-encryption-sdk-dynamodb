@@ -25,7 +25,7 @@ Parameters:
   GitHubRepo:
     Type: String
     Description: GitHub Repo that invokes CI
-    Default: awslabs/aws-dynamodb-encryption-dafny
+    Default: awslabs/aws-database-encryption-sdk-dynamodb-java
 
 Resources:
   TestTable:
@@ -209,7 +209,7 @@ Resources:
       TableName: !Ref KeystoreTableName
 
   # This policy SHOULD be given to:
-  #  - awslabs/aws-dynamodb-encryption-dafny
+  #  - awslabs/aws-database-encryption-sdk-dynamodb-java
   #  - ToolsDevelopment
   DDBUsage:
     Type: "AWS::IAM::ManagedPolicy"
@@ -323,6 +323,13 @@ Resources:
               "Effect": "Allow",
               "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
               "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": {
+                  "AWS": "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-MPL-Java-service-role-release"
+              },
+              "Action": "sts:AssumeRole"
             }
           ]
         }
@@ -364,6 +371,13 @@ Resources:
               "Effect": "Allow",
               "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
               "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": {
+                  "AWS": "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-MPL-Java-service-role-release"
+              },
+              "Action": "sts:AssumeRole"
             }
           ]
         }
@@ -404,6 +418,13 @@ Resources:
             {
               "Effect": "Allow",
               "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
+              "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": {
+                  "AWS": "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-MPL-Java-service-role-release"
+              },
               "Action": "sts:AssumeRole"
             }
           ]

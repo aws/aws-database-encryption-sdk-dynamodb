@@ -618,7 +618,6 @@ public class TransformerHolisticIT {
 
     mapper.save(obj);
 
-    // TODO: Update the mock to handle this appropriately.
     // DynamoDb discards leading and trailing zeros from numbers
     Map<String, AttributeValue> key = new HashMap<String, AttributeValue>();
     key.put(HASH_KEY, new AttributeValue().withN("0"));

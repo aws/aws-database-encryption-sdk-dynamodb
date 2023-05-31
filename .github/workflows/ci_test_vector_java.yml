@@ -1,0 +1,73 @@
+# This workflow performs test vectors in Java.
+name: Library Java Test Vectors
+
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  testJava:
+    strategy:
+      matrix:
+        java-version: [ 8, 11, 16, 17 ]
+        os: [
+          # Run on ubuntu image that comes pre-configured with docker
+          ubuntu-latest
+        ]
+    runs-on: ${{ matrix.os }}
+    environment: "MPL CI"
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v2.0.1
+        with:
+          port: 8000
+          cors: '*'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Java-Tests
+
+      - uses: actions/checkout@v3
+
+      - name: Init Submodules
+        env:
+          # This secret is in the configured environment,
+          # and set to expire every 30 days
+          MPL_PAT: ${{ secrets.MPL_PAT }}
+        run: |
+          AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
+          git config --global --add url.https://github.com/.insteadOf git@github.com:
+          git submodule update --init --recursive submodules/MaterialProviders
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.6.1
+        with:
+          dafny-version: '4.1.0'
+
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: ${{ matrix.java-version }}
+
+      - name: Build TestVectors implementation
+        shell: bash
+        working-directory: ./TestVectors
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make build_java CORES=$CORES
+
+      - name: Test TestVectors
+        working-directory: ./TestVectors
+        run: |
+          make test_java

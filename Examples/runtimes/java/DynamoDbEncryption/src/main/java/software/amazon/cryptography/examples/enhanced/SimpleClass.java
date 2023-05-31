@@ -16,9 +16,9 @@ public class SimpleClass {
 
     private String partitionKey;
     private int sortKey;
-    private String encryptAndSign;
-    private String doNothing;
-    private String signOnly;
+    private String attribute1;
+    private String attribute2;
+    private String attribute3;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = "partition_key")
@@ -40,31 +40,31 @@ public class SimpleClass {
         this.sortKey = sortKey;
     }
 
-    public String getEncryptAndSign() {
-        return this.encryptAndSign;
+    public String getAttribute1() {
+        return this.attribute1;
     }
 
-    public void setEncryptAndSign(String encryptAndSign) {
-        this.encryptAndSign = encryptAndSign;
+    public void setAttribute1(String attribute1) {
+        this.attribute1 = attribute1;
     }
 
     @DynamoDbEncryptionSignOnly
-    public String getSignOnly() {
-        return this.signOnly;
+    public String getAttribute2() {
+        return this.attribute2;
     }
 
-    public void setSignOnly(String signOnly) {
-        this.signOnly = signOnly;
+    public void setAttribute2(String attribute2) {
+        this.attribute2 = attribute2;
     }
 
     @DynamoDbEncryptionDoNothing
-    public String getDoNothing() {
-        return this.doNothing;
+    public String getAttribute3() {
+        return this.attribute3;
     }
 
-    @DynamoDbAttribute(value = ":do_nothing")
-    public void setDoNothing(String doNothing) {
-        this.doNothing = doNothing;
+    @DynamoDbAttribute(value = ":attribute3")
+    public void setAttribute3(String attribute3) {
+        this.attribute3 = attribute3;
     }
 }
 
