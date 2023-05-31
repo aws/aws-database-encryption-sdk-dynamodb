@@ -8,8 +8,13 @@ For more details about the design and architecture of the
 AWS Database Encryption SDK (DB ESDK) for DynamoDB, 
 see the [AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/).
 
-[Security issue notifications](./CONTRIBUTING.md#security-issue-notifications)
+# Security
+If you discover a potential security issue in this project
+we ask that you notify AWS/Amazon Security via our
+[vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/).
+Please do **not** create a public GitHub issue.
 
+# Support Policy
 See [Support Policy](./SUPPORT_POLICY.rst) for details 
 on the current support status of all major versions of this library.
 
@@ -203,8 +208,9 @@ See
 [EnhancedPutGetExample](Examples/runtimes/java/DynamoDbEncryption/src/main/java/software/amazon/cryptography/examples/enhanced/EnhancedPutGetExample.java)
 for more context and description.
 
-### Development
+# Development
 
+[//]: # (TODO: Post-GA? Development Instructions)
 This repo contains several projects:
 - `DynamoDbEncryption`: Contains the implementation of the Database Encryption 
   SDK for DynamoDB in Java.
@@ -215,11 +221,11 @@ This repo contains several projects:
   a suite of DynamoDB items to validate the Database Encryption 
   SDK's cross-version compatibility
 
-## Security
+# Contributing
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
 
-## License
+# License
 
 This project is licensed under the Apache-2.0 License.
 
