@@ -37,18 +37,18 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   This example follows a use case of a database that stores unit inspection information.
 
   Running this example requires access to a DDB table with the
-  following primary key configuration:
+  following key configuration:
     - Partition key is named "work_id" with type (S)
-    - Sort key is named "inspection_time" with type (S)
+    - Sort key is named "inspection_date" with type (S)
   This table must have a Global Secondary Index (GSI) configured named "last4-unit-index":
     - Partition key is named "aws_dbe_b_inspector_id_last4" with type (S)
     - Sort key is named "aws_dbe_b_unit" with type (S)
 
   In this example for storing unit inspection information, this schema is utilized for the data:
-   - "work_id" stores a unique identifier for a unit inspection work order
-   - "inspection_time" stores a unique identifier for a unit inspection work order
+   - "work_id" stores a unique identifier for a unit inspection work order (v4 UUID)
+   - "inspection_date" stores an ISO 8601 date for the inspection (YYYY-MM-DD)
    - "inspector_id_last4" stores the last 4 digits of the ID of the inspector performing the work
-   - "unit" stores a serial number for the unit being inspected
+   - "unit" stores a 12-digit serial number for the unit being inspected
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
@@ -147,7 +147,7 @@ public class BasicSearchableEncryptionExample {
     //    sharing that beacon value.
     StandardBeacon unitBeacon = StandardBeacon.builder()
         .name("unit")
-        .length(10)
+        .length(30)
         .build();
     standardBeaconList.add(unitBeacon);
 
@@ -224,7 +224,7 @@ public class BasicSearchableEncryptionExample {
     //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     attributeActionsOnEncrypt.put("work_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActionsOnEncrypt.put("inspection_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("inspection_date", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
     attributeActionsOnEncrypt.put("inspector_id_last4", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActionsOnEncrypt.put("unit", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
@@ -234,7 +234,7 @@ public class BasicSearchableEncryptionExample {
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .logicalTableName(ddbTableName)
         .partitionKeyName("work_id")
-        .sortKeyName("create_time")
+        .sortKeyName("inspection_date")
         .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
         .keyring(kmsKeyring)
         .search(SearchConfig.builder()
@@ -270,7 +270,7 @@ public class BasicSearchableEncryptionExample {
     //    aws_dbe_b_unit = truncate(HMAC("123456789012"), 30)
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("work_id", AttributeValue.builder().s("1313ba89-5661-41eb-ba6c-cb1b4cb67b2d").build());
-    item.put("inspection_time", AttributeValue.builder().s("2023-06-13").build());
+    item.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
     item.put("inspector_id_last4", AttributeValue.builder().s("4321").build());
     item.put("unit", AttributeValue.builder().s("123456789012").build());
 

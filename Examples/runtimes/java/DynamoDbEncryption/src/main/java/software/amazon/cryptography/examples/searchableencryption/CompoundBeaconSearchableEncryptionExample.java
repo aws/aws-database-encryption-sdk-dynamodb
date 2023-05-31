@@ -38,25 +38,26 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 /*
   This example demonstrates how to set up a compound beacon on encrypted attributes,
       put an item with the beacon, and query against that beacon.
-  This example follows a use case of a database that stores customer location data. This is an
-      extension of the "BasicSearchableEncryptionExample" in this directory. This example uses the same
-      situation (storing customer location data) and the same table schema, but adds a compound beacon
-      `location` that uses both the `state` and `zip` attributes.
+  This example follows a use case of a database that stores unit inspection information.
+      This is an extension of the "BasicSearchableEncryptionExample" in this directory.
+      This example uses the same situation (storing unit inspection information)
+      and the same table schema.
+  However, this example uses a different Global Secondary Index (GSI)
+      that is based on a compound beacon configuration composed of
+      the `last4` and `unit` attributes.
 
   Running this example requires access to a DDB table with the
-  following primary key configuration:
-    - Partition key is named "customer_id" with type (S)
-    - Sort key is named "create_time" with type (S)
-  This table must have a Global Secondary Index (GSI) configured named "location-index:
-    - Partition key is named "aws_dbe_b_location" with type (S)
+  following key configuration:
+    - Partition key is named "work_id" with type (S)
+    - Sort key is named "inspection_time" with type (S)
+  This table must have a Global Secondary Index (GSI) configured named "last4UnitCompound-index":
+    - Partition key is named "aws_dbe_b_last4UnitCompound" with type (S)
 
-  In this example for storing customer location data, this schema is utilized for the data:
-   - "customer_id" stores a unique customer identifier
-   - "create_time" stores a Unix timestamp
-   - "state" attribute stores an encrypted 2-letter US state or territory abbreviation
-         (https://www.faa.gov/air_traffic/publications/atpubs/cnt_html/appendix_a.html)
-   - "zip" attribute stores an encrypted 5-digit US zipcode (00000 - 99999)
-   - "aws_dbe_b_location" stores a beaconized concatenation of state and zip
+  In this example for storing unit inspection information, this schema is utilized for the data:
+   - "work_id" stores a unique identifier for a unit inspection work order (v4 UUID)
+   - "inspection_date" stores an ISO 8601 date for the inspection (YYYY-MM-DD)
+   - "inspector_id_last4" stores the last 4 digits of the ID of the inspector performing the work
+   - "unit" stores a 12-digit serial number for the unit being inspected
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
@@ -69,26 +70,27 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 
 public class CompoundBeaconSearchableEncryptionExample {
 
-  static String GSI_NAME = "location-index";
+  static String GSI_NAME = "last4UnitCompound-index";
 
   public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
     // 1. Create Beacons.
     //    These are the same beacons as in the "BasicSearchableEncryptionExample" in this directory.
     //    See that file to see details on beacon construction and parameters.
-    //    While we will not query against these beacons, you must create standard beacons on fields
-    //        that we wish to use in compound beacons.
+    //    While we will not directly query against these beacons,
+    //      you must create standard beacons on encrypted fields
+    //      that we wish to use in compound beacons.
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
-    StandardBeacon stringBeacon = StandardBeacon.builder()
-        .name("state")
-        .length(4)
-        .build();
-    standardBeaconList.add(stringBeacon);
-    StandardBeacon numberBeacon = StandardBeacon.builder()
-        .name("zip")
+    StandardBeacon last4Beacon = StandardBeacon.builder()
+        .name("inspector_id_last4")
         .length(10)
         .build();
-    standardBeaconList.add(numberBeacon);
+    standardBeaconList.add(last4Beacon);
+    StandardBeacon unitBeacon = StandardBeacon.builder()
+        .name("unit")
+        .length(30)
+        .build();
+    standardBeaconList.add(unitBeacon);
 
     // 2. Define encrypted parts.
     //    Encrypted parts define the beacons that can be used to construct a compound beacon,
@@ -100,23 +102,23 @@ public class CompoundBeaconSearchableEncryptionExample {
     //            Prefixes must be unique across the configuration, and must not be a prefix of another prefix;
     //            i.e. for all configured prefixes, the first N characters of a prefix must not equal another prefix.
     // In practice, it is suggested to have a short value distinguishable from other parts served on the prefix.
-    // For this example, we will choose "S-" as the prefix for "State abbreviation".
-    // With this prefix and the standard beacon's bit length definition (4), a state abbreviation beacon will appear
-    //     as `S-0` to `S-f` inside a compound beacon.
-    EncryptedPart encryptedPartStr = EncryptedPart.builder()
-        .name("state")
-        .prefix("S-")
+    // For this example, we will choose "L-" as the prefix for "Last 4 digits of inspector ID".
+    // With this prefix and the standard beacon's bit length definition (10), the beaconized
+    //     version of the inspector ID's last 4 digits will appear as
+    //     `L-000` to `L-3ff` inside a compound beacon.
+    EncryptedPart last4EncryptedPart = EncryptedPart.builder()
+        .name("inspector_id_last4")
+        .prefix("L-")
         .build();
-    encryptedPartList.add(encryptedPartStr);
-    // For this example, we will choose "Z-" as the prefix for "Zipcode".
-    // With this prefix and the standard beacon's bit length definition (10), a zipcode beacon will appear
-    //     as `Z-000` to `Z-3ff` inside a compound beacon.
-    EncryptedPart encryptedPartNum = EncryptedPart.builder()
-        .name("zip")
-        .prefix("Z-")
+    encryptedPartList.add(last4EncryptedPart);
+    // For this example, we will choose "U-" as the prefix for "unit".
+    // With this prefix and the standard beacon's bit length definition (30), a unit beacon will appear
+    //     as `U-00000000` to `U-3fffffff` inside a compound beacon.
+    EncryptedPart unitEncryptedPart = EncryptedPart.builder()
+        .name("unit")
+        .prefix("U-")
         .build();
-    encryptedPartList.add(encryptedPartNum);
-
+    encryptedPartList.add(unitEncryptedPart);
 
     // 3. Define compound beacon.
     //    A compound beacon allows one to serve multiple beacons or attributes from a single index.
@@ -131,18 +133,19 @@ public class CompoundBeaconSearchableEncryptionExample {
     //                     The client will provide a default constructor, which will write a compound beacon as:
     //                     all signed parts in the order they are added to the signed list;
     //                     all encrypted parts in order they are added to the encrypted list; all parts required.
-    //                     In this example, we expect compound beacons to be written as `S-X.Z-YYY`, since our
-    //                     encrypted list looks like [encryptedPartStr, encryptedPartNum].
+    //                     In this example, we expect compound beacons to be written as
+    //                     `L-XXX.U-YYYYYYYY`, since our encrypted list looks like
+    //                     [last4EncryptedPart, unitEncryptedPart].
     //     - signed: A list of signed parts, i.e. plaintext attributes. This would be provided if we
     //                     wanted to use plaintext values as part of constructing our compound beacon. We do not
     //                     provide this here; see the Complex example for an example.
     List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
-    CompoundBeacon cpbeacon1 = CompoundBeacon.builder()
-        .name("location")
+    CompoundBeacon last4UnitCompoundBeacon = CompoundBeacon.builder()
+        .name("last4UnitCompound")
         .split(".")
         .encrypted(encryptedPartList)
         .build();
-    compoundBeaconList.add(cpbeacon1);
+    compoundBeaconList.add(last4UnitCompoundBeacon);
 
     // 4. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
@@ -190,12 +193,12 @@ public class CompoundBeaconSearchableEncryptionExample {
 
     // 7. Configure which attributes are encrypted and/or signed when writing new items.
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
-    attributeActionsOnEncrypt.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActionsOnEncrypt.put("create_time", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActionsOnEncrypt.put("state", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActionsOnEncrypt.put("zip", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("work_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("inspection_date", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("inspector_id_last4", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("unit", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
-    // We do not need to define a crypto action on location.
+    // We do not need to define a crypto action on last4UnitCompound.
     // We only need to define crypto actions on attributes that we pass to PutItem.
 
     // 8. Create the DynamoDb Encryption configuration for the table we will be writing to.
@@ -203,7 +206,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .logicalTableName(ddbTableName)
-        .partitionKeyName("customer_id")
+        .partitionKeyName("work_id")
+        .sortKeyName("inspection_date")
         .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
         .keyring(kmsKeyring)
         .search(SearchConfig.builder()
@@ -228,12 +232,12 @@ public class CompoundBeaconSearchableEncryptionExample {
                 .build())
         .build();
 
-    // 11. Put an item with both a state abbreviation and a zipcode into the table.
+    // 11. Put an item with both attributes used in the compound beacon.
     final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("customer_id", AttributeValue.builder().s("Both-State-And-Zip").build());
-    item.put("create_time", AttributeValue.builder().n("1681495205").build());
-    item.put("state", AttributeValue.builder().s("WA").build());
-    item.put("zip", AttributeValue.builder().n("98109").build());
+    item.put("work_id", AttributeValue.builder().s("9ce39272-8068-4efd-a211-cd162ad65d4c").build());
+    item.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
+    item.put("inspector_id_last4", AttributeValue.builder().s("5678").build());
+    item.put("unit", AttributeValue.builder().s("011899988199").build());
 
     final PutItemRequest putRequestBoth = PutItemRequest.builder()
         .tableName(ddbTableName)
@@ -244,28 +248,29 @@ public class CompoundBeaconSearchableEncryptionExample {
     // Validate object put successfully
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    // 12. Query for the item with both state abbreviation and zipcode.
-    Map<String ,String> expressionAttributesNames = new HashMap<>();
-    expressionAttributesNames.put("#c", "location");
+    // 12. Query for the item we just put.
+    Map<String, String> expressionAttributesNames = new HashMap<>();
+    expressionAttributesNames.put("#compound", "last4UnitCompound");
 
     Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
     // This query expression takes a few factors into consideration:
-    //  - The configured state abbreviation prefix is "S-"; zipcode abbreviation prefix is "Z-"
+    //  - The configured prefix for the last 4 digits of an inspector ID is "L-";
+    //    the prefix for the unit is "U-"
     //  - The configured split character, separating component parts, is "."
     //  - The default constructor adds encrypted parts in the order they are in the encrypted list, which
-    //    configures the state abbreviation to come before the zipcode
+    //    configures `last4` to come before `unit``
     // NOTE: We did not need to create a compound beacon for this query. This query could have also been
     //       done by querying on the partition and sort key, as was done in the Basic example.
     //       This is intended to be a simple example to demonstrate how one might set up a compound beacon.
     //       For examples where compound beacons are required, see the Complex example.
     //       The most basic extension to this example that would require a compound beacon would add a third
     //       part to the compound beacon, then query against three parts.
-    expressionAttributeValues.put(":v", AttributeValue.builder().s("S-WA.Z-98109").build());
+    expressionAttributeValues.put(":value", AttributeValue.builder().s("L-5678.U-011899988199").build());
 
     QueryRequest queryRequest = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
-        .keyConditionExpression("#c = :v")
+        .keyConditionExpression("#compound = :value")
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
@@ -278,8 +283,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     assert attributeValues.size() == 1;
     Map<String, AttributeValue> returnedItem = attributeValues.get(0);
     // Validate the item has the expected attributes
-    assert returnedItem.get("state").s().equals("WA");
-    assert returnedItem.get("zip").n().equals("98109");
+    assert returnedItem.get("inspector_id_last4").s().equals("5678");
+    assert returnedItem.get("unit").s().equals("011899988199");
   }
 
   public static void main(final String[] args) {
