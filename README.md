@@ -43,7 +43,7 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
    In a Gradle Java Project, add the following to the _dependencies_ section:
    ```kotlin
    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0")
-   implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:3.0.0")
+   implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0.0")
    implementation(platform("software.amazon.awssdk:bom:2.19.1"))
    implementation("software.amazon.awssdk:dynamodb")
    implementation("software.amazon.awssdk:dynamodb-enhanced")
@@ -87,7 +87,7 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
     <dependency>
       <groupId>software.amazon.cryptography</groupId>
       <artifactId>AwsCryptographicMaterialProviders</artifactId>
-      <version>3.0.0</version>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
   ...
@@ -106,6 +106,14 @@ the AWS Database Encryption SDK for DynamoDB
 
 * **To create a key in AWS KMS**, see
   [Creating Keys](https://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html).
+
+### Amazon Corretto Crypto Provider
+Many users find that the Amazon Corretto Crypto Provider (ACCP)
+significantly improves the performance of
+the AWS Database Encryption SDK for DynamoDB in Java.
+For help installing and using ACCP, see the 
+[amazon-corretto-crypto-provider repository](https://github.com/corretto/amazon-corretto-crypto-provider).
+
 ## Configuring the DB-ESDK for DynamoDB in Java
 There are several ways to use the
 AWS Database Encryption SDK (DB-ESDK) for DynamoDB in Java.  
