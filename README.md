@@ -223,7 +223,7 @@ This repo contains several projects:
 
 # Contributing
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 # License
 
