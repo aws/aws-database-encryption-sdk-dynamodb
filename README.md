@@ -47,16 +47,16 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
   you must also download and install 
   the [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html).
 
-* **Declared a Dependency on the DB-ESDK for DynamoDB in Java and it's dependencies**  
+* **Declare a Dependency on the DB-ESDK for DynamoDB in Java and it's dependencies**  
   The DB-ESDK for DynamoDB in Java requires the DynamoDB,
   Dynamodb-Enhanced, and KMS clients from the AWS SDK for Java V2.
-  It also requires the AwsCryptographicMaterialProviders library.
+  It also requires the AWS Cryptographic Material Providers library.
 
   * **Via Gradle Kotlin**  
    In a Gradle Java Project, add the following to the _dependencies_ section:
    ```kotlin
    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0")
-   implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0.0")
+   implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
    implementation(platform("software.amazon.awssdk:bom:2.19.1"))
    implementation("software.amazon.awssdk:dynamodb")
    implementation("software.amazon.awssdk:dynamodb-enhanced")
@@ -99,7 +99,7 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
     </dependency>
     <dependency>
       <groupId>software.amazon.cryptography</groupId>
-      <artifactId>AwsCryptographicMaterialProviders</artifactId>
+      <artifactId>aws-cryptographic-material-providers</artifactId>
       <version>1.0.0</version>
     </dependency>
   </dependencies>
