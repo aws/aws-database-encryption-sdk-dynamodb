@@ -2,7 +2,7 @@ package software.amazon.cryptography.examples.searchableencryption;
 
 public class SearchableEncryptionTestUtils {
   // Our tests require access to DDB Table with this name
-  public static final String TEST_DDB_TABLE_NAME = "SimpleBeaconTestTable";
+  public static final String TEST_DDB_TABLE_NAME = "UnitInspectionBeaconTestTable";
 
   // The branch key must have been created using this KMS key
   // Note: This is a public resource that anyone can access.

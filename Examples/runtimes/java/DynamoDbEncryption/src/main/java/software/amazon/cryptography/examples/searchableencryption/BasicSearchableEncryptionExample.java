@@ -34,21 +34,21 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 /*
   This example demonstrates how to set up a beacon on an encrypted attribute,
   put an item with the beacon, and query against that beacon.
-  This example follows a use case of a database that stores customer information.
+  This example follows a use case of a database that stores unit inspection information.
 
-  Running this example requires access to a DDB table  with the
+  Running this example requires access to a DDB table with the
   following primary key configuration:
-    - Partition key is named "customer_id" with type (S)
-    - Sort key is named "create_time" with type (S)
-  This table must have a Global Secondary Index (GSI) configured named "address-birthday-index":
-    - Partition key is named "aws_dbe_b_address" with type (S)
-    - Sort key is named "aws_dbe_b_birthday" with type (S)
+    - Partition key is named "work_id" with type (S)
+    - Sort key is named "inspection_time" with type (S)
+  This table must have a Global Secondary Index (GSI) configured named "last4-unit-index":
+    - Partition key is named "aws_dbe_b_inspector_id_last4" with type (S)
+    - Sort key is named "aws_dbe_b_unit" with type (S)
 
-  In this example for storing customer information, this schema is utilized for the data:
-   - "customer_id" stores a unique customer identifier
-   - "create_time" stores a Unix timestamp
-   - "address" stores a postal address (e.g. "440 Terry Ave N, Seattle, WA, 98109")
-   - "birthday" stores a birthday in DD/MM/YYYY format
+  In this example for storing unit inspection information, this schema is utilized for the data:
+   - "work_id" stores a unique identifier for a unit inspection work order
+   - "inspection_time" stores a unique identifier for a unit inspection work order
+   - "inspector_id_last4" stores the last 4 digits of the ID of the inspector performing the work
+   - "unit" stores a serial number for the unit being inspected
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
@@ -60,9 +60,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
  */
 
 public class BasicSearchableEncryptionExample {
-
-  static String GSI_NAME = "address-birthday-index";
-
+  static String GSI_NAME = "last4-unit-index";
   public static void PutItemQueryItemWithBeacon(String ddbTableName, String branchKeyId,
       String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
@@ -73,31 +71,27 @@ public class BasicSearchableEncryptionExample {
     //        https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
 
-    // The configured DDB table has a GSI on the `aws_dbe_b_address` AttributeName.
-    // This field is assumed to hold a postal address.
-    // We will allow multiple customer IDs to share the same postal address,
-    // though we will assume that customer IDs roughly correspond to a single address.
-    // (In practice, the vast majority of customers live at different addresses,
-    //  though we do allow multiple customers to live at the same address.)
-    //
-    // To select a beacon length, we must consider how many addresses we expect
-    // to have in our system; from our assumptions above, there will be roughly as many addresses
-    // as there are customer IDs, i.e. one per customer. So the address beacon length
-    // should correlate with the number of customers in our database.
-    //
-    // Let's assume we have 100,000 customers in our database right now, but are growing quickly
-    // and expect to double our customer base every year. We would like to select a beacon length
-    // that would be safe now and still be safe in ~5 years, when we expect to have 3.2M customers.
+    // The configured DDB table has a GSI on the `aws_dbe_b_inspector_id_last4` AttributeName.
+    // This field holds the last 4 digits of an inspector ID.
+    // For our example, this field may range from 0 to 9,999 (10,000 possible values).
+    // For our example, we assume a full inspector ID is an integer
+    //     uniformly distributed across a range from 0 to 99,999,999.
+    // Note that 99,999,999 is divisible by 9,999, which makes
+    // Since a full inspector ID is uniformly distributed across its range,
+    //     and the full ID's range is divisible by the range of the last 4 digits,
+    //     then the last 4 digits of the inspector ID are uniformly distributed
+    //     over the range from 0 to 9,999.
+    // (In general, it is desirable to have a uniform distribution
+    //  over the possible values for a beacon field,
+    //  as a uniform distribution simplifies the analysis
+    //  to determine reasonable bounds for beacon length.)
     //
     // This link provides guidance for choosing a beacon length:
     //    TODO: add link
-    // We follow the guidance in the link above to determine reasonable bounds for beacon length:
-    // 100,000 customers:
-    //  - min: log(sqrt(100,000))/log(2) ~= 8.3, round down to 8
-    //  - max: log((100,000/2))/log(2) ~= 15.6, round up to 16
-    // 3,200,000 customers:
-    //  - min: log(sqrt(3,200,000))/log(2) ~= 10.8, round up to 11
-    //  - max: log((3,200,000/2))/log(2) ~= 20.6, round up to 21
+    // We follow the guidance in the link above to determine reasonable bounds
+    // for the length of a beacon on the last 4 digits of an inspector ID:
+    //  - min: log(sqrt(10,000))/log(2) ~= 6.6, round up to 7
+    //  - max: log((10,000/2))/log(2) ~= 12.3, round down to 12
     // You will somehow need to round results to a nearby integer.
     // We choose to round to the nearest integer; you might consider a different rounding approach.
     // Rounding up will return fewer expected "false positives" in queries,
@@ -106,82 +100,56 @@ public class BasicSearchableEncryptionExample {
     // Rounding down will return more expected "false positives" in queries,
     //    leading to more decrypt calls and worse performance,
     //    but it is harder to identify which beacon values encode distinct plaintexts.
-    // This suggests we can select a beacon length between 11 and 16 and
-    // have desirable security properties at both 100,000 and 3,200,000 customers:
-    //  - Closer to 11, we expect more "false positives" to be returned,
+    // We can choose a beacon length between 7 and 12:
+    //  - Closer to 7, we expect more "false positives" to be returned,
     //    making it harder to identify which beacon values encode distinct plaintexts,
     //    but leading to more decrypt calls and worse performance
-    //  - Closer to 16, we expect fewer "false positives" returned in queries,
-    //    leading to fewer decrypt calls and better performance,
-    //    but it is easier to identify which beacon values encode distinct plaintexts.
-    // As an example, we will choose 15.
-    //
-    // Values stored in aws_dbe_b_address will be 15 bits long (0x0000 - 0x8fff)
-    // There will be 2^15 = 32,768 possible HMAC values.
-    // When we have ~100,000 customers, for a particular beacon we expect
-    // (100,000/32,768) ~= 3.1 addresses
-    // sharing that beacon value.
-    // When we have ~3,200,000 customers, for a particular beacon we expect
-    // (3,200,000/32,768) ~= 97.7 addresses
-    // sharing that beacon value.
-    // Note that as the dataset grows, we expect that this will impact
-    // our performance and security properties:
-    //  - The number of decrypt calls will grow linearly with the dataset.
-    //    At 100k customers, we expect ~3.1 decrypt calls per query.
-    //    At 3.2M customers, we expect ~97.7 decrypt calls per query.
-    //  - The performance of queries will slow linearly with the dataset.
-    //    Based on the growth in the number of decrypt calls,
-    //    we expect queries to take (97.7/3.1 ~= 31.5) times as long
-    //    at 3.2M customers than they did at 100k customers.
-    //  - It will become harder to distinguish which beacon values encode distinct plaintexts.
-    //    At 100k customers, it will be relatively easy to distinguish
-    //    which beacon values encode distinct plaintexts,
-    //    as a beacon value is only expected to encode ~3.1 addresses.
-    //    At 3.2M customers, a beacon value is expected to encode ~97.7 distinct
-    //    plaintext values, so it will be harder to distinguish which
-    //    beacon values encode distinct plaintexts.
-    StandardBeacon addressBeacon = StandardBeacon.builder()
-        .name("address")
-        .length(15)
-        .build();
-    standardBeaconList.add(addressBeacon);
-
-    // The configured DDB table has a GSI on the `aws_dbe_b_birthday` AttributeName.
-    // This field is assumed to hold birthday represented as a string in DD/MM/YYYY format.
-    // We will make some assumptions about the distribution of these strings:
-    // - Birthdays will only be between January 1, 1913 (01/01/1913) and January 1, 2023 (01/01/2023).
-    //   This implies that there are 40,177 unique possible values for this field.
-    // - Birthdays are uniformly distributed across this range.
-    //   In practice, this will not be true (we expect very few early birthdays and very few recent
-    //   birthdays). A more complex analysis would show that a stricter
-    //   upper bound is necessary to hide information from the underlying distribution.
-    // With these assumptions, we have a uniformly-distributed dataset of birthdays
-    // with 40,177 unique values.
-    //
-    // This link provides guidance for choosing a beacon length:
-    //    TODO: add link
-    // We follow the guidance in the link above to determine reasonable bounds for beacon length:
-    //  - min: log(sqrt(40,177))/log(2) ~= 7.6, round up to 8
-    //  - max: log((40,177/2))/log(2) ~= 14.3, round down to 14
-    // We can choose a beacon length between 8 and 14:
-    //  - Closer to 8, we expect more "false positives" to be returned,
-    //    making it harder to identify which beacon values encode distinct plaintexts,
-    //    but leading to more decrypt calls and worse performance
-    //  - Closer to 14, we expect fewer "false positives" returned in queries,
+    //  - Closer to 12, we expect fewer "false positives" returned in queries,
     //    leading to fewer decrypt calls and better performance,
     //    but it is easier to identify which beacon values encode distinct plaintexts.
     // As an example, we will choose 10.
     //
-    // Values stored in aws_dbe_b_birthday will be 10 bits long (0x000 - 0x3ff).
-    // There will be 2^10 = 1024 possible HMAC values.
-    // With well-distributed birthdays (40,177 values), for a particular beacon we expect
-    //   (40,177/1024) ~= 39 birthdays
-    //   sharing that beacon value.
-    StandardBeacon birthdayBeacon = StandardBeacon.builder()
-        .name("birthday")
+    // Values stored in aws_dbe_b_inspector_id_last4 will be 10 bits long (0x000 - 0x3ff)
+    // There will be 2^10 = 1,024 possible HMAC values.
+    // With a sufficiently large number of well-distributed inspector IDs,
+    //    for a particular beacon we expect (10,000/1,024) ~= 9.8 4-digit inspector ID suffixes
+    //    sharing that beacon value.
+    StandardBeacon last4Beacon = StandardBeacon.builder()
+        .name("inspector_id_last4")
         .length(10)
         .build();
-    standardBeaconList.add(birthdayBeacon);
+    standardBeaconList.add(last4Beacon);
+
+    // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
+    // This field holds a unit serial number.
+    // For this example, this is a 12-digit integer from 0 to 999,999,999,999 (10^12 possible values).
+    // We will assume values for this attribute are uniformly distributed across this range.
+    //
+    // This link provides guidance for choosing a beacon length:
+    //    TODO: add link
+    // We follow the guidance in the link above to determine reasonable bounds
+    // for the length of a beacon on a unit serial number:
+    //  - min: log(sqrt(999,999,999,999))/log(2) ~= 19.9, round up to 20
+    //  - max: log((999,999,999,999/2))/log(2) ~= 38.9, round up to 39
+    // We can choose a beacon length between 20 and 39:
+    //  - Closer to 20, we expect more "false positives" to be returned,
+    //    making it harder to identify which beacon values encode distinct plaintexts,
+    //    but leading to more decrypt calls and worse performance
+    //  - Closer to 39, we expect fewer "false positives" returned in queries,
+    //    leading to fewer decrypt calls and better performance,
+    //    but it is easier to identify which beacon values encode distinct plaintexts.
+    // As an example, we will choose 30.
+    //
+    // Values stored in aws_dbe_b_unit will be 30 bits long (0x00000000 - 0x3fffffff)
+    // There will be 2^30 = 1,073,741,824 ~= 1.1B possible HMAC values.
+    // With a sufficiently large number of well-distributed inspector IDs,
+    //    for a particular beacon we expect (10^12/1,073,741,824) ~= 931.3 unit serial numbers
+    //    sharing that beacon value.
+    StandardBeacon unitBeacon = StandardBeacon.builder()
+        .name("unit")
+        .length(10)
+        .build();
+    standardBeaconList.add(unitBeacon);
 
     // 2. Configure Keystore.
     //    The keystore is a separate DDB table where the client stores encryption and decryption materials.
@@ -255,17 +223,17 @@ public class BasicSearchableEncryptionExample {
     //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
     //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
-    attributeActionsOnEncrypt.put("customer_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActionsOnEncrypt.put("create_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-    attributeActionsOnEncrypt.put("address", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-    attributeActionsOnEncrypt.put("birthday", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("work_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("inspection_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("inspector_id_last4", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("unit", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
     // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .logicalTableName(ddbTableName)
-        .partitionKeyName("customer_id")
+        .partitionKeyName("work_id")
         .sortKeyName("create_time")
         .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
         .keyring(kmsKeyring)
@@ -294,17 +262,17 @@ public class BasicSearchableEncryptionExample {
     // 9. Put an item into our table using the above client.
     //    Before the item gets sent to DynamoDb, it will be encrypted
     //        client-side, according to our configuration.
-    //    Since our configuration includes beacons for `address` and `birthday`,
+    //    Since our configuration includes beacons for `inspector_id_last4` and `unit`,
     //        the client will add two additional attributes to the item. These attributes will have names
-    //        `aws_dbe_b_address` and `aws_dbe_b_birthday`. Their values will be HMACs
+    //        `aws_dbe_b_inspector_id_last4` and `aws_dbe_b_unit`. Their values will be HMACs
     //        truncated to as many bits as the beacon's `length` parameter; e.g.
-    //    aws_dbe_b_address = truncate(HMAC("440 Terry Ave N, Seattle, WA, 98109"), 15)
-    //    aws_dbe_b_birthday = truncate(HMAC("07/05/1994"), 10)
+    //    aws_dbe_b_inspector_id_last4 = truncate(HMAC("4321"), 10)
+    //    aws_dbe_b_unit = truncate(HMAC("123456789012"), 30)
     final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("customer_id", AttributeValue.builder().s("ABCD-1234").build());
-    item.put("create_time", AttributeValue.builder().n("1681495205").build());
-    item.put("address", AttributeValue.builder().s("440 Terry Ave N, Seattle, WA, 98109").build());
-    item.put("birthday", AttributeValue.builder().s("07/05/1994").build());
+    item.put("work_id", AttributeValue.builder().s("1313ba89-5661-41eb-ba6c-cb1b4cb67b2d").build());
+    item.put("inspection_time", AttributeValue.builder().s("2023-06-13").build());
+    item.put("inspector_id_last4", AttributeValue.builder().s("4321").build());
+    item.put("unit", AttributeValue.builder().s("123456789012").build());
 
     final PutItemRequest putRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
@@ -321,26 +289,26 @@ public class BasicSearchableEncryptionExample {
     //         and transform the query to use the beaconized name and value.
     //     Internally, the client will query for and receive all items with a matching HMAC value in the beacon field.
     //     This may include a number of "false positives" with different ciphertext, but the same truncated HMAC.
-    //     e.g. if truncate(HMAC("440 Terry Ave N, Seattle, WA, 98109"), 15)
-    //          == truncate(HMAC("525 Market St, San Francisco, CA, 94105"), 15),
+    //     e.g. if truncate(HMAC("123456789012"), 30)
+    //          == truncate(HMAC("098765432109"), 30),
     //     the query will return both items.
     //     The client will decrypt all returned items to determine which ones have the expected attribute values,
     //         and only surface items with the correct plaintext to the user.
     //     This procedure is internal to the client and is abstracted away from the user;
-    //     e.g. the user will only see "440 Terry Ave N, Seattle, WA, 98109" and never
-    //        "525 Market St, San Francisco, CA, 94105", though the actual query returned both.
+    //     e.g. the user will only see "123456789012" and never
+    //        "098765432109", though the actual query returned both.
     Map<String,String> expressionAttributesNames = new HashMap<>();
-    expressionAttributesNames.put("#address", "address");
-    expressionAttributesNames.put("#birthday", "birthday");
+    expressionAttributesNames.put("#last4", "inspector_id_last4");
+    expressionAttributesNames.put("#unit", "unit");
 
     Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
-    expressionAttributeValues.put(":address", AttributeValue.builder().s("440 Terry Ave N, Seattle, WA, 98109").build());
-    expressionAttributeValues.put(":birthday", AttributeValue.builder().s("07/05/1994").build());
+    expressionAttributeValues.put(":last4", AttributeValue.builder().s("4321").build());
+    expressionAttributeValues.put(":unit", AttributeValue.builder().s("123456789012").build());
 
     QueryRequest queryRequest = QueryRequest.builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
-        .keyConditionExpression("#address = :address and #birthday = :birthday")
+        .keyConditionExpression("#last4 = :last4 and #unit = :unit")
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
@@ -353,8 +321,8 @@ public class BasicSearchableEncryptionExample {
     assert attributeValues.size() == 1;
     final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
     // Validate the item has the expected attributes
-    assert returnedItem.get("address").s().equals("440 Terry Ave N, Seattle, WA, 98109");
-    assert returnedItem.get("birthday").s().equals("07/05/1994");
+    assert returnedItem.get("inspector_id_last4").s().equals("4321");
+    assert returnedItem.get("unit").s().equals("123456789012");
   }
 
   public static void main(final String[] args) {
