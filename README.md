@@ -287,12 +287,12 @@ for more context and description.
 
 [//]: # (TODO: Post-GA? Development Instructions)
 This repo contains several projects:
-- `DynamoDbEncryption`: Contains the implementation of the Database Encryption 
+- `DynamoDbEncryption`: The implementation of the Database Encryption 
   SDK for DynamoDB in Java.
 - A specification of this project exists at `specification`.
-- `Examples`: Contains example projects that demonstrate use of 
+- `Examples`: Example projects that demonstrate use of 
   the features of the Database Encryption SDK for DynamoDB
-- `TestVectors`: Contains project that encrypts and decrypts
+- `TestVectors`: Project that encrypts and decrypts
   a suite of DynamoDB items to validate the Database Encryption 
   SDK's cross-version compatibility
 
