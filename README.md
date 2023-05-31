@@ -137,7 +137,7 @@ Also see the [Examples](Examples/runtimes/java/DynamoDbEncryption).
 ### Using Annotations
 
 Suppose you have created a DynamoDB table via the request in 
-[Examples/CreateSimpleTable](Examples/runtimes/java/DynamoDbEncryption/src/main/java/software/amazon/cryptography/examples/enhanced/CreateSimpleTable.java), 
+[Examples/CreateSimpleTable](Examples/runtimes/java/Migration/PlaintextToAWSDBE/src/main/java/software/amazon/cryptography/examples/plaintext/CreateSimpleTable.java), 
 and want to store some objects.  
 The security requirements for these objects involves classifying particular
 attributes as sensitive information.  
@@ -214,7 +214,7 @@ For example,
 ```
 
 See 
-[EnhancedPlaintextPutGetExample](Examples/runtimes/java/DynamoDbEncryption/src/main/java/software/amazon/cryptography/examples/enhanced/EnhancedPlaintextPutGetExample.java).
+[EnhancedPlaintextPutGetExample](Examples/runtimes/java/Migration/PlaintextToAWSDBE/src/main/java/software/amazon/cryptography/examples/plaintext/EnhancedPlaintextPutGetExample.java).
 
 To enable transparent encryption and signing, 
 create a keyring and a DynamoDbEncryptionInterceptor,
