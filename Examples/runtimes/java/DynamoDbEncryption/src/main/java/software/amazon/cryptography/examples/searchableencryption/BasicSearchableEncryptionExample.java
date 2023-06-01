@@ -87,7 +87,7 @@ public class BasicSearchableEncryptionExample {
     //  to determine reasonable bounds for beacon length.)
     //
     // This link provides guidance for choosing a beacon length:
-    //    TODO: add link
+    //    https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
     // We follow the guidance in the link above to determine reasonable bounds
     // for the length of a beacon on the last 4 digits of an inspector ID:
     //  - min: log(sqrt(10,000))/log(2) ~= 6.6, round up to 7
@@ -126,7 +126,7 @@ public class BasicSearchableEncryptionExample {
     // We will assume values for this attribute are uniformly distributed across this range.
     //
     // This link provides guidance for choosing a beacon length:
-    //    TODO: add link
+    //    https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
     // We follow the guidance in the link above to determine reasonable bounds
     // for the length of a beacon on a unit serial number:
     //  - min: log(sqrt(999,999,999,999))/log(2) ~= 19.9, round up to 20
