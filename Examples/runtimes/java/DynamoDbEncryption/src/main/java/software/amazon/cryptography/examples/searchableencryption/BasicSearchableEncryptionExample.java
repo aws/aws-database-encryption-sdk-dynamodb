@@ -76,15 +76,18 @@ public class BasicSearchableEncryptionExample {
     // For our example, this field may range from 0 to 9,999 (10,000 possible values).
     // For our example, we assume a full inspector ID is an integer
     //     uniformly distributed across a range from 0 to 99,999,999.
-    // Note that 99,999,999 is divisible by 9,999, which makes
+    // (Note we chose these ranges carefully. 99,999,999 is divisible by 9,999,
+    //    such that a uniform distribution across the full inspector ID value
+    //    corresponds to a uniform distribution across its length-4 suffix.)
     // Since a full inspector ID is uniformly distributed across its range,
     //     and the full ID's range is divisible by the range of the last 4 digits,
     //     then the last 4 digits of the inspector ID are uniformly distributed
     //     over the range from 0 to 9,999.
     // (In general, it is desirable to have a uniform distribution
-    //  over the possible values for a beacon field,
-    //  as a uniform distribution simplifies the analysis
-    //  to determine reasonable bounds for beacon length.)
+    //     over the possible values for a beacon field,
+    //     as a uniform distribution simplifies the analysis
+    //     to determine reasonable bounds for beacon length.)
+    // A single inspector ID suffix may be assigned to multiple `work_id`s.
     //
     // This link provides guidance for choosing a beacon length:
     //    https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
@@ -124,6 +127,7 @@ public class BasicSearchableEncryptionExample {
     // This field holds a unit serial number.
     // For this example, this is a 12-digit integer from 0 to 999,999,999,999 (10^12 possible values).
     // We will assume values for this attribute are uniformly distributed across this range.
+    // A single unit serial number may be assigned to multiple `work_id`s.
     //
     // This link provides guidance for choosing a beacon length:
     //    https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
@@ -143,7 +147,7 @@ public class BasicSearchableEncryptionExample {
     // Values stored in aws_dbe_b_unit will be 30 bits long (0x00000000 - 0x3fffffff)
     // There will be 2^30 = 1,073,741,824 ~= 1.1B possible HMAC values.
     // With a sufficiently large number of well-distributed inspector IDs,
-    //    for a particular beacon we expect (10^12/1,073,741,824) ~= 931.3 unit serial numbers
+    //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
     //    sharing that beacon value.
     StandardBeacon unitBeacon = StandardBeacon.builder()
         .name("unit")
