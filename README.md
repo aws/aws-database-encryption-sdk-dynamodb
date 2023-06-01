@@ -39,7 +39,6 @@ submitting pull requests through the following channels:
 To use the DB-ESDK for DynamoDB in Java, you must have:
 
 * **A Java 8 or newer development environment**
-
   If you do not have one, 
   go to [Java SE Downloads](https://www.oracle.com/technetwork/java/javase/downloads/index.html) on the Oracle website, 
   then download and install the Java SE Development Kit (JDK). 
@@ -50,7 +49,7 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
   the [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html).
 
 * **Declared a Dependency on the DB-ESDK for DynamoDB in Java and it's dependencies**  
-  The DB-ESDK for DynamoDB in Java requires the DynamoDB,
+  This library requires the DynamoDB,
   Dynamodb-Enhanced, and KMS clients from the AWS SDK for Java V2.
   It also requires the AwsCryptographicMaterialProviders library.
 
@@ -110,8 +109,7 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
   ```
 
 ### AWS Integration
-You need an Amazon Web Services (AWS) account to use
-the DB-ESDK for DynamoDB.
+You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as it's specifically designed to work with Amazon DynamoDB. Optionally, you can use AWS Key Management Service (AWS KMS) as your main keyring provider.
 
 * **To create an AWS account**, go to 
   [Sign In or Create an AWS Account](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html)
@@ -122,7 +120,7 @@ the DB-ESDK for DynamoDB.
   [Creating Keys](https://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html).
 
 ### Amazon Corretto Crypto Provider
-Many users find that the Amazon Corretto Crypto Provider (ACCP)
+Many developers find that the Amazon Corretto Crypto Provider (ACCP)
 significantly improves the performance of the library.
 For help installing and using ACCP, see the 
 [amazon-corretto-crypto-provider repository](https://github.com/corretto/amazon-corretto-crypto-provider).
