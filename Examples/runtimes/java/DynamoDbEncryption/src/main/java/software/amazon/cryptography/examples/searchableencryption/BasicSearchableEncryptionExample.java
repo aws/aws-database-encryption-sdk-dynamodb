@@ -75,12 +75,14 @@ public class BasicSearchableEncryptionExample {
     // This field holds the last 4 digits of an inspector ID.
     // For our example, this field may range from 0 to 9,999 (10,000 possible values).
     // For our example, we assume a full inspector ID is an integer
-    //     uniformly distributed across a range from 0 to 99,999,999.
-    // (Note we chose these ranges carefully. 99,999,999 is divisible by 9,999,
-    //    such that a uniform distribution across the full inspector ID value
-    //    corresponds to a uniform distribution across its length-4 suffix.)
-    // Since a full inspector ID is uniformly distributed across its range,
-    //     and the full ID's range is divisible by the range of the last 4 digits,
+    //     ranging from 0 to 99,999,999. We do not assume that the full inspector ID's
+    //     values are uniformly distributed across its range of possible values.
+    //     In many use cases, the prefix of an identifier encodes some information
+    //     about that identifier (e.g. zipcode and SSN prefixes encode geographic
+    //     information), while the suffix does not. We will assume that the inspector
+    //     ID field follows this pattern. So, for this example, we only store and use the last
+    //     4 digits of the inspector ID, which we assume is uniformly distributed.
+    // Since the full ID's range is divisible by the range of the last 4 digits,
     //     then the last 4 digits of the inspector ID are uniformly distributed
     //     over the range from 0 to 9,999.
     // (In general, it is desirable to have a uniform distribution
