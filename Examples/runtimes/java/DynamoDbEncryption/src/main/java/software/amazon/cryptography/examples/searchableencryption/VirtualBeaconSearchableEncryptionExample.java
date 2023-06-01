@@ -49,7 +49,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   a beacon, the value of which is stored.
 
   For more information on virtual fields, see
-  TODO: Add docs link
+    https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/beacons.html#virtual-field
 
   For our example, we will construct a virtual field
   from two DDB attributes `state` and `hasTestResult` as `state`+prefix(`hasTestResult`, 1).
@@ -77,7 +77,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
    2. Query against a combination of whether `hasTestResult` is true/false and the `state` field
   We cannot achieve these properties with a standard beacon on an true/false attribute. Following
   the guidance to choose a beacon length:
-    TODO: link
+    https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
   For a boolean value (in our case, whether `hasTestResult` is true or false), the acceptable
   bounds for beacon length are either 0 or 1. This corresponds to either not storing a beacon
   (length 0), or effectively storing another boolean attribute (length 1). With
@@ -189,7 +189,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     //    underlying distribution.
     //
     //    This link provides guidance for choosing a beacon length:
-    //       TODO: add link
+    //       https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
     //    We follow the guidance in the link above to determine reasonable bounds for beacon length:
     //     - min: log(sqrt(112))/log(2) ~= 3.4, round down to 3
     //     - max: log((112/2))/log(2) ~= 5.8, round up to 6
