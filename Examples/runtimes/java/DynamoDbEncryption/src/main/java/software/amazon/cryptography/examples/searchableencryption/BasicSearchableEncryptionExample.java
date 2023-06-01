@@ -79,8 +79,9 @@ public class BasicSearchableEncryptionExample {
     //     values are uniformly distributed across its range of possible values.
     //     In many use cases, the prefix of an identifier encodes some information
     //     about that identifier (e.g. zipcode and SSN prefixes encode geographic
-    //     information), while the suffix does not. We will assume that the inspector
-    //     ID field follows this pattern. So, for this example, we only store and use the last
+    //     information), while the suffix does not and is more uniformly distributed.
+    //     We will assume that the inspector ID field matches a similar use case.
+    //     So for this example, we only store and use the last
     //     4 digits of the inspector ID, which we assume is uniformly distributed.
     // Since the full ID's range is divisible by the range of the last 4 digits,
     //     then the last 4 digits of the inspector ID are uniformly distributed
