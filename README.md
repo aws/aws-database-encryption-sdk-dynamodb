@@ -53,7 +53,7 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
   from the AWS SDK for Java V2
   and the AwsCryptographicMaterialProviders library.
 
-  The KMS and DynamoDB-Enhanced Clients from teh AWS SDK For Java V2
+  The KMS and DynamoDB-Enhanced Clients from the AWS SDK For Java V2
   are **optional** dependencies.
 
   * **Via Gradle Kotlin**  
