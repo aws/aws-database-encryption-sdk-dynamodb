@@ -246,8 +246,8 @@ public class VirtualBeaconSearchableEncryptionExample {
     //        statically configures a single beaconKey. That is the approach this example takes.
     //        For use cases where you want to use different beacon keys depending on the data
     //        (for example if your table holds data for multiple tenants, and you want to use
-    //        a different beacon key per tenant), look into configuring a Multi Beacon Key.
-    //        Source: TODO example
+    //        a different beacon key per tenant), look into configuring a MultiKeyStore:
+    //          https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption-multitenant.html
     //    We also provide our standard beacon list and virtual fields here.
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(

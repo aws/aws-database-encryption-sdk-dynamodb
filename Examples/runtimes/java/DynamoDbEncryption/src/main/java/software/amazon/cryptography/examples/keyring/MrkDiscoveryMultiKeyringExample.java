@@ -104,7 +104,7 @@ public class MrkDiscoveryMultiKeyringExample {
         //
         //   For this example, we currently authenticate all attributes. To make it easier to
         //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
-        final String unauthAttrPrefix = ":";
+        final String unsignAttrPrefix = ":";
 
         // 4. Create the DynamoDb Encryption configuration for the table we will be writing to.
         final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
@@ -114,7 +114,7 @@ public class MrkDiscoveryMultiKeyringExample {
                 .sortKeyName("sort_key")
                 .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
                 .keyring(encryptKeyring)
-                .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+                .allowedUnsignedAttributePrefix(unsignAttrPrefix)
                 .build();
         tableConfigs.put(ddbTableName, config);
 
@@ -184,7 +184,7 @@ public class MrkDiscoveryMultiKeyringExample {
             .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
             // Add decrypt keyring here
             .keyring(decryptKeyring)
-            .allowedUnsignedAttributePrefix(unauthAttrPrefix)
+            .allowedUnsignedAttributePrefix(unsignAttrPrefix)
             .build();
         tableConfigsForDecrypt.put(ddbTableName, configForDecrypt);
 

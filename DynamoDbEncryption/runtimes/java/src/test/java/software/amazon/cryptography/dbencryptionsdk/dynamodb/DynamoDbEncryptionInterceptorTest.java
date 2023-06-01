@@ -4,6 +4,7 @@ import org.testng.annotations.BeforeTest;
 import software.amazon.awssdk.core.ClientType;
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.interceptor.*;
+import software.amazon.awssdk.core.util.DefaultSdkAutoConstructMap;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.*;
@@ -549,5 +550,47 @@ public class DynamoDbEncryptionInterceptorTest {
                 .build();
 
         interceptor.modifyRequest(context, attributes);
+    }
+
+    @Test
+    public void TestQueryPreservesEmptyExclusiveStartKey() {
+        QueryRequest oldRequest = QueryRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .exclusiveStartKey(new HashMap<>())
+                .build();
+
+        Context.ModifyRequest context = InterceptorContext.builder()
+                .request(oldRequest)
+                .build();
+
+        ExecutionAttributes attributes = validAttributes.toBuilder()
+                .put(SdkExecutionAttribute.OPERATION_NAME, "Query")
+                .build();
+
+        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        assertTrue(newRequest instanceof QueryRequest);
+        assertFalse(((QueryRequest) newRequest).exclusiveStartKey() instanceof DefaultSdkAutoConstructMap);
+        assertEquals(((QueryRequest) newRequest).exclusiveStartKey().size(), 0);
+    }
+
+    @Test
+    public void TestScanPreservesEmptyExclusiveStartKey() {
+        ScanRequest oldRequest = ScanRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .exclusiveStartKey(new HashMap<>())
+                .build();
+
+        Context.ModifyRequest context = InterceptorContext.builder()
+                .request(oldRequest)
+                .build();
+
+        ExecutionAttributes attributes = validAttributes.toBuilder()
+                .put(SdkExecutionAttribute.OPERATION_NAME, "Scan")
+                .build();
+
+        SdkRequest newRequest = interceptor.modifyRequest(context, attributes);
+        assertTrue(newRequest instanceof ScanRequest);
+        assertFalse(((ScanRequest) newRequest).exclusiveStartKey() instanceof DefaultSdkAutoConstructMap);
+        assertEquals(((ScanRequest) newRequest).exclusiveStartKey().size(), 0);
     }
 }
