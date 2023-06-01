@@ -44,7 +44,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
   possible values. They allow you to take fields with few possible values, concatenate
   them to other fields, then query against the combined field. This enables using these types of
   fields in queries while making it infeasible to identify which beacon values encode
-  distinct plaintexts. This is explained in more detail below.
+  the few possible distinct plaintexts. This is explained in more detail below.
   Virtual fields are not stored in the DDB table. However, they are used to construct
   a beacon, the value of which is stored.
 
