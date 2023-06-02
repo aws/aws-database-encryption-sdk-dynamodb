@@ -40,6 +40,7 @@ module DynamoDBFilterExpr {
   import StandardLibrary.String
   import CompoundBeacon
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import Norm = DynamoDbNormalizeNumber
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
@@ -1125,9 +1126,11 @@ module DynamoDBFilterExpr {
   }
 
   // true if middle between left and right
-  predicate method is_between(middle : DDB.AttributeValue, left : DDB.AttributeValue, right : DDB.AttributeValue)
+  function method is_between(middle : DDB.AttributeValue, left : DDB.AttributeValue, right : DDB.AttributeValue) : Result<bool, Error>
   {
-    AttributeLE(left, middle) && AttributeLE(middle, right)
+    var leftRet :- AttributeLE(left, middle);
+    var rightRet :- AttributeLE(middle, right);
+    Success(leftRet && rightRet)
   }
 
   // true if target in list
@@ -1166,7 +1169,8 @@ module DynamoDBFilterExpr {
           Failure(E("No Stack for Between"))
         else
         if stack[|stack|-1].Str? && stack[|stack|-2].Str? && stack[|stack|-3].Str? then
-          Success(Bool(is_between(stack[|stack|-3].s, stack[|stack|-2].s, stack[|stack|-1].s)))
+          var ret :- is_between(stack[|stack|-3].s, stack[|stack|-2].s, stack[|stack|-1].s);
+          Success(Bool(ret))
         else
           Failure(E("Wrong Types for contains"))
 
@@ -1257,56 +1261,66 @@ module DynamoDBFilterExpr {
     LexicographicLessOrEqual(b, a, less)
   }
 
-  predicate method CharLess(a: char, b: char) { a < b }
-  predicate method ByteLess(a: uint8, b: uint8) { a < b }
+  function method CompareFloat(x : string, y : string) : Result<FloatCompare.CompareType, Error>
+  {
+    var newX :- Norm.NormalizeNumber(x).MapFailure(e => E(e));
+    var newY :- Norm.NormalizeNumber(y).MapFailure(e => E(e));
+    Success(FloatCompare.CompareFloat(newX, newY))
+  }
 
-  predicate method AttributeEQ(a : DDB.AttributeValue, b : DDB.AttributeValue)
+  function method AttributeEQ(a : DDB.AttributeValue, b : DDB.AttributeValue) : Result<bool, Error>
   {
     if a.N? && b.N? then
-      FloatCompare.CompareFloat(a.N, b.N) == 0
+      var ret :- CompareFloat(a.N, b.N);
+      Success(ret == 0)
     else
-      a == b
+      Success(a == b)
   }
 
-  predicate method AttributeNE(a : DDB.AttributeValue, b : DDB.AttributeValue)
+  function method AttributeNE(a : DDB.AttributeValue, b : DDB.AttributeValue) : Result<bool, Error>
   {
-    !AttributeEQ(b,a)
+    var ret :- AttributeEQ(a, b);
+    Success(!ret)
   }
 
-  predicate method AttributeLE(a : DDB.AttributeValue, b : DDB.AttributeValue)
+  function method AttributeLE(a : DDB.AttributeValue, b : DDB.AttributeValue) : Result<bool, Error>
   {
     if a.N? && b.N? then
-      FloatCompare.CompareFloat(a.N, b.N) <= 0
+      var ret :- CompareFloat(a.N, b.N);
+      Success(ret <= 0)
     else if a.S? && b.S? then
-      LexicographicLessOrEqual(a.S, b.S, CharLess)
+      Success(LexicographicLessOrEqual(a.S, b.S, CharLess))
     else if a.B? && b.B? then
-      LexicographicLessOrEqual(a.B, b.B, ByteLess)
+      Success(LexicographicLessOrEqual(a.B, b.B, ByteLess))
     else
-      false
+      Success(false)
   }
-  predicate method AttributeLT(a : DDB.AttributeValue, b : DDB.AttributeValue)
+  function method AttributeLT(a : DDB.AttributeValue, b : DDB.AttributeValue) : Result<bool, Error>
   {
-    !AttributeLE(b,a)
+    var ret :- AttributeLE(b,a);
+    Success(!ret)
   }
-  predicate method AttributeGT(a : DDB.AttributeValue, b : DDB.AttributeValue)
+  function method AttributeGT(a : DDB.AttributeValue, b : DDB.AttributeValue) : Result<bool, Error>
   {
-    !AttributeLE(a,b)
+    var ret :- AttributeLE(a,b);
+    Success(!ret)
   }
-  predicate method AttributeGE(a : DDB.AttributeValue, b : DDB.AttributeValue)
+  function method AttributeGE(a : DDB.AttributeValue, b : DDB.AttributeValue) : Result<bool, Error>
   {
-    AttributeLE(b,a)
+    var ret :- AttributeLE(b,a);
+    Success(ret)
   }
 
   // apply the comparison function
   function method apply_binary_comp(input : Token, x : DDB.AttributeValue, y : DDB.AttributeValue) : Result<bool, Error>
   {
     match input
-    case Eq => Success(AttributeEQ(x, y))
-    case Ne => Success(AttributeNE(x, y))
-    case Le => Success(AttributeLE(x, y))
-    case Lt => Success(AttributeLT(x, y))
-    case Ge => Success(AttributeGE(x, y))
-    case Gt => Success(AttributeGT(x, y))
+    case Eq => AttributeEQ(x, y)
+    case Ne => AttributeNE(x, y)
+    case Le => AttributeLE(x, y)
+    case Lt => AttributeLT(x, y)
+    case Ge => AttributeGE(x, y)
+    case Gt => AttributeGT(x, y)
     case _ => Failure(E("invalid op in apply_binary_bool"))
   }
 
