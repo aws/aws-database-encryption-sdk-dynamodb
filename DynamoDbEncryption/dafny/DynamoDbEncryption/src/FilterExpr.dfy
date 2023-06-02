@@ -1260,6 +1260,19 @@ module DynamoDBFilterExpr {
   predicate method CharLess(a: char, b: char) { a < b }
   predicate method ByteLess(a: uint8, b: uint8) { a < b }
 
+  predicate method AttributeEQ(a : DDB.AttributeValue, b : DDB.AttributeValue)
+  {
+    if a.N? && b.N? then
+      FloatCompare.CompareFloat(a.N, b.N) == 0
+    else
+      a == b
+  }
+
+  predicate method AttributeNE(a : DDB.AttributeValue, b : DDB.AttributeValue)
+  {
+    !AttributeEQ(b,a)
+  }
+
   predicate method AttributeLE(a : DDB.AttributeValue, b : DDB.AttributeValue)
   {
     if a.N? && b.N? then
@@ -1288,8 +1301,8 @@ module DynamoDBFilterExpr {
   function method apply_binary_comp(input : Token, x : DDB.AttributeValue, y : DDB.AttributeValue) : Result<bool, Error>
   {
     match input
-    case Eq => Success(x == y)
-    case Ne => Success(x != y)
+    case Eq => Success(AttributeEQ(x, y))
+    case Ne => Success(AttributeNE(x, y))
     case Le => Success(AttributeLE(x, y))
     case Lt => Success(AttributeLT(x, y))
     case Ge => Success(AttributeGE(x, y))
