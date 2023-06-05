@@ -42,12 +42,12 @@ public final class DynamoDbKeyBranchKeyIdSupplier implements IDynamoDbKeyBranchK
   /**
    * Get the Branch Key that should be used for wrapping and unwrapping data keys based on the primary key of the item being read or written.
    *
-   * @param getBranchKeyIdFromDdbKeyInput Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
+   * @param input Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
    * @return Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
    */
   public GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(
-      GetBranchKeyIdFromDdbKeyInput getBranchKeyIdFromDdbKeyInput) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyInput dafnyValue = ToDafny.GetBranchKeyIdFromDdbKeyInput(getBranchKeyIdFromDdbKeyInput);
+      GetBranchKeyIdFromDdbKeyInput input) {
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyInput dafnyValue = ToDafny.GetBranchKeyIdFromDdbKeyInput(input);
     Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput, Error> result = this._impl.GetBranchKeyIdFromDdbKey(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());

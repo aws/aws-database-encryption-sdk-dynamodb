@@ -20,7 +20,7 @@ public class MultiKeyStore {
   private final Integer cacheTTL;
 
   /**
-   * The mac number of entries the local cache for beacon key material holds before it must evict older entries.
+   * The max number of entries the local cache for beacon key material holds before it must evict older entries.
    */
   private final Integer maxCacheSize;
 
@@ -45,7 +45,7 @@ public class MultiKeyStore {
   }
 
   /**
-   * @return The mac number of entries the local cache for beacon key material holds before it must evict older entries.
+   * @return The max number of entries the local cache for beacon key material holds before it must evict older entries.
    */
   public Integer maxCacheSize() {
     return this.maxCacheSize;
@@ -81,12 +81,12 @@ public class MultiKeyStore {
     Integer cacheTTL();
 
     /**
-     * @param maxCacheSize The mac number of entries the local cache for beacon key material holds before it must evict older entries.
+     * @param maxCacheSize The max number of entries the local cache for beacon key material holds before it must evict older entries.
      */
     Builder maxCacheSize(Integer maxCacheSize);
 
     /**
-     * @return The mac number of entries the local cache for beacon key material holds before it must evict older entries.
+     * @return The max number of entries the local cache for beacon key material holds before it must evict older entries.
      */
     Integer maxCacheSize();
 

@@ -18,8 +18,8 @@ public class DynamoDbEncryption {
   private final IDynamoDbEncryptionClient _impl;
 
   protected DynamoDbEncryption(BuilderImpl builder) {
-    DynamoDbEncryptionConfig nativeValue = builder.DynamoDbEncryptionConfig();
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbEncryptionConfig dafnyValue = ToDafny.DynamoDbEncryptionConfig(nativeValue);
+    DynamoDbEncryptionConfig input = builder.DynamoDbEncryptionConfig();
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbEncryptionConfig dafnyValue = ToDafny.DynamoDbEncryptionConfig(input);
     Result<DynamoDbEncryptionClient, Error> result = __default.DynamoDbEncryption(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
@@ -38,12 +38,12 @@ public class DynamoDbEncryption {
   /**
    * Create a Branch Key Supplier for use with the Hierarchical Keyring that decides what Branch Key to use based on the primary key of the DynamoDB item being read or written.
    *
-   * @param createDynamoDbEncryptionBranchKeyIdSupplierInput Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
+   * @param input Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
    * @return Outputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
    */
   public CreateDynamoDbEncryptionBranchKeyIdSupplierOutput CreateDynamoDbEncryptionBranchKeyIdSupplier(
-      CreateDynamoDbEncryptionBranchKeyIdSupplierInput createDynamoDbEncryptionBranchKeyIdSupplierInput) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput dafnyValue = ToDafny.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(createDynamoDbEncryptionBranchKeyIdSupplierInput);
+      CreateDynamoDbEncryptionBranchKeyIdSupplierInput input) {
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput dafnyValue = ToDafny.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(input);
     Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error> result = this._impl.CreateDynamoDbEncryptionBranchKeyIdSupplier(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
