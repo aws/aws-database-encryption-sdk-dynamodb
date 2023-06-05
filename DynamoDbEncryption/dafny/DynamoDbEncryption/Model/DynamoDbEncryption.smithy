@@ -9,6 +9,7 @@ namespace aws.cryptography.dbEncryptionSdk.dynamoDb
 use aws.polymorph#localService
 use aws.polymorph#reference
 use aws.polymorph#extendable
+use aws.polymorph#javadoc
 
 use aws.cryptography.materialProviders#BranchKeyIdSupplierReference
 use aws.cryptography.materialProviders#KeyringReference
@@ -52,12 +53,14 @@ structure DynamoDbEncryptionConfig {
 // The top level configuration for using DDB with client side encryption over multiple DDB tables.
 // Used to configure the internal DynamoDbEncryptionTransforms, and by native implementations
 // of integrations with higher level DDB APIs.
+@javadoc("The configuration for client-side encryption with multiple DynamoDB table.")
 structure DynamoDbTablesEncryptionConfig {
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-encryption-client-configuration
     //= type=implication
     //# The client configuration consists of the following REQUIRED field:
     //# - [DynamoDb Table Encryption Configs](#dynamodb-tables-encryption-configs)
     @required
+    @javadoc("A map of DynamoDB table name to its configuration for client-side encryption.")
     tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
 }
 
@@ -78,6 +81,7 @@ map DynamoDbTableEncryptionConfigList {
     value: DynamoDbTableEncryptionConfig
 }
 
+@javadoc("The configuration for client-side encryption for a particular DynamoDB table.")
 structure DynamoDbTableEncryptionConfig {
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-table-name
     //= type=implication
@@ -104,31 +108,43 @@ structure DynamoDbTableEncryptionConfig {
     //# - [Plaintext Policy](#plaintext-policy)
 
     @required
+    @javadoc("The logical table name for this table. This is the name that is cryptographically bound with your data. This can be the same as the actual DynamoDB table name. It's purpose is to be distinct from the DynamoDB table name so that the data may still be authenticated if being read from different (but logically similar) tables, such as a backup table.")
     logicalTableName: String,
 
     @required
+    @javadoc("The name of the partition key on this table.")
     partitionKeyName: KeySchemaAttributeName,
+    @javadoc("If this table contains a sort key, the name of the sort key on this table.")
     sortKeyName: KeySchemaAttributeName,
 
     //= specification/searchable-encryption/search-config.md#overview
     //= type=implication
     //# The search config MUST be an optional part of the [item encryptor config](../dynamodb-encryption-client/ddb-item-encryptor.md).
+    @javadoc("The configuration for searchable encryption.")
     search: SearchConfig,
     
     @required
+    @javadoc("A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.")
     attributeActionsOnEncrypt: AttributeActions,
+    @javadoc("A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.")
     allowedUnsignedAttributes: AttributeNameList,
+    @javadoc("A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.")
     allowedUnsignedAttributePrefix: String,
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suite
     //= type=implication
     //# This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md).
+    @javadoc("An ID for the algorithm suite to use during encryption and decryption.")
     algorithmSuiteId: DBEAlgorithmSuiteId,
 
     // Requires a Keyring XOR a CMM
+    @javadoc("The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.")
     keyring: KeyringReference,
+    @javadoc("The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.")
     cmm: CryptographicMaterialsManagerReference,
 
+    @javadoc("A configuration that override encryption and/or decryption to instead perform legacy encryption and/or decryption. Used as part of migration from version 2.x to version 3.x.")
     legacyOverride: LegacyOverride,
+    @javadoc("A configuration that override encryption and/or decryption to instead passthrough and write and/or read plaintext. Used to update plaintext tables to fully use client-side encryption.")
     plaintextOverride: PlaintextOverride
 }
 
@@ -167,18 +183,23 @@ structure LegacyDynamoDbEncryptorReference {}
 //# - [Legacy Encryptor](#legacy-encryptor)
 //# - [Attributes Flags](#attribute-flags)
 //# - [Legacy Policy](#legacy-policy)
+@javadoc("A configuration for overriding encryption and/or decryption to instead perform legacy encryption and decryption.")
 structure LegacyOverride {
     @required
+    @javadoc("A policy which configurates whether legacy behavior overrides encryption and/or decryption.")
     policy: LegacyPolicy,
     @required
+    @javadoc("A configuration for the legacy DynamoDB Encryption Client's Encryptor.")
     encryptor: LegacyDynamoDbEncryptorReference,
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-flags
     //= type=implication
     //# This map MAY be different from the top level [Attribute Actions](#attribute-actions).
     @required
+    @javadoc("Overrides which attributes are encrypted and/or signed for any items read or written with legacy behavior.")
     attributeActionsOnEncrypt: AttributeActions,
 
+    @javadoc("This input is not used in the Java Client and should not be specified.")
     defaultAttributeFlag: CryptoAction,
 }
 
@@ -269,10 +290,13 @@ list ConstructorPartList {
 //#  * A name -- a string
 //#  * A list of [Virtual Parts](#virtual-part-initialization)
 
+@javadoc("The configuration for a Virtula Field. A Virtual Field is a field constructed from parts of other fields for use with beacons, but never itself stored on items.")
 structure VirtualField {
   @required
+  @javadoc("The name of the Virtual Field.")
   name : String,
   @required
+  @javadoc("The list of ordered parts that make up a Virtual Field.")
   parts : VirtualPartList,
 }
 
@@ -286,9 +310,12 @@ structure VirtualField {
 //# On initialization of a Virtual Part, the caller MAY provide:
 //# * A list of [Virtual Transforms](#virtual-transform-initialization)
 
+@javadoc("A Virtual Part is the configuration of a transformation on an existing field in an item.")
 structure VirtualPart {
   @required
+  @javadoc("The DynamoDB document path to the value for this part.")
   loc : TerminalLocation,
+  @javadoc("A list of transformations performed on the value for this part.")
   trans : VirtualTransformList,
 }
 
@@ -297,7 +324,7 @@ structure VirtualPart {
 //# On initialization of an Upper Transform, the caller MUST NOT provide any
 //# additional parameters to the Upper Transform.
 
-// Convert ASCII characters to upper case
+@javadoc("The Virtual Part Transformation that converts ASCII characters to upper case.")
 structure Upper {}
 
 //= specification/searchable-encryption/virtual.md#lower-transform-initialization
@@ -305,7 +332,7 @@ structure Upper {}
 //# On initialization of a Lower Transform, the caller MUST NOT provide any
 //# additional parameters to the Lower Transform.
 
-// Convert ASCII characters to lower case
+@javadoc("The Virtual Part Transformation that converts ASCII characters to lower case.")
 structure Lower {}
 
 //= specification/searchable-encryption/virtual.md#insert-transform-initialization
@@ -313,9 +340,10 @@ structure Lower {}
 //# On initialization of an Insert Transform, the caller MUST provide:
 //# * a literal string
 
-// Append this literal string
+@javadoc("The Virtual Part Transformation that appends a literal string.")
 structure Insert {
   @required
+  @javadoc("The literal string to append.")
   literal : String
 }
 
@@ -328,8 +356,10 @@ structure Insert {
 // Positive length : return that many characters from the front
 // Negative length : exclude -length characters from the end
 // e.g. GetPrefix(-1) returns all but the last character
+@javadoc("The Virtual Part Transformation that gets the prefix of a string.")
 structure GetPrefix {
   @required
+  @javadoc("If positive, the number of characters to return from the front. If negative, the absolute number of characters to exclude from the end. e.g. GetPrefix(-1) returns all but the last character.")
   length : Integer
 }
 
@@ -342,8 +372,10 @@ structure GetPrefix {
 // Positive length : return that many characters from the end
 // Negative length : exclude -length characters from the front
 // e.g. GetSuffix(-1) returns all but the first character
+@javadoc("The Virtual Part Transformation that gets the suffix of a string.")
 structure GetSuffix {
   @required
+  @javadoc("If positive, the number of characters to return from the end. If negative, the absolute number of characters to exclude from the front. e.g. GetSuffix(-1) returns all but the first character.")
   length : Integer
 }
 
@@ -359,10 +391,13 @@ structure GetSuffix {
 // i.e. the whole string is GetSubstring(0, -1)
 // e.g. for "123456789"
 // GetSubstring(2, 6) == GetSubstring(2, -4) == "3456"
+@javadoc("The Virtual Part Transformation that gets a substring from a string.")
 structure GetSubstring {
   @required
+  @javadoc("The index to start the substring from, inclusive. Negative numbers count from the end. -1 is the last character of a string.")
   low : Integer,
   @required
+  @javadoc("The index to stop the substring at, exclusive. Negative numbers count from the end. -1 is the last character of a string.")
   high : Integer,
 }
 
@@ -374,10 +409,13 @@ structure GetSubstring {
 
 // split string on character, then return one piece.
 // 'index' has the same semantics as 'low' in GetSubstring
+@javadoc("The Virtual Part Transformation that splits a string and gets a particular segment of that split.")
 structure GetSegment {
   @required
+  @javadoc("The characters to split on.")
   split : Char,
   @required
+  @javadoc("The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.")
   index : Integer
 }
 
@@ -390,12 +428,16 @@ structure GetSegment {
 
 // split string on character, then return range of pieces.
 // 'low' and 'high' have the same semantics as GetSubstring
+@javadoc("The Virtual Part Transformation that splits a string and gets a range of segments of that split.")
 structure GetSegments {
   @required
+  @javadoc("The characters to split on.")
   split : Char,
   @required
+  @javadoc("The index to start the segments from, inclusive. Negative numbers count from the end. -1 is the last segment.")
   low : Integer,
   @required
+  @javadoc("The index to stop the segments at, exclusive. Negative numbers count from the end. -1 is the last segment.")
   high : Integer,
 }
 
@@ -428,10 +470,13 @@ union VirtualTransform {
 //#  * A name -- a string, the name of a standard beacon
 //#  * A prefix -- a string
 
+@javadoc("A part of a Compound Beacon that contains a beacon over encrypted data.")
 structure EncryptedPart {
   @required
+  @javadoc("The name for the Encrypted Part.")
   name : String,
   @required
+  @javadoc("The prefix that is written with this Encrypted Part.")
   prefix : Prefix
 }
 
@@ -446,11 +491,15 @@ structure EncryptedPart {
 //# On initialization of a [signed parts](#signed-part-initialization), the caller MAY provide:
 //# * A [terminal location](virtual.md#terminal-location) -- a string
 
+@javadoc("A part of a Compound Beacon that contains signed plaintext data.")
 structure SignedPart {
   @required
+  @javadoc("The name for this Signed Part.")
   name : String,
   @required
+  @javadoc("The prefix that is written with this Signed Part.")
   prefix : Prefix,
+  @javadoc("The DynamoDB document path to the value for this Signed Part.")
   loc : TerminalLocation
 }
 
@@ -459,8 +508,10 @@ structure SignedPart {
 //# On initialization of a constructor, the caller MUST provide:
 //# * A non-empty list of [Constructor parts](#constructor-part-initialization)
 
+@javadoc("The configuration for a particular Compound Beacon construction.")
 structure Constructor {
   @required
+  @javadoc("The ordered list of parts for a particular Compound Beacon construction. If all the item contains all required Parts, a Compound becaon will be written using each Part that exists on the item, in the order specified.")
   parts : ConstructorPartList
 }
 
@@ -470,10 +521,13 @@ structure Constructor {
 //#  * A name -- a string
 //#  * A required flag -- a boolean
 
+@javadoc("A part of a Compound Becaon Construction.")
 structure ConstructorPart {
   @required
+  @javadoc("The name of the Encrypted Part or Signed Part for which this construction part gets a value.")
   name : String,
   @required
+  @javadoc("Whether this Encrypted Part or Signed Part is required for this construction to succeed.")
   required : Boolean,
 }
 
@@ -488,11 +542,15 @@ structure ConstructorPart {
 //# On initialization of a Standard Beacon, the caller MAY provide:
 //# * a [terminal location](virtual.md#terminal-location) -- a string
 
+@javadoc("The configuration for a Standard Beacon.")
 structure StandardBeacon {
   @required
+  @javadoc("The name for this Standard Beacon.")
   name : String,
   @required
+  @javadoc("The length of the calculated beacon.")
   length : BeaconBitLength,
+  @javadoc("The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name',")
   loc : TerminalLocation
 }
 
@@ -509,13 +567,19 @@ structure StandardBeacon {
 //#  * A list of [signed parts](#signed-part-initialization)
 //#  * A list of constructors
 
+@javadoc("The configuration for a Compound Beacon.")
 structure CompoundBeacon {
   @required
+  @javadoc("The name of the Compound Beacon.")
   name : String,
   @required
+  @javadoc("The characters used to split parts of a compound beacon. The split character should be a character that does not appear in any Signed Part or Prefix used by the Compound Beacon.")
   split : Char,
+  @javadoc("The list of Encrypted Parts that may be included in the compound beacon.")
   encrypted : EncryptedPartsList,
+  @javadoc("The list of Signed Parts that may be included in the compound beacon.")
   signed : SignedPartsList,
+  @javadoc("The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.")
   constructors : ConstructorList
 }
 
@@ -528,10 +592,13 @@ structure KeyStoreReference {}
 //#  - [Beacon Key Id](#beacon-key-id)
 //#  - [cacheTTL](#cachettl)
 
+@javadoc("The configuration for using a single Beacon Key.")
 structure SingleKeyStore {
   @required
+  @javadoc("The Beacon Key ID.")
   keyId : String,
   @required
+  @javadoc("How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
 }
 
@@ -542,12 +609,16 @@ structure SingleKeyStore {
 //#  - [cacheTTL](#cachettl)
 //#  - [max cache size](#max-cache-size)
 
+@javadoc("The configuration for using multiple Beacon Keys.")
 structure MultiKeyStore {
   @required
+  @javadoc("The name of the field that stores the Beacon Key. This may be a Virtual Field.")
   keyFieldName : String,
   @required
+  @javadoc("How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
   @required
+  @javadoc("The mac number of entries the local cache for beacon key material holds before it must evict older entries.")
   maxCacheSize: Integer
 }
 
@@ -576,17 +647,24 @@ union BeaconKeySource {
 //#  - A list of [compound beacons](beacons.md#compound-beacon-initialization)
 //#  - A list of [virtual fields](virtual.md#virtual-field-initialization)
 
+@javadoc("The configuration for a particular version of searchable encryption. Currently the only supported version is '1'.")
 structure BeaconVersion {
   @required
+  @javadoc("The version of searchable encryption configured. This must be '1'.")
   version : VersionNumber,
   @required
+  @javadoc("The Key Store that contains the Becon Keys to use with searchable encryption.")
   keyStore : KeyStoreReference,
   @required
+  @javadoc("The configuration for what beacon key(s) to use.")
   keySource: BeaconKeySource,
   @required
+  @javadoc("The Standard Beacons to be written with items.")
   standardBeacons : StandardBeaconList,
 
+  @javadoc("The Compound Beacons to be written with items.")
   compoundBeacons : CompoundBeaconList,
+  @javadoc("The Virtual Fields to be calculated, supporting other searchable enryption configurations.")
   virtualFields : VirtualFieldList,
 }
 
@@ -596,10 +674,13 @@ structure BeaconVersion {
 //#  - A list of [beacon versions](#beacon-version-initialization)
 //#  - The [version number](#version-number) of the [beacon versions](#beacon-version) to be used for writing.
 
+@javadoc("The configuration for searchable encryption.")
 structure SearchConfig {
   @required
+  @javadoc("The versions of searchable encryption to support reading. Currently must contain a single configuration with version '1'.")
   versions: BeaconVersionList,
   @required
+  @javadoc("The searchable encryption version to use when writing new items. Must be '1'.")
   writeVersion: VersionNumber
 }
 
@@ -614,33 +695,43 @@ resource DynamoDbKeyBranchKeyIdSupplier{
 @reference(resource: DynamoDbKeyBranchKeyIdSupplier)
 structure DynamoDbKeyBranchKeyIdSupplierReference {}
 
+@javadoc("Get the Branch Key that should be used for wrapping and unwrapping data keys based on the primary key of the item being read or written.")
 operation GetBranchKeyIdFromDdbKey {
   input: GetBranchKeyIdFromDdbKeyInput,
   output: GetBranchKeyIdFromDdbKeyOutput
 }
 
+@javadoc("Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.")
 structure GetBranchKeyIdFromDdbKeyInput {
   @required
+  @javadoc("The partition and sort (if it exists) attributes on the item being read or written.")
   ddbKey: Key
 }
 
+@javadoc("Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.")
 structure GetBranchKeyIdFromDdbKeyOutput {
   @required
+  @javadoc("The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.")
   branchKeyId: String
 }
 
+@javadoc("Create a Branch Key Supplier for use with the Hierarchical Keyring that decides what Branch Key to use based on the primary key of the DynamoDB item being read or written.")
 operation CreateDynamoDbEncryptionBranchKeyIdSupplier {
   input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput,
   output: CreateDynamoDbEncryptionBranchKeyIdSupplierOutput
 }
 
+@javadoc("Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier")
 structure CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
   @required
+  @javadoc("An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.")
   ddbKeyBranchKeyIdSupplier: DynamoDbKeyBranchKeyIdSupplierReference,
 }
 
+@javadoc("Outputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier")
 structure CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
   @required
+  @javadoc("The Branch Key Supplier for use with the Hierarchical Keyring.")
   branchKeyIdSupplier: BranchKeyIdSupplierReference 
 }
 

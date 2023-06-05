@@ -5,9 +5,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * A part of a Compound Beacon that contains a beacon over encrypted data.
+ */
 public class EncryptedPart {
+  /**
+   * The name for the Encrypted Part.
+   */
   private final String name;
 
+  /**
+   * The prefix that is written with this Encrypted Part.
+   */
   private final String prefix;
 
   protected EncryptedPart(BuilderImpl builder) {
@@ -15,10 +24,16 @@ public class EncryptedPart {
     this.prefix = builder.prefix();
   }
 
+  /**
+   * @return The name for the Encrypted Part.
+   */
   public String name() {
     return this.name;
   }
 
+  /**
+   * @return The prefix that is written with this Encrypted Part.
+   */
   public String prefix() {
     return this.prefix;
   }
@@ -32,12 +47,24 @@ public class EncryptedPart {
   }
 
   public interface Builder {
+    /**
+     * @param name The name for the Encrypted Part.
+     */
     Builder name(String name);
 
+    /**
+     * @return The name for the Encrypted Part.
+     */
     String name();
 
+    /**
+     * @param prefix The prefix that is written with this Encrypted Part.
+     */
     Builder prefix(String prefix);
 
+    /**
+     * @return The prefix that is written with this Encrypted Part.
+     */
     String prefix();
 
     EncryptedPart build();

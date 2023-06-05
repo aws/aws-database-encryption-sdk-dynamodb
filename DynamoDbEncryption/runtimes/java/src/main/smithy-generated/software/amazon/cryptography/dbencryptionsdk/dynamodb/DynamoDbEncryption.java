@@ -35,6 +35,12 @@ public class DynamoDbEncryption {
     return new BuilderImpl();
   }
 
+  /**
+   * Create a Branch Key Supplier for use with the Hierarchical Keyring that decides what Branch Key to use based on the primary key of the DynamoDB item being read or written.
+   *
+   * @param CreateDynamoDbEncryptionBranchKeyIdSupplierInput Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
+   * @return Outputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
+   */
   public CreateDynamoDbEncryptionBranchKeyIdSupplierOutput CreateDynamoDbEncryptionBranchKeyIdSupplier(
       CreateDynamoDbEncryptionBranchKeyIdSupplierInput nativeValue) {
     software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput dafnyValue = ToDafny.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(nativeValue);

@@ -3,6 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
+/**
+ * The Virtual Part Transformation that converts ASCII characters to lower case.
+ */
 public class Lower {
   protected Lower(BuilderImpl builder) {
   }

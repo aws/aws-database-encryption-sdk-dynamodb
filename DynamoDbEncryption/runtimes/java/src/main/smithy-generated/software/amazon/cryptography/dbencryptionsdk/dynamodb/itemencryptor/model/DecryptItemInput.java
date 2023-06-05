@@ -7,13 +7,22 @@ import java.util.Map;
 import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+/**
+ * Inputs for decrypting a DynamoDB Item.
+ */
 public class DecryptItemInput {
+  /**
+   * The encrypted DynamoDB item to decrypt.
+   */
   private final Map<String, AttributeValue> encryptedItem;
 
   protected DecryptItemInput(BuilderImpl builder) {
     this.encryptedItem = builder.encryptedItem();
   }
 
+  /**
+   * @return The encrypted DynamoDB item to decrypt.
+   */
   public Map<String, AttributeValue> encryptedItem() {
     return this.encryptedItem;
   }
@@ -27,8 +36,14 @@ public class DecryptItemInput {
   }
 
   public interface Builder {
+    /**
+     * @param encryptedItem The encrypted DynamoDB item to decrypt.
+     */
     Builder encryptedItem(Map<String, AttributeValue> encryptedItem);
 
+    /**
+     * @return The encrypted DynamoDB item to decrypt.
+     */
     Map<String, AttributeValue> encryptedItem();
 
     DecryptItemInput build();

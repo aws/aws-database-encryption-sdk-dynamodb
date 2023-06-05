@@ -5,11 +5,23 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * A part of a Compound Beacon that contains signed plaintext data.
+ */
 public class SignedPart {
+  /**
+   * The name for this Signed Part.
+   */
   private final String name;
 
+  /**
+   * The prefix that is written with this Signed Part.
+   */
   private final String prefix;
 
+  /**
+   * The DynamoDB document path to the value for this Signed Part.
+   */
   private final String loc;
 
   protected SignedPart(BuilderImpl builder) {
@@ -18,14 +30,23 @@ public class SignedPart {
     this.loc = builder.loc();
   }
 
+  /**
+   * @return The name for this Signed Part.
+   */
   public String name() {
     return this.name;
   }
 
+  /**
+   * @return The prefix that is written with this Signed Part.
+   */
   public String prefix() {
     return this.prefix;
   }
 
+  /**
+   * @return The DynamoDB document path to the value for this Signed Part.
+   */
   public String loc() {
     return this.loc;
   }
@@ -39,16 +60,34 @@ public class SignedPart {
   }
 
   public interface Builder {
+    /**
+     * @param name The name for this Signed Part.
+     */
     Builder name(String name);
 
+    /**
+     * @return The name for this Signed Part.
+     */
     String name();
 
+    /**
+     * @param prefix The prefix that is written with this Signed Part.
+     */
     Builder prefix(String prefix);
 
+    /**
+     * @return The prefix that is written with this Signed Part.
+     */
     String prefix();
 
+    /**
+     * @param loc The DynamoDB document path to the value for this Signed Part.
+     */
     Builder loc(String loc);
 
+    /**
+     * @return The DynamoDB document path to the value for this Signed Part.
+     */
     String loc();
 
     SignedPart build();

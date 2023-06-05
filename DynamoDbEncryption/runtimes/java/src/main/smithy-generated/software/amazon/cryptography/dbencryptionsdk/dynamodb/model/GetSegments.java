@@ -5,11 +5,23 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * The Virtual Part Transformation that splits a string and gets a range of segments of that split.
+ */
 public class GetSegments {
+  /**
+   * The characters to split on.
+   */
   private final String split;
 
+  /**
+   * The index to start the segments from, inclusive. Negative numbers count from the end. -1 is the last segment.
+   */
   private final Integer low;
 
+  /**
+   * The index to stop the segments at, exclusive. Negative numbers count from the end. -1 is the last segment.
+   */
   private final Integer high;
 
   protected GetSegments(BuilderImpl builder) {
@@ -18,14 +30,23 @@ public class GetSegments {
     this.high = builder.high();
   }
 
+  /**
+   * @return The characters to split on.
+   */
   public String split() {
     return this.split;
   }
 
+  /**
+   * @return The index to start the segments from, inclusive. Negative numbers count from the end. -1 is the last segment.
+   */
   public Integer low() {
     return this.low;
   }
 
+  /**
+   * @return The index to stop the segments at, exclusive. Negative numbers count from the end. -1 is the last segment.
+   */
   public Integer high() {
     return this.high;
   }
@@ -39,16 +60,34 @@ public class GetSegments {
   }
 
   public interface Builder {
+    /**
+     * @param split The characters to split on.
+     */
     Builder split(String split);
 
+    /**
+     * @return The characters to split on.
+     */
     String split();
 
+    /**
+     * @param low The index to start the segments from, inclusive. Negative numbers count from the end. -1 is the last segment.
+     */
     Builder low(Integer low);
 
+    /**
+     * @return The index to start the segments from, inclusive. Negative numbers count from the end. -1 is the last segment.
+     */
     Integer low();
 
+    /**
+     * @param high The index to stop the segments at, exclusive. Negative numbers count from the end. -1 is the last segment.
+     */
     Builder high(Integer high);
 
+    /**
+     * @return The index to stop the segments at, exclusive. Negative numbers count from the end. -1 is the last segment.
+     */
     Integer high();
 
     GetSegments build();

@@ -10,13 +10,28 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
 
+/**
+ * A parsed version of the header that was written with or read on an encrypted DynamoDB item.
+ */
 public class ParsedHeader {
+  /**
+   * The non-DO_NOTHING Crypto Actions that were configured when this item was originally encrypted.
+   */
   private final Map<String, CryptoAction> attributeActionsOnEncrypt;
 
+  /**
+   * The ID of the algorithm suite that was used to encrypt this item.
+   */
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
+  /**
+   * The encrypted data keys that are stored in the header of this item.
+   */
   private final List<EncryptedDataKey> encryptedDataKeys;
 
+  /**
+   * The portion of the encryption context that was stored in the header of this item.
+   */
   private final Map<String, String> storedEncryptionContext;
 
   protected ParsedHeader(BuilderImpl builder) {
@@ -26,18 +41,30 @@ public class ParsedHeader {
     this.storedEncryptionContext = builder.storedEncryptionContext();
   }
 
+  /**
+   * @return The non-DO_NOTHING Crypto Actions that were configured when this item was originally encrypted.
+   */
   public Map<String, CryptoAction> attributeActionsOnEncrypt() {
     return this.attributeActionsOnEncrypt;
   }
 
+  /**
+   * @return The ID of the algorithm suite that was used to encrypt this item.
+   */
   public DBEAlgorithmSuiteId algorithmSuiteId() {
     return this.algorithmSuiteId;
   }
 
+  /**
+   * @return The encrypted data keys that are stored in the header of this item.
+   */
   public List<EncryptedDataKey> encryptedDataKeys() {
     return this.encryptedDataKeys;
   }
 
+  /**
+   * @return The portion of the encryption context that was stored in the header of this item.
+   */
   public Map<String, String> storedEncryptionContext() {
     return this.storedEncryptionContext;
   }
@@ -51,20 +78,44 @@ public class ParsedHeader {
   }
 
   public interface Builder {
+    /**
+     * @param attributeActionsOnEncrypt The non-DO_NOTHING Crypto Actions that were configured when this item was originally encrypted.
+     */
     Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
 
+    /**
+     * @return The non-DO_NOTHING Crypto Actions that were configured when this item was originally encrypted.
+     */
     Map<String, CryptoAction> attributeActionsOnEncrypt();
 
+    /**
+     * @param algorithmSuiteId The ID of the algorithm suite that was used to encrypt this item.
+     */
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
+    /**
+     * @return The ID of the algorithm suite that was used to encrypt this item.
+     */
     DBEAlgorithmSuiteId algorithmSuiteId();
 
+    /**
+     * @param encryptedDataKeys The encrypted data keys that are stored in the header of this item.
+     */
     Builder encryptedDataKeys(List<EncryptedDataKey> encryptedDataKeys);
 
+    /**
+     * @return The encrypted data keys that are stored in the header of this item.
+     */
     List<EncryptedDataKey> encryptedDataKeys();
 
+    /**
+     * @param storedEncryptionContext The portion of the encryption context that was stored in the header of this item.
+     */
     Builder storedEncryptionContext(Map<String, String> storedEncryptionContext);
 
+    /**
+     * @return The portion of the encryption context that was stored in the header of this item.
+     */
     Map<String, String> storedEncryptionContext();
 
     ParsedHeader build();

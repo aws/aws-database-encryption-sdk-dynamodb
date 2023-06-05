@@ -6,9 +6,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The configuration for a Virtula Field. A Virtual Field is a field constructed from parts of other fields for use with beacons, but never itself stored on items.
+ */
 public class VirtualField {
+  /**
+   * The name of the Virtual Field.
+   */
   private final String name;
 
+  /**
+   * The list of ordered parts that make up a Virtual Field.
+   */
   private final List<VirtualPart> parts;
 
   protected VirtualField(BuilderImpl builder) {
@@ -16,10 +25,16 @@ public class VirtualField {
     this.parts = builder.parts();
   }
 
+  /**
+   * @return The name of the Virtual Field.
+   */
   public String name() {
     return this.name;
   }
 
+  /**
+   * @return The list of ordered parts that make up a Virtual Field.
+   */
   public List<VirtualPart> parts() {
     return this.parts;
   }
@@ -33,12 +48,24 @@ public class VirtualField {
   }
 
   public interface Builder {
+    /**
+     * @param name The name of the Virtual Field.
+     */
     Builder name(String name);
 
+    /**
+     * @return The name of the Virtual Field.
+     */
     String name();
 
+    /**
+     * @param parts The list of ordered parts that make up a Virtual Field.
+     */
     Builder parts(List<VirtualPart> parts);
 
+    /**
+     * @return The list of ordered parts that make up a Virtual Field.
+     */
     List<VirtualPart> parts();
 
     VirtualField build();

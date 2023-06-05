@@ -416,9 +416,15 @@ public class DynamoDbEncryptionTransforms {
   }
 
   public interface Builder {
+    /**
+     * @param DynamoDbTablesEncryptionConfig The configuration for client-side encryption with multiple DynamoDB table.
+     */
     Builder DynamoDbTablesEncryptionConfig(
         DynamoDbTablesEncryptionConfig DynamoDbTablesEncryptionConfig);
 
+    /**
+     * @return The configuration for client-side encryption with multiple DynamoDB table.
+     */
     DynamoDbTablesEncryptionConfig DynamoDbTablesEncryptionConfig();
 
     DynamoDbEncryptionTransforms build();

@@ -6,15 +6,33 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The configuration for a Compound Beacon.
+ */
 public class CompoundBeacon {
+  /**
+   * The name of the Compound Beacon.
+   */
   private final String name;
 
+  /**
+   * The characters used to split parts of a compound beacon. The split character should be a character that does not appear in any Signed Part or Prefix used by the Compound Beacon.
+   */
   private final String split;
 
+  /**
+   * The list of Encrypted Parts that may be included in the compound beacon.
+   */
   private final List<EncryptedPart> encrypted;
 
+  /**
+   * The list of Signed Parts that may be included in the compound beacon.
+   */
   private final List<SignedPart> signed;
 
+  /**
+   * The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
+   */
   private final List<Constructor> constructors;
 
   protected CompoundBeacon(BuilderImpl builder) {
@@ -25,22 +43,37 @@ public class CompoundBeacon {
     this.constructors = builder.constructors();
   }
 
+  /**
+   * @return The name of the Compound Beacon.
+   */
   public String name() {
     return this.name;
   }
 
+  /**
+   * @return The characters used to split parts of a compound beacon. The split character should be a character that does not appear in any Signed Part or Prefix used by the Compound Beacon.
+   */
   public String split() {
     return this.split;
   }
 
+  /**
+   * @return The list of Encrypted Parts that may be included in the compound beacon.
+   */
   public List<EncryptedPart> encrypted() {
     return this.encrypted;
   }
 
+  /**
+   * @return The list of Signed Parts that may be included in the compound beacon.
+   */
   public List<SignedPart> signed() {
     return this.signed;
   }
 
+  /**
+   * @return The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
+   */
   public List<Constructor> constructors() {
     return this.constructors;
   }
@@ -54,24 +87,54 @@ public class CompoundBeacon {
   }
 
   public interface Builder {
+    /**
+     * @param name The name of the Compound Beacon.
+     */
     Builder name(String name);
 
+    /**
+     * @return The name of the Compound Beacon.
+     */
     String name();
 
+    /**
+     * @param split The characters used to split parts of a compound beacon. The split character should be a character that does not appear in any Signed Part or Prefix used by the Compound Beacon.
+     */
     Builder split(String split);
 
+    /**
+     * @return The characters used to split parts of a compound beacon. The split character should be a character that does not appear in any Signed Part or Prefix used by the Compound Beacon.
+     */
     String split();
 
+    /**
+     * @param encrypted The list of Encrypted Parts that may be included in the compound beacon.
+     */
     Builder encrypted(List<EncryptedPart> encrypted);
 
+    /**
+     * @return The list of Encrypted Parts that may be included in the compound beacon.
+     */
     List<EncryptedPart> encrypted();
 
+    /**
+     * @param signed The list of Signed Parts that may be included in the compound beacon.
+     */
     Builder signed(List<SignedPart> signed);
 
+    /**
+     * @return The list of Signed Parts that may be included in the compound beacon.
+     */
     List<SignedPart> signed();
 
+    /**
+     * @param constructors The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
+     */
     Builder constructors(List<Constructor> constructors);
 
+    /**
+     * @return The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
+     */
     List<Constructor> constructors();
 
     CompoundBeacon build();
