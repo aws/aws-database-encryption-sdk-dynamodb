@@ -618,7 +618,7 @@ structure MultiKeyStore {
   @javadoc("How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
   @required
-  @javadoc("The mac number of entries the local cache for beacon key material holds before it must evict older entries.")
+  @javadoc("The max number of entries the local cache for beacon key material holds before it must evict older entries.")
   maxCacheSize: Integer
 }
 
