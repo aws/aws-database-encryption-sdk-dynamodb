@@ -179,10 +179,9 @@ tasks.register<Copy>("CopyDynamoDb")  {
     into("build/libs")
 }
 
-tasks {
-    javadoc {
-        options {
-            (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
-        }
+tasks.javadoc {
+    options {
+        (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
     }
+    exclude("src/main/dafny-generated")
 }
