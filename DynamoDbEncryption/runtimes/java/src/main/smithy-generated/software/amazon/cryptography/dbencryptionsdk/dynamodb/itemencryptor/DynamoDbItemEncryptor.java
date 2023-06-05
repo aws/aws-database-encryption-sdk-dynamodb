@@ -40,11 +40,11 @@ public class DynamoDbItemEncryptor {
   /**
    * Decrypt a DynamoDB Item.
    *
-   * @param DecryptItemInput Inputs for decrypting a DynamoDB Item.
+   * @param decryptItemInput Inputs for decrypting a DynamoDB Item.
    * @return Outputs for decrypting a DynamoDB Item.
    */
-  public DecryptItemOutput DecryptItem(DecryptItemInput nativeValue) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput dafnyValue = ToDafny.DecryptItemInput(nativeValue);
+  public DecryptItemOutput DecryptItem(DecryptItemInput decryptItemInput) {
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput dafnyValue = ToDafny.DecryptItemInput(decryptItemInput);
     Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput, Error> result = this._impl.DecryptItem(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
@@ -55,11 +55,11 @@ public class DynamoDbItemEncryptor {
   /**
    * Encrypt a DynamoDB Item.
    *
-   * @param EncryptItemInput Inputs for encrypting a DynamoDB Item.
+   * @param encryptItemInput Inputs for encrypting a DynamoDB Item.
    * @return Outputs for encrypting a DynamoDB Item.
    */
-  public EncryptItemOutput EncryptItem(EncryptItemInput nativeValue) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemInput dafnyValue = ToDafny.EncryptItemInput(nativeValue);
+  public EncryptItemOutput EncryptItem(EncryptItemInput encryptItemInput) {
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemInput dafnyValue = ToDafny.EncryptItemInput(encryptItemInput);
     Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemOutput, Error> result = this._impl.EncryptItem(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());

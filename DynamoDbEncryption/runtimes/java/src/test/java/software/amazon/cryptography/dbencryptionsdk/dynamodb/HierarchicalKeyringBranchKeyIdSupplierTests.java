@@ -192,8 +192,8 @@ public class HierarchicalKeyringBranchKeyIdSupplierTests {
 
     // DynamoDbKeyBranchKeyIdSupplier to be used with test items produced from TestUtils.java
     class TestSupplier implements IDynamoDbKeyBranchKeyIdSupplier {
-        public GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(GetBranchKeyIdFromDdbKeyInput input) {
-            Map<String, AttributeValue> key = input.ddbKey();
+        public GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(GetBranchKeyIdFromDdbKeyInput getBranchKeyIdFromDdbKeyInput) {
+            Map<String, AttributeValue> key = getBranchKeyIdFromDdbKeyInput.ddbKey();
 
             // Ensure that key only contains the expected attributes
             assertTrue(key.containsKey(TEST_PARTITION_NAME));
