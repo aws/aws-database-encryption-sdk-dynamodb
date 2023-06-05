@@ -1,8 +1,10 @@
-## DynamoDb Encryption
+## DynamoDbEncryption
+
+This project implements the AWS Database Encryption SDK for DynamoDB.
 
 ### Code Organization
 
-DynamoDb Encryption is a project containing the following Dafny 'localServices' under `dafny`:
+DynamoDbEncryption is a project containing the following Dafny 'localServices' under `dafny`:
 - DynamoDbEncryption: A config-less entry point for shared structures and helper methods related to DDB Encryption.
 - DynamoDbItemEncryptor: A client responsible for the encryption and decryption of DDB Items (sans any DDB API call).
 - DynamoDbEncryptionTransforms: An internal interface responsible for appropriately adding encryption to DDB APIs.
@@ -63,7 +65,8 @@ Common Makefile targets are:
 
 ### Development Requirements
 
-TODO
+* Dafny 4.1.0: https://github.com/dafny-lang/dafny
+* A Java 8 or newer development environment
 
 #### (Optional) Dafny Report Generator Requirements
 
