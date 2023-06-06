@@ -473,7 +473,7 @@ union VirtualTransform {
 @javadoc("A part of a Compound Beacon that contains a beacon over encrypted data.")
 structure EncryptedPart {
   @required
-  @javadoc("The name for the Encrypted Part.")
+  @javadoc("The name of the Standard Beacon, whose value this Part will hold.")
   name : String,
   @required
   @javadoc("The prefix that is written with this Encrypted Part.")
@@ -499,7 +499,7 @@ structure SignedPart {
   @required
   @javadoc("The prefix that is written with this Signed Part.")
   prefix : Prefix,
-  @javadoc("The DynamoDB document path to the value for this Signed Part.")
+  @javadoc("The DynamoDB document path to the value for this Signed Part. If not provided, the 'name' is used for the location.")
   loc : TerminalLocation
 }
 
@@ -598,7 +598,7 @@ structure SingleKeyStore {
   @javadoc("The Beacon Key ID.")
   keyId : String,
   @required
-  @javadoc("How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
+  @javadoc("How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
 }
 
@@ -615,7 +615,7 @@ structure MultiKeyStore {
   @javadoc("The name of the field that stores the Beacon Key. This may be a Virtual Field.")
   keyFieldName : String,
   @required
-  @javadoc("How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
+  @javadoc("How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
   @required
   @javadoc("The max number of entries the local cache for beacon key material holds before it must evict older entries.")
