@@ -6,9 +6,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A Virtual Part is the configuration of a transformation on an existing field in an item.
+ */
 public class VirtualPart {
+  /**
+   * The DynamoDB document path to the value for this part.
+   */
   private final String loc;
 
+  /**
+   * A list of transformations performed on the value for this part.
+   */
   private final List<VirtualTransform> trans;
 
   protected VirtualPart(BuilderImpl builder) {
@@ -16,10 +25,16 @@ public class VirtualPart {
     this.trans = builder.trans();
   }
 
+  /**
+   * @return The DynamoDB document path to the value for this part.
+   */
   public String loc() {
     return this.loc;
   }
 
+  /**
+   * @return A list of transformations performed on the value for this part.
+   */
   public List<VirtualTransform> trans() {
     return this.trans;
   }
@@ -33,12 +48,24 @@ public class VirtualPart {
   }
 
   public interface Builder {
+    /**
+     * @param loc The DynamoDB document path to the value for this part.
+     */
     Builder loc(String loc);
 
+    /**
+     * @return The DynamoDB document path to the value for this part.
+     */
     String loc();
 
+    /**
+     * @param trans A list of transformations performed on the value for this part.
+     */
     Builder trans(List<VirtualTransform> trans);
 
+    /**
+     * @return A list of transformations performed on the value for this part.
+     */
     List<VirtualTransform> trans();
 
     VirtualPart build();

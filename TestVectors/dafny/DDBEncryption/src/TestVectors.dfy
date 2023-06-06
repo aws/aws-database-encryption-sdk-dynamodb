@@ -26,6 +26,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import FileIO
   import JSON.API
   import opened JSONHelpers
+  import Norm = DynamoDbNormalizeNumber
 
   import Types = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DDB = ComAmazonawsDynamodbTypes
@@ -681,8 +682,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
     {
+      var exp := NormalizeItem(expected);
       for i := 0 to |actual| {
-        if actual[i] == expected {
+        if actual[i] == exp {
           return true;
         }
       }
@@ -740,7 +742,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         );
         var out :- expect client.GetItem(input);
         expect out.Item.Some?;
-        expect out.Item.value == records[i].item;
+        expect out.Item.value == NormalizeItem(records[i].item);
       }
     }
 
@@ -764,13 +766,30 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
+    function NormalizeItem(value : DDB.AttributeMap) : DDB.AttributeMap
+    {
+      map k <- value :: k := Normalize(value[k])
+    }
+
+    function Normalize(value : DDB.AttributeValue) : DDB.AttributeValue
+    {
+      match value {
+        case N(n) =>
+          var nn := Norm.NormalizeNumber(n);
+          if nn.Success? then
+            DDB.AttributeValue.N(nn.value)
+          else
+            value
+        case _ => value
+      }
+    }
 
     method ItemExists(number : DDB.AttributeValue, record : Record, resp : DDB.ItemList) returns (output : bool)
     {
       if |resp| == 0 {
         return false;
       } else if HashName in resp[0] && resp[0][HashName] == number {
-        expect resp[0] == record.item;
+        expect resp[0] == NormalizeItem(record.item);
         return true;
       } else {
         output := ItemExists(number, record, resp[1..]);
@@ -781,7 +800,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       if |resp| == 0 {
         return false;
       } else if resp[0].Item.Some? && HashName in resp[0].Item.value && resp[0].Item.value[HashName] == number {
-        expect resp[0].Item.value == record.item;
+        expect resp[0].Item.value == NormalizeItem(record.item);
         return true;
       } else {
         output := ItemExists2(number, record, resp[1..]);

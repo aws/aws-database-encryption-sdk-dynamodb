@@ -9,13 +9,28 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncr
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.LegacyDynamoDbEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 
+/**
+ * A configuration for overriding encryption and/or decryption to instead perform legacy encryption and decryption.
+ */
 public class LegacyOverride {
+  /**
+   * A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+   */
   private final LegacyPolicy policy;
 
+  /**
+   * A configuration for the legacy DynamoDB Encryption Client's Encryptor.
+   */
   private final ILegacyDynamoDbEncryptor encryptor;
 
+  /**
+   * Overrides which attributes are encrypted and/or signed for any items read or written with legacy behavior.
+   */
   private final Map<String, CryptoAction> attributeActionsOnEncrypt;
 
+  /**
+   * This input is not used in the Java Client and should not be specified.
+   */
   private final CryptoAction defaultAttributeFlag;
 
   protected LegacyOverride(BuilderImpl builder) {
@@ -25,18 +40,30 @@ public class LegacyOverride {
     this.defaultAttributeFlag = builder.defaultAttributeFlag();
   }
 
+  /**
+   * @return A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+   */
   public LegacyPolicy policy() {
     return this.policy;
   }
 
+  /**
+   * @return A configuration for the legacy DynamoDB Encryption Client's Encryptor.
+   */
   public ILegacyDynamoDbEncryptor encryptor() {
     return this.encryptor;
   }
 
+  /**
+   * @return Overrides which attributes are encrypted and/or signed for any items read or written with legacy behavior.
+   */
   public Map<String, CryptoAction> attributeActionsOnEncrypt() {
     return this.attributeActionsOnEncrypt;
   }
 
+  /**
+   * @return This input is not used in the Java Client and should not be specified.
+   */
   public CryptoAction defaultAttributeFlag() {
     return this.defaultAttributeFlag;
   }
@@ -50,20 +77,44 @@ public class LegacyOverride {
   }
 
   public interface Builder {
+    /**
+     * @param policy A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+     */
     Builder policy(LegacyPolicy policy);
 
+    /**
+     * @return A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+     */
     LegacyPolicy policy();
 
+    /**
+     * @param encryptor A configuration for the legacy DynamoDB Encryption Client's Encryptor.
+     */
     Builder encryptor(ILegacyDynamoDbEncryptor encryptor);
 
+    /**
+     * @return A configuration for the legacy DynamoDB Encryption Client's Encryptor.
+     */
     ILegacyDynamoDbEncryptor encryptor();
 
+    /**
+     * @param attributeActionsOnEncrypt Overrides which attributes are encrypted and/or signed for any items read or written with legacy behavior.
+     */
     Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
 
+    /**
+     * @return Overrides which attributes are encrypted and/or signed for any items read or written with legacy behavior.
+     */
     Map<String, CryptoAction> attributeActionsOnEncrypt();
 
+    /**
+     * @param defaultAttributeFlag This input is not used in the Java Client and should not be specified.
+     */
     Builder defaultAttributeFlag(CryptoAction defaultAttributeFlag);
 
+    /**
+     * @return This input is not used in the Java Client and should not be specified.
+     */
     CryptoAction defaultAttributeFlag();
 
     LegacyOverride build();

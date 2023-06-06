@@ -7,13 +7,22 @@ import java.util.Map;
 import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+/**
+ * Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
+ */
 public class GetBranchKeyIdFromDdbKeyInput {
+  /**
+   * The partition and sort (if it exists) attributes on the item being read or written.
+   */
   private final Map<String, AttributeValue> ddbKey;
 
   protected GetBranchKeyIdFromDdbKeyInput(BuilderImpl builder) {
     this.ddbKey = builder.ddbKey();
   }
 
+  /**
+   * @return The partition and sort (if it exists) attributes on the item being read or written.
+   */
   public Map<String, AttributeValue> ddbKey() {
     return this.ddbKey;
   }
@@ -27,8 +36,14 @@ public class GetBranchKeyIdFromDdbKeyInput {
   }
 
   public interface Builder {
+    /**
+     * @param ddbKey The partition and sort (if it exists) attributes on the item being read or written.
+     */
     Builder ddbKey(Map<String, AttributeValue> ddbKey);
 
+    /**
+     * @return The partition and sort (if it exists) attributes on the item being read or written.
+     */
     Map<String, AttributeValue> ddbKey();
 
     GetBranchKeyIdFromDdbKeyInput build();

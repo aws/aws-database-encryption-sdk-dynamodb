@@ -7,6 +7,11 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyI
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyOutput;
 
 public interface IDynamoDbKeyBranchKeyIdSupplier {
-  GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(
-      GetBranchKeyIdFromDdbKeyInput nativeValue);
+  /**
+   * Get the Branch Key that should be used for wrapping and unwrapping data keys based on the primary key of the item being read or written.
+   *
+   * @param input Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
+   * @return Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
+   */
+  GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(GetBranchKeyIdFromDdbKeyInput input);
 }

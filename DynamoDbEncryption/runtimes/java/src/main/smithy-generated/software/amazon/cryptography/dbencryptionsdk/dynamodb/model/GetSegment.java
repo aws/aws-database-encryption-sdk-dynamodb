@@ -5,9 +5,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * The Virtual Part Transformation that splits a string and gets a particular segment of that split.
+ */
 public class GetSegment {
+  /**
+   * The characters to split on.
+   */
   private final String split;
 
+  /**
+   * The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+   */
   private final Integer index;
 
   protected GetSegment(BuilderImpl builder) {
@@ -15,10 +24,16 @@ public class GetSegment {
     this.index = builder.index();
   }
 
+  /**
+   * @return The characters to split on.
+   */
   public String split() {
     return this.split;
   }
 
+  /**
+   * @return The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+   */
   public Integer index() {
     return this.index;
   }
@@ -32,12 +47,24 @@ public class GetSegment {
   }
 
   public interface Builder {
+    /**
+     * @param split The characters to split on.
+     */
     Builder split(String split);
 
+    /**
+     * @return The characters to split on.
+     */
     String split();
 
+    /**
+     * @param index The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+     */
     Builder index(Integer index);
 
+    /**
+     * @return The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+     */
     Integer index();
 
     GetSegment build();

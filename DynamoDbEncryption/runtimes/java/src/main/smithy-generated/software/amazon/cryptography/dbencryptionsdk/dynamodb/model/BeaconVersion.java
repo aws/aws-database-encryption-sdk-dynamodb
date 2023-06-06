@@ -7,17 +7,38 @@ import java.util.List;
 import java.util.Objects;
 import software.amazon.cryptography.keystore.KeyStore;
 
+/**
+ * The configuration for a particular version of searchable encryption. Currently the only supported version is '1'.
+ */
 public class BeaconVersion {
+  /**
+   * The version of searchable encryption configured. This must be '1'.
+   */
   private final int version;
 
+  /**
+   * The Key Store that contains the Becon Keys to use with searchable encryption.
+   */
   private final KeyStore keyStore;
 
+  /**
+   * The configuration for what beacon key(s) to use.
+   */
   private final BeaconKeySource keySource;
 
+  /**
+   * The Standard Beacons to be written with items.
+   */
   private final List<StandardBeacon> standardBeacons;
 
+  /**
+   * The Compound Beacons to be written with items.
+   */
   private final List<CompoundBeacon> compoundBeacons;
 
+  /**
+   * The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+   */
   private final List<VirtualField> virtualFields;
 
   protected BeaconVersion(BuilderImpl builder) {
@@ -29,26 +50,44 @@ public class BeaconVersion {
     this.virtualFields = builder.virtualFields();
   }
 
+  /**
+   * @return The version of searchable encryption configured. This must be '1'.
+   */
   public int version() {
     return this.version;
   }
 
+  /**
+   * @return The Key Store that contains the Becon Keys to use with searchable encryption.
+   */
   public KeyStore keyStore() {
     return this.keyStore;
   }
 
+  /**
+   * @return The configuration for what beacon key(s) to use.
+   */
   public BeaconKeySource keySource() {
     return this.keySource;
   }
 
+  /**
+   * @return The Standard Beacons to be written with items.
+   */
   public List<StandardBeacon> standardBeacons() {
     return this.standardBeacons;
   }
 
+  /**
+   * @return The Compound Beacons to be written with items.
+   */
   public List<CompoundBeacon> compoundBeacons() {
     return this.compoundBeacons;
   }
 
+  /**
+   * @return The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+   */
   public List<VirtualField> virtualFields() {
     return this.virtualFields;
   }
@@ -62,28 +101,64 @@ public class BeaconVersion {
   }
 
   public interface Builder {
+    /**
+     * @param version The version of searchable encryption configured. This must be '1'.
+     */
     Builder version(int version);
 
+    /**
+     * @return The version of searchable encryption configured. This must be '1'.
+     */
     int version();
 
+    /**
+     * @param keyStore The Key Store that contains the Becon Keys to use with searchable encryption.
+     */
     Builder keyStore(KeyStore keyStore);
 
+    /**
+     * @return The Key Store that contains the Becon Keys to use with searchable encryption.
+     */
     KeyStore keyStore();
 
+    /**
+     * @param keySource The configuration for what beacon key(s) to use.
+     */
     Builder keySource(BeaconKeySource keySource);
 
+    /**
+     * @return The configuration for what beacon key(s) to use.
+     */
     BeaconKeySource keySource();
 
+    /**
+     * @param standardBeacons The Standard Beacons to be written with items.
+     */
     Builder standardBeacons(List<StandardBeacon> standardBeacons);
 
+    /**
+     * @return The Standard Beacons to be written with items.
+     */
     List<StandardBeacon> standardBeacons();
 
+    /**
+     * @param compoundBeacons The Compound Beacons to be written with items.
+     */
     Builder compoundBeacons(List<CompoundBeacon> compoundBeacons);
 
+    /**
+     * @return The Compound Beacons to be written with items.
+     */
     List<CompoundBeacon> compoundBeacons();
 
+    /**
+     * @param virtualFields The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+     */
     Builder virtualFields(List<VirtualField> virtualFields);
 
+    /**
+     * @return The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+     */
     List<VirtualField> virtualFields();
 
     BeaconVersion build();
