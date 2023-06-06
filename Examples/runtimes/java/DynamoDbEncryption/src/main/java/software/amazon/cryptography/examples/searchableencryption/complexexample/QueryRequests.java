@@ -8,6 +8,15 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
 /*
+ * This file is used in an example to demonstrate complex queries
+ * you can perform using beacons.
+ * The example data used is for demonstrative purposes only,
+ * and might not meet the distribution and correlation uniqueness
+ * recommendations for beacons.
+ * See our documentation for whether beacons are
+ * right for your particular data set:
+ * https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption.html#are-beacons-right-for-me
+ *
  * This class implements query access patterns from our workshop.
  * The queries in this file are more complicated than in other searchable encryption examples,
  *   and should demonstrate how one can structure queries on beacons in a broader variety of applications.

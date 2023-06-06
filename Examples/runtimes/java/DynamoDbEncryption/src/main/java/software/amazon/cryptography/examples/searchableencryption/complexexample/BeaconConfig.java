@@ -33,6 +33,15 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 public class BeaconConfig {
 
   /*
+   * This file is used in an example to demonstrate complex queries
+   * you can perform using beacons.
+   * The example data used is for demonstrative purposes only,
+   * and might not meet the distribution and correlation uniqueness
+   * recommendations for beacons.
+   * See our documentation for whether beacons are
+   * right for your particular data set:
+   * https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption.html#are-beacons-right-for-me
+   *
    * This file sets up all the searchable encryption configuration required to execute the examples from
    * our workshop using the encryption client.
    */

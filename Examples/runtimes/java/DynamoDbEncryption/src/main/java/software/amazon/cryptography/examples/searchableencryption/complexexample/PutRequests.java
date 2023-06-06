@@ -8,6 +8,15 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 /*
+ * This file is used in an example to demonstrate complex queries
+ * you can perform using beacons.
+ * The example data used is for demonstrative purposes only,
+ * and might not meet the distribution and correlation uniqueness
+ * recommendations for beacons.
+ * See our documentation for whether beacons are
+ * right for your particular data set:
+ * https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption.html#are-beacons-right-for-me
+ *
  * This class implements PutItem calls to populate a DDB table with items from our workshop.
  * By providing a DynamoDbClient that is configured to use searchable encryption,
  *   this class will encrypt the data client side and add beacon attributes to the items.
