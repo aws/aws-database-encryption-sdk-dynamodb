@@ -20,7 +20,7 @@ public class StandardBeacon {
   private final int length;
 
   /**
-   * The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name',
+   * The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
    */
   private final String loc;
 
@@ -45,7 +45,7 @@ public class StandardBeacon {
   }
 
   /**
-   * @return The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name',
+   * @return The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
    */
   public String loc() {
     return this.loc;
@@ -81,12 +81,12 @@ public class StandardBeacon {
     int length();
 
     /**
-     * @param loc The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name',
+     * @param loc The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
      */
     Builder loc(String loc);
 
     /**
-     * @return The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name',
+     * @return The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
      */
     String loc();
 

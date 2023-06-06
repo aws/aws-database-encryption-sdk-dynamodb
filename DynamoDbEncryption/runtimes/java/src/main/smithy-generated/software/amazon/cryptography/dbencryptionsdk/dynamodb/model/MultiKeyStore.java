@@ -15,12 +15,12 @@ public class MultiKeyStore {
   private final String keyFieldName;
 
   /**
-   * How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+   * How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
    */
   private final Integer cacheTTL;
 
   /**
-   * The mac number of entries the local cache for beacon key material holds before it must evict older entries.
+   * The max number of entries the local cache for beacon key material holds before it must evict older entries.
    */
   private final Integer maxCacheSize;
 
@@ -38,14 +38,14 @@ public class MultiKeyStore {
   }
 
   /**
-   * @return How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+   * @return How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
    */
   public Integer cacheTTL() {
     return this.cacheTTL;
   }
 
   /**
-   * @return The mac number of entries the local cache for beacon key material holds before it must evict older entries.
+   * @return The max number of entries the local cache for beacon key material holds before it must evict older entries.
    */
   public Integer maxCacheSize() {
     return this.maxCacheSize;
@@ -71,22 +71,22 @@ public class MultiKeyStore {
     String keyFieldName();
 
     /**
-     * @param cacheTTL How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+     * @param cacheTTL How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
      */
     Builder cacheTTL(Integer cacheTTL);
 
     /**
-     * @return How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+     * @return How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
      */
     Integer cacheTTL();
 
     /**
-     * @param maxCacheSize The mac number of entries the local cache for beacon key material holds before it must evict older entries.
+     * @param maxCacheSize The max number of entries the local cache for beacon key material holds before it must evict older entries.
      */
     Builder maxCacheSize(Integer maxCacheSize);
 
     /**
-     * @return The mac number of entries the local cache for beacon key material holds before it must evict older entries.
+     * @return The max number of entries the local cache for beacon key material holds before it must evict older entries.
      */
     Integer maxCacheSize();
 

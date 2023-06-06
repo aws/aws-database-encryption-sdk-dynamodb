@@ -20,7 +20,7 @@ public class SignedPart {
   private final String prefix;
 
   /**
-   * The DynamoDB document path to the value for this Signed Part.
+   * The DynamoDB document path to the value for this Signed Part. If not provided, the 'name' is used for the location.
    */
   private final String loc;
 
@@ -45,7 +45,7 @@ public class SignedPart {
   }
 
   /**
-   * @return The DynamoDB document path to the value for this Signed Part.
+   * @return The DynamoDB document path to the value for this Signed Part. If not provided, the 'name' is used for the location.
    */
   public String loc() {
     return this.loc;
@@ -81,12 +81,12 @@ public class SignedPart {
     String prefix();
 
     /**
-     * @param loc The DynamoDB document path to the value for this Signed Part.
+     * @param loc The DynamoDB document path to the value for this Signed Part. If not provided, the 'name' is used for the location.
      */
     Builder loc(String loc);
 
     /**
-     * @return The DynamoDB document path to the value for this Signed Part.
+     * @return The DynamoDB document path to the value for this Signed Part. If not provided, the 'name' is used for the location.
      */
     String loc();
 

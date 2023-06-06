@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The configuration for a Virtula Field. A Virtual Field is a field constructed from parts of other fields for use with beacons, but never itself stored on items.
+ * The configuration for a Virtual Field. A Virtual Field is a field constructed from parts of other fields for use with beacons, but never itself stored on items.
  */
 public class VirtualField {
   /**

@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class EncryptedPart {
   /**
-   * The name for the Encrypted Part.
+   * The name of the Standard Beacon, whose value this Part will hold.
    */
   private final String name;
 
@@ -25,7 +25,7 @@ public class EncryptedPart {
   }
 
   /**
-   * @return The name for the Encrypted Part.
+   * @return The name of the Standard Beacon, whose value this Part will hold.
    */
   public String name() {
     return this.name;
@@ -48,12 +48,12 @@ public class EncryptedPart {
 
   public interface Builder {
     /**
-     * @param name The name for the Encrypted Part.
+     * @param name The name of the Standard Beacon, whose value this Part will hold.
      */
     Builder name(String name);
 
     /**
-     * @return The name for the Encrypted Part.
+     * @return The name of the Standard Beacon, whose value this Part will hold.
      */
     String name();
 

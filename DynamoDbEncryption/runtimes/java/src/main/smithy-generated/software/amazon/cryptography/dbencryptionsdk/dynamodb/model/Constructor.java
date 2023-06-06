@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public class Constructor {
   /**
-   * The ordered list of parts for a particular Compound Beacon construction. If all the item contains all required Parts, a Compound becaon will be written using each Part that exists on the item, in the order specified.
+   * The ordered list of parts for a particular Compound Beacon construction. If the item contains all required Parts, a Compound beacon will be written using each Part that exists on the item, in the order specified.
    */
   private final List<ConstructorPart> parts;
 
@@ -20,7 +20,7 @@ public class Constructor {
   }
 
   /**
-   * @return The ordered list of parts for a particular Compound Beacon construction. If all the item contains all required Parts, a Compound becaon will be written using each Part that exists on the item, in the order specified.
+   * @return The ordered list of parts for a particular Compound Beacon construction. If the item contains all required Parts, a Compound beacon will be written using each Part that exists on the item, in the order specified.
    */
   public List<ConstructorPart> parts() {
     return this.parts;
@@ -36,12 +36,12 @@ public class Constructor {
 
   public interface Builder {
     /**
-     * @param parts The ordered list of parts for a particular Compound Beacon construction. If all the item contains all required Parts, a Compound becaon will be written using each Part that exists on the item, in the order specified.
+     * @param parts The ordered list of parts for a particular Compound Beacon construction. If the item contains all required Parts, a Compound beacon will be written using each Part that exists on the item, in the order specified.
      */
     Builder parts(List<ConstructorPart> parts);
 
     /**
-     * @return The ordered list of parts for a particular Compound Beacon construction. If all the item contains all required Parts, a Compound becaon will be written using each Part that exists on the item, in the order specified.
+     * @return The ordered list of parts for a particular Compound Beacon construction. If the item contains all required Parts, a Compound beacon will be written using each Part that exists on the item, in the order specified.
      */
     List<ConstructorPart> parts();
 

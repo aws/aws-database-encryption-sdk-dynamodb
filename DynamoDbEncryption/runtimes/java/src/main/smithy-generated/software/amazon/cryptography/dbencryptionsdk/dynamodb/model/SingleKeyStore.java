@@ -15,7 +15,7 @@ public class SingleKeyStore {
   private final String keyId;
 
   /**
-   * How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+   * How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
    */
   private final Integer cacheTTL;
 
@@ -32,7 +32,7 @@ public class SingleKeyStore {
   }
 
   /**
-   * @return How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+   * @return How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
    */
   public Integer cacheTTL() {
     return this.cacheTTL;
@@ -58,12 +58,12 @@ public class SingleKeyStore {
     String keyId();
 
     /**
-     * @param cacheTTL How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+     * @param cacheTTL How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
      */
     Builder cacheTTL(Integer cacheTTL);
 
     /**
-     * @return How long the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+     * @return How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
      */
     Integer cacheTTL();
 

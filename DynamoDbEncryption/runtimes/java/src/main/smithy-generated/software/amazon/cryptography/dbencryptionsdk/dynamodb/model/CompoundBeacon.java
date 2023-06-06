@@ -31,7 +31,7 @@ public class CompoundBeacon {
   private final List<SignedPart> signed;
 
   /**
-   * The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
+   * The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can construct the beacon is used. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
    */
   private final List<Constructor> constructors;
 
@@ -72,7 +72,7 @@ public class CompoundBeacon {
   }
 
   /**
-   * @return The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
+   * @return The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can construct the beacon is used. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
    */
   public List<Constructor> constructors() {
     return this.constructors;
@@ -128,12 +128,12 @@ public class CompoundBeacon {
     List<SignedPart> signed();
 
     /**
-     * @param constructors The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
+     * @param constructors The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can construct the beacon is used. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
      */
     Builder constructors(List<Constructor> constructors);
 
     /**
-     * @return The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
+     * @return The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can construct the beacon is used. If no constructor can construct the beacon, the Compound Beacon is not written to the item.
      */
     List<Constructor> constructors();
 
