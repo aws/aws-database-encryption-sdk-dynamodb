@@ -290,7 +290,7 @@ list ConstructorPartList {
 //#  * A name -- a string
 //#  * A list of [Virtual Parts](#virtual-part-initialization)
 
-@javadoc("The configuration for a Virtula Field. A Virtual Field is a field constructed from parts of other fields for use with beacons, but never itself stored on items.")
+@javadoc("The configuration for a Virtual Field. A Virtual Field is a field constructed from parts of other fields for use with beacons, but never itself stored on items.")
 structure VirtualField {
   @required
   @javadoc("The name of the Virtual Field.")
@@ -511,7 +511,7 @@ structure SignedPart {
 @javadoc("The configuration for a particular Compound Beacon construction.")
 structure Constructor {
   @required
-  @javadoc("The ordered list of parts for a particular Compound Beacon construction. If all the item contains all required Parts, a Compound becaon will be written using each Part that exists on the item, in the order specified.")
+  @javadoc("The ordered list of parts for a particular Compound Beacon construction. If the item contains all required Parts, a Compound beacon will be written using each Part that exists on the item, in the order specified.")
   parts : ConstructorPartList
 }
 
@@ -524,7 +524,7 @@ structure Constructor {
 @javadoc("A part of a Compound Becaon Construction.")
 structure ConstructorPart {
   @required
-  @javadoc("The name of the Encrypted Part or Signed Part for which this construction part gets a value.")
+  @javadoc("The name of the Encrypted Part or Signed Part for which this constructor part gets a value.")
   name : String,
   @required
   @javadoc("Whether this Encrypted Part or Signed Part is required for this construction to succeed.")
@@ -550,7 +550,7 @@ structure StandardBeacon {
   @required
   @javadoc("The length of the calculated beacon.")
   length : BeaconBitLength,
-  @javadoc("The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name',")
+  @javadoc("The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.")
   loc : TerminalLocation
 }
 
@@ -579,7 +579,7 @@ structure CompoundBeacon {
   encrypted : EncryptedPartsList,
   @javadoc("The list of Signed Parts that may be included in the compound beacon.")
   signed : SignedPartsList,
-  @javadoc("The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can constructs the beacon. If no constructor can construct the beacon, the Compound Beacon is not written to the item.")
+  @javadoc("The ordered list of constructors that may be used to create the Compound Beacon. Each constructor is checked, in order, to see if it can construct the beacon. The first constructor that can construct the beacon is used. If no constructor can construct the beacon, the Compound Beacon is not written to the item.")
   constructors : ConstructorList
 }
 
