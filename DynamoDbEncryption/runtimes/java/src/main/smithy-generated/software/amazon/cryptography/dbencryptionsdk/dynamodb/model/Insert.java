@@ -5,13 +5,22 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * The Virtual Part Transformation that appends a literal string.
+ */
 public class Insert {
+  /**
+   * The literal string to append.
+   */
   private final String literal;
 
   protected Insert(BuilderImpl builder) {
     this.literal = builder.literal();
   }
 
+  /**
+   * @return The literal string to append.
+   */
   public String literal() {
     return this.literal;
   }
@@ -25,8 +34,14 @@ public class Insert {
   }
 
   public interface Builder {
+    /**
+     * @param literal The literal string to append.
+     */
     Builder literal(String literal);
 
+    /**
+     * @return The literal string to append.
+     */
     String literal();
 
     Insert build();

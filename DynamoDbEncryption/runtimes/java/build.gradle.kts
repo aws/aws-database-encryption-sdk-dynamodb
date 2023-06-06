@@ -24,6 +24,8 @@ java {
     sourceSets["test"].java {
         srcDir("src/test")
     }
+    withJavadocJar()
+    withSourcesJar()
 }
 
 var caUrl: URI? = null
@@ -117,6 +119,12 @@ tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
 }
 
+tasks.withType<Jar>() {
+    // to compile a sources jar we need a strategy on how to deal with duplicates;
+    // we choose to include duplicate classes.
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 tasks.test {
     useTestNG()
     dependsOn("CopyDynamoDb")
@@ -169,4 +177,11 @@ tasks.register<Copy>("CopyDynamoDb")  {
         include("*.so")
     }
     into("build/libs")
+}
+
+tasks.javadoc {
+    options {
+        (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
+    }
+    exclude("src/main/dafny-generated")
 }

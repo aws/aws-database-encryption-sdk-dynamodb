@@ -31,6 +31,7 @@
     ":six": "Seis",
     ":seven": "Siete",
     ":eight": "Ocho",
+    ":NumberTest" : {"N" : "0800.000e0"},
     ":nine": "Nueve",
     ":cmp1a": "F_Cuatro.S_Junk",
     ":cmp1b": "F_444.S_Junk",
@@ -95,6 +96,9 @@
     },
     {
       "Filter": "Nine between :nine and :nine"
+    },
+    {
+      "Filter": "NumberTest = :NumberTest"
     },
     {
       "Filter": "RecNum in (:zero, :one)"

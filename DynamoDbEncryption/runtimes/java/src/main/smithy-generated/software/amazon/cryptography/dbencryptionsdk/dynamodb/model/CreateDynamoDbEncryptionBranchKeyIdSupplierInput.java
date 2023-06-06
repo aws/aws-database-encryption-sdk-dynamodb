@@ -7,13 +7,22 @@ import java.util.Objects;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbKeyBranchKeyIdSupplier;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.IDynamoDbKeyBranchKeyIdSupplier;
 
+/**
+ * Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
+ */
 public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
+  /**
+   * An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
+   */
   private final IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
 
   protected CreateDynamoDbEncryptionBranchKeyIdSupplierInput(BuilderImpl builder) {
     this.ddbKeyBranchKeyIdSupplier = builder.ddbKeyBranchKeyIdSupplier();
   }
 
+  /**
+   * @return An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
+   */
   public IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier() {
     return this.ddbKeyBranchKeyIdSupplier;
   }
@@ -27,8 +36,14 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
   }
 
   public interface Builder {
+    /**
+     * @param ddbKeyBranchKeyIdSupplier An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
+     */
     Builder ddbKeyBranchKeyIdSupplier(IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier);
 
+    /**
+     * @return An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
+     */
     IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier();
 
     CreateDynamoDbEncryptionBranchKeyIdSupplierInput build();

@@ -5,11 +5,23 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * The configuration for a Standard Beacon.
+ */
 public class StandardBeacon {
+  /**
+   * The name for this Standard Beacon.
+   */
   private final String name;
 
+  /**
+   * The length of the calculated beacon.
+   */
   private final int length;
 
+  /**
+   * The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
+   */
   private final String loc;
 
   protected StandardBeacon(BuilderImpl builder) {
@@ -18,14 +30,23 @@ public class StandardBeacon {
     this.loc = builder.loc();
   }
 
+  /**
+   * @return The name for this Standard Beacon.
+   */
   public String name() {
     return this.name;
   }
 
+  /**
+   * @return The length of the calculated beacon.
+   */
   public int length() {
     return this.length;
   }
 
+  /**
+   * @return The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
+   */
   public String loc() {
     return this.loc;
   }
@@ -39,16 +60,34 @@ public class StandardBeacon {
   }
 
   public interface Builder {
+    /**
+     * @param name The name for this Standard Beacon.
+     */
     Builder name(String name);
 
+    /**
+     * @return The name for this Standard Beacon.
+     */
     String name();
 
+    /**
+     * @param length The length of the calculated beacon.
+     */
     Builder length(int length);
 
+    /**
+     * @return The length of the calculated beacon.
+     */
     int length();
 
+    /**
+     * @param loc The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
+     */
     Builder loc(String loc);
 
+    /**
+     * @return The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
+     */
     String loc();
 
     StandardBeacon build();

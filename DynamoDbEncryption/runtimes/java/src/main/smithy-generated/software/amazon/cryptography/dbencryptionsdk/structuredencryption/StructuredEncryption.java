@@ -20,8 +20,8 @@ public class StructuredEncryption {
   private final IStructuredEncryptionClient _impl;
 
   protected StructuredEncryption(BuilderImpl builder) {
-    StructuredEncryptionConfig nativeValue = builder.StructuredEncryptionConfig();
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig dafnyValue = ToDafny.StructuredEncryptionConfig(nativeValue);
+    StructuredEncryptionConfig input = builder.StructuredEncryptionConfig();
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig dafnyValue = ToDafny.StructuredEncryptionConfig(input);
     Result<StructuredEncryptionClient, Error> result = __default.StructuredEncryption(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
@@ -37,8 +37,8 @@ public class StructuredEncryption {
     return new BuilderImpl();
   }
 
-  public DecryptStructureOutput DecryptStructure(DecryptStructureInput nativeValue) {
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureInput dafnyValue = ToDafny.DecryptStructureInput(nativeValue);
+  public DecryptStructureOutput DecryptStructure(DecryptStructureInput input) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureInput dafnyValue = ToDafny.DecryptStructureInput(input);
     Result<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureOutput, Error> result = this._impl.DecryptStructure(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
@@ -46,8 +46,8 @@ public class StructuredEncryption {
     return ToNative.DecryptStructureOutput(result.dtor_value());
   }
 
-  public EncryptStructureOutput EncryptStructure(EncryptStructureInput nativeValue) {
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureInput dafnyValue = ToDafny.EncryptStructureInput(nativeValue);
+  public EncryptStructureOutput EncryptStructure(EncryptStructureInput input) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureInput dafnyValue = ToDafny.EncryptStructureInput(input);
     Result<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureOutput, Error> result = this._impl.EncryptStructure(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());

@@ -7,13 +7,22 @@ import java.util.Objects;
 import software.amazon.cryptography.materialproviders.BranchKeyIdSupplier;
 import software.amazon.cryptography.materialproviders.IBranchKeyIdSupplier;
 
+/**
+ * Outputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
+ */
 public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
+  /**
+   * The Branch Key Supplier for use with the Hierarchical Keyring.
+   */
   private final IBranchKeyIdSupplier branchKeyIdSupplier;
 
   protected CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(BuilderImpl builder) {
     this.branchKeyIdSupplier = builder.branchKeyIdSupplier();
   }
 
+  /**
+   * @return The Branch Key Supplier for use with the Hierarchical Keyring.
+   */
   public IBranchKeyIdSupplier branchKeyIdSupplier() {
     return this.branchKeyIdSupplier;
   }
@@ -27,8 +36,14 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
   }
 
   public interface Builder {
+    /**
+     * @param branchKeyIdSupplier The Branch Key Supplier for use with the Hierarchical Keyring.
+     */
     Builder branchKeyIdSupplier(IBranchKeyIdSupplier branchKeyIdSupplier);
 
+    /**
+     * @return The Branch Key Supplier for use with the Hierarchical Keyring.
+     */
     IBranchKeyIdSupplier branchKeyIdSupplier();
 
     CreateDynamoDbEncryptionBranchKeyIdSupplierOutput build();

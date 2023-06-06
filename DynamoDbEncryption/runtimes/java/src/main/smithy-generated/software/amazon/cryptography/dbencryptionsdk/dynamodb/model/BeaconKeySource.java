@@ -6,8 +6,14 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 public class BeaconKeySource {
+  /**
+   * The configuration for using a single Beacon Key.
+   */
   private final SingleKeyStore single;
 
+  /**
+   * The configuration for using multiple Beacon Keys.
+   */
   private final MultiKeyStore multi;
 
   protected BeaconKeySource(BuilderImpl builder) {
@@ -15,10 +21,16 @@ public class BeaconKeySource {
     this.multi = builder.multi();
   }
 
+  /**
+   * @return The configuration for using a single Beacon Key.
+   */
   public SingleKeyStore single() {
     return this.single;
   }
 
+  /**
+   * @return The configuration for using multiple Beacon Keys.
+   */
   public MultiKeyStore multi() {
     return this.multi;
   }
@@ -32,12 +44,24 @@ public class BeaconKeySource {
   }
 
   public interface Builder {
+    /**
+     * @param single The configuration for using a single Beacon Key.
+     */
     Builder single(SingleKeyStore single);
 
+    /**
+     * @return The configuration for using a single Beacon Key.
+     */
     SingleKeyStore single();
 
+    /**
+     * @param multi The configuration for using multiple Beacon Keys.
+     */
     Builder multi(MultiKeyStore multi);
 
+    /**
+     * @return The configuration for using multiple Beacon Keys.
+     */
     MultiKeyStore multi();
 
     BeaconKeySource build();
