@@ -6,9 +6,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The configuration for searchable encryption.
+ */
 public class SearchConfig {
+  /**
+   * The versions of searchable encryption to support reading. Currently must contain a single configuration with version '1'.
+   */
   private final List<BeaconVersion> versions;
 
+  /**
+   * The searchable encryption version to use when writing new items. Must be '1'.
+   */
   private final int writeVersion;
 
   protected SearchConfig(BuilderImpl builder) {
@@ -16,10 +25,16 @@ public class SearchConfig {
     this.writeVersion = builder.writeVersion();
   }
 
+  /**
+   * @return The versions of searchable encryption to support reading. Currently must contain a single configuration with version '1'.
+   */
   public List<BeaconVersion> versions() {
     return this.versions;
   }
 
+  /**
+   * @return The searchable encryption version to use when writing new items. Must be '1'.
+   */
   public int writeVersion() {
     return this.writeVersion;
   }
@@ -33,12 +48,24 @@ public class SearchConfig {
   }
 
   public interface Builder {
+    /**
+     * @param versions The versions of searchable encryption to support reading. Currently must contain a single configuration with version '1'.
+     */
     Builder versions(List<BeaconVersion> versions);
 
+    /**
+     * @return The versions of searchable encryption to support reading. Currently must contain a single configuration with version '1'.
+     */
     List<BeaconVersion> versions();
 
+    /**
+     * @param writeVersion The searchable encryption version to use when writing new items. Must be '1'.
+     */
     Builder writeVersion(int writeVersion);
 
+    /**
+     * @return The searchable encryption version to use when writing new items. Must be '1'.
+     */
     int writeVersion();
 
     SearchConfig build();

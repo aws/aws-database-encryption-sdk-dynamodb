@@ -5,9 +5,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * A part of a Compound Becaon Construction.
+ */
 public class ConstructorPart {
+  /**
+   * The name of the Encrypted Part or Signed Part for which this constructor part gets a value.
+   */
   private final String name;
 
+  /**
+   * Whether this Encrypted Part or Signed Part is required for this construction to succeed.
+   */
   private final Boolean required;
 
   protected ConstructorPart(BuilderImpl builder) {
@@ -15,10 +24,16 @@ public class ConstructorPart {
     this.required = builder.required();
   }
 
+  /**
+   * @return The name of the Encrypted Part or Signed Part for which this constructor part gets a value.
+   */
   public String name() {
     return this.name;
   }
 
+  /**
+   * @return Whether this Encrypted Part or Signed Part is required for this construction to succeed.
+   */
   public Boolean required() {
     return this.required;
   }
@@ -32,12 +47,24 @@ public class ConstructorPart {
   }
 
   public interface Builder {
+    /**
+     * @param name The name of the Encrypted Part or Signed Part for which this constructor part gets a value.
+     */
     Builder name(String name);
 
+    /**
+     * @return The name of the Encrypted Part or Signed Part for which this constructor part gets a value.
+     */
     String name();
 
+    /**
+     * @param required Whether this Encrypted Part or Signed Part is required for this construction to succeed.
+     */
     Builder required(Boolean required);
 
+    /**
+     * @return Whether this Encrypted Part or Signed Part is required for this construction to succeed.
+     */
     Boolean required();
 
     ConstructorPart build();
