@@ -53,7 +53,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 
   For our example, we will construct a virtual field
   from two DDB attributes `state` and `hasTestResult` as `state`+prefix(`hasTestResult`, 1).
-  We will then create beacon out of this virtual field and use it to search.
+  We will then create a beacon out of this virtual field and use it to search.
 
   This example follows a use case of a database that stores customer test result metadata.
   Records are indexed by `customer_id` and store a `state` attribute, representing the
