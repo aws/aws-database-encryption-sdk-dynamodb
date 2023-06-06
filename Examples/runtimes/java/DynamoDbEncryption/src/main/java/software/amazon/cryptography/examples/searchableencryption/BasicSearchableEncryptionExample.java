@@ -86,10 +86,8 @@ public class BasicSearchableEncryptionExample {
     // Since the full ID's range is divisible by the range of the last 4 digits,
     //     then the last 4 digits of the inspector ID are uniformly distributed
     //     over the range from 0 to 9,999.
-    // (In general, it is desirable to have a uniform distribution
-    //     over the possible values for a beacon field,
-    //     as a uniform distribution simplifies the analysis
-    //     to determine reasonable bounds for beacon length.)
+    // See our documentation for why you should avoid creating beacons over non-uniform distributions
+    //  https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption.html#are-beacons-right-for-me
     // A single inspector ID suffix may be assigned to multiple `work_id`s.
     //
     // This link provides guidance for choosing a beacon length:
