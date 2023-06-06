@@ -93,8 +93,32 @@ Resources:
         - !Ref CodeBuildBasePolicy
         - !Ref SecretsManagerPolicyRelease
         - !Ref ParameterStorePolicy
+        - !Ref CodeBuildCISTSAllow
         - "arn:aws:iam::aws:policy/AWSCodeArtifactReadOnlyAccess"
         - "arn:aws:iam::aws:policy/AWSCodeArtifactAdminAccess"
+
+
+  CodeBuildCISTSAllow:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: !Sub >-
+        CodeBuildCISTSAllow-${ProjectName}
+      Path: /service-role/
+      PolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+              {
+                  "Effect": "Allow",
+                  "Action": "sts:AssumeRole",
+                  "Resource": [
+                    "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2",
+                    "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-only-us-east-1-KMS-keys",
+                    "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-only-eu-west-1-KMS-keys"
+                  ]
+              }
+          ]
+        }
 
   CodeBuildBatchPolicy:
     Type: "AWS::IAM::ManagedPolicy"
