@@ -13,7 +13,8 @@
         "One": "DO_NOTHING",
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
-        "Nine": "DO_NOTHING"
+        "Nine": "DO_NOTHING",
+        "NumberTest" : "ENCRYPT_AND_SIGN"
       },
       "allowedUnsignedAttributes": [
         "One",
@@ -36,6 +37,10 @@
               {
                 "Name": "Three",
                 "Length": 32
+              },
+              {
+                "Name": "NumberTest",
+                "Length": 32
               }
             ]
           }
@@ -54,7 +59,8 @@
         "One": "DO_NOTHING",
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
-        "Nine": "DO_NOTHING"
+        "Nine": "DO_NOTHING",
+        "NumberTest" : "SIGN_ONLY"
       },
       "allowedUnsignedAttributes": [
         "One",
@@ -99,7 +105,8 @@
         "One": "DO_NOTHING",
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
-        "Nine": "DO_NOTHING"
+        "Nine": "DO_NOTHING",
+        "NumberTest" : "SIGN_ONLY"
       },
       "allowedUnsignedAttributes": [
         "One",
@@ -120,7 +127,8 @@
         "One": "DO_NOTHING",
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
-        "Nine": "DO_NOTHING"
+        "Nine": "DO_NOTHING",
+        "NumberTest" : "SIGN_ONLY"
       },
       "allowedUnsignedAttributes": [
         "One",
@@ -141,7 +149,8 @@
         "One": "DO_NOTHING",
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
-        "Nine": "DO_NOTHING"
+        "Nine": "DO_NOTHING",
+        "NumberTest" : "SIGN_ONLY"
       },
       "allowedUnsignedAttributes": [
         "One",
