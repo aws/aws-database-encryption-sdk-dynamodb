@@ -75,7 +75,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
       to determine the percentage of `true`s to `false`s across the dataset from beaconized
       values)
    2. Query against a combination of whether `hasTestResult` is true/false and the `state` field
-  We cannot achieve these properties with a standard beacon on an true/false attribute. Following
+  We cannot achieve these properties with a standard beacon on a true/false attribute. Following
   the guidance to choose a beacon length:
     https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
   For a boolean value (in our case, whether `hasTestResult` is true or false), the acceptable
