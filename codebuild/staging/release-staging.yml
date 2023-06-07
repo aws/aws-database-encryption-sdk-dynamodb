@@ -28,7 +28,7 @@ phases:
       - curl https://services.gradle.org/distributions/gradle-7.6-all.zip -L -o gradle.zip
       - unzip -qq gradle.zip && rm gradle.zip
       - export PATH="$PWD/gradle-7.6/bin:$PATH"
-      - cd aws-cryptographic-material-providers-library-java/
+      - cd  aws-database-encryption-sdk-dynamodb-java/
   pre_build:
     commands:
       - export CODEARTIFACT_TOKEN=$(aws codeartifact get-authorization-token --domain crypto-tools-internal --domain-owner 587316601012 --region us-east-1 --query authorizationToken --output text`)
