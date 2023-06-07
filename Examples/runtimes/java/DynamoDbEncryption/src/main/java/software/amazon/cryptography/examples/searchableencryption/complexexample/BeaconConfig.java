@@ -33,6 +33,15 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 public class BeaconConfig {
 
   /*
+   * This file is used in an example to demonstrate complex queries
+   * you can perform using beacons.
+   * The example data used is for demonstrative purposes only,
+   * and might not meet the distribution and correlation uniqueness
+   * recommendations for beacons.
+   * See our documentation for whether beacons are
+   * right for your particular data set:
+   * https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption.html#are-beacons-right-for-me
+   *
    * This file sets up all the searchable encryption configuration required to execute the examples from
    * our workshop using the encryption client.
    */
@@ -503,16 +512,16 @@ public class BeaconConfig {
     //       and add constructors with general conditions at the end of the list. This would allow a given
     //       item would trigger the constructor most specific to its attributes.
     List<Constructor> pk0ConstructorList = new ArrayList<>();
+    pk0ConstructorList.add(employeeIdConstructor);
     pk0ConstructorList.add(buildingConstructor);
     pk0ConstructorList.add(ticketNumberConstructor);
     pk0ConstructorList.add(projectNameConstructor);
-    pk0ConstructorList.add(employeeIdConstructor);
 
     List<Constructor> sk0ConstructorList = new ArrayList<>();
     sk0ConstructorList.add(ticketModTimeConstructor);
     sk0ConstructorList.add(meetingStartFloorRoomConstructor);
-    sk0ConstructorList.add(projectNameConstructor);
     sk0ConstructorList.add(timeCardStartEmployeeEmailConstructor);
+    sk0ConstructorList.add(projectNameConstructor);
     sk0ConstructorList.add(employeeIdConstructor);
 
     List<Constructor> pk1ConstructorList = new ArrayList<>();

@@ -1,20 +1,20 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
-import software.amazon.cryptography.services.kms.internaldafny.KMSClientConfigType;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.Keyring;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 
+import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -23,11 +23,9 @@ import java.util.concurrent.ExecutionException;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.awssdk.services.kms.model.CreateKeyRequest;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DynamoDbEncryptionTransformsException;
-import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
-import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.amazon.cryptography.materialproviders.model.CollectionOfErrors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -527,5 +525,66 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         CompletableFuture<PutItemResponse> response =  asyncClient.putItem(
                 PutItemRequest.builder().tableName(TEST_TABLE_NAME).item(item).build());
         response.get();
+    }
+
+    @Test(
+            expectedExceptions = CollectionOfErrors.class,
+            expectedExceptionsMessageRegExp = "Raw AES Keyring was unable to decrypt any encrypted data key. The list of encountered Exceptions is avaible via `list`."
+    )
+    public void TestOnDecryptKeyringFailure() throws Throwable {
+        String partitionValue = "expectedOnDecryptKeyringFailure";
+        String sortValue = "42";
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        // Create two distinct dummy "keys"
+        ByteBuffer keyA = ByteBuffer.allocate(32);
+        ByteBuffer keyB = ByteBuffer.allocate(32);
+        keyB = keyB.putInt(1);
+
+        // Create two keyrings with the same name/namespace, but different keys
+        IKeyring aesKeyringA = createStaticKeyring(keyA);
+        IKeyring aesKeyringB = createStaticKeyring(keyB);
+
+        DynamoDbEncryptionInterceptor interceptorA =
+                createInterceptor(aesKeyringA, null, null);
+        DynamoDbClient ddbA = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptorA)
+                                .build())
+                .build();
+
+        DynamoDbEncryptionInterceptor interceptorB =
+                createInterceptor(aesKeyringB, null, null);
+        DynamoDbClient ddbB = DynamoDbClient.builder()
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(interceptorB)
+                                .build())
+                .build();
+
+        // Write item with key material A
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        PutItemResponse putResponse = ddbA.putItem(putRequest);
+        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+
+        // Read item with key material B
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+        GetItemRequest getRequest = GetItemRequest.builder()
+                .key(keyToGet)
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        try {
+            ddbB.getItem(getRequest);
+        } catch(SdkClientException e) {
+            throw e.getCause();
+        }
     }
 }

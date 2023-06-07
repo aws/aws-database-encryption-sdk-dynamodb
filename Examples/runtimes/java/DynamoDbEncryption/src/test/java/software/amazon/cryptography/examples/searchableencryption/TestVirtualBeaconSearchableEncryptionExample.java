@@ -18,7 +18,7 @@ public class TestVirtualBeaconSearchableEncryptionExample {
     Thread.sleep(5000);
 
     VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(
-        SearchableEncryptionTestUtils.TEST_DDB_TABLE_NAME,
+        SearchableEncryptionTestUtils.SIMPLE_BEACON_TEST_DDB_TABLE_NAME,
         keyId,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME);

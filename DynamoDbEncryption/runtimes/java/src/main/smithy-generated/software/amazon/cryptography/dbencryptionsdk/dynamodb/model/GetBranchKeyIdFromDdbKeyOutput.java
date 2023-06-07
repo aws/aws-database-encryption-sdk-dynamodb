@@ -5,13 +5,22 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
+ */
 public class GetBranchKeyIdFromDdbKeyOutput {
+  /**
+   * The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
+   */
   private final String branchKeyId;
 
   protected GetBranchKeyIdFromDdbKeyOutput(BuilderImpl builder) {
     this.branchKeyId = builder.branchKeyId();
   }
 
+  /**
+   * @return The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
+   */
   public String branchKeyId() {
     return this.branchKeyId;
   }
@@ -25,8 +34,14 @@ public class GetBranchKeyIdFromDdbKeyOutput {
   }
 
   public interface Builder {
+    /**
+     * @param branchKeyId The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
+     */
     Builder branchKeyId(String branchKeyId);
 
+    /**
+     * @return The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
+     */
     String branchKeyId();
 
     GetBranchKeyIdFromDdbKeyOutput build();

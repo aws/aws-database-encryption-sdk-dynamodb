@@ -5,9 +5,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * The configuration for using a single Beacon Key.
+ */
 public class SingleKeyStore {
+  /**
+   * The Beacon Key ID.
+   */
   private final String keyId;
 
+  /**
+   * How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+   */
   private final Integer cacheTTL;
 
   protected SingleKeyStore(BuilderImpl builder) {
@@ -15,10 +24,16 @@ public class SingleKeyStore {
     this.cacheTTL = builder.cacheTTL();
   }
 
+  /**
+   * @return The Beacon Key ID.
+   */
   public String keyId() {
     return this.keyId;
   }
 
+  /**
+   * @return How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+   */
   public Integer cacheTTL() {
     return this.cacheTTL;
   }
@@ -32,12 +47,24 @@ public class SingleKeyStore {
   }
 
   public interface Builder {
+    /**
+     * @param keyId The Beacon Key ID.
+     */
     Builder keyId(String keyId);
 
+    /**
+     * @return The Beacon Key ID.
+     */
     String keyId();
 
+    /**
+     * @param cacheTTL How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+     */
     Builder cacheTTL(Integer cacheTTL);
 
+    /**
+     * @return How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+     */
     Integer cacheTTL();
 
     SingleKeyStore build();

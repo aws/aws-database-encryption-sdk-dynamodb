@@ -44,7 +44,7 @@ jobs:
       contents: read
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
@@ -92,5 +92,6 @@ jobs:
           # Run simple examples
           gradle -p runtimes/java/DynamoDbEncryption test 
           # Run migration examples
+          gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
           gradle -p runtimes/java/Migration/DDBECToAWSDBE test
 
