@@ -3,4 +3,4 @@
 	url = https://github.com/aws/aws-cryptographic-material-providers-library-java.git
 [submodule "submodules/smithy-dafny"]
 	path = submodules/smithy-dafny
-	url = git@github.com:awslabs/smithy-dafny.git
+	url = https://github.com/awslabs/smithy-dafny.git
