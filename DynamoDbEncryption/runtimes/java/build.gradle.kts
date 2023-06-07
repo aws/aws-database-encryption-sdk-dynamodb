@@ -7,6 +7,8 @@ plugins {
     `java`
     `java-library`
     `maven-publish`
+    `signing`
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
 group = "software.amazon.cryptography"
@@ -107,12 +109,59 @@ dependencies {
 }
 
 publishing {
+    publications.create<MavenPublication>("mavenLocal") {
+        groupId = "software.amazon.cryptography"
+        artifactId = "aws-database-encryption-sdk-dynamodb"
+        artifact(tasks["jar"])
+        artifact(tasks["javadocJar"])
+        artifact(tasks["sourcesJar"])
+    }
+
     publications.create<MavenPublication>("maven") {
         groupId = "software.amazon.cryptography"
         artifactId = "aws-database-encryption-sdk-dynamodb"
-        from(components["java"])
+        artifact(tasks["jar"])
+        artifact(tasks["javadocJar"])
+        artifact(tasks["sourcesJar"])
+
+        // Include extra information in the POMs.
+        afterEvaluate {
+            pom {
+                name.set("AWS Database Encryption SDK for DynamoDB")
+                description.set("AWS Database Encryption SDK for DynamoDB in Java")
+                url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb-java")
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("amazonwebservices")
+                        organization.set("Amazon Web Services")
+                        organizationUrl.set("https://aws.amazon.com")
+                        roles.add("developer")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb-java.git")
+                }
+            }
+        }
     }
-    repositories { mavenLocal() }
+    repositories {
+        mavenLocal()
+        maven {
+            name = "StagingCodeArtifact"
+            url = URI.create("https://crypto-tools-internal-587316601012.d.codeartifact.us-east-1.amazonaws.com/maven/java-dbesdk-ddb-staging/")
+            credentials {
+                username = "aws"
+                password = System.getenv("CODEARTIFACT_TOKEN")
+            }
+        }
+    }
 }
 
 tasks.withType<JavaCompile>() {
@@ -184,4 +233,35 @@ tasks.javadoc {
         (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
     }
     exclude("src/main/dafny-generated")
+}
+
+nexusPublishing {
+    // We are using the nexusPublishing plugin since it is recommended by Sonatype Gradle Project configurations
+    // and it is easy to supply the creds we need to deploy
+    // https://github.com/gradle-nexus/publish-plugin/
+    repositories {
+        sonatype {
+            username.set(System.getenv("SONA_USERNAME"))
+            password.set(System.getenv("SONA_PASSWORD"))
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+
+    // Dynamically set these properties
+    project.ext.set("signing.gnupg.executable", "gpg")
+    project.ext.set("signing.gnupg.useLegacyGpg" , "true")
+    project.ext.set("signing.gnupg.homeDir", System.getenv("HOME") + "/.gnupg/")
+    project.ext.set("signing.gnupg.optionsFile", System.getenv("HOME") + "/.gnupg/gpg.conf")
+    project.ext.set("signing.gnupg.keyName", System.getenv("GPG_KEY"))
+    project.ext.set("signing.gnupg.passphrase", System.getenv("GPG_PASS"))
+
+    // Signing is required if building a release version and if we're going to publish it.
+    // Otherwise if doing a maven publication we will sign
+    setRequired({
+        gradle.getTaskGraph().hasTask("publish")
+    })
+    sign(publishing.publications["maven"])
 }
