@@ -13,7 +13,8 @@
             "Six": "666",
             "Seven": "777",
             "Eight": "888",
-            "Nine": "999"
+            "Nine": "999",
+            "NumberTest" : {"N" : "0800.000e0"}
         },
         {
             "RecNum": {

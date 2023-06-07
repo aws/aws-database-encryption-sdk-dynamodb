@@ -18,7 +18,7 @@ public class TestBasicSearchableEncryptionExample {
     Thread.sleep(5000);
 
     BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(
-        SearchableEncryptionTestUtils.TEST_DDB_TABLE_NAME,
+        SearchableEncryptionTestUtils.UNIT_INSPECTION_TEST_DDB_TABLE_NAME,
         keyId,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN,
         SearchableEncryptionTestUtils.TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME);

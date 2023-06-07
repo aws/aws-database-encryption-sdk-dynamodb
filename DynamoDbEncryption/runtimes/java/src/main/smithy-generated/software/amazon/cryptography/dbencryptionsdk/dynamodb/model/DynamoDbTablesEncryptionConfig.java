@@ -6,13 +6,22 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * The configuration for client-side encryption with multiple DynamoDB table.
+ */
 public class DynamoDbTablesEncryptionConfig {
+  /**
+   * A map of DynamoDB table name to its configuration for client-side encryption.
+   */
   private final Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs;
 
   protected DynamoDbTablesEncryptionConfig(BuilderImpl builder) {
     this.tableEncryptionConfigs = builder.tableEncryptionConfigs();
   }
 
+  /**
+   * @return A map of DynamoDB table name to its configuration for client-side encryption.
+   */
   public Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs() {
     return this.tableEncryptionConfigs;
   }
@@ -26,9 +35,15 @@ public class DynamoDbTablesEncryptionConfig {
   }
 
   public interface Builder {
+    /**
+     * @param tableEncryptionConfigs A map of DynamoDB table name to its configuration for client-side encryption.
+     */
     Builder tableEncryptionConfigs(
         Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs);
 
+    /**
+     * @return A map of DynamoDB table name to its configuration for client-side encryption.
+     */
     Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs();
 
     DynamoDbTablesEncryptionConfig build();

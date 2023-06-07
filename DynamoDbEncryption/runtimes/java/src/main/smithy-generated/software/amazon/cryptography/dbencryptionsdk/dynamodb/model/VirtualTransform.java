@@ -6,20 +6,44 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 public class VirtualTransform {
+  /**
+   * The Virtual Part Transformation that converts ASCII characters to upper case.
+   */
   private final Upper upper;
 
+  /**
+   * The Virtual Part Transformation that converts ASCII characters to lower case.
+   */
   private final Lower lower;
 
+  /**
+   * The Virtual Part Transformation that appends a literal string.
+   */
   private final Insert insert;
 
+  /**
+   * The Virtual Part Transformation that gets the prefix of a string.
+   */
   private final GetPrefix prefix;
 
+  /**
+   * The Virtual Part Transformation that gets the suffix of a string.
+   */
   private final GetSuffix suffix;
 
+  /**
+   * The Virtual Part Transformation that gets a substring from a string.
+   */
   private final GetSubstring substring;
 
+  /**
+   * The Virtual Part Transformation that splits a string and gets a particular segment of that split.
+   */
   private final GetSegment segment;
 
+  /**
+   * The Virtual Part Transformation that splits a string and gets a range of segments of that split.
+   */
   private final GetSegments segments;
 
   protected VirtualTransform(BuilderImpl builder) {
@@ -33,34 +57,58 @@ public class VirtualTransform {
     this.segments = builder.segments();
   }
 
+  /**
+   * @return The Virtual Part Transformation that converts ASCII characters to upper case.
+   */
   public Upper upper() {
     return this.upper;
   }
 
+  /**
+   * @return The Virtual Part Transformation that converts ASCII characters to lower case.
+   */
   public Lower lower() {
     return this.lower;
   }
 
+  /**
+   * @return The Virtual Part Transformation that appends a literal string.
+   */
   public Insert insert() {
     return this.insert;
   }
 
+  /**
+   * @return The Virtual Part Transformation that gets the prefix of a string.
+   */
   public GetPrefix prefix() {
     return this.prefix;
   }
 
+  /**
+   * @return The Virtual Part Transformation that gets the suffix of a string.
+   */
   public GetSuffix suffix() {
     return this.suffix;
   }
 
+  /**
+   * @return The Virtual Part Transformation that gets a substring from a string.
+   */
   public GetSubstring substring() {
     return this.substring;
   }
 
+  /**
+   * @return The Virtual Part Transformation that splits a string and gets a particular segment of that split.
+   */
   public GetSegment segment() {
     return this.segment;
   }
 
+  /**
+   * @return The Virtual Part Transformation that splits a string and gets a range of segments of that split.
+   */
   public GetSegments segments() {
     return this.segments;
   }
@@ -74,36 +122,84 @@ public class VirtualTransform {
   }
 
   public interface Builder {
+    /**
+     * @param upper The Virtual Part Transformation that converts ASCII characters to upper case.
+     */
     Builder upper(Upper upper);
 
+    /**
+     * @return The Virtual Part Transformation that converts ASCII characters to upper case.
+     */
     Upper upper();
 
+    /**
+     * @param lower The Virtual Part Transformation that converts ASCII characters to lower case.
+     */
     Builder lower(Lower lower);
 
+    /**
+     * @return The Virtual Part Transformation that converts ASCII characters to lower case.
+     */
     Lower lower();
 
+    /**
+     * @param insert The Virtual Part Transformation that appends a literal string.
+     */
     Builder insert(Insert insert);
 
+    /**
+     * @return The Virtual Part Transformation that appends a literal string.
+     */
     Insert insert();
 
+    /**
+     * @param prefix The Virtual Part Transformation that gets the prefix of a string.
+     */
     Builder prefix(GetPrefix prefix);
 
+    /**
+     * @return The Virtual Part Transformation that gets the prefix of a string.
+     */
     GetPrefix prefix();
 
+    /**
+     * @param suffix The Virtual Part Transformation that gets the suffix of a string.
+     */
     Builder suffix(GetSuffix suffix);
 
+    /**
+     * @return The Virtual Part Transformation that gets the suffix of a string.
+     */
     GetSuffix suffix();
 
+    /**
+     * @param substring The Virtual Part Transformation that gets a substring from a string.
+     */
     Builder substring(GetSubstring substring);
 
+    /**
+     * @return The Virtual Part Transformation that gets a substring from a string.
+     */
     GetSubstring substring();
 
+    /**
+     * @param segment The Virtual Part Transformation that splits a string and gets a particular segment of that split.
+     */
     Builder segment(GetSegment segment);
 
+    /**
+     * @return The Virtual Part Transformation that splits a string and gets a particular segment of that split.
+     */
     GetSegment segment();
 
+    /**
+     * @param segments The Virtual Part Transformation that splits a string and gets a range of segments of that split.
+     */
     Builder segments(GetSegments segments);
 
+    /**
+     * @return The Virtual Part Transformation that splits a string and gets a range of segments of that split.
+     */
     GetSegments segments();
 
     VirtualTransform build();
