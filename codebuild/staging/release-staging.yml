@@ -1,0 +1,51 @@
+## Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+## SPDX-License-Identifier: Apache-2.0
+
+version: 0.2
+
+env:
+  variables:
+    REGION: us-east-1
+    DOMAIN: crypto-tools-internal
+    REPOSITORY: java-dbesdk-ddb-staging
+  parameter-store:
+    ACCOUNT: /CodeBuild/AccountId
+  secrets-manager:
+    GPG_KEY: Maven-GPG-Keys-Release-Credentials:Keyname
+    GPG_PASS: Maven-GPG-Keys-Release-Credentials:Passphrase
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto8
+    commands:
+      - cd ..
+      # Get Dafny
+      - curl https://github.com/dafny-lang/dafny/releases/download/v4.1.0/dafny-4.1.0-x64-ubuntu-20.04.zip  -L -o dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny:$PATH"
+      # Get Gradle 7.6
+      - curl https://services.gradle.org/distributions/gradle-7.6-all.zip -L -o gradle.zip
+      - unzip -qq gradle.zip && rm gradle.zip
+      - export PATH="$PWD/gradle-7.6/bin:$PATH"
+      - cd aws-cryptographic-material-providers-library-java/
+  pre_build:
+    commands:
+      - export CODEARTIFACT_TOKEN=$(aws codeartifact get-authorization-token --domain crypto-tools-internal --domain-owner 587316601012 --region us-east-1 --query authorizationToken --output text`)
+      - export CODEARTIFACT_REPO_URL=https://crypto-tools-internal-587316601012.d.codeartifact.us-east-1.amazonaws.com/maven/java-dbesdk-ddb-staging/
+      - aws secretsmanager get-secret-value --region us-west-2 --secret-id Maven-GPG-Keys-Release --query SecretBinary --output text | base64 -d > ~/mvn_gpg.tgz
+      - tar -xvf ~/mvn_gpg.tgz -C ~
+      - mkdir /root/.gnupg
+      - printf "use-agent\npinentry-mode loopback" >> ~/mvn_gpg/gpg.conf
+      - printf "allow-loopback-pinentry" >> ~/mvn_gpg/gpg-agent.conf
+      - mv -v ~/mvn_gpg/* /root/.gnupg/
+      - cat /root/.gnupg/gpg.conf
+      - TMP_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" --role-session-name "CB-TestVectorResources")
+      - export TMP_ROLE
+      - export AWS_ACCESS_KEY_ID=$(echo "${TMP_ROLE}" | jq -r '.Credentials.AccessKeyId')
+      - export AWS_SECRET_ACCESS_KEY=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SecretAccessKey')
+      - export AWS_SESSION_TOKEN=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SessionToken')
+      - aws sts get-caller-identity
+  build:
+    commands:
+      - ls
