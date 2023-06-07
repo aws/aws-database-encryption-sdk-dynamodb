@@ -5,9 +5,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * The Virtual Part Transformation that gets a substring from a string.
+ */
 public class GetSubstring {
+  /**
+   * The index to start the substring from, inclusive. Negative numbers count from the end. -1 is the last character of a string.
+   */
   private final Integer low;
 
+  /**
+   * The index to stop the substring at, exclusive. Negative numbers count from the end. -1 is the last character of a string.
+   */
   private final Integer high;
 
   protected GetSubstring(BuilderImpl builder) {
@@ -15,10 +24,16 @@ public class GetSubstring {
     this.high = builder.high();
   }
 
+  /**
+   * @return The index to start the substring from, inclusive. Negative numbers count from the end. -1 is the last character of a string.
+   */
   public Integer low() {
     return this.low;
   }
 
+  /**
+   * @return The index to stop the substring at, exclusive. Negative numbers count from the end. -1 is the last character of a string.
+   */
   public Integer high() {
     return this.high;
   }
@@ -32,12 +47,24 @@ public class GetSubstring {
   }
 
   public interface Builder {
+    /**
+     * @param low The index to start the substring from, inclusive. Negative numbers count from the end. -1 is the last character of a string.
+     */
     Builder low(Integer low);
 
+    /**
+     * @return The index to start the substring from, inclusive. Negative numbers count from the end. -1 is the last character of a string.
+     */
     Integer low();
 
+    /**
+     * @param high The index to stop the substring at, exclusive. Negative numbers count from the end. -1 is the last character of a string.
+     */
     Builder high(Integer high);
 
+    /**
+     * @return The index to stop the substring at, exclusive. Negative numbers count from the end. -1 is the last character of a string.
+     */
     Integer high();
 
     GetSubstring build();

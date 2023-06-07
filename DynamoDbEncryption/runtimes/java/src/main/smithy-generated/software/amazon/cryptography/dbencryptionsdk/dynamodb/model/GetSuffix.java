@@ -5,13 +5,22 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * The Virtual Part Transformation that gets the suffix of a string.
+ */
 public class GetSuffix {
+  /**
+   * If positive, the number of characters to return from the end. If negative, the absolute number of characters to exclude from the front. e.g. GetSuffix(-1) returns all but the first character.
+   */
   private final Integer length;
 
   protected GetSuffix(BuilderImpl builder) {
     this.length = builder.length();
   }
 
+  /**
+   * @return If positive, the number of characters to return from the end. If negative, the absolute number of characters to exclude from the front. e.g. GetSuffix(-1) returns all but the first character.
+   */
   public Integer length() {
     return this.length;
   }
@@ -25,8 +34,14 @@ public class GetSuffix {
   }
 
   public interface Builder {
+    /**
+     * @param length If positive, the number of characters to return from the end. If negative, the absolute number of characters to exclude from the front. e.g. GetSuffix(-1) returns all but the first character.
+     */
     Builder length(Integer length);
 
+    /**
+     * @return If positive, the number of characters to return from the end. If negative, the absolute number of characters to exclude from the front. e.g. GetSuffix(-1) returns all but the first character.
+     */
     Integer length();
 
     GetSuffix build();

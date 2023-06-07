@@ -7,9 +7,18 @@ import java.util.Map;
 import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+/**
+ * Outputs for encrypting a DynamoDB Item.
+ */
 public class EncryptItemOutput {
+  /**
+   * The encrypted DynamoDB item.
+   */
   private final Map<String, AttributeValue> encryptedItem;
 
+  /**
+   * A parsed version of the header written with the encrypted DynamoDB item.
+   */
   private final ParsedHeader parsedHeader;
 
   protected EncryptItemOutput(BuilderImpl builder) {
@@ -17,10 +26,16 @@ public class EncryptItemOutput {
     this.parsedHeader = builder.parsedHeader();
   }
 
+  /**
+   * @return The encrypted DynamoDB item.
+   */
   public Map<String, AttributeValue> encryptedItem() {
     return this.encryptedItem;
   }
 
+  /**
+   * @return A parsed version of the header written with the encrypted DynamoDB item.
+   */
   public ParsedHeader parsedHeader() {
     return this.parsedHeader;
   }
@@ -34,12 +49,24 @@ public class EncryptItemOutput {
   }
 
   public interface Builder {
+    /**
+     * @param encryptedItem The encrypted DynamoDB item.
+     */
     Builder encryptedItem(Map<String, AttributeValue> encryptedItem);
 
+    /**
+     * @return The encrypted DynamoDB item.
+     */
     Map<String, AttributeValue> encryptedItem();
 
+    /**
+     * @param parsedHeader A parsed version of the header written with the encrypted DynamoDB item.
+     */
     Builder parsedHeader(ParsedHeader parsedHeader);
 
+    /**
+     * @return A parsed version of the header written with the encrypted DynamoDB item.
+     */
     ParsedHeader parsedHeader();
 
     EncryptItemOutput build();

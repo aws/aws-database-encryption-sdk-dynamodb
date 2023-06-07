@@ -274,6 +274,59 @@ module TestDynamoDBFilterExpr {
     newItems :- expect FilterResults(bv, [item1], None, Some("three = two"), None, None);
     expect_equal(newItems, [item1]);
   }
+
+   method {:test} TestFilterFailNumeric() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DN("800")
+    ];
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":two" := DN("foo")
+    ];
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var newItems := FilterResults(bv, [item1], None, Some("one < :two"), None, Some(values));
+    expect newItems.Failure?;
+    expect newItems.error == E("Number needs digits either before or after the decimal point. when parsing 'foo'.");
+   }
+
+   method {:test} TestFilterCompareNumeric() {
+    var item1  : DDB.AttributeMap := map[
+      "one" := DN("800")
+    ];
+    var values : DDB.ExpressionAttributeValueMap := map [
+      ":two" := DN("0800.000e0")
+    ];
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var newItems :- expect FilterResults(bv, [item1], None, Some("one < :two"), None, Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults(bv, [item1], None, Some("one > :two"), None, Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults(bv, [item1], None, Some("one <= :two"), None, Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults(bv, [item1], None, Some("one >= :two"), None, Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults(bv, [item1], None, Some("one <> :two"), None, Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults(bv, [item1], None, Some("one = :two"), None, Some(values));
+    expect_equal(newItems, [item1]);
+
+    newItems :- expect FilterResults(bv, [item1], None, Some(":two < one"), None, Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults(bv, [item1], None, Some(":two > one"), None, Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults(bv, [item1], None, Some(":two <= one"), None, Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults(bv, [item1], None, Some(":two >= one"), None, Some(values));
+    expect_equal(newItems, [item1]);
+    newItems :- expect FilterResults(bv, [item1], None, Some(":two <> one"), None, Some(values));
+    expect_equal(newItems, []);
+    newItems :- expect FilterResults(bv, [item1], None, Some(":two = one"), None, Some(values));
+    expect_equal(newItems, [item1]);
+  }
+
   method {:test} TestFilterIn() {
     var item1  : DDB.AttributeMap := map[
       "one" := DS("abc"),

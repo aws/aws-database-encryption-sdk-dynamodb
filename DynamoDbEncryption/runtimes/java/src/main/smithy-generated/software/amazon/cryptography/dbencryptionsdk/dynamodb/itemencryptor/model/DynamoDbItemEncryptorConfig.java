@@ -15,27 +15,63 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.Keyring;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
+/**
+ * The configuration for the client-side encryption of DynamoDB items.
+ */
 public class DynamoDbItemEncryptorConfig {
+  /**
+   * The logical table name for this table. This is the name that is cryptographically bound with your data. This can be the same as the actual DynamoDB table name. It's purpose is to be distinct from the DynamoDB table name so that the data may still be authenticated if being read from different (but logically similar) tables, such as a backup table.
+   */
   private final String logicalTableName;
 
+  /**
+   * The name of the partition key on the table this item will be written to or was read from.
+   */
   private final String partitionKeyName;
 
+  /**
+   * If this table contains a sort key, the name of the sort key on the table this item will be written to or was read from.
+   */
   private final String sortKeyName;
 
+  /**
+   * A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
+   */
   private final Map<String, CryptoAction> attributeActionsOnEncrypt;
 
+  /**
+   * A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+   */
   private final List<String> allowedUnsignedAttributes;
 
+  /**
+   * A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+   */
   private final String allowedUnsignedAttributePrefix;
 
+  /**
+   * An ID for the algorithm suite to use during encryption and decryption.
+   */
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
+  /**
+   * The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
+   */
   private final IKeyring keyring;
 
+  /**
+   * The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.
+   */
   private final ICryptographicMaterialsManager cmm;
 
+  /**
+   * A configuration that override encryption and/or decryption to instead perform legacy encryption and/or decryption. Used as part of migration from version 2.x to version 3.x.
+   */
   private final LegacyOverride legacyOverride;
 
+  /**
+   * A configuration that override encryption and/or decryption to instead passthrough and write and/or read plaintext. Used to update plaintext tables to fully use client-side encryption.
+   */
   private final PlaintextOverride plaintextOverride;
 
   protected DynamoDbItemEncryptorConfig(BuilderImpl builder) {
@@ -52,46 +88,79 @@ public class DynamoDbItemEncryptorConfig {
     this.plaintextOverride = builder.plaintextOverride();
   }
 
+  /**
+   * @return The logical table name for this table. This is the name that is cryptographically bound with your data. This can be the same as the actual DynamoDB table name. It's purpose is to be distinct from the DynamoDB table name so that the data may still be authenticated if being read from different (but logically similar) tables, such as a backup table.
+   */
   public String logicalTableName() {
     return this.logicalTableName;
   }
 
+  /**
+   * @return The name of the partition key on the table this item will be written to or was read from.
+   */
   public String partitionKeyName() {
     return this.partitionKeyName;
   }
 
+  /**
+   * @return If this table contains a sort key, the name of the sort key on the table this item will be written to or was read from.
+   */
   public String sortKeyName() {
     return this.sortKeyName;
   }
 
+  /**
+   * @return A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
+   */
   public Map<String, CryptoAction> attributeActionsOnEncrypt() {
     return this.attributeActionsOnEncrypt;
   }
 
+  /**
+   * @return A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+   */
   public List<String> allowedUnsignedAttributes() {
     return this.allowedUnsignedAttributes;
   }
 
+  /**
+   * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+   */
   public String allowedUnsignedAttributePrefix() {
     return this.allowedUnsignedAttributePrefix;
   }
 
+  /**
+   * @return An ID for the algorithm suite to use during encryption and decryption.
+   */
   public DBEAlgorithmSuiteId algorithmSuiteId() {
     return this.algorithmSuiteId;
   }
 
+  /**
+   * @return The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
+   */
   public IKeyring keyring() {
     return this.keyring;
   }
 
+  /**
+   * @return The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.
+   */
   public ICryptographicMaterialsManager cmm() {
     return this.cmm;
   }
 
+  /**
+   * @return A configuration that override encryption and/or decryption to instead perform legacy encryption and/or decryption. Used as part of migration from version 2.x to version 3.x.
+   */
   public LegacyOverride legacyOverride() {
     return this.legacyOverride;
   }
 
+  /**
+   * @return A configuration that override encryption and/or decryption to instead passthrough and write and/or read plaintext. Used to update plaintext tables to fully use client-side encryption.
+   */
   public PlaintextOverride plaintextOverride() {
     return this.plaintextOverride;
   }
@@ -105,48 +174,114 @@ public class DynamoDbItemEncryptorConfig {
   }
 
   public interface Builder {
+    /**
+     * @param logicalTableName The logical table name for this table. This is the name that is cryptographically bound with your data. This can be the same as the actual DynamoDB table name. It's purpose is to be distinct from the DynamoDB table name so that the data may still be authenticated if being read from different (but logically similar) tables, such as a backup table.
+     */
     Builder logicalTableName(String logicalTableName);
 
+    /**
+     * @return The logical table name for this table. This is the name that is cryptographically bound with your data. This can be the same as the actual DynamoDB table name. It's purpose is to be distinct from the DynamoDB table name so that the data may still be authenticated if being read from different (but logically similar) tables, such as a backup table.
+     */
     String logicalTableName();
 
+    /**
+     * @param partitionKeyName The name of the partition key on the table this item will be written to or was read from.
+     */
     Builder partitionKeyName(String partitionKeyName);
 
+    /**
+     * @return The name of the partition key on the table this item will be written to or was read from.
+     */
     String partitionKeyName();
 
+    /**
+     * @param sortKeyName If this table contains a sort key, the name of the sort key on the table this item will be written to or was read from.
+     */
     Builder sortKeyName(String sortKeyName);
 
+    /**
+     * @return If this table contains a sort key, the name of the sort key on the table this item will be written to or was read from.
+     */
     String sortKeyName();
 
+    /**
+     * @param attributeActionsOnEncrypt A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
+     */
     Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
 
+    /**
+     * @return A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
+     */
     Map<String, CryptoAction> attributeActionsOnEncrypt();
 
+    /**
+     * @param allowedUnsignedAttributes A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+     */
     Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
 
+    /**
+     * @return A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+     */
     List<String> allowedUnsignedAttributes();
 
+    /**
+     * @param allowedUnsignedAttributePrefix A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+     */
     Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix);
 
+    /**
+     * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+     */
     String allowedUnsignedAttributePrefix();
 
+    /**
+     * @param algorithmSuiteId An ID for the algorithm suite to use during encryption and decryption.
+     */
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
+    /**
+     * @return An ID for the algorithm suite to use during encryption and decryption.
+     */
     DBEAlgorithmSuiteId algorithmSuiteId();
 
+    /**
+     * @param keyring The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
+     */
     Builder keyring(IKeyring keyring);
 
+    /**
+     * @return The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
+     */
     IKeyring keyring();
 
+    /**
+     * @param cmm The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.
+     */
     Builder cmm(ICryptographicMaterialsManager cmm);
 
+    /**
+     * @return The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.
+     */
     ICryptographicMaterialsManager cmm();
 
+    /**
+     * @param legacyOverride A configuration that override encryption and/or decryption to instead perform legacy encryption and/or decryption. Used as part of migration from version 2.x to version 3.x.
+     */
     Builder legacyOverride(LegacyOverride legacyOverride);
 
+    /**
+     * @return A configuration that override encryption and/or decryption to instead perform legacy encryption and/or decryption. Used as part of migration from version 2.x to version 3.x.
+     */
     LegacyOverride legacyOverride();
 
+    /**
+     * @param plaintextOverride A configuration that override encryption and/or decryption to instead passthrough and write and/or read plaintext. Used to update plaintext tables to fully use client-side encryption.
+     */
     Builder plaintextOverride(PlaintextOverride plaintextOverride);
 
+    /**
+     * @return A configuration that override encryption and/or decryption to instead passthrough and write and/or read plaintext. Used to update plaintext tables to fully use client-side encryption.
+     */
     PlaintextOverride plaintextOverride();
 
     DynamoDbItemEncryptorConfig build();

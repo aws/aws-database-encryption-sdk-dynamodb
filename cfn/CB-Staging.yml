@@ -16,7 +16,7 @@ Parameters:
   SourceLocation:
     Type: String
     Description: The https GitHub URL for the project
-    Default: "https://github.com/awslabs/aws-database-encryption-sdk-dynamodb-java.git"
+    Default: "https://github.com/aws/aws-database-encryption-sdk-dynamodb-java.git"
   NumberOfBuildsInBatch:
     Type: Number
     MaxValue: 100
