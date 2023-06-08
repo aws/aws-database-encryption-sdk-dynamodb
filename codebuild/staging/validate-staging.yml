@@ -46,6 +46,7 @@ phases:
       - make transpile_test_java
       - make test_java
       # run extensive tests
+      - gradle -p runtimes/java clean
       - gradle -p runtimes/java test
       # Run test Vectors
       - cd ../TestVectors
@@ -56,5 +57,13 @@ phases:
       # We have to do this because MakeFile does not do this yet. The MakeFile automatically builds and deploys dependencies
       # instead it should be picking it up from Maven.
       - rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
+      # Clear DBESDK from cache
+      - rm -rf ~/.m2/repository/software/amazon/cryptography/aws-database-encryption-sdk-dynamodb 
       - make test_java
-
+      # Test Examples
+      - cd ../Examples
+      # Run Simple Examples
+      - gradle -p runtimes/java/DynamoDbEncryption test
+      # Run Migration Examples
+      - gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
+      - gradle -p runtomes/java/Migration/DDBECToAWSDBE test 

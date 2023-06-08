@@ -38,9 +38,18 @@ phases:
       #   - Maven Central
       #   - Maven Local
       #   - AWS CodeArtifact
-      - cd Examples
-        # Run simple examples
-      - gradle -p runtimes/java/DynamoDbEncryption test 
-        # Run migration examples
+      - cd ../TestVectors
+      # Spin up ddb local
+      - docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -inMemory -cors *
+      # transpile the code only for this project
+      - make transpile_implementation_java
+      - make transpile_test_java
+      - make test_java
+      # Test Examples
+      - cd ../Examples
+      # Run Simple Examples
+      - gradle -p runtimes/java/DynamoDbEncryption test
+      # Run Migration Examples
       - gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-      - gradle -p runtimes/java/Migration/DDBECToAWSDBE test
+      - gradle -p runtomes/java/Migration/DDBECToAWSDBE test 
+      

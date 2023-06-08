@@ -53,6 +53,14 @@ phases:
       # Build and deploy to maven local
       - make build_java && make mvn_local_deploy
       - make test_java
+      # Clear MPL from cache
+      # We have to do this because MakeFile does not do this yet. The MakeFile automatically builds and deploys dependencies
+      # instead it should be picking it up from Maven.
+      - rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
+      - make test_java
+      # run extensive tests
+      - gradle -p runtimes/java clean
+      - gradle -p runtimes/java test
 
       # Publish to Sonatype
       - gradle -p runtimes/java publishMavenPublicationToSonatypeRepository closeSonatypeStagingRepository

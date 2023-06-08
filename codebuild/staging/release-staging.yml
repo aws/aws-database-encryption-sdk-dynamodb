@@ -56,6 +56,7 @@ phases:
       - rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
       - make test_java
       # run extensive tests
+      - gradle -p runtimes/java clean
       - gradle -p runtimes/java test
       # Deploy to CA
       - make mvn_staging_deploy

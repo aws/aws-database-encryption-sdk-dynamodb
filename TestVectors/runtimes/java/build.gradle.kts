@@ -32,6 +32,20 @@ tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
 }
 
+var caUrl: URI? = null
+@Nullable
+val caUrlStr: String? = System.getenv("CODEARTIFACT_REPO_URL")
+if (!caUrlStr.isNullOrBlank()) {
+    caUrl = URI.create(caUrlStr)
+}
+
+var caPassword: String? = null
+@Nullable
+val caPasswordString: String? = System.getenv("CODEARTIFACT_TOKEN")
+if (!caPasswordString.isNullOrBlank()) {
+    caPassword = caPasswordString
+}
+
 repositories {
     maven {
         name = "DynamoDB Local Release Repository - US West (Oregon) Region"
@@ -39,6 +53,16 @@ repositories {
     }
     mavenCentral()
     mavenLocal()
+    if (caUrl != null && caPassword != null) {
+        maven {
+            name = "CodeArtifact"
+            url = caUrl!!
+            credentials {
+                username = "aws"
+                password = caPassword!!
+            }
+        }
+    }
 }
 
 // Configuration to hold SQLLite information.
