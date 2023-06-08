@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "software.amazon.cryptography"
-version = "1.0.0-SNAPSHOT"
+version = "1.0-SNAPSHOT"
 description = "DynamoDbEncryptionExamples"
 
 java {
