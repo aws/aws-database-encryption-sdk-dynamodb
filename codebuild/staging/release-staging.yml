@@ -49,11 +49,11 @@ phases:
     commands:
       - cd DynamoDbEncryption/
       # Build and deploy to maven local
-      - make build_java
+      - make build_java && make mvn_local_deploy
       - make test_java
       # Since we are testing the TestVectors we need to first build the MPL's test vectors
       - cd ../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/
-      - make build_java
+      - make build_java && make mvn_local_deploy
       # Since we just deployed to mvn local we will not pull down from CA
       - cd ../../../TestVectors
       # transpile the code only for this project
