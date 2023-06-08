@@ -40,7 +40,7 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
-      - cd TestVectorsAwsCryptographicMaterialProviders/
+      - cd DynamoDbEncryption/
       # transpile the code only for this project
       - make transpile_implementation_java
       - make transpile_test_java
