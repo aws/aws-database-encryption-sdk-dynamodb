@@ -8,17 +8,17 @@ batch:
   build-graph:
 
 # Release to CodeArtifact
-  - identifier: release_staging
-    buildspec: codebuild/staging/release-staging.yml
-    env:
-      variables:
-        JAVA_ENV_VERSION: corretto8
-        JAVA_NUMERIC_VERSION: 8
-      image: aws/codebuild/standard:5.0
+  # - identifier: release_staging
+  #   buildspec: codebuild/staging/release-staging.yml
+  #   env:
+  #     variables:
+  #       JAVA_ENV_VERSION: corretto8
+  #       JAVA_NUMERIC_VERSION: 8
+  #     image: aws/codebuild/standard:5.0
   
   - identifier: validate_staging_corretto8
-    depend-on:
-        - release_staging
+    # depend-on:
+    #     - release_staging
     buildspec: codebuild/staging/validate-staging.yml
     env:
       variables:
@@ -27,8 +27,8 @@ batch:
       image: aws/codebuild/standard:5.0
 
   - identifier: validate_staging_corretto11
-    depend-on:
-        - release_staging
+    # depend-on:
+    #     - release_staging
     buildspec: codebuild/staging/validate-staging.yml
     env:
       variables:
@@ -37,8 +37,8 @@ batch:
       image: aws/codebuild/standard:5.0
   
   - identifier: validate_staging_corretto17
-    depend-on:
-        - release_staging
+    # depend-on:
+    #     - release_staging
     buildspec: codebuild/staging/validate-staging.yml
     env:
       variables:
