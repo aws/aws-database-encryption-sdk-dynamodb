@@ -51,13 +51,5 @@ phases:
       # Build and deploy to maven local
       - make build_java && make mvn_local_deploy
       - make test_java
-      # Since we are testing the TestVectors we need to first build the MPL's test vectors
-      - cd ../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/
-      - make build_java && make mvn_local_deploy
-      # Since we just deployed to mvn local we will not pull down from CA
-      - cd ../../../TestVectors
-      # transpile the code only for this project
-      - make transpile_implementation_java
-      - make transpile_test_java
-      - make test_java
-      - ls
+      # Deploy to CA
+      - make mvn_staging_deploy
