@@ -4,10 +4,6 @@
 version: 0.2
 
 env:
-  variables:
-    REGION: us-east-1
-    DOMAIN: crypto-tools-internal
-    REPOSITORY: java-dbesdk-ddb-staging
   parameter-store:
     ACCOUNT: /CodeBuild/AccountId
 
@@ -28,11 +24,8 @@ phases:
       - cd  aws-database-encryption-sdk-dynamodb-java/
   pre_build:
     commands:
-      # Get published CA DBESDK jar 
-      - export CODEARTIFACT_TOKEN=$(aws codeartifact get-authorization-token --domain crypto-tools-internal --domain-owner 587316601012 --region us-east-1 --query authorizationToken --output text)
-      - export CODEARTIFACT_REPO_URL=https://crypto-tools-internal-587316601012.d.codeartifact.us-east-1.amazonaws.com/maven/java-dbesdk-ddb-staging/
       # Get CI Creds to be able to call MPL TestVectors
-      - TMP_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" --role-session-name "CB-TestVectorResources")
+      - TMP_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::370957321024:role/GitHub-CI-MPL-Dafny-Role-us-west-2" --role-session-name "CB-TestVectorResources")
       - export TMP_ROLE
       - export AWS_ACCESS_KEY_ID=$(echo "${TMP_ROLE}" | jq -r '.Credentials.AccessKeyId')
       - export AWS_SECRET_ACCESS_KEY=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SecretAccessKey')
@@ -40,6 +33,11 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
+      # Since no CA creds were exported the jar will not be pulled down from CA.
+      # In order, gradle will look for the defined dependencies in:
+      #   - Maven Central
+      #   - Maven Local
+      #   - AWS CodeArtifact
       - cd Examples
         # Run simple examples
       - gradle -p runtimes/java/DynamoDbEncryption test 

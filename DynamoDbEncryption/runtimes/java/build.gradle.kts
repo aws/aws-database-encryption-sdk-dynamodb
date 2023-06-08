@@ -241,6 +241,8 @@ nexusPublishing {
     // https://github.com/gradle-nexus/publish-plugin/
     repositories {
         sonatype {
+            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://aws.oss.sonatype.org/content/repositories/snapshots/"))
             username.set(System.getenv("SONA_USERNAME"))
             password.set(System.getenv("SONA_PASSWORD"))
         }

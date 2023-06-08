@@ -5,16 +5,19 @@ version: 0.2
 
 env:
   variables:
-    REGION: us-east-1
-    DOMAIN: crypto-tools-internal
-    REPOSITORY: java-dbesdk-ddb-staging
+    BRANCH: "main"
   parameter-store:
     ACCOUNT: /CodeBuild/AccountId
+  secrets-manager:
+    GPG_KEY: Maven-GPG-Keys-Release-Credentials:Keyname
+    GPG_PASS: Maven-GPG-Keys-Release-Credentials:Passphrase
+    SONA_USERNAME: Sonatype-Team-Account:Username 
+    SONA_PASSWORD: Sonatype-Team-Account:Password
 
 phases:
   install:
     runtime-versions:
-      java: $JAVA_ENV_VERSION
+      java: corretto8
     commands:
       - cd ..
       # Get Dafny
@@ -28,10 +31,16 @@ phases:
       - cd  aws-database-encryption-sdk-dynamodb-java/
   pre_build:
     commands:
-      # Get published CA DBESDK jar 
-      - export CODEARTIFACT_TOKEN=$(aws codeartifact get-authorization-token --domain crypto-tools-internal --domain-owner 587316601012 --region us-east-1 --query authorizationToken --output text)
-      - export CODEARTIFACT_REPO_URL=https://crypto-tools-internal-587316601012.d.codeartifact.us-east-1.amazonaws.com/maven/java-dbesdk-ddb-staging/
-      # Get CI Creds to be able to call MPL TestVectors
+      - git checkout $BRANCH
+      - aws secretsmanager get-secret-value --region us-west-2 --secret-id Maven-GPG-Keys-Release --query SecretBinary --output text | base64 -d > ~/mvn_gpg.tgz
+      - tar -xvf ~/mvn_gpg.tgz -C ~
+      # Create default location where GPG looks for creds and keys
+      - mkdir /root/.gnupg
+      # Add configuration options to GPG Agent
+      - printf "use-agent\npinentry-mode loopback" >> ~/mvn_gpg/gpg.conf
+      - printf "allow-loopback-pinentry" >> ~/mvn_gpg/gpg-agent.conf
+      # Add keys to GPG default location where GPG agent will look
+      - mv -v ~/mvn_gpg/* /root/.gnupg/
       - TMP_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" --role-session-name "CB-TestVectorResources")
       - export TMP_ROLE
       - export AWS_ACCESS_KEY_ID=$(echo "${TMP_ROLE}" | jq -r '.Credentials.AccessKeyId')
@@ -40,9 +49,13 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
-      - cd Examples
-        # Run simple examples
-      - gradle -p runtimes/java/DynamoDbEncryption test 
-        # Run migration examples
-      - gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-      - gradle -p runtimes/java/Migration/DDBECToAWSDBE test
+      - cd DynamoDbEncryption/
+      # Build and deploy to maven local
+      - make build_java && make mvn_local_deploy
+      - make test_java
+
+      # Publish to Sonatype
+      - gradle -p runtimes/java publishMavenPublicationToSonatypeRepository closeSonatypeStagingRepository
+      - gradle -p runtimes/java findSonatypeStagingRepository releaseSonatypeStagingRepository
+
+

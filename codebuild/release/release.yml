@@ -8,17 +8,17 @@ batch:
   build-graph:
 
 # Release to CodeArtifact
-  # - identifier: release_staging
-  #   buildspec: codebuild/staging/release-staging.yml
-  #   env:
-  #     variables:
-  #       JAVA_ENV_VERSION: corretto8
-  #       JAVA_NUMERIC_VERSION: 8
-  #     image: aws/codebuild/standard:5.0
+  - identifier: release_staging
+    buildspec: codebuild/staging/release-staging.yml
+    env:
+      variables:
+        JAVA_ENV_VERSION: corretto8
+        JAVA_NUMERIC_VERSION: 8
+      image: aws/codebuild/standard:5.0
   
   - identifier: validate_staging_corretto8
-    # depend-on:
-    #     - release_staging
+    depend-on:
+        - release_staging
     buildspec: codebuild/staging/validate-staging.yml
     env:
       variables:
@@ -27,8 +27,8 @@ batch:
       image: aws/codebuild/standard:5.0
 
   - identifier: validate_staging_corretto11
-    # depend-on:
-    #     - release_staging
+    depend-on:
+        - release_staging
     buildspec: codebuild/staging/validate-staging.yml
     env:
       variables:
@@ -37,9 +37,54 @@ batch:
       image: aws/codebuild/standard:5.0
   
   - identifier: validate_staging_corretto17
-    # depend-on:
-    #     - release_staging
+    depend-on:
+        - release_staging
     buildspec: codebuild/staging/validate-staging.yml
+    env:
+      variables:
+        JAVA_ENV_VERSION: corretto17
+        JAVA_NUMERIC_VERSION: 17
+      image: aws/codebuild/standard:7.0
+  
+  - identifier: upload_to_sonatype
+    depend-on:
+      - validate_staging_corretto8
+      - validate_staging_corretto11
+      - validate_staging_corretto17
+    buildspec: codebuild/release/release-prod.yml
+    env:
+      variables:
+        JAVA_ENV_VERSION: corretto8
+        JAVA_NUMERIC_VERSION: 8
+      image: aws/codebuild/standard:5.0
+ 
+  ## The following steps are expected to fail; since maven central takes time to
+  ## update its index. For now, a manual download of the jar is needed to assert artifacts are
+  ## available. For more information, consult the MCM used for this release.
+  - identifier: validate_release_corretto8
+    depend-on:
+        - upload_to_sonatype
+    buildspec: codebuild/release/validate-release.yml
+    env:
+      variables:
+        JAVA_ENV_VERSION: corretto8
+        JAVA_NUMERIC_VERSION: 8
+      image: aws/codebuild/standard:5.0
+
+  - identifier: validate_release_corretto11
+    depend-on:
+        - upload_to_sonatype
+    buildspec: codebuild/release/validate-release.yml
+    env:
+      variables:
+        JAVA_ENV_VERSION: corretto11
+        JAVA_NUMERIC_VERSION: 11
+      image: aws/codebuild/standard:5.0
+  
+  - identifier: validate_release_corretto17
+    depend-on:
+        - upload_to_sonatype
+    buildspec: codebuild/release/validate-release.yml
     env:
       variables:
         JAVA_ENV_VERSION: corretto17
