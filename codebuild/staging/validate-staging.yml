@@ -49,8 +49,6 @@ phases:
       - gradle -p runtimes/java test
       # Run test Vectors
       - cd ../TestVectors
-      # Install docker
-      
       # Spin up ddb local
       - docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -inMemory -cors *
       - make build_java

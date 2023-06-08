@@ -57,7 +57,7 @@ Resources:
         ComputeType: BUILD_GENERAL1_LARGE
         Image: "aws/codebuild/standard:5.0"
         ImagePullCredentialsType: CODEBUILD
-        PrivilegedMode: false
+        PrivilegedMode: true
         Type: LINUX_CONTAINER
       ServiceRole: !GetAtt CodeBuildServiceRoleRelease.Arn
       TimeoutInMinutes: 60

@@ -28,9 +28,6 @@ phases:
       - curl https://services.gradle.org/distributions/gradle-7.6-all.zip -L -o gradle.zip
       - unzip -qq gradle.zip && rm gradle.zip
       - export PATH="$PWD/gradle-7.6/bin:$PATH"
-      # Install Docker
-      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
-      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - cd  aws-database-encryption-sdk-dynamodb-java/
   pre_build:
     commands:
