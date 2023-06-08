@@ -31,7 +31,7 @@ phases:
       # Get published CA DBESDK jar 
       - export CODEARTIFACT_TOKEN=$(aws codeartifact get-authorization-token --domain crypto-tools-internal --domain-owner 587316601012 --region us-east-1 --query authorizationToken --output text)
       - export CODEARTIFACT_REPO_URL=https://crypto-tools-internal-587316601012.d.codeartifact.us-east-1.amazonaws.com/maven/java-dbesdk-ddb-staging/
-      # Get CI Creds to be able to call MPL TestVectors
+      # Get CI Creds to be able to call DBESDK TestVectors
       - TMP_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" --role-session-name "CB-TestVectorResources")
       - export TMP_ROLE
       - export AWS_ACCESS_KEY_ID=$(echo "${TMP_ROLE}" | jq -r '.Credentials.AccessKeyId')
@@ -40,9 +40,21 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
-      - cd Examples
-        # Run simple examples
-      - gradle -p runtimes/java/DynamoDbEncryption test 
-        # Run migration examples
-      - gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-      - gradle -p runtimes/java/Migration/DDBECToAWSDBE test
+      - cd DynamoDbEncryption/
+      # transpile the code only for this project
+      - make transpile_implementation_java
+      - make transpile_test_java
+      - make test_java
+      # run extensive tests
+      - gradle -p runtimes/java test
+      # Run test Vectors
+      - cd ../TestVectors
+      # Spin up ddb local
+      - docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -inMemory -cors *
+      - make build_java
+      # Clear MPL from cache
+      # We have to do this because MakeFile does not do this yet. The MakeFile automatically builds and deploys dependencies
+      # instead it should be picking it up from Maven.
+      - rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
+      - make test_java
+
