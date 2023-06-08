@@ -21,8 +21,8 @@ This table describes the current support status of each major version of the AWS
       - Current status
       - Next status
       - Next status date
-    * - 3.x
-      - General Availability
+    * - 3.0.0-preview-1
+      - Developer Preview
       -
       -
 

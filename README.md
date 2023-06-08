@@ -1,5 +1,10 @@
 # AWS Database Encryption SDK for DynamoDB in Java
 
+Note: The AWS Cryptographic Material Providers Library is released as a
+[developer preview](https://docs.aws.amazon.com/sdkref/latest/guide/maint-policy.html#version-life-cycle)
+and is subject to change.
+The current release is not intended to be used in production environments.
+
 The AWS Database Encryption SDK (DB-ESDK) for DynamoDB in Java is a client-side encryption 
 library that allows you to perform attribute-level encryption, enabling you to encrypt specific 
 attribute values within items before storing them in your DynamoDB table. All encryption and 

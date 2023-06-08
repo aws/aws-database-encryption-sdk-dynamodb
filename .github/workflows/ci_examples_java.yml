@@ -38,7 +38,6 @@ jobs:
           macos-latest
         ]
     runs-on: ${{ matrix.os }}
-    environment: "MPL CI"
     permissions:
       id-token: write
       contents: read
@@ -51,18 +50,8 @@ jobs:
           role-session-name: DDBEC-Dafny-Java-Tests
 
       - uses: actions/checkout@v3
-
-      - name: Init Submodules
-        env:
-          # This secret is in the configured environment
-          # Token created on # 05/12/2023
-          # expires in ~30 days 05/22/2023
-          MPL_PAT: ${{ secrets.MPL_PAT }}
-        run: |
-          AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
-          git config --global --add url.https://github.com/.insteadOf git@github.com:
-          git submodule update --init --recursive submodules/MaterialProviders
+        with:
+          submodules: recursive        
 
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v3
