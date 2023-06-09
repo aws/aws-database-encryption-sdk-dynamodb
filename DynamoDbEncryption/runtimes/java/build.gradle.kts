@@ -7,6 +7,8 @@ plugins {
     `java`
     `java-library`
     `maven-publish`
+    `signing`
+    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
 group = "software.amazon.cryptography"
