@@ -311,7 +311,7 @@ setup_net:
 ########################## Java targets
 
 build_java: transpile_java mvn_local_deploy_dependencies 
-	gradle -p runtimes/java build
+	gradle -p runtimes/java publishMavenLocalPublicationToMavenLocal
 
 transpile_java: | transpile_implementation_java transpile_test_java transpile_dependencies_java
 

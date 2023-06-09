@@ -107,6 +107,13 @@ dependencies {
 }
 
 publishing {
+    publications.create<MavenPublication>("mavenLocal") {
+        groupId = "software.amazon.cryptography"
+        artifactId = "aws-database-encryption-sdk-dynamodb"
+        artifact(tasks["jar"])
+        artifact(tasks["javadocJar"])
+        artifact(tasks["sourcesJar"])
+    }
     publications.create<MavenPublication>("maven") {
         groupId = "software.amazon.cryptography"
         artifactId = "aws-database-encryption-sdk-dynamodb"
