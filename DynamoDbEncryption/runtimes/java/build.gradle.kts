@@ -112,17 +112,13 @@ publishing {
     publications.create<MavenPublication>("mavenLocal") {
         groupId = "software.amazon.cryptography"
         artifactId = "aws-database-encryption-sdk-dynamodb"
-        artifact(tasks["jar"])
-        artifact(tasks["javadocJar"])
-        artifact(tasks["sourcesJar"])
+        from(components["java"])
     }
 
     publications.create<MavenPublication>("maven") {
         groupId = "software.amazon.cryptography"
         artifactId = "aws-database-encryption-sdk-dynamodb"
-        artifact(tasks["jar"])
-        artifact(tasks["javadocJar"])
-        artifact(tasks["sourcesJar"])
+        from(components["java"])
 
         // Include extra information in the POMs.
         afterEvaluate {
