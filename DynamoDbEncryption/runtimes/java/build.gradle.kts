@@ -117,7 +117,36 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "software.amazon.cryptography"
         artifactId = "aws-database-encryption-sdk-dynamodb"
-        from(components["java"])
+        artifact(tasks["jar"])
+        artifact(tasks["javadocJar"])
+        artifact(tasks["sourcesJar"])
+
+        // Include extra information in the POMs.
+        afterEvaluate {
+            pom {
+                name.set("AWS Database Encryption SDK for DynamoDB")
+                description.set("AWS Database Encryption SDK for DynamoDB in Java")
+                url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb-java")
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("amazonwebservices")
+                        organization.set("Amazon Web Services")
+                        organizationUrl.set("https://aws.amazon.com")
+                        roles.add("developer")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb-java.git")
+                }
+            }
+        }
     }
     repositories { mavenLocal() }
 }
