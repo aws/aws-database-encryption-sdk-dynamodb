@@ -78,6 +78,8 @@ jobs:
       - name: Test Examples
         working-directory: ./Examples
         run: |
+          # Heavy handed way to ensure we pull down MPL from maven
+          rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
           # Run simple examples
           gradle -p runtimes/java/DynamoDbEncryption test 
           # Run migration examples
