@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "software.amazon.cryptography"
-version = "3.0.0-preview-1"
+version = "3.0.0-preview-2"
 description = "Aws Database Encryption Sdk for DynamoDb Java"
 
 java {
@@ -75,7 +75,6 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:core:2.19.1")
     implementation("software.amazon.awssdk:kms")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
