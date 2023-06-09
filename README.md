@@ -64,12 +64,12 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
   * **Via Gradle Kotlin**  
    In a Gradle Java Project, add the following to the _dependencies_ section:
    ```kotlin
-   implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0")
-   implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
+   implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0-preview-2")
+   implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0-preview-1")
    implementation(platform("software.amazon.awssdk:bom:2.19.1"))
-   implementation("software.amazon.awssdk:dynamodb-enhanced")
-   // The following are optional:
    implementation("software.amazon.awssdk:dynamodb")
+   // The following are optional:
+   implementation("software.amazon.awssdk:dynamodb-enhanced")
    implementation("software.amazon.awssdk:kms")
    ```
 
@@ -92,22 +92,22 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
   <dependencies>
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
-      <artifactId>dynamodb-enhanced</artifactId>
+      <artifactId>dynamodb</artifactId>
     </dependency>
     <dependency>
       <groupId>software.amazon.cryptography</groupId>
       <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
-      <version>3.0.0</version>
+      <version>3.0.0-preview-2</version>
     </dependency>
     <dependency>
       <groupId>software.amazon.cryptography</groupId>
       <artifactId>aws-cryptographic-material-providers</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.0-preview-1</version>
     </dependency>
     <!-- The following are optional -->
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
-      <artifactId>dynamodb</artifactId>
+      <artifactId>dynamodb-enhanced</artifactId>
     </dependency>
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
