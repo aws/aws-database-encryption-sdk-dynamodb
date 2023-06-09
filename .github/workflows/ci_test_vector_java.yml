@@ -60,4 +60,6 @@ jobs:
       - name: Test TestVectors
         working-directory: ./TestVectors
         run: |
+          # Heavy handed way to ensure we pull down MPL from maven
+          rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
           make test_java
