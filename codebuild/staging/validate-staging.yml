@@ -40,30 +40,24 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
-      - cd DynamoDbEncryption/
-      # transpile the code only for this project
+      # Run transpile by itself
+      - cd submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders
       - make transpile_implementation_java
       - make transpile_test_java
-      - make test_java
-      # run extensive tests
-      - gradle -p runtimes/java clean
-      - gradle -p runtimes/java test
+      - make mvn_local_deploy
+
       # Run test Vectors
-      - cd ../TestVectors
+      - cd ../../../TestVectors
       # Spin up ddb local
       - docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -inMemory -cors *
-      - make build_java
-      # Clear MPL from cache
-      # We have to do this because MakeFile does not do this yet. The MakeFile automatically builds and deploys dependencies
-      # instead it should be picking it up from Maven.
-      - rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
-      # Clear DBESDK from cache
-      - rm -rf ~/.m2/repository/software/amazon/cryptography/aws-database-encryption-sdk-dynamodb 
-      - make test_java
+      - make transpile_implementation_java
+      - make transpile_test_java
+      - gradle -p runtimes/java runTests
+      
       # Test Examples
       - cd ../Examples
       # Run Simple Examples
       - gradle -p runtimes/java/DynamoDbEncryption test
       # Run Migration Examples
       - gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-      - gradle -p runtomes/java/Migration/DDBECToAWSDBE test 
+      - gradle -p runtimes/java/Migration/DDBECToAWSDBE test 
