@@ -1,6 +1,11 @@
 # Changelog
 
-## 3.0.0-preview-1 2023-06-08
+## 3.0.0-preview-2 2023-06-09
+
+### Fix
+- The AWS SDK Core MUST NOT be depended on directly.
+
+## 3.0.0-preview-1 2023-06-09
 
 ### Features
 - Initial release of the AWS Database Encryption SDK.
