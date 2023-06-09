@@ -32,6 +32,20 @@ tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
 }
 
+var caUrl: URI? = null
+@Nullable
+val caUrlStr: String? = System.getenv("CODEARTIFACT_REPO_URL")
+if (!caUrlStr.isNullOrBlank()) {
+    caUrl = URI.create(caUrlStr)
+}
+
+var caPassword: String? = null
+@Nullable
+val caPasswordString: String? = System.getenv("CODEARTIFACT_TOKEN")
+if (!caPasswordString.isNullOrBlank()) {
+    caPassword = caPasswordString
+}
+
 repositories {
     maven {
         name = "DynamoDB Local Release Repository - US West (Oregon) Region"
@@ -39,6 +53,16 @@ repositories {
     }
     mavenCentral()
     mavenLocal()
+    if (caUrl != null && caPassword != null) {
+        maven {
+            name = "CodeArtifact"
+            url = caUrl!!
+            credentials {
+                username = "aws"
+                password = caPassword!!
+            }
+        }
+    }
 }
 
 // Configuration to hold SQLLite information.
@@ -48,12 +72,8 @@ val dynamodb by configurations.creating
 dependencies {
     implementation("org.dafny:DafnyRuntime:4.0.0")
     implementation("software.amazon.smithy.dafny:conversion:0.1")
-    implementation("software.amazon.cryptography:StandardLibrary:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:AwsCryptographyPrimitives:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:ComAmazonawsDynamodb:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:ComAmazonawsKms:1.0-SNAPSHOT")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0-preview-1")
+    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0-preview-1")
     implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:1.0-SNAPSHOT")
 
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))

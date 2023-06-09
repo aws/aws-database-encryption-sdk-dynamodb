@@ -17,7 +17,6 @@ jobs:
           ubuntu-latest
         ]
     runs-on: ${{ matrix.os }}
-    environment: "MPL CI"
     permissions:
       id-token: write
       contents: read
@@ -36,17 +35,8 @@ jobs:
           role-session-name: DDBEC-Dafny-Java-Tests
 
       - uses: actions/checkout@v3
-
-      - name: Init Submodules
-        env:
-          # This secret is in the configured environment,
-          # and set to expire every 30 days
-          MPL_PAT: ${{ secrets.MPL_PAT }}
-        run: |
-          AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
-          git config --global --add url.https://github.com/.insteadOf git@github.com:
-          git submodule update --init --recursive submodules/MaterialProviders
+        with:
+          submodules: recursive
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
@@ -70,4 +60,8 @@ jobs:
       - name: Test TestVectors
         working-directory: ./TestVectors
         run: |
+          # Clear MPL from cache
+          # We have to do this because MakeFile does not do this yet. The MakeFile automatically builds and deploys dependencies
+          # instead it should be picking it up from Maven.
+          rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
           make test_java

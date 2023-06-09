@@ -321,15 +321,18 @@ Resources:
             },
             {
               "Effect": "Allow",
-              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
-              "Action": "sts:AssumeRole"
-            },
-            {
-              "Effect": "Allow",
               "Principal": {
-                  "AWS": "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-MPL-Java-service-role-release"
+                "AWS": "*"
               },
-              "Action": "sts:AssumeRole"
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "aws:PrincipalArn": [
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
+                  ]
+                }
+              }
             }
           ]
         }
@@ -369,15 +372,18 @@ Resources:
             },
             {
               "Effect": "Allow",
-              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
-              "Action": "sts:AssumeRole"
-            },
-            {
-              "Effect": "Allow",
               "Principal": {
-                  "AWS": "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-MPL-Java-service-role-release"
+                "AWS": "*"
               },
-              "Action": "sts:AssumeRole"
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "aws:PrincipalArn": [
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
+                  ]
+                }
+              }
             }
           ]
         }
@@ -417,15 +423,18 @@ Resources:
             },
             {
               "Effect": "Allow",
-              "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment" },
-              "Action": "sts:AssumeRole"
-            },
-            {
-              "Effect": "Allow",
               "Principal": {
-                  "AWS": "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-MPL-Java-service-role-release"
+                "AWS": "*"
               },
-              "Action": "sts:AssumeRole"
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "aws:PrincipalArn": [
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
+                  ]
+                }
+              }
             }
           ]
         }

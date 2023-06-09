@@ -345,7 +345,10 @@ mvn_local_deploy_dependencies:
 
 # The Java MUST all exist already through the transpile step.
 mvn_local_deploy:
-	gradle -p runtimes/java publishToMavenLocal
+	gradle -p runtimes/java publishMavenLocalPublicationToMavenLocal
+
+mvn_staging_deploy:
+	gradle -p runtimes/java publishMavenPublicationToStagingCodeArtifactRepository
 
 test_java:
     # run Dafny generated tests

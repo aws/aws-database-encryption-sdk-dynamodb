@@ -24,14 +24,14 @@ java {
 
 var caUrl: URI? = null
 @Nullable
-val caUrlStr: String? = System.getenv("CODEARTIFACT_URL_JAVA_CONVERSION")
+val caUrlStr: String? = System.getenv("CODEARTIFACT_REPO_URL")
 if (!caUrlStr.isNullOrBlank()) {
     caUrl = URI.create(caUrlStr)
 }
 
 var caPassword: String? = null
 @Nullable
-val caPasswordString: String? = System.getenv("CODEARTIFACT_AUTH_TOKEN")
+val caPasswordString: String? = System.getenv("CODEARTIFACT_TOKEN")
 if (!caPasswordString.isNullOrBlank()) {
     caPassword = caPasswordString
 }
@@ -56,8 +56,8 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:1.0-SNAPSHOT")
-    implementation("software.amazon.cryptography:AwsCryptographicMaterialProviders:1.0-SNAPSHOT")
+    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0-preview-1")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0-preview-1")
 
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:arns")
