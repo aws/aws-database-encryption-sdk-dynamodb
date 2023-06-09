@@ -40,7 +40,8 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
-      # Run transpile by itself
+      # Run transpile by itself. We don't want to locally build the MPL because
+      # we want to verify that the version pulled down from maven works correctly
       - cd submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders
       - make transpile_implementation_java
       - make transpile_test_java
@@ -50,6 +51,7 @@ phases:
       - cd ../../../TestVectors
       # Spin up ddb local
       - docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -inMemory -cors *
+      # Run transpile by itself so we don't locally build the MPL.
       - make transpile_implementation_java
       - make transpile_test_java
       - gradle -p runtimes/java runTests
