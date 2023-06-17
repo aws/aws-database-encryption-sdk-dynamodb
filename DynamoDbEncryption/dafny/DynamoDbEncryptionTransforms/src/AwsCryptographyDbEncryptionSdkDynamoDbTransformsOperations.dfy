@@ -16,9 +16,6 @@ include "DeleteItemTransform.dfy"
 include "ExecuteStatementTransform.dfy"
 include "BatchExecuteStatementTransform.dfy"
 include "ExecuteTransactionTransform.dfy"
-include "CreateTableTransform.dfy"
-include "UpdateTableTransform.dfy"
-include "DescribeTableTransform.dfy"
 
 module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations {
   import opened DdbMiddlewareConfig
@@ -44,9 +41,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
   import ExecuteStatementTransform
   import BatchExecuteStatementTransform
   import ExecuteTransactionTransform
-  import CreateTableTransform
-  import UpdateTableTransform
-  import DescribeTableTransform
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {
@@ -295,13 +289,15 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
     output := ExecuteTransactionTransform.Output(config, input);
   }
 
+  // All of the below to be deleted after the next re-polymorph
+
   predicate CreateTableInputTransformEnsuresPublicly(input: CreateTableInputTransformInput, output: Result<CreateTableInputTransformOutput, Error>)
   {true}
 
   method CreateTableInputTransform(config: InternalConfig, input: CreateTableInputTransformInput)
     returns (output: Result<CreateTableInputTransformOutput, Error>)
   {
-    output := CreateTableTransform.Input(config, input);
+    return Success(CreateTableInputTransformOutput(transformedInput := input.sdkInput));
   }
 
   predicate CreateTableOutputTransformEnsuresPublicly(input: CreateTableOutputTransformInput, output: Result<CreateTableOutputTransformOutput, Error>)
@@ -309,9 +305,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
 
   method CreateTableOutputTransform(config: InternalConfig, input: CreateTableOutputTransformInput)
     returns (output: Result<CreateTableOutputTransformOutput, Error>)
-    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
-    output := CreateTableTransform.Output(config, input);
+    return Success(CreateTableOutputTransformOutput(transformedOutput := input.sdkOutput));
   }
 
   predicate UpdateTableInputTransformEnsuresPublicly(input: UpdateTableInputTransformInput, output: Result<UpdateTableInputTransformOutput, Error>)
@@ -320,7 +315,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
   method UpdateTableInputTransform(config: InternalConfig, input: UpdateTableInputTransformInput)
     returns (output: Result<UpdateTableInputTransformOutput, Error>)
   {
-    output := UpdateTableTransform.Input(config, input);
+    return Success(UpdateTableInputTransformOutput(transformedInput := input.sdkInput));
   }
 
   predicate UpdateTableOutputTransformEnsuresPublicly(input: UpdateTableOutputTransformInput, output: Result<UpdateTableOutputTransformOutput, Error>)
@@ -328,9 +323,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
 
   method UpdateTableOutputTransform(config: InternalConfig, input: UpdateTableOutputTransformInput)
     returns (output: Result<UpdateTableOutputTransformOutput, Error>)
-    ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
-    output := UpdateTableTransform.Output(config, input);
+    return Success(UpdateTableOutputTransformOutput(transformedOutput := input.sdkOutput));
   }
 
   predicate DescribeTableInputTransformEnsuresPublicly(input: DescribeTableInputTransformInput, output: Result<DescribeTableInputTransformOutput, Error>)
@@ -339,7 +333,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
   method DescribeTableInputTransform(config: InternalConfig, input: DescribeTableInputTransformInput)
     returns (output: Result<DescribeTableInputTransformOutput, Error>)
   {
-    output := DescribeTableTransform.Input(config, input);
+    return Success(DescribeTableInputTransformOutput(transformedInput := input.sdkInput));
   }
 
   predicate DescribeTableOutputTransformEnsuresPublicly(input: DescribeTableOutputTransformInput, output: Result<DescribeTableOutputTransformOutput, Error>)
@@ -348,7 +342,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
   method DescribeTableOutputTransform(config: InternalConfig, input: DescribeTableOutputTransformInput)
     returns (output: Result<DescribeTableOutputTransformOutput, Error>)
   {
-    output := DescribeTableTransform.Output(config, input);
+    return Success(DescribeTableOutputTransformOutput(transformedOutput := input.sdkOutput));
   }
 
 }

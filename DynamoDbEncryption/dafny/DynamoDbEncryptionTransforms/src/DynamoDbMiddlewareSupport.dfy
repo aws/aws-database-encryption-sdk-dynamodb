@@ -155,30 +155,6 @@ module DynamoDbMiddlewareSupport {
     .MapFailure(e => E(e))
   }
 
-  // Transform a CreateTableInput object for searchable encryption.
-  function method {:opaque} CreateTableInputForBeacons(config : ValidTableConfig, req : DDB.CreateTableInput)
-    : Result<DDB.CreateTableInput, Error>
-  {
-    BS.CreateTableInputForBeacons(config.search, config.itemEncryptor.config.attributeActionsOnEncrypt, req)
-    .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e))
-  }
-
-  // Transform a UpdateTableInput object for searchable encryption.
-  function method {:opaque} UpdateTableInputForBeacons(config : ValidTableConfig, req : DDB.UpdateTableInput)
-    : Result<DDB.UpdateTableInput, Error>
-  {
-    BS.UpdateTableInputForBeacons(config.search, config.itemEncryptor.config.attributeActionsOnEncrypt, req)
-    .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e))
-  }
-
-  // Transform a DescribeTableOutput object for searchable encryption.
-  function method {:opaque} DescribeTableOutputForBeacons(config : ValidTableConfig, req : DDB.DescribeTableOutput)
-    : Result<DDB.DescribeTableOutput, Error>
-  {
-    BS.DescribeTableOutputForBeacons(config.search, req)
-    .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e))
-  }
-
   // Transform a QueryInput object for searchable encryption.
   method {:opaque} QueryInputForBeacons(config : ValidTableConfig, req : DDB.QueryInput)
     returns (output : Result<DDB.QueryInput, Error>)
