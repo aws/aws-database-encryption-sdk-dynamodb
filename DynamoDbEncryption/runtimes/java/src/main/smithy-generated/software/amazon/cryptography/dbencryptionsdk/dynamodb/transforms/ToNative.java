@@ -22,18 +22,10 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Ba
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.BatchWriteItemOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.BatchWriteItemOutputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CollectionOfErrors;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CreateTableInputTransformInput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CreateTableInputTransformOutput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CreateTableOutputTransformInput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CreateTableOutputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DeleteItemInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DeleteItemInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DeleteItemOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DeleteItemOutputTransformOutput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DescribeTableInputTransformInput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DescribeTableInputTransformOutput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DescribeTableOutputTransformInput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DescribeTableOutputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DynamoDbEncryptionTransformsException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ExecuteStatementInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ExecuteStatementInputTransformOutput;
@@ -72,10 +64,6 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Up
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.UpdateItemInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.UpdateItemOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.UpdateItemOutputTransformOutput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.UpdateTableInputTransformInput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.UpdateTableInputTransformOutput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.UpdateTableOutputTransformInput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.UpdateTableOutputTransformOutput;
 
 public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
@@ -212,35 +200,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static CreateTableInputTransformInput CreateTableInputTransformInput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.CreateTableInputTransformInput dafnyValue) {
-    CreateTableInputTransformInput.Builder nativeBuilder = CreateTableInputTransformInput.builder();
-    nativeBuilder.sdkInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.CreateTableInput(dafnyValue.dtor_sdkInput()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateTableInputTransformOutput CreateTableInputTransformOutput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.CreateTableInputTransformOutput dafnyValue) {
-    CreateTableInputTransformOutput.Builder nativeBuilder = CreateTableInputTransformOutput.builder();
-    nativeBuilder.transformedInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.CreateTableInput(dafnyValue.dtor_transformedInput()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateTableOutputTransformInput CreateTableOutputTransformInput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.CreateTableOutputTransformInput dafnyValue) {
-    CreateTableOutputTransformInput.Builder nativeBuilder = CreateTableOutputTransformInput.builder();
-    nativeBuilder.sdkOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.CreateTableOutput(dafnyValue.dtor_sdkOutput()));
-    nativeBuilder.originalInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.CreateTableInput(dafnyValue.dtor_originalInput()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateTableOutputTransformOutput CreateTableOutputTransformOutput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.CreateTableOutputTransformOutput dafnyValue) {
-    CreateTableOutputTransformOutput.Builder nativeBuilder = CreateTableOutputTransformOutput.builder();
-    nativeBuilder.transformedOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.CreateTableOutput(dafnyValue.dtor_transformedOutput()));
-    return nativeBuilder.build();
-  }
-
   public static DeleteItemInputTransformInput DeleteItemInputTransformInput(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.DeleteItemInputTransformInput dafnyValue) {
     DeleteItemInputTransformInput.Builder nativeBuilder = DeleteItemInputTransformInput.builder();
@@ -267,35 +226,6 @@ public class ToNative {
       software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.DeleteItemOutputTransformOutput dafnyValue) {
     DeleteItemOutputTransformOutput.Builder nativeBuilder = DeleteItemOutputTransformOutput.builder();
     nativeBuilder.transformedOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.DeleteItemOutput(dafnyValue.dtor_transformedOutput()));
-    return nativeBuilder.build();
-  }
-
-  public static DescribeTableInputTransformInput DescribeTableInputTransformInput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.DescribeTableInputTransformInput dafnyValue) {
-    DescribeTableInputTransformInput.Builder nativeBuilder = DescribeTableInputTransformInput.builder();
-    nativeBuilder.sdkInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.DescribeTableInput(dafnyValue.dtor_sdkInput()));
-    return nativeBuilder.build();
-  }
-
-  public static DescribeTableInputTransformOutput DescribeTableInputTransformOutput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.DescribeTableInputTransformOutput dafnyValue) {
-    DescribeTableInputTransformOutput.Builder nativeBuilder = DescribeTableInputTransformOutput.builder();
-    nativeBuilder.transformedInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.DescribeTableInput(dafnyValue.dtor_transformedInput()));
-    return nativeBuilder.build();
-  }
-
-  public static DescribeTableOutputTransformInput DescribeTableOutputTransformInput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.DescribeTableOutputTransformInput dafnyValue) {
-    DescribeTableOutputTransformInput.Builder nativeBuilder = DescribeTableOutputTransformInput.builder();
-    nativeBuilder.sdkOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.DescribeTableOutput(dafnyValue.dtor_sdkOutput()));
-    nativeBuilder.originalInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.DescribeTableInput(dafnyValue.dtor_originalInput()));
-    return nativeBuilder.build();
-  }
-
-  public static DescribeTableOutputTransformOutput DescribeTableOutputTransformOutput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.DescribeTableOutputTransformOutput dafnyValue) {
-    DescribeTableOutputTransformOutput.Builder nativeBuilder = DescribeTableOutputTransformOutput.builder();
-    nativeBuilder.transformedOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.DescribeTableOutput(dafnyValue.dtor_transformedOutput()));
     return nativeBuilder.build();
   }
 
@@ -557,35 +487,6 @@ public class ToNative {
       software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.UpdateItemOutputTransformOutput dafnyValue) {
     UpdateItemOutputTransformOutput.Builder nativeBuilder = UpdateItemOutputTransformOutput.builder();
     nativeBuilder.transformedOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.UpdateItemOutput(dafnyValue.dtor_transformedOutput()));
-    return nativeBuilder.build();
-  }
-
-  public static UpdateTableInputTransformInput UpdateTableInputTransformInput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.UpdateTableInputTransformInput dafnyValue) {
-    UpdateTableInputTransformInput.Builder nativeBuilder = UpdateTableInputTransformInput.builder();
-    nativeBuilder.sdkInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.UpdateTableInput(dafnyValue.dtor_sdkInput()));
-    return nativeBuilder.build();
-  }
-
-  public static UpdateTableInputTransformOutput UpdateTableInputTransformOutput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.UpdateTableInputTransformOutput dafnyValue) {
-    UpdateTableInputTransformOutput.Builder nativeBuilder = UpdateTableInputTransformOutput.builder();
-    nativeBuilder.transformedInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.UpdateTableInput(dafnyValue.dtor_transformedInput()));
-    return nativeBuilder.build();
-  }
-
-  public static UpdateTableOutputTransformInput UpdateTableOutputTransformInput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.UpdateTableOutputTransformInput dafnyValue) {
-    UpdateTableOutputTransformInput.Builder nativeBuilder = UpdateTableOutputTransformInput.builder();
-    nativeBuilder.sdkOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.UpdateTableOutput(dafnyValue.dtor_sdkOutput()));
-    nativeBuilder.originalInput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.UpdateTableInput(dafnyValue.dtor_originalInput()));
-    return nativeBuilder.build();
-  }
-
-  public static UpdateTableOutputTransformOutput UpdateTableOutputTransformOutput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.UpdateTableOutputTransformOutput dafnyValue) {
-    UpdateTableOutputTransformOutput.Builder nativeBuilder = UpdateTableOutputTransformOutput.builder();
-    nativeBuilder.transformedOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.UpdateTableOutput(dafnyValue.dtor_transformedOutput()));
     return nativeBuilder.build();
   }
 
