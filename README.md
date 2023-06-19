@@ -65,7 +65,7 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
    In a Gradle Java Project, add the following to the _dependencies_ section:
    ```kotlin
    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0-preview-2")
-   implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0-preview-1")
+   implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0-preview-2")
    implementation(platform("software.amazon.awssdk:bom:2.19.1"))
    implementation("software.amazon.awssdk:dynamodb")
    // The following are optional:
