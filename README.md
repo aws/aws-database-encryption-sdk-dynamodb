@@ -102,7 +102,7 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
     <dependency>
       <groupId>software.amazon.cryptography</groupId>
       <artifactId>aws-cryptographic-material-providers</artifactId>
-      <version>1.0.0-preview-1</version>
+      <version>1.0.0-preview-2</version>
     </dependency>
     <!-- The following are optional -->
     <dependency>
