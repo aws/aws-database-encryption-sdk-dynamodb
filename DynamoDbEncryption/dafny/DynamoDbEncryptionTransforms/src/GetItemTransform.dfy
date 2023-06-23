@@ -57,9 +57,8 @@ module GetItemTransform {
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
       //= type=implication
-      //# The GetItem response's `Item` field MUST be replaced
-      //# with a value that is equivalent to
-      //# the resulting item.
+      //# The GetItem response's `Item` field MUST be
+      //# replaced by the encrypted DynamoDb Item outputted above.
       && output.value.transformedOutput.Item.Some?
       && (item == output.value.transformedOutput.Item.value)
 

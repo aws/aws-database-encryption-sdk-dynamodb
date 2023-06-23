@@ -118,6 +118,7 @@ with the following inputs:
     such that the Crypto Action indexed by that attribute name in the Crypto Schema
     equals the Crypto Action indexed by that attribute name in the configured Attribute Actions.
   - The Crypto Schema MUST NOT contain more Crypto Actions than those specified by the previous point.
+    E.g. the Crypto Schema must not specify actions for attributes that don't exist on the item.
 - If configured, the Algorithm Suite MUST be the
   [Algorithm Suite configured on this Item Encryptor](./ddb-table-encryption-config.md#algorithm-suite).
   If not configured on the Item Encryptor, Algorithm Suite MUST NOT be specified.
