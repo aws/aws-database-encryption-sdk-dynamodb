@@ -154,11 +154,11 @@ For any operand in the KeyConditionExpression or FilterExpression which is a bea
 the name MUST be replaced by the internal beacon name (i.e. NAME replaced by aws_dbe_b_NAME).
 
 If the name is used directly in the expression, the name MUST be changed in the expression.
-For example the expression "MyBeacon < :value" must be changed to "aws_dbe_b_MyBeacon < :value".
+For example the expression "MyBeacon = :value" must be changed to "aws_dbe_b_MyBeacon = :value".
 
 If the name is used indirectly through the ExpressionAttributeNames mapping,
 the name MUST be changed in the ExpressionAttributeNames. For example if the query is
-"#Beacon < :value" and ExpressionAttributeNames holds (#Beacon = MyBeacon),
+"#Beacon = :value" and ExpressionAttributeNames holds (#Beacon = MyBeacon),
 the query must remain unchanged and ExpressionAttributeNames changed to (#Beacon = aws_dbe_b_MyBeacon).
 
 In this regard, each use of each operand is handled separately.
@@ -171,7 +171,7 @@ MUST be obtained from the [Beacon Key Materials](../searchable-encryption/search
 as the key.
 
 For example if the query is
-"MyBeacon < :value" and ExpressionAttributeValues holds (:value = banana),
+"MyBeacon = :value" and ExpressionAttributeValues holds (:value = banana),
 then the ExpressionAttributeValues must be changed to (:value = 13fd),
 where "13fd" is the calculated beacon value.
 

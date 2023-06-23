@@ -135,6 +135,9 @@ data that was serialized into the header included in the output DynamoDb Item.
 
 ### Signature Scope
 
+The Signature Scope is a client-side configuration of what attributes should be
+included within signature calculations whenever encrypting or decrypting items.
+
 An Attribute on a DynamoDB Item MUST NOT be considered as within the signature scope
 if it's Attribute Name is included in [Unauthenticated Attributes](./ddb-table-encryption-config.md#unauthenticated-attributes)
 or if it's Attribute Name begins with the prefix specified in
