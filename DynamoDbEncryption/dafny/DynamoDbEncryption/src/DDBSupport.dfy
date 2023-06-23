@@ -11,7 +11,6 @@ include "UpdateExpr.dfy"
 include "FilterExpr.dfy"
 include "Virtual.dfy"
 include "SearchInfo.dfy"
-include "DDBIndex.dfy"
 
 module DynamoDBSupport {
 
@@ -22,14 +21,13 @@ module DynamoDBSupport {
   import opened StandardLibrary.UInt
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
-  import opened DynamoDBIndexSupport
   import opened SearchableEncryptionInfo
   import UTF8
   import SortedSets
   import Seq
   import Update = DynamoDbUpdateExpr
   import Filter = DynamoDBFilterExpr
-
+  import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // At the moment, this means that no attribute names starts with "aws_dbe_",
@@ -208,94 +206,6 @@ module DynamoDBSupport {
               && (forall k <- item :: (ReservedPrefix <= k) || (k in ret.value && ret.value[k] == item[k]))
   {
     Success(DoRemoveBeacons(item))
-  }
-
-  // transform optional LSIs for searchable encryption, changing AttributeDefinitions as needed
-  function method LsiOptWithAttrs(
-    search : ValidSearchInfo,
-    actions : AttributeActions,
-    schema : Option<DDB.LocalSecondaryIndexList>,
-    attrs : DDB.AttributeDefinitions
-  )
-    : Result<(Option<DDB.LocalSecondaryIndexList>, DDB.AttributeDefinitions), Error>
-  {
-    if schema.None? then
-      Success((schema, []))
-    else
-      var (newSchema, newAttrs) :- LsiWithAttrs(search, actions, schema.value, attrs);
-      Success((Some(newSchema), newAttrs))
-  }
-
-  // transform optional GSIs for searchable encryption, changing AttributeDefinitions as needed
-  function method GsiOptWithAttrs(
-    search : ValidSearchInfo,
-    actions : AttributeActions,
-    schema : Option<DDB.GlobalSecondaryIndexList>,
-    attrs : DDB.AttributeDefinitions
-  )
-    : Result<(Option<DDB.GlobalSecondaryIndexList>, DDB.AttributeDefinitions), Error>
-  {
-    if schema.None? then
-      Success((schema, []))
-    else
-      var (newSchema, newAttrs) :- GsiWithAttrs(search, actions, schema.value, attrs);
-      Success((Some(newSchema), newAttrs))
-  }
-
-  // Transform a CreateTableInput object for searchable encryption.
-  function method CreateTableInputForBeacons(
-    search : Option<ValidSearchInfo>,
-    actions : AttributeActions,
-    req : DDB.CreateTableInput
-  )
-    : Result<DDB.CreateTableInput, Error>
-  {
-    if search.None? then
-      Success(req)
-    else
-      var (newSchema, newAttrs) :- AddBeaconsToKeySchema(search.value, actions, req.KeySchema, req.AttributeDefinitions);
-      var (newLsi, newAttrs) :- LsiOptWithAttrs(search.value, actions, req.LocalSecondaryIndexes, newAttrs);
-      var (newGsi, newAttrs) :- GsiOptWithAttrs(search.value, actions, req.GlobalSecondaryIndexes, newAttrs);
-      Success(req.(
-              KeySchema := newSchema,
-              AttributeDefinitions := newAttrs,
-              LocalSecondaryIndexes := newLsi,
-              GlobalSecondaryIndexes := newGsi
-              ))
-  }
-
-  // Transform a UpdateTableInput object for searchable encryption.
-  function method UpdateTableInputForBeacons(
-    search : Option<ValidSearchInfo>,
-    actions : AttributeActions,
-    req : DDB.UpdateTableInput
-  )
-    : Result<DDB.UpdateTableInput, Error>
-  {
-    if search.None? || req.GlobalSecondaryIndexUpdates.None? then
-      Success(req)
-    else
-      var (indexes, attrs) :- TransformIndexUpdates(search.value, actions, req.GlobalSecondaryIndexUpdates.value, req.AttributeDefinitions.UnwrapOr([]));
-      var newAttrs := if |attrs| == 0 then None else Some(attrs);
-      Success(req.(GlobalSecondaryIndexUpdates := Some(indexes), AttributeDefinitions := newAttrs))
-  }
-
-  // Transform a DescribeTableOutput object for searchable encryption.
-  function method DescribeTableOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.DescribeTableOutput)
-    : Result<DDB.DescribeTableOutput, Error>
-  {
-    if search.None? || req.Table.None? then
-      Success(req)
-    else
-      var locals :- TransformLocalIndexDescription(req.Table.value.LocalSecondaryIndexes);
-      var globals :- TransformGlobalIndexDescription(req.Table.value.GlobalSecondaryIndexes);
-      Success(
-        DDB.DescribeTableOutput(
-          Table := Some(
-            req.Table.value.(LocalSecondaryIndexes := locals, GlobalSecondaryIndexes := globals)
-          )
-        )
-      )
   }
 
   // Transform a QueryInput object for searchable encryption.
