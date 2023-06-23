@@ -22,9 +22,6 @@ The first category is for general support, used across multiple DynamoDB API tra
  * [HandleBeaconKeyFieldName](#handlebeaconkeyfieldname) - Handle the beacon key field name for Multi Key Store configurations
 
 The second category is support for specific interceptors, where the whole input or output structure is modified.
- * [CreateTableInputForBeacons](#createtableinputforbeacons)
- * [UpdateTableInputForBeacons](#updatetableinputforbeacons)
- * [DescribeTableOutputForBeacons](#describetableoutputforbeacons)
  * [QueryInputForBeacons](#queryinputforbeacons)
  * [QueryOutputForBeacons](#queryoutputforbeacons)
  * [ScanInputForBeacons](#scaninputforbeacons)
@@ -140,35 +137,6 @@ and the unaltered AttributeMap.
 Having an attribute action of [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign)
 for the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
 is [not a valid configuration](../searchable-encryption/search-config.md#beacon-version-initialization).
-
-## CreateTableInputForBeacons
-
-Transform a CreateTableInput object for searchable encryption.
-
-If the KeySchema of the table, or the KeySchema of one of the associated
-global or local indexes, have an AttributeName equal to the name of a configured beacon,
-the AttributeName MUST be replaced by the internal beacon name
-(i.e. NAME replaced by aws_dbe_b_NAME) and the AttributeType MUST be changed to string.
-
-The same name changes MUST be made to the AttributeDefinitions.
-
-## UpdateTableInputForBeacons
-
-Transform an UpdateTableInput object for searchable encryption.
-
-If a Global Secondary Index is being created, and its KeySchema
-has an AttributeName equal to the name of a configured beacon,
-the AttributeName MUST be replaced by the internal beacon name
-(i.e. NAME replaced by aws_dbe_b_NAME) and the AttributeType MUST be changed to string.
-
-The same name changes MUST be made to the AttributeDefinitions.
-
-## DescribeTableOutputForBeacons
-
-Transform a DescribeTableOutput object for searchable encryption.
-
-Any internal beacon name used in the KeySchema, LocalSecondaryIndexes or GlobalSecondaryIndexes
-MUST be replaced by the beacon name. (i.e. aws_dbe_b_NAME replaced by NAME).
 
 ## QueryInputForBeacons
 
