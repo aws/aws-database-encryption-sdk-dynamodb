@@ -135,9 +135,6 @@ MUST have the following modified behavior:
 - [Validate before ExecuteTransaction](#validate-before-executetransaction)
 - [Modify before Scan](#modify-before-scan)
 - [Modify before Query](#modify-before-query)
-- [Modify before CreateTable](#modify-before-createtable)
-- [Modify before UpdateTable](#modify-before-updatetable)
-- [Modify after DescribeTable](#modify-after-describetable)
 
 The [Allowed Passthrough DynmanoDB APIs](#allowed-passthrough-dynamodb-apis)
 MUST NOT be modified.
@@ -537,43 +534,12 @@ specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator
 The request MUST be [altered](./ddb-support.md#queryinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
 
-### Modify before CreateTable
-
-Before the [CreateTable](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_CreateTable.html)
-call is made to DynamoDB :
-
-If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
-the CreateTable request MUST be unchanged.
-
-Otherwise, the response MUST be [altered](./ddb-support.md#createtableinputforbeacons)
-to transform any references to encrypted attributes into references to beacons.
-
-### Modify before UpdateTable
-
-Before the [UpdateTable](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateTable.html)
-call is made to DynamoDB :
-
-If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
-the UpdateTable request MUST be unchanged.
-
-Otherwise, the response MUST be [altered](./ddb-support.md#updatetableinputforbeacons)
-to transform any references to encrypted attributes into references to beacons.
-
-### Modify after DescribeTable
-
-After the [DescribeTable](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DescribeTable.html)
-call is made to DynamoDB :
-
-If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
-the DescribeTable response MUST be unchanged.
-
-Otherwise, the response MUST be [altered](./ddb-support.md#describetableoutputforbeacons)
-to transform references to beacons back into references to encrypted attributes.
 
 ## Allowed Passthrough DynamoDB APIs
 
 - CreateBackup
 - CreateGlobalTable
+- CreateTable
 - DeleteBackup
 - DeleteTable
 - DescribeBackup
@@ -586,6 +552,7 @@ to transform references to beacons back into references to encrypted attributes.
 - DescribeImport
 - DescribeKinesisStreamingDestination
 - DescribeLimits
+- DescribeTable
 - DescribeTableReplicaAutoScaling
 - DescribeTimeToLive
 - DisableKinesisStreamingDestination
@@ -607,5 +574,6 @@ to transform references to beacons back into references to encrypted attributes.
 - UpdateContributorInsights
 - UpdateGlobalTable
 - UpdateGlobalTableSettings
+- UpdateTable
 - UpdateTableReplicaAutoScaling
 - UpdateTimeToLive

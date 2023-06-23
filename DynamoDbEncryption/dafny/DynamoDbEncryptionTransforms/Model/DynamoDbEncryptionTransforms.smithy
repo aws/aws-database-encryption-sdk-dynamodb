@@ -48,12 +48,6 @@ service DynamoDbEncryptionTransforms {
       BatchExecuteStatementOutputTransform,
       ExecuteTransactionInputTransform,
       ExecuteTransactionOutputTransform,
-      CreateTableInputTransform,
-      CreateTableOutputTransform,
-      UpdateTableInputTransform,
-      UpdateTableOutputTransform,
-      DescribeTableInputTransform,
-      DescribeTableOutputTransform,
     ],
     errors: [ DynamoDbEncryptionTransformsException ]
 }
