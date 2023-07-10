@@ -232,6 +232,23 @@ public class CompoundBeaconSearchableEncryptionExample {
                 .build())
         .build();
 
+    // Perform PutItem and Query
+    QueryItemWithCompoundBeacon(ddb, ddbTableName);
+
+    // If instead you were working in a multi-threaded context
+    // it might look like this
+    Runnable myThread = () -> {
+        for(int i = 0; i < 20; ++i)
+            QueryItemWithCompoundBeacon(ddb, ddbTableName);
+    };
+    // increase once we expect threads to work
+    for(int i = 0; i < 1; ++i) {
+        Thread run = new Thread(myThread);
+    }
+  }
+
+  public static void QueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName) {
+
     // 11. Put an item with both attributes used in the compound beacon.
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("work_id", AttributeValue.builder().s("9ce39272-8068-4efd-a211-cd162ad65d4c").build());
