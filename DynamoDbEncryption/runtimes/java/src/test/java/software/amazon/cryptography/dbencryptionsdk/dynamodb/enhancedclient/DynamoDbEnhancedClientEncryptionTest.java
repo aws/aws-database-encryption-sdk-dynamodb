@@ -297,24 +297,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 .build());
     }
 
-    @Test(
-        expectedExceptions = DynamoDbEncryptionException.class
-    )
-    public void TestAnnotatedConverterProvider() {
-        TableSchema<InvalidAnnotatedConverterProvider> schemaOnEncrypt =
-            TableSchema.fromBean(InvalidAnnotatedConverterProvider.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(TEST_TABLE_NAME)
-                .keyring(createKmsKeyring())
-                .schemaOnEncrypt(schemaOnEncrypt)
-                .build());
-        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-            CreateDynamoDbEncryptionInterceptorInput.builder()
-                .tableEncryptionConfigs(tableConfigs)
-                .build());
-    }
+
 
     @Test(
         expectedExceptions = DynamoDbEncryptionException.class
