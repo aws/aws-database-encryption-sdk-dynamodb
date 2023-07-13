@@ -297,12 +297,10 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 .build());
     }
 
-
-
     @Test(
         expectedExceptions = DynamoDbEncryptionException.class
     )
-    public void TestNestedBeanAnnotation() {
+    public void TestInvalidNestedBeanAnnotation() {
         TableSchema<InvalidAnnotatedNestedBean> schemaOnEncrypt =
             TableSchema.fromBean(InvalidAnnotatedNestedBean.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
