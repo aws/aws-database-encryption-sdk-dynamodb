@@ -17,6 +17,8 @@ public class NestedBean {
     private String firstName;
     private String lastName;
 
+    public NestedBean() {};
+
     NestedBean(String id, String firstName, String lastName) {
         this.id = id;
         this.firstName = firstName;
@@ -100,5 +102,23 @@ public class NestedBean {
         public <T> AttributeConverter<T> converterFor(EnhancedType<T> enhancedType) {
             return (AttributeConverter<T>) converterCache.get(enhancedType);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        NestedBean other = (NestedBean) obj;
+        if (id == null) {
+            if (other.getId() != null) return false;
+        } else if (!id.equals(other.getId())) return false;
+        if (firstName == null) {
+            if (other.getFirstName() != null) return false;
+        } else if (!firstName.equals(other.getFirstName())) return false;
+        if (lastName == null) {
+            if (other.getLastName() != null) return false;
+        } else if (!lastName.equals(other.getLastName())) return false;
+        return true;
     }
 }

@@ -15,6 +15,7 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -222,6 +223,44 @@ public class DynamoDbEnhancedClientEncryptionTest {
     }
 
     @Test(
+        expectedExceptions = DynamoDbItemEncryptorException.class,
+        expectedExceptionsMessageRegExp = "Attribute lastName is configured as DO_NOTHING but it must also be in unauthenticatedAttributes or begin with the unauthenticatedPrefix."
+    )
+    public void TestFlattenedNestedBeanAnnotationMissingUnauthenticatedAttributes() {
+        TableSchema<AnnotatedFlattenedBean> schemaOnEncrypt =
+            TableSchema.fromBean(AnnotatedFlattenedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test
+    public void TestFlattenedNestedBeanAnnotation() {
+        TableSchema<AnnotatedFlattenedBean> schemaOnEncrypt =
+            TableSchema.fromBean(AnnotatedFlattenedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributes(Collections.singletonList("lastName"))
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
         expectedExceptions = DynamoDbEncryptionException.class
     )
     public void TestAnnotatedConvertedBy() {
@@ -265,25 +304,6 @@ public class DynamoDbEnhancedClientEncryptionTest {
     public void TestNestedBeanAnnotation() {
         TableSchema<InvalidAnnotatedNestedBean> schemaOnEncrypt =
             TableSchema.fromBean(InvalidAnnotatedNestedBean.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(TEST_TABLE_NAME)
-                .keyring(createKmsKeyring())
-                .schemaOnEncrypt(schemaOnEncrypt)
-                .build());
-        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-            CreateDynamoDbEncryptionInterceptorInput.builder()
-                .tableEncryptionConfigs(tableConfigs)
-                .build());
-    }
-
-    @Test(
-        expectedExceptions = DynamoDbEncryptionException.class
-    )
-    public void TestFlattenedNestedBeanAnnotation() {
-        TableSchema<InvalidAnnotatedFlattenedBean> schemaOnEncrypt =
-            TableSchema.fromBean(InvalidAnnotatedFlattenedBean.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put(TEST_TABLE_NAME,
             DynamoDbEnhancedTableEncryptionConfig.builder()

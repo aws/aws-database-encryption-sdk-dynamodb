@@ -18,12 +18,14 @@ import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.awssdk.services.kms.model.KmsException;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.AnnotatedFlattenedBean.FlattenedNestedBean;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +35,27 @@ import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 import org.testng.annotations.Test;
 
 public class DynamoDbEncryptionEnhancedClientIntegrationTests {
+
+    private static DynamoDbEnhancedClient initEnhancedClientWithInterceptor(
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs
+    ) {
+        DynamoDbEncryptionInterceptor interceptor =
+            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+                CreateDynamoDbEncryptionInterceptorInput.builder()
+                    .tableEncryptionConfigs(tableConfigs)
+                    .build()
+            );
+        DynamoDbClient ddb = DynamoDbClient.builder()
+            .overrideConfiguration(
+                ClientOverrideConfiguration.builder()
+                    .addExecutionInterceptor(interceptor)
+                    .build())
+            .build();
+        return DynamoDbEnhancedClient.builder()
+            .dynamoDbClient(ddb)
+            .build();
+    }
+
     @Test
     public void TestPutAndGet() {
         TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
@@ -44,21 +67,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
                         .allowedUnsignedAttributes(Arrays.asList("doNothing"))
                         .schemaOnEncrypt(schemaOnEncrypt)
                         .build());
-        DynamoDbEncryptionInterceptor interceptor =
-                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-                        CreateDynamoDbEncryptionInterceptorInput.builder()
-                                .tableEncryptionConfigs(tableConfigs)
-                                .build()
-                );
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
-                                .build())
-                .build();
-        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(ddb)
-                .build();
+        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
 
         DynamoDbTable<SimpleClass> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
 
@@ -88,6 +97,48 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     }
 
     @Test
+    public void TestPutAndGetAnnotatedFlattenedBean() {
+        final String PARTITION = "AnnotatedFlattenedBean";
+        final int SORT = 20230713;
+        TableSchema<AnnotatedFlattenedBean> schemaOnEncrypt =
+            TableSchema.fromBean(AnnotatedFlattenedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .allowedUnsignedAttributes(Collections.singletonList("lastName"))
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .build());
+        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
+
+        DynamoDbTable<AnnotatedFlattenedBean> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
+
+        AnnotatedFlattenedBean record = new AnnotatedFlattenedBean();
+        record.setPartitionKey(PARTITION);
+        record.setSortKey(SORT);
+        FlattenedNestedBean nestedBean = new FlattenedNestedBean(
+            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Thomas", "Knapp"
+        );
+        record.setNestedBeanClass(nestedBean);
+
+        // Put an item into an Amazon DynamoDB table.
+        table.putItem(record);
+
+        // Get the item back from the table
+        Key key = Key.builder()
+            .partitionValue(PARTITION).sortValue(SORT)
+            .build();
+
+        // Get the item by using the key.
+        AnnotatedFlattenedBean result = table.getItem(
+            (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
+        assertEquals(result.getPartitionKey(), record.getPartitionKey());
+        assertEquals(result.getSortKey(), record.getSortKey());
+        assertEquals(result.getNestedBeanClass(), record.getNestedBeanClass());
+    }
+
+    @Test
     public void TestPutAndGetSignOnly() {
         TableSchema<SignOnlyClass> schemaOnEncrypt = TableSchema.fromBean(SignOnlyClass.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
@@ -98,21 +149,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
                         .allowedUnsignedAttributes(Arrays.asList("doNothing"))
                         .schemaOnEncrypt(schemaOnEncrypt)
                         .build());
-        DynamoDbEncryptionInterceptor interceptor =
-                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-                        CreateDynamoDbEncryptionInterceptorInput.builder()
-                                .tableEncryptionConfigs(tableConfigs)
-                                .build()
-                );
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
-                                .build())
-                .build();
-        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(ddb)
-                .build();
+        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
 
         DynamoDbTable<SignOnlyClass> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
 
@@ -278,21 +315,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
                         .allowedUnsignedAttributes(Arrays.asList("doNothing"))
                         .schemaOnEncrypt(schemaOnEncrypt)
                         .build());
-        DynamoDbEncryptionInterceptor interceptor =
-                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-                        CreateDynamoDbEncryptionInterceptorInput.builder()
-                                .tableEncryptionConfigs(tableConfigs)
-                                .build()
-                );
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
-                                .build())
-                .build();
-        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(ddb)
-                .build();
+        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
 
         DynamoDbTable<SimpleClass> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
 
@@ -323,21 +346,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
                         .allowedUnsignedAttributes(Arrays.asList("doNothing"))
                         .schemaOnEncrypt(schemaOnEncrypt)
                         .build());
-        DynamoDbEncryptionInterceptor interceptor =
-                DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-                        CreateDynamoDbEncryptionInterceptorInput.builder()
-                                .tableEncryptionConfigs(tableConfigs)
-                                .build()
-                );
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptor)
-                                .build())
-                .build();
-        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(ddb)
-                .build();
+        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
 
         DynamoDbTable<SimpleClass> table = enhancedClient.table(badTableName, schemaOnEncrypt);
 
