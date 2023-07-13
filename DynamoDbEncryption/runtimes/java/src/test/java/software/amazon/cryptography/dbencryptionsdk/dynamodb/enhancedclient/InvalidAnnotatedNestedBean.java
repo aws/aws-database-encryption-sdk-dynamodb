@@ -5,6 +5,11 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttri
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
+/**
+ * This is an INVALID use of DynamoDbEncryption annotations on nested attributes.
+ * The DynamoDbEncryption annotations are placed on elements that are NOT
+ * DynamoDB Attributes but that will be mapped to them.<p>
+ */
 @DynamoDbBean
 public class InvalidAnnotatedNestedBean {
     private String partitionKey;
