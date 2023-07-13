@@ -14,22 +14,26 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 /**
- * This is a INVALID use of DynamoDbEncryption annotations on nested attributes.
- * The DynamoDbEncryption annotations are placed on elements that are NOT
- * DynamoDB Attributes but that will be mapped to them.<p>
+ * This is a valid use of DynamoDbEncryption annotations attributes with
+ * DynamoDbConvertedBy.<p>
+ * The DynamoDbEncryption annotations are placed on elements that are converted
+ * to Maps.<p>
+ * In this case, only {@code nestedEncrypted} will be written to the DynamoDB Table as a
+ * binary. {@code nestedSigned} and {@code nestedIgnored} are recorded as DynamoDB Maps.
  */
 @DynamoDbBean
-public class InvalidAnnotatedConvertedBy {
+public class AnnotatedConvertedBy {
     private String partitionKey;
     private int sortKey;
-    private ConvertedByNestedBean nestedBeanClass;
+    private ConvertedByNestedBean nestedEncrypted;
+    private ConvertedByNestedBean nestedSigned;
+    private ConvertedByNestedBean nestedIgnored;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = "partition_key")
     public String getPartitionKey() {
         return this.partitionKey;
     }
-
     public void setPartitionKey(String partitionKey) {
         this.partitionKey = partitionKey;
     }
@@ -39,19 +43,37 @@ public class InvalidAnnotatedConvertedBy {
     public int getSortKey() {
         return this.sortKey;
     }
-
     public void setSortKey(int sortKey) {
         this.sortKey = sortKey;
     }
 
     @DynamoDbConvertedBy(ConvertedByNestedBean.NestedBeanConverter.class)
     @DynamoDbAttribute("nestedEncrypted")
-    public ConvertedByNestedBean getNestedBeanClass() {
-        return this.nestedBeanClass;
+    public ConvertedByNestedBean getNestedEncrypted() {
+        return this.nestedEncrypted;
+    }
+    public void setNestedEncrypted(ConvertedByNestedBean nested) {
+        this.nestedEncrypted = nested;
     }
 
-    public void setNestedBeanClass(ConvertedByNestedBean nestedBeanClass) {
-        this.nestedBeanClass = nestedBeanClass;
+    @DynamoDbConvertedBy(ConvertedByNestedBean.NestedBeanConverter.class)
+    @DynamoDbEncryptionSignOnly
+    @DynamoDbAttribute("nestedSigned")
+    public ConvertedByNestedBean getNestedSigned() {
+        return this.nestedSigned;
+    }
+    public void setNestedSigned(ConvertedByNestedBean nested) {
+        this.nestedSigned = nested;
+    }
+
+    @DynamoDbConvertedBy(ConvertedByNestedBean.NestedBeanConverter.class)
+    @DynamoDbEncryptionDoNothing
+    @DynamoDbAttribute("nestedIgnored")
+    public ConvertedByNestedBean getNestedIgnored() {
+        return this.nestedIgnored;
+    }
+    public void setNestedIgnored(ConvertedByNestedBean nested) {
+        this.nestedIgnored = nested;
     }
 
     public static class ConvertedByNestedBean {
@@ -59,6 +81,7 @@ public class InvalidAnnotatedConvertedBy {
         private String firstName;
         private String lastName;
 
+        // A Default Empty constructor is needed by the Enhanced Client
         public ConvertedByNestedBean() {};
 
         public ConvertedByNestedBean(String id, String firstName, String lastName) {
@@ -70,11 +93,9 @@ public class InvalidAnnotatedConvertedBy {
         public String getId() { return this.id; }
         public void setId(String id) { this.id = id; }
 
-        @DynamoDbEncryptionSignOnly
         public String getFirstName() { return firstName; }
         public void setFirstName(String firstName) { this.firstName = firstName; }
 
-        @DynamoDbEncryptionDoNothing
         public String getLastName() { return lastName; }
         public void setLastName(String lastName) { this.lastName = lastName; }
 

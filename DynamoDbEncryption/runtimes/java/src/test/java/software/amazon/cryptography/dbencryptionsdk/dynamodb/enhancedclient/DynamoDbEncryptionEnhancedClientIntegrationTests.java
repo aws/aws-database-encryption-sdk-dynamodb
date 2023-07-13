@@ -18,6 +18,8 @@ import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.awssdk.services.kms.model.KmsException;
+
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.AnnotatedConvertedBy.ConvertedByNestedBean;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.AnnotatedFlattenedBean.FlattenedNestedBean;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
@@ -118,7 +120,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         record.setPartitionKey(PARTITION);
         record.setSortKey(SORT);
         FlattenedNestedBean nestedBean = new FlattenedNestedBean(
-            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Thomas", "Knapp"
+            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "James", "Bond"
         );
         record.setNestedBeanClass(nestedBean);
 
@@ -136,6 +138,52 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         assertEquals(result.getPartitionKey(), record.getPartitionKey());
         assertEquals(result.getSortKey(), record.getSortKey());
         assertEquals(result.getNestedBeanClass(), record.getNestedBeanClass());
+    }
+
+    @Test
+    public void TestPutAndGetAnnotatedConvertedBy() {
+        final String PARTITION = "AnnotatedConvertedBy";
+        final int SORT = 20230713;
+        TableSchema<AnnotatedConvertedBy> schemaOnEncrypt =
+            TableSchema.fromBean(AnnotatedConvertedBy.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .allowedUnsignedAttributes(Collections.singletonList("nestedIgnored"))
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .build());
+        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
+
+        DynamoDbTable<AnnotatedConvertedBy> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
+
+        AnnotatedConvertedBy record = new AnnotatedConvertedBy();
+        record.setPartitionKey(PARTITION);
+        record.setSortKey(SORT);
+        ConvertedByNestedBean nestedBean = new ConvertedByNestedBean(
+            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Winnie", "the-Pooh"
+        );
+        record.setNestedEncrypted(nestedBean);
+        record.setNestedIgnored(nestedBean);
+        record.setNestedSigned(nestedBean);
+
+        // Put an item into an Amazon DynamoDB table.
+        table.putItem(record);
+
+        // Get the item back from the table
+        Key key = Key.builder()
+            .partitionValue(PARTITION).sortValue(SORT)
+            .build();
+
+        // Get the item by using the key.
+        AnnotatedConvertedBy result = table.getItem(
+            (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
+        assertEquals(result.getPartitionKey(), record.getPartitionKey());
+        assertEquals(result.getSortKey(), record.getSortKey());
+        assertEquals(result.getNestedIgnored(), record.getNestedIgnored());
+        assertEquals(result.getNestedEncrypted(), record.getNestedEncrypted());
+        assertEquals(result.getNestedSigned(), record.getNestedSigned());
     }
 
     @Test

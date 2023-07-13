@@ -263,7 +263,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
     @Test(
         expectedExceptions = DynamoDbEncryptionException.class
     )
-    public void TestAnnotatedConvertedBy() {
+    public void TestInvalidAnnotatedConvertedByAnnotationsOnNonAttributes() {
         TableSchema<InvalidAnnotatedConvertedBy> schemaOnEncrypt =
             TableSchema.fromBean(InvalidAnnotatedConvertedBy.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
@@ -272,6 +272,24 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 .logicalTableName(TEST_TABLE_NAME)
                 .keyring(createKmsKeyring())
                 .schemaOnEncrypt(schemaOnEncrypt)
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test
+    public void TestAnnotatedConvertedBy() {
+        TableSchema<AnnotatedConvertedBy> schemaOnEncrypt =
+            TableSchema.fromBean(AnnotatedConvertedBy.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributes(Collections.singletonList("nestedIgnored"))
                 .build());
         DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
             CreateDynamoDbEncryptionInterceptorInput.builder()
