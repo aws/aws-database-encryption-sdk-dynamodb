@@ -5,10 +5,12 @@ import java.util.stream.Collectors;
 
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DoNothingTag.CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX;
@@ -29,7 +31,7 @@ public class DynamoDbEnhancedClientEncryption {
                 .build();
     }
 
-    private static <T> DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEnhancedTableEncryptionConfig configWithSchema) {
+    private static DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEnhancedTableEncryptionConfig configWithSchema) {
         Map<String, CryptoAction> actions = new HashMap<>();
         Set<String> signOnlyAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class).orElseGet(HashSet::new);
         Set<String> doNothingAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX, Set.class).orElseGet(HashSet::new);
@@ -59,24 +61,7 @@ public class DynamoDbEnhancedClientEncryption {
                 actions.put(attributeName, CryptoAction.ENCRYPT_AND_SIGN);
             }
 
-            AttributeConverter attributeConverter = configWithSchema.schemaOnEncrypt().converterForAttribute(attributeName);
-            if (Objects.nonNull(attributeConverter) && Objects.nonNull(attributeConverter.type()) && attributeConverter.type().tableSchema().isPresent()) {
-                Object maybeTableSchema = attributeConverter.type().tableSchema().get();
-                if (maybeTableSchema instanceof TableSchema) {
-                    TableSchema subTableSchema = (TableSchema) maybeTableSchema;
-                    if (
-                        subTableSchema.tableMetadata().customMetadata().containsKey(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX) ||
-                            subTableSchema.tableMetadata().customMetadata().containsKey(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX)
-                    ) {
-                        throw DynamoDbEncryptionException.builder()
-                            .message(String.format(
-                                "Detected a DynamoDbEncryption configuration on a nested attribute of %s. " +
-                                    "This is NOT Supported at this time!",
-                                attributeName))
-                            .build();
-                    }
-                }
-            }
+            scanForIgnoredEncryptionTagsShallow(configWithSchema, attributeName);
         }
 
         DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder();
@@ -109,5 +94,42 @@ public class DynamoDbEnhancedClientEncryption {
                 .attributeActionsOnEncrypt(actions)
                 .legacyOverride(configWithSchema.legacyOverride())
                 .build();
+    }
+
+    /**
+     * Detects DynamoDB Encryption Tags in Nested Enhanced Types.<p>
+     * This method ONLY parses ONE Layer of nesting.<p>
+     * It does NOT traverse further nested Enhanced Types.<p>
+     * DynamoDB Encryption Tags in Nested Classes are IGNORED by the
+     * Database Encryption SDK for DynamoDB.<p>
+     * As such, Detection of a nested DynamoDB Encryption Tag on a Nested Type
+     * triggers a Runtime Exception that MUST NOT BE ignored.
+     */
+    private static void scanForIgnoredEncryptionTagsShallow(
+        final DynamoDbEnhancedTableEncryptionConfig configWithSchema,
+        final String attributeName
+    ) {
+        AttributeConverter attributeConverter = configWithSchema.schemaOnEncrypt().converterForAttribute(attributeName);
+        if (
+            Objects.nonNull(attributeConverter) &&
+                Objects.nonNull(attributeConverter.type()) &&
+                attributeConverter.type().tableSchema().isPresent()
+        ) {
+            Object maybeTableSchema = attributeConverter.type().tableSchema().get();
+            if (maybeTableSchema instanceof TableSchema) {
+                TableSchema subTableSchema = (TableSchema) maybeTableSchema;
+                if (
+                    subTableSchema.tableMetadata().customMetadata().containsKey(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX) ||
+                        subTableSchema.tableMetadata().customMetadata().containsKey(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX)
+                ) {
+                    throw DynamoDbEncryptionException.builder()
+                        .message(String.format(
+                            "Detected a DynamoDbEncryption Tag/Configuration on a nested attribute of %s. " +
+                                "This is NOT Supported at this time!",
+                            attributeName))
+                        .build();
+                }
+            }
+        }
     }
 }
