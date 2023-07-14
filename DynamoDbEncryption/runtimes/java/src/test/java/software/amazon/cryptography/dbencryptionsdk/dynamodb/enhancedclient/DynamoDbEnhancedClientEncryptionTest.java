@@ -279,29 +279,8 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 .build());
     }
 
-    // The following 4 tests all Fail to throw an Exception
-    // For the sake of our CI, I am commenting out their Expected Exception
     @Test(
-        // expectedExceptions = DynamoDbEncryptionException.class
-    )
-    public void TestInvalidAnnotatedConvertedByAnnotationsOnNonAttributes() {
-        TableSchema<InvalidAnnotatedConvertedBy> schemaOnEncrypt =
-            TableSchema.fromBean(InvalidAnnotatedConvertedBy.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(TEST_TABLE_NAME)
-                .keyring(createKmsKeyring())
-                .schemaOnEncrypt(schemaOnEncrypt)
-                .build());
-        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-            CreateDynamoDbEncryptionInterceptorInput.builder()
-                .tableEncryptionConfigs(tableConfigs)
-                .build());
-    }
-
-    @Test(
-        // expectedExceptions = DynamoDbEncryptionException.class
+        expectedExceptions = DynamoDbEncryptionException.class
     )
     public void TestInvalidNestedBeanAnnotation() {
         TableSchema<InvalidAnnotatedNestedBean> schemaOnEncrypt =
@@ -320,7 +299,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
     }
 
     @Test(
-        // expectedExceptions = DynamoDbEncryptionException.class
+        expectedExceptions = DynamoDbEncryptionException.class
     )
     public void TestConflictingAnnotatedNestedBean() {
         TableSchema<ConflictingAnnotatedNestedBean> schemaOnEncrypt =
@@ -340,6 +319,27 @@ public class DynamoDbEnhancedClientEncryptionTest {
     }
 
     @Test(
+        // This test SHOULD yield an exception, but does not, at this time.
+        // expectedExceptions = DynamoDbEncryptionException.class
+    )
+    public void TestInvalidAnnotatedConvertedByAnnotationsOnNonAttributes() {
+        TableSchema<InvalidAnnotatedConvertedBy> schemaOnEncrypt =
+            TableSchema.fromBean(InvalidAnnotatedConvertedBy.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        // This test SHOULD yield an exception, but does not, at this time.
         // expectedExceptions = DynamoDbEncryptionException.class
     )
     public void TestConflictingFlattenedBean() {

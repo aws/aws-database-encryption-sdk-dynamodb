@@ -21,6 +21,7 @@ import software.amazon.awssdk.services.kms.model.KmsException;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.AnnotatedConvertedBy.ConvertedByNestedBean;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.AnnotatedFlattenedBean.FlattenedNestedBean;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
@@ -187,44 +188,46 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         assertEquals(result.getNestedSigned(), record.getNestedSigned());
     }
 
-    @Test
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class
+    )
     public void TestPutAndGetConflictingAnnotatedNestedBean() {
-        final String PARTITION = "ConflictingAnnotatedNestedBean";
-        final int SORT = 20230713;
+        // final String PARTITION = "ConflictingAnnotatedNestedBean";
+        // final int SORT = 20230713;
         TableSchema<ConflictingAnnotatedNestedBean> schemaOnEncrypt =
             TableSchema.fromBean(ConflictingAnnotatedNestedBean.class);
         List<String> allowedUnsignedAttributes = Collections.singletonList("nestedIgnored");
         DynamoDbEnhancedClient enhancedClient =
             initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, null);
 
-        DynamoDbTable<ConflictingAnnotatedNestedBean> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
-
-        ConflictingAnnotatedNestedBean record = new ConflictingAnnotatedNestedBean();
-        record.setPartitionKey(PARTITION);
-        record.setSortKey(SORT);
-        ConflictingAnnotatedNestedBean.NestedBean nestedBean = new ConflictingAnnotatedNestedBean.NestedBean (
-            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Tigger", "the-Tiger"
-        );
-        record.setNestedEncrypted(nestedBean);
-        record.setNestedIgnored(nestedBean);
-        record.setNestedSigned(nestedBean);
-
-        // Put an item into an Amazon DynamoDB table.
-        table.putItem(record);
-
-        // Get the item back from the table
-        Key key = Key.builder()
-            .partitionValue(PARTITION).sortValue(SORT)
-            .build();
-
-        // Get the item by using the key.
-        ConflictingAnnotatedNestedBean result = table.getItem(
-            (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
-        assertEquals(result.getPartitionKey(), record.getPartitionKey());
-        assertEquals(result.getSortKey(), record.getSortKey());
-        assertEquals(result.getNestedIgnored(), record.getNestedIgnored());
-        assertEquals(result.getNestedEncrypted(), record.getNestedEncrypted());
-        assertEquals(result.getNestedSigned(), record.getNestedSigned());
+        // DynamoDbTable<ConflictingAnnotatedNestedBean> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
+        //
+        // ConflictingAnnotatedNestedBean record = new ConflictingAnnotatedNestedBean();
+        // record.setPartitionKey(PARTITION);
+        // record.setSortKey(SORT);
+        // ConflictingAnnotatedNestedBean.NestedBean nestedBean = new ConflictingAnnotatedNestedBean.NestedBean (
+        //     "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Tigger", "the-Tiger"
+        // );
+        // record.setNestedEncrypted(nestedBean);
+        // record.setNestedIgnored(nestedBean);
+        // record.setNestedSigned(nestedBean);
+        //
+        // // Put an item into an Amazon DynamoDB table.
+        // table.putItem(record);
+        //
+        // // Get the item back from the table
+        // Key key = Key.builder()
+        //     .partitionValue(PARTITION).sortValue(SORT)
+        //     .build();
+        //
+        // // Get the item by using the key.
+        // ConflictingAnnotatedNestedBean result = table.getItem(
+        //     (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
+        // assertEquals(result.getPartitionKey(), record.getPartitionKey());
+        // assertEquals(result.getSortKey(), record.getSortKey());
+        // assertEquals(result.getNestedIgnored(), record.getNestedIgnored());
+        // assertEquals(result.getNestedEncrypted(), record.getNestedEncrypted());
+        // assertEquals(result.getNestedSigned(), record.getNestedSigned());
     }
 
     @Test
