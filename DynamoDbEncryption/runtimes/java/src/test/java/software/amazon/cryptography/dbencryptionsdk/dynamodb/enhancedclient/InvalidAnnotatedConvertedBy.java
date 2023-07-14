@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 /**
  * This is a INVALID use of DynamoDbEncryption annotations on nested attributes.
  * The DynamoDbEncryption annotations are placed on elements that are NOT
- * DynamoDB Attributes but that will be mapped to them.<p>
+ * DynamoDB Attributes but that will be mapped together into one attribute.<p>
  */
 @DynamoDbBean
 public class InvalidAnnotatedConvertedBy {

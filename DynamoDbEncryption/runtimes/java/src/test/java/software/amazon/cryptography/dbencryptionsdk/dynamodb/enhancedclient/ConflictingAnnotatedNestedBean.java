@@ -10,19 +10,22 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
  * The DynamoDbEncryption annotations are placed on elements that are NOT
  * DynamoDB Attributes but that will be mapped together into one DynamoDB
  * Attribute that is a Map.<p>
+ * Worse yet, the top level annotation conflicts with annotations given in
+ * the subfields.<p>
  */
 @DynamoDbBean
-public class InvalidAnnotatedNestedBean {
+public class ConflictingAnnotatedNestedBean {
     private String partitionKey;
     private int sortKey;
-    private NestedBean nestedBeanClass;
+    private NestedBean nestedEncrypted;
+    private NestedBean nestedSigned;
+    private NestedBean nestedIgnored;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = "partition_key")
     public String getPartitionKey() {
         return this.partitionKey;
     }
-
     public void setPartitionKey(String partitionKey) {
         this.partitionKey = partitionKey;
     }
@@ -32,16 +35,32 @@ public class InvalidAnnotatedNestedBean {
     public int getSortKey() {
         return this.sortKey;
     }
-
     public void setSortKey(int sortKey) {
         this.sortKey = sortKey;
     }
 
-    public NestedBean getNestedBeanClass() {
-        return this.nestedBeanClass;
+    // By Default, DB-ESDK for DDB will Encrypt & Sign this field
+    public NestedBean getNestedEncrypted() {
+        return this.nestedEncrypted;
     }
-    public void setNestedBeanClass(NestedBean nestedBeanClass) {
-        this.nestedBeanClass = nestedBeanClass;
+    public void setNestedEncrypted(NestedBean nested) {
+        this.nestedEncrypted = nested;
+    }
+
+    @DynamoDbEncryptionSignOnly //This annotation is respected
+    public NestedBean getNestedSigned() {
+        return this.nestedSigned;
+    }
+    public void setNestedSigned(NestedBean nested) {
+        this.nestedSigned = nested;
+    }
+
+    @DynamoDbEncryptionDoNothing //This annotation is respected
+    public NestedBean getNestedIgnored() {
+        return this.nestedIgnored;
+    }
+    public void setNestedIgnored(NestedBean nestedIgnored) {
+        this.nestedIgnored = nestedIgnored;
     }
 
     @DynamoDbBean
@@ -58,6 +77,7 @@ public class InvalidAnnotatedNestedBean {
             this.lastName = lastName;
         }
 
+        // Ignored DynamoDb Annotation
         @DynamoDbAttribute("id")
         public String getId() {
             return this.id;
@@ -67,6 +87,7 @@ public class InvalidAnnotatedNestedBean {
             this.id = id;
         }
 
+        // Ignored DynamoDb & DynamoDbEncryption Annotations
         @DynamoDbEncryptionSignOnly
         @DynamoDbAttribute("firstName")
         public String getFirstName() {
@@ -77,6 +98,7 @@ public class InvalidAnnotatedNestedBean {
             this.firstName = firstName;
         }
 
+        // Ignored DynamoDb & DynamoDbEncryption Annotations
         @DynamoDbEncryptionDoNothing
         @DynamoDbAttribute("lastName")
         public String getLastName() {

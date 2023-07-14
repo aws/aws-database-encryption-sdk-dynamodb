@@ -25,10 +25,12 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverrid
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.materialproviders.IKeyring;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
@@ -36,11 +38,27 @@ import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
 import org.testng.annotations.Test;
 
+import javax.annotation.Nullable;
+
 public class DynamoDbEncryptionEnhancedClientIntegrationTests {
 
-    private static DynamoDbEnhancedClient initEnhancedClientWithInterceptor(
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs
+    private static <T> DynamoDbEnhancedClient initEnhancedClientWithInterceptor(
+        final TableSchema<T> schemaOnEncrypt,
+        final List<String> allowedUnsignedAttributes,
+        @Nullable String kmsKeyId,
+        @Nullable String tableName
     ) {
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        IKeyring kmsKeyring = kmsKeyId == null ? createKmsKeyring() : createKmsKeyring(kmsKeyId);
+        String testTableName = tableName == null ? TEST_TABLE_NAME : tableName;
+        tableConfigs.put(testTableName,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(testTableName)
+                .keyring(kmsKeyring)
+                .allowedUnsignedAttributes(allowedUnsignedAttributes)
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .build());
+
         DynamoDbEncryptionInterceptor interceptor =
             DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
                 CreateDynamoDbEncryptionInterceptorInput.builder()
@@ -61,15 +79,9 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     @Test
     public void TestPutAndGet() {
         TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-                DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .logicalTableName(TEST_TABLE_NAME)
-                        .keyring(createKmsKeyring())
-                        .allowedUnsignedAttributes(Arrays.asList("doNothing"))
-                        .schemaOnEncrypt(schemaOnEncrypt)
-                        .build());
-        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
+        List<String> allowedUnsignedAttributes = Collections.singletonList("doNothing");
+        DynamoDbEnhancedClient enhancedClient =
+            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, null);
 
         DynamoDbTable<SimpleClass> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
 
@@ -102,19 +114,14 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     public void TestPutAndGetAnnotatedFlattenedBean() {
         final String PARTITION = "AnnotatedFlattenedBean";
         final int SORT = 20230713;
+
         TableSchema<AnnotatedFlattenedBean> schemaOnEncrypt =
             TableSchema.fromBean(AnnotatedFlattenedBean.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(TEST_TABLE_NAME)
-                .keyring(createKmsKeyring())
-                .allowedUnsignedAttributes(Collections.singletonList("lastName"))
-                .schemaOnEncrypt(schemaOnEncrypt)
-                .build());
-        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
-
-        DynamoDbTable<AnnotatedFlattenedBean> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
+        List<String> allowedUnsignedAttributes = Collections.singletonList("lastName");
+        DynamoDbEnhancedClient enhancedClient =
+            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, null);
+        DynamoDbTable<AnnotatedFlattenedBean> table =
+            enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
 
         AnnotatedFlattenedBean record = new AnnotatedFlattenedBean();
         record.setPartitionKey(PARTITION);
@@ -146,15 +153,9 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         final int SORT = 20230713;
         TableSchema<AnnotatedConvertedBy> schemaOnEncrypt =
             TableSchema.fromBean(AnnotatedConvertedBy.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(TEST_TABLE_NAME)
-                .keyring(createKmsKeyring())
-                .allowedUnsignedAttributes(Collections.singletonList("nestedIgnored"))
-                .schemaOnEncrypt(schemaOnEncrypt)
-                .build());
-        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
+        List<String> allowedUnsignedAttributes = Collections.singletonList("nestedIgnored");
+        DynamoDbEnhancedClient enhancedClient =
+            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, null);
 
         DynamoDbTable<AnnotatedConvertedBy> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
 
@@ -187,18 +188,98 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     }
 
     @Test
+    public void TestPutAndGetConflictingAnnotatedNestedBean() {
+        final String PARTITION = "ConflictingAnnotatedNestedBean";
+        final int SORT = 20230713;
+        TableSchema<ConflictingAnnotatedNestedBean> schemaOnEncrypt =
+            TableSchema.fromBean(ConflictingAnnotatedNestedBean.class);
+        List<String> allowedUnsignedAttributes = Collections.singletonList("nestedIgnored");
+        DynamoDbEnhancedClient enhancedClient =
+            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, null);
+
+        DynamoDbTable<ConflictingAnnotatedNestedBean> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
+
+        ConflictingAnnotatedNestedBean record = new ConflictingAnnotatedNestedBean();
+        record.setPartitionKey(PARTITION);
+        record.setSortKey(SORT);
+        ConflictingAnnotatedNestedBean.NestedBean nestedBean = new ConflictingAnnotatedNestedBean.NestedBean (
+            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Tigger", "the-Tiger"
+        );
+        record.setNestedEncrypted(nestedBean);
+        record.setNestedIgnored(nestedBean);
+        record.setNestedSigned(nestedBean);
+
+        // Put an item into an Amazon DynamoDB table.
+        table.putItem(record);
+
+        // Get the item back from the table
+        Key key = Key.builder()
+            .partitionValue(PARTITION).sortValue(SORT)
+            .build();
+
+        // Get the item by using the key.
+        ConflictingAnnotatedNestedBean result = table.getItem(
+            (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
+        assertEquals(result.getPartitionKey(), record.getPartitionKey());
+        assertEquals(result.getSortKey(), record.getSortKey());
+        assertEquals(result.getNestedIgnored(), record.getNestedIgnored());
+        assertEquals(result.getNestedEncrypted(), record.getNestedEncrypted());
+        assertEquals(result.getNestedSigned(), record.getNestedSigned());
+    }
+
+    @Test
+    public void TestPutAndGetConflictingFlattenedBean() {
+        final String PARTITION = "ConflictingFlattenedBean";
+        final int SORT = 20230713;
+        TableSchema<ConflictingFlattenedBean> schemaOnEncrypt =
+            TableSchema.fromBean(ConflictingFlattenedBean.class);
+        List<String> allowedUnsignedAttributes = Arrays.asList(
+            "lastName",
+            "anotherLastName",
+            "finalLastName");
+        DynamoDbEnhancedClient enhancedClient =
+            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, null);
+
+        DynamoDbTable<ConflictingFlattenedBean> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
+
+        ConflictingFlattenedBean record = new ConflictingFlattenedBean();
+        record.setPartitionKey(PARTITION);
+        record.setSortKey(SORT);
+        record.setNestedEncrypted(new ConflictingFlattenedBean.NestedBean (
+            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Moe", "Howard"
+        ));
+        record.setNestedIgnored(new ConflictingFlattenedBean.FinalNestedBean (
+            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Larry", "Fine"
+        ));
+        record.setNestedSigned(new ConflictingFlattenedBean.AnotherNestedBean (
+            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Curly", "Howard"
+        ));
+
+        // Put an item into an Amazon DynamoDB table.
+        table.putItem(record);
+        // table.deleteItem(record);
+
+        // Get the item back from the table
+        Key key = Key.builder()
+            .partitionValue(PARTITION).sortValue(SORT)
+            .build();
+
+        // Get the item by using the key.
+        ConflictingFlattenedBean result = table.getItem(
+            (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
+        assertEquals(result.getPartitionKey(), record.getPartitionKey());
+        assertEquals(result.getSortKey(), record.getSortKey());
+        assertEquals(result.getNestedIgnored(), record.getNestedIgnored());
+        assertEquals(result.getNestedEncrypted(), record.getNestedEncrypted());
+        assertEquals(result.getNestedSigned(), record.getNestedSigned());
+    }
+    
+    @Test
     public void TestPutAndGetSignOnly() {
         TableSchema<SignOnlyClass> schemaOnEncrypt = TableSchema.fromBean(SignOnlyClass.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-                DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .logicalTableName(TEST_TABLE_NAME)
-                        .keyring(createKmsKeyring())
-                        .allowedUnsignedAttributes(Arrays.asList("doNothing"))
-                        .schemaOnEncrypt(schemaOnEncrypt)
-                        .build());
-        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
-
+        List<String> allowedUnsignedAttributes = Collections.singletonList("doNothing");
+        DynamoDbEnhancedClient enhancedClient =
+            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, null);
         DynamoDbTable<SignOnlyClass> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
 
         SignOnlyClass record = new SignOnlyClass();
@@ -355,16 +436,9 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         // Use an KMS Key that does not exist
         String invalidKey = "arn:aws:kms:us-west-2:658956600833:key/ffffffff-ffff-ffff-ffff-ffffffffffff";
         TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-                DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .logicalTableName(TEST_TABLE_NAME)
-                        .keyring(createKmsKeyring(invalidKey))
-                        .allowedUnsignedAttributes(Arrays.asList("doNothing"))
-                        .schemaOnEncrypt(schemaOnEncrypt)
-                        .build());
-        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
-
+        List<String> allowedUnsignedAttributes = Collections.singletonList("doNothing");
+        DynamoDbEnhancedClient enhancedClient =
+            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, invalidKey, null);
         DynamoDbTable<SimpleClass> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
 
         SimpleClass record = new SimpleClass();
@@ -383,18 +457,12 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
             expectedExceptionsMessageRegExp = ".*Status Code: 400.*"
     )
     public void TestDdbError() {
-        // Use an KMS Key that does not exist
+        // Use a DynamoDB Table that does not exist
         String badTableName = "tableDoesNotExist";
         TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(badTableName,
-                DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .logicalTableName(badTableName)
-                        .keyring(createKmsKeyring())
-                        .allowedUnsignedAttributes(Arrays.asList("doNothing"))
-                        .schemaOnEncrypt(schemaOnEncrypt)
-                        .build());
-        DynamoDbEnhancedClient enhancedClient = initEnhancedClientWithInterceptor(tableConfigs);
+        List<String> allowedUnsignedAttributes = Collections.singletonList("doNothing");
+        DynamoDbEnhancedClient enhancedClient =
+            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, badTableName);
 
         DynamoDbTable<SimpleClass> table = enhancedClient.table(badTableName, schemaOnEncrypt);
 
