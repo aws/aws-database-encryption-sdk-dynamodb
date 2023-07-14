@@ -58,7 +58,7 @@ public class InvalidAnnotatedNestedBean {
             this.lastName = lastName;
         }
 
-        @DynamoDbAttribute("id")
+        @DynamoDbAttribute("id") //This annotation is IGNORED
         public String getId() {
             return this.id;
         }
@@ -67,8 +67,8 @@ public class InvalidAnnotatedNestedBean {
             this.id = id;
         }
 
-        @DynamoDbEncryptionSignOnly
-        @DynamoDbAttribute("firstName")
+        @DynamoDbEncryptionSignOnly //This annotation is IGNORED
+        @DynamoDbAttribute("firstName") //This annotation is IGNORED
         public String getFirstName() {
             return firstName;
         }
@@ -77,8 +77,8 @@ public class InvalidAnnotatedNestedBean {
             this.firstName = firstName;
         }
 
-        @DynamoDbEncryptionDoNothing
-        @DynamoDbAttribute("lastName")
+        @DynamoDbEncryptionDoNothing //This annotation is IGNORED
+        @DynamoDbAttribute("lastName") //This annotation is IGNORED
         public String getLastName() {
             return lastName;
         }

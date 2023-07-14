@@ -14,7 +14,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 /**
- * This is a INVALID use of DynamoDbEncryption annotations on nested attributes.
+ * This is an INVALID use of DynamoDbEncryption annotations on nested attributes.
  * The DynamoDbEncryption annotations are placed on elements that are NOT
  * DynamoDB Attributes but that will be mapped together into one attribute.<p>
  */
@@ -70,11 +70,11 @@ public class InvalidAnnotatedConvertedBy {
         public String getId() { return this.id; }
         public void setId(String id) { this.id = id; }
 
-        @DynamoDbEncryptionSignOnly
+        @DynamoDbEncryptionSignOnly //This annotation is IGNORED
         public String getFirstName() { return firstName; }
         public void setFirstName(String firstName) { this.firstName = firstName; }
 
-        @DynamoDbEncryptionDoNothing
+        @DynamoDbEncryptionDoNothing //This annotation is IGNORED
         public String getLastName() { return lastName; }
         public void setLastName(String lastName) { this.lastName = lastName; }
 

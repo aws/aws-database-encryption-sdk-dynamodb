@@ -41,6 +41,9 @@ public class AnnotatedFlattenedBean {
         this.sortKey = sortKey;
     }
 
+    // Any @DynamoDbEncryption annotation here would be IGNORED
+    // Instead, the Annotations MUST BE placed on the Getter Methods of
+    // FlattenedNestedBean.
     @DynamoDbFlatten
     public FlattenedNestedBean getNestedBeanClass() {
         return this.nestedBeanClass;
