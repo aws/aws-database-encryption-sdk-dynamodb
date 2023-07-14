@@ -29,43 +29,6 @@ public class DynamoDbEnhancedClientEncryption {
                 .build();
     }
 
-    // private static void checkCustomMetadataForUnSupported(Map<String, Object> tableCustomMetadata) {
-    //     Map<String, Object> customMetadata = new HashMap<>(tableCustomMetadata);
-    //     customMetadata.remove(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX);
-    //     customMetadata.remove(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX);
-    //     if (customMetadata.size() > 0) {
-    //         AtomicReference<String> errorMessage = new AtomicReference<>("");
-    //         customMetadata.forEach((key, value) ->
-    //             errorMessage.updateAndGet(v -> v + String.format("\n\tAnnotation Prefix: %s with value of class %s.", key, value.getClass())));
-    //         throw DynamoDbEncryptionException.builder()
-    //             .message(String.format("Cannot create a Dynamo DB Encryption Interceptor with Custom Metadata" +
-    //                 " other than @DynamoDbEncryptionSignOnly & @DynamoDbEncryptionDoNothing." +
-    //                 "Encountered the following Custom Metadata:\n%s", errorMessage.get()))
-    //             .build();
-    //     }
-    // }
-    // private static void checkTableSchemaForUnSupported(TableSchema tableSchema) {
-    //     Map<String, Object> topTableCustomMetadata = tableSchema.tableMetadata().customMetadata();
-    //     tableSchema.tableMetadata().customMetadataObject()
-    //     Object topSignOnly = topTableCustomMetadata.get(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX);
-    //     Object topIgnore = topTableCustomMetadata.get(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX);
-    //     checkCustomMetadataForUnSupported(tableSchema.tableMetadata().customMetadata());
-    //     List<String> attributeNames = tableSchema.attributeNames();
-    //     // Discard the Primary Keys
-    //     attributeNames.removeAll(tableSchema.tableMetadata().primaryKeys());
-    //     String attributeName = attributeNames.remove(0);
-    //     AttributeConverter attributeConverter = tableSchema.converterForAttribute(attributeName);
-    //     EnhancedType type = attributeConverter.type();
-    //     if (type.tableSchema().isPresent()) {
-    //         Object maybeTableSchema = type.tableSchema().get();
-    //         if (maybeTableSchema instanceof TableSchema) {
-    //             TableSchema subTableSchema = (TableSchema) maybeTableSchema;
-    //             subTableSchema.tableMetadata().customMetadata().containsKey(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX);
-    //             subTableSchema.tableMetadata().customMetadata().containsKey(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX);
-    //         }
-    //     }
-    // }
-
     private static <T> DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEnhancedTableEncryptionConfig configWithSchema) {
         Map<String, CryptoAction> actions = new HashMap<>();
         Set<String> signOnlyAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class).orElseGet(HashSet::new);
