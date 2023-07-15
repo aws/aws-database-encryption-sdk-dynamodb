@@ -18,17 +18,21 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DoNothingTag;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.SignOnlyTag;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
 
+import software.amazon.cryptography.examples.ConfigUtils;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
-import static software.amazon.cryptography.examples.ConfigUtils.fromEncryptionInterceptor;
+import static software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags.primaryPartitionKey;
+import static software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags.primarySortKey;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertManipulationProof;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertNotManipulationProof;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertProtectedByEncryptionContext;
@@ -49,8 +53,7 @@ import static software.amazon.cryptography.examples.ManipulationUtils.manipulate
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
  */
-public class LombokPutGetExample {
-
+public class TableSchemaBuilderPutGetExample {
     public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
         // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
         //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
@@ -64,14 +67,36 @@ public class LombokPutGetExample {
             .build();
         final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
-        // 2. Create a Table Schema over your annotated class (See SimpleViaLombok.java in this directory).
+        // 2. Create a Table Schema Manually via the Table Schema Builder.
         //    By default, all primary key attributes will be signed but not encrypted (SIGN_ONLY)
         //    and all non-primary key attributes will be encrypted and signed (ENCRYPT_AND_SIGN).
         //    If you want a particular non-primary key attribute to be signed but not encrypted,
-        //    use the `DynamoDbEncryptionSignOnly` annotation.
+        //    use the `SignOnlyTag`.
         //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
-        //    use the `DynamoDbEncryptionDoNothing` annotation.
-        final TableSchema<SimpleViaLombok> tableSchema = TableSchema.fromImmutableClass(SimpleViaLombok.class);
+        //    use the `DoNothingTag`.
+        final TableSchema<SimpleClass> tableSchema =
+            TableSchema.builder(SimpleClass.class)
+                .newItemSupplier(SimpleClass::new)
+                .addAttribute(String.class, a -> a.name("partition_key")
+                    .getter(SimpleClass::getPartitionKey)
+                    .setter(SimpleClass::setPartitionKey)
+                    .tags(primaryPartitionKey()))
+                .addAttribute(int.class, a -> a.name("sort_key")
+                    .getter(SimpleClass::getSortKey)
+                    .setter(SimpleClass::setSortKey)
+                    .tags(primarySortKey()))
+                .addAttribute(String.class, a -> a.name("attribute1")
+                    .getter(SimpleClass::getAttribute1)
+                    .setter(SimpleClass::setAttribute1))
+                .addAttribute(String.class, a -> a.name("attribute2")
+                    .getter(SimpleClass::getAttribute2)
+                    .setter(SimpleClass::setAttribute2)
+                    .tags(new SignOnlyTag()))
+                .addAttribute(String.class, a -> a.name(":attribute3")
+                    .getter(SimpleClass::getAttribute3)
+                    .setter(SimpleClass::setAttribute3)
+                    .tags(new DoNothingTag()))
+                .build();
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
@@ -143,34 +168,33 @@ public class LombokPutGetExample {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
             .dynamoDbClient(ddb)
             .build();
-        final DynamoDbTable<SimpleViaLombok> table = enhancedClient.table(ddbTableName, tableSchema);
+        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
 
         // 8. Put an item into your table using the DynamoDb Enhanced Client.
         //    The item will be encrypted client-side according to your
         //    configuration above before it is sent to DynamoDb.
-        final SimpleViaLombok.SimpleViaLombokBuilder itemBuilder = SimpleViaLombok.builder();
-        itemBuilder.partitionKey("LombokPutGetExample");
-        itemBuilder.sortKey(0);
-        itemBuilder.attribute1("encrypt and sign me!");
-        itemBuilder.attribute2("sign me!");
-        itemBuilder.attribute3("ignore me!");
-        SimpleViaLombok item = itemBuilder.build();
+        final SimpleClass item = new SimpleClass();
+        item.setPartitionKey("TableSchemaBuilderPutGetExample");
+        item.setSortKey(0);
+        item.setAttribute1("encrypt and sign me!");
+        item.setAttribute2("sign me!");
+        item.setAttribute3("ignore me!");
         table.putItem(item);
 
         // 9. Get the item back from the table using the DynamoDb Enhanced Client.
         //    The item will be decrypted client-side, and you will get back the
         //    original item.
         final Key key = Key.builder()
-            .partitionValue("LombokPutGetExample").sortValue(0)
+            .partitionValue("TableSchemaBuilderPutGetExample").sortValue(0)
             .build();
 
-        final SimpleViaLombok decrypted = table.getItem(
+        final SimpleClass decrypted = table.getItem(
             (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
 
         // Demonstrate we get the original item back
         assert decrypted.getAttribute1().equals("encrypt and sign me!");
 
-        // Demonstrate without the Enhanced Client, the record is encrypted
+        // Demonstrate, without the Enhanced Client, the record is encrypted
         try (DynamoDbClient noEncryptionDdb = DynamoDbClient.builder().build()) {
             GetItemResponse response = noEncryptionDdb.getItem(
                 (GetItemRequest.Builder requestBuilder) -> {
@@ -191,7 +215,7 @@ public class LombokPutGetExample {
 
             // Verify the Signed Items are protected
             final DynamoDbItemEncryptor itemEncryptor = DynamoDbItemEncryptor.builder()
-                .DynamoDbItemEncryptorConfig(fromEncryptionInterceptor(encryptionInterceptor, ddbTableName))
+                .DynamoDbItemEncryptorConfig(ConfigUtils.fromEncryptionInterceptor(encryptionInterceptor, ddbTableName))
                 .build();
             assertProtectedByEncryptionContext(itemEncryptor, manipulateStringAttribute(itemDecrypted, "partition_key"), "partition_key");
             assertProtectedByEncryptionContext(itemEncryptor, manipulateNumberAttribute(itemDecrypted, "sort_key"), "sort_key");
@@ -212,4 +236,3 @@ public class LombokPutGetExample {
         PutItemGetItem(kmsKeyId, ddbTableName);
     }
 }
-
