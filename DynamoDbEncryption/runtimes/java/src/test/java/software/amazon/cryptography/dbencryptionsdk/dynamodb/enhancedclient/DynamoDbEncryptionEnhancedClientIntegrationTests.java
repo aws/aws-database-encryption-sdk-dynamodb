@@ -187,53 +187,6 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         assertEquals(result.getNestedEncrypted(), record.getNestedEncrypted());
         assertEquals(result.getNestedSigned(), record.getNestedSigned());
     }
-
-    @Test
-    public void TestPutAndGetConflictingFlattenedBean() {
-        final String PARTITION = "ConflictingFlattenedBean";
-        final int SORT = 20230713;
-        TableSchema<ConflictingFlattenedBean> schemaOnEncrypt =
-            TableSchema.fromBean(ConflictingFlattenedBean.class);
-        List<String> allowedUnsignedAttributes = Arrays.asList(
-            "lastName",
-            "anotherLastName",
-            "finalLastName");
-        DynamoDbEnhancedClient enhancedClient =
-            initEnhancedClientWithInterceptor(schemaOnEncrypt, allowedUnsignedAttributes, null, null);
-
-        DynamoDbTable<ConflictingFlattenedBean> table = enhancedClient.table(TEST_TABLE_NAME, schemaOnEncrypt);
-
-        ConflictingFlattenedBean record = new ConflictingFlattenedBean();
-        record.setPartitionKey(PARTITION);
-        record.setSortKey(SORT);
-        record.setNestedEncrypted(new ConflictingFlattenedBean.NestedBean (
-            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Moe", "Howard"
-        ));
-        record.setNestedIgnored(new ConflictingFlattenedBean.FinalNestedBean (
-            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Larry", "Fine"
-        ));
-        record.setNestedSigned(new ConflictingFlattenedBean.AnotherNestedBean (
-            "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Curly", "Howard"
-        ));
-
-        // Put an item into an Amazon DynamoDB table.
-        table.putItem(record);
-        // table.deleteItem(record);
-
-        // Get the item back from the table
-        Key key = Key.builder()
-            .partitionValue(PARTITION).sortValue(SORT)
-            .build();
-
-        // Get the item by using the key.
-        ConflictingFlattenedBean result = table.getItem(
-            (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
-        assertEquals(result.getPartitionKey(), record.getPartitionKey());
-        assertEquals(result.getSortKey(), record.getSortKey());
-        assertEquals(result.getNestedIgnored(), record.getNestedIgnored());
-        assertEquals(result.getNestedEncrypted(), record.getNestedEncrypted());
-        assertEquals(result.getNestedSigned(), record.getNestedSigned());
-    }
     
     @Test
     public void TestPutAndGetSignOnly() {

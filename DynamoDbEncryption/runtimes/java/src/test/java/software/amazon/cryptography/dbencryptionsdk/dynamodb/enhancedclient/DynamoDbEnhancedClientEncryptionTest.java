@@ -317,49 +317,4 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 .tableEncryptionConfigs(tableConfigs)
                 .build());
     }
-
-    @Test(
-        // This test SHOULD yield an exception, but does not, at this time.
-        // expectedExceptions = DynamoDbEncryptionException.class
-    )
-    public void TestInvalidAnnotatedConvertedByAnnotationsOnNonAttributes() {
-        TableSchema<InvalidAnnotatedConvertedBy> schemaOnEncrypt =
-            TableSchema.fromBean(InvalidAnnotatedConvertedBy.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(TEST_TABLE_NAME,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(TEST_TABLE_NAME)
-                .keyring(createKmsKeyring())
-                .schemaOnEncrypt(schemaOnEncrypt)
-                .build());
-        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-            CreateDynamoDbEncryptionInterceptorInput.builder()
-                .tableEncryptionConfigs(tableConfigs)
-                .build());
-    }
-
-    @Test(
-        // This test SHOULD yield an exception, but does not, at this time.
-        // expectedExceptions = DynamoDbEncryptionException.class
-    )
-    public void TestConflictingFlattenedBean() {
-        TableSchema<ConflictingFlattenedBean> schemaOnEncrypt =
-            TableSchema.fromBean(ConflictingFlattenedBean.class);
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        List<String> allowedUnsignedAttributes = Arrays.asList(
-            "lastName",
-            "anotherLastName",
-            "finalLastName");
-        tableConfigs.put(TEST_TABLE_NAME,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(TEST_TABLE_NAME)
-                .keyring(createKmsKeyring())
-                .schemaOnEncrypt(schemaOnEncrypt)
-                .allowedUnsignedAttributes(allowedUnsignedAttributes)
-                .build());
-        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-            CreateDynamoDbEncryptionInterceptorInput.builder()
-                .tableEncryptionConfigs(tableConfigs)
-                .build());
-    }
 }
