@@ -1,5 +1,7 @@
 package software.amazon.cryptography.examples;
 
+import java.util.Objects;
+
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
@@ -14,12 +16,15 @@ public class ConfigUtils {
         DynamoDbItemEncryptorConfig.Builder builder = DynamoDbItemEncryptorConfig.builder();
         builder.logicalTableName(tableEncryptionConfig.logicalTableName());
         builder.partitionKeyName(tableEncryptionConfig.partitionKeyName());
-        builder.sortKeyName(tableEncryptionConfig.sortKeyName());
         builder.attributeActionsOnEncrypt(tableEncryptionConfig.attributeActionsOnEncrypt());
-        builder.allowedUnsignedAttributes(tableEncryptionConfig.allowedUnsignedAttributes());
-        builder.allowedUnsignedAttributePrefix(tableEncryptionConfig.allowedUnsignedAttributePrefix());
         builder.algorithmSuiteId(tableEncryptionConfig.algorithmSuiteId());
-        builder.keyring(tableEncryptionConfig.keyring());
+        if (Objects.nonNull(tableEncryptionConfig.sortKeyName())) builder.sortKeyName(tableEncryptionConfig.sortKeyName());
+        if (Objects.nonNull(tableEncryptionConfig.allowedUnsignedAttributes())) builder.allowedUnsignedAttributes(tableEncryptionConfig.allowedUnsignedAttributes());
+        if (Objects.nonNull(tableEncryptionConfig.allowedUnsignedAttributePrefix())) builder.allowedUnsignedAttributePrefix(tableEncryptionConfig.allowedUnsignedAttributePrefix());
+        if (Objects.nonNull(tableEncryptionConfig.keyring())) builder.keyring(tableEncryptionConfig.keyring());
+        if (Objects.nonNull(tableEncryptionConfig.cmm())) builder.cmm(tableEncryptionConfig.cmm());
+        if (Objects.nonNull(tableEncryptionConfig.legacyOverride())) builder.legacyOverride(tableEncryptionConfig.legacyOverride());
+        if (Objects.nonNull(tableEncryptionConfig.plaintextOverride())) builder.plaintextOverride(tableEncryptionConfig.plaintextOverride());
         return builder.build();
     }
 }
