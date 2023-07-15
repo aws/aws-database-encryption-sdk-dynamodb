@@ -8,4 +8,9 @@ public class TestEnhancedPutGetExample {
     public void TestEnhancedPutGet() {
         EnhancedPutGetExample.PutItemGetItem(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME);
     }
+
+    @Test
+    public void TestLombokPutGet() {
+        LombokPutGetExample.PutItemGetItem(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME);
+    }
 }
