@@ -6,6 +6,8 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
@@ -19,6 +21,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /*
   This example sets up DynamoDb Encryption for the DynamoDb Enhanced Client
@@ -132,14 +135,14 @@ public class LombokPutGetExample {
         // 8. Put an item into your table using the DynamoDb Enhanced Client.
         //    The item will be encrypted client-side according to your
         //    configuration above before it is sent to DynamoDb.
-        final SimpleViaLombok.SimpleViaLombokBuilder item = SimpleViaLombok.builder();
-        item.partitionKey("LombokPutGetExample");
-        item.sortKey(0);
-        item.attribute1("encrypt and sign me!");
-        item.attribute2("sign me!");
-        item.attribute3("ignore me!");
-
-        table.putItem(item.build());
+        final SimpleViaLombok.SimpleViaLombokBuilder itemBuilder = SimpleViaLombok.builder();
+        itemBuilder.partitionKey("LombokPutGetExample");
+        itemBuilder.sortKey(0);
+        itemBuilder.attribute1("encrypt and sign me!");
+        itemBuilder.attribute2("sign me!");
+        itemBuilder.attribute3("ignore me!");
+        SimpleViaLombok item = itemBuilder.build();
+        table.putItem(item);
 
         // 9. Get the item back from the table using the DynamoDb Enhanced Client.
         //    The item will be decrypted client-side, and you will get back the
@@ -148,11 +151,30 @@ public class LombokPutGetExample {
             .partitionValue("LombokPutGetExample").sortValue(0)
             .build();
 
-        final SimpleViaLombok result = table.getItem(
+        final SimpleViaLombok decrypted = table.getItem(
             (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
 
         // Demonstrate we get the original item back
-        assert result.getAttribute1().equals("encrypt and sign me!");
+        assert decrypted.getAttribute1().equals("encrypt and sign me!");
+
+        // Demonstrate without the Enhanced Client, the record is encrypted
+        try (DynamoDbClient noEncryptionDdb = DynamoDbClient.builder().build()) {
+            GetItemResponse response = noEncryptionDdb.getItem(
+                (GetItemRequest.Builder requestBuilder) -> {
+                    requestBuilder.key(key.primaryKeyMap(tableSchema));
+                    requestBuilder.tableName(ddbTableName);
+                });
+            // Assert the Encrypted Field is in Bytes
+            assert Objects.nonNull(response.item().get("attribute1").b());
+            // Assert the Encrypted Field is not a String
+            assert Objects.isNull(response.item().get("attribute1").s());
+            // Assert the Signed Only Field is a String and is Equal to the input
+            assert Objects.nonNull(response.item().get("attribute2").s());
+            assert response.item().get("attribute2").s().equals(item.getAttribute2());
+            // Assert the Not Signed, Not Encrypted Field is a String and is Equal to the input
+            assert Objects.nonNull(response.item().get(":attribute3").s());
+            assert response.item().get(":attribute3").s().equals(item.getAttribute3());
+        }
     }
 
     public static void main(final String[] args) {
