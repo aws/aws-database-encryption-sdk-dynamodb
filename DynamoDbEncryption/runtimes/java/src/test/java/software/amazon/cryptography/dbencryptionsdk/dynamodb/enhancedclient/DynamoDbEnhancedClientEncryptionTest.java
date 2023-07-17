@@ -317,4 +317,34 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 .tableEncryptionConfigs(tableConfigs)
                 .build());
     }
+
+    @Test(
+        // We skip this Test.
+        enabled = false,
+        // The DB-ESDK-DynamoDB for Java SHOULD detect ALL DynamoDBEncryption
+        // Tags & Attributes that are IGNORED and throw an Exception.
+        // However, detecting IGNORED DynamoDBEncryption Tags & Attributes
+        // when a nested class is Flattened has NOT been implemented.
+        expectedExceptions = DynamoDbEncryptionException.class
+    )
+    public void TestConflictingFlattenedBean() {
+        TableSchema<ConflictingFlattenedBean> schemaOnEncrypt =
+            TableSchema.fromBean(ConflictingFlattenedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        List<String> allowedUnsignedAttributes = Arrays.asList(
+            "lastName",
+            "anotherLastName",
+            "finalLastName");
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributes(allowedUnsignedAttributes)
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
 }
