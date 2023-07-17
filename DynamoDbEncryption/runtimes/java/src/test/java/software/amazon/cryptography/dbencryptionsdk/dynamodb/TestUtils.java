@@ -100,8 +100,7 @@ public class TestUtils {
                 .build();
         CreateAwsKmsHierarchicalKeyringInput.Builder keyringInputBuilder = CreateAwsKmsHierarchicalKeyringInput.builder()
                 .keyStore(keystore)
-                .ttlSeconds(600)
-                .maxCacheSize(100);
+	        .ttlSeconds(600);
         if (branchKeyId != null) {
             keyringInputBuilder = keyringInputBuilder.branchKeyId(branchKeyId);
         }

@@ -15,6 +15,7 @@ use aws.cryptography.materialProviders#BranchKeyIdSupplierReference
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
+use aws.cryptography.materialProviders#CacheType
 use aws.cryptography.keyStore#KeyStore
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#CryptoAction
 
@@ -617,9 +618,8 @@ structure MultiKeyStore {
   @required
   @javadoc("How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
-  @required
-  @javadoc("The max number of entries the local cache for beacon key material holds before it must evict older entries.")
-  maxCacheSize: Integer
+  @javadoc("Which type of local cache to use.")
+  cache : CacheType
 }
 
 //= specification/searchable-encryption/search-config.md#beacon-key-source

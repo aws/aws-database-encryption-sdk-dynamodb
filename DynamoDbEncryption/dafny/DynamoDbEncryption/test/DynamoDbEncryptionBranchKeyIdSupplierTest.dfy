@@ -18,31 +18,31 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   import KeyStore 
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
 
-  const TEST_DBE_ALG_SUITE_ID := MPL.AlgorithmSuiteId.DBE(MPL.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384);
+  const TEST_DBE_ALG_SUITE_ID := MPL.AlgorithmSuiteId.DBE(MPL.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
 
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
-  const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-  const branchKeyStoreName := "KeyStoreTestTable";
-  const logicalKeyStoreName := branchKeyStoreName;
+  const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+  const branchKeyStoreName := "KeyStoreTestTable"
+  const logicalKeyStoreName := branchKeyStoreName
 
   // These tests require a keystore populated with a key with this Id
-  const BRANCH_KEY_ID := "71c83ce3-aad6-4aab-a4c4-d02bb9273305";
-  const BRANCH_KEY_ID_UTF8 := UTF8.EncodeAscii(BRANCH_KEY_ID);
-  const ACTIVE_ACTIVE_BRANCH_KEY_ID := "9b5dea9b-6838-4af4-84a6-b48dca977b7a";
+  const BRANCH_KEY_ID := "71c83ce3-aad6-4aab-a4c4-d02bb9273305"
+  const BRANCH_KEY_ID_UTF8 := UTF8.EncodeAscii(BRANCH_KEY_ID)
+  const ACTIVE_ACTIVE_BRANCH_KEY_ID := "9b5dea9b-6838-4af4-84a6-b48dca977b7a"
 
   // Constants for TestBranchKeySupplier
-  const BRANCH_KEY := "branchKey";
-  const STRING_TYPE_ID: seq<uint8> := [0x00, 0x01];
-  const CASE_A := "CASE_A";
-  const CASE_B := "CASE_B";
+  const BRANCH_KEY := "branchKey"
+  const STRING_TYPE_ID: seq<uint8> := [0x00, 0x01]
+  const CASE_A := "CASE_A"
+  const CASE_B := "CASE_B"
   // "CASE_A" encoded as a DDB S
-  const CASE_A_BYTES: seq<uint8> := STRING_TYPE_ID + [0x43, 0x41, 0x53, 0x45, 0x5f, 0x41];
+  const CASE_A_BYTES: seq<uint8> := STRING_TYPE_ID + [0x43, 0x41, 0x53, 0x45, 0x5f, 0x41]
   // "CASE_B" encoded as a DDB S
-  const CASE_B_BYTES: seq<uint8> := STRING_TYPE_ID + [0x43, 0x41, 0x53, 0x45, 0x5f, 0x42];
+  const CASE_B_BYTES: seq<uint8> := STRING_TYPE_ID + [0x43, 0x41, 0x53, 0x45, 0x5f, 0x42]
   const BRANCH_KEY_ID_A := BRANCH_KEY_ID
   const BRANCH_KEY_ID_B := ACTIVE_ACTIVE_BRANCH_KEY_ID
-  const EC_PARTITION_NAME := UTF8.EncodeAscii("aws-crypto-partition-name");
-  const RESERVED_PREFIX := "aws-crypto-attr.";
+  const EC_PARTITION_NAME := UTF8.EncodeAscii("aws-crypto-partition-name")
+  const RESERVED_PREFIX := "aws-crypto-attr."
 
   method {:test} TestHappyCase() 
   {
@@ -76,7 +76,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
         branchKeyIdSupplier := Some(branchKeyIdSupplier),
         keyStore := keyStore,
         ttlSeconds := ttl,
-        maxCacheSize := Option.Some(10)
+        cache := None
       )
     );
 
