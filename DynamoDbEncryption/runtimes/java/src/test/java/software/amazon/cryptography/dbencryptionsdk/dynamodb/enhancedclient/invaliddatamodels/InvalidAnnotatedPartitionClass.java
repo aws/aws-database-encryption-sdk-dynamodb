@@ -1,7 +1,8 @@
-package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.invaliddatamodels;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionDoNothing;
 
 @DynamoDbBean
 public class InvalidAnnotatedPartitionClass {

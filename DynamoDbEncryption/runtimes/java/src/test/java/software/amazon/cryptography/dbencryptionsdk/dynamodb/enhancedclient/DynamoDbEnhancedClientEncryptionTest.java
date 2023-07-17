@@ -5,6 +5,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.Direc
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.invaliddatamodels.*;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
