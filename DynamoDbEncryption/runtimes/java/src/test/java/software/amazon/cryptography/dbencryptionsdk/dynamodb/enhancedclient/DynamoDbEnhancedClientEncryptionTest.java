@@ -325,6 +325,8 @@ public class DynamoDbEnhancedClientEncryptionTest {
         // Tags & Attributes that are IGNORED and throw an Exception.
         // However, detecting IGNORED DynamoDBEncryption Tags & Attributes
         // when a nested class is Flattened has NOT been implemented.
+        // See GitHub Issue #259:
+        // https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/issues/259
         expectedExceptions = DynamoDbEncryptionException.class
     )
     public void TestConflictingFlattenedBean() {
