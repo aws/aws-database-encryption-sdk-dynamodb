@@ -86,6 +86,7 @@ public class DynamoDbEnhancedClientEncryption {
                 actions.put(attributeName, CryptoAction.ENCRYPT_AND_SIGN);
             }
 
+            // Detect Encryption Flags that are Ignored b/c they are in a Nested Class
             scanForIgnoredEncryptionTagsShallow(configWithSchema, attributeName);
         }
 
@@ -128,7 +129,14 @@ public class DynamoDbEnhancedClientEncryption {
      * DynamoDB Encryption Tags in Nested Classes are IGNORED by the
      * Database Encryption SDK for DynamoDB.<p>
      * As such, Detection of a nested DynamoDB Encryption Tag on a Nested Type
-     * triggers a Runtime Exception that MUST NOT BE ignored.
+     * triggers a Runtime Exception that MUST NOT BE ignored.<p>
+     * CAVEAT: Encryption Tags on fields of Nested Classes that are
+     * Flattened onto the top record are Respected.<p>
+     * The behavior of Flatten pushes the Attributes onto the top level record,
+     * making the "flattened sub-fields" equivalent to any other DynamoDB Attribute.<p>
+     * However, there still exists a possibility for IGNORED Encryption Tags,
+     * as any Encryption Tag on the field that will be "flattened" is ignored.<p>
+     * This method DOES NOT detect these "ignored-by-flattened" tags.
      */
     private static void scanForIgnoredEncryptionTagsShallow(
         final DynamoDbEnhancedTableEncryptionConfig configWithSchema,
