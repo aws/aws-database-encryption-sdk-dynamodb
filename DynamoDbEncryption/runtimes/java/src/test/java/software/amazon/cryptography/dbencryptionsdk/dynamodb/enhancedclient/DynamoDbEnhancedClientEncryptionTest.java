@@ -321,6 +321,48 @@ public class DynamoDbEnhancedClientEncryptionTest {
     }
 
     @Test(
+        expectedExceptions = DynamoDbEncryptionException.class,
+        expectedExceptionsMessageRegExp = "Detected DynamoDbEncryption Tag DynamoDbEncryption:SortOnly on a nested attribute with Path DynamoDbEncryptionInterceptorTestTable.nestedObject.secondNest.secondNestedId. This is NOT Supported at this time!"
+    )
+    public void TestInvalidDeepNested() {
+        TableSchema<InvalidDeepNested> schemaOnEncrypt =
+            TableSchema.fromBean(InvalidDeepNested.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributePrefix(":")
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class,
+        expectedExceptionsMessageRegExp = "Detected DynamoDbEncryption Tag DynamoDbEncryption:SortOnly on a nested attribute with Path DynamoDbEncryptionInterceptorTestTable.nestedObject.secondNestedId. This is NOT Supported at this time!"
+    )
+    public void TestInvalidDeepFlatten() {
+        TableSchema<InvalidDeepFlatten> schemaOnEncrypt =
+            TableSchema.fromBean(InvalidDeepFlatten.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributePrefix(":")
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
         // We skip this Test.
         enabled = false,
         // The DB-ESDK-DynamoDB for Java SHOULD detect ALL DynamoDBEncryption
