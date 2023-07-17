@@ -6,6 +6,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     `java`
     `java-library`
+    id("io.freefair.lombok") version "8.1.0"
 }
 
 group = "software.amazon.cryptography"
