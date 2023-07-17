@@ -49,8 +49,8 @@ module StructuredEncryptionHeader {
   type CMPEncryptionContext  = x : CMP.EncryptionContext | ValidEncryptionContext(x) witness *
   type CMPEncryptedDataKeyListEmptyOK = x : seq<CMPEncryptedDataKey> | |x| < UINT8_LIMIT
   type LegendByte = x : uint8 | ValidLegendByte(x) witness SIGN_ONLY_LEGEND
-  type Legend = x : seq<LegendByte> | |x| <= UINT16_LIMIT
-  type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| <= UINT16_LIMIT
+  type Legend = x : seq<LegendByte> | |x| < UINT16_LIMIT
+  type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
   predicate method ValidVersion(x : uint8) {
     x == 1
@@ -73,15 +73,15 @@ module StructuredEncryptionHeader {
   }
   
   predicate method ValidEncryptionContext(x : CMP.EncryptionContext) {
-    && |x| <= UINT16_LIMIT
-    && (forall k <- x :: |k| <= UINT16_LIMIT && |x[k]| <= UINT16_LIMIT)
+    && |x| < UINT16_LIMIT
+    && (forall k <- x :: |k| < UINT16_LIMIT && |x[k]| < UINT16_LIMIT)
   }
 
   predicate method ValidEncryptedDataKey(x : CMP.EncryptedDataKey)
   {
-    && |x.keyProviderId| <= UINT16_LIMIT
-    && |x.keyProviderInfo| <= UINT16_LIMIT
-    && |x.ciphertext| <= UINT16_LIMIT
+    && |x.keyProviderId| < UINT16_LIMIT
+    && |x.keyProviderInfo| < UINT16_LIMIT
+    && |x.ciphertext| < UINT16_LIMIT
   }
 
   // header without commitment
@@ -331,9 +331,9 @@ module StructuredEncryptionHeader {
 
   function method ToUInt16(x : nat)
     : (ret : Result<uint16, Error>)
-    ensures x <= UINT16_LIMIT ==> ret.Success?
+    ensures x < UINT16_LIMIT ==> ret.Success?
   {
-    :- Need(x <= UINT16_LIMIT, E("Value too big for 16 bits"));
+    :- Need(x < UINT16_LIMIT, E("Value too big for 16 bits"));
     Success(x as uint16)
   }
 
@@ -408,7 +408,7 @@ module StructuredEncryptionHeader {
     if |attrs| == 0 then
       Success(serialized)
     else
-      :- Need((|serialized| + 1) <= UINT16_LIMIT, E("Legend Too Long."));
+      :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
       :- Need(data[attrs[0]].content.Action?, E("Schema must be flat"));
       var legendChar := GetActionLegend(data[attrs[0]].content.Action);
       MakeLegend2(attrs[1..], data, serialized + [legendChar])
@@ -579,7 +579,7 @@ module StructuredEncryptionHeader {
     if count == 0 then
       Success(deserialized)
     else
-      :- Need(|deserialized.0| + 1  <= UINT16_LIMIT, E("Too much context"));
+      :- Need(|deserialized.0| + 1  < UINT16_LIMIT, E("Too much context"));
       var kv :- GetOneKVPair(data);
       //= specification/structured-encryption/header.md#key-value-pair-entries
       //# This sequence MUST NOT contain duplicate entries.
