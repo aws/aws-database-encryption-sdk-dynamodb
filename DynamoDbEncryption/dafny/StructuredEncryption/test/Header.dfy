@@ -150,7 +150,7 @@ module TestHeader {
     expect legend == [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND, ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND];
   }
 
-  method {:test} TestSchemaOrderLength() {
+  method {:test} {:vcs_split_on_every_assert} TestSchemaOrderLength() {
     var schemaMap : CryptoSchemaMap := map[
       "aa" := MakeSchema(ENCRYPT_AND_SIGN),
       "zz" := MakeSchema(SIGN_ONLY),

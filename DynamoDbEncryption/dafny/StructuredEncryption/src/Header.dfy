@@ -888,6 +888,7 @@ module StructuredEncryptionHeader {
       var kvLen := 2 + keyLen + 2 + valueLen;
       assert kvLen <= |y|;
       var value := y[keyLen+4..kvLen];
+      assert keyLen+4 <= kvLen;
       assert x[keyLen+4..kvLen] == y[keyLen+4..kvLen];
       assert UTF8.ValidUTF8Seq(value);
     }
