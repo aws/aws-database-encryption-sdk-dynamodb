@@ -113,7 +113,6 @@ public class HierarchicalKeyringExample {
                 .keyStore(keystore)
                 .branchKeyIdSupplier(branchKeyIdSupplier)
                 .ttlSeconds(600) // This dictates how often we call back to KMS to authorize use of the branch keys
-                .maxCacheSize(100) // This dictates how many branch keys will be held stored on the host 
                 .build();
         final IKeyring hierarchicalKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 

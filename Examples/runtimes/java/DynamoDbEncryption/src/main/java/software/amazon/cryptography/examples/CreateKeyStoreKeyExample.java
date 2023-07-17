@@ -3,6 +3,7 @@ package software.amazon.cryptography.examples;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.keystore.KeyStore;
+import software.amazon.cryptography.keystore.model.CreateKeyInput;
 import software.amazon.cryptography.keystore.model.KMSConfiguration;
 import software.amazon.cryptography.keystore.model.KeyStoreConfig;
 
@@ -44,7 +45,8 @@ public class CreateKeyStoreKeyExample {
         // 2. Create a new branch key and beacon key in our KeyStore.
         //    Both the branch key and the beacon key will share an Id.
         //    This creation is eventually consistent.
-        final String branchKeyId = keystore.CreateKey().branchKeyIdentifier();
+
+        final String branchKeyId = keystore.CreateKey(CreateKeyInput.builder().build()).branchKeyIdentifier();
 
         return branchKeyId;
     }

@@ -216,7 +216,6 @@ public class BasicSearchableEncryptionExample {
         .branchKeyId(branchKeyId)
         .keyStore(keyStore)
         .ttlSeconds(6000l)
-        .maxCacheSize(100)
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
