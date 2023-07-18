@@ -21,7 +21,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.datamodels.SimpleViaLombok;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels.SimpleViaLombok;
 import software.amazon.cryptography.materialproviders.IKeyring;
 
 import static java.lang.Math.abs;

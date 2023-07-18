@@ -1,4 +1,4 @@
-package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.datamodels;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels;
 
 import java.time.Instant;
 
