@@ -19,9 +19,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.awssdk.services.kms.model.KmsException;
 
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.AnnotatedConvertedBy.ConvertedByNestedBean;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.AnnotatedFlattenedBean.FlattenedNestedBean;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
@@ -127,7 +125,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         AnnotatedFlattenedBean record = new AnnotatedFlattenedBean();
         record.setPartitionKey(PARTITION);
         record.setSortKey(SORT);
-        FlattenedNestedBean nestedBean = new FlattenedNestedBean(
+        AnnotatedFlattenedBean.FlattenedNestedBean nestedBean = new AnnotatedFlattenedBean.FlattenedNestedBean(
             "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "James", "Bond"
         );
         record.setNestedBeanClass(nestedBean);
@@ -163,7 +161,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
         AnnotatedConvertedBy record = new AnnotatedConvertedBy();
         record.setPartitionKey(PARTITION);
         record.setSortKey(SORT);
-        ConvertedByNestedBean nestedBean = new ConvertedByNestedBean(
+        AnnotatedConvertedBy.ConvertedByNestedBean nestedBean = new AnnotatedConvertedBy.ConvertedByNestedBean(
             "9305B367-C477-4A58-9E6C-BF7D59D17C8A", "Winnie", "the-Pooh"
         );
         record.setNestedEncrypted(nestedBean);

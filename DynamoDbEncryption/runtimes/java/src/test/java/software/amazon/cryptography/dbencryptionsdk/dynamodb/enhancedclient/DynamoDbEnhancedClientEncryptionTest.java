@@ -5,6 +5,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.Direc
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.invaliddatamodels.*;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
@@ -125,7 +127,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoNothingOnPartitionAttribute() {
         TableSchema<InvalidAnnotatedPartitionClass> schemaOnEncrypt = TableSchema.fromBean(InvalidAnnotatedPartitionClass.class);
@@ -187,7 +189,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoNothingOnSortAttribute() {
         TableSchema<InvalidAnnotatedSortClass> schemaOnEncrypt = TableSchema.fromBean(InvalidAnnotatedSortClass.class);
@@ -206,7 +208,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoubleAnnotationOnAttribute() {
         TableSchema<InvalidDoubleAnnotationClass> schemaOnEncrypt = TableSchema.fromBean(InvalidDoubleAnnotationClass.class);
@@ -311,6 +313,48 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 .keyring(createKmsKeyring())
                 .schemaOnEncrypt(schemaOnEncrypt)
                 .allowedUnsignedAttributes(Collections.singletonList("nestedIgnored"))
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class,
+        expectedExceptionsMessageRegExp = "Detected DynamoDbEncryption Tag DynamoDbEncryption:SortOnly on a nested attribute with Path DynamoDbEncryptionInterceptorTestTable.nestedObject.secondNest.secondNestedId. This is NOT Supported at this time!"
+    )
+    public void TestInvalidDeepNested() {
+        TableSchema<InvalidDeepNested> schemaOnEncrypt =
+            TableSchema.fromBean(InvalidDeepNested.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributePrefix(":")
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class,
+        expectedExceptionsMessageRegExp = "Detected DynamoDbEncryption Tag DynamoDbEncryption:SortOnly on a nested attribute with Path DynamoDbEncryptionInterceptorTestTable.nestedObject.secondNestedId. This is NOT Supported at this time!"
+    )
+    public void TestInvalidDeepFlatten() {
+        TableSchema<InvalidDeepFlatten> schemaOnEncrypt =
+            TableSchema.fromBean(InvalidDeepFlatten.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributePrefix(":")
                 .build());
         DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
             CreateDynamoDbEncryptionInterceptorInput.builder()

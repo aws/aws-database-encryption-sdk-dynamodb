@@ -1,7 +1,13 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import software.amazon.awssdk.enhanced.dynamodb.IndexMetadata;
 import software.amazon.awssdk.enhanced.dynamodb.KeyAttributeMetadata;
@@ -23,9 +29,8 @@ public class DynamoDbEnhancedClientEncryption {
     public static DynamoDbEncryptionInterceptor CreateDynamoDbEncryptionInterceptor(
             CreateDynamoDbEncryptionInterceptorInput input) {
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-        for (String tableName : input.tableEncryptionConfigs().keySet()) {
-            tableConfigs.put(tableName, getTableConfig(input.tableEncryptionConfigs().get(tableName)));
-        }
+        input.tableEncryptionConfigs().forEach(
+            (name, config) -> tableConfigs.put(name, getTableConfig(config, name)));
 
         return DynamoDbEncryptionInterceptor.builder()
                 .config(DynamoDbTablesEncryptionConfig.builder()
@@ -37,42 +42,50 @@ public class DynamoDbEnhancedClientEncryption {
     private static Set<String> attributeNamesUsedInIndices(
         final TableMetadata tableMetadata
     ) {
-        Set<String> partitionAttributeNames = tableMetadata.indices().stream()
+        Set<String> allIndexAttributes = new HashSet<>();
+        tableMetadata.indices().stream()
             .map(IndexMetadata::partitionKey)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(KeyAttributeMetadata::name)
-            .collect(Collectors.toSet());
-        Set<String> sortAttributeNames = tableMetadata.indices().stream()
+            .forEach(allIndexAttributes::add);
+        tableMetadata.indices().stream()
             .map(IndexMetadata::sortKey)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(KeyAttributeMetadata::name)
-            .collect(Collectors.toSet());
-        Set<String> allIndexAttributes = new HashSet<>();
-        allIndexAttributes.addAll(partitionAttributeNames);
-        allIndexAttributes.addAll(sortAttributeNames);
+            .forEach(allIndexAttributes::add);
         return allIndexAttributes;
     }
 
-    private static DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEnhancedTableEncryptionConfig configWithSchema) {
+    private static DynamoDbTableEncryptionConfig getTableConfig(
+        final DynamoDbEnhancedTableEncryptionConfig configWithSchema,
+        final String tableName
+    ) {
         Map<String, CryptoAction> actions = new HashMap<>();
 
-        Set<String> signOnlyAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class).orElseGet(HashSet::new);
-        Set<String> doNothingAttributes = configWithSchema.schemaOnEncrypt().tableMetadata().customMetadataObject(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX, Set.class).orElseGet(HashSet::new);
-        Set<String> keyAttributes = attributeNamesUsedInIndices(configWithSchema.schemaOnEncrypt().tableMetadata());
+        TableSchema<?> topTableSchema = configWithSchema.schemaOnEncrypt();
+        Set<String> signOnlyAttributes = getSignOnlyAttributes(topTableSchema);
+        Set<String> doNothingAttributes = getDoNothingAttributes(topTableSchema);
+        Set<String> keyAttributes = attributeNamesUsedInIndices(topTableSchema.tableMetadata());
 
         if (!Collections.disjoint(keyAttributes, doNothingAttributes)) {
             throw DynamoDbEncryptionException.builder()
-                    .message("Cannot use @DynamoDbEncryptionDoNothing on primary key attributes.")
+                    .message(String.format(
+                        "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: %s",
+                        tableName))
                     .build();
         } else if (!Collections.disjoint(signOnlyAttributes, doNothingAttributes)) {
             throw DynamoDbEncryptionException.builder()
-                    .message("Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute.")
+                    .message(String.format(
+                        "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute. Found on Table Name: %s",
+                        tableName))
                     .build();
         }
 
-        List<String> attributeNames = configWithSchema.schemaOnEncrypt().attributeNames();
+        List<String> attributeNames = topTableSchema.attributeNames();
+        StringBuilder path = new StringBuilder();
+        path.append(tableName).append(".");
         for (String attributeName : attributeNames) {
             if (keyAttributes.contains(attributeName)) {
                 // key attributes are always SIGN_ONLY
@@ -87,14 +100,14 @@ public class DynamoDbEnhancedClientEncryption {
             }
 
             // Detect Encryption Flags that are Ignored b/c they are in a Nested Class
-            scanForIgnoredEncryptionTagsShallow(configWithSchema, attributeName);
+            scanForIgnoredEncryptionTags(topTableSchema, attributeName, path);
         }
 
         DynamoDbTableEncryptionConfig.Builder builder = DynamoDbTableEncryptionConfig.builder();
-        String partitionName = configWithSchema.schemaOnEncrypt().tableMetadata().primaryPartitionKey();
+        String partitionName = topTableSchema.tableMetadata().primaryPartitionKey();
         builder = builder.partitionKeyName(partitionName);
 
-        Optional<String> sortName = configWithSchema.schemaOnEncrypt().tableMetadata().primarySortKey();
+        Optional<String> sortName = topTableSchema.tableMetadata().primarySortKey();
         if (sortName.isPresent()) {
             builder = builder.sortKeyName(sortName.get());
         }
@@ -122,10 +135,22 @@ public class DynamoDbEnhancedClientEncryption {
                 .build();
     }
 
+    @SuppressWarnings("unchecked")
+    private static Set<String> getSignOnlyAttributes(TableSchema<?> tableSchema) {
+        return tableSchema.tableMetadata()
+            .customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX, Set.class)
+            .orElseGet(HashSet::new);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Set<String> getDoNothingAttributes(TableSchema<?> tableSchema) {
+        return tableSchema.tableMetadata()
+            .customMetadataObject(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX, Set.class)
+            .orElseGet(HashSet::new);
+    }
+
     /**
      * Detects DynamoDB Encryption Tags in Nested Enhanced Types.<p>
-     * This method ONLY parses ONE Layer of nesting.<p>
-     * It does NOT traverse further nested Enhanced Types.<p>
      * DynamoDB Encryption Tags in Nested Classes are IGNORED by the
      * Database Encryption SDK for DynamoDB.<p>
      * As such, Detection of a nested DynamoDB Encryption Tag on a Nested Type
@@ -138,30 +163,42 @@ public class DynamoDbEnhancedClientEncryption {
      * as any Encryption Tag on the field that will be "flattened" is ignored.<p>
      * This method DOES NOT detect these "ignored-by-flattened" tags.
      */
-    private static void scanForIgnoredEncryptionTagsShallow(
-        final DynamoDbEnhancedTableEncryptionConfig configWithSchema,
-        final String attributeName
+    private static void scanForIgnoredEncryptionTags(
+        final TableSchema<?> tableSchema,
+        final String attributeName,
+        final StringBuilder path
     ) {
-        AttributeConverter attributeConverter = configWithSchema.schemaOnEncrypt().converterForAttribute(attributeName);
+        AttributeConverter<?> attributeConverter = tableSchema.converterForAttribute(attributeName);
+        StringBuilder attributePath = new StringBuilder(path).append(attributeName).append(".");
         if (
             Objects.nonNull(attributeConverter) &&
                 Objects.nonNull(attributeConverter.type()) &&
                 attributeConverter.type().tableSchema().isPresent()
         ) {
-            Object maybeTableSchema = attributeConverter.type().tableSchema().get();
-            if (maybeTableSchema instanceof TableSchema) {
-                TableSchema subTableSchema = (TableSchema) maybeTableSchema;
-                if (
-                    subTableSchema.tableMetadata().customMetadata().containsKey(CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX) ||
-                        subTableSchema.tableMetadata().customMetadata().containsKey(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX)
-                ) {
-                    throw DynamoDbEncryptionException.builder()
-                        .message(String.format(
-                            "Detected a DynamoDbEncryption Tag/Configuration on a nested attribute of %s. " +
-                                "This is NOT Supported at this time!",
-                            attributeName))
-                        .build();
-                }
+            TableSchema<?> subTableSchema = attributeConverter.type().tableSchema().get();
+            Set<String> signOnlyAttributes = getSignOnlyAttributes(subTableSchema);
+            if (signOnlyAttributes.size() > 0) {
+                throw DynamoDbEncryptionException.builder()
+                    .message(String.format(
+                        "Detected DynamoDbEncryption Tag %s on a nested attribute with Path %s. " +
+                            "This is NOT Supported at this time!",
+                        CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX,
+                        attributePath.append(signOnlyAttributes.toArray()[0])))
+                    .build();
+            }
+            Set<String> doNothingAttributes = getDoNothingAttributes(subTableSchema);
+            if (doNothingAttributes.size() > 0) {
+                throw DynamoDbEncryptionException.builder()
+                    .message(String.format(
+                        "Detected DynamoDbEncryption Tag %s on a nested attribute with Path %s. " +
+                            "This is NOT Supported at this time!",
+                        CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX,
+                        attributePath.append(doNothingAttributes.toArray()[0])))
+                    .build();
+            }
+            List<String> subAttributeNames = subTableSchema.attributeNames();
+            for (String subAttributeName : subAttributeNames) {
+                scanForIgnoredEncryptionTags(subTableSchema, subAttributeName, attributePath);
             }
         }
     }
