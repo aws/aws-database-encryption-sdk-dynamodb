@@ -29,9 +29,8 @@ public class DynamoDbEnhancedClientEncryption {
     public static DynamoDbEncryptionInterceptor CreateDynamoDbEncryptionInterceptor(
             CreateDynamoDbEncryptionInterceptorInput input) {
         Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-        for (String tableName : input.tableEncryptionConfigs().keySet()) {
-            tableConfigs.put(tableName, getTableConfig(input.tableEncryptionConfigs().get(tableName)));
-        }
+        input.tableEncryptionConfigs().forEach(
+            (name, config) -> tableConfigs.put(name, getTableConfig(config, name)));
 
         return DynamoDbEncryptionInterceptor.builder()
                 .config(DynamoDbTablesEncryptionConfig.builder()
@@ -59,7 +58,10 @@ public class DynamoDbEnhancedClientEncryption {
         return allIndexAttributes;
     }
 
-    private static DynamoDbTableEncryptionConfig getTableConfig(DynamoDbEnhancedTableEncryptionConfig configWithSchema) {
+    private static DynamoDbTableEncryptionConfig getTableConfig(
+        final DynamoDbEnhancedTableEncryptionConfig configWithSchema,
+        final String tableName
+    ) {
         Map<String, CryptoAction> actions = new HashMap<>();
 
         TableSchema<?> topTableSchema = configWithSchema.schemaOnEncrypt();
@@ -69,17 +71,21 @@ public class DynamoDbEnhancedClientEncryption {
 
         if (!Collections.disjoint(keyAttributes, doNothingAttributes)) {
             throw DynamoDbEncryptionException.builder()
-                    .message("Cannot use @DynamoDbEncryptionDoNothing on primary key attributes.")
+                    .message(String.format(
+                        "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: %s",
+                        tableName))
                     .build();
         } else if (!Collections.disjoint(signOnlyAttributes, doNothingAttributes)) {
             throw DynamoDbEncryptionException.builder()
-                    .message("Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute.")
+                    .message(String.format(
+                        "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute. Found on Table Name: %s",
+                        tableName))
                     .build();
         }
 
         List<String> attributeNames = topTableSchema.attributeNames();
         StringBuilder path = new StringBuilder();
-        path.append(configWithSchema.logicalTableName()).append(".");
+        path.append(tableName).append(".");
         for (String attributeName : attributeNames) {
             if (keyAttributes.contains(attributeName)) {
                 // key attributes are always SIGN_ONLY

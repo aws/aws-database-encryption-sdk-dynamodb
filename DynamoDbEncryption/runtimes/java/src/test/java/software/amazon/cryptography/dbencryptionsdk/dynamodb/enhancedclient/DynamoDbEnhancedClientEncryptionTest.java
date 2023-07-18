@@ -127,7 +127,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoNothingOnPartitionAttribute() {
         TableSchema<InvalidAnnotatedPartitionClass> schemaOnEncrypt = TableSchema.fromBean(InvalidAnnotatedPartitionClass.class);
@@ -189,7 +189,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoNothingOnSortAttribute() {
         TableSchema<InvalidAnnotatedSortClass> schemaOnEncrypt = TableSchema.fromBean(InvalidAnnotatedSortClass.class);
@@ -208,7 +208,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoubleAnnotationOnAttribute() {
         TableSchema<InvalidDoubleAnnotationClass> schemaOnEncrypt = TableSchema.fromBean(InvalidDoubleAnnotationClass.class);
