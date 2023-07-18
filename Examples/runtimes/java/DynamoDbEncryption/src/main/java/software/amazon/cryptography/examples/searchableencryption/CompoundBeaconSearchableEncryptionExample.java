@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -71,6 +74,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 public class CompoundBeaconSearchableEncryptionExample {
 
   static String GSI_NAME = "last4UnitCompound-index";
+  static int MAX_CONCURRENT_QUERY_THREADS = 10;
 
   public static void PutItemQueryItemWithCompoundBeacon(String ddbTableName, String branchKeyId, String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName) {
 
@@ -231,6 +235,26 @@ public class CompoundBeaconSearchableEncryptionExample {
                 .addExecutionInterceptor(encryptionInterceptor)
                 .build())
         .build();
+
+    // Perform PutItem and Query
+    PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName);
+
+    // If instead you were working in a multi-threaded context
+    // it might look like this
+    Runnable myThread = () -> {
+        for(int i = 0; i < 20; ++i) {
+            PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName);
+        }
+    };
+    ExecutorService pool = Executors.newFixedThreadPool(MAX_CONCURRENT_QUERY_THREADS);  
+    for(int i = 0; i < (2*MAX_CONCURRENT_QUERY_THREADS); i++) {
+        pool.execute(myThread);
+    }
+    pool.shutdown();
+    try {pool.awaitTermination(30, TimeUnit.SECONDS);} catch (Exception e) {}
+  }
+
+  public static void PutAndQueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName) {
 
     // 11. Put an item with both attributes used in the compound beacon.
     final HashMap<String, AttributeValue> item = new HashMap<>();
