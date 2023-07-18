@@ -105,6 +105,9 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc
     testImplementation("edu.umd.cs.mtc:multithreadedtc:1.01")
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    testImplementation("org.projectlombok:lombok:1.18.28")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.28")
 }
 
 publishing {
