@@ -27,7 +27,7 @@ jobs:
   testDotNet:
     # Don't run the nightly build on forks
     # Disabled until we reintroduce DynamoDbEncryption, since a matrix vector cannot be empty
-    if: false && (github.event_name != 'schedule' || github.repository_owner == 'awslabs')
+    if: false && (github.event_name != 'schedule' || github.repository_owner == 'aws')
     strategy:
       matrix:
         library: [
