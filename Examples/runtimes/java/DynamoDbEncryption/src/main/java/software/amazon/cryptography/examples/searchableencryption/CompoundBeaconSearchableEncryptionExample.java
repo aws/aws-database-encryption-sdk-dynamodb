@@ -237,13 +237,13 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
 
     // Perform PutItem and Query
-    QueryItemWithCompoundBeacon(ddb, ddbTableName);
+    PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName);
 
     // If instead you were working in a multi-threaded context
     // it might look like this
     Runnable myThread = () -> {
         for(int i = 0; i < 20; ++i) {
-            QueryItemWithCompoundBeacon(ddb, ddbTableName);
+            PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName);
         }
     };
     ExecutorService pool = Executors.newFixedThreadPool(MAX_CONCURRENT_QUERY_THREADS);  
@@ -254,7 +254,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     try {pool.awaitTermination(30, TimeUnit.SECONDS);} catch (Exception e) {}
   }
 
-  public static void QueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName) {
+  public static void PutAndQueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName) {
 
     // 11. Put an item with both attributes used in the compound beacon.
     final HashMap<String, AttributeValue> item = new HashMap<>();
