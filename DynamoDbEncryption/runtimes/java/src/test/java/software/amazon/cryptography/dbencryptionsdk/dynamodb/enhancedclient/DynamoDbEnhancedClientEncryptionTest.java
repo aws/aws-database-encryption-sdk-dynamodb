@@ -1,15 +1,15 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.invaliddatamodels.*;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
@@ -17,9 +17,10 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.testng.Assert.*;
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
@@ -126,7 +127,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoNothingOnPartitionAttribute() {
         TableSchema<InvalidAnnotatedPartitionClass> schemaOnEncrypt = TableSchema.fromBean(InvalidAnnotatedPartitionClass.class);
@@ -188,7 +189,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoNothingOnSortAttribute() {
         TableSchema<InvalidAnnotatedSortClass> schemaOnEncrypt = TableSchema.fromBean(InvalidAnnotatedSortClass.class);
@@ -207,7 +208,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute."
+            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
     )
     public void TestDoubleAnnotationOnAttribute() {
         TableSchema<InvalidDoubleAnnotationClass> schemaOnEncrypt = TableSchema.fromBean(InvalidDoubleAnnotationClass.class);
@@ -222,5 +223,174 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 CreateDynamoDbEncryptionInterceptorInput.builder()
                         .tableEncryptionConfigs(tableConfigs)
                         .build());
+    }
+
+    @Test(
+        expectedExceptions = DynamoDbItemEncryptorException.class,
+        expectedExceptionsMessageRegExp = "Attribute lastName is configured as DO_NOTHING but it must also be in unauthenticatedAttributes or begin with the unauthenticatedPrefix."
+    )
+    public void TestFlattenedNestedBeanAnnotationMissingUnauthenticatedAttributes() {
+        TableSchema<AnnotatedFlattenedBean> schemaOnEncrypt =
+            TableSchema.fromBean(AnnotatedFlattenedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test
+    public void TestFlattenedNestedBeanAnnotation() {
+        TableSchema<AnnotatedFlattenedBean> schemaOnEncrypt =
+            TableSchema.fromBean(AnnotatedFlattenedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributes(Collections.singletonList("lastName"))
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test
+    public void TestAnnotatedConvertedBy() {
+        TableSchema<AnnotatedConvertedBy> schemaOnEncrypt =
+            TableSchema.fromBean(AnnotatedConvertedBy.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributes(Collections.singletonList("nestedIgnored"))
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class
+    )
+    public void TestInvalidNestedBeanAnnotation() {
+        TableSchema<InvalidAnnotatedNestedBean> schemaOnEncrypt =
+            TableSchema.fromBean(InvalidAnnotatedNestedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class
+    )
+    public void TestConflictingAnnotatedNestedBean() {
+        TableSchema<ConflictingAnnotatedNestedBean> schemaOnEncrypt =
+            TableSchema.fromBean(ConflictingAnnotatedNestedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributes(Collections.singletonList("nestedIgnored"))
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class,
+        expectedExceptionsMessageRegExp = "Detected DynamoDbEncryption Tag DynamoDbEncryption:SortOnly on a nested attribute with Path DynamoDbEncryptionInterceptorTestTable.nestedObject.secondNest.secondNestedId. This is NOT Supported at this time!"
+    )
+    public void TestInvalidDeepNested() {
+        TableSchema<InvalidDeepNested> schemaOnEncrypt =
+            TableSchema.fromBean(InvalidDeepNested.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributePrefix(":")
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class,
+        expectedExceptionsMessageRegExp = "Detected DynamoDbEncryption Tag DynamoDbEncryption:SortOnly on a nested attribute with Path DynamoDbEncryptionInterceptorTestTable.nestedObject.secondNestedId. This is NOT Supported at this time!"
+    )
+    public void TestInvalidDeepFlatten() {
+        TableSchema<InvalidDeepFlatten> schemaOnEncrypt =
+            TableSchema.fromBean(InvalidDeepFlatten.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributePrefix(":")
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
+    @Test(
+        // We skip this Test.
+        enabled = false,
+        // The DB-ESDK-DynamoDB for Java SHOULD detect ALL DynamoDBEncryption
+        // Tags & Attributes that are IGNORED and throw an Exception.
+        // However, detecting IGNORED DynamoDBEncryption Tags & Attributes
+        // when a nested class is Flattened has NOT been implemented.
+        // See GitHub Issue #259:
+        // https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/issues/259
+        expectedExceptions = DynamoDbEncryptionException.class
+    )
+    public void TestConflictingFlattenedBean() {
+        TableSchema<ConflictingFlattenedBean> schemaOnEncrypt =
+            TableSchema.fromBean(ConflictingFlattenedBean.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        List<String> allowedUnsignedAttributes = Arrays.asList(
+            "lastName",
+            "anotherLastName",
+            "finalLastName");
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt)
+                .allowedUnsignedAttributes(allowedUnsignedAttributes)
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
     }
 }

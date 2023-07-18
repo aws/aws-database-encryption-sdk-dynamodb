@@ -331,9 +331,8 @@ is the `Item` field in the original response
 
 Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
 
-The GetItem response's `Item` field MUST be replaced
-with a value that is equivalent to
-the resulting item.
+The GetItem response's `Item` field MUST be
+replaced by the encrypted DynamoDb Item outputted above.
 
 ### Decrypt after BatchGetItem
 

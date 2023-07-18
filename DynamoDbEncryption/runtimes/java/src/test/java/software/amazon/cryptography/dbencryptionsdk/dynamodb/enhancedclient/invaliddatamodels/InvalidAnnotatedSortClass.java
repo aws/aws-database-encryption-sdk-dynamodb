@@ -1,19 +1,15 @@
-package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.invaliddatamodels;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
-
-/**
- * This class is used by the Enhanced Client Tests
- */
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionDoNothing;
 
 @DynamoDbBean
-public class InvalidDoubleAnnotationClass {
+public class InvalidAnnotatedSortClass {
 
     private String id;
     private String sortKey;
-    private String invalid;
 
     @DynamoDbPartitionKey
     public String getId() {
@@ -24,6 +20,7 @@ public class InvalidDoubleAnnotationClass {
         this.id = id;
     }
 
+    @DynamoDbEncryptionDoNothing
     @DynamoDbSortKey
     public String getSortKey() {
         return this.sortKey;
@@ -31,15 +28,5 @@ public class InvalidDoubleAnnotationClass {
 
     public void setSortKey(String sortKey) {
         this.sortKey = sortKey;
-    }
-
-    @DynamoDbEncryptionSignOnly
-    @DynamoDbEncryptionDoNothing
-    public String getInvalid() {
-        return this.invalid;
-    }
-
-    public void setInvalid(String invalid) {
-        this.invalid = invalid;
     }
 }

@@ -205,8 +205,15 @@ and an info as calculated [above](#calculate-info)
 
 The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
 and the Message ID generated for this Encrypted Structured Data.
+
 The `FieldRootKey` is combined with the ordinal position of a field within a record
 to generate a unique `FieldKey` for encrypting that field.
+
+The ordinal position is calculated by sorting the
+[canonical path](./header.md#canonical-path)
+of all of the [ENCRYPT_AND_SIGN](./structures.md#encryptandsign) fields,
+sorting those paths in ascending order,
+and taking the zero-based position of the field in that sorted list.
 
 The calculated Field Root MUST have length equal to the
   [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
