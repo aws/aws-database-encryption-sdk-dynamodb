@@ -14,7 +14,7 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
 public class DynamoDbEnhancedTableEncryptionConfig {
     private final String logicalTableName;
-    private final TableSchema schemaOnEncrypt;
+    private final TableSchema<?> schemaOnEncrypt;
     private final List<String> allowedUnsignedAttributes;
     private final String allowedUnsignedAttributePrefix;
     private final Keyring keyring;
@@ -39,7 +39,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
     public String logicalTableName() { return this.logicalTableName; }
 
-    public TableSchema schemaOnEncrypt() {
+    public TableSchema<?> schemaOnEncrypt() {
         return this.schemaOnEncrypt;
     }
 
@@ -82,8 +82,8 @@ public class DynamoDbEnhancedTableEncryptionConfig {
     public interface Builder {
         String logicalTableName();
         Builder logicalTableName(String logicalTableName);
-        Builder schemaOnEncrypt(TableSchema schemaOnEncrypt);
-        TableSchema schemaOnEncrypt();
+        Builder schemaOnEncrypt(TableSchema<?> schemaOnEncrypt);
+        TableSchema<?> schemaOnEncrypt();
         Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
         List<String> allowedUnsignedAttributes();
         Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix);
@@ -101,7 +101,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
     protected static class BuilderImpl implements Builder {
         protected String logicalTableName;
-        protected TableSchema schemaOnEncrypt;
+        protected TableSchema<?> schemaOnEncrypt;
         protected List<String> allowedUnsignedAttributes;
         protected String allowedUnsignedAttributePrefix;
         protected Keyring keyring;
@@ -131,12 +131,12 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
         public String logicalTableName() { return this.logicalTableName; }
 
-        public Builder schemaOnEncrypt(TableSchema schemaOnEncrypt) {
+        public Builder schemaOnEncrypt(TableSchema<?> schemaOnEncrypt) {
             this.schemaOnEncrypt = schemaOnEncrypt;
             return this;
         }
 
-        public TableSchema schemaOnEncrypt() {
+        public TableSchema<?> schemaOnEncrypt() {
             return this.schemaOnEncrypt;
         }
 
