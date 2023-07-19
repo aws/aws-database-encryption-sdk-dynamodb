@@ -1,0 +1,22 @@
+hxhxversion: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "DynamoDbEncryption/runtimes/java"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "gradle"
+    directory: "Example/runtimes/java/DynamoDbEncryption"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "gradle"
+    directory: "Example/runtimes/java/Migration"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "gradle"
+    directory: "TestVectors/runtimes/java"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: ".github/workflows"
+    schedule:
+      interval: "daily"
