@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class TestUtils {
+    // Many of these constants are copied from submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/test/Fixtures.dfy
     public static final String TEST_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
     public static final String TEST_PARTITION_NAME = "partition_key";
     public static final String TEST_SORT_NAME = "sort_key";
@@ -31,6 +32,7 @@ public class TestUtils {
     public static final String TEST_KEY_STORE_NAME = "KeyStoreDdbTable";
     public static final String TEST_KEY_STORE_KMS_KEY = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
     public static final String BRANCH_KEY_ID = "75789115-1deb-4fe3-a2ec-be9e885d1945";
+    public static final String ALTERNATE_BRANCH_KEY_ID = "4bb57643-07c1-419e-92ad-0df0df149d7c";
 
     public static final String KMS_TEST_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
