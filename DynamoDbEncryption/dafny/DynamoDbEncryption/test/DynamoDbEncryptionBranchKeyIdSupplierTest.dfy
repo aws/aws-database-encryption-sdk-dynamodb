@@ -28,7 +28,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   // These tests require a keystore populated with a key with this Id
   const BRANCH_KEY_ID := "75789115-1deb-4fe3-a2ec-be9e885d1945"
   const BRANCH_KEY_ID_UTF8 := UTF8.EncodeAscii(BRANCH_KEY_ID)
-  const ACTIVE_ACTIVE_BRANCH_KEY_ID := "9b5dea9b-6838-4af4-84a6-b48dca977b7a"
+  const ALTERNATE_BRANCH_KEY_ID := "4bb57643-07c1-419e-92ad-0df0df149d7c"
 
   // Constants for TestBranchKeySupplier
   const BRANCH_KEY := "branchKey"
@@ -40,7 +40,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   // "CASE_B" encoded as a DDB S
   const CASE_B_BYTES: seq<uint8> := STRING_TYPE_ID + [0x43, 0x41, 0x53, 0x45, 0x5f, 0x42]
   const BRANCH_KEY_ID_A := BRANCH_KEY_ID
-  const BRANCH_KEY_ID_B := ACTIVE_ACTIVE_BRANCH_KEY_ID
+  const BRANCH_KEY_ID_B := ALTERNATE_BRANCH_KEY_ID
   const EC_PARTITION_NAME := UTF8.EncodeAscii("aws-crypto-partition-name")
   const RESERVED_PREFIX := "aws-crypto-attr."
 
