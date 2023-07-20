@@ -264,6 +264,7 @@ module SearchableEncryptionInfo {
         var keyMap :- getAllKeys(stdNames, key.value);
         var beaconKeyMaterials := KeyStore.BeaconKeyMaterials(
           beaconKeyIdentifier := keyId,
+          encryptionContext := map[],
           beaconKey := key,
           hmacKeys := Some(keyMap)
         );
