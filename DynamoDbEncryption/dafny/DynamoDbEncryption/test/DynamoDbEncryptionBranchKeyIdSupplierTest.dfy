@@ -22,11 +22,11 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
 
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
   const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
-  const branchKeyStoreName := "KeyStoreTestTable"
+  const branchKeyStoreName := "KeyStoreDdbTable"
   const logicalKeyStoreName := branchKeyStoreName
 
   // These tests require a keystore populated with a key with this Id
-  const BRANCH_KEY_ID := "71c83ce3-aad6-4aab-a4c4-d02bb9273305"
+  const BRANCH_KEY_ID := "75789115-1deb-4fe3-a2ec-be9e885d1945"
   const BRANCH_KEY_ID_UTF8 := UTF8.EncodeAscii(BRANCH_KEY_ID)
   const ACTIVE_ACTIVE_BRANCH_KEY_ID := "9b5dea9b-6838-4af4-84a6-b48dca977b7a"
 
