@@ -187,7 +187,7 @@ public class HierarchicalKeyringBranchKeyIdSupplierTests {
             } else if (key.containsKey(TEST_PARTITION_NAME) && key.get(TEST_PARTITION_NAME).s().equals("caseB")) {
                 branchKeyId = "4bb57643-07c1-419e-92ad-0df0df149d7c";
             } else {
-                throw new IllegalArgumentException("HierarchicalKeyringBranchKeyIdSupplierTests internal error : " + key.get(TEST_PARTITION_NAME).s());
+		throw new IllegalArgumentException("Item invalid, does not contain expected attributes.");
             }
             return GetBranchKeyIdFromDdbKeyOutput.builder().branchKeyId(branchKeyId).build();
         }
