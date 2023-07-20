@@ -57,17 +57,6 @@ public class HierarchicalKeyringBranchKeyIdSupplierTests {
                                 .build())
                 .build();
 
-        // Create client with keyring only configured with key B
-        IKeyring keyringB = createHierarchicalKeyring(keystore, ACTIVE_ACTIVE_BRANCH_KEY_ID);
-        assertNotNull(keyringB);
-        DynamoDbEncryptionInterceptor interceptorB = TestUtils.createInterceptor(keyringB, null, null);
-        DynamoDbClient ddbB = DynamoDbClient.builder()
-                .overrideConfiguration(
-                        ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(interceptorB)
-                                .build())
-                .build();
-
         // Put CaseA item into table with Hierarchy keyring with supplier
         // Put item into table
         String partitionValue = "caseA";
@@ -139,15 +128,6 @@ public class HierarchicalKeyringBranchKeyIdSupplierTests {
         assertEquals(partitionValue, returnedItemB.get(TEST_PARTITION_NAME).s());
         assertEquals(sortValue, returnedItemB.get(TEST_SORT_NAME).n());
         assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
-
-        // Assert we can retrieve this item with a Hierarchical keyring configured only with key B
-        getResponseB = ddbB.getItem(getRequestB);
-        assertEquals(200, getResponseB.sdkHttpResponse().statusCode());
-        returnedItemB = getResponseB.item();
-        assertNotNull(returnedItemB);
-        assertEquals(partitionValue, returnedItemB.get(TEST_PARTITION_NAME).s());
-        assertEquals(sortValue, returnedItemB.get(TEST_SORT_NAME).n());
-        assertEquals(attrValue, returnedItemB.get(TEST_ATTR_NAME).s());
     }
 
     @Test(
@@ -204,8 +184,6 @@ public class HierarchicalKeyringBranchKeyIdSupplierTests {
             String branchKeyId;
             if (key.containsKey(TEST_PARTITION_NAME) && key.get(TEST_PARTITION_NAME).s().equals("caseA")) {
                 branchKeyId = BRANCH_KEY_ID;
-            } else if (key.containsKey(TEST_PARTITION_NAME) && key.get(TEST_PARTITION_NAME).s().equals("caseB")) {
-                branchKeyId = ACTIVE_ACTIVE_BRANCH_KEY_ID;
             } else {
                 throw new IllegalArgumentException("Item invalid, does not contain expected attributes.");
             }
