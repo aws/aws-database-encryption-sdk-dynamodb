@@ -81,7 +81,5 @@ jobs:
           # Clear MPL from cache
           # We have to do this because MakeFile does not do this yet. The MakeFile automatically builds and deploys dependencies
           # instead it should be picking it up from Maven.
-          # Commenting this ou while we test this PR against the latest MPL
-          # this should be removed before this PR is merged
-          # rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
+          rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
           make test_java
