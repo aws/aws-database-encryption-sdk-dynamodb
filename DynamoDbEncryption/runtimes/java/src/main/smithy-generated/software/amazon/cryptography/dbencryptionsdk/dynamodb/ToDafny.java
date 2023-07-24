@@ -55,6 +55,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncry
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 import software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient;
+import software.amazon.cryptography.materialproviders.internaldafny.types.CacheType;
 import software.amazon.cryptography.materialproviders.internaldafny.types.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.internaldafny.types.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager;
@@ -318,9 +319,11 @@ public class ToDafny {
     keyFieldName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyFieldName());
     Integer cacheTTL;
     cacheTTL = (nativeValue.cacheTTL());
-    Integer maxCacheSize;
-    maxCacheSize = (nativeValue.maxCacheSize());
-    return new MultiKeyStore(keyFieldName, cacheTTL, maxCacheSize);
+    Option<CacheType> cache;
+    cache = Objects.nonNull(nativeValue.cache()) ?
+        Option.create_Some(software.amazon.cryptography.materialproviders.ToDafny.CacheType(nativeValue.cache()))
+        : Option.create_None();
+    return new MultiKeyStore(keyFieldName, cacheTTL, cache);
   }
 
   public static SearchConfig SearchConfig(

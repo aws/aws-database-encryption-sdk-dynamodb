@@ -4,6 +4,7 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
+import software.amazon.cryptography.materialproviders.model.CacheType;
 
 /**
  * The configuration for using multiple Beacon Keys.
@@ -20,14 +21,14 @@ public class MultiKeyStore {
   private final Integer cacheTTL;
 
   /**
-   * The max number of entries the local cache for beacon key material holds before it must evict older entries.
+   * Which type of local cache to use.
    */
-  private final Integer maxCacheSize;
+  private final CacheType cache;
 
   protected MultiKeyStore(BuilderImpl builder) {
     this.keyFieldName = builder.keyFieldName();
     this.cacheTTL = builder.cacheTTL();
-    this.maxCacheSize = builder.maxCacheSize();
+    this.cache = builder.cache();
   }
 
   /**
@@ -45,10 +46,10 @@ public class MultiKeyStore {
   }
 
   /**
-   * @return The max number of entries the local cache for beacon key material holds before it must evict older entries.
+   * @return Which type of local cache to use.
    */
-  public Integer maxCacheSize() {
-    return this.maxCacheSize;
+  public CacheType cache() {
+    return this.cache;
   }
 
   public Builder toBuilder() {
@@ -81,14 +82,14 @@ public class MultiKeyStore {
     Integer cacheTTL();
 
     /**
-     * @param maxCacheSize The max number of entries the local cache for beacon key material holds before it must evict older entries.
+     * @param cache Which type of local cache to use.
      */
-    Builder maxCacheSize(Integer maxCacheSize);
+    Builder cache(CacheType cache);
 
     /**
-     * @return The max number of entries the local cache for beacon key material holds before it must evict older entries.
+     * @return Which type of local cache to use.
      */
-    Integer maxCacheSize();
+    CacheType cache();
 
     MultiKeyStore build();
   }
@@ -98,7 +99,7 @@ public class MultiKeyStore {
 
     protected Integer cacheTTL;
 
-    protected Integer maxCacheSize;
+    protected CacheType cache;
 
     protected BuilderImpl() {
     }
@@ -106,7 +107,7 @@ public class MultiKeyStore {
     protected BuilderImpl(MultiKeyStore model) {
       this.keyFieldName = model.keyFieldName();
       this.cacheTTL = model.cacheTTL();
-      this.maxCacheSize = model.maxCacheSize();
+      this.cache = model.cache();
     }
 
     public Builder keyFieldName(String keyFieldName) {
@@ -127,13 +128,13 @@ public class MultiKeyStore {
       return this.cacheTTL;
     }
 
-    public Builder maxCacheSize(Integer maxCacheSize) {
-      this.maxCacheSize = maxCacheSize;
+    public Builder cache(CacheType cache) {
+      this.cache = cache;
       return this;
     }
 
-    public Integer maxCacheSize() {
-      return this.maxCacheSize;
+    public CacheType cache() {
+      return this.cache;
     }
 
     public MultiKeyStore build() {
@@ -142,9 +143,6 @@ public class MultiKeyStore {
       }
       if (Objects.isNull(this.cacheTTL()))  {
         throw new IllegalArgumentException("Missing value for required field `cacheTTL`");
-      }
-      if (Objects.isNull(this.maxCacheSize()))  {
-        throw new IllegalArgumentException("Missing value for required field `maxCacheSize`");
       }
       return new MultiKeyStore(this);
     }

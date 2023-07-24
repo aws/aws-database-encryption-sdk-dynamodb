@@ -216,7 +216,6 @@ public class BasicSearchableEncryptionExample {
         .branchKeyId(branchKeyId)
         .keyStore(keyStore)
         .ttlSeconds(6000l)
-        .maxCacheSize(100)
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
@@ -318,16 +317,29 @@ public class BasicSearchableEncryptionExample {
         .expressionAttributeValues(expressionAttributeValues)
         .build();
 
-    final QueryResponse queryResponse = ddb.query(queryRequest);
-    List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
-    // Validate query was returned successfully
-    assert 200 == queryResponse.sdkHttpResponse().statusCode();
-    // Validate only 1 item was returned: the item we just put
-    assert attributeValues.size() == 1;
-    final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
-    // Validate the item has the expected attributes
-    assert returnedItem.get("inspector_id_last4").s().equals("4321");
-    assert returnedItem.get("unit").s().equals("123456789012");
+    // GSIs do not update instantly
+    // so if the results come back empty
+    // we retry after a short sleep
+    for (int i=0; i<10; ++i) {
+        final QueryResponse queryResponse = ddb.query(queryRequest);
+        List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
+        // Validate query was returned successfully
+        assert 200 == queryResponse.sdkHttpResponse().statusCode();
+
+	// if no results, sleep and try again
+        if (attributeValues.size() == 0) {
+            try {Thread.sleep(20);} catch (Exception e) {}
+            continue;
+        }
+
+        // Validate only 1 item was returned: the item we just put
+        assert attributeValues.size() == 1;
+        final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
+        // Validate the item has the expected attributes
+        assert returnedItem.get("inspector_id_last4").s().equals("4321");
+        assert returnedItem.get("unit").s().equals("123456789012");
+        break;
+    }
   }
 
   public static void main(final String[] args) {

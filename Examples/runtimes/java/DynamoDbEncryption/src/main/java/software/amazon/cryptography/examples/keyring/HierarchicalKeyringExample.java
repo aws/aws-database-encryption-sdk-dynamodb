@@ -18,6 +18,8 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.materialproviders.model.CacheType;
+import software.amazon.cryptography.materialproviders.model.DefaultCache;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 
@@ -113,8 +115,12 @@ public class HierarchicalKeyringExample {
                 .keyStore(keystore)
                 .branchKeyIdSupplier(branchKeyIdSupplier)
                 .ttlSeconds(600) // This dictates how often we call back to KMS to authorize use of the branch keys
-                .maxCacheSize(100) // This dictates how many branch keys will be held stored on the host 
-                .build();
+	        .cache(CacheType.builder()
+		       .Default(DefaultCache.builder()
+				.entryCapacity(100)
+				.build())
+		       .build()) // This dictates how many branch keys will be held locally
+	        .build();
         final IKeyring hierarchicalKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
         // 4. Configure which attributes are encrypted and/or signed when writing new items.

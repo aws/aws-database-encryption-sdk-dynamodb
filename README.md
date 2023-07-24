@@ -1,10 +1,5 @@
 # AWS Database Encryption SDK for DynamoDB in Java
 
-Note: The AWS Cryptographic Material Providers Library is released as a
-[developer preview](https://docs.aws.amazon.com/sdkref/latest/guide/maint-policy.html#version-life-cycle)
-and is subject to change.
-The current release is not intended to be used in production environments.
-
 The AWS Database Encryption SDK (DB-ESDK) for DynamoDB in Java is a client-side encryption 
 library that allows you to perform attribute-level encryption, enabling you to encrypt specific 
 attribute values within items before storing them in your DynamoDB table. All encryption and 
@@ -64,8 +59,8 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
   * **Via Gradle Kotlin**  
    In a Gradle Java Project, add the following to the _dependencies_ section:
    ```kotlin
-   implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0-preview-2")
-   implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0-preview-2")
+   implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0")
+   implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
    implementation(platform("software.amazon.awssdk:bom:2.19.1"))
    implementation("software.amazon.awssdk:dynamodb")
    // The following are optional:
@@ -97,12 +92,12 @@ To use the DB-ESDK for DynamoDB in Java, you must have:
     <dependency>
       <groupId>software.amazon.cryptography</groupId>
       <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
-      <version>3.0.0-preview-2</version>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>software.amazon.cryptography</groupId>
       <artifactId>aws-cryptographic-material-providers</artifactId>
-      <version>1.0.0-preview-1</version>
+      <version>1.0.0</version>
     </dependency>
     <!-- The following are optional -->
     <dependency>
