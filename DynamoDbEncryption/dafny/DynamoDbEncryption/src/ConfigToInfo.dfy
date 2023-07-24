@@ -126,15 +126,20 @@ module SearchConfigToInfo {
     //# MUST be 1
     //# For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
     //# MUST be key store's max cache size.
-    var cacheSize := if config.multi? then config.multi.maxCacheSize else 1;
-    :- Need(0 < cacheSize, E("maxCacheSize must be at least 1."));
+    var cacheType : MPT.CacheType :=
+    if config.multi? then
+      if config.multi.cache.Some? then
+        config.multi.cache.value
+      else
+        MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
+    else
+      MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
 
     //= specification/searchable-encryption/search-config.md#key-store-cache
     //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
     //# MUST be created.
     var input := MPT.CreateCryptographicMaterialsCacheInput(
-      entryCapacity := cacheSize,
-      entryPruningTailSize := None
+      cache := cacheType
     );
     var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
     var cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
@@ -558,7 +563,7 @@ module SearchConfigToInfo {
     requires 0 < |parts| + |converted|
     requires |allParts| == |parts| + |converted|
     requires parts == allParts[|converted|..]
-    requires numNon <= |allParts|;
+    requires numNon <= |allParts|
     requires CB.OrderedParts(allParts, numNon)
     requires forall i | 0 <= i < |converted| ::
                && converted[i].part == allParts[i]

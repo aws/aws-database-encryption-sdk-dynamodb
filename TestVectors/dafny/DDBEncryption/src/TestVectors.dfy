@@ -1336,7 +1336,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       return Success(Types.single(Types.SingleKeyStore(keyId := keyId, cacheTTL := cacheTTL as int32)));
     } else {
       assert |keyFieldName| > 0;
-      return Success(Types.multi(Types.MultiKeyStore(keyFieldName := keyFieldName, cacheTTL := cacheTTL as int32, maxCacheSize := maxCacheSize as int32)));
+      return Success(Types.multi(Types.MultiKeyStore(keyFieldName := keyFieldName, cacheTTL := cacheTTL as int32, cache := None)));
     }
   }
 

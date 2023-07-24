@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy"
-include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/CMMs/ExpectedEncryptionContextCMM.dfy"
+include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/CMMs/RequiredEncryptionContextCMM.dfy"
 include "../../DynamoDbEncryption/src/DynamoToStruct.dfy"
 include "../../DynamoDbEncryption/src/SearchInfo.dfy"
 include "Util.dfy"
@@ -23,7 +23,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import SE =  StructuredEncryptionUtil
   import InternalLegacyOverride
   import MaterialProviders
-  import ExpectedEncryptionContextCMM
+  import RequiredEncryptionContextCMM
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DynamoDbEncryptionUtil
@@ -669,8 +669,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# - This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
     //# - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context)
 
-    var reqCMMR := config.cmpClient.CreateExpectedEncryptionContextCMM(
-      CMP.CreateExpectedEncryptionContextCMMInput(
+    var reqCMMR := config.cmpClient.CreateRequiredEncryptionContextCMM(
+      CMP.CreateRequiredEncryptionContextCMMInput(
         underlyingCMM := Some(config.cmm),
         keyring := None,
         requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(context.Keys, ByteLess)
@@ -888,8 +888,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# - This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
     //# - The keys from the [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
 
-    var reqCMMR := config.cmpClient.CreateExpectedEncryptionContextCMM(
-      CMP.CreateExpectedEncryptionContextCMMInput(
+    var reqCMMR := config.cmpClient.CreateRequiredEncryptionContextCMM(
+      CMP.CreateRequiredEncryptionContextCMMInput(
         underlyingCMM := Some(config.cmm),
         keyring := None,
         requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(context.Keys, ByteLess)
