@@ -186,7 +186,7 @@ module BeaconTestFixtures {
                               cmm := None,
                               legacyOverride := None,
                               plaintextOverride := None
-                            );
+                            )
   const FullTableConfig := EmptyTableConfig.(
                            attributeActionsOnEncrypt := map[
                              "std2" := SE.ENCRYPT_AND_SIGN,
@@ -198,7 +198,7 @@ module BeaconTestFixtures {
                              "Year" := SE.SIGN_ONLY,
                              "Date" := SE.SIGN_ONLY
                            ]
-                           );
+                           )
 
   method GetLiteralSource(key: Bytes, version : BeaconVersion) returns (output : SI.KeySource)
     requires version.keyStore.ValidState()
@@ -212,8 +212,7 @@ module BeaconTestFixtures {
     var keys :- expect SI.GetHmacKeys(client, keyNames, keyNames, key);
     var mpl :- expect MaterialProviders.MaterialProviders();
     var input := MPT.CreateCryptographicMaterialsCacheInput(
-      entryCapacity := 3,
-      entryPruningTailSize := None
+      cache := MPT.Default(Default := MPT.DefaultCache(entryCapacity := 3))
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
     return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0);

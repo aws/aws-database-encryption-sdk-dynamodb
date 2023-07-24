@@ -309,7 +309,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype MultiKeyStore = | MultiKeyStore (
  nameonly keyFieldName: string ,
  nameonly cacheTTL: int32 ,
- nameonly maxCacheSize: int32
+ nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType>
  )
  datatype PlaintextOverride =
 	| FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ

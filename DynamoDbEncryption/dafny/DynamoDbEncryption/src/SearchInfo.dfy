@@ -259,13 +259,10 @@ module SearchableEncryptionInfo {
         var rawBeaconKeyMaterials :- maybeRawBeaconKeyMaterials
         .MapFailure(e => AwsCryptographyKeyStore(AwsCryptographyKeyStore := e));
 
-        var key := rawBeaconKeyMaterials.beaconKey;
-        var keyMap :- getAllKeys(stdNames, key);
-        var beaconKeyMaterials := MP.BeaconKeyMaterials(
-          beaconKeyIdentifier := keyId,
-          beaconKey := Some(rawBeaconKeyMaterials.beaconKey),
-          hmacKeys := Some(keyMap)
-        );
+        var key := rawBeaconKeyMaterials.beaconKeyMaterials.beaconKey;
+        :- Need(key.Some?, E("beacon key unexpectedly empty"));
+        var keyMap :- getAllKeys(stdNames, key.value);
+        var beaconKeyMaterials := rawBeaconKeyMaterials.beaconKeyMaterials.(beaconKey := None, hmacKeys := Some(keyMap));
 
         //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
         //# These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
