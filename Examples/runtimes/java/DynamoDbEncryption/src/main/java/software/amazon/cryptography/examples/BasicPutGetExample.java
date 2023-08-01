@@ -154,6 +154,11 @@ public class BasicPutGetExample {
         final GetItemRequest getRequest = GetItemRequest.builder()
                 .key(keyToGet)
                 .tableName(ddbTableName)
+                // In this example we configure a strongly consistent read
+                // because we perform a read immediately after a write (for demonstrative purposes).
+                // By default, reads are only eventually consistent.
+                // Read our docs to determine which read consistency to use for your application:
+                // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadConsistency.html
                 .consistentRead(Boolean.TRUE)
                 .build();
 
