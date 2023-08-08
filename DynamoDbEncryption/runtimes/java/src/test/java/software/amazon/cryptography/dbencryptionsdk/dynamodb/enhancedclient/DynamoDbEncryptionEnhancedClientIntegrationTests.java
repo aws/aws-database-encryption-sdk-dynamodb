@@ -341,7 +341,8 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     }
 
     @Test(
-            expectedExceptions = KmsException.class,
+            expectedExceptions = KmsException.class
+            expectedExceptionsMessageRegExp = ".*"
     )
     public void TestKmsError() {
         // Use an KMS Key that does not exist
