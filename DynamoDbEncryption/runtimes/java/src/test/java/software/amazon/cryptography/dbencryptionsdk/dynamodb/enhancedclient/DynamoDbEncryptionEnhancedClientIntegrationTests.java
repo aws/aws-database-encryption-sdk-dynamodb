@@ -341,7 +341,7 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     }
 
     @Test(
-            expectedExceptions = KmsException.class
+            expectedExceptions = KmsException.class,
             expectedExceptionsMessageRegExp = ".*"
     )
     public void TestKmsError() {
