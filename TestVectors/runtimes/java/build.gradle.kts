@@ -79,7 +79,7 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:core:2.19.1")
+    implementation("software.amazon.awssdk:core:2.20.125")
     implementation("software.amazon.awssdk:kms")
     testImplementation("com.amazonaws:DynamoDBLocal:1.+")
     // This is where we gather the SQLLite files to copy over
