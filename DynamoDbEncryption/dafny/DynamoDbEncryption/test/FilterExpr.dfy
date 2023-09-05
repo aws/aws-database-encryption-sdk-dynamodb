@@ -33,6 +33,7 @@ module TestDynamoDBFilterExpr {
     expect_equal(ParseExpr("and"), [And]);
     expect_equal(ParseExpr("  AnD   "), [And]);
     expect_equal(ParseExpr(" A  AnD  B "), [MakeAttr("A"), And, MakeAttr("B")]);
+    expect_equal(ParseExpr(" A_B  AnD  B_C "), [MakeAttr("A_B"), And, MakeAttr("B_C")]);
 
     var input := [Not, MakeAttr("A"), In, Open, MakeAttr("B"), Comma, MakeAttr("C"), Close, Or];
     expect IsIN(input[1..]);
@@ -95,13 +96,13 @@ module TestDynamoDBFilterExpr {
   method {:test} TestBasicParse() {
     var context := ExprContext (
       None,
-      Some("std2 = :A AND #Field4 = :B"),
+      Some("std2 = :A AND #Field_4 = :B"),
       Some(map[
              ":A" := DDB.AttributeValue.N("1.23"),
              ":B" := DDB.AttributeValue.S("abc")
            ]),
       Some(map[
-             "#Field4" := "std4"
+             "#Field_4" := "std4"
            ])
     );
     var version := GetLotsaBeacons();
@@ -117,7 +118,7 @@ module TestDynamoDBFilterExpr {
 
     var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys, map[]);
     var exprString := ParsedExprToString(newContext.expr);
-    expect exprString == "aws_dbe_b_std2 = :A AND #Field4 = :B";
+    expect exprString == "aws_dbe_b_std2 = :A AND #Field_4 = :B";
   }
 
     method {:test} TestNoBeaconFail() {
