@@ -151,7 +151,7 @@ public class KmsRsaKeyringExample {
             .keyring(awsKmsRsaKeyring)
             .allowedUnsignedAttributePrefix(unsignAttrPrefix)
             // Specify algorithmSuite without asymmetric signing here
-            // As of v3.1.0, the only supported algorithmSuite without asymmetric signing is
+            // As of v3.0.0, the only supported algorithmSuite without asymmetric signing is
             // ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384.
             .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
             .build();
