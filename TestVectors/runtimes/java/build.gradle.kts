@@ -72,7 +72,7 @@ val dynamodb by configurations.creating
 dependencies {
     implementation("org.dafny:DafnyRuntime:4.1.0")
     implementation("software.amazon.smithy.dafny:conversion:0.1")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.1")
     implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.1.0")
     implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:1.0-SNAPSHOT")
 
