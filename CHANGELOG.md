@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.0 2023-09-07
+
+### Features
+- Support underscores in DynamoDB expression attribute names
+
+### Maintenance
+- Upgrade various library dependencies
+- A variety of fixes to the library's CI and testing
+
 ## 3.0.0 2023-07-24
 
 ### Features

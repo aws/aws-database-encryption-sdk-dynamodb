@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "software.amazon.cryptography"
-version = "3.0.0"
+version = "3.1.0"
 description = "Aws Database Encryption Sdk for DynamoDb Java"
 
 java {
