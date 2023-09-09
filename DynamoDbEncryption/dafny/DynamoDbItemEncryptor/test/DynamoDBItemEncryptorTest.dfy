@@ -39,15 +39,15 @@ module DynamoDbItemEncryptorTest {
     );
     expect encryptRes.Failure?;
     expect encryptRes.error == Types.AwsCryptographyDbEncryptionSdkDynamoDb(
-      DDBE.DynamoDbEncryptionException(message := "No Crypto Action configured for attribute unknown"));
+                                 DDBE.DynamoDbEncryptionException(message := "No Crypto Action configured for attribute unknown"));
   }
 
   method {:test} TestMissingSortKey() {
     var config := TestFixtures.GetEncryptorConfig();
     var inputItem := map["bar" := DDBS("key"), "encrypt" := DDBS("foo"), "sign" := DDBS("bar"), "nothing" := DDBS("baz")];
     var config2 := config.(
-      sortKeyName := Some("sort"),
-      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt["sort" := CSE.SIGN_ONLY]
+    sortKeyName := Some("sort"),
+    attributeActionsOnEncrypt := config.attributeActionsOnEncrypt["sort" := CSE.SIGN_ONLY]
     );
     var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config2);
     var encryptRes := encryptor.EncryptItem(
@@ -56,7 +56,9 @@ module DynamoDbItemEncryptorTest {
       )
     );
     expect encryptRes.Failure?;
-    expect encryptRes.error == Types.DynamoDbItemEncryptorException(message := "Configuration mismatch partition or sort key does not exist in item.");
+    expect encryptRes.error == Types.DynamoDbItemEncryptorException(
+                                 message := "On Encrypt : Sort key 'sort' does not exist in item. Item contains these attributes : bar encrypt nothing sign."
+                               );
   }
 
   method {:test} TestRoundTrip() {
@@ -148,7 +150,7 @@ module DynamoDbItemEncryptorTest {
     expect |parsedHeader.value.encryptedDataKeys| == 1;
   }
 
-    method {:test} TestTooManyAttributes() {
+  method {:test} TestTooManyAttributes() {
     var inputItem : DDB.AttributeMap := map["bar" := DDBS("key")];
     var actions : DDBE.AttributeActions := map["bar" := CSE.SIGN_ONLY];
     for i := 0 to MAX_ATTRIBUTE_COUNT {
