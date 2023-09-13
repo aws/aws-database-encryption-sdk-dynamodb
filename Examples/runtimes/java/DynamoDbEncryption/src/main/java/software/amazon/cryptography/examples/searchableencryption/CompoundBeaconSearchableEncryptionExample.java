@@ -223,52 +223,23 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 9-a. Create config
+    // 9. Create config
     final DynamoDbTablesEncryptionConfig encryptionConfig =
         DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build();
 
-    // 9-b. Create the DynamoDb Encryption Interceptor
-    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
-        .config(encryptionConfig)
-        .build();
-
-    // 10. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
-    final DynamoDbClient ddb = DynamoDbClient.builder()
-        .overrideConfiguration(
-            ClientOverrideConfiguration.builder()
-                .addExecutionInterceptor(encryptionInterceptor)
-                .build())
-        .build();
-
-    // Perform PutItem and Query
-    PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName);
-
-    // If instead you were working in a multi-threaded context
-    // it might look like this
-    Runnable myThread = () -> {
-        for(int i = 0; i < 20; ++i) {
-            PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName);
-        }
-    };
-    ExecutorService pool = Executors.newFixedThreadPool(MAX_CONCURRENT_QUERY_THREADS);  
-    for(int i = 0; i < (2*MAX_CONCURRENT_QUERY_THREADS); i++) {
-        pool.execute(myThread);
-    }
-    pool.shutdown();
-    try {pool.awaitTermination(30, TimeUnit.SECONDS);} catch (Exception e) {}
-
-
-    // 11. If developing or debugging, check compound beacon values directly
-    final DynamoDbEncryptionTransforms trans = DynamoDbEncryptionTransforms.builder()
-        .DynamoDbTablesEncryptionConfig(encryptionConfig).build();
-    
+    // 10. Create an item with both attributes used in the compound beacon.
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("work_id", AttributeValue.builder().s("9ce39272-8068-4efd-a211-cd162ad65d4c").build());
     item.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
     item.put("inspector_id_last4", AttributeValue.builder().s("5678").build());
     item.put("unit", AttributeValue.builder().s("011899988199").build());
+
+    // 11. If developing or debugging, verify config by checking compound beacon values directly
+    final DynamoDbEncryptionTransforms trans = DynamoDbEncryptionTransforms.builder()
+        .DynamoDbTablesEncryptionConfig(encryptionConfig).build();
+
 
     final ResolveAttributesInput resolveInput = ResolveAttributesInput.builder()
         .TableName(ddbTableName)
@@ -277,28 +248,50 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
 
     final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
-    Map<String, String> vf = new HashMap<>();
 
     // VirtualFields is empty because we have no Virtual Fields configured
-    assert resolveOutput.VirtualFields().equals(vf);
+    assert resolveOutput.VirtualFields().isEmpty();
 
     // Verify that CompoundBeacons has the expected value
-    vf.put("last4UnitCompound", "L-5678.U-011899988199");
-    assert resolveOutput.CompoundBeacons().equals(vf);
+    Map<String, String> cbs = new HashMap<>();
+    cbs.put("last4UnitCompound", "L-5678.U-011899988199");
+    assert resolveOutput.CompoundBeacons().equals(cbs);
     // Note : the compound beacon actually stored in the table is not "L-5678.U-011899988199"
     // but rather something like "L-abc.U-123", as both parts are EncryptedParts
     // and therefore the text is replaced by the associated beacon
+
+    // 12. Create the DynamoDb Encryption Interceptor
+    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
+        .config(encryptionConfig)
+        .build();
+
+    // 13. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    final DynamoDbClient ddb = DynamoDbClient.builder()
+        .overrideConfiguration(
+            ClientOverrideConfiguration.builder()
+                .addExecutionInterceptor(encryptionInterceptor)
+                .build())
+        .build();
+
+    PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName, item);
+
+    // If instead you were working in a multi-threaded context
+    // it might look like this
+    Runnable myThread = () -> {
+        for(int i = 0; i < 20; ++i) {
+            PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName, item);
+        }
+    };
+    ExecutorService pool = Executors.newFixedThreadPool(MAX_CONCURRENT_QUERY_THREADS);  
+    for(int i = 0; i < (2*MAX_CONCURRENT_QUERY_THREADS); i++) {
+        pool.execute(myThread);
+    }
+    pool.shutdown();
+    try {pool.awaitTermination(30, TimeUnit.SECONDS);} catch (Exception e) {}
   }
 
-  public static void PutAndQueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName) {
-
-    // 11. Put an item with both attributes used in the compound beacon.
-    final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("work_id", AttributeValue.builder().s("9ce39272-8068-4efd-a211-cd162ad65d4c").build());
-    item.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
-    item.put("inspector_id_last4", AttributeValue.builder().s("5678").build());
-    item.put("unit", AttributeValue.builder().s("011899988199").build());
-
+  public static void PutAndQueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName, HashMap<String, AttributeValue> item) {
+    // 14. Write the item to the table
     final PutItemRequest putRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
         .item(item)
@@ -308,7 +301,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     // Validate object put successfully
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    // 12. Query for the item we just put.
+    // 15. Query for the item we just put.
     Map<String, String> expressionAttributesNames = new HashMap<>();
     expressionAttributesNames.put("#compound", "last4UnitCompound");
 

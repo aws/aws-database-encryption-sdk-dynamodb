@@ -316,18 +316,54 @@ public class VirtualBeaconSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 10-a. Create config
+    // 10. Create config
     final DynamoDbTablesEncryptionConfig encryptionConfig =
         DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build();
 
-    // 10-b. Create the DynamoDb Encryption Interceptor
+    // 11. Create test items
+
+    // Create item with hasTestResult=true
+    final HashMap<String, AttributeValue> itemWithHasTestResult = new HashMap<>();
+    itemWithHasTestResult.put("customer_id", AttributeValue.builder().s("ABC-123").build());
+    itemWithHasTestResult.put("create_time", AttributeValue.builder().n("1681495205").build());
+    itemWithHasTestResult.put("state", AttributeValue.builder().s("CA").build());
+    itemWithHasTestResult.put("hasTestResult", AttributeValue.builder().bool(true).build());
+
+    // Create item with hasTestResult=false
+    final HashMap<String, AttributeValue> itemWithNoHasTestResult = new HashMap<>();
+    itemWithNoHasTestResult.put("customer_id", AttributeValue.builder().s("DEF-456").build());
+    itemWithNoHasTestResult.put("create_time", AttributeValue.builder().n("1681495205").build());
+    itemWithNoHasTestResult.put("state", AttributeValue.builder().s("CA").build());
+    itemWithNoHasTestResult.put("hasTestResult", AttributeValue.builder().bool(false).build());
+
+
+    // 12. If developing or debugging, verify config by checking virtual field values directly
+    final DynamoDbEncryptionTransforms trans = DynamoDbEncryptionTransforms.builder()
+        .DynamoDbTablesEncryptionConfig(encryptionConfig).build();
+
+    final ResolveAttributesInput resolveInput = ResolveAttributesInput.builder()
+        .TableName(ddbTableName)
+        .Item(itemWithHasTestResult)
+        .Version(1)
+        .build();
+    final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
+
+    // CompoundBeacons is empty because we have no Compound Beacons configured
+    assert resolveOutput.CompoundBeacons().isEmpty();
+
+    // Verify that VirtualFields has the expected value
+    Map<String, String> vf = new HashMap<>();
+    vf.put("stateAndHasTestResult", "CAt");
+    assert resolveOutput.VirtualFields().equals(vf);
+
+    // 13. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
         .config(encryptionConfig)
         .build();
 
-    // 11. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 14. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
@@ -335,7 +371,7 @@ public class VirtualBeaconSearchableEncryptionExample {
                 .build())
         .build();
 
-    // 12. Put two items into our table using the above client.
+    // 15. Put two items into our table using the above client.
     //     The two items will differ only in their `customer_id` attribute (primary key)
     //         and their `hasTestResult` attribute.
     //     We will query against these items to demonstrate how to use our setup above
@@ -348,13 +384,6 @@ public class VirtualBeaconSearchableEncryptionExample {
     //         Its value will be an HMAC truncated to as many bits as the
     //         beacon's `length` parameter; i.e. 5.
 
-    // Add record with hasTestResult=true
-    final HashMap<String, AttributeValue> itemWithHasTestResult = new HashMap<>();
-    itemWithHasTestResult.put("customer_id", AttributeValue.builder().s("ABC-123").build());
-    itemWithHasTestResult.put("create_time", AttributeValue.builder().n("1681495205").build());
-    itemWithHasTestResult.put("state", AttributeValue.builder().s("CA").build());
-    itemWithHasTestResult.put("hasTestResult", AttributeValue.builder().bool(true).build());
-
     final PutItemRequest itemWithHasTestResultPutRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
         .item(itemWithHasTestResult)
@@ -363,13 +392,6 @@ public class VirtualBeaconSearchableEncryptionExample {
     final PutItemResponse itemWithHasTestResultPutResponse = ddb.putItem(itemWithHasTestResultPutRequest);
     // Assert PutItem was successful
     assert 200 == itemWithHasTestResultPutResponse.sdkHttpResponse().statusCode();
-
-    // Add record with hasTestResult=false
-    final HashMap<String, AttributeValue> itemWithNoHasTestResult = new HashMap<>();
-    itemWithNoHasTestResult.put("customer_id", AttributeValue.builder().s("DEF-456").build());
-    itemWithNoHasTestResult.put("create_time", AttributeValue.builder().n("1681495205").build());
-    itemWithNoHasTestResult.put("state", AttributeValue.builder().s("CA").build());
-    itemWithNoHasTestResult.put("hasTestResult", AttributeValue.builder().bool(false).build());
 
     final PutItemRequest itemWithNoHasTestResultPutRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
@@ -380,7 +402,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     // Assert PutItem was successful
     assert 200 == itemWithNoHasTestResultPutResponse.sdkHttpResponse().statusCode();
 
-    // 13. Query by stateAndHasTestResult attribute.
+    // 16. Query by stateAndHasTestResult attribute.
     //     Note that we are constructing the query as if we were querying on plaintext values.
     //     However, the DDB encryption client will detect that this attribute name has a beacon configured.
     //     The client will add the beaconized attribute name and attribute value to the query,
@@ -424,25 +446,6 @@ public class VirtualBeaconSearchableEncryptionExample {
     // Validate the item has the expected attributes
     assert returnedItem.get("state").s().equals("CA");
     assert returnedItem.get("hasTestResult").bool().equals(true);
-
-    // 14. If developing or debugging, check virtual field values directly
-    final DynamoDbEncryptionTransforms trans = DynamoDbEncryptionTransforms.builder()
-        .DynamoDbTablesEncryptionConfig(encryptionConfig).build();
-    
-    final ResolveAttributesInput resolveInput = ResolveAttributesInput.builder()
-        .TableName(ddbTableName)
-        .Item(itemWithHasTestResult)
-        .Version(1)
-        .build();
-    final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
-    Map<String, String> vf = new HashMap<>();
-
-    // CompoundBeacons is empty because we have no Compound Beacons configured
-    assert resolveOutput.CompoundBeacons().equals(vf);
-
-    // Verify that VirtualFields has the expected value
-    vf.put("stateAndHasTestResult", "CAt");
-    assert resolveOutput.VirtualFields().equals(vf);
   }
 
   public static void main(final String[] args) {
