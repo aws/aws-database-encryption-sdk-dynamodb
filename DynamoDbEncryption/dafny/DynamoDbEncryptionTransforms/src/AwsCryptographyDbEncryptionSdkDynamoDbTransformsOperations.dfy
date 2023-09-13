@@ -16,6 +16,7 @@ include "DeleteItemTransform.dfy"
 include "ExecuteStatementTransform.dfy"
 include "BatchExecuteStatementTransform.dfy"
 include "ExecuteTransactionTransform.dfy"
+include "AttributeResolver.dfy"
 
 module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations {
   import opened DdbMiddlewareConfig
@@ -41,6 +42,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
   import ExecuteStatementTransform
   import BatchExecuteStatementTransform
   import ExecuteTransactionTransform
+  import AttributeResolver
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {
@@ -287,5 +289,14 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
     ensures output.Success? && output.value.transformedOutput == input.sdkOutput
   {
     output := ExecuteTransactionTransform.Output(config, input);
+  }
+
+  predicate ResolveAttributesEnsuresPublicly(input: ResolveAttributesInput, output: Result<ResolveAttributesOutput, Error>)
+  {true}
+
+  method ResolveAttributes(config: InternalConfig, input: ResolveAttributesInput)
+    returns (output: Result<ResolveAttributesOutput, Error>)
+  {
+    output := AttributeResolver.Resolve(config, input);
   }
 }

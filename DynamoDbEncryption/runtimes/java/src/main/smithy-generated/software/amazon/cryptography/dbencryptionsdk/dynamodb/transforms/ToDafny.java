@@ -3,9 +3,15 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms;
 
+import Wrappers_Compile.Option;
+import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Character;
+import java.lang.Integer;
 import java.lang.RuntimeException;
+import java.lang.String;
+import java.util.Map;
+import java.util.Objects;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.BatchExecuteStatementInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.BatchExecuteStatementInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.BatchExecuteStatementOutputTransformInput;
@@ -45,6 +51,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internal
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.QueryInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.QueryOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.QueryOutputTransformOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ResolveAttributesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ResolveAttributesOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ScanInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ScanInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ScanOutputTransformInput;
@@ -64,6 +72,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internal
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DynamoDbEncryptionTransformsException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.OpaqueError;
+import software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue;
 import software.amazon.cryptography.services.dynamodb.internaldafny.types.BatchExecuteStatementInput;
 import software.amazon.cryptography.services.dynamodb.internaldafny.types.BatchExecuteStatementOutput;
 import software.amazon.cryptography.services.dynamodb.internaldafny.types.BatchGetItemInput;
@@ -388,6 +397,28 @@ public class ToDafny {
     return new QueryOutputTransformOutput(transformedOutput);
   }
 
+  public static ResolveAttributesInput ResolveAttributesInput(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesInput nativeValue) {
+    DafnySequence<? extends Character> tableName;
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.TableName());
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> item;
+    item = software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.AttributeMap(nativeValue.Item());
+    Option<Integer> version;
+    version = Objects.nonNull(nativeValue.Version()) ?
+        Option.create_Some((nativeValue.Version()))
+        : Option.create_None();
+    return new ResolveAttributesInput(tableName, item, version);
+  }
+
+  public static ResolveAttributesOutput ResolveAttributesOutput(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesOutput nativeValue) {
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>> virtualFields;
+    virtualFields = ToDafny.StringMap(nativeValue.VirtualFields());
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>> compoundBeacons;
+    compoundBeacons = ToDafny.StringMap(nativeValue.CompoundBeacons());
+    return new ResolveAttributesOutput(virtualFields, compoundBeacons);
+  }
+
   public static ScanInputTransformInput ScanInputTransformInput(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ScanInputTransformInput nativeValue) {
     ScanInput sdkInput;
@@ -512,6 +543,14 @@ public class ToDafny {
     DafnySequence<? extends Character> message;
     message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_DynamoDbEncryptionTransformsException(message);
+  }
+
+  public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>> StringMap(
+      Map<String, String> nativeValue) {
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+        nativeValue, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence);
   }
 
   public static IDynamoDbEncryptionTransformsClient DynamoDbEncryptionTransforms(

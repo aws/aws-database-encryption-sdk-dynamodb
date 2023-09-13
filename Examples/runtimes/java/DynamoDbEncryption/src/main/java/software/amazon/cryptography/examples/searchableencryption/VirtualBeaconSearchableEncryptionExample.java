@@ -24,6 +24,10 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeaco
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualField;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualTransform;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.DynamoDbEncryptionTransforms;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryOutputTransformOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesOutput;
 import software.amazon.cryptography.keystore.KeyStore;
 import software.amazon.cryptography.keystore.model.KMSConfiguration;
 import software.amazon.cryptography.keystore.model.KeyStoreConfig;
@@ -313,11 +317,15 @@ public class VirtualBeaconSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 10. Create the DynamoDb Encryption Interceptor
-    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
-        .config(DynamoDbTablesEncryptionConfig.builder()
+    // 10-a. Create config
+    final DynamoDbTablesEncryptionConfig encryptionConfig =
+        DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
-            .build())
+            .build();
+
+    // 10-b. Create the DynamoDb Encryption Interceptor
+    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
+        .config(encryptionConfig)
         .build();
 
     // 11. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
@@ -417,6 +425,21 @@ public class VirtualBeaconSearchableEncryptionExample {
     // Validate the item has the expected attributes
     assert returnedItem.get("state").s().equals("CA");
     assert returnedItem.get("hasTestResult").bool().equals(true);
+
+    // 14. Check virtual field values directly
+    final DynamoDbEncryptionTransforms trans = DynamoDbEncryptionTransforms.builder()
+        .DynamoDbTablesEncryptionConfig(encryptionConfig).build();
+    
+    final ResolveAttributesInput resolveInput = ResolveAttributesInput.builder()
+        .TableName(ddbTableName)
+        .Item(itemWithHasTestResult)
+        .Version(1)
+        .build();
+    final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
+    Map<String, String> vf = new HashMap<>();
+    assert resolveOutput.CompoundBeacons().equals(vf);
+    vf.put("stateAndHasTestResult", "CAt");
+    assert resolveOutput.VirtualFields().equals(vf);
   }
 
   public static void main(final String[] args) {
