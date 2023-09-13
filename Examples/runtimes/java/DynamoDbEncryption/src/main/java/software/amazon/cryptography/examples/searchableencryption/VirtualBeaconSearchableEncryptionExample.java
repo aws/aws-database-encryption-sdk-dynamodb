@@ -425,7 +425,7 @@ public class VirtualBeaconSearchableEncryptionExample {
     assert returnedItem.get("state").s().equals("CA");
     assert returnedItem.get("hasTestResult").bool().equals(true);
 
-    // 14. Check virtual field values directly
+    // 14. If developing or debugging, check virtual field values directly
     final DynamoDbEncryptionTransforms trans = DynamoDbEncryptionTransforms.builder()
         .DynamoDbTablesEncryptionConfig(encryptionConfig).build();
     
@@ -437,6 +437,8 @@ public class VirtualBeaconSearchableEncryptionExample {
     final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
     Map<String, String> vf = new HashMap<>();
     assert resolveOutput.CompoundBeacons().equals(vf);
+    // CompoundBeacons is empty because we have no Compound Beacons configured
+
     vf.put("stateAndHasTestResult", "CAt");
     assert resolveOutput.VirtualFields().equals(vf);
   }

@@ -27,6 +27,9 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.DynamoDbEncryptionTransforms;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesOutput;
 import software.amazon.cryptography.keystore.KeyStore;
 import software.amazon.cryptography.keystore.model.CreateKeyOutput;
 import software.amazon.cryptography.keystore.model.KMSConfiguration;
@@ -220,11 +223,15 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 9. Create the DynamoDb Encryption Interceptor
-    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
-        .config(DynamoDbTablesEncryptionConfig.builder()
+    // 9-a. Create config
+    final DynamoDbTablesEncryptionConfig encryptionConfig =
+        DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
-            .build())
+            .build();
+
+    // 9-b. Create the DynamoDb Encryption Interceptor
+    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
+        .config(encryptionConfig)
         .build();
 
     // 10. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
@@ -251,6 +258,34 @@ public class CompoundBeaconSearchableEncryptionExample {
     }
     pool.shutdown();
     try {pool.awaitTermination(30, TimeUnit.SECONDS);} catch (Exception e) {}
+
+
+    // 11. If developing or debugging, check compound beacon values directly
+    final DynamoDbEncryptionTransforms trans = DynamoDbEncryptionTransforms.builder()
+        .DynamoDbTablesEncryptionConfig(encryptionConfig).build();
+    
+    final HashMap<String, AttributeValue> item = new HashMap<>();
+    item.put("work_id", AttributeValue.builder().s("9ce39272-8068-4efd-a211-cd162ad65d4c").build());
+    item.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
+    item.put("inspector_id_last4", AttributeValue.builder().s("5678").build());
+    item.put("unit", AttributeValue.builder().s("011899988199").build());
+
+    final ResolveAttributesInput resolveInput = ResolveAttributesInput.builder()
+        .TableName(ddbTableName)
+        .Item(item)
+        .Version(1)
+        .build();
+
+    final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
+    Map<String, String> vf = new HashMap<>();
+    assert resolveOutput.VirtualFields().equals(vf);
+    // VirtualFields is empty because we have no Virtual Fields configured
+
+    vf.put("last4UnitCompound", "L-5678.U-011899988199");
+    assert resolveOutput.CompoundBeacons().equals(vf);
+    // Note : the compound beacon actually stored in the table is not "L-5678.U-011899988199"
+    // but rather something like "L-abc.U-123", as both parts are EncryptedParts
+    // and therefore the text is replaced by the associated beacon
   }
 
   public static void PutAndQueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName) {
