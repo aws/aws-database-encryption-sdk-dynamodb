@@ -653,7 +653,7 @@ structure BeaconVersion {
   @javadoc("The version of searchable encryption configured. This must be '1'.")
   version : VersionNumber,
   @required
-  @javadoc("The Key Store that contains the Becon Keys to use with searchable encryption.")
+  @javadoc("The Key Store that contains the Beacon Keys to use with searchable encryption.")
   keyStore : KeyStoreReference,
   @required
   @javadoc("The configuration for what beacon key(s) to use.")

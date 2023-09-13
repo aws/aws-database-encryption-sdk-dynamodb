@@ -331,4 +331,63 @@ module DynamoDBSupport {
       return Success(resp.(Items := Some(trimmedItems), Count := count));
     }
   }
+
+  function method {:tailrecursion} GetVirtualFieldsLoop(
+    fields : seq<string>,
+    bv : SearchableEncryptionInfo.BeaconVersion,
+    item : DDB.AttributeMap,
+    results : map<string, string> := map[])
+    : (output : Result<map<string, string>, Error>)
+    requires forall x <- fields :: x in bv.virtualFields
+    requires forall x <- results :: x in bv.virtualFields
+    ensures output.Success? ==> forall x <- output.value :: x in bv.virtualFields
+  {
+    if |fields| == 0 then
+      Success(results)
+    else
+      var optValue :- GetVirtField(bv.virtualFields[fields[0]], item);
+      if optValue.Some? then
+        GetVirtualFieldsLoop(fields[1..], bv, item, results[fields[0] := optValue.value])
+      else
+        GetVirtualFieldsLoop(fields[1..], bv, item, results)
+  }
+
+  method GetVirtualFields(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap)
+    returns (output : Result<map<string, string>, Error>)
+  {
+    var fieldNames := SortedSets.ComputeSetToOrderedSequence2(beaconVersion.virtualFields.Keys, CharLess);
+    output := GetVirtualFieldsLoop(fieldNames, beaconVersion, item);
+  }
+
+  function method {:tailrecursion} GetCompoundBeaconsLoop(
+    fields : seq<string>,
+    bv : SearchableEncryptionInfo.BeaconVersion,
+    item : DDB.AttributeMap,
+    results : map<string, string> := map[])
+    : (output : Result<map<string, string>, Error>)
+    requires forall x <- fields :: x in bv.beacons
+    requires forall x <- results :: x in bv.beacons
+    ensures output.Success? ==> forall x <- output.value :: x in bv.beacons
+  {
+    if |fields| == 0 then
+      Success(results)
+    else
+      var beacon := bv.beacons[fields[0]];
+      if beacon.Compound? then
+        var optValue :- beacon.cmp.getNaked(item, bv.virtualFields);
+        if optValue.Some? then
+          GetCompoundBeaconsLoop(fields[1..], bv, item, results[fields[0] := optValue.value])
+        else
+          GetCompoundBeaconsLoop(fields[1..], bv, item, results)
+      else
+        GetCompoundBeaconsLoop(fields[1..], bv, item, results)
+  }
+
+  method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap)
+    returns (output : Result<map<string, string>, Error>)
+  {
+    var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beaconVersion.beacons.Keys, CharLess);
+    output := GetCompoundBeaconsLoop(beaconNames, beaconVersion, item);
+  }
+
 }

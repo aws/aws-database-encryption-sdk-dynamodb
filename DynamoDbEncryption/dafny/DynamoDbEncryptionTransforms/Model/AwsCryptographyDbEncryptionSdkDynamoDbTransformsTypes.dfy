@@ -98,6 +98,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  BatchExecuteStatementOutputTransform := [];
  ExecuteTransactionInputTransform := [];
  ExecuteTransactionOutputTransform := [];
+ ResolveAttributes := [];
 }
  ghost var PutItemInputTransform: seq<DafnyCallEvent<PutItemInputTransformInput, Result<PutItemInputTransformOutput, Error>>>
  ghost var PutItemOutputTransform: seq<DafnyCallEvent<PutItemOutputTransformInput, Result<PutItemOutputTransformOutput, Error>>>
@@ -125,6 +126,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ghost var BatchExecuteStatementOutputTransform: seq<DafnyCallEvent<BatchExecuteStatementOutputTransformInput, Result<BatchExecuteStatementOutputTransformOutput, Error>>>
  ghost var ExecuteTransactionInputTransform: seq<DafnyCallEvent<ExecuteTransactionInputTransformInput, Result<ExecuteTransactionInputTransformOutput, Error>>>
  ghost var ExecuteTransactionOutputTransform: seq<DafnyCallEvent<ExecuteTransactionOutputTransformInput, Result<ExecuteTransactionOutputTransformOutput, Error>>>
+ ghost var ResolveAttributes: seq<DafnyCallEvent<ResolveAttributesInput, Result<ResolveAttributesOutput, Error>>>
 }
  trait {:termination false} IDynamoDbEncryptionTransformsClient
  {
@@ -542,6 +544,22 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  && ValidState()
  ensures ExecuteTransactionOutputTransformEnsuresPublicly(input, output)
  ensures History.ExecuteTransactionOutputTransform == old(History.ExecuteTransactionOutputTransform) + [DafnyCallEvent(input, output)]
+ 
+ predicate ResolveAttributesEnsuresPublicly(input: ResolveAttributesInput , output: Result<ResolveAttributesOutput, Error>)
+ // The public method to be called by library consumers
+ method ResolveAttributes ( input: ResolveAttributesInput )
+ returns (output: Result<ResolveAttributesOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`ResolveAttributes
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures ResolveAttributesEnsuresPublicly(input, output)
+ ensures History.ResolveAttributes == old(History.ResolveAttributes) + [DafnyCallEvent(input, output)]
+ 
 }
  datatype ExecuteStatementInputTransformInput = | ExecuteStatementInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.ExecuteStatementInput
@@ -608,6 +626,15 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype QueryOutputTransformOutput = | QueryOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.QueryOutput
  )
+ datatype ResolveAttributesInput = | ResolveAttributesInput (
+ nameonly TableName: ComAmazonawsDynamodbTypes.TableName ,
+ nameonly Item: ComAmazonawsDynamodbTypes.AttributeMap ,
+ nameonly Version: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.VersionNumber>
+ )
+ datatype ResolveAttributesOutput = | ResolveAttributesOutput (
+ nameonly VirtualFields: StringMap ,
+ nameonly CompoundBeacons: StringMap
+ )
  datatype ScanInputTransformInput = | ScanInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.ScanInput
  )
@@ -621,6 +648,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype ScanOutputTransformOutput = | ScanOutputTransformOutput (
  nameonly transformedOutput: ComAmazonawsDynamodbTypes.ScanOutput
  )
+ type StringMap = map<string, string>
  datatype TransactGetItemsInputTransformInput = | TransactGetItemsInputTransformInput (
  nameonly sdkInput: ComAmazonawsDynamodbTypes.TransactGetItemsInput
  )
@@ -1357,6 +1385,27 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  output := Operations.ExecuteTransactionOutputTransform(config, input);
  History.ExecuteTransactionOutputTransform := History.ExecuteTransactionOutputTransform + [DafnyCallEvent(input, output)];
 }
+ 
+ predicate ResolveAttributesEnsuresPublicly(input: ResolveAttributesInput , output: Result<ResolveAttributesOutput, Error>)
+ {Operations.ResolveAttributesEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method ResolveAttributes ( input: ResolveAttributesInput )
+ returns (output: Result<ResolveAttributesOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`ResolveAttributes
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures ResolveAttributesEnsuresPublicly(input, output)
+ ensures History.ResolveAttributes == old(History.ResolveAttributes) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.ResolveAttributes(config, input);
+ History.ResolveAttributes := History.ResolveAttributes + [DafnyCallEvent(input, output)];
+}
+ 
 }
 }
  abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations {
@@ -1781,4 +1830,20 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ensures
  && ValidInternalConfig?(config)
  ensures ExecuteTransactionOutputTransformEnsuresPublicly(input, output)
+
+
+ predicate ResolveAttributesEnsuresPublicly(input: ResolveAttributesInput , output: Result<ResolveAttributesOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ResolveAttributes ( config: InternalConfig , input: ResolveAttributesInput )
+ returns (output: Result<ResolveAttributesOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ResolveAttributesEnsuresPublicly(input, output)
 }
