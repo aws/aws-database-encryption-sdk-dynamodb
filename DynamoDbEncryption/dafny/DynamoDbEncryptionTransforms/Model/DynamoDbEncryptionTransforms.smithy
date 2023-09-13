@@ -58,7 +58,7 @@ service DynamoDbEncryptionTransforms {
     errors: [ DynamoDbEncryptionTransformsException ]
 }
 
-@javadoc("Given an Item, show the intermediate values.")
+@javadoc("Given an Item, show the intermediate values (e.g. compound beacons, virtual fields).")
 operation ResolveAttributes {
     input: ResolveAttributesInput,
     output: ResolveAttributesOutput,
