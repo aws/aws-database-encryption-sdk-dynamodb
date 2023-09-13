@@ -60,4 +60,8 @@ jobs:
       - name: Test TestVectors
         working-directory: ./TestVectors
         run: |
+          # Clear MPL from cache
+          # We have to do this because MakeFile does not do this yet. The MakeFile automatically builds and deploys dependencies
+          # instead it should be picking it up from Maven.
+          rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
           make test_java
