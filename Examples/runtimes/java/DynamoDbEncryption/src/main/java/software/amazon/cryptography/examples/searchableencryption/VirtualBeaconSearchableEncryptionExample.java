@@ -436,9 +436,11 @@ public class VirtualBeaconSearchableEncryptionExample {
         .build();
     final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
     Map<String, String> vf = new HashMap<>();
-    assert resolveOutput.CompoundBeacons().equals(vf);
-    // CompoundBeacons is empty because we have no Compound Beacons configured
 
+    // CompoundBeacons is empty because we have no Compound Beacons configured
+    assert resolveOutput.CompoundBeacons().equals(vf);
+
+    // Verify that VirtualFields has the expected value
     vf.put("stateAndHasTestResult", "CAt");
     assert resolveOutput.VirtualFields().equals(vf);
   }

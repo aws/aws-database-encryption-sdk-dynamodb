@@ -278,9 +278,11 @@ public class CompoundBeaconSearchableEncryptionExample {
 
     final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
     Map<String, String> vf = new HashMap<>();
-    assert resolveOutput.VirtualFields().equals(vf);
-    // VirtualFields is empty because we have no Virtual Fields configured
 
+    // VirtualFields is empty because we have no Virtual Fields configured
+    assert resolveOutput.VirtualFields().equals(vf);
+
+    // Verify that CompoundBeacons has the expected value
     vf.put("last4UnitCompound", "L-5678.U-011899988199");
     assert resolveOutput.CompoundBeacons().equals(vf);
     // Note : the compound beacon actually stored in the table is not "L-5678.U-011899988199"
