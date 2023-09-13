@@ -3,7 +3,12 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms;
 
+import dafny.DafnyMap;
+import dafny.DafnySequence;
+import java.lang.Character;
 import java.lang.RuntimeException;
+import java.lang.String;
+import java.util.Map;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_DynamoDbEncryptionTransformsException;
@@ -48,6 +53,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Qu
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryOutputTransformOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ScanInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ScanInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ScanOutputTransformInput;
@@ -374,6 +381,25 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static ResolveAttributesInput ResolveAttributesInput(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ResolveAttributesInput dafnyValue) {
+    ResolveAttributesInput.Builder nativeBuilder = ResolveAttributesInput.builder();
+    nativeBuilder.TableName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_TableName()));
+    nativeBuilder.Item(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.AttributeMap(dafnyValue.dtor_Item()));
+    if (dafnyValue.dtor_Version().is_Some()) {
+      nativeBuilder.Version((dafnyValue.dtor_Version().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static ResolveAttributesOutput ResolveAttributesOutput(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ResolveAttributesOutput dafnyValue) {
+    ResolveAttributesOutput.Builder nativeBuilder = ResolveAttributesOutput.builder();
+    nativeBuilder.VirtualFields(ToNative.StringMap(dafnyValue.dtor_VirtualFields()));
+    nativeBuilder.CompoundBeacons(ToNative.StringMap(dafnyValue.dtor_CompoundBeacons()));
+    return nativeBuilder.build();
+  }
+
   public static ScanInputTransformInput ScanInputTransformInput(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ScanInputTransformInput dafnyValue) {
     ScanInputTransformInput.Builder nativeBuilder = ScanInputTransformInput.builder();
@@ -488,6 +514,14 @@ public class ToNative {
     UpdateItemOutputTransformOutput.Builder nativeBuilder = UpdateItemOutputTransformOutput.builder();
     nativeBuilder.transformedOutput(software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.UpdateItemOutput(dafnyValue.dtor_transformedOutput()));
     return nativeBuilder.build();
+  }
+
+  public static Map<String, String> StringMap(
+      DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>> dafnyValue) {
+    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
+        dafnyValue, 
+        software.amazon.smithy.dafny.conversion.ToNative.Simple::String, 
+        software.amazon.smithy.dafny.conversion.ToNative.Simple::String);
   }
 
   public static DynamoDbEncryptionTransforms DynamoDbEncryptionTransforms(

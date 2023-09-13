@@ -47,6 +47,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Qu
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryOutputTransformOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ScanInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ScanInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ScanOutputTransformInput;
@@ -257,6 +259,19 @@ public class DynamoDbEncryptionTransforms {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.QueryOutputTransformOutput(result.dtor_value());
+  }
+
+  /**
+   * Given an Item, show the intermediate values.
+   *
+   */
+  public ResolveAttributesOutput ResolveAttributes(ResolveAttributesInput input) {
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ResolveAttributesInput dafnyValue = ToDafny.ResolveAttributesInput(input);
+    Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.ResolveAttributesOutput, Error> result = this._impl.ResolveAttributes(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.ResolveAttributesOutput(result.dtor_value());
   }
 
   public ScanInputTransformOutput ScanInputTransform(ScanInputTransformInput input) {

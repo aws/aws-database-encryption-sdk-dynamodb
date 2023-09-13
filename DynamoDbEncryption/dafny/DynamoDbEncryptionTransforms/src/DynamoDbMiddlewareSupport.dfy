@@ -19,7 +19,9 @@ module DynamoDbMiddlewareSupport {
   import opened BS = DynamoDBSupport
   import opened DdbMiddlewareConfig
   import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
+  import ET = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import Util = DynamoDbEncryptionUtil
+  import SI = SearchableEncryptionInfo
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // Generally this means that no attribute names starts with "aws_dbe_"
@@ -211,4 +213,25 @@ module DynamoDbMiddlewareSupport {
     var ret := BS.ScanOutputForBeacons(config.search, req, resp);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
+
+  method GetVirtualFields(search : SearchableEncryptionInfo.ValidSearchInfo, item : DDB.AttributeMap, version : Option<ET.VersionNumber>)
+    returns (output : Result<map<string, string>, Error>)
+  {
+    if version.Some? && version.value != 1 {
+      return Failure(E("Beacon Version Number must be '1'"));
+    }
+    var ret := BS.GetVirtualFields(search.curr(), item);
+    return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
+  }
+
+  method GetCompoundBeacons(search : SearchableEncryptionInfo.ValidSearchInfo, item : DDB.AttributeMap, version : Option<ET.VersionNumber>)
+    returns (output : Result<map<string, string>, Error>)
+  {
+    if version.Some? && version.value != 1 {
+      return Failure(E("Beacon Version Number must be '1'"));
+    }
+    var ret := BS.GetCompoundBeacons(search.curr(), item);
+    return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
+  }
+
 }

@@ -393,38 +393,10 @@ module DdbVirtualFields {
       TermLoc.TermToString(loc, item)
   }
 
-  /*
-  // return true if item has all of the terminals necessary for field
-  predicate method ValueHasNeededAttrs(field : VirtualField, item : DDB.AttributeMap)
-  {
-    !field.examine(t => LacksAttribute(t, item))
-  }
-*/
   // convert string to DynamoDB Attribute
   function method DS(s : string)
     : DDB.AttributeValue
   {
     DDB.AttributeValue.S(s)
   }
-  /*
-    // return an AttributeMap containing all of the virtual fields for which we have the appropriate attributes
-    function method {:tailrecursion} GetVirtualAttrs (
-      fields : seq<VirtualField>,
-      item : DDB.AttributeMap,
-      acc : DDB.AttributeMap := map[])
-      : (ret : Result<DDB.AttributeMap, string>)
-      requires AllStrings(acc)
-      ensures ret.Success? ==> AllStrings(ret.value)
-    {
-      if |fields| == 0 then
-        Success(acc)
-      else
-        :- Need(DDB.IsValid_AttributeName(fields[0].name), "Virtual field name '" + fields[0].name + "' is not a valid DynamoDB Attribute Name");
-        if ValueHasNeededAttrs(fields[0], item) then
-          var value :- fields[0].makeString(t => TermToString(t, item));
-          GetVirtualAttrs(fields[1..], item, acc[fields[0].name := DDB.AttributeValue.S(value)])
-        else
-          GetVirtualAttrs(fields[1..], item, acc)
-    }
-  */
 }
