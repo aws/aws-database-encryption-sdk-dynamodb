@@ -207,7 +207,6 @@ module DynamoDbMiddlewareSupport {
 
   method GetVirtualFields(search : SearchableEncryptionInfo.ValidSearchInfo, item : DDB.AttributeMap, version : Option<ET.VersionNumber>)
     returns (output : Result<map<string, string>, Error>)
-    modifies  search.Modifies()
   {
     if version.Some? && version.value != 1 {
       return Failure(E("Beacon Version Number must be '1'"));
@@ -218,7 +217,6 @@ module DynamoDbMiddlewareSupport {
 
   method GetCompoundBeacons(search : SearchableEncryptionInfo.ValidSearchInfo, item : DDB.AttributeMap, version : Option<ET.VersionNumber>)
     returns (output : Result<map<string, string>, Error>)
-    modifies  search.Modifies()
   {
     if version.Some? && version.value != 1 {
       return Failure(E("Beacon Version Number must be '1'"));

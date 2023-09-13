@@ -354,7 +354,6 @@ module DynamoDBSupport {
 
   method GetVirtualFields(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap)
     returns (output : Result<map<string, string>, Error>)
-    modifies  beaconVersion.Modifies()
   {
     var fieldNames := SortedSets.ComputeSetToOrderedSequence2(beaconVersion.virtualFields.Keys, CharLess);
     output := GetVirtualFieldsLoop(fieldNames, beaconVersion, item);
@@ -386,7 +385,6 @@ module DynamoDBSupport {
 
   method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap)
     returns (output : Result<map<string, string>, Error>)
-    modifies  beaconVersion.Modifies()
   {
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beaconVersion.beacons.Keys, CharLess);
     output := GetCompoundBeaconsLoop(beaconNames, beaconVersion, item);
