@@ -157,6 +157,46 @@ module TestBaseBeacon {
   }
 
 
+  method {:test} TestCompoundQueries() {
+    var context := ExprContext (
+      None,
+      Some("Mixed = :mixed"),
+      None,
+      None
+    );
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName.Y_1984")]));
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("Y_1984")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("T_foo")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("M_bar")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("T_foo.M_bar")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName.N_MyName")]));
+    var badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect badContext.Failure?;
+    expect badContext.error == E("Compound Beacon value 'N_MyName.N_MyName' cannot be constructed from any available constructor for Mixed value parsed as N_N_ available constructors are N_Y_, T_[M_].");
+
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("Y_1984.N_MyName")]));
+    badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect badContext.Failure?;
+    expect badContext.error == E("Compound Beacon value 'Y_1984.N_MyName' cannot be constructed from any available constructor for Mixed value parsed as Y_N_ available constructors are N_Y_, T_[M_].");
+
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("M_bar.T_foo")]));
+    badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect badContext.Failure?;
+    expect badContext.error == E("Compound Beacon value 'M_bar.T_foo' cannot be constructed from any available constructor for Mixed value parsed as M_T_ available constructors are N_Y_, T_[M_].");
+  }
+
   method {:test} TestQueryBeacons() {
     var context := ExprContext (
       None,
@@ -173,7 +213,7 @@ module TestBaseBeacon {
              ":NameTitle" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
              ":NameTitleN" := DDB.AttributeValue.S("N_MyName"),
              ":NameTitleT" := DDB.AttributeValue.S("T_MyTitle"),
-             ":NameTitleTN" := DDB.AttributeValue.S("T_MyTitle.N_MyName"),
+             ":NameTitleTN" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
              ":NameTitleField" := DDB.AttributeValue.S("MyName__mytitle"),
              ":YearName" := DDB.AttributeValue.S("Y_1984.N_MyName")
            ]),
@@ -187,7 +227,7 @@ module TestBaseBeacon {
                                        ":Mixed" := DDB.AttributeValue.S("N_" + Name_beacon + ".Y_1984"),
                                        ":Name" := DDB.AttributeValue.S(Name_beacon),
                                        ":NameTitle" := DDB.AttributeValue.S("N_" + Name_beacon + ".T_" + Title_beacon),
-                                       ":NameTitleTN" := DDB.AttributeValue.S("T_" + Title_beacon + ".N_" + Name_beacon),
+                                       ":NameTitleTN" := DDB.AttributeValue.S("N_" + Name_beacon + ".T_" + Title_beacon),
                                        ":NameTitleN" := DDB.AttributeValue.S("N_" + Name_beacon),
                                        ":NameTitleT" := DDB.AttributeValue.S("T_" + Title_beacon),
                                        ":NameTitleField" := DDB.AttributeValue.S(NameTitle_beacon),
