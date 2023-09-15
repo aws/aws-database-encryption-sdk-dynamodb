@@ -15,8 +15,8 @@ if [ "$MPL_SUBMODULE_VERSION" == "" ]; then
   exit 1;
 fi
 
-# Validate this version matches the version used in the DB-ESDK's gradle.properties
+# Validate this version matches the version used in the DB-ESDK's build.gradle
 if [ "$DBESDK_MPL_VERSION" != "$MPL_SUBMODULE_VERSION" ]; then
-  echo "Invalid MaterialProviders submodule. Mismatch between the submodule version ("$MPL_SUBMODULE_VERSION") and the version configured in the DB-ESDK's gradle.properties ("$DBESDK_MPL_VERSION").";
+  echo "Invalid MaterialProviders submodule. Mismatch between the submodule version ("$MPL_SUBMODULE_VERSION") and the version of the configured dependency in project.properties ("$DBESDK_MPL_VERSION").";
   exit 1;
 fi

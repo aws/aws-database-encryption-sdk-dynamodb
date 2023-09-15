@@ -13,7 +13,7 @@ plugins {
 }
 
 var props = Properties().apply {
-    load(FileInputStream(File(rootProject.rootDir, "../../../project.properties")))
+    load(FileInputStream(File(rootProject.rootDir, "../../../../project.properties")))
 }
 
 group = "software.amazon.cryptography"
