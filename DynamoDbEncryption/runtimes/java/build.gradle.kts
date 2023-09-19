@@ -1,3 +1,6 @@
+import java.io.File
+import java.io.FileInputStream
+import java.util.Properties
 import java.net.URI
 import javax.annotation.Nullable
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -11,9 +14,17 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
+var props = Properties().apply {
+    load(FileInputStream(File(rootProject.rootDir, "../../../project.properties")))
+}
+
 group = "software.amazon.cryptography"
-version = "3.1.2"
+version = props.getProperty("projectJavaVersion")
 description = "Aws Database Encryption Sdk for DynamoDb Java"
+
+var mplVersion = props.getProperty("mplDependencyJavaVersion")
+var dafnyRuntimeJavaVersion = props.getProperty("dafnyRuntimeJavaVersion")
+var smithyDafnyJavaConversionVersion = props.getProperty("smithyDafnyJavaConversionVersion")
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
@@ -68,9 +79,9 @@ repositories {
 val dynamodb by configurations.creating
 
 dependencies {
-    implementation("org.dafny:DafnyRuntime:4.1.0")
-    implementation("software.amazon.smithy.dafny:conversion:0.1")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
+    implementation("org.dafny:DafnyRuntime:${dafnyRuntimeJavaVersion}")
+    implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
     implementation(platform("software.amazon.awssdk:bom:2.20.128"))
     implementation("software.amazon.awssdk:dynamodb")

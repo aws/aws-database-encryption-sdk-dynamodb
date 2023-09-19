@@ -47,8 +47,10 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
-      - cd DynamoDbEncryption/
+      # Validate the MPL submodule points to the correct release
+      - scripts/validate-mpl-submodule.sh
       # Build and deploy to maven local
+      - cd DynamoDbEncryption/
       - make transpile_implementation_java
       - make transpile_test_java
       - make mvn_local_deploy
