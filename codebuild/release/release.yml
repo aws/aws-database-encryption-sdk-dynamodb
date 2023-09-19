@@ -61,32 +61,32 @@ batch:
   ## The following steps are expected to fail; since maven central takes time to
   ## update its index. For now, a manual download of the jar is needed to assert artifacts are
   ## available. For more information, consult the MCM used for this release.
-  - identifier: validate_release_corretto8
-    depend-on:
-        - upload_to_sonatype
-    buildspec: codebuild/release/validate-release.yml
-    env:
-      variables:
-        JAVA_ENV_VERSION: corretto8
-        JAVA_NUMERIC_VERSION: 8
-      image: aws/codebuild/standard:5.0
+  # - identifier: validate_release_corretto8
+  #   depend-on:
+  #       - upload_to_sonatype
+  #   buildspec: codebuild/release/validate-release.yml
+  #   env:
+  #     variables:
+  #       JAVA_ENV_VERSION: corretto8
+  #       JAVA_NUMERIC_VERSION: 8
+  #     image: aws/codebuild/standard:5.0
 
-  - identifier: validate_release_corretto11
-    depend-on:
-        - upload_to_sonatype
-    buildspec: codebuild/release/validate-release.yml
-    env:
-      variables:
-        JAVA_ENV_VERSION: corretto11
-        JAVA_NUMERIC_VERSION: 11
-      image: aws/codebuild/standard:5.0
+  # - identifier: validate_release_corretto11
+  #   depend-on:
+  #       - upload_to_sonatype
+  #   buildspec: codebuild/release/validate-release.yml
+  #   env:
+  #     variables:
+  #       JAVA_ENV_VERSION: corretto11
+  #       JAVA_NUMERIC_VERSION: 11
+  #     image: aws/codebuild/standard:5.0
   
-  - identifier: validate_release_corretto17
-    depend-on:
-        - upload_to_sonatype
-    buildspec: codebuild/release/validate-release.yml
-    env:
-      variables:
-        JAVA_ENV_VERSION: corretto17
-        JAVA_NUMERIC_VERSION: 17
-      image: aws/codebuild/standard:7.0
+  # - identifier: validate_release_corretto17
+  #   depend-on:
+  #       - upload_to_sonatype
+  #   buildspec: codebuild/release/validate-release.yml
+  #   env:
+  #     variables:
+  #       JAVA_ENV_VERSION: corretto17
+  #       JAVA_NUMERIC_VERSION: 17
+  #     image: aws/codebuild/standard:7.0
