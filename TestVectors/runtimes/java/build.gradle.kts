@@ -1,3 +1,6 @@
+import java.io.File
+import java.io.FileInputStream
+import java.util.Properties
 import java.net.URI
 import javax.annotation.Nullable
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -11,6 +14,15 @@ plugins {
     `java-library`
     `maven-publish`
 }
+
+var props = Properties().apply {
+    load(FileInputStream(File(rootProject.rootDir, "../../../project.properties")))
+}
+
+var mplVersion = props.getProperty("mplDependencyJavaVersion")
+var ddbecVersion = props.getProperty("projectJavaVersion")
+var dafnyRuntimeJavaVersion = props.getProperty("dafnyRuntimeJavaVersion")
+var smithyDafnyJavaConversionVersion = props.getProperty("smithyDafnyJavaConversionVersion")
 
 group = "software.amazon.cryptography"
 version = "1.0-SNAPSHOT"
@@ -70,10 +82,10 @@ repositories {
 val dynamodb by configurations.creating
 
 dependencies {
-    implementation("org.dafny:DafnyRuntime:4.1.0")
-    implementation("software.amazon.smithy.dafny:conversion:0.1")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
-    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.1.0")
+    implementation("org.dafny:DafnyRuntime:${dafnyRuntimeJavaVersion}")
+    implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
+    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
     implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:1.0-SNAPSHOT")
 
     implementation(platform("software.amazon.awssdk:bom:2.20.138"))
