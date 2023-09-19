@@ -908,7 +908,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     reveal Maps.Injective();
   }
 
-  lemma LemmaInjectiveImpliesUniqueValues<X(!new), Y>(m: map<X, Y>)
+  lemma LemmaInjectiveImpliesUniqueValues<X(!new), Y(==)>(m: map<X, Y>)
     requires Maps.Injective(m)
     ensures |m.Keys| == |m.Values|
   {
