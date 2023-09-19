@@ -1089,13 +1089,13 @@ module DynamoToStruct {
   }
 
   lemma OneBadResult<X,Y>(m : map<X, Result<Y,string>>)
-    requires ! forall v <- m.Values :: v.Success?
-    ensures exists v <- m.Values :: v.Failure?
+    requires ! forall k <- m :: m[k].Success?
+    ensures exists k <- m :: m[k].Failure?
     ensures |FlattenErrors(m)| > 0
   {
-    assert exists v <- m.Values :: v.Failure?;
+    assert exists k <- m :: m[k].Failure?;
     var errors := FlattenErrors(m);
-    assert exists v :: v in m.Values && v.Failure? && (v.error in errors);
+    assert exists k :: k in m && m[k].Failure? && (m[k].error in errors);
   }
 
   lemma MapKeysMatchItems<X,Y>(m : map<X,Y>)
