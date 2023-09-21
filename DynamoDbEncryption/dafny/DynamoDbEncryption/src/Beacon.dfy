@@ -193,6 +193,17 @@ module BaseBeacon {
         hash(str.value, keys[keyName()])
     }
 
+    function method ValueToSet(value : DDB.AttributeValue, key : Bytes) : (ret : Result<DDB.AttributeValue, Error>)
+      requires asSet
+    {
+      var beaconSeq :- match value {
+        case SS(n) => BeaconizeStringSet(n, key)
+        case NS(n) => BeaconizeNumberSet(n, key)
+        case BS(n) => BeaconizeBinarySet(n, key)
+        case _ => Failure(E("Beacon " + base.name + " has style AsSet, but attribute has type " + AttrTypeToStr(value) + "."))
+      };
+      Success(DDB.AttributeValue.SS(beaconSeq))
+    }
     //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
     //= type=implication
     //# * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional string.
@@ -219,14 +230,8 @@ module BaseBeacon {
         if value.None? then
           Success(None)
         else
-          var value := value.value;
-          var beaconSeq :- match value {
-            case SS(n) => BeaconizeStringSet(n, key)
-            case NS(n) => BeaconizeNumberSet(n, key)
-            case BS(n) => BeaconizeBinarySet(n, key)
-            case _ => Failure(E("Beacon " + base.name + " has style AsSet, but attribute has type " + AttrTypeToStr(value) + "."))
-          };
-          Success(Some(DDB.AttributeValue.SS(beaconSeq)))
+          var setValue :- ValueToSet(value.value, key);
+          Success(Some(setValue))
       else
         var bytes :- VirtToBytes(loc, item, vf);
         if bytes.None? then
@@ -263,7 +268,7 @@ module BaseBeacon {
           BeaconizeStringSet(value[1..], key, converted + [h])
     }
 
-    function method {:tailrecursion} BeaconizeNumberSet(value : DDB.StringSetAttributeValue, key : Bytes, converted : seq<string> := [])
+    function method {:tailrecursion} BeaconizeNumberSet(value : DDB.NumberSetAttributeValue, key : Bytes, converted : seq<string> := [])
       : Result<seq<string>, Error>
     {
       if |value| == 0 then
@@ -303,13 +308,7 @@ module BaseBeacon {
       //# * The Standard Beacon MUST be stored in the item as a Set,
       //# comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
       if asSet then
-        var beaconSeq :- match value {
-          case SS(n) => BeaconizeStringSet(n, key)
-          case NS(n) => BeaconizeNumberSet(n, key)
-          case BS(n) => BeaconizeBinarySet(n, key)
-          case _ => Failure(E("Beacon " + base.name + " has style AsSet, but attribute has type " + AttrTypeToStr(value)))
-        };
-        Success(DDB.AttributeValue.SS(beaconSeq))
+        ValueToSet(value, key)
       else
         var bytes :- DynamoToStruct.TopLevelAttributeToBytes(value).MapFailure(e => E(e));
         var h :- hash(bytes, key);

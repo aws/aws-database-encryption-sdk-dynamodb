@@ -386,16 +386,16 @@ module SearchConfigToInfo {
       Some(badSeq[0])
   }
 
-  function method IsValidTwin(converted : I.BeaconMap, name : string, length : BeaconBitLength, twin : string)
+  function method IsValidTwin(converted : I.BeaconMap, name : string, length : B.BeaconLength, twin : string)
     : (ret : Result<bool, Error>)
     ensures ret.Success? ==>
       && twin in converted
       && converted[twin].Standard?
-      && converted[twin].std.length as BeaconBitLength == length
+      && converted[twin].std.length == length
   {
     if twin in converted then
       if converted[twin].Standard? then
-        if converted[twin].std.length as BeaconBitLength == length then
+        if converted[twin].std.length == length then
           Success(true)
         else
           Failure(E("Beacon " + name + " is twinned to " + twin + " but " + name + " has length " + Base10Int2String(length as int)
@@ -403,7 +403,7 @@ module SearchConfigToInfo {
       else
         Failure(E("Beacon " + name + " is twinned to " + twin + " but " + twin + " is a compound beacon."))
     else
-      Failure(E("Beacon " + name + " is twinned to " + twin + " but " + twin + " has not yet been defined."))
+      Failure(E("Beacon " + name + " is twinned to " + twin + " which is not defined."))
   }
 
   // convert configured StandardBeacons to internal Beacons
@@ -449,26 +449,6 @@ module SearchConfigToInfo {
                  //# Initialization MUST fail if a virtual field is defined with only one location,
                  //# and also a [standard beacon](beacons.md#standard-beacon) is defined with that same location.
               && FindVirtualFieldWithThisLocation(virtualFields, {loc}).None?
-
-    ensures output.Success? && 0 < |beacons| && beacons[0].style.Some? && beacons[0].style.value.twinned? ==>
-      && var twin := beacons[0].style.value.twinned.other;
-      && IsValidTwin(converted, beacons[0].name, beacons[0].length, twin).Success?
-      //= specification/searchable-encryption/beacons.md#twinned-initialization
-      //= type=implication
-      //# This name MUST be the name of a previously defined Standard Beacon.
-      && twin in converted
-      && converted[twin].Standard?
-      //= specification/searchable-encryption/beacons.md#twinned-initialization
-      //= type=implication
-      //# This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
-      && converted[twin].std.length as BeaconBitLength == beacons[0].length
-
-    ensures output.Success? && 0 < |beacons| && beacons[0].style.Some? && beacons[0].style.value.twinnedSet? ==>
-      && var twin := beacons[0].style.value.twinnedSet.other;
-      && IsValidTwin(converted, beacons[0].name, beacons[0].length, twin).Success?
-      && twin in converted
-      && converted[twin].Standard?
-      && converted[twin].std.length as BeaconBitLength == beacons[0].length
   {
     if |beacons| == 0 {
       return Success(converted);
@@ -489,9 +469,6 @@ module SearchConfigToInfo {
         case twinnedSet(t) => twin := Some(t.other); isAsSet := true;
       }
 
-    }
-    if twin.Some? {
-      var _ :- IsValidTwin(converted, beacons[0].name, beacons[0].length, twin.value);
     }
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString,
     isPartOnly, isAsSet, twin);
@@ -891,6 +868,19 @@ module SearchConfigToInfo {
     //= type=implication
     //# Initialization MUST fail if the configuration does not use a PartOnly in a [compound beacon](#compound-beacon).
     ensures |names| != 0 && I.IsPartOnly(data[names[0]]) && !ExistsInCompound(allNames, names[0], data) ==> ret.Failure?
+
+    ensures ret.Success? && 0 < |names| && data[names[0]].Standard? && data[names[0]].std.twin.Some? ==>
+      && var twin := data[names[0]].std.twin.value;
+      && IsValidTwin(data, names[0], data[names[0]].std.length, twin).Success?
+      //= specification/searchable-encryption/beacons.md#twinned-initialization
+      //= type=implication
+      //# This name MUST be the name of a previously defined Standard Beacon.
+      && twin in data
+      && data[twin].Standard?
+      //= specification/searchable-encryption/beacons.md#twinned-initialization
+      //= type=implication
+      //# This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
+      && data[twin].std.length == data[names[0]].std.length
   {
     if |names| == 0 then
       Success(true)
@@ -898,6 +888,8 @@ module SearchConfigToInfo {
       var b := data[names[0]];
       if I.IsPartOnly(b) && !ExistsInCompound(allNames, names[0], data) then
         Failure(E("PartOnly beacon " + names[0] + " MUST be used in a compound beacon."))
+      else if b.Standard? && b.std.twin.Some? then
+        IsValidTwin(data, names[0], b.std.length, b.std.twin.value)
       else
         CheckAllBeacons(names[1..], allNames, data)
   }
