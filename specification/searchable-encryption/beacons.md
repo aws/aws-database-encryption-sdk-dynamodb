@@ -287,11 +287,63 @@ On initialization of a Standard Beacon, the caller MUST provide:
  On initialization of a Standard Beacon, the caller MAY provide:
 
  * a [terminal location](virtual.md#terminal-location) -- a string
+ * a [beacon style](beacon-style-initialization)
 
 If no [terminal location](virtual.md#terminal-location) is provided,
 the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 Initialization MUST fail if two standard beacons are configured with the same location.
+
+ ### Beacon Style Initialization
+
+On initialization of a Beacon Style, the caller MUST provide exactly one of
+
+ * a [PartOnly](#partonly-initialization)
+ * a [Twinned](#twinned-initialization)
+ * an [AsSet](#asset-initialization)
+ * a [TwinnedSet](#twinnedset-initialization)
+
+### PartOnly Initialization
+
+On initialization of a PartOnly, the caller MUST NOT provide any
+additional parameters to the PartOnly.
+
+Initialization MUST fail if the configuration does not use a PartOnly in a [compound beacon](#compound-beacon).
+
+The Standard Beacon MUST NOT be stored in the item for a PartOnly beacon.
+
+A query MUST fail if it tries to search on a PartOnly beacon directly.
+
+### AsSet Initialization
+
+On initialization of as AsSet, the caller MUST NOT provide any
+additional parameters to the AsSet.
+
+* initialization MUST fail if any compound beacon has an AsSet beacon as a part.
+* Writing an item MUST fail if the item contains this beacon's attribute,
+and that attribute is not of type Set.
+* The Standard Beacon MUST be stored in the item as a Set,
+comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
+
+### Twinned Initialization
+
+On initialization of a Twinned, the caller MUST provide:
+
+* other : a beacon name
+
+This name MUST be the name of a previously defined Standard Beacon.
+
+This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
+
+This beacon MUST calculate its [value](#beacon-value) as if it were the `other` beacon.
+
+### TwinnedSet Initialization
+
+On initialization of a TwinnedSet, the caller MUST provide:
+
+* other : a beacon name
+
+A TwinnedSet Beacon MUST behave both as [Twinned](#twinned-initialization) and [AsSet](#asset-initialization).
 
 
 ### Compound Beacon Initialization

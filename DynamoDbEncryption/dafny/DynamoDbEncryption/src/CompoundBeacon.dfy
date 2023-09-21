@@ -140,6 +140,23 @@ module CompoundBeacon {
         :: OkPrefixPair(x, y)
     }
 
+    // Does these parts refer to `name`
+    predicate method {:tailrecursion} HasBeacon2(parts : seq<BeaconPart>, name : string)
+    {
+      if |parts| == 0 then
+        false
+      else if parts[0].getName() == name then
+        true
+      else
+        HasBeacon2(parts[1..], name)
+    }
+
+    // Does this compound beacon refer to `name`
+    predicate method HasBeacon(name : string)
+    {
+      HasBeacon2(parts, name)
+    }
+
     // Does this beacon have any encrypted parts
     predicate method isEncrypted() {
       numSigned < |parts|
@@ -374,18 +391,23 @@ module CompoundBeacon {
     //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
     //= type=implication
     //# * This operation MUST take a record as input, and produce an optional string.
-    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap) : (res : Result<Option<string>, Error>)
+    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap) : (res : Result<Option<DDB.AttributeValue>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                 //= type=implication
                 //# * If a string is returned, it MUST NOT be empty.
-                && |res.value.value| > 0
+                && res.value.value.S?
+                && |res.value.value.S| > 0
                    //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                    //= type=implication
                    //# * This operation MUST iterate through all constructors, in order, using the first that succeeds.
                 && TryConstructors(construct, item, vf, keys).Success?
     {
-      TryConstructors(construct, item, vf, keys)
+      var strVal :- TryConstructors(construct, item, vf, keys);
+      if strVal.Some? then
+        Success(Some(DDB.AttributeValue.S(strVal.value)))
+      else
+        Success(None)
     }
 
     // return the unhashed beacon value, necessary for final client-side filtering
