@@ -17,7 +17,7 @@ public class BeaconVersion {
   private final int version;
 
   /**
-   * The Key Store that contains the Becon Keys to use with searchable encryption.
+   * The Key Store that contains the Beacon Keys to use with searchable encryption.
    */
   private final KeyStore keyStore;
 
@@ -58,7 +58,7 @@ public class BeaconVersion {
   }
 
   /**
-   * @return The Key Store that contains the Becon Keys to use with searchable encryption.
+   * @return The Key Store that contains the Beacon Keys to use with searchable encryption.
    */
   public KeyStore keyStore() {
     return this.keyStore;
@@ -112,12 +112,12 @@ public class BeaconVersion {
     int version();
 
     /**
-     * @param keyStore The Key Store that contains the Becon Keys to use with searchable encryption.
+     * @param keyStore The Key Store that contains the Beacon Keys to use with searchable encryption.
      */
     Builder keyStore(KeyStore keyStore);
 
     /**
-     * @return The Key Store that contains the Becon Keys to use with searchable encryption.
+     * @return The Key Store that contains the Beacon Keys to use with searchable encryption.
      */
     KeyStore keyStore();
 

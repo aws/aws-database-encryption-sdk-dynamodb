@@ -140,6 +140,23 @@ module CompoundBeacon {
         :: OkPrefixPair(x, y)
     }
 
+    // Does these parts refer to `name`
+    predicate method {:tailrecursion} HasBeacon2(parts : seq<BeaconPart>, name : string)
+    {
+      if |parts| == 0 then
+        false
+      else if parts[0].getName() == name then
+        true
+      else
+        HasBeacon2(parts[1..], name)
+    }
+
+    // Does this compound beacon refer to `name`
+    predicate method HasBeacon(name : string)
+    {
+      HasBeacon2(parts, name)
+    }
+
     // Does this beacon have any encrypted parts
     predicate method isEncrypted() {
       numSigned < |parts|

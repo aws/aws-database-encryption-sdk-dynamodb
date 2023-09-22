@@ -175,12 +175,21 @@ module DynamoDBFilterExpr {
   }
 
   function method GetBeacon2(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
-    : Result<SI.Beacon, Error>
+    : (ret : Result<SI.Beacon, Error>)
     requires HasBeacon(b, t, names)
+    //= specification/searchable-encryption/beacons.md#partonly-initialization
+    //= type=implication
+    //# A query MUST fail if it tries to search on a PartOnly beacon directly.
+    ensures
+      var name := RealName(t.s);
+      name in b.beacons && SI.IsPartOnly(b.beacons[name]) ==> ret.Failure?
   {
     var name := RealName(t.s);
     if name in b.beacons then
-      Success(b.beacons[name])
+      if SI.IsPartOnly(b.beacons[name]) then
+        Failure(E("Field " + name + " is encrypted, and has a PartOnly beacon, and so can only be used as part of a compound beacon."))
+      else
+        Success(b.beacons[name])
     else if names.Some? && name in names.value && RealName(names.value[name]) in b.beacons then
       var name2 := RealName(names.value[name]);
       Success(b.beacons[name2])
