@@ -391,23 +391,18 @@ module CompoundBeacon {
     //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
     //= type=implication
     //# * This operation MUST take a record as input, and produce an optional string.
-    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap) : (res : Result<Option<DDB.AttributeValue>, Error>)
+    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                 //= type=implication
                 //# * If a string is returned, it MUST NOT be empty.
-                && res.value.value.S?
-                && |res.value.value.S| > 0
+                && |res.value.value| > 0
                    //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                    //= type=implication
                    //# * This operation MUST iterate through all constructors, in order, using the first that succeeds.
                 && TryConstructors(construct, item, vf, keys).Success?
     {
-      var strVal :- TryConstructors(construct, item, vf, keys);
-      if strVal.Some? then
-        Success(Some(DDB.AttributeValue.S(strVal.value)))
-      else
-        Success(None)
+      TryConstructors(construct, item, vf, keys)
     }
 
     // return the unhashed beacon value, necessary for final client-side filtering

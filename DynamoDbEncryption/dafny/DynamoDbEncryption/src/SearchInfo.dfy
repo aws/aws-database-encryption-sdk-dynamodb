@@ -400,7 +400,11 @@ module SearchableEncryptionInfo {
         else
           Failure(E("Internal error. Beacon " + std.keyName() + " has no key!"))
       else
-        cmp.hash(item, vf, keys)
+        var strHash :- cmp.hash(item, vf, keys);
+        if strHash.None? then
+          Success(None)
+        else
+          Success(Some(DDB.AttributeValue.S(strHash.value)))
     }
     function method naked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<DDB.AttributeValue>, Error>
     {

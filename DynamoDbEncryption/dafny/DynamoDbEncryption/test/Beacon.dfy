@@ -508,7 +508,6 @@ module TestBaseBeacon {
     );
     var badQuery := Beaconize(bv, context, DontUseKeyId);
     expect badQuery.Failure?;
-    print badQuery.error;
     expect badQuery.error == E("Beacon setAttr has style AsSet, but attribute has type S.");
   }
 

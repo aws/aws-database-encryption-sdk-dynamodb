@@ -450,11 +450,28 @@ of the input string, the HMAC key from the [key materials](./search-config.md#ge
 associated with this beacon, and the beacon length associated with this beacon.
 
 ### value for a standard beacon
- * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional string.
+ * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html).
  * This operation MUST return no value if the associated field does not exist in the record
+ * If this beacon is marked AsSet then this operation MUST return the
+ [set value](#value-for-a-set-standard-beacon),
+otherwise it MUST return the [non-set value](#value-for-a-non-set-standard-beacon)
+
+### value for a non-set standard beacon
  * This operation MUST convert the attribute value of the associated field to
 a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
- * This operation MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
+ * This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
+ * The returned
+[AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
+MUST be type "S" String.
+
+### value for a set standard beacon
+ * This operation MUST convert the value of each item in the set to
+a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
+ * This operation MUST return a set containing the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
+ * The resulting set MUST NOT contain duplicates.
+ * The returned
+[AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
+MUST be type "SS" StringSet.
 
 ### value for a compound beacon
 
