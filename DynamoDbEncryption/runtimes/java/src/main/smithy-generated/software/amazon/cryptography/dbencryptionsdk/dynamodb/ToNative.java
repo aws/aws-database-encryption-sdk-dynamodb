@@ -127,6 +127,12 @@ public class ToNative {
     if (dafnyValue.dtor_virtualFields().is_Some()) {
       nativeBuilder.virtualFields(ToNative.VirtualFieldList(dafnyValue.dtor_virtualFields().dtor_value()));
     }
+    if (dafnyValue.dtor_encrypted().is_Some()) {
+      nativeBuilder.encrypted(ToNative.EncryptedPartsList(dafnyValue.dtor_encrypted().dtor_value()));
+    }
+    if (dafnyValue.dtor_signed().is_Some()) {
+      nativeBuilder.signed(ToNative.SignedPartsList(dafnyValue.dtor_signed().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 

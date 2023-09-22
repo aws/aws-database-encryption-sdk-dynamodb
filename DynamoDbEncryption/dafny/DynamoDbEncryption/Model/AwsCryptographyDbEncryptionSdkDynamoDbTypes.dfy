@@ -44,7 +44,9 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly keySource: BeaconKeySource ,
  nameonly standardBeacons: StandardBeaconList ,
  nameonly compoundBeacons: Option<CompoundBeaconList> ,
- nameonly virtualFields: Option<VirtualFieldList>
+ nameonly virtualFields: Option<VirtualFieldList> ,
+ nameonly encrypted: Option<EncryptedPartsList> ,
+ nameonly signed: Option<SignedPartsList>
  )
  type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
  predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
@@ -236,7 +238,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  type EncryptedPartsList = x: seq<EncryptedPart> | IsValid_EncryptedPartsList(x) witness *
  predicate method IsValid_EncryptedPartsList(x: seq<EncryptedPart>) {
- ( 1 <= |x|  )
+ ( 0 <= |x|  )
 }
  datatype GetBranchKeyIdFromDdbKeyInput = | GetBranchKeyIdFromDdbKeyInput (
  nameonly ddbKey: ComAmazonawsDynamodbTypes.Key
@@ -341,7 +343,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  type SignedPartsList = x: seq<SignedPart> | IsValid_SignedPartsList(x) witness *
  predicate method IsValid_SignedPartsList(x: seq<SignedPart>) {
- ( 1 <= |x|  )
+ ( 0 <= |x|  )
 }
  datatype SingleKeyStore = | SingleKeyStore (
  nameonly keyId: string ,

@@ -117,7 +117,15 @@ public class ToDafny {
     virtualFields = (Objects.nonNull(nativeValue.virtualFields()) && nativeValue.virtualFields().size() > 0) ?
         Option.create_Some(ToDafny.VirtualFieldList(nativeValue.virtualFields()))
         : Option.create_None();
-    return new BeaconVersion(version, keyStore, keySource, standardBeacons, compoundBeacons, virtualFields);
+    Option<DafnySequence<? extends EncryptedPart>> encrypted;
+    encrypted = (Objects.nonNull(nativeValue.encrypted()) && nativeValue.encrypted().size() > 0) ?
+        Option.create_Some(ToDafny.EncryptedPartsList(nativeValue.encrypted()))
+        : Option.create_None();
+    Option<DafnySequence<? extends SignedPart>> signed;
+    signed = (Objects.nonNull(nativeValue.signed()) && nativeValue.signed().size() > 0) ?
+        Option.create_Some(ToDafny.SignedPartsList(nativeValue.signed()))
+        : Option.create_None();
+    return new BeaconVersion(version, keyStore, keySource, standardBeacons, compoundBeacons, virtualFields, encrypted, signed);
   }
 
   public static CompoundBeacon CompoundBeacon(

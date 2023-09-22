@@ -43,7 +43,9 @@ module TestBaseBeacon {
       keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
       standardBeacons := [NameB, TitleB, TooBadB],
       compoundBeacons := Some([BadPrefix]),
-      virtualFields := None
+      virtualFields := None,
+      encrypted := None,
+      signed := None
     );
     var src := GetLiteralSource([1,2,3,4,5], version);
     var res := C.ConvertVersionWithSource(FullTableConfig, version, src);

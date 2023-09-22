@@ -220,11 +220,11 @@ public class CompoundBeacon {
       if (Objects.nonNull(this.split()) && this.split().length() > 1) {
         throw new IllegalArgumentException("The size of `split` must be less than or equal to 1");
       }
-      if (Objects.nonNull(this.encrypted()) && this.encrypted().size() < 1) {
-        throw new IllegalArgumentException("The size of `encrypted` must be greater than or equal to 1");
+      if (Objects.nonNull(this.encrypted()) && this.encrypted().size() < 0) {
+        throw new IllegalArgumentException("The size of `encrypted` must be greater than or equal to 0");
       }
-      if (Objects.nonNull(this.signed()) && this.signed().size() < 1) {
-        throw new IllegalArgumentException("The size of `signed` must be greater than or equal to 1");
+      if (Objects.nonNull(this.signed()) && this.signed().size() < 0) {
+        throw new IllegalArgumentException("The size of `signed` must be greater than or equal to 0");
       }
       if (Objects.nonNull(this.constructors()) && this.constructors().size() < 1) {
         throw new IllegalArgumentException("The size of `constructors` must be greater than or equal to 1");

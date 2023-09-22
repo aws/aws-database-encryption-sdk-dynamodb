@@ -265,12 +265,12 @@ list CompoundBeaconList {
   member: CompoundBeacon
 }
 
-@length(min: 1)
+@length(min: 0)
 list EncryptedPartsList {
   member: EncryptedPart
 }
 
-@length(min: 1)
+@length(min: 0)
 list SignedPartsList {
   member: SignedPart
 }
@@ -722,6 +722,11 @@ structure BeaconVersion {
   compoundBeacons : CompoundBeaconList,
   @javadoc("The Virtual Fields to be calculated, supporting other searchable enryption configurations.")
   virtualFields : VirtualFieldList,
+
+  @javadoc("The list of Encrypted Parts that may be included in any compound beacon.")
+  encrypted : EncryptedPartsList,
+  @javadoc("The list of Signed Parts that may be included in any compound beacon.")
+  signed : SignedPartsList,
 }
 
 //= specification/searchable-encryption/search-config.md#initialization

@@ -41,6 +41,16 @@ public class BeaconVersion {
    */
   private final List<VirtualField> virtualFields;
 
+  /**
+   * The list of Encrypted Parts that may be included in any compound beacon.
+   */
+  private final List<EncryptedPart> encrypted;
+
+  /**
+   * The list of Signed Parts that may be included in any compound beacon.
+   */
+  private final List<SignedPart> signed;
+
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
     this.keyStore = builder.keyStore();
@@ -48,6 +58,8 @@ public class BeaconVersion {
     this.standardBeacons = builder.standardBeacons();
     this.compoundBeacons = builder.compoundBeacons();
     this.virtualFields = builder.virtualFields();
+    this.encrypted = builder.encrypted();
+    this.signed = builder.signed();
   }
 
   /**
@@ -90,6 +102,20 @@ public class BeaconVersion {
    */
   public List<VirtualField> virtualFields() {
     return this.virtualFields;
+  }
+
+  /**
+   * @return The list of Encrypted Parts that may be included in any compound beacon.
+   */
+  public List<EncryptedPart> encrypted() {
+    return this.encrypted;
+  }
+
+  /**
+   * @return The list of Signed Parts that may be included in any compound beacon.
+   */
+  public List<SignedPart> signed() {
+    return this.signed;
   }
 
   public Builder toBuilder() {
@@ -161,6 +187,26 @@ public class BeaconVersion {
      */
     List<VirtualField> virtualFields();
 
+    /**
+     * @param encrypted The list of Encrypted Parts that may be included in any compound beacon.
+     */
+    Builder encrypted(List<EncryptedPart> encrypted);
+
+    /**
+     * @return The list of Encrypted Parts that may be included in any compound beacon.
+     */
+    List<EncryptedPart> encrypted();
+
+    /**
+     * @param signed The list of Signed Parts that may be included in any compound beacon.
+     */
+    Builder signed(List<SignedPart> signed);
+
+    /**
+     * @return The list of Signed Parts that may be included in any compound beacon.
+     */
+    List<SignedPart> signed();
+
     BeaconVersion build();
   }
 
@@ -179,6 +225,10 @@ public class BeaconVersion {
 
     protected List<VirtualField> virtualFields;
 
+    protected List<EncryptedPart> encrypted;
+
+    protected List<SignedPart> signed;
+
     protected BuilderImpl() {
     }
 
@@ -190,6 +240,8 @@ public class BeaconVersion {
       this.standardBeacons = model.standardBeacons();
       this.compoundBeacons = model.compoundBeacons();
       this.virtualFields = model.virtualFields();
+      this.encrypted = model.encrypted();
+      this.signed = model.signed();
     }
 
     public Builder version(int version) {
@@ -247,6 +299,24 @@ public class BeaconVersion {
       return this.virtualFields;
     }
 
+    public Builder encrypted(List<EncryptedPart> encrypted) {
+      this.encrypted = encrypted;
+      return this;
+    }
+
+    public List<EncryptedPart> encrypted() {
+      return this.encrypted;
+    }
+
+    public Builder signed(List<SignedPart> signed) {
+      this.signed = signed;
+      return this;
+    }
+
+    public List<SignedPart> signed() {
+      return this.signed;
+    }
+
     public BeaconVersion build() {
       if (!this._versionSet) {
         throw new IllegalArgumentException("Missing value for required field `version`");
@@ -271,6 +341,12 @@ public class BeaconVersion {
       }
       if (Objects.nonNull(this.virtualFields()) && this.virtualFields().size() < 1) {
         throw new IllegalArgumentException("The size of `virtualFields` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.encrypted()) && this.encrypted().size() < 0) {
+        throw new IllegalArgumentException("The size of `encrypted` must be greater than or equal to 0");
+      }
+      if (Objects.nonNull(this.signed()) && this.signed().size() < 0) {
+        throw new IllegalArgumentException("The size of `signed` must be greater than or equal to 0");
       }
       return new BeaconVersion(this);
     }
