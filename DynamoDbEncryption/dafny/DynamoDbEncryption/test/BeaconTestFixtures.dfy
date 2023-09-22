@@ -31,12 +31,12 @@ module BeaconTestFixtures {
     expect a == b;
   }
 
-  const std2 := StandardBeacon(name := "std2", length := 24, loc := None)
-  const std4 := StandardBeacon(name := "std4", length := 24, loc := Some("std4"))
-  const std6 := StandardBeacon(name := "std6", length := 26, loc := Some("std6[0]"))
-  const NameB := StandardBeacon(name := "Name", length := 32, loc := None)
-  const TitleB := StandardBeacon(name := "Title", length := 32, loc := None)
-  const TooBadB := StandardBeacon(name := "TooBad", length := 32, loc := None)
+  const std2 := StandardBeacon(name := "std2", length := 24, loc := None, style := None)
+  const std4 := StandardBeacon(name := "std4", length := 24, loc := Some("std4"), style := None)
+  const std6 := StandardBeacon(name := "std6", length := 26, loc := Some("std6[0]"), style := None)
+  const NameB := StandardBeacon(name := "Name", length := 32, loc := None, style := None)
+  const TitleB := StandardBeacon(name := "Title", length := 32, loc := None, style := None)
+  const TooBadB := StandardBeacon(name := "TooBad", length := 32, loc := None, style := None)
 
   const Year := SignedPart(name := "Year", prefix := "Y_", loc := None)
   const Month := SignedPart(name := "Month", prefix := "M_", loc := Some("Date.Month"))
@@ -116,7 +116,7 @@ module BeaconTestFixtures {
   const VPart1 := VirtualPart(loc := "Name", trans := Some([insert(Insert(literal := "__"))]))
   const VPart2 := VirtualPart(loc := "Title", trans := Some([lower(Lower)]))
   const NameTitleField := VirtualField(name := "NameTitleField", parts := [VPart1, VPart2])
-  const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 28, loc := None)
+  const NameTitleBeacon := StandardBeacon(name := "NameTitleField", length := 28, loc := None, style := None)
   const NameVirtField := VirtualField(name := "NameVirtField", parts := [VPart1])
 
   method GetKeyStore() returns (output : SI.ValidStore)

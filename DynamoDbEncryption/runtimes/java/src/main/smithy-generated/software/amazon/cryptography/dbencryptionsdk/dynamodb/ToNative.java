@@ -16,7 +16,9 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_Opaque;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbEncryptionClient;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.AsSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySource;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconStyle;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconVersion;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CompoundBeacon;
@@ -42,11 +44,14 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Lower;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.MultiKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PartOnly;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SignedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Twinned;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.TwinnedSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Upper;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualField;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualPart;
@@ -100,6 +105,12 @@ public class ToNative {
     }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue);
+    return nativeBuilder.build();
+  }
+
+  public static AsSet AsSet(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.AsSet dafnyValue) {
+    AsSet.Builder nativeBuilder = AsSet.builder();
     return nativeBuilder.build();
   }
 
@@ -311,6 +322,12 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static PartOnly PartOnly(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PartOnly dafnyValue) {
+    PartOnly.Builder nativeBuilder = PartOnly.builder();
+    return nativeBuilder.build();
+  }
+
   public static SearchConfig SearchConfig(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SearchConfig dafnyValue) {
     SearchConfig.Builder nativeBuilder = SearchConfig.builder();
@@ -346,6 +363,23 @@ public class ToNative {
     if (dafnyValue.dtor_loc().is_Some()) {
       nativeBuilder.loc(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_loc().dtor_value()));
     }
+    if (dafnyValue.dtor_style().is_Some()) {
+      nativeBuilder.style(ToNative.BeaconStyle(dafnyValue.dtor_style().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static Twinned Twinned(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Twinned dafnyValue) {
+    Twinned.Builder nativeBuilder = Twinned.builder();
+    nativeBuilder.other(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_other()));
+    return nativeBuilder.build();
+  }
+
+  public static TwinnedSet TwinnedSet(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.TwinnedSet dafnyValue) {
+    TwinnedSet.Builder nativeBuilder = TwinnedSet.builder();
+    nativeBuilder.other(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_other()));
     return nativeBuilder.build();
   }
 
@@ -409,6 +443,24 @@ public class ToNative {
     }
     if (dafnyValue.is_multi()) {
       nativeBuilder.multi(ToNative.MultiKeyStore(dafnyValue.dtor_multi()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static BeaconStyle BeaconStyle(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconStyle dafnyValue) {
+    BeaconStyle.Builder nativeBuilder = BeaconStyle.builder();
+    if (dafnyValue.is_partOnly()) {
+      nativeBuilder.partOnly(ToNative.PartOnly(dafnyValue.dtor_partOnly()));
+    }
+    if (dafnyValue.is_twinned()) {
+      nativeBuilder.twinned(ToNative.Twinned(dafnyValue.dtor_twinned()));
+    }
+    if (dafnyValue.is_asSet()) {
+      nativeBuilder.asSet(ToNative.AsSet(dafnyValue.dtor_asSet()));
+    }
+    if (dafnyValue.is_twinnedSet()) {
+      nativeBuilder.twinnedSet(ToNative.TwinnedSet(dafnyValue.dtor_twinnedSet()));
     }
     return nativeBuilder.build();
   }

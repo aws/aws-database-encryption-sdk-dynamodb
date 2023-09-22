@@ -1111,17 +1111,17 @@ module DynamoToStruct {
     set k <- m | m[k].Failure? :: m[k].error
   }
 
-  lemma OneBadResult<X,Y>(m : map<X, Result<Y,string>>)
-    requires ! forall v <- m.Values :: v.Success?
-    ensures exists v <- m.Values :: v.Failure?
+  lemma OneBadResult<X,Y(==)>(m : map<X, Result<Y,string>>)
+    requires ! forall k <- m :: m[k].Success?
+    ensures exists k <- m :: m[k].Failure?
     ensures |FlattenErrors(m)| > 0
   {
-    assert exists v <- m.Values :: v.Failure?;
+    assert exists k <- m :: m[k].Failure?;
     var errors := FlattenErrors(m);
-    assert exists v :: v in m.Values && v.Failure? && (v.error in errors);
+    assert exists k :: k in m && m[k].Failure? && (m[k].error in errors);
   }
 
-  lemma MapKeysMatchItems<X,Y>(m : map<X,Y>)
+  lemma MapKeysMatchItems<X,Y(==)>(m : map<X,Y>)
     ensures forall k :: k in m.Keys ==> (k, m[k]) in m.Items
   {}
 
@@ -1134,7 +1134,7 @@ module DynamoToStruct {
     assert exists v :: v in bad && !f(v) && (v in bad);
   }
 
-  lemma SimplifyMapValueSuccess<X,Y>(m : map<X, Result<Y,string>>)
+  lemma SimplifyMapValueSuccess<X,Y(==)>(m : map<X, Result<Y,string>>)
     ensures SimplifyMapValue(m).Success? <==> forall k <- m :: m[k].Success?
     ensures SimplifyMapValue(m).Success? ==> forall kv <- m.Items :: kv.1.Success?
     ensures SimplifyMapValue(m).Failure? <==> exists k : X | k in m.Keys :: m[k].Failure?

@@ -262,7 +262,7 @@ public class DynamoDbEncryptionTransforms {
   }
 
   /**
-   * Given an Item, show the intermediate values.
+   * Given an Item, show the intermediate values (e.g. compound beacons, virtual fields).
    *
    */
   public ResolveAttributesOutput ResolveAttributes(ResolveAttributesInput input) {

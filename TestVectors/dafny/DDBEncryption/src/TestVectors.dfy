@@ -19,6 +19,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.String
   import opened JSON.Values
   import opened DynamoDbEncryptionUtil
   import opened DdbItemJson
@@ -1863,7 +1864,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     }
     :- Need(0 < |name|, "Each Standard Beacon needs a name.");
     :- Need(0 < length < 100 && Types.IsValid_BeaconBitLength(length as int32), "Each Standard Beacon needs a length between 1 and 63.");
-    return Success(Types.StandardBeacon(name := name, length := length as Types.BeaconBitLength, loc := loc));
+    return Success(Types.StandardBeacon(name := name, length := length as Types.BeaconBitLength, loc := loc, style := None));
   }
 
   method GetGSIs(data : JSON) returns (output : Result<seq<DDB.GlobalSecondaryIndex> , string>)

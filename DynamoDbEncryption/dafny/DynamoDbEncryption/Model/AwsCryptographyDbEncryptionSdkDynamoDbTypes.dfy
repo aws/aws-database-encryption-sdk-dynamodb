@@ -22,6 +22,9 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  
  // Begin Generated Types
  
+ datatype AsSet = | AsSet (
+ 
+ )
  type AttributeActions = map<ComAmazonawsDynamodbTypes.AttributeName, AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
  type BeaconBitLength = x: int32 | IsValid_BeaconBitLength(x) witness *
  predicate method IsValid_BeaconBitLength(x: int32) {
@@ -30,6 +33,11 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype BeaconKeySource =
  | single(single: SingleKeyStore)
  | multi(multi: MultiKeyStore)
+ datatype BeaconStyle =
+ | partOnly(partOnly: PartOnly)
+ | twinned(twinned: Twinned)
+ | asSet(asSet: AsSet)
+ | twinnedSet(twinnedSet: TwinnedSet)
  datatype BeaconVersion = | BeaconVersion (
  nameonly version: VersionNumber ,
  nameonly keyStore: AwsCryptographyKeyStoreTypes.IKeyStoreClient ,
@@ -311,6 +319,9 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly cacheTTL: int32 ,
  nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType>
  )
+ datatype PartOnly = | PartOnly (
+ 
+ )
  datatype PlaintextOverride =
 	| FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
 	| FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
@@ -339,7 +350,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype StandardBeacon = | StandardBeacon (
  nameonly name: string ,
  nameonly length: BeaconBitLength ,
- nameonly loc: Option<TerminalLocation>
+ nameonly loc: Option<TerminalLocation> ,
+ nameonly style: Option<BeaconStyle>
  )
  type StandardBeaconList = x: seq<StandardBeacon> | IsValid_StandardBeaconList(x) witness *
  predicate method IsValid_StandardBeaconList(x: seq<StandardBeacon>) {
@@ -349,6 +361,12 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  predicate method IsValid_TerminalLocation(x: string) {
  ( 1 <= |x|  )
 }
+ datatype Twinned = | Twinned (
+ nameonly other: string
+ )
+ datatype TwinnedSet = | TwinnedSet (
+ nameonly other: string
+ )
  datatype Upper = | Upper (
  
  )
