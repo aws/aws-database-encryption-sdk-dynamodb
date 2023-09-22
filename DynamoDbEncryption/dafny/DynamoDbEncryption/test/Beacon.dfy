@@ -302,7 +302,7 @@ module TestBaseBeacon {
     expect bv.error == E("Compound beacon compoundSet uses setBeacon which is an AsSet beacon, and therefore cannot be used in a Compound Beacon.");
   }
 
-  method {:test} TwinnedBadReference()
+  method {:test} TwinnedBadReferenceToCompound()
   {
     var version := GetLotsaBeacons();
     var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 24, loc := None,
@@ -318,7 +318,7 @@ module TestBaseBeacon {
     expect bv.error == E("Beacon twinBeacon is twinned to NameTitle but NameTitle is a compound beacon.");
   }
 
-  method {:test} TwinnedToCompound()
+  method {:test} TwinnedBadReferenceNonExistent()
   {
     var version := GetLotsaBeacons();
     var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 24, loc := None,
