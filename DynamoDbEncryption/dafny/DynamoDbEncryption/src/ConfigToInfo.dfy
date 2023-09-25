@@ -844,7 +844,7 @@ module SearchConfigToInfo {
       GetGlobalParts(cons[1..], globalParts, signed, newParts)
   }
 
-  function method GetAllEncryptedParts(
+  function method {:opaque} GetAllEncryptedParts(
     parts : seq<EncryptedPart>,
     cons : seq<Constructor>,
     globalEncryptedParts : PartSet,
@@ -881,7 +881,7 @@ module SearchConfigToInfo {
       FindGlobalPart(globalParts[1..], cons, signed)
   }
 
-  function method GetAllSignedParts(
+  function method {:opaque} GetAllSignedParts(
     parts : seq<SignedPart>,
     cons : seq<Constructor>,
     globalSignedParts : PartSet,
@@ -897,7 +897,7 @@ module SearchConfigToInfo {
     Success(both.parts)
   }
 
-  function method CheckSignedParts(parts : seq<SignedPart>, globals : PartSet, name : string) : Result<bool, Error>
+  function method {:opaque} {:tailrecursion} CheckSignedParts(parts : seq<SignedPart>, globals : PartSet, name : string) : Result<bool, Error>
   {
     if |parts| == 0 then
       Success(true)
@@ -909,7 +909,7 @@ module SearchConfigToInfo {
       CheckSignedParts(parts[1..], globals, name)
   }
 
-  function method CheckEncryptedParts(parts : seq<EncryptedPart>, globals : PartSet, name : string) : Result<bool, Error>
+  function method {:opaque} {:tailrecursion} CheckEncryptedParts(parts : seq<EncryptedPart>, globals : PartSet, name : string) : Result<bool, Error>
   {
     if |parts| == 0 then
       Success(true)
@@ -922,7 +922,7 @@ module SearchConfigToInfo {
   }
 
   // Construct a CompoundBeacon from its configuration
-  function method CreateCompoundBeacon(
+  function method {:opaque} CreateCompoundBeacon(
     beacon : CompoundBeacon,
     outer : DynamoDbTableEncryptionConfig,
     client: Primitives.AtomicPrimitivesClient,
@@ -933,6 +933,9 @@ module SearchConfigToInfo {
   )
     : (ret : Result<CB.CompoundBeacon, Error>)
 
+    ensures beacon.name in converted ==> ret.Failure?
+    ensures beacon.name in outer.attributeActionsOnEncrypt && outer.attributeActionsOnEncrypt[beacon.name] != SE.ENCRYPT_AND_SIGN ==> ret.Failure?
+
     //= specification/searchable-encryption/beacons.md#signed-beacons
     //= type=implication
     //# The beacon value MUST be stored as `NAME`, rather than the usual `aws_dbe_b_NAME`.
@@ -940,8 +943,8 @@ module SearchConfigToInfo {
               && var encryptedParts := if beacon.encrypted.Some? then beacon.encrypted.value else [];
               && var constructors := if beacon.constructors.Some? then beacon.constructors.value else [];
               && var encrypted := GetAllEncryptedParts(encryptedParts, constructors, globalEncryptedParts, beacon.name, converted);
-              && ret.value.base.name == beacon.name
               && encrypted.Success?
+              && ret.value.base.name == beacon.name
               && (|encrypted.value| == 0 ==> ret.value.base.beaconName == beacon.name)
               && (|encrypted.value| != 0 ==> ret.value.base.beaconName == BeaconPrefix + beacon.name)
   {
