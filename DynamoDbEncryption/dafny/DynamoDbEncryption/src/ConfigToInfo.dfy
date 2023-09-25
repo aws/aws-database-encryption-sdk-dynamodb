@@ -931,7 +931,7 @@ module SearchConfigToInfo {
     globalSignedParts : PartSet,
     globalEncryptedParts : PartSet
   )
-    : (ret : Result<CB.CompoundBeacon, Error>)
+    : (ret : Result<CB.ValidCompoundBeacon, Error>)
 
     ensures beacon.name in converted ==> ret.Failure?
     ensures beacon.name in outer.attributeActionsOnEncrypt && outer.attributeActionsOnEncrypt[beacon.name] != SE.ENCRYPT_AND_SIGN ==> ret.Failure?
