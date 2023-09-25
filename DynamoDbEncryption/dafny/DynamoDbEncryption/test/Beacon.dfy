@@ -695,19 +695,4 @@ module TestBaseBeacon {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
   }
-
-
-  /*
-    both w/o constructor
-    just global w/ constructor
-    
-        var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["twinBeacon" := SE.ENCRYPT_AND_SIGN]);
-      print "\n", bv.error, "\n";
-  
-
-  
-  */
-
-
 }
-

@@ -947,6 +947,14 @@ module SearchConfigToInfo {
               && ret.value.base.name == beacon.name
               && (|encrypted.value| == 0 ==> ret.value.base.beaconName == beacon.name)
               && (|encrypted.value| != 0 ==> ret.value.base.beaconName == BeaconPrefix + beacon.name)
+
+    //= specification/searchable-encryption/beacons.md#default-construction
+    //= type=implication
+    //# * Initialization MUST fail if no constructors are configured, and no local parts are configured.
+    ensures
+      && var encryptedParts := if beacon.encrypted.Some? then beacon.encrypted.value else [];
+      && var signedParts := if beacon.signed.Some? then beacon.signed.value else [];
+      && (!(beacon.constructors.Some? || |signedParts| != 0 || |encryptedParts| != 0) ==> ret.Failure?)
   {
     var signedParts := if beacon.signed.Some? then beacon.signed.value else [];
     var encryptedParts := if beacon.encrypted.Some? then beacon.encrypted.value else [];
