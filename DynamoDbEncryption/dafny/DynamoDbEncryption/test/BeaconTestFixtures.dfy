@@ -154,8 +154,8 @@ module BeaconTestFixtures {
         standardBeacons := [std2],
         compoundBeacons := None,
         virtualFields := None,
-        encrypted := None,
-        signed := None
+        encryptedParts := None,
+        signedParts := None
       );
   }
 
@@ -172,8 +172,8 @@ module BeaconTestFixtures {
         standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
         compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
         virtualFields := Some([NameTitleField]),
-        encrypted := None,
-        signed := None
+        encryptedParts := None,
+        signedParts := None
       );
   }
 

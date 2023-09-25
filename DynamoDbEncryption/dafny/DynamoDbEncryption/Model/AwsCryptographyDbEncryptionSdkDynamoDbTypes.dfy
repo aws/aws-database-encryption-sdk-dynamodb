@@ -45,8 +45,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly standardBeacons: StandardBeaconList ,
  nameonly compoundBeacons: Option<CompoundBeaconList> ,
  nameonly virtualFields: Option<VirtualFieldList> ,
- nameonly encrypted: Option<EncryptedPartsList> ,
- nameonly signed: Option<SignedPartsList>
+ nameonly encryptedParts: Option<EncryptedPartsList> ,
+ nameonly signedParts: Option<SignedPartsList>
  )
  type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
  predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {

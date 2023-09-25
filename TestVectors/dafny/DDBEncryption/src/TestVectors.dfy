@@ -1216,8 +1216,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
                      standardBeacons := standardBeacons,
                      compoundBeacons := OptSeq(compoundBeacons),
                      virtualFields := OptSeq(virtualFields),
-                      encrypted := None,
-                      signed := None
+                     encryptedParts := None,
+                     signedParts := None
                    )
       );
   }
