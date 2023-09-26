@@ -265,12 +265,12 @@ list CompoundBeaconList {
   member: CompoundBeacon
 }
 
-@length(min: 0)
+@length(min: 1)
 list EncryptedPartsList {
   member: EncryptedPart
 }
 
-@length(min: 0)
+@length(min: 1)
 list SignedPartsList {
   member: SignedPart
 }

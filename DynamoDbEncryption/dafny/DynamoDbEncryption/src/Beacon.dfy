@@ -194,7 +194,6 @@ module BaseBeacon {
     }
 
     function method {:opaque} ValueToSet(value : DDB.AttributeValue, key : Bytes) : (ret : Result<DDB.AttributeValue, Error>)
-      requires asSet
       ensures ret.Success? ==> ret.value.SS?
       ensures !value.SS? && !value.NS? && !value.BS? ==> ret.Failure?
       ensures ret.Success? ==> HasNoDuplicates(ret.value.SS)
@@ -241,11 +240,20 @@ module BaseBeacon {
         //= type=implication
         //# * The resulting set MUST NOT contain duplicates.
         && (ret.value.Some? ==> HasNoDuplicates(ret.value.value.SS))
+        //= specification/searchable-encryption/beacons.md#asset-initialization
+        //= type=implication
+        //# * Writing an item MUST fail if the item contains this beacon's attribute,
+        //# and that attribute is not of type Set.
+        && var value := TermLoc.TermToAttr(loc, item, None);
+        && (value.Some? && !value.value.SS? && !value.value.NS? && !value.value.BS?) ==> ret.Failure?
     {
         var value := TermLoc.TermToAttr(loc, item, None);
         if value.None? then
           Success(None)
         else
+          //= specification/searchable-encryption/beacons.md#asset-initialization
+          //# * The Standard Beacon MUST be stored in the item as a Set,
+          //# comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
           var setValue :- ValueToSet(value.value, key);
           Success(Some(setValue))
     }
@@ -346,18 +354,13 @@ module BaseBeacon {
           BeaconizeBinarySet(value[1..], key, converted + [h])
     }
 
-    function method GetBeaconValue(value : DDB.AttributeValue, key : Bytes)
+    function method GetBeaconValue(value : DDB.AttributeValue, key : Bytes, forContains : bool)
       : (ret : Result<DDB.AttributeValue, Error>)
-      //= specification/searchable-encryption/beacons.md#asset-initialization
-      //= type=implication
-      //# * Writing an item MUST fail if the item contains this beacon's attribute,
-      //# and that attribute is not of type Set.
-      ensures asSet && !value.SS? && !value.NS? && !value.BS? ==> ret.Failure?
     {
-      //= specification/searchable-encryption/beacons.md#asset-initialization
-      //# * The Standard Beacon MUST be stored in the item as a Set,
-      //# comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
-      if asSet then
+      // in query, allow beaconization of terminals
+      if asSet && !value.S? && !value.N? && !value.B? then
+        ValueToSet(value, key)
+      else if forContains && (value.SS? || value.NS? || value.BS?) then
         ValueToSet(value, key)
       else
         var bytes :- DynamoToStruct.TopLevelAttributeToBytes(value).MapFailure(e => E(e));

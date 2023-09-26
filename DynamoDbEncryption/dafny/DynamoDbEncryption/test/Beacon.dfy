@@ -508,9 +508,17 @@ module TestBaseBeacon {
       Some(map[":setVal" := DDB.AttributeValue.S("abc")]),
       None
     );
+    goodQuery :- expect Beaconize(bv, context, DontUseKeyId);
+
+    context := ExprContext (
+      None,
+      Some("setAttr = :setVal"),
+      Some(map[":setVal" := DDB.AttributeValue.L([])]),
+      None
+    );
     var badQuery := Beaconize(bv, context, DontUseKeyId);
     expect badQuery.Failure?;
-    expect badQuery.error == E("Beacon setAttr has style AsSet, but attribute has type S.");
+    expect badQuery.error == E("Beacon setAttr has style AsSet, but attribute has type L.");
   }
 
   method {:test} TestSetNotSet()
@@ -696,3 +704,5 @@ module TestBaseBeacon {
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
   }
 }
+
+// FIXME -- no twin of a twin

@@ -238,7 +238,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  type EncryptedPartsList = x: seq<EncryptedPart> | IsValid_EncryptedPartsList(x) witness *
  predicate method IsValid_EncryptedPartsList(x: seq<EncryptedPart>) {
- ( 0 <= |x|  )
+ ( 1 <= |x|  )
 }
  datatype GetBranchKeyIdFromDdbKeyInput = | GetBranchKeyIdFromDdbKeyInput (
  nameonly ddbKey: ComAmazonawsDynamodbTypes.Key
@@ -343,7 +343,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  type SignedPartsList = x: seq<SignedPart> | IsValid_SignedPartsList(x) witness *
  predicate method IsValid_SignedPartsList(x: seq<SignedPart>) {
- ( 0 <= |x|  )
+ ( 1 <= |x|  )
 }
  datatype SingleKeyStore = | SingleKeyStore (
  nameonly keyId: string ,

@@ -342,11 +342,11 @@ public class BeaconVersion {
       if (Objects.nonNull(this.virtualFields()) && this.virtualFields().size() < 1) {
         throw new IllegalArgumentException("The size of `virtualFields` must be greater than or equal to 1");
       }
-      if (Objects.nonNull(this.encryptedParts()) && this.encryptedParts().size() < 0) {
-        throw new IllegalArgumentException("The size of `encryptedParts` must be greater than or equal to 0");
+      if (Objects.nonNull(this.encryptedParts()) && this.encryptedParts().size() < 1) {
+        throw new IllegalArgumentException("The size of `encryptedParts` must be greater than or equal to 1");
       }
-      if (Objects.nonNull(this.signedParts()) && this.signedParts().size() < 0) {
-        throw new IllegalArgumentException("The size of `signedParts` must be greater than or equal to 0");
+      if (Objects.nonNull(this.signedParts()) && this.signedParts().size() < 1) {
+        throw new IllegalArgumentException("The size of `signedParts` must be greater than or equal to 1");
       }
       return new BeaconVersion(this);
     }

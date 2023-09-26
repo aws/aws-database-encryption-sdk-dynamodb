@@ -202,7 +202,8 @@ module DynamoDBFilterExpr {
 
   datatype EqualityBeacon = EqualityBeacon (
     beacon : Option<SI.Beacon>,
-    forEquality : bool
+    forEquality : bool,
+    forContains : bool
   )
 
   // returns Beacon, if any, and a flag indicating that the operation is exact match
@@ -220,7 +221,7 @@ module DynamoDBFilterExpr {
   {
     var b :- GetBeacon2(bv, t, names);
     var _ :- CanBeacon(b, op, value.s, values);
-    Success(EqualityBeacon(Some(b), IsEquality(op)))
+    Success(EqualityBeacon(Some(b), IsEquality(op), op == Contains))
   }
 
   function method GetBetweenBeacon(
@@ -247,14 +248,14 @@ module DynamoDBFilterExpr {
   {
     var b :- GetBeacon2(bv, t, names);
     var _ :- CanBetween(b, op, leftValue.s, rightValue.s, values);
-    Success(EqualityBeacon(Some(b), false))
+    Success(EqualityBeacon(Some(b), false, false))
   }
 
   function method CanStandardBeacon(op : Token) : (ret : Result<bool, Error>)
     ensures ret.Success? ==> ret.value
   {
     match op {
-      case Ne | Lt | Gt | Le | Ge | Between | BeginsWith | Contains =>
+      case Ne | Lt | Gt | Le | Ge | Between | BeginsWith =>
         Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a standard beacon."))
       case _ => Success(true)
     }
@@ -398,6 +399,10 @@ module DynamoDBFilterExpr {
     else if 4 <= pos && (expr[pos-4].Contains? || expr[pos-4].BeginsWith?) && expr[pos-3].Open?
             && HasBeacon(b, expr[pos-2], names) && expr[pos-1].Comma? then
       GetBeacon(b, expr[pos-2], expr[pos-4], expr[pos], names, values)
+    // contains(value, ATTR .or. begins_with(value, ATTR
+    else if 2 <= pos < |expr|-2 && (expr[pos-2].Contains? || expr[pos-2].BeginsWith?) && expr[pos-1].Open?
+            && HasBeacon(b, expr[pos+2], names) && expr[pos+1].Comma? then
+      GetBeacon(b, expr[pos+2], expr[pos-2], expr[pos], names, values)
     // ATTR BETWEEN value AND *
     else if 2 <= pos < |expr|-2 && expr[pos-1].Between? && HasBeacon(b, expr[pos-2], names) && expr[pos+2].Value? then
       GetBetweenBeacon(b, expr[pos-2], expr[pos-1], expr[pos], expr[pos+2], names, values)
@@ -408,13 +413,13 @@ module DynamoDBFilterExpr {
     else if expr[pos].Value? then
       var in_pos := GetInPos(expr, pos);
       if in_pos.None? then
-        Success(EqualityBeacon(None, true))
+        Success(EqualityBeacon(None, true, false))
       else if HasBeacon(b, expr[in_pos.value-1], names) then
         GetBeacon(b, expr[in_pos.value-1], expr[in_pos.value], expr[pos], names, values)
       else
-        Success(EqualityBeacon(None, true))
+        Success(EqualityBeacon(None, true, false))
     else
-      Success(EqualityBeacon(None, true))
+      Success(EqualityBeacon(None, true, false))
   }
 
   // expr[pos] is a value; return the Attr to which that value refers
@@ -471,7 +476,7 @@ module DynamoDBFilterExpr {
   }
 
   // expr[pos] is an argument to a function, which is an Attr which is a beacon
-  // return an error if that function can operate neither on encrypted values nor on beacons
+  // return false if that function can operate neither on encrypted values nor on beacons
   predicate method IsAllowedOnBeaconPred(expr : seq<Token>, pos : nat)
     requires pos < |expr|
     requires expr[pos].Attr?
@@ -553,7 +558,7 @@ module DynamoDBFilterExpr {
       :- Need(name in oldValues, E(name + " not found in ExpressionAttributeValueMap"));
       var oldValue := oldValues[name];
       var eb :- BeaconForValue(b, expr, pos, names, oldValues);
-      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality);
+      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality, eb.forContains);
       //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
       //# If a single value in ExpressionAttributeValues is used in more than one context,
       //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`
@@ -1647,13 +1652,18 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if (context.keyExpr.None? && context.filterExpr.None?) || context.values.None? {
+    if (context.keyExpr.None? && context.filterExpr.None?) {
       return Success(context);
     } else {
       var keys := DontUseKeys;
       if !naked {
         keys :- b.getKeyMap(keyId);
       }
+      var values :=
+        if context.values.Some? then
+          context.values.value
+        else
+          map[];
       var newValues : DDB.ExpressionAttributeValueMap := map[];
       var newKeyExpr := context.keyExpr;
       var newFilterExpr := context.filterExpr;
@@ -1661,19 +1671,19 @@ module DynamoDBFilterExpr {
 
       if context.keyExpr.Some? {
         var parsed := ParseExpr(context.keyExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, newNames, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues);
         newKeyExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
       }
       if context.filterExpr.Some? {
         var parsed := ParseExpr(context.filterExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, newNames, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues);
         newFilterExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
       }
-      return Success(ExprContext(newKeyExpr, newFilterExpr, Some(newValues), newNames));
+      return Success(ExprContext(newKeyExpr, newFilterExpr, if |newValues| == 0 then None else Some(newValues), newNames));
     }
   }
 
