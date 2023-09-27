@@ -85,8 +85,8 @@ public class BeaconStylesSearchableEncryptionExample {
     standardBeaconList.add(fruitBeacon);
 
     // The basket beacon allows searching on the encrypted basket attribute
-    // basket is used as a Set, and therefore needs a beacon style to reflect that
-    // further, we need to be able to compare the items in basket to the fruit attribute
+    // basket is used as a Set, and therefore needs a beacon style to reflect that.
+    // Further, we need to be able to compare the items in basket to the fruit attribute
     // so we `twin` this beacon to `fruit`.
     // Since we need both of these things, we use the TwinnedSet style.
     StandardBeacon basketBeacon = StandardBeacon.builder()
