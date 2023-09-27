@@ -245,7 +245,7 @@ module BaseBeacon {
         //# * Writing an item MUST fail if the item contains this beacon's attribute,
         //# and that attribute is not of type Set.
         && var value := TermLoc.TermToAttr(loc, item, None);
-        && (value.Some? && !value.value.SS? && !value.value.NS? && !value.value.BS?) ==> ret.Failure?
+        && (value.Some? && !(value.value.SS? || value.value.NS? || value.value.BS?) ==> ret.Failure?)
     {
         var value := TermLoc.TermToAttr(loc, item, None);
         if value.None? then
