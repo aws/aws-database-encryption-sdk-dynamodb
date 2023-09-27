@@ -268,12 +268,12 @@ public class BeaconStylesSearchableEncryptionExample {
         .filterExpression("contains(basket, fruit)")
         .build();
 
-	scanResponse = ddb.scan(scanRequest);
-	// Validate query was returned successfully
-	assert 200 == scanResponse.sdkHttpResponse().statusCode();
+    scanResponse = ddb.scan(scanRequest);
+    // Validate query was returned successfully
+    assert 200 == scanResponse.sdkHttpResponse().statusCode();
 
-	// Validate only 1 item was returned: item1
-	assert scanResponse.items().size() == 1;
+    // Validate only 1 item was returned: item1
+    assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item1);
 
     // 16. Test the third type of Set operation :
