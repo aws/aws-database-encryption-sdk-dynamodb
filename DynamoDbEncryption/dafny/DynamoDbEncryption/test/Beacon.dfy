@@ -320,6 +320,43 @@ module TestBaseBeacon {
     expect bv.error == E("Beacon twinBeacon is twinned to NameTitle but NameTitle is a compound beacon.");
   }
 
+  method {:test} ChainedTwin()
+  {
+    var version := GetLotsaBeacons();
+    var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 24, loc := None,
+                                       style := Some(
+                                         T.twinned(T.Twinned(other := "std2"))
+                                       ));
+    var other := T.StandardBeacon(name := "std4", length := 24, loc := None,
+                                       style := Some(
+                                         T.twinned(T.Twinned(other := "twinBeacon"))
+                                       ));
+
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["twinBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(compoundBeacons := None, standardBeacons :=  [std2, twinBeacon, other]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Beacon std4 is twinned to twinBeacon which is in turn twinned to std2. Twin chains are not allowed.");
+  }
+
+  method {:test} SelfTwin()
+  {
+    var version := GetLotsaBeacons();
+    var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 24, loc := None,
+                                       style := Some(
+                                         T.twinned(T.Twinned(other := "twinBeacon"))
+                                       ));
+
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["twinBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(compoundBeacons := None, standardBeacons :=  [std2, twinBeacon]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    print "\n", bv.error, "\n";
+    expect bv.error == E("Beacon twinBeacon is twinned to itself.");
+  }
+
   method {:test} TwinnedBadReferenceNonExistent()
   {
     var version := GetLotsaBeacons();
@@ -704,5 +741,3 @@ module TestBaseBeacon {
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
   }
 }
-
-// FIXME -- no twin of a twin

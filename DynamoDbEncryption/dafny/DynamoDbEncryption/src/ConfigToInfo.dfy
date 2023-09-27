@@ -411,12 +411,19 @@ module SearchConfigToInfo {
               && converted[twin].std.length == length
   {
     if twin in converted then
-      if converted[twin].Standard? then
-        if converted[twin].std.length == length then
+      var tb := converted[twin];
+      if tb.Standard? then
+        if tb.std.twin.Some? then
+          if name == twin then
+            Failure(E("Beacon " + name + " is twinned to itself."))
+          else
+            Failure(E("Beacon " + name + " is twinned to " + twin + " which is in turn twinned to " + tb.std.twin.value
+                      + ". Twin chains are not allowed."))
+        else if tb.std.length == length then
           Success(true)
         else
           Failure(E("Beacon " + name + " is twinned to " + twin + " but " + name + " has length " + Base10Int2String(length as int)
-                    + " and " + twin + " has length " + Base10Int2String(converted[twin].std.length as int) + "."))
+                    + " and " + twin + " has length " + Base10Int2String(tb.std.length as int) + "."))
       else
         Failure(E("Beacon " + name + " is twinned to " + twin + " but " + twin + " is a compound beacon."))
     else
@@ -541,10 +548,10 @@ module SearchConfigToInfo {
         Failure(E("Duplicate prefix " + part.getPrefix() + " in " + name + "."))
       else
         Success(PartSet(
-          parts := parts + [part],
-          names := names + {part.getName()},
-          prefixes := prefixes + {part.getPrefix()}
-        ))
+                  parts := parts + [part],
+                  names := names + {part.getName()},
+                  prefixes := prefixes + {part.getPrefix()}
+                ))
     }
 
     function method GetSetAsString(strings : set<string>) : string
@@ -553,7 +560,7 @@ module SearchConfigToInfo {
       var names := SortedSets.ComputeSetToOrderedSequence2(strings, CharLess);
       Join(names, ", ")
     }
-  
+
     function method combine(other : PartSet, name : string, otherName : string) : Result<PartSet, Error>
     {
       if |names * other.names| != 0 then
@@ -564,10 +571,10 @@ module SearchConfigToInfo {
         Failure(E("Duplicate prefix(es) " + tags + " between " + name + " and " + otherName + "."))
       else
         Success(PartSet(
-          parts := parts + other.parts,
-          names := names + other.names,
-          prefixes := prefixes + other.prefixes
-        ))
+                  parts := parts + other.parts,
+                  names := names + other.names,
+                  prefixes := prefixes + other.prefixes
+                ))
 
     }
   }
@@ -1005,7 +1012,7 @@ module SearchConfigToInfo {
     converted : I.BeaconMap,
     globalSignedParts : PartSet,
     globalEncryptedParts : PartSet
-    )
+  )
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
     requires client.ValidState()
