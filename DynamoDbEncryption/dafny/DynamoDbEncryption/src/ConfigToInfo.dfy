@@ -963,6 +963,7 @@ module SearchConfigToInfo {
       && var signedParts := if beacon.signed.Some? then beacon.signed.value else [];
       && (!(beacon.constructors.Some? || |signedParts| != 0 || |encryptedParts| != 0) ==> ret.Failure?)
   {
+    // because UnwrapOr doesn't verify when used on a list with a minimum size
     var signedParts := if beacon.signed.Some? then beacon.signed.value else [];
     var encryptedParts := if beacon.encrypted.Some? then beacon.encrypted.value else [];
     var constructors := if beacon.constructors.Some? then beacon.constructors.value else [];
