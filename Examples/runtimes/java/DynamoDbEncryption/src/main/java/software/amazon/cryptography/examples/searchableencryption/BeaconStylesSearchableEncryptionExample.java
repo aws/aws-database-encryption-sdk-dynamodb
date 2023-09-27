@@ -253,12 +253,12 @@ public class BeaconStylesSearchableEncryptionExample {
         .expressionAttributeValues(expressionAttributeValues)
         .build();
 
-	ScanResponse scanResponse = ddb.scan(scanRequest);
-	// Validate query was returned successfully
-	assert 200 == scanResponse.sdkHttpResponse().statusCode();
+    ScanResponse scanResponse = ddb.scan(scanRequest);
+    // Validate query was returned successfully
+    assert 200 == scanResponse.sdkHttpResponse().statusCode();
 
-	// Validate only 1 item was returned: item1
-	assert scanResponse.items().size() == 1;
+    // Validate only 1 item was returned: item1
+    assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item1);
 
     // 15. Test the second type of Set operation :
