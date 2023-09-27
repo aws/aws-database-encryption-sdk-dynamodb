@@ -78,6 +78,9 @@ public class BeaconStylesSearchableEncryptionExample {
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
 
     // The fruit beacon allows searching on the encrypted fruit attribute
+    // We have selected 30 as an example beacon length, but you should go to
+    // https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
+    // when creating your beacons.
     StandardBeacon fruitBeacon = StandardBeacon.builder()
         .name("fruit")
         .length(30)
@@ -114,7 +117,7 @@ public class BeaconStylesSearchableEncryptionExample {
         .build();
     standardBeaconList.add(dessertBeacon);
 
-    // 3. Configure the Keystore
+    // 2. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
     KeyStore keyStore = KeyStore.builder()
         .KeyStoreConfig(KeyStoreConfig.builder()
@@ -126,7 +129,7 @@ public class BeaconStylesSearchableEncryptionExample {
             .build())
         .build();
 
-    // 4. Create BeaconVersion.
+    // 3. Create BeaconVersion.
     //    This is similar to the Basic example
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
@@ -143,7 +146,7 @@ public class BeaconStylesSearchableEncryptionExample {
             .build()
     );
 
-    // 5. Create a Hierarchical Keyring
+    // 4. Create a Hierarchical Keyring
     //    This is the same configuration as in the Basic example.
     final MaterialProviders matProv = MaterialProviders.builder()
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
@@ -155,7 +158,7 @@ public class BeaconStylesSearchableEncryptionExample {
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
-    // 6. Configure which attributes are encrypted and/or signed when writing new items.
+    // 5. Configure which attributes are encrypted and/or signed when writing new items.
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     attributeActionsOnEncrypt.put("work_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActionsOnEncrypt.put("inspection_date", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
@@ -163,7 +166,7 @@ public class BeaconStylesSearchableEncryptionExample {
     attributeActionsOnEncrypt.put("fruit", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActionsOnEncrypt.put("basket", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
-    // 7. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
@@ -179,13 +182,13 @@ public class BeaconStylesSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 8. Create config
+    // 7. Create config
     final DynamoDbTablesEncryptionConfig encryptionConfig =
         DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build();
 
-    // 9. Create item one, specifically with "dessert != fruit", and "fruit in basket".
+    // 8. Create item one, specifically with "dessert != fruit", and "fruit in basket".
     final HashMap<String, AttributeValue> item1 = new HashMap<>();
     item1.put("work_id", AttributeValue.builder().s("1").build());
     item1.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
@@ -197,7 +200,7 @@ public class BeaconStylesSearchableEncryptionExample {
     basket.add("pear");
     item1.put("basket", AttributeValue.builder().ss(basket).build());
 
-    // 10. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
+    // 9. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
     final HashMap<String, AttributeValue> item2 = new HashMap<>();
     item2.put("work_id", AttributeValue.builder().s("2").build());
     item2.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
@@ -209,12 +212,12 @@ public class BeaconStylesSearchableEncryptionExample {
     basket.add("blackberry");
     item2.put("basket", AttributeValue.builder().ss(basket).build());
 
-    // 11. Create the DynamoDb Encryption Interceptor
+    // 10. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
         .config(encryptionConfig)
         .build();
 
-    // 12. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 11. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
@@ -222,7 +225,7 @@ public class BeaconStylesSearchableEncryptionExample {
                 .build())
         .build();
 
-    // 13. Add the two items
+    // 12. Add the two items
     PutItemRequest putRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
         .item(item1)
@@ -242,7 +245,7 @@ public class BeaconStylesSearchableEncryptionExample {
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
 
-    // 14. Test the first type of Set operation :
+    // 13. Test the first type of Set operation :
     // Select records where the basket attribute holds a particular value
     Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
     expressionAttributeValues.put(":value", AttributeValue.builder().s("banana").build());
@@ -261,7 +264,7 @@ public class BeaconStylesSearchableEncryptionExample {
     assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item1);
 
-    // 15. Test the second type of Set operation :
+    // 14. Test the second type of Set operation :
     // Select records where the basket attribute holds the fruit attribute
     scanRequest = ScanRequest.builder()
         .tableName(ddbTableName)
@@ -276,7 +279,7 @@ public class BeaconStylesSearchableEncryptionExample {
     assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item1);
 
-    // 16. Test the third type of Set operation :
+    // 15. Test the third type of Set operation :
     // Select records where the fruit attribute exists in a particular set
     ArrayList<String> basket3 = new ArrayList<String>();
     basket3.add("boysenberry");
