@@ -101,7 +101,7 @@ public class BeaconStylesSearchableEncryptionExample {
     standardBeaconList.add(basketBeacon);
 
     // The dessert beacon allows searching on the encrypted dessert attribute
-    // Wwe need to be able to compare the dessert attribute to the fruit attribute
+    // We need to be able to compare the dessert attribute to the fruit attribute
     // so we `twin` this beacon to `fruit`.
     StandardBeacon dessertBeacon = StandardBeacon.builder()
         .name("dessert")
