@@ -293,10 +293,10 @@ public class BeaconStylesSearchableEncryptionExample {
     scanResponse = ddb.scan(scanRequest);
 
     // Validate query was returned successfully
-	assert 200 == scanResponse.sdkHttpResponse().statusCode();
+    assert 200 == scanResponse.sdkHttpResponse().statusCode();
 
-	// Validate only 1 item was returned: item2
-	assert scanResponse.items().size() == 1;
+    // Validate only 1 item was returned: item2
+    assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item2);
 
     // Test a Twinned search. Select records where the dessert attribute matches the fruit attribute
