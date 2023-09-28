@@ -1,6 +1,6 @@
 package com.amazonaws.services.dynamodbv2.datamodeling;
 
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.Internal.InternalLegacyOverride;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy.InternalLegacyOverride;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.model.*;
