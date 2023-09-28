@@ -3,7 +3,7 @@
 
 using software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types;
 
-namespace software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal
+namespace software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy
 {
 
   public partial class InternalLegacyOverride
