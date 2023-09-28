@@ -21,6 +21,10 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Support longpaths on Git checkout
+        run: |
+          git config --global core.longpaths true
+
       - name: Setup DynamoDB Local
         uses: rrainn/dynamodb-action@v2.0.1
         with:
