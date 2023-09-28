@@ -1,4 +1,4 @@
-package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy;
+package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal;
 
 /**
  * This file does *NOT* import a lot of things.
