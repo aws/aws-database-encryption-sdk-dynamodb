@@ -4,6 +4,8 @@
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  include "../../DynamoDbEncryption/src/Index.dfy"
  include "../../DynamoDbItemEncryptor/src/Index.dfy"
+ include "../../StructuredEncryption/src/Index.dfy"
+ include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy"
  module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types" } AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
  {
@@ -12,6 +14,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import opened UTF8
  import AwsCryptographyDbEncryptionSdkDynamoDbTypes
  import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+ import AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+ import AwsCryptographyMaterialProvidersTypes
  import ComAmazonawsDynamodbTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
@@ -696,6 +700,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  // Any dependent models are listed here
  | AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDb: AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error)
  | AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor: AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error)
+ | AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryption: AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error)
+ | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.

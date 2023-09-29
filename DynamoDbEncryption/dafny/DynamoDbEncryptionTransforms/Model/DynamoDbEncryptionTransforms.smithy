@@ -11,6 +11,8 @@ use com.amazonaws.dynamodb#AttributeMap
 use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
 use aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor#DynamoDbItemEncryptor
 use aws.cryptography.dbEncryptionSdk.dynamoDb#VersionNumber
+use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 
 use aws.polymorph#localService
 use aws.polymorph#javadoc
@@ -22,6 +24,7 @@ use aws.polymorph#javadoc
     DynamoDB_20120810,
     DynamoDbEncryption,
     DynamoDbItemEncryptor,
+    StructuredEncryption
   ]
 )
 service DynamoDbEncryptionTransforms {
@@ -96,8 +99,15 @@ structure DynamoDbItemEncryptorReference {}
 @aws.polymorph#reference(service: aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption)
 structure DynamoDbEncryptionReference {}
 
+@aws.polymorph#reference(service: aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption)
+structure StructuredEncryptionReference {}
+
+@aws.polymorph#reference(service: aws.cryptography.materialProviders#AwsCryptographicMaterialProviders)
+structure AwsCryptographicMaterialProvidersReference {}
+
 @error("client")
 structure DynamoDbEncryptionTransformsException {
   @required
   message: String,
 }
+
