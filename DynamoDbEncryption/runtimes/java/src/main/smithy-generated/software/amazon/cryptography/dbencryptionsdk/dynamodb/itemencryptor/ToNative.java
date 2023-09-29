@@ -62,6 +62,9 @@ public class ToNative {
     if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
       return software.amazon.cryptography.materialproviders.ToNative.Error(dafnyValue.dtor_AwsCryptographyMaterialProviders());
     }
+    if (dafnyValue.is_AwsCryptographyDbEncryptionSdkStructuredEncryption()) {
+      return software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative.Error(dafnyValue.dtor_AwsCryptographyDbEncryptionSdkStructuredEncryption());
+    }
     if (dafnyValue.is_AwsCryptographyDbEncryptionSdkDynamoDb()) {
       return software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.Error(dafnyValue.dtor_AwsCryptographyDbEncryptionSdkDynamoDb());
     }
