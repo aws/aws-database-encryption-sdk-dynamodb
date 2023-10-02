@@ -4,18 +4,19 @@
 // ReSharper disable RedundantUsingDirective
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable SuggestVarOrType_SimpleTypes
- using System;
- using _System;
- using Wrappers_Compile;
+using System;
+using _System;
+using Wrappers_Compile;
 
- namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb {
- internal class NativeWrapper_LegacyDynamoDbEncryptor : software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.ILegacyDynamoDbEncryptor 
- {
- internal readonly LegacyDynamoDbEncryptorBase _impl;
- public NativeWrapper_LegacyDynamoDbEncryptor(LegacyDynamoDbEncryptorBase nativeImpl)
- {
- _impl = nativeImpl;
-}
- 
-}
+namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
+{
+  internal class NativeWrapper_LegacyDynamoDbEncryptor : software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.ILegacyDynamoDbEncryptor
+  {
+    internal readonly LegacyDynamoDbEncryptorBase _impl;
+    public NativeWrapper_LegacyDynamoDbEncryptor(LegacyDynamoDbEncryptorBase nativeImpl)
+    {
+      _impl = nativeImpl;
+    }
+
+  }
 }
