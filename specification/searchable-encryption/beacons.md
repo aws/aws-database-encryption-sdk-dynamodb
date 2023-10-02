@@ -395,11 +395,15 @@ On initialization of a constructor part, the caller MUST provide:
 
 This name MUST match the name of one of the [encrypted](#encrypted-part-initialization) or [signed](#signed-part-initialization) parts.
 
+These parts may come from these locally defined parts lists, or from the
+[Global Parts List](search-config.md#global-parts-list), in any combination.
+
 ### Default Construction
 
 * If no constructors are configured, a default constructor MUST be generated.
 * This default constructor MUST be all of the signed parts,
 followed by all the encrypted parts, all parts being required.
+* Initialization MUST fail if no constructors are configured, and no local parts are configured.
 
 ### Part
 
