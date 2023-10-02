@@ -722,6 +722,11 @@ structure BeaconVersion {
   compoundBeacons : CompoundBeaconList,
   @javadoc("The Virtual Fields to be calculated, supporting other searchable enryption configurations.")
   virtualFields : VirtualFieldList,
+
+  @javadoc("The list of Encrypted Parts that may be included in any compound beacon.")
+  encryptedParts : EncryptedPartsList,
+  @javadoc("The list of Signed Parts that may be included in any compound beacon.")
+  signedParts : SignedPartsList,
 }
 
 //= specification/searchable-encryption/search-config.md#initialization
