@@ -13,6 +13,8 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.StandardBeacon> _standardBeacons;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.CompoundBeacon> _compoundBeacons;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField> _virtualFields;
+    private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> _encryptedParts;
+    private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> _signedParts;
     public int Version
     {
       get { return this._version.GetValueOrDefault(); }
@@ -66,6 +68,24 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     public bool IsSetVirtualFields()
     {
       return this._virtualFields != null;
+    }
+    public System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> EncryptedParts
+    {
+      get { return this._encryptedParts; }
+      set { this._encryptedParts = value; }
+    }
+    public bool IsSetEncryptedParts()
+    {
+      return this._encryptedParts != null;
+    }
+    public System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> SignedParts
+    {
+      get { return this._signedParts; }
+      set { this._signedParts = value; }
+    }
+    public bool IsSetSignedParts()
+    {
+      return this._signedParts != null;
     }
     public void Validate()
     {
