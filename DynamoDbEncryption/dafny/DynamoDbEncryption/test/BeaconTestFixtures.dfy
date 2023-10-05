@@ -153,7 +153,9 @@ module BeaconTestFixtures {
         keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
         standardBeacons := [std2],
         compoundBeacons := None,
-        virtualFields := None
+        virtualFields := None,
+        encryptedParts := None,
+        signedParts := None
       );
   }
 
@@ -169,7 +171,9 @@ module BeaconTestFixtures {
         keySource := single(SingleKeyStore(keyId := "foo", cacheTTL := 42)),
         standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
         compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
-        virtualFields := Some([NameTitleField])
+        virtualFields := Some([NameTitleField]),
+        encryptedParts := None,
+        signedParts := None
       );
   }
 

@@ -128,13 +128,13 @@ module SearchConfigToInfo {
     //# For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
     //# MUST be key store's max cache size.
     var cacheType : MPT.CacheType :=
-    if config.multi? then
-      if config.multi.cache.Some? then
-        config.multi.cache.value
+      if config.multi? then
+        if config.multi.cache.Some? then
+          config.multi.cache.value
+        else
+          MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
       else
-        MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
-    else
-      MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
+        MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
 
     //= specification/searchable-encryption/search-config.md#key-store-cache
     //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
@@ -198,7 +198,24 @@ module SearchConfigToInfo {
               && output.value.keySource == source
   {
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
-    var beacons :- ConvertBeacons(outer, source.client, virtualFields, config.standardBeacons, config.compoundBeacons);
+    var std :- AddStandardBeacons(config.standardBeacons, outer, source.client, virtualFields);
+
+    var signed := if config.signedParts.Some? then config.signedParts.value else [];
+
+    var globalSignedParts :- GetSignedParts(signed, outer, "Global Parts List");
+
+    var globalEncryptedParts : PartSet := PartSet([], {}, {});
+    if config.encryptedParts.Some? {
+      globalEncryptedParts :- GetEncryptedParts(config.encryptedParts.value, std, "Global Parts List");
+    }
+
+    var beacons : I.BeaconMap;
+    if config.compoundBeacons.Some? {
+      beacons :- AddCompoundBeacons(config.compoundBeacons.value, outer, source.client, virtualFields, std, globalSignedParts, globalEncryptedParts);
+    } else {
+      beacons := std;
+    }
+    var _ :- CheckBeacons(beacons);
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //# Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
@@ -389,17 +406,24 @@ module SearchConfigToInfo {
   function method IsValidTwin(converted : I.BeaconMap, name : string, length : B.BeaconLength, twin : string)
     : (ret : Result<bool, Error>)
     ensures ret.Success? ==>
-      && twin in converted
-      && converted[twin].Standard?
-      && converted[twin].std.length == length
+              && twin in converted
+              && converted[twin].Standard?
+              && converted[twin].std.length == length
   {
     if twin in converted then
-      if converted[twin].Standard? then
-        if converted[twin].std.length == length then
+      var tb := converted[twin];
+      if tb.Standard? then
+        if tb.std.twin.Some? then
+          if name == twin then
+            Failure(E("Beacon " + name + " is twinned to itself."))
+          else
+            Failure(E("Beacon " + name + " is twinned to " + twin + " which is in turn twinned to " + tb.std.twin.value
+                      + ". Twin chains are not allowed."))
+        else if tb.std.length == length then
           Success(true)
         else
           Failure(E("Beacon " + name + " is twinned to " + twin + " but " + name + " has length " + Base10Int2String(length as int)
-          + " and " + twin + " has length " + Base10Int2String(converted[twin].std.length as int) + "."))
+                    + " and " + twin + " has length " + Base10Int2String(tb.std.length as int) + "."))
       else
         Failure(E("Beacon " + name + " is twinned to " + twin + " but " + twin + " is a compound beacon."))
     else
@@ -471,7 +495,7 @@ module SearchConfigToInfo {
 
     }
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString,
-    isPartOnly, isAsSet, twin);
+                                          isPartOnly, isAsSet, twin);
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
@@ -511,18 +535,63 @@ module SearchConfigToInfo {
       loc.value
   }
 
+  datatype PartSet = PartSet (
+    parts : seq<CB.BeaconPart>,
+    names : set<string>,
+    prefixes : set<string>
+  ) {
+    function method add(part : CB.BeaconPart, name : string) : Result<PartSet, Error>
+    {
+      if part.getName() in names then
+        Failure(E("Duplicate part name " + part.getName() + " in " + name + "."))
+      else if part.getPrefix() in prefixes then
+        Failure(E("Duplicate prefix " + part.getPrefix() + " in " + name + "."))
+      else
+        Success(PartSet(
+                  parts := parts + [part],
+                  names := names + {part.getName()},
+                  prefixes := prefixes + {part.getPrefix()}
+                ))
+    }
+
+    function method GetSetAsString(strings : set<string>) : string
+      requires |strings| != 0
+    {
+      var names := SortedSets.ComputeSetToOrderedSequence2(strings, CharLess);
+      Join(names, ", ")
+    }
+
+    function method combine(other : PartSet, name : string, otherName : string) : Result<PartSet, Error>
+    {
+      if |names * other.names| != 0 then
+        var tags := GetSetAsString(names * other.names);
+        Failure(E("Duplicate part name(s) " + tags + " between " + name + " and " + otherName + "."))
+      else if |prefixes * other.prefixes| != 0 then
+        var tags := GetSetAsString(prefixes * other.prefixes);
+        Failure(E("Duplicate prefix(es) " + tags + " between " + name + " and " + otherName + "."))
+      else
+        Success(PartSet(
+                  parts := parts + other.parts,
+                  names := names + other.names,
+                  prefixes := prefixes + other.prefixes
+                ))
+
+    }
+  }
+
   // convert configured SignedPart to internal BeaconPart
-  function method {:tailrecursion} AddSignedParts(
+  function method {:tailrecursion} GetSignedParts(
     parts : seq<SignedPart>,
     outer : DynamoDbTableEncryptionConfig,
-    origSize : nat := |parts|,
-    converted : seq<CB.BeaconPart> := []
+    name : string,
+    ghost origSize : nat := |parts|,
+    converted : PartSet := PartSet([], {}, {})
   )
-    : (ret : Result<seq<CB.BeaconPart>, Error>)
-    requires origSize == |parts| + |converted|
-    requires forall p <- converted :: p.Signed?
-    ensures ret.Success? ==> |ret.value| == origSize
-    ensures ret.Success? ==> forall p <- ret.value :: p.Signed?
+    : (ret : Result<PartSet, Error>)
+    requires origSize == |parts| + |converted.parts|
+    requires forall p <- converted.parts :: p.Signed?
+    ensures ret.Success? ==> |ret.value.parts| == origSize
+    ensures ret.Success? ==> forall p <- ret.value.parts :: p.Signed?
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //= type=implication
@@ -556,28 +625,28 @@ module SearchConfigToInfo {
       var newPart := CB.Signed(parts[0].prefix, parts[0].name, loc);
       :- Need(IsSignOnly(outer, newPart.loc), E("Signed Part " + newPart.name
                                                 + " is built from " + GetLocStr(parts[0].name, parts[0].loc) + " which is not SIGN_ONLY."));
-      AddSignedParts(parts[1..], outer,origSize, converted + [newPart])
+      var newParts :- converted.add(newPart, name);
+      GetSignedParts(parts[1..], outer, name, origSize, newParts)
   }
 
   // convert configured EncryptedPart to internal BeaconPart
-  function method AddEncryptedParts(
+  function method GetEncryptedParts(
     parts : seq<EncryptedPart>,
-    ghost origSize : nat,
-    ghost numSigned : nat,
-    converted : seq<CB.BeaconPart>,
     std : I.BeaconMap,
-    name : string
+    name : string,
+    ghost origSize : nat := |parts|,
+    converted : PartSet := PartSet([], {}, {})
   )
-    : (ret : Result<seq<CB.BeaconPart>, Error>)
-    requires origSize == |parts| + |converted|
-    requires numSigned <= |converted|
-    requires CB.OrderedParts(converted, numSigned)
-    ensures ret.Success? ==> |ret.value| == origSize
+    : (ret : Result<PartSet, Error>)
+    requires origSize == |parts| + |converted.parts|
+    requires forall x <- converted.parts :: x.Encrypted?
+
+    ensures ret.Success? ==> |ret.value.parts| == origSize
     //= specification/searchable-encryption/beacons.md#compound-beacon
     //= type=implication
     //# The name MUST be the name of a configured standard beacon.
     ensures ret.Success? && 0 < |parts| ==> parts[0].name in std && std[parts[0].name].Standard?
-    ensures ret.Success? ==> CB.OrderedParts(ret.value, numSigned)
+    ensures ret.Success? ==> forall x <- ret.value.parts :: x.Encrypted?
 
     //= specification/searchable-encryption/beacons.md#asset-initialization
     //= type=implication
@@ -588,12 +657,13 @@ module SearchConfigToInfo {
       Success(converted)
     else
     if parts[0].name in std && std[parts[0].name].Standard?  && std[parts[0].name].std.asSet then
-      Failure(E("Compound beacon " + name + " uses " + parts[0].name + " which is an AsSet beacon, and therefore cannot be used in a Compound Beacon."))
+      Failure(E(name + " uses " + parts[0].name + " which is an AsSet beacon, and therefore cannot be used in a Compound Beacon."))
     else if parts[0].name in std && std[parts[0].name].Standard? then
       var newPart := CB.Encrypted(parts[0].prefix, std[parts[0].name].std);
-      AddEncryptedParts(parts[1..], origSize, numSigned, converted + [newPart], std, name)
+      var newParts :- converted.add(newPart, name);
+      GetEncryptedParts(parts[1..], std, name, origSize, newParts)
     else
-      Failure(E("Compound beacon " + name + " refers to standard beacon " + parts[0].name + " which is not configured."))
+      Failure(E(name + " refers to standard beacon " + parts[0].name + " which is not configured."))
   }
 
   // create the default constructor, if not constructor is specified
@@ -753,43 +823,171 @@ module SearchConfigToInfo {
       AddConstructors2(constructors.value, name, parts, |constructors.value|)
   }
 
+  function method {:tailrecursion} GetGlobalPartsFrom(cons : seq<ConstructorPart>, globalParts : PartSet, signed : bool, parts : PartSet)
+    : (ret : Result<PartSet, Error>)
+    requires forall x <- parts.parts :: IsSignedPart(x, signed)
+    ensures ret.Success? ==> forall x <- ret.value.parts :: IsSignedPart(x, signed)
+  {
+    if |cons| == 0 then
+      Success(parts)
+    else
+      var newPart := FindGlobalPart(globalParts.parts, cons[0], signed);
+      if newPart.Some? then
+        var newParts :- parts.add(newPart.value, "Global Parts List");
+        GetGlobalPartsFrom(cons[1..], globalParts, signed, newParts)
+      else
+        GetGlobalPartsFrom(cons[1..], globalParts, signed, parts)
+  }
+
+  function method {:tailrecursion} GetGlobalParts(cons : seq<Constructor>, globalParts : PartSet, signed : bool, parts : PartSet := PartSet([], {}, {}))
+    : (ret : Result<PartSet, Error>)
+    requires forall x <- parts.parts :: IsSignedPart(x, signed)
+    ensures ret.Success? ==> forall x <- ret.value.parts :: IsSignedPart(x, signed)
+  {
+    if |cons| == 0 then
+      Success(parts)
+    else
+      var newParts :- GetGlobalPartsFrom(cons[0].parts, globalParts, signed, parts);
+      GetGlobalParts(cons[1..], globalParts, signed, newParts)
+  }
+
+  function method {:opaque} GetAllEncryptedParts(
+    parts : seq<EncryptedPart>,
+    cons : seq<Constructor>,
+    globalEncryptedParts : PartSet,
+    name : string,
+    std : I.BeaconMap
+  )
+    : (ret : Result<seq<CB.BeaconPart>, Error>)
+    ensures ret.Success? ==> forall x <- ret.value :: x.Encrypted?
+  {
+    var p1 :- GetEncryptedParts(parts, std, "Compound beacon " + name);
+    var p2 :- GetGlobalParts(cons, globalEncryptedParts, false);
+    var both :- p1.combine(p2, name, "Global Parts List");
+    Success(both.parts)
+  }
+
+  predicate method IsSignedPart(part : CB.BeaconPart, signed : bool)
+  {
+    if signed then
+      part.Signed?
+    else
+      part.Encrypted?
+  }
+
+  function method {:tailrecursion} FindGlobalPart(globalParts : seq<CB.BeaconPart>, cons : ConstructorPart, signed : bool)
+    : (ret : Option<CB.BeaconPart>)
+    ensures ret.Some? && signed ==> ret.value.Signed?
+    ensures ret.Some? && !signed ==> ret.value.Encrypted?
+  {
+    if |globalParts| == 0 then
+      None
+    else if IsSignedPart(globalParts[0], signed) && globalParts[0].getName() == cons.name then
+      Some(globalParts[0])
+    else
+      FindGlobalPart(globalParts[1..], cons, signed)
+  }
+
+  function method {:opaque} GetAllSignedParts(
+    parts : seq<SignedPart>,
+    cons : seq<Constructor>,
+    globalSignedParts : PartSet,
+    name : string,
+    outer : DynamoDbTableEncryptionConfig
+  )
+    : (ret : Result<seq<CB.BeaconPart>, Error>)
+    ensures ret.Success? ==> forall x <- ret.value :: x.Signed?
+  {
+    var p1 :- GetSignedParts(parts, outer, name);
+    var p2 :- GetGlobalParts(cons, globalSignedParts, true);
+    var both :- p1.combine(p2, name, "Global Parts List");
+    Success(both.parts)
+  }
+
+  function method {:opaque} {:tailrecursion} CheckSignedParts(parts : seq<SignedPart>, globals : PartSet, name : string) : Result<bool, Error>
+  {
+    if |parts| == 0 then
+      Success(true)
+    else if parts[0].name in globals.names then
+      Failure(E("Compound beacon " + name + " defines signed part " + parts[0].name + " which is already defined as a global part."))
+    else if parts[0].prefix in globals.prefixes then
+      Failure(E("Compound beacon " + name + " defines signed part " + parts[0].name + " with prefix " + parts[0].prefix + " which is already defined as the prefix of a global part."))
+    else
+      CheckSignedParts(parts[1..], globals, name)
+  }
+
+  function method {:opaque} {:tailrecursion} CheckEncryptedParts(parts : seq<EncryptedPart>, globals : PartSet, name : string) : Result<bool, Error>
+  {
+    if |parts| == 0 then
+      Success(true)
+    else if parts[0].name in globals.names then
+      Failure(E("Compound beacon " + name + " defines encrypted part " + parts[0].name + " which is already defined as a global part."))
+    else if parts[0].prefix in globals.prefixes then
+      Failure(E("Compound beacon " + name + " defines encrypted part " + parts[0].name + " with prefix " + parts[0].prefix + " which is already defined as the prefix of a global part."))
+    else
+      CheckEncryptedParts(parts[1..], globals, name)
+  }
+
   // Construct a CompoundBeacon from its configuration
-  function method CreateCompoundBeacon(
+  function method {:opaque} CreateCompoundBeacon(
     beacon : CompoundBeacon,
     outer : DynamoDbTableEncryptionConfig,
     client: Primitives.AtomicPrimitivesClient,
     virtualFields : V.VirtualFieldMap,
-    converted : I.BeaconMap
+    converted : I.BeaconMap,
+    globalSignedParts : PartSet,
+    globalEncryptedParts : PartSet
   )
-    : (ret : Result<CB.CompoundBeacon, Error>)
+    : (ret : Result<CB.ValidCompoundBeacon, Error>)
+
+    ensures beacon.name in converted ==> ret.Failure?
+    ensures beacon.name in outer.attributeActionsOnEncrypt && outer.attributeActionsOnEncrypt[beacon.name] != SE.ENCRYPT_AND_SIGN ==> ret.Failure?
 
     //= specification/searchable-encryption/beacons.md#signed-beacons
     //= type=implication
     //# The beacon value MUST be stored as `NAME`, rather than the usual `aws_dbe_b_NAME`.
     ensures ret.Success? ==>
-      && ret.value.base.name == beacon.name
-      && var encrypted := if beacon.encrypted.Some? then beacon.encrypted.value else [];
-      && (|encrypted| == 0 ==> ret.value.base.beaconName == beacon.name)
-      && (|encrypted| != 0 ==> ret.value.base.beaconName == BeaconPrefix + beacon.name)
+              && var encryptedParts := if beacon.encrypted.Some? then beacon.encrypted.value else [];
+              && var constructors := if beacon.constructors.Some? then beacon.constructors.value else [];
+              && var encrypted := GetAllEncryptedParts(encryptedParts, constructors, globalEncryptedParts, beacon.name, converted);
+              && encrypted.Success?
+              && ret.value.base.name == beacon.name
+              && (|encrypted.value| == 0 ==> ret.value.base.beaconName == beacon.name)
+              && (|encrypted.value| != 0 ==> ret.value.base.beaconName == BeaconPrefix + beacon.name)
 
+    //= specification/searchable-encryption/beacons.md#default-construction
+    //= type=implication
+    //# * Initialization MUST fail if no constructors are configured, and no local parts are configured.
+    ensures
+      && var encryptedParts := if beacon.encrypted.Some? then beacon.encrypted.value else [];
+      && var signedParts := if beacon.signed.Some? then beacon.signed.value else [];
+      && (!(beacon.constructors.Some? || |signedParts| != 0 || |encryptedParts| != 0) ==> ret.Failure?)
   {
     // because UnwrapOr doesn't verify when used on a list with a minimum size
-    var signed := if beacon.signed.Some? then beacon.signed.value else [];
-    var encrypted := if beacon.encrypted.Some? then beacon.encrypted.value else [];
-    var isSignedBeacon := |encrypted| == 0;
+    var signedParts := if beacon.signed.Some? then beacon.signed.value else [];
+    var encryptedParts := if beacon.encrypted.Some? then beacon.encrypted.value else [];
+    var constructors := if beacon.constructors.Some? then beacon.constructors.value else [];
+    var globalParts :- globalSignedParts.combine(globalEncryptedParts, "Global Signed Parts List", "Global Encrypted Parts List");
+    var _ :- CheckSignedParts(signedParts, globalParts, beacon.name);
+    var _ :- CheckEncryptedParts(encryptedParts, globalParts, beacon.name);
+    var signed :-    GetAllSignedParts(   signedParts,    constructors, globalSignedParts,    beacon.name, outer);
+    var encrypted :- GetAllEncryptedParts(encryptedParts, constructors, globalEncryptedParts, beacon.name, converted);
 
     :- Need(beacon.name !in converted, E("Duplicate CompoundBeacon name : " + beacon.name));
+    :- Need(beacon.constructors.None? || 0 < |beacon.constructors.value|, E("For beacon " + beacon.name + " an empty constructor list was supplied."));
+    :- Need(beacon.constructors.Some? || |signedParts| != 0 || |encryptedParts| != 0,
+            E("Compound beacon " + beacon.name + " defines no constructors, and also no local parts. Cannot make a default constructor from global parts."));
+
+    var numNon := |signed|;
+    assert CB.OrderedParts(signed, numNon);
+    var allParts := signed + encrypted;
+    assert CB.OrderedParts(allParts, numNon);
+
+    var isSignedBeacon := |encrypted| == 0;
     var _ :- BeaconNameAllowed(outer, virtualFields, beacon.name, "CompoundBeacon", isSignedBeacon);
 
-    var parts :- AddSignedParts(signed, outer);
-    var numNon := |parts|;
-    assert CB.OrderedParts(parts, numNon); 
-
-    var parts :- AddEncryptedParts(encrypted, |parts| + |encrypted|, numNon, parts, converted, beacon.name);
-    assert CB.OrderedParts(parts, numNon);
-    :- Need(0 < |parts|, E("For beacon " + beacon.name + " no parts were supplied."));
-    :- Need(beacon.constructors.None? || 0 < |beacon.constructors.value|, E("For beacon " + beacon.name + " an empty constructor list was supplied."));
-    var constructors :- AddConstructors(beacon.constructors, beacon.name, parts, numNon);
+    :- Need(0 < |allParts|, E("For beacon " + beacon.name + " no parts were supplied."));
+    var constructors :- AddConstructors(beacon.constructors, beacon.name, allParts, numNon);
 
     var beaconName := if isSignedBeacon then beacon.name else BeaconPrefix + beacon.name;
     :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
@@ -801,7 +999,7 @@ module SearchConfigToInfo {
         beaconName := beaconName
       ),
       beacon.split[0],
-      parts,
+      allParts,
       numNon,
       constructors
     )
@@ -812,7 +1010,10 @@ module SearchConfigToInfo {
     outer : DynamoDbTableEncryptionConfig,
     client: Primitives.AtomicPrimitivesClient,
     virtualFields : V.VirtualFieldMap,
-    converted : I.BeaconMap := map[])
+    converted : I.BeaconMap,
+    globalSignedParts : PartSet,
+    globalEncryptedParts : PartSet
+  )
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
     requires client.ValidState()
@@ -840,8 +1041,8 @@ module SearchConfigToInfo {
     if |beacons| == 0 {
       return Success(converted);
     }
-    var newBeacon :- CreateCompoundBeacon(beacons[0], outer, client, virtualFields, converted);
-    output := AddCompoundBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Compound(newBeacon)]);
+    var newBeacon :- CreateCompoundBeacon(beacons[0], outer, client, virtualFields, converted, globalSignedParts, globalEncryptedParts);
+    output := AddCompoundBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Compound(newBeacon)], globalSignedParts, globalEncryptedParts);
   }
 
   // Is `name` referred to by some compound beacon in `data`
@@ -870,17 +1071,17 @@ module SearchConfigToInfo {
     ensures |names| != 0 && I.IsPartOnly(data[names[0]]) && !ExistsInCompound(allNames, names[0], data) ==> ret.Failure?
 
     ensures ret.Success? && 0 < |names| && data[names[0]].Standard? && data[names[0]].std.twin.Some? ==>
-      && var twin := data[names[0]].std.twin.value;
-      && IsValidTwin(data, names[0], data[names[0]].std.length, twin).Success?
-      //= specification/searchable-encryption/beacons.md#twinned-initialization
-      //= type=implication
-      //# This name MUST be the name of a previously defined Standard Beacon.
-      && twin in data
-      && data[twin].Standard?
-      //= specification/searchable-encryption/beacons.md#twinned-initialization
-      //= type=implication
-      //# This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
-      && data[twin].std.length == data[names[0]].std.length
+              && var twin := data[names[0]].std.twin.value;
+              && IsValidTwin(data, names[0], data[names[0]].std.length, twin).Success?
+                 //= specification/searchable-encryption/beacons.md#twinned-initialization
+                 //= type=implication
+                 //# This name MUST be the name of a previously defined Standard Beacon.
+              && twin in data
+              && data[twin].Standard?
+                 //= specification/searchable-encryption/beacons.md#twinned-initialization
+                 //= type=implication
+                 //# This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
+              && data[twin].std.length == data[names[0]].std.length
   {
     if |names| == 0 then
       Success(true)
@@ -899,28 +1100,5 @@ module SearchConfigToInfo {
   {
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(data.Keys, CharLess);
     CheckAllBeacons(beaconNames, beaconNames, data)
-  }
-
-  // convert configured Beacons to internal BeaconMap
-  method ConvertBeacons(
-    outer : DynamoDbTableEncryptionConfig,
-    client: Primitives.AtomicPrimitivesClient,
-    virtualFields : V.VirtualFieldMap,
-    standard : StandardBeaconList,
-    compound : Option<CompoundBeaconList>)
-    returns (output : Result<I.BeaconMap, Error>)
-    modifies client.Modifies
-    requires client.ValidState()
-    ensures client.ValidState()
-  {
-    var std :- AddStandardBeacons(standard, outer, client, virtualFields);
-    if compound.Some? {
-      output := AddCompoundBeacons(compound.value, outer, client, virtualFields, std);
-    } else {
-      output := Success(std);
-    }
-    if output.Success? {
-      var _ :- CheckBeacons(output.value);
-    }
   }
 }
