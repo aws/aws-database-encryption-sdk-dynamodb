@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>10</LangVersion>
-        <TargetFrameworks>net6.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net48</TargetFrameworks>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     </PropertyGroup>
 
