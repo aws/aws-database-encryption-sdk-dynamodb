@@ -29,8 +29,8 @@
     <ItemGroup>
         <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj" />
         <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj" />
-        <ProjectReference Include="../../../submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj" />
-        <ProjectReference Include="../../../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj" />
+        <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsDynamodb" Version="1.0.0" />
+        <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsKms" Version="1.0.0" />
     </ItemGroup>
 
     <!--
