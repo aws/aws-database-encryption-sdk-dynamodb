@@ -27,6 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="AWS.Cryptography.Internal.StandardLibrary="1.1.1" />
         <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.0.0" />
         <PackageReference Include="AWS.Cryptography.Internal.AwsCryptographyPrimitives" Version="1.0.0" />
         <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsDynamodb" Version="1.0.0" />
