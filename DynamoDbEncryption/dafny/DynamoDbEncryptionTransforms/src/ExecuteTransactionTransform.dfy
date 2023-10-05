@@ -48,7 +48,6 @@ module ExecuteTransactionTransform {
       var tableName := DdbStatement.TableFromStatement(statement);
       if tableName.Failure? {
         return Failure(Error.DynamoDbEncryptionTransformsException(message := tableName.error));
-        var tableName :- MapString(DdbStatement.TableFromStatement(statement));
       }
       if tableName.value in config.tableEncryptionConfigs {
         return MakeError("ExecuteTransaction not Supported on encrypted tables.");
