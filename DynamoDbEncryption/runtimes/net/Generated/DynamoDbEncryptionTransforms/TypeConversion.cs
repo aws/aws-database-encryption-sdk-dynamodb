@@ -1630,7 +1630,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IBatchStatementResponse>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M9_Responses(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IBatchStatementResponse>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IBatchStatementResponse>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_PartiQLBatchResponse((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IBatchStatementResponse>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IBatchStatementResponse>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_PartiQLBatchResponse((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.BatchStatementResponse>)value));
     }
     internal static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> value)
     {
@@ -1638,7 +1638,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput__M16_ConsumedCapacity(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_BatchGetItemInput__M12_RequestItems(Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IKeysAndAttributes> value)
     {
@@ -1662,7 +1662,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M9_Responses(System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchGetResponseMap((System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchGetResponseMap((System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M15_UnprocessedKeys(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IKeysAndAttributes>> value)
     {
@@ -1670,7 +1670,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IKeysAndAttributes>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M15_UnprocessedKeys(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IKeysAndAttributes>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IKeysAndAttributes>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetRequestMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IKeysAndAttributes>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IKeysAndAttributes>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetRequestMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.KeysAndAttributes>)value));
     }
     internal static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> value)
     {
@@ -1678,7 +1678,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput__M16_ConsumedCapacity(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest>> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_BatchWriteItemInput__M12_RequestItems(Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IWriteRequest>> value)
     {
@@ -1710,7 +1710,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IWriteRequest>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M16_UnprocessedItems(System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest>> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IWriteRequest>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IWriteRequest>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_BatchWriteItemRequestMap((System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest>>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IWriteRequest>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IWriteRequest>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_BatchWriteItemRequestMap((System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.WriteRequest>>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M21_ItemCollectionMetrics(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>> value)
     {
@@ -1718,7 +1718,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M21_ItemCollectionMetrics(System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionMetricsPerTable((System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionMetricsPerTable((System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>)value));
     }
     internal static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> value)
     {
@@ -1726,7 +1726,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput__M16_ConsumedCapacity(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
     }
     internal static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M9_TableName(Dafny.ISequence<char> value)
     {
@@ -1750,7 +1750,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M8_Expected(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_ExpectedAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_ExpectedAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ConditionalOperator FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M19_ConditionalOperator(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConditionalOperator> value)
     {
@@ -1798,7 +1798,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -1806,7 +1806,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_DeleteItemInput__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput__M10_Attributes(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -1814,7 +1814,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput__M10_Attributes(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.Model.ConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity> value)
     {
@@ -1846,7 +1846,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M10_Parameters(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_PreparedStatementParameters((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_PreparedStatementParameters((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static bool? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ExecuteStatementInput__M14_ConsistentRead(Wrappers_Compile._IOption<bool> value)
     {
@@ -1886,7 +1886,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput__M5_Items(System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_ItemList((System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_ItemList((System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>)value));
     }
     internal static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput__M9_NextToken(Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
     {
@@ -1910,7 +1910,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput__M16_LastEvaluatedKey(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ParameterizedStatement> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExecuteTransactionInput__M18_TransactStatements(Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IParameterizedStatement> value)
     {
@@ -1942,7 +1942,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput__M9_Responses(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ItemResponseList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ItemResponseList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>)value));
     }
     internal static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> value)
     {
@@ -1950,7 +1950,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput__M16_ConsumedCapacity(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
     }
     internal static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M9_TableName(Dafny.ISequence<char> value)
     {
@@ -1974,7 +1974,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M15_AttributesToGet(System.Collections.Generic.List<string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
     }
     internal static bool? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M14_ConsistentRead(Wrappers_Compile._IOption<bool> value)
     {
@@ -2006,7 +2006,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_GetItemInput__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput__M4_Item(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -2014,7 +2014,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput__M4_Item(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.Model.ConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity> value)
     {
@@ -2046,7 +2046,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M8_Expected(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_ExpectedAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_ExpectedAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ReturnValue FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M12_ReturnValues(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IReturnValue> value)
     {
@@ -2094,7 +2094,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -2102,7 +2102,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_PutItemInput__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput__M10_Attributes(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -2110,7 +2110,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput__M10_Attributes(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.Model.ConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity> value)
     {
@@ -2158,7 +2158,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M15_AttributesToGet(System.Collections.Generic.List<string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
     }
     internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M5_Limit(Wrappers_Compile._IOption<int> value)
     {
@@ -2182,7 +2182,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M13_KeyConditions(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_KeyConditions((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_KeyConditions((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M11_QueryFilter(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>> value)
     {
@@ -2190,7 +2190,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M11_QueryFilter(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_FilterConditionMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_FilterConditionMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)value));
     }
     internal static Amazon.DynamoDBv2.ConditionalOperator FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M19_ConditionalOperator(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConditionalOperator> value)
     {
@@ -2214,7 +2214,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M17_ExclusiveStartKey(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ReturnConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M22_ReturnConsumedCapacity(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IReturnConsumedCapacity> value)
     {
@@ -2254,7 +2254,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -2262,7 +2262,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M5_Items(Wrappers_Compile._IOption<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>> value)
     {
@@ -2270,7 +2270,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M5_Items(System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_ItemList((System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_ItemList((System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>)value));
     }
     internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M5_Count(Wrappers_Compile._IOption<int> value)
     {
@@ -2294,7 +2294,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M16_LastEvaluatedKey(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.Model.ConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity> value)
     {
@@ -2358,7 +2358,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M15_AttributesToGet(System.Collections.Generic.List<string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
     }
     internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M5_Limit(Wrappers_Compile._IOption<int> value)
     {
@@ -2382,7 +2382,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M10_ScanFilter(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_FilterConditionMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICondition>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_FilterConditionMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)value));
     }
     internal static Amazon.DynamoDBv2.ConditionalOperator FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M19_ConditionalOperator(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConditionalOperator> value)
     {
@@ -2398,7 +2398,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M17_ExclusiveStartKey(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ReturnConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M22_ReturnConsumedCapacity(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IReturnConsumedCapacity> value)
     {
@@ -2446,7 +2446,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -2454,7 +2454,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static bool? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_ScanInput__M14_ConsistentRead(Wrappers_Compile._IOption<bool> value)
     {
@@ -2470,7 +2470,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M5_Items(System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_ItemList((System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_ItemList((System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>>)value));
     }
     internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M5_Count(Wrappers_Compile._IOption<int> value)
     {
@@ -2494,7 +2494,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M16_LastEvaluatedKey(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Key((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.Model.ConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity> value)
     {
@@ -2526,7 +2526,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput__M16_ConsumedCapacity(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
     }
     internal static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput__M9_Responses(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>> value)
     {
@@ -2534,7 +2534,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput__M9_Responses(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ItemResponseList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemResponse>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ItemResponseList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemResponse>)value));
     }
     internal static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.TransactWriteItem> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_TransactWriteItemsInput__M13_TransactItems(Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._ITransactWriteItem> value)
     {
@@ -2574,7 +2574,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput__M16_ConsumedCapacity(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ConsumedCapacityMultiple((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ConsumedCapacity>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput__M21_ItemCollectionMetrics(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>> value)
     {
@@ -2582,7 +2582,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput__M21_ItemCollectionMetrics(System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionMetricsPerTable((System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IItemCollectionMetrics>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionMetricsPerTable((System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Amazon.DynamoDBv2.Model.ItemCollectionMetrics>>)value));
     }
     internal static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M9_TableName(Dafny.ISequence<char> value)
     {
@@ -2606,7 +2606,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValueUpdate>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M16_AttributeUpdates(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValueUpdate> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValueUpdate>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValueUpdate>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_AttributeUpdates((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValueUpdate>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValueUpdate>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValueUpdate>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_AttributeUpdates((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValueUpdate>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M8_Expected(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>> value)
     {
@@ -2614,7 +2614,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M8_Expected(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_ExpectedAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IExpectedAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_ExpectedAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.ExpectedAttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ConditionalOperator FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M19_ConditionalOperator(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConditionalOperator> value)
     {
@@ -2670,7 +2670,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -2678,7 +2678,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_UpdateItemInput__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput__M10_Attributes(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -2686,7 +2686,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput__M10_Attributes(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.Model.ConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput__M16_ConsumedCapacity(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IConsumedCapacity> value)
     {
@@ -3301,7 +3301,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S29_DynamoDbTableEncryptionConfig__M25_allowedUnsignedAttributes(System.Collections.Generic.List<string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
     }
     internal static string FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S29_DynamoDbTableEncryptionConfig__M30_allowedUnsignedAttributePrefix(Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
     {
@@ -3549,7 +3549,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M21_LocalSecondaryIndexes(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_SecondaryIndexesCapacityMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_SecondaryIndexesCapacityMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M22_GlobalSecondaryIndexes(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>> value)
     {
@@ -3557,7 +3557,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M22_GlobalSecondaryIndexes(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_SecondaryIndexesCapacityMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._ICapacity>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_SecondaryIndexesCapacityMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M17_ItemCollectionKey(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -3565,7 +3565,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M17_ItemCollectionKey(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionKeyAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionKeyAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.List<double> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB(Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<byte>>> value)
     {
@@ -3573,7 +3573,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<byte>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB(System.Collections.Generic.List<double> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange((System.Collections.Generic.List<double>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange((System.Collections.Generic.List<double>)value));
     }
     internal static Amazon.DynamoDBv2.Model.AttributeValue FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_PreparedStatementParameters__M6_member(software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue value)
     {
@@ -4226,7 +4226,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_BatchStatementRequest__M10_Parameters(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_PreparedStatementParameters((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_PreparedStatementParameters((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static bool? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_BatchStatementRequest__M14_ConsistentRead(Wrappers_Compile._IOption<bool> value)
     {
@@ -4258,7 +4258,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_BatchStatementResponse__M4_Item(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M4_Keys(Dafny.ISequence<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -4274,7 +4274,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M15_AttributesToGet(System.Collections.Generic.List<string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_AttributeNameList((System.Collections.Generic.List<string>)value));
     }
     internal static bool? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M14_ConsistentRead(Wrappers_Compile._IOption<bool> value)
     {
@@ -4298,7 +4298,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_KeysAndAttributes__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static Amazon.DynamoDBv2.Model.WriteRequest FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_WriteRequests__M6_member(software.amazon.cryptography.services.dynamodb.internaldafny.types._IWriteRequest value)
     {
@@ -4346,7 +4346,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExpectedAttributeValue__M18_AttributeValueList(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_AttributeValueList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_AttributeValueList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static double? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits(Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
     {
@@ -4426,7 +4426,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ParameterizedStatement__M10_Parameters(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_PreparedStatementParameters((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_PreparedStatementParameters((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_ItemResponse__M4_Item(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -4434,7 +4434,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_ItemResponse__M4_Item(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_Condition__M18_AttributeValueList(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -4442,7 +4442,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_Condition__M18_AttributeValueList(System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_AttributeValueList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_AttributeValueList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ComparisonOperator FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_Condition__M18_ComparisonOperator(software.amazon.cryptography.services.dynamodb.internaldafny.types._IComparisonOperator value)
     {
@@ -4865,7 +4865,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Get__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M3_Key(Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue> value)
     {
@@ -4897,7 +4897,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -4905,7 +4905,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_ConditionCheck__M35_ReturnValuesOnConditionCheckFailure(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IReturnValuesOnConditionCheckFailure> value)
     {
@@ -4945,7 +4945,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -4953,7 +4953,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S3_Put__M35_ReturnValuesOnConditionCheckFailure(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IReturnValuesOnConditionCheckFailure> value)
     {
@@ -4993,7 +4993,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -5001,7 +5001,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Delete__M35_ReturnValuesOnConditionCheckFailure(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IReturnValuesOnConditionCheckFailure> value)
     {
@@ -5049,7 +5049,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M24_ExpressionAttributeNames(System.Collections.Generic.Dictionary<string, string> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_ExpressionAttributeNameMap((System.Collections.Generic.Dictionary<string, string>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M25_ExpressionAttributeValues(Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> value)
     {
@@ -5057,7 +5057,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M25_ExpressionAttributeValues(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_ExpressionAttributeValueMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)value));
     }
     internal static Amazon.DynamoDBv2.ReturnValuesOnConditionCheckFailure FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Update__M35_ReturnValuesOnConditionCheckFailure(Wrappers_Compile._IOption<software.amazon.cryptography.services.dynamodb.internaldafny.types._IReturnValuesOnConditionCheckFailure> value)
     {
@@ -5192,7 +5192,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ICompoundBeacon>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_compoundBeacons(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.CompoundBeacon> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ICompoundBeacon>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ICompoundBeacon>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S18_CompoundBeaconList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.CompoundBeacon>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ICompoundBeacon>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ICompoundBeacon>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S18_CompoundBeaconList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.CompoundBeacon>)value));
     }
     internal static System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M13_virtualFields(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualField>> value)
     {
@@ -5200,7 +5200,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualField>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M13_virtualFields(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualField>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualField>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S16_VirtualFieldList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualField>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualField>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S16_VirtualFieldList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField>)value));
     }
     internal static System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M14_encryptedParts(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>> value)
     {
@@ -5208,7 +5208,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M14_encryptedParts(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S18_EncryptedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S18_EncryptedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart>)value));
     }
     internal static System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M11_signedParts(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>> value)
     {
@@ -5216,7 +5216,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M11_signedParts(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_SignedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_SignedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart>)value));
     }
     internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_PutRequest__M4_Item(Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue> value)
     {
@@ -5543,7 +5543,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_CompoundBeacon__M9_encrypted(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S18_EncryptedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IEncryptedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S18_EncryptedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart>)value));
     }
     internal static System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_CompoundBeacon__M6_signed(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>> value)
     {
@@ -5551,7 +5551,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_CompoundBeacon__M6_signed(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_SignedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_SignedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart>)value));
     }
     internal static System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.Constructor> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_CompoundBeacon__M12_constructors(Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IConstructor>> value)
     {
@@ -5559,7 +5559,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IConstructor>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_CompoundBeacon__M12_constructors(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.Constructor> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IConstructor>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IConstructor>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_ConstructorList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.Constructor>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IConstructor>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IConstructor>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_ConstructorList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.Constructor>)value));
     }
     internal static string FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S12_VirtualField__M4_name(Dafny.ISequence<char> value)
     {
@@ -6102,7 +6102,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     }
     internal static Wrappers_Compile._IOption<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualTransform>> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_VirtualPart__M5_trans(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualTransform> value)
     {
-      return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualTransform>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualTransform>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_VirtualTransformList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualTransform>)value));
+      return value == null || value.Count == 0 ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualTransform>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IVirtualTransform>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_VirtualTransformList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualTransform>)value));
     }
     internal static int FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_CountingNumber(int value)
     {
@@ -6483,10 +6483,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     {
       switch (value)
       {
-        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_ComAmazonawsDynamodb dafnyVal:
-          return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
-            dafnyVal._ComAmazonawsDynamodb
-          );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyMaterialProviders dafnyVal:
           return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyMaterialProviders
@@ -6495,13 +6491,17 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
           return AWS.Cryptography.DbEncryptionSDK.DynamoDb.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyDbEncryptionSdkDynamoDb
           );
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor dafnyVal:
+          return AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.TypeConversion.FromDafny_CommonError(
+            dafnyVal._AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor
+          );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkStructuredEncryption dafnyVal:
           return AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyDbEncryptionSdkStructuredEncryption
           );
-        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor dafnyVal:
-          return AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.TypeConversion.FromDafny_CommonError(
-            dafnyVal._AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_ComAmazonawsDynamodb dafnyVal:
+          return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
+            dafnyVal._ComAmazonawsDynamodb
           );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_DynamoDbEncryptionTransformsException dafnyVal:
           return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S37_DynamoDbEncryptionTransformsException(dafnyVal);

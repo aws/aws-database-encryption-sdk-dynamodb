@@ -7,43 +7,37 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
 {
   public static class TypeConversion
   {
-    // BEGIN MANUAL EDIT
-    public static AWS.Cryptography.KeyStore.KeyStore FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S17_KeyStoreReference(software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient value)
-    {
-      if (value is software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient dafnyValue)
-      {
-        return new AWS.Cryptography.KeyStore.KeyStore(dafnyValue);
-      }
-      throw new System.ArgumentException("Custom implementations of AWS.Cryptography.KeyStore.KeyStore are not supported yet");
-    }
-    public static software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S17_KeyStoreReference(AWS.Cryptography.KeyStore.KeyStore value)
-    {
-      if (value is AWS.Cryptography.KeyStore.KeyStore nativeValue)
-      {
-        return nativeValue.impl();
-      }
-      throw new System.ArgumentException("Custom implementations of AWS.Cryptography.KeyStore.KeyStore are not supported yet");
-    }
-    public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.ILegacyDynamoDbEncryptor FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S32_LegacyDynamoDbEncryptorReference(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.ILegacyDynamoDbEncryptor value)
-    {
-      if (value is NativeWrapper_LegacyDynamoDbEncryptor nativeWrapper) return nativeWrapper._impl;
-      return new LegacyDynamoDbEncryptor(value);
+// BEGIN MANUAL EDIT
+public static AWS.Cryptography.KeyStore.KeyStore FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S17_KeyStoreReference (software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient value) {
+ if (value is software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient dafnyValue) {
+    return new AWS.Cryptography.KeyStore.KeyStore(dafnyValue);
+}
+ throw new System.ArgumentException("Custom implementations of AWS.Cryptography.KeyStore.KeyStore are not supported yet");
+}
+ public static software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S17_KeyStoreReference (AWS.Cryptography.KeyStore.KeyStore value) {
+ if (value is AWS.Cryptography.KeyStore.KeyStore nativeValue) {
+    return nativeValue.impl();
+}
+ throw new System.ArgumentException("Custom implementations of AWS.Cryptography.KeyStore.KeyStore are not supported yet");
+}
+ public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.ILegacyDynamoDbEncryptor FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S32_LegacyDynamoDbEncryptorReference (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.ILegacyDynamoDbEncryptor value) {
+ if (value is NativeWrapper_LegacyDynamoDbEncryptor nativeWrapper) return nativeWrapper._impl;
+return new LegacyDynamoDbEncryptor(value);
 
-    }
-    public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.ILegacyDynamoDbEncryptor ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S32_LegacyDynamoDbEncryptorReference(AWS.Cryptography.DbEncryptionSDK.DynamoDb.ILegacyDynamoDbEncryptor value)
-    {
-      switch (value)
-      {
-        case LegacyDynamoDbEncryptor valueWithImpl:
-          return valueWithImpl._impl;
-        case LegacyDynamoDbEncryptorBase nativeImpl:
-          return new NativeWrapper_LegacyDynamoDbEncryptor(nativeImpl);
-        default:
-          throw new System.ArgumentException(
-              "Custom implementations of LegacyDynamoDbEncryptor must extend LegacyDynamoDbEncryptorBase.");
-      }
-    }
-    // END MANUAL EDIT
+}
+ public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.ILegacyDynamoDbEncryptor ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S32_LegacyDynamoDbEncryptorReference (AWS.Cryptography.DbEncryptionSDK.DynamoDb.ILegacyDynamoDbEncryptor value) {
+ switch (value)
+ {
+ case LegacyDynamoDbEncryptor valueWithImpl:
+    return valueWithImpl._impl;
+ case LegacyDynamoDbEncryptorBase nativeImpl:
+    return new NativeWrapper_LegacyDynamoDbEncryptor(nativeImpl);
+ default:
+    throw new System.ArgumentException(
+        "Custom implementations of LegacyDynamoDbEncryptor must extend LegacyDynamoDbEncryptorBase.");
+}
+}
+// END MANUAL EDIT
     internal static AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconKeySource FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_BeaconKeySource(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IBeaconKeySource value)
     {
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconKeySource concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconKeySource)value;
@@ -1357,14 +1351,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       switch (value)
       {
-        case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkStructuredEncryption dafnyVal:
-          return AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.TypeConversion.FromDafny_CommonError(
-            dafnyVal._AwsCryptographyDbEncryptionSdkStructuredEncryption
-          );
-        case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_ComAmazonawsDynamodb dafnyVal:
-          return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
-            dafnyVal._ComAmazonawsDynamodb
-          );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_AwsCryptographyPrimitives dafnyVal:
           return AWS.Cryptography.Primitives.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyPrimitives
@@ -1372,6 +1358,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_AwsCryptographyMaterialProviders dafnyVal:
           return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyMaterialProviders
+          );
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_ComAmazonawsDynamodb dafnyVal:
+          return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
+            dafnyVal._ComAmazonawsDynamodb
+          );
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkStructuredEncryption dafnyVal:
+          return AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.TypeConversion.FromDafny_CommonError(
+            dafnyVal._AwsCryptographyDbEncryptionSdkStructuredEncryption
           );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_DynamoDbEncryptionException dafnyVal:
           return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S27_DynamoDbEncryptionException(dafnyVal);
