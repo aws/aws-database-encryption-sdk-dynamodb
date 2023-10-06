@@ -5,14 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>10</LangVersion>
-        <TargetFrameworks>net6.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net48</TargetFrameworks>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="AWSSDK.Core" Version="3.7.103" />
         <PackageReference Include="DafnyRuntime" Version="4.2.0" />
-        <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
         <!--
           System.Collections.Immutable can be removed once dafny.msbuild is updated with
           https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
@@ -27,10 +27,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj" />
-        <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj" />
-        <ProjectReference Include="../../../submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj" />
-        <ProjectReference Include="../../../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj" />
+        <PackageReference Include="AWS.Cryptography.Internal.StandardLibrary" Version="1.1.1" />
+        <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.0.0" />
+        <PackageReference Include="AWS.Cryptography.Internal.AwsCryptographyPrimitives" Version="1.0.0" />
+        <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsDynamodb" Version="1.0.0" />
+        <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsKms" Version="1.0.0" />
     </ItemGroup>
 
     <!--
