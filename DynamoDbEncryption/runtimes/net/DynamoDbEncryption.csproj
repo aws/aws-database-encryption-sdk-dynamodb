@@ -23,6 +23,7 @@
 
         <Compile Include="Extern/**/*.cs" />
         <Compile Include="Generated/**/*.cs" />
+        <Compile Include="src/**/*.cs" />
         <Compile Include="ImplementationFromDafny.cs" />
     </ItemGroup>
 
