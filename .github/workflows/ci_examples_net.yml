@@ -1,5 +1,5 @@
 # This workflow performs tests in .NET.
-name: test dotnet
+name: dotnet examples
 
 on: 
   pull_request:
