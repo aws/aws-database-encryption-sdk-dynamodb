@@ -105,10 +105,10 @@ public class BasicPutGetExample {
         };
         tableConfigs.Add(ddbTableName, config);
 
-        // 6. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+        // 5. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
         var ddb = new Client.DynamoDbClient(new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs });
         
-        // 7. Put an item into our table using the above client.
+        // 6. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
         //    client-side, according to our configuration.
         Dictionary<String, AttributeValue> item = new Dictionary<String, AttributeValue>();
@@ -129,7 +129,7 @@ public class BasicPutGetExample {
         // Demonstrate that PutItem succeeded
         Debug.Assert(putResponse.HttpStatusCode == HttpStatusCode.OK);
 
-        // 8. Get the item back from our table using the same client.
+        // 7. Get the item back from our table using the same client.
         //    The client will decrypt the item client-side, and return
         //    back the original item.
         Dictionary<String, AttributeValue> keyToGet = new Dictionary<String, AttributeValue> ();
