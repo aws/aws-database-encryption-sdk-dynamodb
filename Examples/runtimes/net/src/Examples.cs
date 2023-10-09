@@ -12,10 +12,8 @@ namespace Examples
     // Main method
     static async Task Main(string[] args)
     {
-      // AmazonDynamoDBConfig clientConfig = new AmazonDynamoDBConfig();
-      // clientConfig.ServiceURL = "http://localhost:8000";
-      // AmazonDynamoDBClient dynamoDbClient = new Client.DynamoDbClient(clientConfig, null); 
       await BasicPutGetExample.PutItemGetItem();
+      Console.Write("All examples completed successfully.\n");
     }
   }
 }

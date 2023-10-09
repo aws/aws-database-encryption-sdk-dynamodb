@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  testDotNet:
+  dotNetExamples:
     # Don't run the nightly build on forks
     if: (github.repository_owner == 'aws')
     strategy:

@@ -8,29 +8,31 @@ using AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms;
 
 public class Client
 {
-  static void AssignRequest(IExecutionContext executionContext, AmazonWebServiceRequest request)
-  {
-    if (executionContext.RequestContext is RequestContext ctx)
-    {
-      ctx.OriginalRequest = request;
-    }
-  }
-
   public static void TransformRequest(IExecutionContext executionContext, DynamoDbEncryptionTransforms transform)
   {
+    AmazonWebServiceRequest originalInput = null;
+    if (executionContext.ResponseContext.Response == null)
+    {
+      executionContext.RequestContext.ContextAttributes["originalInput"] = executionContext.RequestContext.OriginalRequest;
+    }
+    else
+    {
+      originalInput = executionContext.RequestContext.ContextAttributes["originalInput"] as AmazonWebServiceRequest;
+    }
+
     if (executionContext.RequestContext.OriginalRequest is GetItemRequest getItemRequest)
     {
       if (executionContext.ResponseContext.Response is GetItemResponse response)
       {
         var output = transform.GetItemOutputTransform(new GetItemOutputTransformInput
-        { OriginalInput = getItemRequest, SdkOutput = response });
+        { OriginalInput = originalInput as GetItemRequest, SdkOutput = response });
         response.Item = output.TransformedOutput.Item;
         //executionContext.ResponseContext.Response = output.TransformedOutput;
       }
       else
       {
         var output = transform.GetItemInputTransform(new GetItemInputTransformInput { SdkInput = getItemRequest });
-        AssignRequest(executionContext, output.TransformedInput);
+        executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
     else if (executionContext.RequestContext.OriginalRequest is PutItemRequest putItemRequest)
@@ -38,13 +40,13 @@ public class Client
       if (executionContext.ResponseContext.Response is PutItemResponse response)
       {
         var output = transform.PutItemOutputTransform(new PutItemOutputTransformInput
-        { OriginalInput = putItemRequest, SdkOutput = response });
+          { OriginalInput = originalInput as PutItemRequest, SdkOutput = response });
         executionContext.ResponseContext.Response = output.TransformedOutput;
       }
       else
       {
         var output = transform.PutItemInputTransform(new PutItemInputTransformInput { SdkInput = putItemRequest });
-        AssignRequest(executionContext, output.TransformedInput);
+        executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
     else if (executionContext.RequestContext.OriginalRequest is QueryRequest queryRequest)
@@ -52,13 +54,13 @@ public class Client
       if (executionContext.ResponseContext.Response is QueryResponse response)
       {
         var output = transform.QueryOutputTransform(new QueryOutputTransformInput
-        { OriginalInput = queryRequest, SdkOutput = response });
+          { OriginalInput = originalInput as QueryRequest, SdkOutput = response });
         executionContext.ResponseContext.Response = output.TransformedOutput;
       }
       else
       {
         var output = transform.QueryInputTransform(new QueryInputTransformInput { SdkInput = queryRequest });
-        AssignRequest(executionContext, output.TransformedInput);
+        executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
     else if (executionContext.RequestContext.OriginalRequest is ScanRequest scanRequest)
@@ -66,13 +68,13 @@ public class Client
       if (executionContext.ResponseContext.Response is ScanResponse response)
       {
         var output = transform.ScanOutputTransform(new ScanOutputTransformInput
-        { OriginalInput = scanRequest, SdkOutput = response });
+          { OriginalInput = originalInput as ScanRequest, SdkOutput = response });
         executionContext.ResponseContext.Response = output.TransformedOutput;
       }
       else
       {
         var output = transform.ScanInputTransform(new ScanInputTransformInput { SdkInput = scanRequest });
-        AssignRequest(executionContext, output.TransformedInput);
+        executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
   }
@@ -88,13 +90,13 @@ public class Client
 
     public override void InvokeSync(IExecutionContext executionContext)
     {
-      TransformRequest(executionContext, _client._transform);
+      TransformRequest(executionContext, _client.Transform);
       base.InvokeSync(executionContext);
     }
 
     public override async Task<T> InvokeAsync<T>(IExecutionContext executionContext)
     {
-      TransformRequest(executionContext, _client._transform);
+      TransformRequest(executionContext, _client.Transform);
       return await base.InvokeAsync<T>(executionContext).ConfigureAwait(false);
     }
   }
@@ -111,40 +113,40 @@ public class Client
     public override void InvokeSync(IExecutionContext executionContext)
     {
       base.InvokeSync(executionContext);
-      TransformRequest(executionContext, _client._transform);
+      TransformRequest(executionContext, _client.Transform);
     }
 
     public override async Task<T> InvokeAsync<T>(IExecutionContext executionContext)
     {
       var result = await base.InvokeAsync<T>(executionContext).ConfigureAwait(false);
-      TransformRequest(executionContext, _client._transform);
+      TransformRequest(executionContext, _client.Transform);
       return result;
     }
   }
 
   public class DynamoDbClient : AmazonDynamoDBClient
   {
-    public readonly DynamoDbEncryptionTransforms _transform;
+    public DynamoDbEncryptionTransforms Transform { get; }
 
     public DynamoDbClient(AmazonDynamoDBConfig clientConfig, DynamoDbTablesEncryptionConfig encryptionConfig)
       : base(clientConfig)
     {
-      _transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
     }
 
     public DynamoDbClient(DynamoDbTablesEncryptionConfig encryptionConfig)
     {
-      _transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
 
     }
     public DynamoDbClient(AmazonDynamoDBConfig clientConfig, DynamoDbEncryptionTransforms transform)
       : base(clientConfig)
     {
-      _transform = transform;
+      Transform = transform;
     }
     public DynamoDbClient(DynamoDbEncryptionTransforms transform)
     {
-      _transform = transform;
+      Transform = transform;
     }
 
     protected override void CustomizeRuntimePipeline(RuntimePipeline pipeline)

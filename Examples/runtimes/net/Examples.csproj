@@ -9,12 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWS.Cryptography.Internal.StandardLibrary" Version="1.1.1" />
-    <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.0.0" />
-    <PackageReference Include="AWS.Cryptography.Internal.AwsCryptographyPrimitives" Version="1.0.0" />
-    <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsDynamodb" Version="1.0.0" />
-    <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsKms" Version="1.0.0" />
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.103.4" />
     <ProjectReference Include="../../../DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj" />
   </ItemGroup>
 
