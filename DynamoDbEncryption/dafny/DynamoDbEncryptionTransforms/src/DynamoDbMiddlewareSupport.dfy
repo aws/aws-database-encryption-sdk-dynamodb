@@ -28,6 +28,12 @@ module DynamoDbMiddlewareSupport {
   {
     m.None? || |m.value| == 0
   }
+
+  predicate method NoList<X>(m : Option<seq<X>>)
+  {
+    m.None? || |m.value| == 0
+  }
+
   
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // Generally this means that no attribute names starts with "aws_dbe_"

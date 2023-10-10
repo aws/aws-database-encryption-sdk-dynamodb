@@ -102,7 +102,7 @@ public class BasicPutGetExample {
         };
         tableConfigs.Add(ddbTableName, config);
 
-        // 5. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+        // 5. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
         var ddb = new Client.DynamoDbClient(new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs });
         
         // 6. Put an item into our table using the above client.
