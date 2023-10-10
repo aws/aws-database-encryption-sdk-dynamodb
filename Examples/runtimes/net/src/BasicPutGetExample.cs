@@ -1,15 +1,12 @@
-using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using AWS.Cryptography.DbEncryptionSDK;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
 using AWS.Cryptography.DbEncryptionSDK.StructuredEncryption;
 using AWS.Cryptography.MaterialProviders;
 using System.Diagnostics;
 using System.Net;
-using Dafny;
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
