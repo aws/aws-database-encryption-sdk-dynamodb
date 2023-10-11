@@ -25,7 +25,7 @@ module DeleteItemTransform {
       //= type=implication
       //# The DeleteItem request MUST NOT refer to any legacy parameters,
       //# specifically Expected and ConditionalOperator MUST NOT be set.
-      && input.sdkInput.Expected.None?
+      && NoMap(input.sdkInput.Expected)
       && input.sdkInput.ConditionalOperator.None?
 
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-deleteitem
@@ -52,7 +52,7 @@ module DeleteItemTransform {
 
   {
     if input.sdkInput.TableName in config.tableEncryptionConfigs {
-      :- Need(input.sdkInput.Expected.None?, E("Legacy parameter 'Expected' not supported in UpdateItem with Encryption"));
+      :- Need(NoMap(input.sdkInput.Expected), E("Legacy parameter 'Expected' not supported in UpdateItem with Encryption"));
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
 
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];

@@ -31,15 +31,15 @@ module ScanTransform {
     //# The Scan request MUST NOT refer to any legacy parameters,
     //# specifically AttributesToGet, ScanFilter and ConditionalOperator MUST NOT be set.
     ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
-              && input.sdkInput.AttributesToGet.None?
-              && input.sdkInput.ScanFilter.None?
+              && NoList(input.sdkInput.AttributesToGet)
+              && NoMap(input.sdkInput.ScanFilter)
               && input.sdkInput.ConditionalOperator.None?
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(ScanInputTransformOutput(transformedInput := input.sdkInput));
     } else {
-      :- Need(input.sdkInput.AttributesToGet.None?, E("Legacy parameter 'AttributesToGet' not supported in UpdateItem with Encryption"));
-      :- Need(input.sdkInput.ScanFilter.None?, E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
+      :- Need(NoList(input.sdkInput.AttributesToGet), E("Legacy parameter 'AttributesToGet' not supported in UpdateItem with Encryption"));
+      :- Need(NoMap(input.sdkInput.ScanFilter), E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
       var finalResult :- ScanInputForBeacons(tableConfig, input.sdkInput);

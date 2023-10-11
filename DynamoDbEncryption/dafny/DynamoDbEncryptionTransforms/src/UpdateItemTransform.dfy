@@ -23,8 +23,8 @@ module UpdateItemTransform {
       //= type=implication
       //# The UpdateItem request MUST NOT refer to any legacy parameters,
       //# specifically Expected, AttributeUpdates and ConditionalOperator MUST NOT be set.
-      && input.sdkInput.Expected.None?
-      && input.sdkInput.AttributeUpdates.None?
+      && NoMap(input.sdkInput.Expected)
+      && NoMap(input.sdkInput.AttributeUpdates)
       && input.sdkInput.ConditionalOperator.None?
       && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
 
@@ -50,8 +50,8 @@ module UpdateItemTransform {
       && output.value.transformedInput == input.sdkInput
   {
     if input.sdkInput.TableName in config.tableEncryptionConfigs {
-      :- Need(input.sdkInput.Expected.None?, E("Legacy parameter 'Expected' not supported in UpdateItem with Encryption"));
-      :- Need(input.sdkInput.AttributeUpdates.None?, E("Legacy parameter 'AttributeUpdates' not supported in UpdateItem with Encryption"));
+      :- Need(NoMap(input.sdkInput.Expected), E("Legacy parameter 'Expected' not supported in UpdateItem with Encryption"));
+      :- Need(NoMap(input.sdkInput.AttributeUpdates), E("Legacy parameter 'AttributeUpdates' not supported in UpdateItem with Encryption"));
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
 
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
