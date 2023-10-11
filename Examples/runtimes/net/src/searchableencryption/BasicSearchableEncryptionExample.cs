@@ -11,7 +11,6 @@ using System.Threading;
 using Amazon.DynamoDBv2;
 using Amazon.KeyManagementService;
 using AWS.Cryptography.KeyStore;
-using Dafny;
 
 /*
   This example demonstrates how to set up a beacon on an encrypted attribute,
@@ -197,7 +196,7 @@ public class BasicSearchableEncryptionExample
         {
             BranchKeyId = branchKeyId,
             KeyStore = keyStore,
-            TtlSeconds = 6000l
+            TtlSeconds = 6000L
         };
         var kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 

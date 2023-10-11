@@ -17,6 +17,7 @@ namespace Examples
       var keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey();
       Thread.Sleep(5000);
       await BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(keyId);
+      await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
       Console.Write("All examples completed successfully.\n");
     }
   }
