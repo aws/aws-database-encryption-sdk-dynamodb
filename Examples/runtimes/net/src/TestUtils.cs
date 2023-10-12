@@ -50,68 +50,30 @@ public class TestUtils
 
     public static String AttributeType(AttributeValue value)
     {
-        if (value.S != null)
-        {
-            return "S";
-        }
-        if (value.N != null)
-        {
-            return "N";
-        }
-        if (value.B != null)
-        {
-            return "B";
-        }
-        if (value.SS.Any())
-        {
-            return "SS";
-        }
-        if (value.NS.Any())
-        {
-            return "NS";
-        }
-        if (value.BS.Any())
-        {
-            return "BS";
-        }
-        if (value.IsMSet)
-        {
-            return "M";
-        }
-        if (value.IsLSet)
-        {
-            return "L";
-        }
-        if (value.NULL == true)
-        {
-            return "NULL";
-        }
-        if (value.IsBOOLSet)
-        {
-            return "BOOL";
-        }
+        if (value.S != null) return "S";
+        if (value.N != null) return "N";
+        if (value.B != null) return "B";
+        if (value.SS.Any()) return "SS";
+        if (value.NS.Any()) return "NS";
+        if (value.BS.Any()) return "BS";
+        if (value.IsMSet) return "M";
+        if (value.IsLSet) return "L";
+        if (value.NULL == true) return "NULL";
+        if (value.IsBOOLSet)  return "BOOL";
         return "UNKNOWN";
     }
-    public static void PrintAttributeValue(AttributeValue v)
-    {
-        Console.Write($"B {v.B}\n");
-        Console.Write($"BS {v.BS.Any()}\n");
-        Console.Write($"S {v.S}\n");
-        Console.Write($"SS {v.SS.Any()}\n");
-        Console.Write($"N {v.N}\n");
-        Console.Write($"NS {v.NS.Any()}\n");
-        Console.Write($"L {v.L}\n");
-        Console.Write($"M {v.M}\n");
-        Console.Write($"BOOL {v.BOOL}\n");
-        Console.Write($"NULL {v.NULL}\n");
-    }
 
-    public static void PrintItem(Dictionary<String, AttributeValue> item)
-    {
-        foreach (var attr in item)
-        {
-            Console.WriteLine($"{attr.Key} : {AttributeType(attr.Value)}");
-            PrintAttributeValue(attr.Value);
-        }
+    public static void PrintAttributeValue(AttributeValue value)
+    {   if (value.S != null) Console.Write($"S {value.S}\n");
+        if (value.N != null) Console.Write($"N {value.N}\n");
+        if (value.B != null) Console.Write($"B {value.B}\n");
+        if (value.SS.Any()) Console.Write($"SS {value.SS}\n");
+        if (value.NS.Any()) Console.Write($"NS {value.NS}\n");
+        if (value.BS.Any()) Console.Write($"BS {value.BS}\n");
+        if (value.IsMSet) Console.Write($"M {value.M}\n");
+        if (value.IsLSet) Console.Write($"L {value.L}\n");
+        if (value.NULL == true) Console.Write($"NULL {value.NULL}\n");
+        if (value.IsBOOLSet) Console.Write($"BOOL {value.BOOL}\n");
+        Console.Write("UNKNOWN\n");
     }
 }

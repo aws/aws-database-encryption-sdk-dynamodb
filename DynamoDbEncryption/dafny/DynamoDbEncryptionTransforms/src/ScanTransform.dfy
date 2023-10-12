@@ -42,7 +42,24 @@ module ScanTransform {
       :- Need(NoMap(input.sdkInput.ScanFilter), E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
-      var finalResult :- ScanInputForBeacons(tableConfig, input.sdkInput);
+
+      // Sometimes smithy-dafny turns an optional int from None to Zero. We need to change it back.
+      var fixedInput := if input.sdkInput.Limit.Some? && input.sdkInput.Limit.value == 0 then
+        input.sdkInput.(Limit := None)
+      else
+        input.sdkInput;
+
+      fixedInput := if fixedInput.TotalSegments.Some? && fixedInput.TotalSegments.value == 0 then
+        fixedInput.(TotalSegments := None)
+      else
+        fixedInput;
+
+      fixedInput := if fixedInput.TotalSegments.None? && fixedInput.Segment.Some? && fixedInput.Segment.value == 0 then
+        fixedInput.(Segment := None)
+      else
+        fixedInput;
+
+      var finalResult :- ScanInputForBeacons(tableConfig, fixedInput);
       return Success(ScanInputTransformOutput(transformedInput := finalResult));
     }
   }
