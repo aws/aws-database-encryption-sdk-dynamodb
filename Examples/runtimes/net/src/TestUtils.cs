@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Amazon.DynamoDBv2.Model;
 
 public class TestUtils
 {
@@ -44,4 +47,71 @@ public class TestUtils
 
     // Our tests require access to DDB Table with this name configured as a branch keystore
     public static string TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME = "KeyStoreDdbTable";
+
+    public static String AttributeType(AttributeValue value)
+    {
+        if (value.S != null)
+        {
+            return "S";
+        }
+        if (value.N != null)
+        {
+            return "N";
+        }
+        if (value.B != null)
+        {
+            return "B";
+        }
+        if (value.SS.Any())
+        {
+            return "SS";
+        }
+        if (value.NS.Any())
+        {
+            return "NS";
+        }
+        if (value.BS.Any())
+        {
+            return "BS";
+        }
+        if (value.IsMSet)
+        {
+            return "M";
+        }
+        if (value.IsLSet)
+        {
+            return "L";
+        }
+        if (value.NULL == true)
+        {
+            return "NULL";
+        }
+        if (value.IsBOOLSet)
+        {
+            return "BOOL";
+        }
+        return "UNKNOWN";
+    }
+    public static void PrintAttributeValue(AttributeValue v)
+    {
+        Console.Write($"B {v.B}\n");
+        Console.Write($"BS {v.BS.Any()}\n");
+        Console.Write($"S {v.S}\n");
+        Console.Write($"SS {v.SS.Any()}\n");
+        Console.Write($"N {v.N}\n");
+        Console.Write($"NS {v.NS.Any()}\n");
+        Console.Write($"L {v.L}\n");
+        Console.Write($"M {v.M}\n");
+        Console.Write($"BOOL {v.BOOL}\n");
+        Console.Write($"NULL {v.NULL}\n");
+    }
+
+    public static void PrintItem(Dictionary<String, AttributeValue> item)
+    {
+        foreach (var attr in item)
+        {
+            Console.WriteLine($"{attr.Key} : {AttributeType(attr.Value)}");
+            PrintAttributeValue(attr.Value);
+        }
+    }
 }

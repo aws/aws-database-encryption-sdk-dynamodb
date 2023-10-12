@@ -12,7 +12,7 @@ using Amazon.DynamoDBv2;
 using Amazon.KeyManagementService;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms;
 using AWS.Cryptography.KeyStore;
-using Dafny;
+
 
 /*
   This example demonstrates how to set up a compound beacon on encrypted attributes,

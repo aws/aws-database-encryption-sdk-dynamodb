@@ -33,13 +33,13 @@ public class Client
       if (executionContext.ResponseContext.Response is BatchExecuteStatementResponse response)
       {
         var output = transform.BatchExecuteStatementOutputTransform(new BatchExecuteStatementOutputTransformInput
-          { OriginalInput = originalInput as BatchExecuteStatementRequest, SdkOutput = response });
+        { OriginalInput = originalInput as BatchExecuteStatementRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.BatchExecuteStatementInputTransform(new BatchExecuteStatementInputTransformInput
-          { SdkInput = batchExecuteStatementRequest });
+        { SdkInput = batchExecuteStatementRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -48,13 +48,13 @@ public class Client
       if (executionContext.ResponseContext.Response is BatchGetItemResponse response)
       {
         var output = transform.BatchGetItemOutputTransform(new BatchGetItemOutputTransformInput
-          { OriginalInput = originalInput as BatchGetItemRequest, SdkOutput = response });
+        { OriginalInput = originalInput as BatchGetItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.BatchGetItemInputTransform(new BatchGetItemInputTransformInput
-          { SdkInput = batchGetItemRequest });
+        { SdkInput = batchGetItemRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -63,13 +63,13 @@ public class Client
       if (executionContext.ResponseContext.Response is BatchWriteItemResponse response)
       {
         var output = transform.BatchWriteItemOutputTransform(new BatchWriteItemOutputTransformInput
-          { OriginalInput = originalInput as BatchWriteItemRequest, SdkOutput = response });
+        { OriginalInput = originalInput as BatchWriteItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.BatchWriteItemInputTransform(new BatchWriteItemInputTransformInput
-          { SdkInput = batchWriteItemRequest });
+        { SdkInput = batchWriteItemRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -78,13 +78,13 @@ public class Client
       if (executionContext.ResponseContext.Response is DeleteItemResponse response)
       {
         var output = transform.DeleteItemOutputTransform(new DeleteItemOutputTransformInput
-          { OriginalInput = originalInput as DeleteItemRequest, SdkOutput = response });
+        { OriginalInput = originalInput as DeleteItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.DeleteItemInputTransform(new DeleteItemInputTransformInput
-          { SdkInput = deleteItemRequest });
+        { SdkInput = deleteItemRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -93,13 +93,13 @@ public class Client
       if (executionContext.ResponseContext.Response is ExecuteStatementResponse response)
       {
         var output = transform.ExecuteStatementOutputTransform(new ExecuteStatementOutputTransformInput
-          { OriginalInput = originalInput as ExecuteStatementRequest, SdkOutput = response });
+        { OriginalInput = originalInput as ExecuteStatementRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.ExecuteStatementInputTransform(new ExecuteStatementInputTransformInput
-          { SdkInput = executeStatementRequest });
+        { SdkInput = executeStatementRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -108,13 +108,13 @@ public class Client
       if (executionContext.ResponseContext.Response is ExecuteTransactionResponse response)
       {
         var output = transform.ExecuteTransactionOutputTransform(new ExecuteTransactionOutputTransformInput
-          { OriginalInput = originalInput as ExecuteTransactionRequest, SdkOutput = response });
+        { OriginalInput = originalInput as ExecuteTransactionRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.ExecuteTransactionInputTransform(new ExecuteTransactionInputTransformInput
-          { SdkInput = executeTransactionRequest });
+        { SdkInput = executeTransactionRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -123,7 +123,7 @@ public class Client
       if (executionContext.ResponseContext.Response is GetItemResponse response)
       {
         var output = transform.GetItemOutputTransform(new GetItemOutputTransformInput
-          { OriginalInput = originalInput as GetItemRequest, SdkOutput = response });
+        { OriginalInput = originalInput as GetItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
@@ -137,7 +137,7 @@ public class Client
       if (executionContext.ResponseContext.Response is PutItemResponse response)
       {
         var output = transform.PutItemOutputTransform(new PutItemOutputTransformInput
-          { OriginalInput = originalInput as PutItemRequest, SdkOutput = response });
+        { OriginalInput = originalInput as PutItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
@@ -151,7 +151,7 @@ public class Client
       if (executionContext.ResponseContext.Response is QueryResponse response)
       {
         var output = transform.QueryOutputTransform(new QueryOutputTransformInput
-          { OriginalInput = originalInput as QueryRequest, SdkOutput = response });
+        { OriginalInput = originalInput as QueryRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
@@ -165,7 +165,7 @@ public class Client
       if (executionContext.ResponseContext.Response is ScanResponse response)
       {
         var output = transform.ScanOutputTransform(new ScanOutputTransformInput
-          { OriginalInput = originalInput as ScanRequest, SdkOutput = response });
+        { OriginalInput = originalInput as ScanRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
@@ -179,13 +179,13 @@ public class Client
       if (executionContext.ResponseContext.Response is TransactGetItemsResponse response)
       {
         var output = transform.TransactGetItemsOutputTransform(new TransactGetItemsOutputTransformInput
-          { OriginalInput = originalInput as TransactGetItemsRequest, SdkOutput = response });
+        { OriginalInput = originalInput as TransactGetItemsRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.TransactGetItemsInputTransform(new TransactGetItemsInputTransformInput
-          { SdkInput = transactGetItemsRequest });
+        { SdkInput = transactGetItemsRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -194,13 +194,13 @@ public class Client
       if (executionContext.ResponseContext.Response is TransactWriteItemsResponse response)
       {
         var output = transform.TransactWriteItemsOutputTransform(new TransactWriteItemsOutputTransformInput
-          { OriginalInput = originalInput as TransactWriteItemsRequest, SdkOutput = response });
+        { OriginalInput = originalInput as TransactWriteItemsRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.TransactWriteItemsInputTransform(new TransactWriteItemsInputTransformInput
-          { SdkInput = transactWriteItemsRequest });
+        { SdkInput = transactWriteItemsRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -209,13 +209,13 @@ public class Client
       if (executionContext.ResponseContext.Response is UpdateItemResponse response)
       {
         var output = transform.UpdateItemOutputTransform(new UpdateItemOutputTransformInput
-          { OriginalInput = originalInput as UpdateItemRequest, SdkOutput = response });
+        { OriginalInput = originalInput as UpdateItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.UpdateItemInputTransform(new UpdateItemInputTransformInput
-          { SdkInput = updateItemRequest });
+        { SdkInput = updateItemRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
