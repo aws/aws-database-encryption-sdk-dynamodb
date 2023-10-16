@@ -43,23 +43,14 @@ module ScanTransform {
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
 
-      // Sometimes smithy-dafny turns an optional int from None to Zero. We need to change it back.
-      var fixedInput := if input.sdkInput.Limit.Some? && input.sdkInput.Limit.value == 0 then
-        input.sdkInput.(Limit := None)
-      else
-        input.sdkInput;
+      // Sometimes dotnet turns an optional int from None to Zero. We need to change it back.
+      var hackedInput := input.sdkInput.(
+      Limit := RepairIntForDotNet(input.sdkInput.Limit),
+      TotalSegments := RepairIntForDotNet(input.sdkInput.TotalSegments),
+      Segment := RepairIntForDotNetIfZero(input.sdkInput.TotalSegments, input.sdkInput.Segment)
+      );
 
-      fixedInput := if fixedInput.TotalSegments.Some? && fixedInput.TotalSegments.value == 0 then
-        fixedInput.(TotalSegments := None)
-      else
-        fixedInput;
-
-      fixedInput := if fixedInput.TotalSegments.None? && fixedInput.Segment.Some? && fixedInput.Segment.value == 0 then
-        fixedInput.(Segment := None)
-      else
-        fixedInput;
-
-      var finalResult :- ScanInputForBeacons(tableConfig, fixedInput);
+      var finalResult :- ScanInputForBeacons(tableConfig, hackedInput);
       return Success(ScanInputTransformOutput(transformedInput := finalResult));
     }
   }

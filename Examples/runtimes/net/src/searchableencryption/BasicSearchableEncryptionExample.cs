@@ -1,16 +1,16 @@
-using Amazon.DynamoDBv2.Model;
-using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
-using AWS.Cryptography.DbEncryptionSDK.StructuredEncryption;
-using AWS.Cryptography.MaterialProviders;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Amazon.KeyManagementService;
+using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
+using AWS.Cryptography.DbEncryptionSDK.StructuredEncryption;
 using AWS.Cryptography.KeyStore;
+using AWS.Cryptography.MaterialProviders;
 
 /*
   This example demonstrates how to set up a beacon on an encrypted attribute,
