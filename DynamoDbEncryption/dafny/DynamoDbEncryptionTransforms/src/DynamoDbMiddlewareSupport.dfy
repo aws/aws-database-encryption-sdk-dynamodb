@@ -34,12 +34,12 @@ module DynamoDbMiddlewareSupport {
     m.None? || |m.value| == 0
   }
 
-  predicate method IsZero(x : Option<DDB.PositiveIntegerObject>)
+  predicate method IsZero(x : Option<int32>)
   {
     x.Some? && x.value == 0
   }
 
-  function method RepairIntForDotNet(x : Option<DDB.PositiveIntegerObject>) : Option<DDB.PositiveIntegerObject>
+  function method RepairIntForDotNet(x : Option<int32>) : Option<int32>
   {
     if IsZero(x) then
       None
@@ -47,7 +47,7 @@ module DynamoDbMiddlewareSupport {
       x
   }
 
-  function method RepairIntForDotNetIfZero(flag : Option<DDB.PositiveIntegerObject>, x : Option<DDB.PositiveIntegerObject>) : Option<DDB.PositiveIntegerObject>
+  function method RepairIntForDotNetIfZero(flag : Option<int32>, x : Option<int32>) : Option<int32>
   {
     if IsZero(flag) then
       RepairIntForDotNet(x)
