@@ -23,6 +23,7 @@ namespace Examples
             await HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(keyId, keyId2);
             await MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem();
             await RawAesKeyringExample.RawAesKeyringGetItemPutItem();
+            await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
             
             await BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(keyId);
             await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
