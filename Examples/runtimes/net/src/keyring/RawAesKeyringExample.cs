@@ -158,13 +158,13 @@ public class RawAesKeyringExample
         Debug.Assert(returnedItem["sensitive_data"].S.Equals("encrypt and sign me!"));
     }
 
-static MemoryStream GenerateAesKeyBytes()
+    public static MemoryStream GenerateAesKeyBytes()
     {
         // This example uses AES's KeyGenerator to generate the key bytes.
         // In practice, you should not generate this key in your code, and should instead
         //     retrieve this key from a secure key management system (e.g. HSM).
         // This key is created here for example purposes only and should not be used for any other purpose.
-        var aes = Aes.Create();  
+        var aes = Aes.Create();
         aes.GenerateKey();
         return new MemoryStream(aes.Key);
     }

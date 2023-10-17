@@ -7,12 +7,17 @@ namespace Examples
     class Program
     {
         // Main method
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             ItemEncryptDecryptExample.PutItemGetItem();
 
             await BasicPutGetExample.PutItemGetItem();
-           // await ClientSupplierExample.ClientSupplierPutItemGetItem();
+           // FIXME - await ClientSupplierExample.ClientSupplierPutItemGetItem();
+           await MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem();
+           await RawAesKeyringExample.RawAesKeyringGetItemPutItem();
+           await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
+           await MultiKeyringExample.MultiKeyringGetItemPutItem();
+           await RawRsaKeyringExample.RawRsaKeyringGetItemPutItem();
 
             var keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey();
             var keyId2 = CreateKeyStoreKeyExample.KeyStoreCreateKey();
@@ -21,9 +26,6 @@ namespace Examples
             Thread.Sleep(5000);
 
             await HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(keyId, keyId2);
-            await MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem();
-            await RawAesKeyringExample.RawAesKeyringGetItemPutItem();
-            await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
             
             await BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(keyId);
             await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
