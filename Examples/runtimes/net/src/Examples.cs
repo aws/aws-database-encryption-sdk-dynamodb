@@ -18,6 +18,7 @@ namespace Examples
            await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
            await MultiKeyringExample.MultiKeyringGetItemPutItem();
            await RawRsaKeyringExample.RawRsaKeyringGetItemPutItem();
+           await KmsRsaKeyringExample.KmsRsaKeyringGetItemPutItem();
 
             var keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey();
             var keyId2 = CreateKeyStoreKeyExample.KeyStoreCreateKey();
