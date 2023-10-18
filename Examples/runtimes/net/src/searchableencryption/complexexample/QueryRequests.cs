@@ -56,8 +56,10 @@ public class QueryRequests
         {
             if (item.S.Equals(val)) return true;
         }
+
         return false;
     }
+
     static async Task RunQuery1(String ddbTableName, AmazonDynamoDBClient ddb)
     {
         // Query 1: Get meetings by date and email
@@ -65,9 +67,7 @@ public class QueryRequests
         // Filter condition: duration > 0
         var query1AttributeNames = new Dictionary<String, String>
         {
-            ["#pk1"] = "PK1",
-            ["#sk1"] = "SK1",
-            ["#duration"] = "Duration"
+            ["#duration"] = "Duration" // Duration is a reserved word
         };
 
         var query1AttributeValues = new Dictionary<String, AttributeValue>
@@ -82,7 +82,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :e AND #sk1 BETWEEN :date1 AND :date2",
+            KeyConditionExpression = "PK1 = :e AND SK1 BETWEEN :date1 AND :date2",
             FilterExpression = "#duration > :zero",
             ExpressionAttributeNames = query1AttributeNames,
             ExpressionAttributeValues = query1AttributeValues
@@ -117,8 +117,6 @@ public class QueryRequests
         // Filter condition: duration > 0
         var query2AttributeNames = new Dictionary<String, String>
         {
-            ["#pk"] = "PK",
-            ["#sk"] = "SK",
             ["#duration"] = "Duration"
         };
 
@@ -134,7 +132,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :employee AND #sk BETWEEN :date1 AND :date2",
+            KeyConditionExpression = "PK = :employee AND SK BETWEEN :date1 AND :date2",
             FilterExpression = "#duration > :zero",
             ExpressionAttributeNames = query2AttributeNames,
             ExpressionAttributeValues = query2AttributeValues
@@ -171,15 +169,6 @@ public class QueryRequests
         //       Demo.md calls for a filter condition "SK contains building.floor.room"
         //       However, one cannot use primary keys (partition nor sort) in a filter expression.
         //       Instead, this query filters on the individual beacon attributes: building, floor, and room.
-        var query3AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk"] = "PK",
-            ["#sk"] = "SK",
-            ["#building"] = "Building",
-            ["#floor"] = "Floor",
-            ["#room"] = "Room"
-        };
-
         var query3AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":buildingbeacon"] = new AttributeValue("B-SEA33"),
@@ -194,9 +183,8 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :buildingbeacon AND #sk BETWEEN :date1 AND :date2",
-            FilterExpression = "#building = :building AND #floor = :floor AND #room = :room",
-            ExpressionAttributeNames = query3AttributeNames,
+            KeyConditionExpression = "PK = :buildingbeacon AND SK BETWEEN :date1 AND :date2",
+            FilterExpression = "Building = :building AND Floor = :floor AND Room = :room",
             ExpressionAttributeValues = query3AttributeValues
         };
 
@@ -226,12 +214,6 @@ public class QueryRequests
     {
         // Query 4: Get employee data by email
         // Key condition: PK1=email SK1=employee ID
-        var query4AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk1"] = "PK1",
-            ["#sk1"] = "SK1"
-        };
-
         var query4AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":email"] = new AttributeValue("EE-able@gmail.com"),
@@ -242,8 +224,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :email AND #sk1 = :employee",
-            ExpressionAttributeNames = query4AttributeNames,
+            KeyConditionExpression = "PK1 = :email AND SK1 = :employee",
             ExpressionAttributeValues = query4AttributeValues
         };
 
@@ -272,12 +253,6 @@ public class QueryRequests
     {
         // Query 5: Get meetings by email
         // Key condition: PK1=email SK1 > 30 days ago
-        var query5AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk1"] = "PK1",
-            ["#sk1"] = "SK1"
-        };
-
         var query5AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":email"] = new AttributeValue("EE-able@gmail.com"),
@@ -289,8 +264,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago",
-            ExpressionAttributeNames = query5AttributeNames,
+            KeyConditionExpression = "PK1 = :email AND SK1 BETWEEN :prefix AND :thirtydaysago",
             ExpressionAttributeValues = query5AttributeValues
         };
 
@@ -320,12 +294,6 @@ public class QueryRequests
     {
         // Query 6: Get tickets by email
         // Key condition: PK1=email SK1 > 30 days ago
-        var query6AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk1"] = "PK1",
-            ["#sk1"] = "SK1"
-        };
-
         var query6AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":creatoremail"] = new AttributeValue("CE-zorro@gmail.com"),
@@ -336,8 +304,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :creatoremail AND #sk1 < :thirtydaysago",
-            ExpressionAttributeNames = query6AttributeNames,
+            KeyConditionExpression = "PK1 = :creatoremail AND SK1 < :thirtydaysago",
             ExpressionAttributeValues = query6AttributeValues
         };
 
@@ -366,12 +333,6 @@ public class QueryRequests
     {
         // Query 7: Get reservations by email
         // Key condition: PK1=organizeremail SK1 > 30 days ago
-        var query7AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk1"] = "PK1",
-            ["#sk1"] = "SK1"
-        };
-
         var query7AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":organizeremail"] = new AttributeValue("OE-able@gmail.com"),
@@ -382,8 +343,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :organizeremail AND #sk1 < :thirtydaysago",
-            ExpressionAttributeNames = query7AttributeNames,
+            KeyConditionExpression = "PK1 = :organizeremail AND SK1 < :thirtydaysago",
             ExpressionAttributeValues = query7AttributeValues
         };
 
@@ -413,12 +373,6 @@ public class QueryRequests
     {
         // Query 8: Get time cards by email
         // Key condition: PK1=employeeemail SK1 > 30 days ago
-        var query8AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk1"] = "PK1",
-            ["#sk1"] = "SK1"
-        };
-
         var query8AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":email"] = new AttributeValue("EE-able@gmail.com"),
@@ -430,8 +384,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago",
-            ExpressionAttributeNames = query8AttributeNames,
+            KeyConditionExpression = "PK1 = :email AND SK1 BETWEEN :prefix AND :thirtydaysago",
             ExpressionAttributeValues = query8AttributeValues
         };
 
@@ -459,12 +412,6 @@ public class QueryRequests
     {
         // Query 9: Get employee info by employee ID
         // Key condition: PK1=employeeID SK starts with "E-"
-        var query9AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk"] = "PK",
-            ["#sk"] = "SK"
-        };
-
         var query9AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":employee"] = new AttributeValue("E-emp_001"),
@@ -475,8 +422,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :employee AND begins_with(#sk, :prefix)",
-            ExpressionAttributeNames = query9AttributeNames,
+            KeyConditionExpression = "PK = :employee AND begins_with(SK, :prefix)",
             ExpressionAttributeValues = query9AttributeValues
         };
 
@@ -505,12 +451,6 @@ public class QueryRequests
         // Query 10: Get employee info by email
         // Key condition: PK1=email
         // Filter condition: SK starts with "E-"
-        var query10AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk1"] = "PK1",
-            ["#sk1"] = "SK1"
-        };
-
         var query10AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":email"] = new AttributeValue("EE-able@gmail.com"),
@@ -521,8 +461,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :email AND begins_with(#sk1, :prefix)",
-            ExpressionAttributeNames = query10AttributeNames,
+            KeyConditionExpression = "PK1 = :email AND begins_with(SK1, :prefix)",
             ExpressionAttributeValues = query10AttributeValues
         };
 
@@ -550,11 +489,6 @@ public class QueryRequests
     {
         // Query 11: Get ticket history by ticket number
         // Key condition: PK=TicketNumber
-        var query11AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk"] = "PK"
-        };
-
         var query11AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":ticket"] = new AttributeValue("T-ticket_001")
@@ -564,8 +498,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :ticket",
-            ExpressionAttributeNames = query11AttributeNames,
+            KeyConditionExpression = "PK = :ticket",
             ExpressionAttributeValues = query11AttributeValues
         };
 
@@ -595,12 +528,6 @@ public class QueryRequests
         // Query 12: Get Ticket History by employee email
         // Key condition: PK1=CreatorEmail
         // Filter condition: PK=TicketNumber
-        var query12AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk1"] = "PK1",
-            ["#pk"] = "PK"
-        };
-
         var query12AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":email"] = new AttributeValue("CE-zorro@gmail.com"),
@@ -611,9 +538,8 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :email",
-            FilterExpression = "#pk = :ticket",
-            ExpressionAttributeNames = query12AttributeNames,
+            KeyConditionExpression = "PK1 = :email",
+            FilterExpression = "PK = :ticket",
             ExpressionAttributeValues = query12AttributeValues
         };
 
@@ -642,12 +568,6 @@ public class QueryRequests
         // Query 13: Get ticket history by assignee email
         // Key condition: PK=AssigneeEmail
         // Filter condition: PK=ticketNumber
-        var query13AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk2"] = "PK2",
-            ["#pk"] = "PK"
-        };
-
         var query13AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":assigneeemail"] = new AttributeValue("AE-able@gmail.com"),
@@ -658,9 +578,8 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-2",
-            KeyConditionExpression = "#pk2 = :assigneeemail",
-            FilterExpression = "#pk = :ticket",
-            ExpressionAttributeNames = query13AttributeNames,
+            KeyConditionExpression = "PK2 = :assigneeemail",
+            FilterExpression = "PK = :ticket",
             ExpressionAttributeValues = query13AttributeValues
         };
 
@@ -688,12 +607,6 @@ public class QueryRequests
     {
         // Query 14: Get employees by city.building.floor.desk
         // Key condition: PK3=city SK3 begins_with(building.floor.desk)
-        var query14AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk3"] = "PK3",
-            ["#sk3"] = "SK3"
-        };
-
         var query14AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":city"] = new AttributeValue("C-Seattle"),
@@ -704,8 +617,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-3",
-            KeyConditionExpression = "#pk3 = :city AND begins_with(#sk3, :location)",
-            ExpressionAttributeNames = query14AttributeNames,
+            KeyConditionExpression = "PK3 = :city AND begins_with(SK3, :location)",
             ExpressionAttributeValues = query14AttributeValues
         };
 
@@ -734,11 +646,6 @@ public class QueryRequests
     {
         // Query 15: Get employees by manager email
         // Key condition: PK2 = ManagerEmail
-        var query15AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk2"] = "PK2"
-        };
-
         var query15AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":manageremail"] = new AttributeValue("ME-zorro@gmail.com")
@@ -748,8 +655,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-2",
-            KeyConditionExpression = "#pk2 = :manageremail",
-            ExpressionAttributeNames = query15AttributeNames,
+            KeyConditionExpression = "PK2 = :manageremail",
             ExpressionAttributeValues = query15AttributeValues
         };
 
@@ -779,10 +685,6 @@ public class QueryRequests
     {
         // Query 16: Get assigned tickets by assignee email
         // Key condition: PK2 = AssigneeEmail
-        var query16AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk2"] = "PK2"
-        };
         var query16AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":assigneeemail"] = new AttributeValue("AE-able@gmail.com")
@@ -791,8 +693,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-2",
-            KeyConditionExpression = "#pk2 = :assigneeemail",
-            ExpressionAttributeNames = query16AttributeNames,
+            KeyConditionExpression = "PK2 = :assigneeemail",
             ExpressionAttributeValues = query16AttributeValues
         };
         QueryResponse query16Response = await ddb.QueryAsync(query16Request);
@@ -824,12 +725,6 @@ public class QueryRequests
         //  the date is 2022-10-08T09:30:00, such that "24 hours ago"
         //  is 2022-10-07T09:30:00, and that our sample ticket record
         //  with TicketModTime=2022-10-07T14:32:25 will be returned.)
-        var query17AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk3"] = "PK3",
-            ["#sk3"] = "SK3"
-        };
-
         var query17AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":severity"] = new AttributeValue("S-3"),
@@ -840,8 +735,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-3",
-            KeyConditionExpression = "#pk3 = :severity AND #sk3 > :yesterday",
-            ExpressionAttributeNames = query17AttributeNames,
+            KeyConditionExpression = "PK3 = :severity AND SK3 > :yesterday",
             ExpressionAttributeValues = query17AttributeValues
         };
 
@@ -871,12 +765,6 @@ public class QueryRequests
         // Query 18: Get projects by status, start and target date
         // Key condition: PK1 = Status, SK1 > StartDate
         // Filter condition: TargetDelivery < TargetDate
-        var query18AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk1"] = "PK1",
-            ["#sk1"] = "SK1",
-            ["#target"] = "ProjectTarget"
-        };
         var query18AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":status"] = new AttributeValue("PSts-Pending"),
@@ -887,9 +775,8 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-1",
-            KeyConditionExpression = "#pk1 = :status AND #sk1 > :startdate",
-            FilterExpression = "#target < :target",
-            ExpressionAttributeNames = query18AttributeNames,
+            KeyConditionExpression = "PK1 = :status AND SK1 > :startdate",
+            FilterExpression = "ProjectTarget < :target",
             ExpressionAttributeValues = query18AttributeValues
         };
         QueryResponse query18Response = await ddb.QueryAsync(query18Request);
@@ -916,11 +803,6 @@ public class QueryRequests
     {
         // Query 19: Get projects by name
         // Key condition: PK = ProjectName, SK = ProjectName
-        var query19AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk"] = "PK",
-            ["#sk"] = "SK"
-        };
         var query19AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":projectname"] = new AttributeValue("P-project_001")
@@ -929,8 +811,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :projectname AND #sk = :projectname",
-            ExpressionAttributeNames = query19AttributeNames,
+            KeyConditionExpression = "PK = :projectname AND SK = :projectname",
             ExpressionAttributeValues = query19AttributeValues
         };
         QueryResponse query19Response = await ddb.QueryAsync(query19Request);
@@ -957,12 +838,6 @@ public class QueryRequests
     {
         // Query 20: Get Project History by date range (against timecard record)
         // Key condition: PK = ProjectName, SK between(date1, date2)
-        var query20AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk"] = "PK",
-            ["#sk"] = "SK"
-        };
-
         var query20AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":projectname"] = new AttributeValue("P-project_002"),
@@ -974,8 +849,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :projectname AND #sk BETWEEN :date1 AND :date2",
-            ExpressionAttributeNames = query20AttributeNames,
+            KeyConditionExpression = "PK = :projectname AND SK BETWEEN :date1 AND :date2",
             ExpressionAttributeValues = query20AttributeValues
         };
 
@@ -1007,8 +881,7 @@ public class QueryRequests
         // Filter condition: role=rolename
         var query21AttributeNames = new Dictionary<String, String>
         {
-            ["#pk"] = "PK",
-            ["#role"] = "Role"
+            ["#role"] = "Role" // Role is a reserved word
         };
 
         var query21AttributeValues = new Dictionary<String, AttributeValue>
@@ -1021,7 +894,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :projectname",
+            KeyConditionExpression = "PK = :projectname",
             FilterExpression = "#role = :role",
             ExpressionAttributeNames = query21AttributeNames,
             ExpressionAttributeValues = query21AttributeValues
@@ -1051,11 +924,6 @@ public class QueryRequests
     {
         // Query 22: Get reservations by building ID
         // Key condition: PK = Building ID
-        var query22AttributeNames = new Dictionary<String, String>
-        {
-            ["#pk"] = "PK"
-        };
-
         var query22AttributeValues = new Dictionary<String, AttributeValue>
         {
             [":building"] = new AttributeValue("B-SEA33")
@@ -1065,8 +933,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :building",
-            ExpressionAttributeNames = query22AttributeNames,
+            KeyConditionExpression = "PK = :building",
             ExpressionAttributeValues = query22AttributeValues
         };
 
@@ -1098,9 +965,7 @@ public class QueryRequests
         // Filter condition: Duration > 0
         var query23AttributeNames = new Dictionary<String, String>
         {
-            ["#pk"] = "PK",
-            ["#sk"] = "SK",
-            ["#duration"] = "Duration"
+            ["#duration"] = "Duration" // reserved word
         };
 
         var query23AttributeValues = new Dictionary<String, AttributeValue>
@@ -1115,7 +980,7 @@ public class QueryRequests
         {
             TableName = ddbTableName,
             IndexName = "GSI-0",
-            KeyConditionExpression = "#pk = :building AND #sk BETWEEN :date1 AND :date2",
+            KeyConditionExpression = "PK = :building AND SK BETWEEN :date1 AND :date2",
             FilterExpression = "#duration > :zero",
             ExpressionAttributeNames = query23AttributeNames,
             ExpressionAttributeValues = query23AttributeValues
