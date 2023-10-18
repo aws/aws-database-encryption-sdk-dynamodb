@@ -46,7 +46,7 @@ public class TestUtils
 
     // Our tests require access to DDB Table with this name configured as a branch keystore
     public static string TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME = "KeyStoreDdbTable";
-
+    public static string TEST_COMPLEX_DDB_TABLE_NAME = "ComplexBeaconTestTable";
     public static String AttributeType(AttributeValue value)
     {
         if (value.S != null) return "S";

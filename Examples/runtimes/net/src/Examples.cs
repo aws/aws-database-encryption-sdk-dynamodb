@@ -32,6 +32,7 @@ namespace Examples
             await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
             await VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(keyId);
             await BeaconStylesSearchableEncryptionExample.PutItemQueryItemWithBeaconStyles(keyId);
+            await ComplexSearchableEncryptionExample.RunExample(keyId);
             Console.Write("All examples completed successfully.\n");
         }
     }
