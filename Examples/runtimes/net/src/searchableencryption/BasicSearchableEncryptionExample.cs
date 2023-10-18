@@ -42,7 +42,7 @@ using AWS.Cryptography.MaterialProviders;
 
 public class BasicSearchableEncryptionExample
 {
-    static String GSI_NAME = "last4-unit-index";
+    static readonly String GSI_NAME = "last4-unit-index";
 
     public static async Task PutItemQueryItemWithBeacon(String branchKeyId)
     {
@@ -165,8 +165,9 @@ public class BasicSearchableEncryptionExample
         //        (for example if your table holds data for multiple tenants, and you want to use
         //        a different beacon key per tenant), look into configuring a MultiKeyStore:
         //          https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption-multitenant.html
-        var beaconVersions = new List<BeaconVersion>();
-        beaconVersions.Add(new BeaconVersion
+        var beaconVersions = new List<BeaconVersion>
+        {
+            new BeaconVersion
             {
                 StandardBeacons = standardBeaconList,
                 Version = 1, // MUST be 1
@@ -185,7 +186,7 @@ public class BasicSearchableEncryptionExample
                     }
                 }
             }
-        );
+        };
 
         // 4. Create a Hierarchical Keyring
         //    This is a KMS keyring that utilizes the keystore table.
@@ -207,32 +208,32 @@ public class BasicSearchableEncryptionExample
         //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
         //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
-        var attributeActionsOnEncrypt = new Dictionary<String, CryptoAction>();
-        attributeActionsOnEncrypt.Add("work_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.Add("inspection_date",
-            CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.Add("inspector_id_last4",
-            CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-        attributeActionsOnEncrypt.Add("unit", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+        var attributeActionsOnEncrypt = new Dictionary<String, CryptoAction>
+        {
+            ["work_id"] = CryptoAction.SIGN_ONLY, // Our partition attribute must be SIGN_ONLY
+            ["inspection_date"] = CryptoAction.SIGN_ONLY, // Our sort attribute must be SIGN_ONLY
+            ["inspector_id_last4"] = CryptoAction.ENCRYPT_AND_SIGN, // Beaconized attributes must be encrypted
+            ["unit"] = CryptoAction.ENCRYPT_AND_SIGN // Beaconized attributes must be encrypted
+        };
 
         // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
         //    The beaconVersions are added to the search configuration.
-        var config = new DynamoDbTableEncryptionConfig
+        var tableConfigs = new Dictionary<String, DynamoDbTableEncryptionConfig>
         {
-            LogicalTableName = ddbTableName,
-            PartitionKeyName = "work_id",
-            SortKeyName = "inspection_date",
-            AttributeActionsOnEncrypt = attributeActionsOnEncrypt,
-            Keyring = kmsKeyring,
-            Search = new SearchConfig
+            [ddbTableName] = new DynamoDbTableEncryptionConfig
             {
-                WriteVersion = 1, // MUST be 1
-                Versions = beaconVersions
+                LogicalTableName = ddbTableName,
+                PartitionKeyName = "work_id",
+                SortKeyName = "inspection_date",
+                AttributeActionsOnEncrypt = attributeActionsOnEncrypt,
+                Keyring = kmsKeyring,
+                Search = new SearchConfig
+                {
+                    WriteVersion = 1, // MUST be 1
+                    Versions = beaconVersions
+                }
             }
         };
-
-        var tableConfigs = new Dictionary<String, DynamoDbTableEncryptionConfig>();
-        tableConfigs.Add(ddbTableName, config);
 
         // 7. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
         var ddb = new Client.DynamoDbClient(
@@ -247,11 +248,13 @@ public class BasicSearchableEncryptionExample
         //        truncated to as many bits as the beacon's `length` parameter; e.g.
         //    aws_dbe_b_inspector_id_last4 = truncate(HMAC("4321"), 10)
         //    aws_dbe_b_unit = truncate(HMAC("123456789012"), 30)
-        var item = new Dictionary<String, AttributeValue>();
-        item.Add("work_id", new AttributeValue("1313ba89-5661-41eb-ba6c-cb1b4cb67b2d"));
-        item.Add("inspection_date", new AttributeValue("2023-06-13"));
-        item.Add("inspector_id_last4", new AttributeValue("4321"));
-        item.Add("unit", new AttributeValue("123456789012"));
+        var item = new Dictionary<String, AttributeValue>
+        {
+            ["work_id"] = new AttributeValue("1313ba89-5661-41eb-ba6c-cb1b4cb67b2d"),
+            ["inspection_date"] = new AttributeValue("2023-06-13"),
+            ["inspector_id_last4"] = new AttributeValue("4321"),
+            ["unit"] = new AttributeValue("123456789012")
+        };
 
         var putRequest = new PutItemRequest
         {
@@ -277,13 +280,17 @@ public class BasicSearchableEncryptionExample
         //     This procedure is internal to the client and is abstracted away from the user;
         //     e.g. the user will only see "123456789012" and never
         //        "098765432109", though the actual query returned both.
-        var expressionAttributesNames = new Dictionary<String, String>();
-        expressionAttributesNames.Add("#last4", "inspector_id_last4");
-        expressionAttributesNames.Add("#unit", "unit");
+        var expressionAttributesNames = new Dictionary<String, String>
+        {
+            ["#last4"] = "inspector_id_last4",
+            ["#unit"] = "unit"
+        };
 
-        var expressionAttributeValues = new Dictionary<String, AttributeValue>();
-        expressionAttributeValues.Add(":last4", new AttributeValue("4321"));
-        expressionAttributeValues.Add(":unit", new AttributeValue("123456789012"));
+        var expressionAttributeValues = new Dictionary<String, AttributeValue>
+        {
+            [":last4"] = new AttributeValue("4321"),
+            [":unit"] = new AttributeValue("123456789012")
+        };
 
         var queryRequest = new QueryRequest
         {

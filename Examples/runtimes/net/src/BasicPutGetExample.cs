@@ -12,7 +12,7 @@ using AWS.Cryptography.MaterialProviders;
   This example sets up DynamoDb Encryption for the AWS SDK client
   and uses the low level PutItem and GetItem DDB APIs to demonstrate
   putting a client-side encrypted item into DynamoDb
-  and then retrieving and decrypting that item from DynamoDb. 
+  and then retrieving and decrypting that item from DynamoDb.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -21,8 +21,8 @@ using AWS.Cryptography.MaterialProviders;
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (N)
  */
-public class BasicPutGetExample {
-
+public class BasicPutGetExample
+{
     public static async Task PutItemGetItem()
     {
         var kmsKeyId = TestUtils.TEST_KMS_KEY_ID;
@@ -41,13 +41,14 @@ public class BasicPutGetExample {
         //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
         //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
-        Dictionary<string, CryptoAction> attributeActionsOnEncrypt = new Dictionary<string, CryptoAction>();
-        attributeActionsOnEncrypt.Add("partition_key",
-            CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.Add("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.Add("attribute1", CryptoAction.ENCRYPT_AND_SIGN);
-        attributeActionsOnEncrypt.Add("attribute2", CryptoAction.SIGN_ONLY);
-        attributeActionsOnEncrypt.Add(":attribute3", CryptoAction.DO_NOTHING);
+        var attributeActionsOnEncrypt = new Dictionary<string, CryptoAction>
+        {
+            ["partition_key"] = CryptoAction.SIGN_ONLY, // Our partition attribute must be SIGN_ONLY
+            ["sort_key"] = CryptoAction.SIGN_ONLY, // Our sort attribute must be SIGN_ONLY
+            ["attribute1"] = CryptoAction.ENCRYPT_AND_SIGN,
+            ["attribute2"] = CryptoAction.SIGN_ONLY,
+            [":attribute3"] = CryptoAction.DO_NOTHING
+        };
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
@@ -103,17 +104,20 @@ public class BasicPutGetExample {
         tableConfigs.Add(ddbTableName, config);
 
         // 5. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
-        var ddb = new Client.DynamoDbClient(new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs });
-        
+        var ddb = new Client.DynamoDbClient(
+            new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs });
+
         // 6. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
         //    client-side, according to our configuration.
-        Dictionary<String, AttributeValue> item = new Dictionary<String, AttributeValue>();
-        item.Add("partition_key", new AttributeValue("BasicPutGetExample"));
-        item.Add("sort_key", new AttributeValue{N = "0"});
-        item.Add("attribute1", new AttributeValue("encrypt and sign me!"));
-        item.Add("attribute2", new AttributeValue("sign me!"));
-        item.Add(":attribute3", new AttributeValue("ignore me!"));
+        var item = new Dictionary<String, AttributeValue>
+        {
+            ["partition_key"] = new AttributeValue("BasicPutGetExample"),
+            ["sort_key"] = new AttributeValue { N = "0" },
+            ["attribute1"] = new AttributeValue("encrypt and sign me!"),
+            ["attribute2"] = new AttributeValue("sign me!"),
+            [":attribute3"] = new AttributeValue("ignore me!")
+        };
 
         PutItemRequest putRequest = new PutItemRequest
         {
@@ -129,11 +133,14 @@ public class BasicPutGetExample {
         // 7. Get the item back from our table using the same client.
         //    The client will decrypt the item client-side, and return
         //    back the original item.
-        Dictionary<String, AttributeValue> keyToGet = new Dictionary<String, AttributeValue> ();
-        keyToGet.Add("partition_key", new AttributeValue("BasicPutGetExample"));
-        keyToGet.Add("sort_key", new AttributeValue{N = "0"});
+        var keyToGet = new Dictionary<String, AttributeValue>
+        {
+            ["partition_key"] = new AttributeValue("BasicPutGetExample"),
+            ["sort_key"] = new AttributeValue { N = "0" }
+        };
 
-        GetItemRequest getRequest = new GetItemRequest {
+        GetItemRequest getRequest = new GetItemRequest
+        {
             Key = keyToGet,
             TableName = ddbTableName,
             // In this example we configure a strongly consistent read
@@ -151,5 +158,4 @@ public class BasicPutGetExample {
         var returnedItem = getResponse.Item;
         Debug.Assert(returnedItem["attribute1"].S == "encrypt and sign me!");
     }
-
 }

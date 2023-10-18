@@ -49,7 +49,7 @@ using AWS.Cryptography.MaterialProviders;
 
 public class CompoundBeaconSearchableEncryptionExample
 {
-    static String GSI_NAME = "last4UnitCompound-index";
+    static readonly String GSI_NAME = "last4UnitCompound-index";
 
     public static async Task PutItemQueryItemWithCompoundBeacon(String branchKeyId)
     {
@@ -150,22 +150,24 @@ public class CompoundBeaconSearchableEncryptionExample
         // 5. Create BeaconVersion.
         //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
         //    We must also continue to provide all of the standard beacons that compose a compound beacon list.
-        var beaconVersions = new List<BeaconVersion>();
-        beaconVersions.Add(new BeaconVersion
+        var beaconVersions = new List<BeaconVersion>
         {
-            StandardBeacons = standardBeaconList,
-            CompoundBeacons = compoundBeaconList,
-            Version = 1, // MUST be 1
-            KeyStore = keyStore,
-            KeySource = new BeaconKeySource
+            new BeaconVersion
             {
-                Single = new SingleKeyStore
+                StandardBeacons = standardBeaconList,
+                CompoundBeacons = compoundBeaconList,
+                Version = 1, // MUST be 1
+                KeyStore = keyStore,
+                KeySource = new BeaconKeySource
                 {
-                    KeyId = branchKeyId,
-                    CacheTTL = 6000
+                    Single = new SingleKeyStore
+                    {
+                        KeyId = branchKeyId,
+                        CacheTTL = 6000
+                    }
                 }
             }
-        });
+        };
 
         // 6. Create a Hierarchical Keyring
         //    This is the same configuration as in the Basic example.
@@ -179,47 +181,47 @@ public class CompoundBeaconSearchableEncryptionExample
         var kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
         // 7. Configure which attributes are encrypted and/or signed when writing new items.
-        var attributeActionsOnEncrypt = new Dictionary<String, CryptoAction>();
-        attributeActionsOnEncrypt.Add("work_id",
-            CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.Add("inspection_date",
-            CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.Add("inspector_id_last4",
-            CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-        attributeActionsOnEncrypt.Add("unit",
-            CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-
+        var attributeActionsOnEncrypt = new Dictionary<String, CryptoAction>
+        {
+            ["work_id"] = CryptoAction.SIGN_ONLY, // Our partition attribute must be SIGN_ONLY
+            ["inspection_date"] = CryptoAction.SIGN_ONLY, // Our sort attribute must be SIGN_ONLY
+            ["inspector_id_last4"] = CryptoAction.ENCRYPT_AND_SIGN, // Beaconized attributes must be encrypted
+            ["unit"] = CryptoAction.ENCRYPT_AND_SIGN // Beaconized attributes must be encrypted
+        };
         // We do not need to define a crypto action on last4UnitCompound.
         // We only need to define crypto actions on attributes that we pass to PutItem.
 
         // 8. Create the DynamoDb Encryption configuration for the table we will be writing to.
         //    The beaconVersions are added to the search configuration.
-        var tableConfigs = new Dictionary<String, DynamoDbTableEncryptionConfig>();
-        var config = new DynamoDbTableEncryptionConfig
+        var tableConfigs = new Dictionary<String, DynamoDbTableEncryptionConfig>
         {
-            LogicalTableName = ddbTableName,
-            PartitionKeyName = "work_id",
-            SortKeyName = "inspection_date",
-            AttributeActionsOnEncrypt = attributeActionsOnEncrypt,
-            Keyring = kmsKeyring,
-            Search = new SearchConfig
+            [ddbTableName] = new DynamoDbTableEncryptionConfig
             {
-                WriteVersion = 1, // MUST be 1
-                Versions = beaconVersions
+                LogicalTableName = ddbTableName,
+                PartitionKeyName = "work_id",
+                SortKeyName = "inspection_date",
+                AttributeActionsOnEncrypt = attributeActionsOnEncrypt,
+                Keyring = kmsKeyring,
+                Search = new SearchConfig
+                {
+                    WriteVersion = 1, // MUST be 1
+                    Versions = beaconVersions
+                }
             }
         };
-        tableConfigs.Add(ddbTableName, config);
 
         // 9. Create config
         var encryptionConfig =
             new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs };
 
         // 10. Create an item with both attributes used in the compound beacon.
-        var item = new Dictionary<String, AttributeValue>();
-        item.Add("work_id", new AttributeValue("9ce39272-8068-4efd-a211-cd162ad65d4c"));
-        item.Add("inspection_date", new AttributeValue("2023-06-13"));
-        item.Add("inspector_id_last4", new AttributeValue("5678"));
-        item.Add("unit", new AttributeValue("011899988199"));
+        var item = new Dictionary<String, AttributeValue>
+        {
+            ["work_id"] = new AttributeValue("9ce39272-8068-4efd-a211-cd162ad65d4c"),
+            ["inspection_date"] = new AttributeValue("2023-06-13"),
+            ["inspector_id_last4"] = new AttributeValue("5678"),
+            ["unit"] = new AttributeValue("011899988199")
+        };
 
         // 11. If developing or debugging, verify config by checking compound beacon values directly
         var trans = new DynamoDbEncryptionTransforms(encryptionConfig);
@@ -256,30 +258,28 @@ public class CompoundBeaconSearchableEncryptionExample
         Debug.Assert(putResponse.HttpStatusCode == HttpStatusCode.OK);
 
         // 15. Query for the item we just put.
-        var expressionAttributesNames = new Dictionary<String, String>();
-        expressionAttributesNames.Add("#compound", "last4UnitCompound");
-
-        var expressionAttributeValues = new Dictionary<String, AttributeValue>();
-        // This query expression takes a few factors into consideration:
-        //  - The configured prefix for the last 4 digits of an inspector ID is "L-";
-        //    the prefix for the unit is "U-"
-        //  - The configured split character, separating component parts, is "."
-        //  - The default constructor adds encrypted parts in the order they are in the encrypted list, which
-        //    configures `last4` to come before `unit``
-        // NOTE: We did not need to create a compound beacon for this query. This query could have also been
-        //       done by querying on the partition and sort key, as was done in the Basic example.
-        //       This is intended to be a simple example to demonstrate how one might set up a compound beacon.
-        //       For examples where compound beacons are required, see the Complex example.
-        //       The most basic extension to this example that would require a compound beacon would add a third
-        //       part to the compound beacon, then query against three parts.
-        expressionAttributeValues.Add(":value", new AttributeValue("L-5678.U-011899988199"));
+        var expressionAttributeValues = new Dictionary<String, AttributeValue>
+        {
+            // This query expression takes a few factors into consideration:
+            //  - The configured prefix for the last 4 digits of an inspector ID is "L-";
+            //    the prefix for the unit is "U-"
+            //  - The configured split character, separating component parts, is "."
+            //  - The default constructor adds encrypted parts in the order they are in the encrypted list, which
+            //    configures `last4` to come before `unit``
+            // NOTE: We did not need to create a compound beacon for this query. This query could have also been
+            //       done by querying on the partition and sort key, as was done in the Basic example.
+            //       This is intended to be a simple example to demonstrate how one might set up a compound beacon.
+            //       For examples where compound beacons are required, see the Complex example.
+            //       The most basic extension to this example that would require a compound beacon would add a third
+            //       part to the compound beacon, then query against three parts.
+            [":value"] = new AttributeValue("L-5678.U-011899988199")
+        };
 
         var queryRequest = new QueryRequest
         {
             TableName = ddbTableName,
             IndexName = GSI_NAME,
-            KeyConditionExpression = "#compound = :value",
-            ExpressionAttributeNames = expressionAttributesNames,
+            KeyConditionExpression = "last4UnitCompound = :value",
             ExpressionAttributeValues = expressionAttributeValues
         };
 

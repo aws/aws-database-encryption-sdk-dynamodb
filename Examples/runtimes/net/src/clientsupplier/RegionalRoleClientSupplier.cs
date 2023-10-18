@@ -12,8 +12,8 @@ using AWS.Cryptography.MaterialProviders;
 
 public class RegionalRoleClientSupplier : ClientSupplierBase
 {
-    private AmazonSecurityTokenServiceClient _stsClient = new AmazonSecurityTokenServiceClient();
-    private RegionalRoleClientSupplierConfig _config = new RegionalRoleClientSupplierConfig();
+    private readonly AmazonSecurityTokenServiceClient _stsClient = new AmazonSecurityTokenServiceClient();
+    private readonly RegionalRoleClientSupplierConfig _config = new RegionalRoleClientSupplierConfig();
 
     protected override IAmazonKeyManagementService _GetClient(GetClientInput getClientInput)
     {
@@ -27,6 +27,6 @@ public class RegionalRoleClientSupplier : ClientSupplierBase
         ).Result.Credentials;
 
         return new AmazonKeyManagementServiceClient(creds);
-        //.region(Region.of(getClientInput.region()))
+        //.region(Region.of(getClientInput.Region))
     }
 }

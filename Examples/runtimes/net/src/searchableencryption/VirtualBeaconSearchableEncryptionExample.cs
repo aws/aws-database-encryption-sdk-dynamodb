@@ -105,7 +105,7 @@ using AWS.Cryptography.MaterialProviders;
 
 public class VirtualBeaconSearchableEncryptionExample
 {
-    static String GSI_NAME = "stateAndHasTestResult-index";
+    static readonly String GSI_NAME = "stateAndHasTestResult-index";
 
     public static async Task PutItemQueryItemWithVirtualBeacon(String branchKeyId)
     {
@@ -146,9 +146,7 @@ public class VirtualBeaconSearchableEncryptionExample
         //    Note that the order that virtual parts are added to the virtualPartList
         //    dictates the order in which they are concatenated to build the virtual field.
         //    You must add virtual parts in the same order on write as you do on read.
-        var virtualPartList = new List<VirtualPart>();
-        virtualPartList.Add(statePart);
-        virtualPartList.Add(hasTestResultPart);
+        var virtualPartList = new List<VirtualPart> { statePart, hasTestResultPart };
 
         var stateAndHasTestResultField = new VirtualField
         {
@@ -156,8 +154,7 @@ public class VirtualBeaconSearchableEncryptionExample
             Parts = virtualPartList
         };
 
-        var virtualFieldList = new List<VirtualField>();
-        virtualFieldList.Add(stateAndHasTestResultField);
+        var virtualFieldList = new List<VirtualField> { stateAndHasTestResultField };
 
         // 4. Configure our beacon.
         //    The virtual field is assumed to hold a US 2-letter state abbreviation
@@ -232,8 +229,9 @@ public class VirtualBeaconSearchableEncryptionExample
         //        a different beacon key per tenant), look into configuring a MultiKeyStore:
         //          https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption-multitenant.html
         //    We also provide our standard beacon list and virtual fields here.
-        var beaconVersions = new List<BeaconVersion>();
-        beaconVersions.Add(new BeaconVersion
+        var beaconVersions = new List<BeaconVersion>
+        {
+            new BeaconVersion
             {
                 VirtualFields = virtualFieldList,
                 StandardBeacons = standardBeaconList,
@@ -253,7 +251,7 @@ public class VirtualBeaconSearchableEncryptionExample
                     }
                 }
             }
-        );
+        };
 
         // 7. Create a Hierarchical Keyring
         //    This is a KMS keyring that utilizes the keystore table.
@@ -275,15 +273,13 @@ public class VirtualBeaconSearchableEncryptionExample
         //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
         //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
-        var attributeActionsOnEncrypt = new Dictionary<String, CryptoAction>();
-        attributeActionsOnEncrypt.Add("customer_id",
-            CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.Add("create_time", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
-        attributeActionsOnEncrypt.Add("state",
-            CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-        attributeActionsOnEncrypt.Add("hasTestResult",
-            CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
-
+        var attributeActionsOnEncrypt = new Dictionary<String, CryptoAction>
+        {
+            ["customer_id"] = CryptoAction.SIGN_ONLY, // Our partition attribute must be SIGN_ONLY
+            ["create_time"] = CryptoAction.SIGN_ONLY, // Our sort attribute must be SIGN_ONLY
+            ["state"] = CryptoAction.ENCRYPT_AND_SIGN, // Beaconized attributes must be encrypted
+            ["hasTestResult"] = CryptoAction.ENCRYPT_AND_SIGN // Beaconized attributes must be encrypted
+        };
         // 9. Create the DynamoDb Encryption configuration for the table we will be writing to.
         //    The beaconVersions are added to the search configuration.
         var tableConfigs = new Dictionary<String, DynamoDbTableEncryptionConfig>();
@@ -311,18 +307,22 @@ public class VirtualBeaconSearchableEncryptionExample
         // 11. Create test items
 
         // Create item with hasTestResult=true
-        var itemWithHasTestResult = new Dictionary<String, AttributeValue>();
-        itemWithHasTestResult.Add("customer_id", new AttributeValue("ABC-123"));
-        itemWithHasTestResult.Add("create_time", new AttributeValue { N = "1681495205" });
-        itemWithHasTestResult.Add("state", new AttributeValue("CA"));
-        itemWithHasTestResult.Add("hasTestResult", new AttributeValue { BOOL = true });
+        var itemWithHasTestResult = new Dictionary<String, AttributeValue>
+        {
+            ["customer_id"] = new AttributeValue("ABC-123"),
+            ["create_time"] = new AttributeValue { N = "1681495205" },
+            ["state"] = new AttributeValue("CA"),
+            ["hasTestResult"] = new AttributeValue { BOOL = true }
+        };
 
         // Create item with hasTestResult=false
-        var itemWithNoHasTestResult = new Dictionary<String, AttributeValue>();
-        itemWithNoHasTestResult.Add("customer_id", new AttributeValue("DEF-456"));
-        itemWithNoHasTestResult.Add("create_time", new AttributeValue { N = "1681495205" });
-        itemWithNoHasTestResult.Add("state", new AttributeValue("CA"));
-        itemWithNoHasTestResult.Add("hasTestResult", new AttributeValue { BOOL = false });
+        var itemWithNoHasTestResult = new Dictionary<String, AttributeValue>
+        {
+            ["customer_id"] = new AttributeValue("DEF-456"),
+            ["create_time"] = new AttributeValue { N = "1681495205" },
+            ["state"] = new AttributeValue("CA"),
+            ["hasTestResult"] = new AttributeValue { BOOL = false }
+        };
 
         // 12. If developing or debugging, verify config by checking virtual field values directly
         var trans = new DynamoDbEncryptionTransforms(encryptionConfig);
@@ -390,26 +390,24 @@ public class VirtualBeaconSearchableEncryptionExample
         //         and only surface items with the correct plaintext to the user.
         //     This procedure is internal to the client and is abstracted away from the user;
         //     e.g. the user will only see "CAt" and never "DCf", though the actual query returned both.
-        var expressionAttributesNames = new Dictionary<String, String>();
-        expressionAttributesNames.Add("#stateAndHasTestResult", "stateAndHasTestResult");
-
-        var expressionAttributeValues = new Dictionary<String, AttributeValue>();
-        // We are querying for the item with `state`="CA" and `hasTestResult`=`true`.
-        // Since we added virtual parts as `state` then `hasTestResult`,
-        //     we must write our query expression in the same order.
-        // We constructed our virtual field as `state`+`hasTestResult`,
-        //     so we add the two parts in that order.
-        // Since we also created a virtual transform that truncated `hasTestResult`
-        //     to its length-1 prefix, i.e. "true" -> "t",
-        //     we write that field as its length-1 prefix in the query.
-        expressionAttributeValues.Add(":stateAndHasTestResult", new AttributeValue("CAt"));
+        var expressionAttributeValues = new Dictionary<String, AttributeValue>
+        {
+            // We are querying for the item with `state`="CA" and `hasTestResult`=`true`.
+            // Since we added virtual parts as `state` then `hasTestResult`,
+            //     we must write our query expression in the same order.
+            // We constructed our virtual field as `state`+`hasTestResult`,
+            //     so we add the two parts in that order.
+            // Since we also created a virtual transform that truncated `hasTestResult`
+            //     to its length-1 prefix, i.e. "true" -> "t",
+            //     we write that field as its length-1 prefix in the query.
+            [":stateAndHasTestResult"] = new AttributeValue("CAt")
+        };
 
         var queryRequest = new QueryRequest
         {
             TableName = ddbTableName,
             IndexName = GSI_NAME,
-            KeyConditionExpression = "#stateAndHasTestResult = :stateAndHasTestResult",
-            ExpressionAttributeNames = expressionAttributesNames,
+            KeyConditionExpression = "stateAndHasTestResult = :stateAndHasTestResult",
             ExpressionAttributeValues = expressionAttributeValues
         };
 
