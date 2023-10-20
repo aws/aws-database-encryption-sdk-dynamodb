@@ -18,7 +18,7 @@ public class RegionalRoleClientSupplierConfig
 
     public Dictionary<String, String> regionIamRoleMap = new Dictionary<String, String>
     {
-        [RegionEndpoint.USEast1.DisplayName] = US_EAST_1_IAM_ROLE,
-        [RegionEndpoint.EUWest1.DisplayName] = EU_WEST_1_IAM_ROLE
+        [RegionEndpoint.USEast1.SystemName] = US_EAST_1_IAM_ROLE,
+        [RegionEndpoint.EUWest1.SystemName] = EU_WEST_1_IAM_ROLE
     };
 }

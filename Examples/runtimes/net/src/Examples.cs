@@ -12,13 +12,13 @@ namespace Examples
             ItemEncryptDecryptExample.PutItemGetItem();
 
             await BasicPutGetExample.PutItemGetItem();
-           // FIXME - await ClientSupplierExample.ClientSupplierPutItemGetItem();
-           await MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem();
-           await RawAesKeyringExample.RawAesKeyringGetItemPutItem();
-           await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
-           await MultiKeyringExample.MultiKeyringGetItemPutItem();
-           await RawRsaKeyringExample.RawRsaKeyringGetItemPutItem();
-           await KmsRsaKeyringExample.KmsRsaKeyringGetItemPutItem();
+            await ClientSupplierExample.ClientSupplierPutItemGetItem();
+            await MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem();
+            await RawAesKeyringExample.RawAesKeyringGetItemPutItem();
+            await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
+            await MultiKeyringExample.MultiKeyringGetItemPutItem();
+            await RawRsaKeyringExample.RawRsaKeyringGetItemPutItem();
+            await KmsRsaKeyringExample.KmsRsaKeyringGetItemPutItem();
 
             var keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey();
             var keyId2 = CreateKeyStoreKeyExample.KeyStoreCreateKey();
@@ -27,7 +27,7 @@ namespace Examples
             Thread.Sleep(5000);
 
             await HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(keyId, keyId2);
-            
+
             await BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(keyId);
             await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
             await VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(keyId);
