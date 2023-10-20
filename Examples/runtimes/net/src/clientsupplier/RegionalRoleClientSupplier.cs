@@ -5,6 +5,7 @@
  */
 
 using System;
+using Amazon;
 using Amazon.KeyManagementService;
 using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
@@ -26,7 +27,6 @@ public class RegionalRoleClientSupplier : ClientSupplierBase
             }
         ).Result.Credentials;
 
-        return new AmazonKeyManagementServiceClient(creds);
-        //.region(Region.of(getClientInput.Region))
+        return new AmazonKeyManagementServiceClient(creds, RegionEndpoint.GetBySystemName(getClientInput.Region));
     }
 }
