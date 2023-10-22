@@ -1,3 +1,6 @@
+[//]: # "Copyright Amazon.com Inc. or its affiliates. All Rights Reserved."
+[//]: # "SPDX-License-Identifier: CC-BY-SA-4.0"
+
 # DynamoDB Support Layer
 
 The DynamoDB Support Layer provides everything necessary to the middleware interceptors,

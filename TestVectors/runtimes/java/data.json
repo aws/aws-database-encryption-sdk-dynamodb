@@ -1,4 +1,251 @@
 {
+  "RoundTripTest": {
+    "Configs": {
+      "AllSign": {
+        "attributeActionsOnEncrypt": {
+          "RecNum": "SIGN_ONLY",
+          "String": "SIGN_ONLY",
+          "Number": "SIGN_ONLY",
+          "Bytes": "SIGN_ONLY",
+          "StringSet": "SIGN_ONLY",
+          "NumberSet": "SIGN_ONLY",
+          "BinarySet": "SIGN_ONLY",
+          "Map": "SIGN_ONLY",
+          "List": "SIGN_ONLY",
+          "Null": "SIGN_ONLY",
+          "Bool": "SIGN_ONLY"
+        }
+      },
+      "AllNothing": {
+        "attributeActionsOnEncrypt": {
+          "RecNum": "SIGN_ONLY",
+          "String": "DO_NOTHING",
+          "Number": "DO_NOTHING",
+          "Bytes": "DO_NOTHING",
+          "StringSet": "DO_NOTHING",
+          "NumberSet": "DO_NOTHING",
+          "BinarySet": "DO_NOTHING",
+          "Map": "DO_NOTHING",
+          "List": "DO_NOTHING",
+          "Null": "DO_NOTHING",
+          "Bool": "DO_NOTHING"
+        },
+        "allowedUnsignedAttributes": [
+          "String",
+          "Number",
+          "Bytes",
+          "StringSet",
+          "NumberSet",
+          "BinarySet",
+          "Map",
+          "List",
+          "Null",
+          "Bool"
+        ]
+      },
+      "AllEncrypt": {
+        "attributeActionsOnEncrypt": {
+          "RecNum": "SIGN_ONLY",
+          "String": "ENCRYPT_AND_SIGN",
+          "Number": "ENCRYPT_AND_SIGN",
+          "Bytes": "ENCRYPT_AND_SIGN",
+          "StringSet": "ENCRYPT_AND_SIGN",
+          "NumberSet": "ENCRYPT_AND_SIGN",
+          "BinarySet": "ENCRYPT_AND_SIGN",
+          "Map": "ENCRYPT_AND_SIGN",
+          "List": "ENCRYPT_AND_SIGN",
+          "Null": "ENCRYPT_AND_SIGN",
+          "Bool": "ENCRYPT_AND_SIGN"
+        }
+      }
+    },
+    "Records": [
+      {
+        "RecNum": {
+          "N": "100"
+        },
+        "StringSet": {
+          "SS": [
+            "aaa",
+            "bbb"
+          ]
+        },
+        "NumberSet": {
+          "NS": [
+            "1.0",
+            "2.0"
+          ]
+        },
+        "BinarySet": {
+          "BS": [
+            "b25l",
+            "dHdv"
+          ]
+        }
+      },
+      {
+        "RecNum": {
+          "N": "101"
+        },
+        "StringSet": {
+          "SS": [
+            "bbb",
+            "aaa"
+          ]
+        },
+        "NumberSet": {
+          "NS": [
+            "2.0",
+            "1.0"
+          ]
+        },
+        "BinarySet": {
+          "BS": [
+            "dHdv",
+            "b25l"
+          ]
+        },
+        "Bool": {
+          "BOOL": true
+        }
+      },
+      {
+        "RecNum": {
+          "N": "102"
+        },
+        "StringSet": {
+          "SS": [
+            "ddd",
+            "bbb",
+            "aaa",
+            "ccc",
+            "eee"
+          ]
+        },
+        "NumberSet": {
+          "NS": [
+            "2.0",
+            "1.0",
+            "-000.000",
+            "+123.456",
+            "123.456e5",
+            ".99999999999999999999999999999999999999E+126",
+            "1234567890123456789012345678901234567800000000000000000000000000000"
+          ]
+        },
+        "BinarySet": {
+          "BS": [
+            "dHdv",
+            "b25l"
+          ]
+        },
+        "Bool": {
+          "BOOL": true
+        },
+        "Map": {
+          "M": {
+            "eee": {
+              "SS": [
+                "ddd",
+                "bbb",
+                "aaa",
+                "ccc",
+                "eee"
+              ]
+            },
+            "aaa": {
+              "NS": [
+                "2.0",
+                "1.0",
+                "-000.000",
+                "+123.456",
+                "123.456e5",
+                ".99999999999999999999999999999999999999E+126",
+                "1234567890123456789012345678901234567800000000000000000000000000000"
+              ]
+            },
+            "ccc": {
+              "BS": [
+                "dHdv",
+                "b25l"
+              ]
+            }
+          }
+        },
+        "List": {
+          "L": [
+            {
+              "SS": [
+                "ddd",
+                "bbb",
+                "aaa",
+                "ccc",
+                "eee"
+              ]
+            },
+            {
+              "NS": [
+                "2.0",
+                "1.0",
+                "-000.000",
+                "+123.456",
+                "123.456e5",
+                ".99999999999999999999999999999999999999E+126",
+                "1234567890123456789012345678901234567800000000000000000000000000000"
+              ]
+            },
+            {
+              "BS": [
+                "dHdv",
+                "b25l"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "RecNum": {
+          "N": "103"
+        },
+        "StringSet": {
+          "SS": [
+            "aaa"
+          ]
+        },
+        "NumberSet": {
+          "NS": [
+            "1.0"
+          ]
+        },
+        "BinarySet": {
+          "BS": [
+            "b25l"
+          ]
+        },
+        "String": {
+          "S": ""
+        },
+        "Number": {
+          "N": "0"
+        },
+        "Bytes": {
+          "B": ""
+        },
+        "Map": {
+          "M": {}
+        },
+        "List": {
+          "L": []
+        },
+        "Null": {
+          "NULL": ""
+        },
+        "Bool": {
+          "BOOL": false
+        }
+      }
+    ]
+  },
   "IoPairs": [
     [
       "1",
@@ -31,7 +278,9 @@
     ":six": "Seis",
     ":seven": "Siete",
     ":eight": "Ocho",
-    ":NumberTest" : {"N" : "0800.000e0"},
+    ":NumberTest": {
+      "N": "0800.000e0"
+    },
     ":nine": "Nueve",
     ":cmp1a": "F_Cuatro.S_Junk",
     ":cmp1b": "F_444.S_Junk",
@@ -195,13 +444,15 @@
         {
           "Query": "cmp1c < Comp1",
           "Fail": [
-            0,1
+            0,
+            1
           ]
         },
         {
           "Query": "cmp1c = Comp1",
           "Fail": [
-            0,1
+            0,
+            1
           ]
         },
         {
