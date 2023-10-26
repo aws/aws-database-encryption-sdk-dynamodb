@@ -1090,7 +1090,8 @@ module SearchConfigToInfo {
       if I.IsPartOnly(b) && !ExistsInCompound(allNames, names[0], data) then
         Failure(E("PartOnly beacon " + names[0] + " MUST be used in a compound beacon."))
       else if b.Standard? && b.std.share.Some? then
-        IsValidShare(data, names[0], b.std.length, b.std.share.value)
+        var _ :- IsValidShare(data, names[0], b.std.length, b.std.share.value);
+        CheckAllBeacons(names[1..], allNames, data)
       else
         CheckAllBeacons(names[1..], allNames, data)
   }
