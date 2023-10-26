@@ -299,9 +299,9 @@ Initialization MUST fail if two standard beacons are configured with the same lo
 On initialization of a Beacon Style, the caller MUST provide exactly one of
 
  * a [PartOnly](#partonly-initialization)
- * a [Twinned](#twinned-initialization)
+ * a [Shared](#shared-initialization)
  * an [AsSet](#asset-initialization)
- * a [TwinnedSet](#twinnedset-initialization)
+ * a [SharedSet](#sharedset-initialization)
 
 ### PartOnly Initialization
 
@@ -325,9 +325,9 @@ and that attribute is not of type Set.
 * The Standard Beacon MUST be stored in the item as a Set,
 comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
 
-### Twinned Initialization
+### Shared Initialization
 
-On initialization of a Twinned, the caller MUST provide:
+On initialization of a Shared, the caller MUST provide:
 
 * other : a beacon name
 
@@ -337,13 +337,13 @@ This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [le
 
 This beacon MUST calculate its [value](#beacon-value) as if it were the `other` beacon.
 
-### TwinnedSet Initialization
+### SharedSet Initialization
 
-On initialization of a TwinnedSet, the caller MUST provide:
+On initialization of a SharedSet, the caller MUST provide:
 
 * other : a beacon name
 
-A TwinnedSet Beacon MUST behave both as [Twinned](#twinned-initialization) and [AsSet](#asset-initialization).
+A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
 
 
 ### Compound Beacon Initialization

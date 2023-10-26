@@ -6,15 +6,15 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 /**
- * Both Twinned and AsSet.
+ * This beacon should calculate values like another beacon, so they can be compared.
  */
-public class TwinnedSet {
+public class Shared {
   /**
    * Calculate beacon values as for this beacon.
    */
   private final String other;
 
-  protected TwinnedSet(BuilderImpl builder) {
+  protected Shared(BuilderImpl builder) {
     this.other = builder.other();
   }
 
@@ -44,7 +44,7 @@ public class TwinnedSet {
      */
     String other();
 
-    TwinnedSet build();
+    Shared build();
   }
 
   static class BuilderImpl implements Builder {
@@ -53,7 +53,7 @@ public class TwinnedSet {
     protected BuilderImpl() {
     }
 
-    protected BuilderImpl(TwinnedSet model) {
+    protected BuilderImpl(Shared model) {
       this.other = model.other();
     }
 
@@ -66,11 +66,11 @@ public class TwinnedSet {
       return this.other;
     }
 
-    public TwinnedSet build() {
+    public Shared build() {
       if (Objects.isNull(this.other()))  {
         throw new IllegalArgumentException("Missing value for required field `other`");
       }
-      return new TwinnedSet(this);
+      return new Shared(this);
     }
   }
 }
