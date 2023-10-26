@@ -46,11 +46,11 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PartOnly;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SearchConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Shared;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SharedSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SignedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.StandardBeacon;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Twinned;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.TwinnedSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Upper;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualField;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.VirtualPart;
@@ -358,6 +358,20 @@ public class ToDafny {
     return new SearchConfig(versions, writeVersion);
   }
 
+  public static Shared Shared(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Shared nativeValue) {
+    DafnySequence<? extends Character> other;
+    other = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.other());
+    return new Shared(other);
+  }
+
+  public static SharedSet SharedSet(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SharedSet nativeValue) {
+    DafnySequence<? extends Character> other;
+    other = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.other());
+    return new SharedSet(other);
+  }
+
   public static SignedPart SignedPart(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SignedPart nativeValue) {
     DafnySequence<? extends Character> name;
@@ -395,20 +409,6 @@ public class ToDafny {
         Option.create_Some(ToDafny.BeaconStyle(nativeValue.style()))
         : Option.create_None();
     return new StandardBeacon(name, length, loc, style);
-  }
-
-  public static Twinned Twinned(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Twinned nativeValue) {
-    DafnySequence<? extends Character> other;
-    other = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.other());
-    return new Twinned(other);
-  }
-
-  public static TwinnedSet TwinnedSet(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.TwinnedSet nativeValue) {
-    DafnySequence<? extends Character> other;
-    other = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.other());
-    return new TwinnedSet(other);
   }
 
   public static Upper Upper(
@@ -494,14 +494,14 @@ public class ToDafny {
     if (Objects.nonNull(nativeValue.partOnly())) {
       return BeaconStyle.create_partOnly(ToDafny.PartOnly(nativeValue.partOnly()));
     }
-    if (Objects.nonNull(nativeValue.twinned())) {
-      return BeaconStyle.create_twinned(ToDafny.Twinned(nativeValue.twinned()));
+    if (Objects.nonNull(nativeValue.shared())) {
+      return BeaconStyle.create_shared(ToDafny.Shared(nativeValue.shared()));
     }
     if (Objects.nonNull(nativeValue.asSet())) {
       return BeaconStyle.create_asSet(ToDafny.AsSet(nativeValue.asSet()));
     }
-    if (Objects.nonNull(nativeValue.twinnedSet())) {
-      return BeaconStyle.create_twinnedSet(ToDafny.TwinnedSet(nativeValue.twinnedSet()));
+    if (Objects.nonNull(nativeValue.sharedSet())) {
+      return BeaconStyle.create_sharedSet(ToDafny.SharedSet(nativeValue.sharedSet()));
     }
     throw new IllegalArgumentException("Cannot convert " + nativeValue + " to software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconStyle.");
   }

@@ -304,90 +304,90 @@ module TestBaseBeacon {
     expect bv.error == E("Compound beacon compoundSet uses setBeacon which is an AsSet beacon, and therefore cannot be used in a Compound Beacon.");
   }
 
-  method {:test} TwinnedBadReferenceToCompound()
+  method {:test} SharedBadReferenceToCompound()
   {
     var version := GetLotsaBeacons();
-    var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 24, loc := None,
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 24, loc := None,
                                        style := Some(
-                                         T.twinned(T.Twinned(other := "NameTitle"))
+                                         T.shared(T.Shared(other := "NameTitle"))
                                        ));
 
-    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["twinBeacon" := SE.ENCRYPT_AND_SIGN]);
-    version := version.(standardBeacons := version.standardBeacons + [twinBeacon]);
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(standardBeacons := version.standardBeacons + [shareBeacon]);
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv := C.ConvertVersionWithSource(newConfig, version, src);
     expect bv.Failure?;
-    expect bv.error == E("Beacon twinBeacon is twinned to NameTitle but NameTitle is a compound beacon.");
+    expect bv.error == E("Beacon shareBeacon is shared to NameTitle but NameTitle is a compound beacon.");
   }
 
-  method {:test} ChainedTwin()
+  method {:test} ChainedShare()
   {
     var version := GetLotsaBeacons();
-    var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 24, loc := None,
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 24, loc := None,
                                        style := Some(
-                                         T.twinned(T.Twinned(other := "std2"))
+                                         T.shared(T.Shared(other := "std2"))
                                        ));
     var other := T.StandardBeacon(name := "std4", length := 24, loc := None,
                                        style := Some(
-                                         T.twinned(T.Twinned(other := "twinBeacon"))
+                                         T.shared(T.Shared(other := "shareBeacon"))
                                        ));
 
-    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["twinBeacon" := SE.ENCRYPT_AND_SIGN]);
-    version := version.(compoundBeacons := None, standardBeacons :=  [std2, twinBeacon, other]);
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(compoundBeacons := None, standardBeacons :=  [std2, shareBeacon, other]);
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv := C.ConvertVersionWithSource(newConfig, version, src);
     expect bv.Failure?;
-    expect bv.error == E("Beacon std4 is twinned to twinBeacon which is in turn twinned to std2. Twin chains are not allowed.");
+    expect bv.error == E("Beacon std4 is shared to shareBeacon which is in turn shared to std2. Share chains are not allowed.");
   }
 
-  method {:test} SelfTwin()
+  method {:test} SelfShare()
   {
     var version := GetLotsaBeacons();
-    var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 24, loc := None,
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 24, loc := None,
                                        style := Some(
-                                         T.twinned(T.Twinned(other := "twinBeacon"))
+                                         T.shared(T.Shared(other := "shareBeacon"))
                                        ));
 
-    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["twinBeacon" := SE.ENCRYPT_AND_SIGN]);
-    version := version.(compoundBeacons := None, standardBeacons :=  [std2, twinBeacon]);
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(compoundBeacons := None, standardBeacons :=  [std2, shareBeacon]);
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv := C.ConvertVersionWithSource(newConfig, version, src);
     expect bv.Failure?;
     print "\n", bv.error, "\n";
-    expect bv.error == E("Beacon twinBeacon is twinned to itself.");
+    expect bv.error == E("Beacon shareBeacon is shared to itself.");
   }
 
-  method {:test} TwinnedBadReferenceNonExistent()
+  method {:test} SharedBadReferenceNonExistent()
   {
     var version := GetLotsaBeacons();
-    var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 24, loc := None,
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 24, loc := None,
                                        style := Some(
-                                         T.twinned(T.Twinned(other := "DoesNotExist"))
+                                         T.shared(T.Shared(other := "DoesNotExist"))
                                        ));
 
-    version := version.(standardBeacons := version.standardBeacons + [twinBeacon]);
-    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["twinBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(standardBeacons := version.standardBeacons + [shareBeacon]);
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv := C.ConvertVersionWithSource(newConfig, version, src);
     expect bv.Failure?;
-    expect bv.error == E("Beacon twinBeacon is twinned to DoesNotExist which is not defined.");
+    expect bv.error == E("Beacon shareBeacon is shared to DoesNotExist which is not defined.");
   }
 
 
-  method {:test} TwinnedBadLength()
+  method {:test} SharedBadLength()
   {
     var version := GetLotsaBeacons();
-    var twinBeacon := T.StandardBeacon(name := "twinBeacon", length := 23, loc := None,
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 23, loc := None,
                                        style := Some(
-                                         T.twinned(T.Twinned(other := "std2"))
+                                         T.shared(T.Shared(other := "std2"))
                                        ));
 
-    version := version.(standardBeacons := version.standardBeacons + [twinBeacon]);
-    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["twinBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(standardBeacons := version.standardBeacons + [shareBeacon]);
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv := C.ConvertVersionWithSource(newConfig, version, src);
     expect bv.Failure?;
-    expect bv.error == E("Beacon twinBeacon is twinned to std2 but twinBeacon has length 23 and std2 has length 24.");
+    expect bv.error == E("Beacon shareBeacon is shared to std2 but shareBeacon has length 23 and std2 has length 24.");
   }
 
   method {:test} TestPartOnlyNotStored()
@@ -459,7 +459,7 @@ module TestBaseBeacon {
     expect badQuery.error == E("Field partOnly is encrypted, and has a PartOnly beacon, and so can only be used as part of a compound beacon.");
   }
 
-  method {:test} TestTwinSameBeacon()
+  method {:test} TestShareSameBeacon()
   {
     var MyItem : DDB.AttributeMap := map[
       "std2" := DDB.AttributeValue.S("abc"),
@@ -486,7 +486,7 @@ module TestBaseBeacon {
 
     partBeacon := T.StandardBeacon(name := "partOnly", length := 24, loc := None,
                                    style := Some(
-                                     T.twinned(T.Twinned(other := "std2"))
+                                     T.shared(T.Shared(other := "std2"))
                                    ));
     newVersion := version.(
     standardBeacons := version.standardBeacons + [partBeacon]
@@ -494,7 +494,7 @@ module TestBaseBeacon {
     bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
     goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
 
-    //= specification/searchable-encryption/beacons.md#twinned-initialization
+    //= specification/searchable-encryption/beacons.md#shared-initialization
     //= type=test
     //# This beacon MUST calculate its [value](#beacon-value) as if it were the `other` beacon.
     expect goodAttrs == map[
@@ -604,7 +604,7 @@ module TestBaseBeacon {
     expect badAttrs.error == E("Beacon partOnly has style AsSet, but attribute has type S.");
   }
 
-  method {:test} TestTwinnedSet()
+  method {:test} TestSharedSet()
   {
     var MyItem : DDB.AttributeMap := map[
       "std2" := DDB.AttributeValue.S("abc"),
@@ -615,7 +615,7 @@ module TestBaseBeacon {
     expect version.compoundBeacons.Some?;
     var partBeacon := T.StandardBeacon(name := "partOnly", length := 24, loc := None,
                                        style := Some(
-                                         T.twinnedSet(T.TwinnedSet(other := "std2"))
+                                         T.sharedSet(T.SharedSet(other := "std2"))
                                        ));
     var newVersion := version.(
     standardBeacons := version.standardBeacons + [partBeacon]
@@ -631,9 +631,9 @@ module TestBaseBeacon {
       print "\n", goodAttrs.error, "\n";
     }
 
-    //= specification/searchable-encryption/beacons.md#twinnedset-initialization
+    //= specification/searchable-encryption/beacons.md#sharedset-initialization
     //= type=test
-    //# A TwinnedSet Beacon MUST behave both as [Twinned](#twinned-initialization) and [AsSet](#asset-initialization).
+    //# A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
     expect goodAttrs.Success?;
     expect goodAttrs.value == map[
                                 "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
