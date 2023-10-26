@@ -1429,17 +1429,15 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if |ItemList| == 0 {
-      return Success([]);
+    var acc : DDB.ItemList := [];
+    for i := 0 to |ItemList| {
+      var newAttrs :- b.GeneratePlainBeacons(ItemList[i]);
+      var doesMatch :- EvalExpr(parsed, ItemList[i] + newAttrs, names, values);
+      if doesMatch {
+        acc := acc + [ItemList[i]];
+      }
     }
-    var newAttrs :- b.GeneratePlainBeacons(ItemList[0]);
-    var doesMatch :- EvalExpr(parsed, ItemList[0] + newAttrs, names, values);
-    var rest :- FilterItems(b, parsed, ItemList[1..], names, values);
-    if doesMatch {
-      return Success(ItemList[..1] + rest);
-    } else {
-      return Success(rest);
-    }
+    return Success(acc);
   }
 
   // return the results for which the expression is true
