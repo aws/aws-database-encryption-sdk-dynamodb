@@ -14,7 +14,7 @@ public class BeaconStyle {
   /**
    * This beacon should calculate values like another beacon, so they can be compared.
    */
-  private final Twinned twinned;
+  private final Shared shared;
 
   /**
    * Attribute must be a Set. Beacon value will also be a Set.
@@ -22,15 +22,15 @@ public class BeaconStyle {
   private final AsSet asSet;
 
   /**
-   * Both Twinned and AsSet.
+   * Both Shared and AsSet.
    */
-  private final TwinnedSet twinnedSet;
+  private final SharedSet sharedSet;
 
   protected BeaconStyle(BuilderImpl builder) {
     this.partOnly = builder.partOnly();
-    this.twinned = builder.twinned();
+    this.shared = builder.shared();
     this.asSet = builder.asSet();
-    this.twinnedSet = builder.twinnedSet();
+    this.sharedSet = builder.sharedSet();
   }
 
   /**
@@ -43,8 +43,8 @@ public class BeaconStyle {
   /**
    * @return This beacon should calculate values like another beacon, so they can be compared.
    */
-  public Twinned twinned() {
-    return this.twinned;
+  public Shared shared() {
+    return this.shared;
   }
 
   /**
@@ -55,10 +55,10 @@ public class BeaconStyle {
   }
 
   /**
-   * @return Both Twinned and AsSet.
+   * @return Both Shared and AsSet.
    */
-  public TwinnedSet twinnedSet() {
-    return this.twinnedSet;
+  public SharedSet sharedSet() {
+    return this.sharedSet;
   }
 
   public Builder toBuilder() {
@@ -81,14 +81,14 @@ public class BeaconStyle {
     PartOnly partOnly();
 
     /**
-     * @param twinned This beacon should calculate values like another beacon, so they can be compared.
+     * @param shared This beacon should calculate values like another beacon, so they can be compared.
      */
-    Builder twinned(Twinned twinned);
+    Builder shared(Shared shared);
 
     /**
      * @return This beacon should calculate values like another beacon, so they can be compared.
      */
-    Twinned twinned();
+    Shared shared();
 
     /**
      * @param asSet Attribute must be a Set. Beacon value will also be a Set.
@@ -101,14 +101,14 @@ public class BeaconStyle {
     AsSet asSet();
 
     /**
-     * @param twinnedSet Both Twinned and AsSet.
+     * @param sharedSet Both Shared and AsSet.
      */
-    Builder twinnedSet(TwinnedSet twinnedSet);
+    Builder sharedSet(SharedSet sharedSet);
 
     /**
-     * @return Both Twinned and AsSet.
+     * @return Both Shared and AsSet.
      */
-    TwinnedSet twinnedSet();
+    SharedSet sharedSet();
 
     BeaconStyle build();
   }
@@ -116,20 +116,20 @@ public class BeaconStyle {
   static class BuilderImpl implements Builder {
     protected PartOnly partOnly;
 
-    protected Twinned twinned;
+    protected Shared shared;
 
     protected AsSet asSet;
 
-    protected TwinnedSet twinnedSet;
+    protected SharedSet sharedSet;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(BeaconStyle model) {
       this.partOnly = model.partOnly();
-      this.twinned = model.twinned();
+      this.shared = model.shared();
       this.asSet = model.asSet();
-      this.twinnedSet = model.twinnedSet();
+      this.sharedSet = model.sharedSet();
     }
 
     public Builder partOnly(PartOnly partOnly) {
@@ -141,13 +141,13 @@ public class BeaconStyle {
       return this.partOnly;
     }
 
-    public Builder twinned(Twinned twinned) {
-      this.twinned = twinned;
+    public Builder shared(Shared shared) {
+      this.shared = shared;
       return this;
     }
 
-    public Twinned twinned() {
-      return this.twinned;
+    public Shared shared() {
+      return this.shared;
     }
 
     public Builder asSet(AsSet asSet) {
@@ -159,13 +159,13 @@ public class BeaconStyle {
       return this.asSet;
     }
 
-    public Builder twinnedSet(TwinnedSet twinnedSet) {
-      this.twinnedSet = twinnedSet;
+    public Builder sharedSet(SharedSet sharedSet) {
+      this.sharedSet = sharedSet;
       return this;
     }
 
-    public TwinnedSet twinnedSet() {
-      return this.twinnedSet;
+    public SharedSet sharedSet() {
+      return this.sharedSet;
     }
 
     public BeaconStyle build() {
@@ -176,7 +176,7 @@ public class BeaconStyle {
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.partOnly, this.twinned, this.asSet, this.twinnedSet};
+      Object[] allValues = {this.partOnly, this.shared, this.asSet, this.sharedSet};
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

@@ -111,7 +111,7 @@ module BaseBeacon {
     loc : string,
     partOnly : bool,
     asSet : bool,
-    twin : Option<string>
+    share : Option<string>
   )
     : (ret : Result<ValidStandardBeacon, Error>)
     ensures ret.Success? ==>
@@ -131,7 +131,7 @@ module BaseBeacon {
               termLoc,
               partOnly,
               asSet,
-              twin
+              share
             ))
   }
   datatype StandardBeacon = StandardBeacon (
@@ -140,7 +140,7 @@ module BaseBeacon {
     loc : TermLoc.TermLoc,
     partOnly : bool,
     asSet : bool,
-    twin : Option<string>
+    share : Option<string>
   ) {
     function method {:opaque} hash(val : Bytes, key : Bytes)
       : (ret : Result<string, Error>)
@@ -155,12 +155,12 @@ module BaseBeacon {
     }
 
     // return the name of the hmac key to use
-    //= specification/searchable-encryption/beacons.md#twinned-initialization
+    //= specification/searchable-encryption/beacons.md#shared-initialization
     //# This beacon MUST calculate its [value](#beacon-value) as if it were the `other` beacon.
     function method keyName() : string
     {
-      if twin.Some? then
-        twin.value
+      if share.Some? then
+        share.value
       else
         base.name
     }

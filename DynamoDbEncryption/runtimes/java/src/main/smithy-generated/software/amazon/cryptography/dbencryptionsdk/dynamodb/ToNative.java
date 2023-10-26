@@ -47,11 +47,11 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PartOnly;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Shared;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SharedSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SignedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Twinned;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.TwinnedSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Upper;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualField;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualPart;
@@ -342,6 +342,20 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static Shared Shared(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Shared dafnyValue) {
+    Shared.Builder nativeBuilder = Shared.builder();
+    nativeBuilder.other(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_other()));
+    return nativeBuilder.build();
+  }
+
+  public static SharedSet SharedSet(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SharedSet dafnyValue) {
+    SharedSet.Builder nativeBuilder = SharedSet.builder();
+    nativeBuilder.other(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_other()));
+    return nativeBuilder.build();
+  }
+
   public static SignedPart SignedPart(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SignedPart dafnyValue) {
     SignedPart.Builder nativeBuilder = SignedPart.builder();
@@ -372,20 +386,6 @@ public class ToNative {
     if (dafnyValue.dtor_style().is_Some()) {
       nativeBuilder.style(ToNative.BeaconStyle(dafnyValue.dtor_style().dtor_value()));
     }
-    return nativeBuilder.build();
-  }
-
-  public static Twinned Twinned(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Twinned dafnyValue) {
-    Twinned.Builder nativeBuilder = Twinned.builder();
-    nativeBuilder.other(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_other()));
-    return nativeBuilder.build();
-  }
-
-  public static TwinnedSet TwinnedSet(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.TwinnedSet dafnyValue) {
-    TwinnedSet.Builder nativeBuilder = TwinnedSet.builder();
-    nativeBuilder.other(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_other()));
     return nativeBuilder.build();
   }
 
@@ -459,14 +459,14 @@ public class ToNative {
     if (dafnyValue.is_partOnly()) {
       nativeBuilder.partOnly(ToNative.PartOnly(dafnyValue.dtor_partOnly()));
     }
-    if (dafnyValue.is_twinned()) {
-      nativeBuilder.twinned(ToNative.Twinned(dafnyValue.dtor_twinned()));
+    if (dafnyValue.is_shared()) {
+      nativeBuilder.shared(ToNative.Shared(dafnyValue.dtor_shared()));
     }
     if (dafnyValue.is_asSet()) {
       nativeBuilder.asSet(ToNative.AsSet(dafnyValue.dtor_asSet()));
     }
-    if (dafnyValue.is_twinnedSet()) {
-      nativeBuilder.twinnedSet(ToNative.TwinnedSet(dafnyValue.dtor_twinnedSet()));
+    if (dafnyValue.is_sharedSet()) {
+      nativeBuilder.sharedSet(ToNative.SharedSet(dafnyValue.dtor_sharedSet()));
     }
     return nativeBuilder.build();
   }

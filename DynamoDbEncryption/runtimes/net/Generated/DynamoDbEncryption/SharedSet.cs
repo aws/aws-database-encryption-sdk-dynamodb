@@ -5,7 +5,7 @@ using System;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
 namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
 {
-  public class Twinned
+  public class SharedSet
   {
     private string _other;
     public string Other
