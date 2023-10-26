@@ -35,9 +35,9 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  | multi(multi: MultiKeyStore)
  datatype BeaconStyle =
  | partOnly(partOnly: PartOnly)
- | twinned(twinned: Twinned)
+ | shared(shared: Shared)
  | asSet(asSet: AsSet)
- | twinnedSet(twinnedSet: TwinnedSet)
+ | sharedSet(sharedSet: SharedSet)
  datatype BeaconVersion = | BeaconVersion (
  nameonly version: VersionNumber ,
  nameonly keyStore: AwsCryptographyKeyStoreTypes.IKeyStoreClient ,
@@ -336,6 +336,12 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly versions: BeaconVersionList ,
  nameonly writeVersion: VersionNumber
  )
+ datatype Shared = | Shared (
+ nameonly other: string
+ )
+ datatype SharedSet = | SharedSet (
+ nameonly other: string
+ )
  datatype SignedPart = | SignedPart (
  nameonly name: string ,
  nameonly prefix: Prefix ,
@@ -363,12 +369,6 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  predicate method IsValid_TerminalLocation(x: string) {
  ( 1 <= |x|  )
 }
- datatype Twinned = | Twinned (
- nameonly other: string
- )
- datatype TwinnedSet = | TwinnedSet (
- nameonly other: string
- )
  datatype Upper = | Upper (
  
  )

@@ -20,8 +20,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySour
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconVersion;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CompoundBeacon;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconStyle;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.TwinnedSet;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Twinned;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SharedSet;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Shared;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Constructor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.ConstructorPart;
@@ -90,14 +90,14 @@ public class BeaconStylesSearchableEncryptionExample {
     // The basket beacon allows searching on the encrypted basket attribute
     // basket is used as a Set, and therefore needs a beacon style to reflect that.
     // Further, we need to be able to compare the items in basket to the fruit attribute
-    // so we `twin` this beacon to `fruit`.
-    // Since we need both of these things, we use the TwinnedSet style.
+    // so we `share` this beacon with `fruit`.
+    // Since we need both of these things, we use the SharedSet style.
     StandardBeacon basketBeacon = StandardBeacon.builder()
         .name("basket")
         .length(30)
         .style(
             BeaconStyle.builder()
-                .twinnedSet(TwinnedSet.builder().other("fruit").build())
+                .sharedSet(SharedSet.builder().other("fruit").build())
             .build()
         )
         .build();
@@ -105,13 +105,13 @@ public class BeaconStylesSearchableEncryptionExample {
 
     // The dessert beacon allows searching on the encrypted dessert attribute
     // We need to be able to compare the dessert attribute to the fruit attribute
-    // so we `twin` this beacon to `fruit`.
+    // so we `share` this beacon with `fruit`.
     StandardBeacon dessertBeacon = StandardBeacon.builder()
         .name("dessert")
         .length(30)
         .style(
             BeaconStyle.builder()
-                .twinned(Twinned.builder().other("fruit").build())
+                .shared(Shared.builder().other("fruit").build())
             .build()
         )
         .build();
@@ -302,7 +302,7 @@ public class BeaconStylesSearchableEncryptionExample {
     assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item2);
 
-    // Test a Twinned search. Select records where the dessert attribute matches the fruit attribute
+    // Test a Shared search. Select records where the dessert attribute matches the fruit attribute
     scanRequest = ScanRequest.builder()
         .tableName(ddbTableName)
         .filterExpression("dessert = fruit")
