@@ -50,7 +50,7 @@ SMITHY_MODEL_ROOT := $(LIBRARY_ROOT)/Model
 # Our target language code still assumes it does,
 # so IF the /compileSuffix option is available in our verion of Dafny
 # we need to provide it.
-COMPILE_SUFFIX_OPTION_CHECK_EXIT_CODE := $(shell dafny /help | grep -q /compileSuffix; echo $?)
+COMPILE_SUFFIX_OPTION_CHECK_EXIT_CODE := $(shell dafny /help | grep -q /compileSuffix; echo $$?)
 ifeq ($(COMPILE_SUFFIX_OPTION_CHECK_EXIT_CODE), 0)
 	COMPILE_SUFFIX_OPTION := -compileSuffix:1
 else
