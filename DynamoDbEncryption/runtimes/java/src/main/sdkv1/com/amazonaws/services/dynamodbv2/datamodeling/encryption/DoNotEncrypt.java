@@ -21,6 +21,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Warning: This annotation only works with the DynamoDBMapper for AWS SDK for Java 1.x.
+ * If you are using the AWS SDK for Java 2.x, use @DynamoDbEncryptionSignOnly instead.
+ *
  * Prevents the associated item (class or attribute) from being encrypted.
  *
  * <p>For guidance on performing a safe data model change procedure, please see <a
@@ -32,4 +35,5 @@ import java.lang.annotation.Target;
 @DynamoDB
 @Target(value = {ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 @Retention(value = RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface DoNotEncrypt {}
