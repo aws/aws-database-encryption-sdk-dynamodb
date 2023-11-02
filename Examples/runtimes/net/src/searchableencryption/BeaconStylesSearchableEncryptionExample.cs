@@ -63,28 +63,28 @@ public class BeaconStylesSearchableEncryptionExample
             // The basket beacon allows searching on the encrypted basket attribute
             // basket is used as a Set, and therefore needs a beacon style to reflect that.
             // Further, we need to be able to compare the items in basket to the fruit attribute
-            // so we `twin` this beacon to `fruit`.
-            // Since we need both of these things, we use the TwinnedSet style.
+            // so we `share` this beacon with `fruit`.
+            // Since we need both of these things, we use the SharedSet style.
             new StandardBeacon
             {
                 Name = "basket",
                 Length = 30,
                 Style = new BeaconStyle
                 {
-                    TwinnedSet = new TwinnedSet { Other = "fruit" }
+                    SharedSet = new SharedSet { Other = "fruit" }
                 }
             },
 
             // The dessert beacon allows searching on the encrypted dessert attribute
             // We need to be able to compare the dessert attribute to the fruit attribute
-            // so we `twin` this beacon to `fruit`.
+            // so we `share` this beacon with `fruit`.
             new StandardBeacon
             {
                 Name = "dessert",
                 Length = 30,
                 Style = new BeaconStyle
                 {
-                    Twinned = new Twinned { Other = "fruit" }
+                    Shared = new Shared { Other = "fruit" }
                 }
             }
         };
@@ -268,7 +268,7 @@ public class BeaconStylesSearchableEncryptionExample
         Debug.Assert(scanResponse.Items.Count == 1);
         Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
 
-        // Test a Twinned search. Select records where the dessert attribute matches the fruit attribute
+        // Test a Shared search. Select records where the dessert attribute matches the fruit attribute
         scanRequest = new ScanRequest
         {
             TableName = ddbTableName,
