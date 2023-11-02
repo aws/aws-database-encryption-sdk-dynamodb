@@ -43,7 +43,7 @@ public class ClientSupplierExample
         var keyArn = TestUtils.TEST_MRK_REPLICA_KEY_ID_US_EAST_1;
         var accountIds = new List<String> { TestUtils.TEST_AWS_ACCOUNT_ID };
         // ...and access its replica in eu-west-1
-        var regions = new List<String> { RegionEndpoint.EUWest1.DisplayName };
+        var regions = new List<String> { RegionEndpoint.EUWest1.SystemName };
 
         // 1. Create a single MRK multi-keyring.
         //    This can be either a single-region KMS key or an MRK.
