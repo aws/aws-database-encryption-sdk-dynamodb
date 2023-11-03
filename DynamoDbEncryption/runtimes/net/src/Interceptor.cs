@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2;
+﻿using Amazon;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using Amazon.Runtime.Internal;
@@ -33,13 +34,13 @@ public class Client
       if (executionContext.ResponseContext.Response is BatchExecuteStatementResponse response)
       {
         var output = transform.BatchExecuteStatementOutputTransform(new BatchExecuteStatementOutputTransformInput
-        { OriginalInput = originalInput as BatchExecuteStatementRequest, SdkOutput = response });
+          { OriginalInput = originalInput as BatchExecuteStatementRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.BatchExecuteStatementInputTransform(new BatchExecuteStatementInputTransformInput
-        { SdkInput = batchExecuteStatementRequest });
+          { SdkInput = batchExecuteStatementRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -48,13 +49,13 @@ public class Client
       if (executionContext.ResponseContext.Response is BatchGetItemResponse response)
       {
         var output = transform.BatchGetItemOutputTransform(new BatchGetItemOutputTransformInput
-        { OriginalInput = originalInput as BatchGetItemRequest, SdkOutput = response });
+          { OriginalInput = originalInput as BatchGetItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.BatchGetItemInputTransform(new BatchGetItemInputTransformInput
-        { SdkInput = batchGetItemRequest });
+          { SdkInput = batchGetItemRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -63,13 +64,13 @@ public class Client
       if (executionContext.ResponseContext.Response is BatchWriteItemResponse response)
       {
         var output = transform.BatchWriteItemOutputTransform(new BatchWriteItemOutputTransformInput
-        { OriginalInput = originalInput as BatchWriteItemRequest, SdkOutput = response });
+          { OriginalInput = originalInput as BatchWriteItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.BatchWriteItemInputTransform(new BatchWriteItemInputTransformInput
-        { SdkInput = batchWriteItemRequest });
+          { SdkInput = batchWriteItemRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -78,13 +79,13 @@ public class Client
       if (executionContext.ResponseContext.Response is DeleteItemResponse response)
       {
         var output = transform.DeleteItemOutputTransform(new DeleteItemOutputTransformInput
-        { OriginalInput = originalInput as DeleteItemRequest, SdkOutput = response });
+          { OriginalInput = originalInput as DeleteItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.DeleteItemInputTransform(new DeleteItemInputTransformInput
-        { SdkInput = deleteItemRequest });
+          { SdkInput = deleteItemRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -93,13 +94,13 @@ public class Client
       if (executionContext.ResponseContext.Response is ExecuteStatementResponse response)
       {
         var output = transform.ExecuteStatementOutputTransform(new ExecuteStatementOutputTransformInput
-        { OriginalInput = originalInput as ExecuteStatementRequest, SdkOutput = response });
+          { OriginalInput = originalInput as ExecuteStatementRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.ExecuteStatementInputTransform(new ExecuteStatementInputTransformInput
-        { SdkInput = executeStatementRequest });
+          { SdkInput = executeStatementRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -108,13 +109,13 @@ public class Client
       if (executionContext.ResponseContext.Response is ExecuteTransactionResponse response)
       {
         var output = transform.ExecuteTransactionOutputTransform(new ExecuteTransactionOutputTransformInput
-        { OriginalInput = originalInput as ExecuteTransactionRequest, SdkOutput = response });
+          { OriginalInput = originalInput as ExecuteTransactionRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.ExecuteTransactionInputTransform(new ExecuteTransactionInputTransformInput
-        { SdkInput = executeTransactionRequest });
+          { SdkInput = executeTransactionRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -123,7 +124,7 @@ public class Client
       if (executionContext.ResponseContext.Response is GetItemResponse response)
       {
         var output = transform.GetItemOutputTransform(new GetItemOutputTransformInput
-        { OriginalInput = originalInput as GetItemRequest, SdkOutput = response });
+          { OriginalInput = originalInput as GetItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
@@ -137,7 +138,7 @@ public class Client
       if (executionContext.ResponseContext.Response is PutItemResponse response)
       {
         var output = transform.PutItemOutputTransform(new PutItemOutputTransformInput
-        { OriginalInput = originalInput as PutItemRequest, SdkOutput = response });
+          { OriginalInput = originalInput as PutItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
@@ -151,7 +152,7 @@ public class Client
       if (executionContext.ResponseContext.Response is QueryResponse response)
       {
         var output = transform.QueryOutputTransform(new QueryOutputTransformInput
-        { OriginalInput = originalInput as QueryRequest, SdkOutput = response });
+          { OriginalInput = originalInput as QueryRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
@@ -165,7 +166,7 @@ public class Client
       if (executionContext.ResponseContext.Response is ScanResponse response)
       {
         var output = transform.ScanOutputTransform(new ScanOutputTransformInput
-        { OriginalInput = originalInput as ScanRequest, SdkOutput = response });
+          { OriginalInput = originalInput as ScanRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
@@ -179,13 +180,13 @@ public class Client
       if (executionContext.ResponseContext.Response is TransactGetItemsResponse response)
       {
         var output = transform.TransactGetItemsOutputTransform(new TransactGetItemsOutputTransformInput
-        { OriginalInput = originalInput as TransactGetItemsRequest, SdkOutput = response });
+          { OriginalInput = originalInput as TransactGetItemsRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.TransactGetItemsInputTransform(new TransactGetItemsInputTransformInput
-        { SdkInput = transactGetItemsRequest });
+          { SdkInput = transactGetItemsRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -194,13 +195,13 @@ public class Client
       if (executionContext.ResponseContext.Response is TransactWriteItemsResponse response)
       {
         var output = transform.TransactWriteItemsOutputTransform(new TransactWriteItemsOutputTransformInput
-        { OriginalInput = originalInput as TransactWriteItemsRequest, SdkOutput = response });
+          { OriginalInput = originalInput as TransactWriteItemsRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.TransactWriteItemsInputTransform(new TransactWriteItemsInputTransformInput
-        { SdkInput = transactWriteItemsRequest });
+          { SdkInput = transactWriteItemsRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -209,13 +210,13 @@ public class Client
       if (executionContext.ResponseContext.Response is UpdateItemResponse response)
       {
         var output = transform.UpdateItemOutputTransform(new UpdateItemOutputTransformInput
-        { OriginalInput = originalInput as UpdateItemRequest, SdkOutput = response });
+          { OriginalInput = originalInput as UpdateItemRequest, SdkOutput = response });
         AssignResponse(executionContext, output.TransformedOutput);
       }
       else
       {
         var output = transform.UpdateItemInputTransform(new UpdateItemInputTransformInput
-        { SdkInput = updateItemRequest });
+          { SdkInput = updateItemRequest });
         executionContext.RequestContext.OriginalRequest = output.TransformedInput;
       }
     }
@@ -270,10 +271,9 @@ public class Client
   {
     public DynamoDbEncryptionTransforms Transform { get; }
 
-    public DynamoDbClient(AmazonDynamoDBConfig clientConfig, DynamoDbTablesEncryptionConfig encryptionConfig)
-      : base(clientConfig)
+    public DynamoDbClient(DynamoDbEncryptionTransforms transform)
     {
-      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+      Transform = transform;
     }
 
     public DynamoDbClient(DynamoDbTablesEncryptionConfig encryptionConfig)
@@ -287,9 +287,144 @@ public class Client
       Transform = transform;
     }
 
-    public DynamoDbClient(DynamoDbEncryptionTransforms transform)
+    public DynamoDbClient(AmazonDynamoDBConfig clientConfig, DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(clientConfig)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(RegionEndpoint endPoint, DynamoDbEncryptionTransforms transform)
+      : base(endPoint)
     {
       Transform = transform;
+    }
+
+    public DynamoDbClient(RegionEndpoint endPoint, DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(endPoint)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(AWSCredentials credentials, DynamoDbEncryptionTransforms transform)
+      : base(credentials)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(AWSCredentials credentials, DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(credentials)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(AWSCredentials credentials, RegionEndpoint endPoint, DynamoDbEncryptionTransforms transform)
+      : base(credentials, endPoint)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(AWSCredentials credentials, RegionEndpoint endPoint,
+      DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(credentials, endPoint)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(AWSCredentials credentials, AmazonDynamoDBConfig clientConfig,
+      DynamoDbEncryptionTransforms transform)
+      : base(credentials, clientConfig)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(AWSCredentials credentials, AmazonDynamoDBConfig clientConfig,
+      DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(credentials, clientConfig)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, DynamoDbEncryptionTransforms transform)
+      : base(awsAccessKeyId, awsSecretAccessKey)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey,
+      DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(awsAccessKeyId, awsSecretAccessKey)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, RegionEndpoint endPoint,
+      DynamoDbEncryptionTransforms transform)
+      : base(awsAccessKeyId, awsSecretAccessKey, endPoint)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, RegionEndpoint endPoint,
+      DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(awsAccessKeyId, awsSecretAccessKey, endPoint)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, AmazonDynamoDBConfig clientConfig,
+      DynamoDbEncryptionTransforms transform)
+      : base(awsAccessKeyId, awsSecretAccessKey, clientConfig)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, AmazonDynamoDBConfig clientConfig,
+      DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(awsAccessKeyId, awsSecretAccessKey, clientConfig)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, string awsSessionToken,
+      DynamoDbEncryptionTransforms transform)
+      : base(awsAccessKeyId, awsSecretAccessKey, awsSessionToken)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, string awsSessionToken,
+      DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(awsAccessKeyId, awsSecretAccessKey, awsSessionToken)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, string awsSessionToken,
+      RegionEndpoint endPoint, DynamoDbEncryptionTransforms transform)
+      : base(awsAccessKeyId, awsSecretAccessKey, awsSessionToken, endPoint)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, string awsSessionToken,
+      RegionEndpoint endPoint, DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(awsAccessKeyId, awsSecretAccessKey, awsSessionToken, endPoint)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, string awsSessionToken,
+      AmazonDynamoDBConfig clientConfig, DynamoDbEncryptionTransforms transform)
+      : base(awsAccessKeyId, awsSecretAccessKey, awsSessionToken, clientConfig)
+    {
+      Transform = transform;
+    }
+
+    public DynamoDbClient(string awsAccessKeyId, string awsSecretAccessKey, string awsSessionToken,
+      AmazonDynamoDBConfig clientConfig, DynamoDbTablesEncryptionConfig encryptionConfig)
+      : base(awsAccessKeyId, awsSecretAccessKey, awsSessionToken, clientConfig)
+    {
+      Transform = new DynamoDbEncryptionTransforms(encryptionConfig);
     }
 
     protected override void CustomizeRuntimePipeline(RuntimePipeline pipeline)
