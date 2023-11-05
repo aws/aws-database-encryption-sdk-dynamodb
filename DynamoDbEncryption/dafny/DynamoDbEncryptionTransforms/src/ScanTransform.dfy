@@ -67,15 +67,15 @@ module ScanTransform {
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
 
-    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? ==>
+    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || NoList(input.sdkOutput.Items) ==>
               && output.Success?
               && output.value.transformedOutput == input.sdkOutput
 
-    ensures output.Success?  && input.sdkOutput.Items.None?  ==> output.value.transformedOutput.Items.None?
+    ensures output.Success?  && NoList(input.sdkOutput.Items)  ==> NoList(output.value.transformedOutput.Items)
     ensures output.Success?  && input.sdkOutput.Items.Some?  ==> output.value.transformedOutput.Items.Some?
   {
     var tableName := input.originalInput.TableName;
-    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
+    if tableName !in config.tableEncryptionConfigs || NoList(input.sdkOutput.Items) {
       return Success(ScanOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     var tableConfig := config.tableEncryptionConfigs[tableName];

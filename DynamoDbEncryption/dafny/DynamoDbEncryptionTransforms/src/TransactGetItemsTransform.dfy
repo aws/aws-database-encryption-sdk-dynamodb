@@ -25,7 +25,7 @@ module TransactGetItemsTransform {
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
 
-    ensures input.sdkOutput.Responses.None? ==>
+    ensures NoList(input.sdkOutput.Responses) ==>
       && output.Success?
       && output.value.transformedOutput == input.sdkOutput
 
@@ -33,7 +33,7 @@ module TransactGetItemsTransform {
       && output.value.transformedOutput.Responses.Some?
       && |output.value.transformedOutput.Responses.value| == |input.originalInput.TransactItems|
   {
-    if input.sdkOutput.Responses.None? {
+    if NoList(input.sdkOutput.Responses) {
       return Success(TransactGetItemsOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     if |input.sdkOutput.Responses.value| != |input.originalInput.TransactItems| {
