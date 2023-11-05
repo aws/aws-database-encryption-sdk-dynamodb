@@ -50,7 +50,7 @@ module TransactGetItemsTransform {
         decryptedItems := decryptedItems + [encryptedItems[x]];
       } else {
         var tableConfig := config.tableEncryptionConfigs[tableName];
-        if encryptedItems[x].Item.None? {
+        if NoMap(encryptedItems[x].Item) {
           decryptedItems := decryptedItems + [DDB.ItemResponse(Item := None)];
         } else {
           //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-transactgetitems

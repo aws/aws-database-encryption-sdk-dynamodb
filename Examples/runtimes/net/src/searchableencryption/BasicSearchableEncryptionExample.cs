@@ -327,20 +327,4 @@ public class BasicSearchableEncryptionExample
             break;
         }
     }
-/*
-    public static void main(final String[] args)
-    {
-        if (args.length <= 1)
-        {
-            throw new IllegalArgumentException("To run this example, include ddbTableName as args[0], "
-                                               + "branchKeyId as args[1], branchKeyWrappingKmsKeyId as args[2], and branchKeyDdbTableName as args[3]");
-        }
-
-        final String ddbTableName = args[0];
-        final String branchKeyId = args[1];
-        final String branchKeyWrappingKmsKeyArn = args[2];
-        final String branchKeyDdbTableName = args[3];
-        PutItemQueryItemWithBeacon(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName);
-    }
-    */
 }
