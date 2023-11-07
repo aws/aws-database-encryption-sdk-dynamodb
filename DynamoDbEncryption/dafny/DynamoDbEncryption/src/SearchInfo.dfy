@@ -30,7 +30,7 @@ module SearchableEncryptionInfo {
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
   //# A version number MUST be `1`.
-  newtype VersionNumber = x : uint64 | x == 1 witness 1
+  newtype VersionNumber = x : int | x == 1 witness 1
 
   type ValidSearchInfo = x : SearchInfo | x.ValidState() witness *
 
