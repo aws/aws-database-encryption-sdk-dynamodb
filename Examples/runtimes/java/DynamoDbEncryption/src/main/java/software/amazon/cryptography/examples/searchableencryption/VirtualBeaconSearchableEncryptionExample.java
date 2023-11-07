@@ -407,16 +407,29 @@ public class VirtualBeaconSearchableEncryptionExample {
         .expressionAttributeValues(expressionAttributeValues)
         .build();
 
-    final QueryResponse queryResponse = ddb.query(queryRequest);
-    List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
-    // Validate query was returned successfully
-    assert 200 == queryResponse.sdkHttpResponse().statusCode();
-    // Validate only 1 item was returned: the item with the expected attributes
-    assert attributeValues.size() == 1;
-    final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
-    // Validate the item has the expected attributes
-    assert returnedItem.get("state").s().equals("CA");
-    assert returnedItem.get("hasTestResult").bool().equals(true);
+    // GSIs do not update instantly
+    // so if the results come back empty
+    // we retry after a short sleep
+    for (int i=0; i<10; ++i) {
+	final QueryResponse queryResponse = ddb.query(queryRequest);
+	List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
+	// Validate query was returned successfully
+	assert 200 == queryResponse.sdkHttpResponse().statusCode();
+
+	// if no results, sleep and try again
+        if (attributeValues.size() == 0) {
+            try {Thread.sleep(20);} catch (Exception e) {}
+            continue;
+        }
+
+	// Validate only 1 item was returned: the item with the expected attributes
+	assert attributeValues.size() == 1;
+	final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
+	// Validate the item has the expected attributes
+	assert returnedItem.get("state").s().equals("CA");
+	assert returnedItem.get("hasTestResult").bool().equals(true);
+	break;
+    }
   }
 
   public static void main(final String[] args) {
