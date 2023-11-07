@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import java.net.URI
 import javax.annotation.Nullable
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -51,8 +54,8 @@ repositories {
         name = "DynamoDB Local Release Repository - US West (Oregon) Region"
         url  = URI.create("https://s3-us-west-2.amazonaws.com/dynamodb-local/release")
     }
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
     if (caUrl != null && caPassword != null) {
         maven {
             name = "CodeArtifact"
@@ -73,7 +76,7 @@ dependencies {
     implementation("org.dafny:DafnyRuntime:4.1.0")
     implementation("software.amazon.smithy.dafny:conversion:0.1")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
-    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.1.0")
+    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.1.1")
     implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:1.0-SNAPSHOT")
 
     implementation(platform("software.amazon.awssdk:bom:2.20.138"))

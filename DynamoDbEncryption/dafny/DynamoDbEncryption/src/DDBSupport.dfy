@@ -44,6 +44,7 @@ module DynamoDBSupport {
       Success(true)
     else
       var bad := set k <- item | ReservedPrefix <= k;
+      // We happen to order these values, but this ordering MUST NOT be relied upon.
       var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, CharLess);
       if |badSeq| == 0 then
         Failure("")
@@ -173,6 +174,7 @@ module DynamoDBSupport {
       var both := newAttrs.Keys * item.Keys;
       var bad := set k <- both | newAttrs[k] != item[k];
       if 0 < |bad| {
+        // We happen to order these values, but this ordering MUST NOT be relied upon.
         var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, CharLess);
         return Failure(E("Supplied Beacons do not match calculated beacons : " + Join(badSeq, ", ")));
       }
