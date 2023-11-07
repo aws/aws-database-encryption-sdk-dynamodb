@@ -8,7 +8,6 @@ using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
 using AWS.Cryptography.DbEncryptionSDK.StructuredEncryption;
 using AWS.Cryptography.MaterialProviders;
 using AttributeValue = Amazon.DynamoDBv2.Model.AttributeValue;
-using DeleteRequest = Amazon.DynamoDBv2.Model.DeleteRequest;
 using PutRequest = Amazon.DynamoDBv2.Model.PutRequest;
 using WriteRequest = Amazon.DynamoDBv2.Model.WriteRequest;
 
@@ -130,17 +129,7 @@ public class MultiPutGetExample
             ["attribute2"] = new AttributeValue("sign me!"),
             [":attribute3"] = new AttributeValue("ignore me!")
         };
-/*
-   - [Encrypt before TransactWriteItems](#encrypt-before-transactwriteitems)
-   - [Decrypt after TransactGetItem](#decrypt-after-transactgetitem)
 
-   - [Validate before UpdateItem](#validate-before-updateitem)
-   - [Validate before DeleteItem](#validate-before-deleteitem)
-   - [Validate before ExecuteStatement](#validate-before-executestatement)
-   - [Validate before BatchExecuteStatement](#validate-before-batchexecutestatement)
-   - [Validate before ExecuteTransaction](#validate-before-executetransaction)
-
- */
         var batchWriteRequest = new BatchWriteItemRequest
         {
             RequestItems = new Dictionary<string, List<WriteRequest>>
