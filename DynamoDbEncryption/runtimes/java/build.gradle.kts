@@ -92,7 +92,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     
     //    For the DDB-EC v1
-    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.531")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.584")
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
