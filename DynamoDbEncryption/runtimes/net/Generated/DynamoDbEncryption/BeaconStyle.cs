@@ -8,9 +8,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
   public class BeaconStyle
   {
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.PartOnly _partOnly;
-    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Twinned _twinned;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Shared _shared;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.AsSet _asSet;
-    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.TwinnedSet _twinnedSet;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.SharedSet _sharedSet;
     public AWS.Cryptography.DbEncryptionSDK.DynamoDb.PartOnly PartOnly
     {
       get { return this._partOnly; }
@@ -20,14 +20,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._partOnly != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Twinned Twinned
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Shared Shared
     {
-      get { return this._twinned; }
-      set { this._twinned = value; }
+      get { return this._shared; }
+      set { this._shared = value; }
     }
-    public bool IsSetTwinned()
+    public bool IsSetShared()
     {
-      return this._twinned != null;
+      return this._shared != null;
     }
     public AWS.Cryptography.DbEncryptionSDK.DynamoDb.AsSet AsSet
     {
@@ -38,21 +38,21 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._asSet != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.TwinnedSet TwinnedSet
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.SharedSet SharedSet
     {
-      get { return this._twinnedSet; }
-      set { this._twinnedSet = value; }
+      get { return this._sharedSet; }
+      set { this._sharedSet = value; }
     }
-    public bool IsSetTwinnedSet()
+    public bool IsSetSharedSet()
     {
-      return this._twinnedSet != null;
+      return this._sharedSet != null;
     }
     public void Validate()
     {
       var numberOfPropertiesSet = Convert.ToUInt16(IsSetPartOnly()) +
-      Convert.ToUInt16(IsSetTwinned()) +
+      Convert.ToUInt16(IsSetShared()) +
       Convert.ToUInt16(IsSetAsSet()) +
-      Convert.ToUInt16(IsSetTwinnedSet());
+      Convert.ToUInt16(IsSetSharedSet());
       if (numberOfPropertiesSet == 0) throw new System.ArgumentException("No union value set");
 
       if (numberOfPropertiesSet > 1) throw new System.ArgumentException("Multiple union values set");
