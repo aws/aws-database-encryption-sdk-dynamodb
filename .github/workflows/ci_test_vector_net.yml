@@ -59,4 +59,4 @@ jobs:
         working-directory: ./TestVectors/runtimes/net
         run: |
           cp ../java/*.json .
-          make test_java
+          dotnet run
