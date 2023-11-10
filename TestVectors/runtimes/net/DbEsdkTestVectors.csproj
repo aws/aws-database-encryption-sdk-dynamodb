@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AWS Cryptography DynamoDb Encryption TestVectors</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <LangVersion>10</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.203.1"/>
+    <PackageReference Include="AWSSDK.Core" Version="3.7.204"/>
+    <ProjectReference Include="../../../DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj" />
+    <ProjectReference Include="../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/net/TestVectors.csproj" />
+    <Compile Include="*.cs"/>
+    <Compile Include="Extern/**/*.cs"/>
+    <Compile Include="Generated/**/*.cs"/>
+    <Compile Include="src/**/*.cs"/>
+    <Compile Include="ImplementationFromDafny.cs"/>
+  </ItemGroup>
+
+</Project>

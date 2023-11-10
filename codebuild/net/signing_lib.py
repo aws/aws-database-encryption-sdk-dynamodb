@@ -13,8 +13,7 @@ REGION = "us-west-2"
 # Variables to make it easier to reference our S3 objects
 UNSIGNED_BUCKET = "dbesdk-367053968346-unsigned-bucket"
 SIGNED_BUCKET = "dbesdk-367053968346-signed-bucket"
-
-FIXME -- >> KEY_PREFIX = "aws_dynamodb_encryption_library_net/AuthenticodeSigner-SHA256-RSA"
+KEY_PREFIX = "aws_dynamodb_encryption_library_net/AuthenticodeSigner-SHA256-RSA"
 
 CONFIG = Config(region_name = REGION)
 

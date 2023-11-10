@@ -241,11 +241,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       for i := 0 to 100
       {
         var result :- expect client.Query(GetQueryInput(q, usedNames, usedValues, lastKey));
-        if result.Items.Some? {
+        if result.Items.Some? && |result.Items.value| != 0 {
           output := output + result.Items.value;
         }
-        if result.LastEvaluatedKey.Some? {
+        if result.LastEvaluatedKey.Some? && 0 < |result.LastEvaluatedKey.value| {
           lastKey := result.LastEvaluatedKey;
+          print "FullQuery had lastKey\n";
         } else {
           break;
         }
@@ -265,10 +266,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       for i := 0 to 100
       {
         var result :- expect client.Scan(GetScanInput(q, usedNames, usedValues, lastKey));
-        if result.Items.Some? {
+        if result.Items.Some? && |result.Items.value| != 0 {
           output := output + result.Items.value;
         }
-        if result.LastEvaluatedKey.Some? {
+        if result.LastEvaluatedKey.Some? && 0 < |result.LastEvaluatedKey.value| {
           lastKey := result.LastEvaluatedKey;
         } else {
           break;
@@ -841,7 +842,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
             ReturnConsumedCapacity := None
           )
         );
-        expect result.UnprocessedKeys.None?; // TODO - actually handle this
+        expect result.UnprocessedKeys.None? || |result.UnprocessedKeys.value| == 0; // TODO - actually handle this
         expect result.Responses.Some?;
         expect |result.Responses.value| == 1;
         expect TableName in result.Responses.value;
