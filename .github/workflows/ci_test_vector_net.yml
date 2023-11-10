@@ -58,5 +58,5 @@ jobs:
       - name: Test TestVectors
         working-directory: ./TestVectors/runtimes/net
         run: |
-	  cp ../java/*.json .
+          cp ../java/*.json .
           make test_java
