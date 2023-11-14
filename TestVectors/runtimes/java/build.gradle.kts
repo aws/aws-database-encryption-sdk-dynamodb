@@ -67,7 +67,6 @@ repositories {
         name = "DynamoDB Local Release Repository - US West (Oregon) Region"
         url  = URI.create("https://s3-us-west-2.amazonaws.com/dynamodb-local/release")
     }
-    mavenLocal()
     mavenCentral()
     if (caUrl != null && caPassword != null) {
         maven {
