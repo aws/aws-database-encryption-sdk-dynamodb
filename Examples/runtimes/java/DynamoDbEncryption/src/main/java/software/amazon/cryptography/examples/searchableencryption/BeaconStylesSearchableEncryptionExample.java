@@ -195,8 +195,8 @@ public class BeaconStylesSearchableEncryptionExample {
     item1.put("dessert", AttributeValue.builder().s("cake").build());
     item1.put("fruit", AttributeValue.builder().s("banana").build());
     ArrayList<String> basket = new ArrayList<String>();
-    basket.add("banana");
     basket.add("apple");
+    basket.add("banana");
     basket.add("pear");
     item1.put("basket", AttributeValue.builder().ss(basket).build());
 
@@ -207,9 +207,9 @@ public class BeaconStylesSearchableEncryptionExample {
     item2.put("fruit", AttributeValue.builder().s("orange").build());
     item2.put("dessert", AttributeValue.builder().s("orange").build());
     basket = new ArrayList<String>();
-    basket.add("strawberry");
-    basket.add("blueberry");
     basket.add("blackberry");
+    basket.add("blueberry");
+    basket.add("strawberry");
     item2.put("basket", AttributeValue.builder().ss(basket).build());
 
     // 10. Create the DynamoDb Encryption Interceptor
@@ -283,8 +283,8 @@ public class BeaconStylesSearchableEncryptionExample {
     // Select records where the fruit attribute exists in a particular set
     ArrayList<String> basket3 = new ArrayList<String>();
     basket3.add("boysenberry");
-    basket3.add("orange");
     basket3.add("grape");
+    basket3.add("orange");
     expressionAttributeValues.put(":value", AttributeValue.builder().ss(basket3).build());
 
     scanRequest = ScanRequest.builder()
