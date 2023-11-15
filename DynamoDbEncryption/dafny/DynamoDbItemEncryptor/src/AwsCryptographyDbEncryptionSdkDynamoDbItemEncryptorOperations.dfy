@@ -525,6 +525,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
   function method GetItemNames(item : ComAmazonawsDynamodbTypes.AttributeMap) : string
   {
+    // We happen to order these values, but this ordering MUST NOT be relied upon.
     var keys := SortedSets.ComputeSetToOrderedSequence2(item.Keys, CharLess);
     if |keys| == 0 then
       "item is empty"

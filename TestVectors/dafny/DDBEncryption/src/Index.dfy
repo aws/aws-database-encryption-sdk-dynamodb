@@ -3,11 +3,13 @@
 
 include "LibraryIndex.dfy"
 include "TestVectors.dfy"
+include "WriteSetPermutations.dfy"
 
 module WrappedDDBEncryptionMain {
   import opened Wrappers
   import opened DdbEncryptionTestVectors
 
+  import WriteSetPermutations
   import CreateInterceptedDDBClient
   import FileIO
   import JSON.API
@@ -25,11 +27,13 @@ module WrappedDDBEncryptionMain {
   }
 
   method ASDF() {
+    WriteSetPermutations.WriteSetPermutations();
     var config := MakeEmptyTestVector();
     config :- expect AddJson(config, "records.json");
     config :- expect AddJson(config, "configs.json");
     config :- expect AddJson(config, "data.json");
     config :- expect AddJson(config, "iotest.json");
+    config :- expect AddJson(config, "PermTest.json");
     config.RunAllTests();
   }
 }

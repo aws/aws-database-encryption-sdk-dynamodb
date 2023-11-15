@@ -26,10 +26,12 @@ This document describes how a DynamoDB Item is converted
 to the Structured Encryption Library's [Structured Data](../structured-encryption/structures.md#structured-data),
 and vice versa.
 
-The conversion from DDB Item to Structured Data must be lossless,
-meaning that converting a DDB Item to
-a Structured Data and back to a DDB Item again
-MUST result in the exact same DDB Item.
+Round Trip conversion between DDB Item and Structured Data is technically lossless, but it is not identity.
+The conversion normalizes some values, the same way that
+DynamoDB PuItem followed by GetItem normalizes some values.
+The sets still have the same members, and the numbers still have the same values,
+but the members of the set might appear in a different order,
+and the numeric value might be formatted differently.
 
 ## Convert DDB Item to Structured Data
 

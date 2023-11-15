@@ -328,6 +328,7 @@ module SearchConfigToInfo {
     if |badNames| == 0 then
       None
     else
+      // We happen to order these values, but this ordering MUST NOT be relied upon.
       var badSeq := SortedSets.ComputeSetToOrderedSequence2(badNames, CharLess);
       Some(badSeq[0])
   }
@@ -399,6 +400,7 @@ module SearchConfigToInfo {
     if |badNames| == 0 then
       None
     else
+      // We happen to order these values, but this ordering MUST NOT be relied upon.
       var badSeq := SortedSets.ComputeSetToOrderedSequence2(badNames, CharLess);
       Some(badSeq[0])
   }

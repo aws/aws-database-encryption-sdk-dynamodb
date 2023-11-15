@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.1.1 2023-11-07
+
+### Fix
+
+Issue when a DynamoDB Set attribute is marked as SIGN_ONLY in the AWS Database Encryption SDK (DB-ESDK) for DynamoDB.
+
+DB-ESDK for DynamoDB supports SIGN_ONLY and ENCRYPT_AND_SIGN attribute actions. In version 3.1.0 and below, when a Set type is assigned a SIGN_ONLY attribute action, there is a chance that signature validation of the record containing a Set will fail on read, even if the Set attributes contain the same values. The probability of a failure depends on the order of the elements in the Set combined with how DynamoDB returns this data, which is undefined.
+
+This update addresses the issue by ensuring that any Set values are canonicalized in the same order while written to DynamoDB as when read back from DynamoDB.
+
+See: https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/tree/v3.1.1/DecryptWithPermute for additional details for additional details
+
+
 ## 3.1.0 2023-09-07
 
 ### Features
