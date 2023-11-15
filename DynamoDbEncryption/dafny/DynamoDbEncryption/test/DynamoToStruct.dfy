@@ -282,14 +282,264 @@ module DynamoToStructTest {
     expect newMapValue.value == mapValue;
   }
 
-  //= specification/dynamodb-encryption-client/ddb-item-conversion.md#overview
-  //= type=test
-  //# The conversion from DDB Item to Structured Data must be lossless,
-  //# meaning that converting a DDB Item to
-  //# a Structured Data and back to a DDB Item again
-  //# MUST result in the exact same DDB Item.
-  method {:test} TestRoundTrip() {
+  method {:test} TestNormalizeNAttr() {
+    var numberValue := AttributeValue.N("000123.000");
+    var encodedNumberData := StructuredDataTerminal(value := [49,50,51], typeId := [0,2]);
+    var encodedNumberValue := StructuredData(content := Terminal(encodedNumberData), attributes := None);
+    var numberStruct := AttrToStructured(numberValue);
+    expect numberStruct.Success?;
+    expect numberStruct.value == encodedNumberValue;
 
+    var newNumberValue := StructuredToAttr(encodedNumberValue);
+    expect newNumberValue.Success?;
+    expect newNumberValue.value == AttributeValue.N("123");
+  }
+
+  method {:test} TestNormalizeNInSet() {
+    var numberSetValue := AttributeValue.NS(["001.00"]);
+    var encodedNumberSetData := StructuredDataTerminal(value := [0,0,0,1, 0,0,0,1, 49], typeId := [1,2]);
+    var encodedNumberSetValue := StructuredData(content := Terminal(encodedNumberSetData), attributes := None);
+    var numberSetStruct := AttrToStructured(numberSetValue);
+    expect numberSetStruct.Success?;
+    expect numberSetStruct.value == encodedNumberSetValue;
+
+    var newNumberSetValue := StructuredToAttr(encodedNumberSetValue);
+    expect newNumberSetValue.Success?;
+    expect newNumberSetValue.value == AttributeValue.NS(["1"]);
+  }
+
+  method {:test} TestNormalizeNInList() {
+    var nValue := AttributeValue.N("001.00");
+    var normalizedNValue := AttributeValue.N("1");
+
+    var listValue := AttributeValue.L([nValue]);
+    var encodedListData := StructuredDataTerminal(value := [
+        0,0,0,1, // 1 member in list
+        0,2, 0,0,0,1, 49 // 1st member is N("1")
+      ],
+      typeId := [3,0]);
+    var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
+    var listStruct := AttrToStructured(listValue);
+    expect listStruct.Success?;
+    expect listStruct.value == encodedListValue;
+
+    var newListValue := StructuredToAttr(listStruct.value);
+    expect newListValue.Success?;
+    expect newListValue.value == AttributeValue.L([normalizedNValue]);
+  }
+
+  method {:test} TestNormalizeNInMap() {
+    var nValue := AttributeValue.N("001.00");
+    var normalizedNValue := AttributeValue.N("1");
+
+    var mapValue := AttributeValue.M(map["keyA" := nValue]);
+    var k := 'k' as uint8;
+    var e := 'e' as uint8;
+    var y := 'y' as uint8;
+    var A := 'A' as uint8;
+
+    var encodedMapData := StructuredDataTerminal(
+      value := [
+        0,0,0,1, // there is 1 entry in the map
+        0,1, 0,0,0,4, k,e,y,A, // 1st entry's key
+        0,2, 0,0,0,1, // 1st entry's value is a N and is 1 byte long
+        49 // "1"
+      ],
+      typeId := [2,0]);
+
+    var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
+    var mapStruct := AttrToStructured(mapValue);
+    expect mapStruct.Success?;
+    expect mapStruct.value == encodedMapValue;
+
+    var newMapValue := StructuredToAttr(mapStruct.value);
+    expect newMapValue.Success?;
+    expect newMapValue.value == AttributeValue.M(map["keyA" := normalizedNValue]);
+  }
+
+  //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+  //= type=test
+  //# Entries in a Number Set MUST be ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+  method {:test} TestSortNSAttr() {
+    var numberSetValue := AttributeValue.NS(["1","2","10"]);
+    var encodedNumberSetData := StructuredDataTerminal(value := [0,0,0,3, 0,0,0,1, 49, 0,0,0,2, 49,48, 0,0,0,1, 50], typeId := [1,2]);
+    var encodedNumberSetValue := StructuredData(content := Terminal(encodedNumberSetData), attributes := None);
+    var numberSetStruct := AttrToStructured(numberSetValue);
+    expect numberSetStruct.Success?;
+    expect numberSetStruct.value == encodedNumberSetValue;
+
+    var newNumberSetValue := StructuredToAttr(encodedNumberSetValue);
+    expect newNumberSetValue.Success?;
+    expect newNumberSetValue.value == AttributeValue.NS(["1","10","2"]);
+  }
+
+  //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+  //= type=test
+  //# This ordering MUST be applied after normalization of the number value.
+  method {:test} TestSortNSAfterNormalize() {
+    var numberSetValue := AttributeValue.NS(["1","02","10"]);
+    var encodedNumberSetData := StructuredDataTerminal(value := [0,0,0,3, 0,0,0,1, 49, 0,0,0,2, 49,48, 0,0,0,1, 50], typeId := [1,2]);
+    var encodedNumberSetValue := StructuredData(content := Terminal(encodedNumberSetData), attributes := None);
+    var numberSetStruct := AttrToStructured(numberSetValue);
+    expect numberSetStruct.Success?;
+    expect numberSetStruct.value == encodedNumberSetValue;
+
+    var newNumberSetValue := StructuredToAttr(encodedNumberSetValue);
+    expect newNumberSetValue.Success?;
+    expect newNumberSetValue.value == AttributeValue.NS(["1","10","2"]);
+  }
+
+  //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+  //= type=test
+  //# Entries in a String Set MUST be ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+  method {:test} TestSortSSAttr() {
+    var stringSetValue := AttributeValue.SS(["&","｡","𐀂"]);
+    // Note that string values are UTF-8 encoded, but sorted by UTF-16 encoding.
+    var encodedStringSetData := StructuredDataTerminal(value := [
+        0,0,0,3, // 3 entries in set
+        0,0,0,1, // 1st entry is 1 byte
+        0x26, // "&" in UTF-8 encoding
+        0,0,0,4, // 2nd entry is 4 bytes
+        0xF0,0x90,0x80,0x82, // "𐀂" in UTF-8 encoding
+        0,0,0,3, // 3rd entry is 3 bytes
+        0xEF,0xBD,0xA1 // "｡" in UTF-8 encoding
+      ],
+      typeId := [1,1]
+    );
+    var encodedStringSetValue := StructuredData(content := Terminal(encodedStringSetData), attributes := None);
+    var stringSetStruct := AttrToStructured(stringSetValue);
+    expect stringSetStruct.Success?;
+    expect stringSetStruct.value == encodedStringSetValue;
+
+    var newStringSetValue := StructuredToAttr(encodedStringSetValue);
+    expect newStringSetValue.Success?;
+    expect newStringSetValue.value == AttributeValue.SS(["&","𐀂","｡"]);
+  }
+
+  //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+  //= type=test
+  //# Entries in a Binary Set MUST be ordered lexicographically by their underlying bytes in ascending order.
+  method {:test} TestSortBSAttr() {
+    var binarySetValue := AttributeValue.BS([[1],[2],[1,0]]);
+    var encodedBinarySetData := StructuredDataTerminal(value := [0,0,0,3, 0,0,0,1, 1, 0,0,0,2, 1,0, 0,0,0,1, 2], typeId := [1,0xff]);
+    var encodedBinarySetValue := StructuredData(content := Terminal(encodedBinarySetData), attributes := None);
+    var binarySetStruct := AttrToStructured(binarySetValue);
+    expect binarySetStruct.Success?;
+    expect binarySetStruct.value == encodedBinarySetValue;
+
+    var newBinarySetValue := StructuredToAttr(encodedBinarySetValue);
+    expect newBinarySetValue.Success?;
+    expect newBinarySetValue.value == AttributeValue.BS([[1],[1,0],[2]]);
+  }
+
+  method {:test} TestSetsInListAreSorted() {
+    var nSetValue := AttributeValue.NS(["2","1","10"]);
+    var sSetValue := AttributeValue.SS(["&","｡","𐀂"]);
+    var bSetValue := AttributeValue.BS([[1,0],[1],[2]]);
+
+    var sortedNSetValue := AttributeValue.NS(["1","10","2"]);
+    var sortedSSetValue := AttributeValue.SS(["&","𐀂","｡"]);
+    var sortedBSetValue := AttributeValue.BS([[1],[1,0],[2]]);
+
+    var listValue := AttributeValue.L([nSetValue, sSetValue, bSetValue]);
+    var encodedListData := StructuredDataTerminal(value := [
+        0,0,0,3, // 3 members in list
+        1,2, 0,0,0,20, // 1st member is a NS and is 20 bytes long
+        0,0,0,3, 0,0,0,1, 49, 0,0,0,2, 49,48, 0,0,0,1, 50, // NS
+        1,1, 0,0,0,24, // 2nd member is a SS and is 24 bytes long
+        0,0,0,3, 0,0,0,1, 0x26, 0,0,0,4, 0xF0,0x90,0x80,0x82, 0,0,0,3, 0xEF,0xBD,0xA1, // SS
+        1,0xFF, 0,0,0,20, // 3rd member is a BS and is 20 bytes long
+        0,0,0,3, 0,0,0,1, 1, 0,0,0,2, 1,0, 0,0,0,1, 2 // BS
+      ],
+      typeId := [3,0]);
+    var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
+    var listStruct := AttrToStructured(listValue);
+    expect listStruct.Success?;
+    expect listStruct.value == encodedListValue;
+
+    var newListValue := StructuredToAttr(listStruct.value);
+    expect newListValue.Success?;
+    expect newListValue.value == AttributeValue.L([sortedNSetValue, sortedSSetValue, sortedBSetValue]);
+  }
+
+  method {:test} TestSetsInMapAreSorted() {
+    var nSetValue := AttributeValue.NS(["2","1","10"]);
+    var sSetValue := AttributeValue.SS(["&","｡","𐀂"]);
+    var bSetValue := AttributeValue.BS([[1,0],[1],[2]]);
+
+    var sortedNSetValue := AttributeValue.NS(["1","10","2"]);
+    var sortedSSetValue := AttributeValue.SS(["&","𐀂","｡"]);
+    var sortedBSetValue := AttributeValue.BS([[1],[1,0],[2]]);
+
+    var mapValue := AttributeValue.M(map["keyA" := sSetValue, "keyB" := nSetValue, "keyC" := bSetValue]);
+    var k := 'k' as uint8;
+    var e := 'e' as uint8;
+    var y := 'y' as uint8;
+    var A := 'A' as uint8;
+    var B := 'B' as uint8;
+    var C := 'C' as uint8;
+
+    var encodedMapData := StructuredDataTerminal(
+      value := [
+        0,0,0,3, // there are 3 entries in the map
+        0,1, 0,0,0,4, k,e,y,A, // 1st entry's key
+        1,1, 0,0,0,24, // 1st entry's value is a SS and is 24 bytes long
+        0,0,0,3, 0,0,0,1, 0x26, 0,0,0,4, 0xF0,0x90,0x80,0x82, 0,0,0,3, 0xEF,0xBD,0xA1, // SS
+        0,1, 0,0,0,4, k,e,y,B, // 2nd entry's key
+        1,2, 0,0,0,20, // 2nd entry's value is a NS and is 20 bytes long
+        0,0,0,3, 0,0,0,1, 49, 0,0,0,2, 49,48, 0,0,0,1, 50, // NS
+        0,1, 0,0,0,4, k,e,y,C, // 3rd entry's key
+        1,0xFF, 0,0,0,20, // 3rd entry's value is a BS and is 20 bytes long
+        0,0,0,3, 0,0,0,1, 1, 0,0,0,2, 1,0, 0,0,0,1, 2 // BS
+      ],
+      typeId := [2,0]);
+
+    var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
+    var mapStruct := AttrToStructured(mapValue);
+    expect mapStruct.Success?;
+    expect mapStruct.value == encodedMapValue;
+
+    var newMapValue := StructuredToAttr(mapStruct.value);
+    expect newMapValue.Success?;
+    expect newMapValue.value == AttributeValue.M(map["keyA" := sortedSSetValue, "keyB" := sortedNSetValue, "keyC" := sortedBSetValue]);
+  }
+
+  //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
+  //= type=test
+  //# Entries in a serialized Map MUST be ordered by key value,
+  //# ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+  method {:test} TestSortMapKeys() {
+    var nullValue := AttributeValue.NULL(true);
+
+    var mapValue := AttributeValue.M(map["&" := nullValue, "｡" := nullValue, "𐀂" := nullValue]);
+
+    // Note that the string values are encoded as UTF-8, but are sorted according to UTF-16 encoding.
+    var encodedMapData := StructuredDataTerminal(
+      value := [
+        0,0,0,3, // 3 entries
+        0,1, 0,0,0,1, // 1st key is a string 1 byte long
+        0x26, // "&" UTF-8 encoded
+        0,0, 0,0,0,0, // null value
+        0,1, 0,0,0,4, // 2nd key is a string 4 bytes long
+        0xF0, 0x90, 0x80, 0x82, // "𐀂" UTF-8 encoded
+        0,0, 0,0,0,0, // null value
+        0,1, 0,0,0,3, // 3rd key is a string 3 bytes long
+        0xEF, 0xBD, 0xA1, // "｡"
+        0,0, 0,0,0,0 // null value
+      ],
+      typeId := [2,0]);
+    var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
+    var mapStruct := AttrToStructured(mapValue);
+    expect mapStruct.Success?;
+    expect mapStruct.value == encodedMapValue;
+
+    var newMapValue := StructuredToAttr(mapStruct.value);
+    expect newMapValue.Success?;
+    expect newMapValue.value == mapValue;
+  }
+
+  method {:test} TestRoundTrip() {
+    // Note - set and number values are carefully pre-normalized.
     var val1 := AttributeValue.S("astring");
     var val2 := AttributeValue.N("12345");
     var val3 := AttributeValue.B([1,2,3,4,5]);
@@ -297,7 +547,7 @@ module DynamoToStructTest {
     var val5 := AttributeValue.NULL(true);
     var val6 := AttributeValue.BS([[1,2,3,4,5],[2,3,4,5,6],[3,4,5,6,7]]);
     var val7 := AttributeValue.SS(["ab","cdef","ghijk"]);
-    var val8 := AttributeValue.NS(["1","234.567","0"]);
+    var val8 := AttributeValue.NS(["0", "1","234.567"]);
 
     var val9a := AttributeValue.L([val8, val7, val6]);
     var val9b := AttributeValue.L([val5, val4, val3]);
