@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.2 2023-11-13
+
+### Fix
+
+Fixed an issue where, when using the DynamoDbEncryptionInterceptor,
+an encrypted item in the Attributes field of a DeleteItem, PutItem, or UpdateItem
+response was passed through unmodified instead of being decrypted.
+
 ## 3.1.1 2023-11-07
 
 ### Fix
