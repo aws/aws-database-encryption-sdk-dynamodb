@@ -43,14 +43,7 @@ module ScanTransform {
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
 
-      // Sometimes dotnet turns an optional int from None to Zero. We need to change it back.
-      var hackedInput := input.sdkInput.(
-      Limit := RepairIntForDotNet(input.sdkInput.Limit),
-      TotalSegments := RepairIntForDotNet(input.sdkInput.TotalSegments),
-      Segment := RepairIntForDotNetIfZero(input.sdkInput.TotalSegments, input.sdkInput.Segment)
-      );
-
-      var finalResult :- ScanInputForBeacons(tableConfig, hackedInput);
+      var finalResult :- ScanInputForBeacons(tableConfig, input.sdkInput);
       return Success(ScanInputTransformOutput(transformedInput := finalResult));
     }
   }

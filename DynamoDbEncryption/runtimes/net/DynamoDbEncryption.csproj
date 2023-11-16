@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.203.1"/>
-    <PackageReference Include="AWSSDK.Core" Version="3.7.204"/>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.300.2"/>
+    <PackageReference Include="AWSSDK.Core" Version="3.7.300.2"/>
     <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj" />
     <!--
     <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.0.0"/>

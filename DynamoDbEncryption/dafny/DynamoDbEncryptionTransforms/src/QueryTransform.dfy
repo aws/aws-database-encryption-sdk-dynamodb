@@ -45,10 +45,7 @@ module QueryTransform {
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in Query with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
 
-      // Sometimes dotnet turns an optional int from None to Zero. We need to change it back.
-      var hackedInput := input.sdkInput.(Limit := RepairIntForDotNet(input.sdkInput.Limit));
-
-      var finalResult :- QueryInputForBeacons(tableConfig, hackedInput);
+      var finalResult :- QueryInputForBeacons(tableConfig, input.sdkInput);
       return Success(QueryInputTransformOutput(transformedInput := finalResult));
     }
   }

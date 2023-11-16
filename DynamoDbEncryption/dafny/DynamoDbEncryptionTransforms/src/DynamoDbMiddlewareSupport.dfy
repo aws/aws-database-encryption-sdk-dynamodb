@@ -34,27 +34,6 @@ module DynamoDbMiddlewareSupport {
     m.None? || |m.value| == 0
   }
 
-  predicate method IsZero(x : Option<int32>)
-  {
-    x.Some? && x.value == 0
-  }
-
-  function method RepairIntForDotNet(x : Option<int32>) : Option<int32>
-  {
-    if IsZero(x) then
-      None
-    else
-      x
-  }
-
-  function method RepairIntForDotNetIfZero(flag : Option<int32>, x : Option<int32>) : Option<int32>
-  {
-    if IsZero(flag) then
-      RepairIntForDotNet(x)
-    else
-      x
-  }
-
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // Generally this means that no attribute names starts with "aws_dbe_"
   function method {:opaque} IsWriteable(config : ValidTableConfig, item : DDB.AttributeMap)
