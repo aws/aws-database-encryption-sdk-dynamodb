@@ -83,7 +83,7 @@ module UpdateItemTransform {
     ensures (
       && output.Success?
       && input.originalInput.TableName in config.tableEncryptionConfigs
-      && input.sdkOutput.Attributes.Some?
+      && !NoMap(input.sdkOutput.Attributes)
       && input.originalInput.ReturnValues.Some?
       && (
         || input.originalInput.ReturnValues.value.ALL_OLD?
@@ -173,7 +173,7 @@ module UpdateItemTransform {
 
     if
       || tableName !in config.tableEncryptionConfigs
-      || input.sdkOutput.Attributes.None?
+      || NoMap(input.sdkOutput.Attributes)
     {
       return Success(UpdateItemOutputTransformOutput(transformedOutput := input.sdkOutput));
     }

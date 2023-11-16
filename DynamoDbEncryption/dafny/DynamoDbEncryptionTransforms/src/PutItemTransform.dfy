@@ -98,7 +98,7 @@ module PutItemTransform {
     ensures (
       && output.Success?
       && input.originalInput.TableName in config.tableEncryptionConfigs
-      && input.sdkOutput.Attributes.Some?
+      && !NoMap(input.sdkOutput.Attributes)
     ) ==>
       && var tableConfig := config.tableEncryptionConfigs[input.originalInput.TableName];
       && var oldHistory := old(tableConfig.itemEncryptor.History.DecryptItem);
@@ -143,7 +143,7 @@ module PutItemTransform {
     modifies ModifiesConfig(config)
   {
     var tableName := input.originalInput.TableName;
-    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Attributes.None?
+    if tableName !in config.tableEncryptionConfigs || NoMap(input.sdkOutput.Attributes)
       {
       return Success(PutItemOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
