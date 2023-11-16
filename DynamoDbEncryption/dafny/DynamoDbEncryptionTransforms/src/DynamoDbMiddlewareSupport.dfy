@@ -43,6 +43,15 @@ module DynamoDbMiddlewareSupport {
     .MapFailure(e => E(e))
   }
 
+  // IsSigned returned whether this attribute is signed according to this config
+  predicate method {:opaque} IsSigned(
+    config : ValidTableConfig,
+    attr : string
+  )
+  {
+    BS.IsSigned(config.itemEncryptor.config.attributeActionsOnEncrypt, attr)
+  }
+
   // TestConditionExpression fails if a condition expression is not suitable for the
   // given encryption schema.
   // Generally this means no encrypted attribute is referenced.

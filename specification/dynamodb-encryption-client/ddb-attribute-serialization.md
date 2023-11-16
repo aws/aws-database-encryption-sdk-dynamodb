@@ -60,8 +60,10 @@ String MUST be serialized as UTF-8 encoded bytes.
 
 #### Number
 
-Number MUST be serialized as UTF-8 encoded bytes.
 Note that DynamoDB Number Attribute Values are strings.
+
+This value MUST be normalized in the same way as DynamoDB normalizes numbers.
+This normalized value MUST then be serialized as UTF-8 encoded bytes.
 
 #### Binary
 
@@ -107,8 +109,18 @@ Each of these entries MUST be serialized as:
 All [Set Entry Values](#set-entry-value) are the same type.
 
 Binary Sets MUST NOT contain duplicate entries.
+Entries in a Binary Set MUST be ordered lexicographically by their underlying bytes in ascending order.
+
 Number Sets MUST NOT contain duplicate entries.
+Entries in a Number Set MUST be ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+This ordering MUST be applied after normalization of the number value.
+Note that because normalized number characters are all in the ASCII range (U+0000 to U+007F),
+this ordering is equivalent to the [code point ordering](./string-ordering.md#code-point-order).
+
 String Sets MUST NOT contain duplicate entries.
+Entries in a String Set MUST be ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+Note that though the entries are sorted by UTF016 binary order,
+the values are serialized in the set with UTF-8 encoding.
 
 ###### Set Entry Length
 
@@ -156,6 +168,11 @@ Each key-value pair MUST be serialized as:
 | Map Value    | Variable |
 
 This sequence MUST NOT contain duplicate [Map Keys](#map-key).
+
+Entries in a serialized Map MUST be ordered by key value,
+ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+Note that even though the values are sorted according to UTF-16 binary order,
+string values are actually encoded within the map as UTF-8.
 
 ###### Key Type
 

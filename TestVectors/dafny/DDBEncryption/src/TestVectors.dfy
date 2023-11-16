@@ -39,6 +39,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
   import KeyVectors
   import CreateInterceptedDDBClient
+  import SortedSets
+  import Seq
 
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
   type ConfigName = string
@@ -71,6 +73,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     config : ConfigName,
     queries : seq<ComplexQuery>,
     failures : seq<SimpleQuery>
+  )
+
+  datatype RoundTripTest = RoundTripTest (
+    configs : map<string, TableConfig>,
+    records : seq<Record>
   )
 
   datatype WriteTest = WriteTest (
@@ -113,6 +120,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     configsForIoTest : PairList,
     configsForModTest : PairList,
     writeTests : seq<WriteTest>,
+    roundTripTests : seq<RoundTripTest>,
     decryptTests : seq<DecryptTest>
   ) {
 
@@ -129,6 +137,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       print |ioTests|, " ioTests.\n";
       print |configsForIoTest|, " configsForIoTest.\n";
       print |configsForModTest|, " configsForModTest.\n";
+      if |roundTripTests| != 0 {
+        print |roundTripTests[0].configs|, " configs and ", |roundTripTests[0].records|, " records for round trip.\n";
+      }
+      if |roundTripTests| > 1 {
+        print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
+      }
       Validate();
       BasicIoTest();
       RunIoTests();
@@ -136,10 +150,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       ConfigModTest();
       ComplexTests();
       WriteTests();
+      RoundTripTests();
       DecryptTests();
       var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
       DeleteTable(client);
     }
+
 
     method Validate() {
       var bad := false;
@@ -497,6 +513,57 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
+    method RoundTripTests()
+    {
+      print "RoundTripTests\n";
+      for i := 0 to |roundTripTests| {
+
+        var configs := roundTripTests[i].configs;
+        var records := roundTripTests[i].records;
+        var keys := SortedSets.ComputeSetToOrderedSequence2(configs.Keys, CharLess);
+
+        for j := 0 to |keys| {
+          var client :- expect newGazelle(configs[keys[j]]);
+          for k := 0 to |records| {
+            OneRoundTripTest(client, records[k]);
+          }
+        }
+      }
+    }
+
+    method OneRoundTripTest(client : DDB.IDynamoDBClient, record : Record) {
+      var putInput := DDB.PutItemInput(
+        TableName := TableName,
+        Item := record.item,
+        Expected := None,
+        ReturnValues := None,
+        ReturnConsumedCapacity := None,
+        ReturnItemCollectionMetrics := None,
+        ConditionalOperator := None,
+        ConditionExpression := None,
+        ExpressionAttributeNames := None,
+        ExpressionAttributeValues := None
+      );
+      var _ :-  expect client.PutItem(putInput);
+
+      var getInput := DDB.GetItemInput(
+        TableName := TableName,
+        Key := map[HashName := record.item[HashName]],
+        AttributesToGet := None,
+        ConsistentRead := None,
+        ReturnConsumedCapacity := None,
+        ProjectionExpression := None,
+        ExpressionAttributeNames := None
+      );
+      var out :- expect client.GetItem(getInput);
+      expect out.Item.Some?;
+      if NormalizeItem(out.Item.value) != NormalizeItem(record.item) {
+        print "\n", NormalizeItem(out.Item.value), "\n", NormalizeItem(record.item), "\n";
+      }
+      expect NormalizeItem(out.Item.value) == NormalizeItem(record.item);
+    }
+
+
     method DecryptTests()
     {
       print "DecryptTests\n";
@@ -686,7 +753,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       var exp := NormalizeItem(expected);
       for i := 0 to |actual| {
-        if actual[i] == exp {
+        if NormalizeItem(actual[i]) == exp {
           return true;
         }
       }
@@ -782,6 +849,23 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
             DDB.AttributeValue.N(nn.value)
           else
             value
+        case SS(s) =>
+          var asSet := Seq.ToSet(s);
+          DDB.AttributeValue.SS(SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess))
+        case NS(s) =>
+          var normList := Seq.MapWithResult(n => Norm.NormalizeNumber(n), s);
+          if normList.Success? then
+            var asSet := Seq.ToSet(normList.value);
+            DDB.AttributeValue.NS(SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess))
+          else
+            value
+        case BS(s) =>
+          var asSet := Seq.ToSet(s);
+          DDB.AttributeValue.BS(SortedSets.ComputeSetToOrderedSequence2(asSet, ByteLess))
+        case L(list) =>
+            DDB.AttributeValue.L(Seq.Map(n => Normalize(n), list))
+        case M(m) =>
+            DDB.AttributeValue.M(map k <- m :: k := Normalize(m[k]))
         case _ => value
       }
     }
@@ -963,7 +1047,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   function MakeEmptyTestVector() : TestVectorConfig
   {
-    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [], [], [])
+    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [], [], [], [])
   }
 
   method ParseTestVector(data : JSON, prev : TestVectorConfig) returns (output : Result<TestVectorConfig, string>)
@@ -981,6 +1065,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     var gsi : seq<DDB.GlobalSecondaryIndex> := [];
     var tableEncryptionConfigs : map<string, TableConfig> := map[];
     var writeTests : seq<WriteTest> := [];
+    var roundTripTests : seq<RoundTripTest> := [];
     var decryptTests : seq<DecryptTest> := [];
 
     for i := 0 to |data.obj| {
@@ -997,6 +1082,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         case "GSI" => gsi :- GetGSIs(data.obj[i].1);
         case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1);
         case "WriteTests" => writeTests :- GetWriteTests(data.obj[i].1);
+        case "RoundTripTest" => roundTripTests :- GetRoundTripTests(data.obj[i].1);
         case "DecryptTests" => decryptTests :- GetDecryptTests(data.obj[i].1);
         case _ => return Failure("Unexpected top level tag " + data.obj[i].0);
       }
@@ -1017,9 +1103,27 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         configsForIoTest := prev.configsForIoTest + ioPairs,
         configsForModTest := prev.configsForModTest + queryPairs,
         writeTests := prev.writeTests + writeTests,
+        roundTripTests := prev.roundTripTests + roundTripTests,
         decryptTests := prev.decryptTests + decryptTests
       )
     );
+  }
+
+  method GetRoundTripTests(data : JSON) returns (output : Result<seq<RoundTripTest>, string>)
+  {
+    :- Need(data.Object?, "RoundTripTest Test must be an object.");
+    var configs : map<string, TableConfig> := map[];
+    var records : seq<Record> := [];
+
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "Configs" => var src :- GetTableConfigs(obj.1); configs := src;
+        case "Records" => var src :- GetRecords(obj.1); records := src;
+        case _ => return Failure("Unexpected part of a write test : '" + obj.0 + "'");
+      }
+    }
+    return Success([RoundTripTest(configs, records)]);
   }
 
   method GetWriteTests(data : JSON) returns (output : Result<seq<WriteTest> , string>)

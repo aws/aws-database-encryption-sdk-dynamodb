@@ -2,7 +2,6 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.cryptography.materialproviders.IKeyring;
-import software.amazon.cryptography.materialproviders.Keyring;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
@@ -19,6 +18,7 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
@@ -28,6 +28,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Dy
 import software.amazon.cryptography.materialproviders.model.CollectionOfErrors;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
@@ -41,6 +42,11 @@ import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 public class DynamoDbEncryptionInterceptorIntegrationTests {
     static DynamoDbEncryptionInterceptor kmsInterceptor;
     static DynamoDbClient ddbKmsKeyring;
+
+    // Some integration tests MUST mutate the state of the DDB table.
+    // For such tests, include a random number in the primary key
+    // to avoid conflicts between distributed test runners sharing a table.
+    private String randomNum = Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE));
 
     @BeforeTest
     public static void setup() {
@@ -65,10 +71,16 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         PutItemRequest putRequest = PutItemRequest.builder()
                 .tableName(TEST_TABLE_NAME)
                 .item(item)
+                .returnValues(ReturnValue.ALL_OLD)
                 .build();
 
         PutItemResponse putResponse = ddbKmsKeyring.putItem(putRequest);
         assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> putItem = putResponse.attributes();
+        assertNotNull(putItem);
+        assertEquals(partitionValue, putItem.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, putItem.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, putItem.get(TEST_ATTR_NAME).s());
 
         // Get Item back from table
         Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
@@ -81,6 +93,147 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
         GetItemResponse getResponse = ddbKmsKeyring.getItem(getRequest);
         assertEquals(200, getResponse.sdkHttpResponse().statusCode());
         Map<String, AttributeValue> returnedItem = getResponse.item();
+        assertNotNull(returnedItem);
+        assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
+    }
+
+    // Test that if we update a DO_NOTHING attribute,
+    // we correctly decrypt the ALL_* return values
+    @Test
+    public void TestUpdateItemReturnAll() {
+        // Put item into table
+        String partitionValue = "update_ALL";
+        String sortValue = randomNum;
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .returnValues(ReturnValue.ALL_OLD)
+                .build();
+
+        ddbKmsKeyring.putItem(putRequest);
+
+        // Update unsigned attribute, and return ALL_OLD
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+        UpdateItemRequest updateRequest = UpdateItemRequest.builder()
+                .key(keyToGet)
+                .returnValues(ReturnValue.ALL_OLD)
+                .updateExpression("SET #D = :d")
+                .expressionAttributeNames(Collections.singletonMap("#D", "attr2"))
+                .expressionAttributeValues(Collections.singletonMap(":d", AttributeValue.fromS("updated")))
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        UpdateItemResponse updateResponse = ddbKmsKeyring.updateItem(updateRequest);
+        assertEquals(200, updateResponse.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem = updateResponse.attributes();
+        assertNotNull(returnedItem);
+        assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItem.get(TEST_ATTR_NAME).s());
+        assertEquals("hello world", returnedItem.get(TEST_ATTR2_NAME).s());
+
+        // Update unsigned attribute, and return ALL_NEW
+        UpdateItemRequest updateRequest2 = updateRequest.toBuilder()
+                .returnValues(ReturnValue.ALL_NEW)
+                .expressionAttributeValues(Collections.singletonMap(":d", AttributeValue.fromS("updated2")))
+                .build();
+
+        UpdateItemResponse updateResponse2 = ddbKmsKeyring.updateItem(updateRequest2);
+        assertEquals(200, updateResponse2.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem2 = updateResponse2.attributes();
+        assertNotNull(returnedItem2);
+        assertEquals(partitionValue, returnedItem2.get(TEST_PARTITION_NAME).s());
+        assertEquals(sortValue, returnedItem2.get(TEST_SORT_NAME).n());
+        assertEquals(attrValue, returnedItem2.get(TEST_ATTR_NAME).s());
+        assertEquals("updated2", returnedItem2.get(TEST_ATTR2_NAME).s());
+    }
+
+    // Test that if we update a DO_NOTHING attribute,
+    // we correctly pass through the UPDATED_* return values
+    @Test
+    public void TestUpdateItemReturnUpdated() {
+        // Put item into table
+        String partitionValue = "update_UPDATE";
+        String sortValue = randomNum;
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .returnValues(ReturnValue.ALL_OLD)
+                .build();
+
+        ddbKmsKeyring.putItem(putRequest);
+
+        // Update unsigned attribute, and return UPDATED_OLD
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+        UpdateItemRequest updateRequest = UpdateItemRequest.builder()
+                .key(keyToGet)
+                .returnValues(ReturnValue.UPDATED_OLD)
+                .updateExpression("SET #D = :d")
+                .expressionAttributeNames(Collections.singletonMap("#D", "attr2"))
+                .expressionAttributeValues(Collections.singletonMap(":d", AttributeValue.fromS("updated")))
+                .tableName(TEST_TABLE_NAME)
+                .build();
+
+        UpdateItemResponse updateResponse = ddbKmsKeyring.updateItem(updateRequest);
+        assertEquals(200, updateResponse.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem = updateResponse.attributes();
+        assertNotNull(returnedItem);
+        assertFalse(returnedItem.containsKey(TEST_ATTR_NAME));
+        assertEquals("hello world", returnedItem.get(TEST_ATTR2_NAME).s());
+
+        // Update unsigned attribute, and return ALL_NEW
+        UpdateItemRequest updateRequest2 = updateRequest.toBuilder()
+                .returnValues(ReturnValue.UPDATED_NEW)
+                .expressionAttributeValues(Collections.singletonMap(":d", AttributeValue.fromS("updated2")))
+                .build();
+
+        UpdateItemResponse updateResponse2 = ddbKmsKeyring.updateItem(updateRequest2);
+        assertEquals(200, updateResponse2.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem2 = updateResponse2.attributes();
+        assertNotNull(returnedItem2);
+        assertFalse(returnedItem2.containsKey(TEST_ATTR_NAME));
+        assertEquals("updated2", returnedItem2.get(TEST_ATTR2_NAME).s());
+    }
+
+    @Test
+    public void TestDeleteItem() {
+        // Put item into table
+        String partitionValue = "delete";
+        String sortValue = randomNum;
+        String attrValue = "bar";
+        String attrValue2 = "hello world";
+        Map<String, AttributeValue> item = createTestItem(partitionValue, sortValue, attrValue, attrValue2);
+
+        PutItemRequest putRequest = PutItemRequest.builder()
+                .tableName(TEST_TABLE_NAME)
+                .item(item)
+                .build();
+
+        PutItemResponse putResponse = ddbKmsKeyring.putItem(putRequest);
+        assertEquals(200, putResponse.sdkHttpResponse().statusCode());
+
+        // Delete item from table, set ReturnValues to ALL_OLD to return deleted item
+        Map<String, AttributeValue> keyToGet = createTestKey(partitionValue, sortValue);
+
+        DeleteItemRequest deleteRequest = DeleteItemRequest.builder()
+                .key(keyToGet)
+                .tableName(TEST_TABLE_NAME)
+                .returnValues(ReturnValue.ALL_OLD)
+                .build();
+
+        DeleteItemResponse deleteResponse = ddbKmsKeyring.deleteItem(deleteRequest);
+        assertEquals(200, deleteResponse.sdkHttpResponse().statusCode());
+        Map<String, AttributeValue> returnedItem = deleteResponse.attributes();
         assertNotNull(returnedItem);
         assertEquals(partitionValue, returnedItem.get(TEST_PARTITION_NAME).s());
         assertEquals(sortValue, returnedItem.get(TEST_SORT_NAME).n());
