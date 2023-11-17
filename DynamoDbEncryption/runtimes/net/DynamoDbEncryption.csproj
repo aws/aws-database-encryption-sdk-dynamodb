@@ -5,16 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <LangVersion>10</LangVersion>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net48</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.300.2"/>
     <PackageReference Include="AWSSDK.Core" Version="3.7.300.2"/>
-    <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj" />
-    <!--
     <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.0.0"/>
+    <!--
               System.Collections.Immutable can be removed once dafny.msbuild is updated with
               https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
             -->
