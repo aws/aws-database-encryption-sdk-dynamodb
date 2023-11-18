@@ -23,6 +23,17 @@ module DynamoDbMiddlewareSupport {
   import Util = DynamoDbEncryptionUtil
   import SI = SearchableEncryptionInfo
 
+
+  predicate method NoMap<X,Y>(m : Option<map<X,Y>>)
+  {
+    m.None? || |m.value| == 0
+  }
+
+  predicate method NoList<X>(m : Option<seq<X>>)
+  {
+    m.None? || |m.value| == 0
+  }
+
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // Generally this means that no attribute names starts with "aws_dbe_"
   function method {:opaque} IsWriteable(config : ValidTableConfig, item : DDB.AttributeMap)

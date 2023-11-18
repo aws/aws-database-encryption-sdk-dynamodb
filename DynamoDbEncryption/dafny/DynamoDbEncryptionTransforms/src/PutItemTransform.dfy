@@ -32,7 +32,7 @@ module PutItemTransform {
       //= type=implication
       //# The PutItem request MUST NOT refer to any legacy parameters,
       //# specifically Expected and ConditionalOperator MUST NOT be set.
-      && input.sdkInput.Expected.None? && input.sdkInput.ConditionalOperator.None?
+      && NoMap(input.sdkInput.Expected) && input.sdkInput.ConditionalOperator.None?
 
       // && var oldHistory := old(tableConfig.itemEncryptor.History.EncryptItem);
       // && var newHistory := tableConfig.itemEncryptor.History.EncryptItem;
@@ -60,12 +60,9 @@ module PutItemTransform {
     }
     var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
 
-    if input.sdkInput.Expected.Some? {
-      return MakeError("Legacy parameter 'Expected' not supported in PutItem with Encryption.");
-    }
-    if input.sdkInput.ConditionalOperator.Some? {
-      return MakeError("Legacy parameter 'ConditionalOperator' not supported in PutItem with Encryption.");
-    }
+    :- Need(NoMap(input.sdkInput.Expected), E("Legacy parameter 'Expected' not supported in PutItem with Encryption."));
+    :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in PutItem with Encryption."));
+
     var _ :- IsWriteable(tableConfig, input.sdkInput.Item);
     var _ :- TestConditionExpression(tableConfig,
       input.sdkInput.ConditionExpression,
@@ -101,7 +98,7 @@ module PutItemTransform {
     ensures (
       && output.Success?
       && input.originalInput.TableName in config.tableEncryptionConfigs
-      && input.sdkOutput.Attributes.Some?
+      && !NoMap(input.sdkOutput.Attributes)
     ) ==>
       && var tableConfig := config.tableEncryptionConfigs[input.originalInput.TableName];
       && var oldHistory := old(tableConfig.itemEncryptor.History.DecryptItem);
@@ -146,7 +143,7 @@ module PutItemTransform {
     modifies ModifiesConfig(config)
   {
     var tableName := input.originalInput.TableName;
-    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Attributes.None?
+    if tableName !in config.tableEncryptionConfigs || NoMap(input.sdkOutput.Attributes)
       {
       return Success(PutItemOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
