@@ -29,6 +29,25 @@ module TestDynamoDBFilterExpr {
     expect does_contain(haystack, needle) == negate;
   }
 
+  method {:test} UnicodeLessTest() {
+    var A := "A";
+    var B := "\udb00";
+    var C := "\ufe4c";
+    var D := "𐀂";
+    assert |A| == 1;
+    assert |B| == 1;
+    assert |C| == 1;
+    assert |D| == 2;
+
+    var strs := [A+B+C+D, C+D, D+C, D+C+B+A];
+
+    for i := 0 to |strs| {
+      for j := 0 to |strs| {
+        expect ((i < j) == UnicodeLess(strs[i], strs[j]));
+      }
+    }
+  }
+
   method {:test} LowLevelTests() {
     expect_equal(ParseExpr("and"), [And]);
     expect_equal(ParseExpr("  AnD   "), [And]);
