@@ -1,4 +1,11 @@
 {
+  "Strings" : [
+    "",
+    "abc",
+    "퀀",
+    "﹌",
+    "𐀂"
+  ],
   "RoundTripTest": {
     "Configs": {
       "AllSign": {

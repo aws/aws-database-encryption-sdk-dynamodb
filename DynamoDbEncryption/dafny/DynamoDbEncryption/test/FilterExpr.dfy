@@ -31,7 +31,7 @@ module TestDynamoDBFilterExpr {
 
   method {:test} UnicodeLessTest() {
     var A := "A";
-    var B := "\udb00";
+    var B := "\ud000";
     var C := "\ufe4c";
     var D := "𐀂";
     assert |A| == 1;
