@@ -1270,6 +1270,7 @@ module DynamoDBFilterExpr {
   // If no surrogates are involved, comparison is normal
   // If only surrogates are involved, comparison is normal
   // if one surrogate is involved, the surrogate is larger
+  // results undefined if not valid UTF16 encodings, but the idea of 'less' is also undefined for invalid encodings.
   predicate method {:tailrecursion} UnicodeLess(a : string, b : string)
   {
     if |a| == 0 && |b| == 0 then
@@ -1279,14 +1280,18 @@ module DynamoDBFilterExpr {
     else if |b| == 0 then
       false
     else
-      var aIsSurrogate := IsHighSurrogate(a[0]);
-      var bIsSurrogate := IsHighSurrogate(b[0]);
       if a[0] == b[0] then
-        UnicodeLess(a[1..], b[1..])
-      else if aIsSurrogate == bIsSurrogate then
-        a[0] < b[0]
+        UnicodeLess(a[1..], b[1..]) // correct independent of surrogate status
       else
-        bIsSurrogate
+        var aIsHighSurrogate := IsHighSurrogate(a[0]);
+        var bIsHighSurrogate := IsHighSurrogate(b[0]);
+        if aIsHighSurrogate == bIsHighSurrogate then
+          a[0] < b[0]
+        else
+          bIsHighSurrogate
+          // we know aIsHighSurrogate != bIsHighSurrogate and a[0] != b[0]
+          // so if bIsHighSurrogate then a is less
+          // and if aIsHighSurrogate then a is greater
   }
 
   predicate method UnicodeLessOrEqual(a : string, b : string)
