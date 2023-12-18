@@ -50,9 +50,7 @@ module TestDynamoDBFilterExpr {
     for i := 0 to |strs| {
       for j := 0 to |strs| {
         expect ((i < j) == UnicodeLess(strs[i], strs[j]));
-        if i != j {
-          expect ((i < j) == !UnicodeLess(strs[j], strs[i]));
-        }
+        expect ((i <= j) == !UnicodeLess(strs[j], strs[i]));
       }
     }
   }
