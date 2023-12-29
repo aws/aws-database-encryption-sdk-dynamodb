@@ -28,7 +28,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import JSON.API
   import opened JSONHelpers
   import Norm = DynamoDbNormalizeNumber
-
   import Types = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DDB = ComAmazonawsDynamodbTypes
   import Filter = DynamoDBFilterExpr
@@ -37,8 +36,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import KeyMaterial
   import UTF8
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
+  import CMP = AwsCryptographyMaterialProvidersTypes
   import KeyVectors
   import CreateInterceptedDDBClient
+  import SortedSets
+  import Seq
+  import SI = SearchableEncryptionInfo
+  import MaterialProviders
+  import MPT = AwsCryptographyMaterialProvidersTypes
+  import Aws.Cryptography.Primitives
 
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
   type ConfigName = string
@@ -71,6 +77,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     config : ConfigName,
     queries : seq<ComplexQuery>,
     failures : seq<SimpleQuery>
+  )
+
+  datatype RoundTripTest = RoundTripTest (
+    configs : map<string, TableConfig>,
+    records : seq<Record>
   )
 
   datatype WriteTest = WriteTest (
@@ -113,7 +124,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     configsForIoTest : PairList,
     configsForModTest : PairList,
     writeTests : seq<WriteTest>,
-    decryptTests : seq<DecryptTest>
+    roundTripTests : seq<RoundTripTest>,
+    decryptTests : seq<DecryptTest>,
+    strings : seq<string>
   ) {
 
     method RunAllTests()
@@ -129,16 +142,55 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       print |ioTests|, " ioTests.\n";
       print |configsForIoTest|, " configsForIoTest.\n";
       print |configsForModTest|, " configsForModTest.\n";
+      print |strings|, " strings.\n";
+      if |roundTripTests| != 0 {
+        print |roundTripTests[0].configs|, " configs and ", |roundTripTests[0].records|, " records for round trip.\n";
+      }
+      if |roundTripTests| > 1 {
+        print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
+      }
       Validate();
+      StringOrdering();
       BasicIoTest();
       RunIoTests();
       BasicQueryTest();
       ConfigModTest();
       ComplexTests();
       WriteTests();
+      RoundTripTests();
       DecryptTests();
       var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
       DeleteTable(client);
+    }
+
+    function NewOrderRecord(i : nat, str : string) : Record
+    {
+      var n := String.Base10Int2String(i);
+      var m : DDB.AttributeMap := map[HashName := DDB.AttributeValue.N(n), "StrValue" := DDB.AttributeValue.S(str)];
+      Record(i, m)
+    }
+
+    method StringOrdering() {
+      print "StringOrdering\n";
+      var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
+      var records : seq<Record> := [];
+      for i := 0 to |strings| {
+        records := records + [NewOrderRecord(i, strings[i])];
+      }
+      WriteAllRecords(client, records);
+      var subRecords := Seq.Map((r : Record) => r.item, records);
+      var ops := ["<", "<=", ">", ">=", "=", "<>"];
+      for i := 0 to |strings| {
+        for j := 0 to |ops| {
+          var expr := Some("StrValue " + ops[j] + " :val");
+          var vals := Some(map[":val" := DDB.AttributeValue.S(strings[i])]);
+          var query := SimpleQuery(None, None, expr, []);
+          var items1 := FullScan(client, query, Some(map[]), vals);
+          var bv :- expect GetFakeBeaconVersion();
+          var items2 :- expect Filter.FilterResults(bv, subRecords, None, expr, None, vals);
+          CompareRecordsDisordered2(items1, items2);
+        }
+      }
     }
 
     method Validate() {
@@ -241,11 +293,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       for i := 0 to 100
       {
         var result :- expect client.Query(GetQueryInput(q, usedNames, usedValues, lastKey));
-        if result.Items.Some? {
+        if result.Items.Some? && |result.Items.value| != 0 {
           output := output + result.Items.value;
         }
-        if result.LastEvaluatedKey.Some? {
+        if result.LastEvaluatedKey.Some? && 0 < |result.LastEvaluatedKey.value| {
           lastKey := result.LastEvaluatedKey;
+          print "FullQuery had lastKey\n";
         } else {
           break;
         }
@@ -265,10 +318,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       for i := 0 to 100
       {
         var result :- expect client.Scan(GetScanInput(q, usedNames, usedValues, lastKey));
-        if result.Items.Some? {
+        if result.Items.Some? && |result.Items.value| != 0 {
           output := output + result.Items.value;
         }
-        if result.LastEvaluatedKey.Some? {
+        if result.LastEvaluatedKey.Some? && 0 < |result.LastEvaluatedKey.value| {
           lastKey := result.LastEvaluatedKey;
         } else {
           break;
@@ -496,6 +549,61 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
+    method RoundTripTests()
+    {
+      print "RoundTripTests\n";
+      for i := 0 to |roundTripTests| {
+
+        var configs := roundTripTests[i].configs;
+        var records := roundTripTests[i].records;
+        var keys := SortedSets.ComputeSetToOrderedSequence2(configs.Keys, CharLess);
+
+        for j := 0 to |keys| {
+          var client :- expect newGazelle(configs[keys[j]]);
+          for k := 0 to |records| {
+            OneRoundTripTest(client, records[k]);
+          }
+        }
+      }
+    }
+
+    method OneRoundTripTest(client : DDB.IDynamoDBClient, record : Record)
+      requires client.ValidState()
+      ensures client.ValidState()
+      modifies client.Modifies
+    {
+      var putInput := DDB.PutItemInput(
+        TableName := TableName,
+        Item := record.item,
+        Expected := None,
+        ReturnValues := None,
+        ReturnConsumedCapacity := None,
+        ReturnItemCollectionMetrics := None,
+        ConditionalOperator := None,
+        ConditionExpression := None,
+        ExpressionAttributeNames := None,
+        ExpressionAttributeValues := None
+      );
+      var _ :-  expect client.PutItem(putInput);
+      expect HashName in record.item;
+      var getInput := DDB.GetItemInput(
+        TableName := TableName,
+        Key := map[HashName := record.item[HashName]],
+        AttributesToGet := None,
+        ConsistentRead := None,
+        ReturnConsumedCapacity := None,
+        ProjectionExpression := None,
+        ExpressionAttributeNames := None
+      );
+      var out :- expect client.GetItem(getInput);
+      expect out.Item.Some?;
+      if NormalizeItem(out.Item.value) != NormalizeItem(record.item) {
+        print "\n", NormalizeItem(out.Item.value), "\n", NormalizeItem(record.item), "\n";
+      }
+      expect NormalizeItem(out.Item.value) == NormalizeItem(record.item);
+    }
+
+
     method DecryptTests()
     {
       print "DecryptTests\n";
@@ -685,7 +793,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       var exp := NormalizeItem(expected);
       for i := 0 to |actual| {
-        if actual[i] == exp {
+        if NormalizeItem(actual[i]) == exp {
           return true;
         }
       }
@@ -699,6 +807,19 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         var found := FindMatchingRecord(expected[i].item, actual);
         if !found {
           print "Did not find result for record ", expected[i].number, "\n";
+          bad := true;
+        }
+      }
+      expect !bad;
+    }
+    method CompareRecordsDisordered2(expected : DDB.ItemList, actual : DDB.ItemList)
+    {
+      expect |expected| == |actual|;
+      var bad := false;
+      for i := 0 to |expected| {
+        var found := FindMatchingRecord(expected[i], actual);
+        if !found {
+          print "Did not find result for record ", expected[i], "\n";
           bad := true;
         }
       }
@@ -781,6 +902,25 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
             DDB.AttributeValue.N(nn.value)
           else
             value
+        case SS(s) =>
+          var asSet := Seq.ToSet(s);
+          DDB.AttributeValue.SS(SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess))
+        case NS(s) =>
+          var normList := Seq.MapWithResult(n => Norm.NormalizeNumber(n), s);
+          if normList.Success? then
+            var asSet := Seq.ToSet(normList.value);
+            DDB.AttributeValue.NS(SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess))
+          else
+            value
+        case BS(s) =>
+          var asSet := Seq.ToSet(s);
+          DDB.AttributeValue.BS(SortedSets.ComputeSetToOrderedSequence2(asSet, ByteLess))
+        case L(list) =>
+          // for some reason, Seq.Map() fails for verify, even when revealed
+          var value := seq(|list|, i requires 0 <= i < |list| => Normalize(list[i]));
+          DDB.AttributeValue.L(value)
+        case M(m) =>
+          DDB.AttributeValue.M(map k <- m :: k := Normalize(m[k]))
         case _ => value
       }
     }
@@ -841,7 +981,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
             ReturnConsumedCapacity := None
           )
         );
-        expect result.UnprocessedKeys.None?; // TODO - actually handle this
+        expect result.UnprocessedKeys.None? || |result.UnprocessedKeys.value| == 0; // TODO - actually handle this
         expect result.Responses.Some?;
         expect |result.Responses.value| == 1;
         expect TableName in result.Responses.value;
@@ -962,7 +1102,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   function MakeEmptyTestVector() : TestVectorConfig
   {
-    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [], [], [])
+    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [], [], [], [], [])
   }
 
   method ParseTestVector(data : JSON, prev : TestVectorConfig) returns (output : Result<TestVectorConfig, string>)
@@ -980,7 +1120,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     var gsi : seq<DDB.GlobalSecondaryIndex> := [];
     var tableEncryptionConfigs : map<string, TableConfig> := map[];
     var writeTests : seq<WriteTest> := [];
+    var roundTripTests : seq<RoundTripTest> := [];
     var decryptTests : seq<DecryptTest> := [];
+    var strings : seq<string> := [];
 
     for i := 0 to |data.obj| {
       match data.obj[i].0 {
@@ -996,7 +1138,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         case "GSI" => gsi :- GetGSIs(data.obj[i].1);
         case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1);
         case "WriteTests" => writeTests :- GetWriteTests(data.obj[i].1);
+        case "RoundTripTest" => roundTripTests :- GetRoundTripTests(data.obj[i].1);
         case "DecryptTests" => decryptTests :- GetDecryptTests(data.obj[i].1);
+        case "Strings" => strings :- GetStrings(data.obj[i].1);
         case _ => return Failure("Unexpected top level tag " + data.obj[i].0);
       }
     }
@@ -1016,9 +1160,28 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         configsForIoTest := prev.configsForIoTest + ioPairs,
         configsForModTest := prev.configsForModTest + queryPairs,
         writeTests := prev.writeTests + writeTests,
-        decryptTests := prev.decryptTests + decryptTests
+        roundTripTests := prev.roundTripTests + roundTripTests,
+        decryptTests := prev.decryptTests + decryptTests,
+        strings := prev.strings + strings
       )
     );
+  }
+
+  method GetRoundTripTests(data : JSON) returns (output : Result<seq<RoundTripTest>, string>)
+  {
+    :- Need(data.Object?, "RoundTripTest Test must be an object.");
+    var configs : map<string, TableConfig> := map[];
+    var records : seq<Record> := [];
+
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "Configs" => var src :- GetTableConfigs(obj.1); configs := src;
+        case "Records" => var src :- GetRecords(obj.1); records := src;
+        case _ => return Failure("Unexpected part of a write test : '" + obj.0 + "'");
+      }
+    }
+    return Success([RoundTripTest(configs, records)]);
   }
 
   method GetWriteTests(data : JSON) returns (output : Result<seq<WriteTest> , string>)
@@ -1102,6 +1265,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   method GetOneTableConfig(name : string, data : JSON) returns (output : Result<TableConfig, string>)
   {
     :- Need(data.Object?, "A Table Config must be an object.");
+    var logicalTableName := TableName;
+    var partitionKeyName : DDB.KeySchemaAttributeName := HashName;
+    var sortKeyName : Option<DDB.KeySchemaAttributeName> := None;
+    var algorithmSuiteId : Option<CMP.DBEAlgorithmSuiteId> := None;
     var encrypt : seq<string>  := [];
     var attributeActionsOnEncrypt : Types.AttributeActions  := map[];
     var allowed : seq<DDB.AttributeName>  := [];
@@ -1111,13 +1278,47 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     var virtualFields : seq<Types.VirtualField> := [];
     var keySource : Option<Types.BeaconKeySource> := None;
     var search : Option<Types.SearchConfig> := None;
+    var legacyOverride: Option<Types.LegacyOverride> := None;
+    var plaintextOverride: Option<Types.PlaintextOverride> := None;
 
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
+        case "logicalTableName" =>
+          :- Need(obj.1.String?, "logicalTableName must be of type String.");
+          logicalTableName := obj.1.str;
+        case "partitionKeyName" =>
+          :- Need(obj.1.String?, "partitionKeyName must be of type String.");
+          :- Need(DDB.IsValid_KeySchemaAttributeName(obj.1.str), "partitionKeyName '" + obj.1.str + "' is not a valid KeySchemaAttributeName.");
+          partitionKeyName := obj.1.str;
+        case "sortKeyName" =>
+          :- Need(obj.1.String?, "sortKeyName must be of type String.");
+          :- Need(DDB.IsValid_KeySchemaAttributeName(obj.1.str), "sortKeyName '" + obj.1.str + "' is not a valid KeySchemaAttributeName.");
+          sortKeyName := Some(obj.1.str);
+        case "algorithmSuiteId" =>
+          :- Need(obj.1.String?, "algorithmSuiteId must be of type String.");
+          if obj.1.str == "ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384" {
+            algorithmSuiteId := Some(CMP.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384);
+          } else if obj.1.str == "ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384" {
+            algorithmSuiteId := Some(CMP.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384);
+          } else {
+            return Failure("algorithmSuiteId '" + obj.1.str + "' must be either ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 or ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384");
+          }
+        case "plaintextOverride" =>
+          :- Need(obj.1.String?, "plaintextOverride must be of type String.");
+          if obj.1.str == "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ" {
+            plaintextOverride := Some(Types.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ);
+          } else if obj.1.str == "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ" {
+            plaintextOverride := Some(Types.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ);
+          } else if obj.1.str == "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ" {
+            plaintextOverride := Some(Types.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ);
+          } else {
+            return Failure("plaintextOverride '" + obj.1.str + "' must be one of FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ, FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ or FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ");
+          }
+
         case "attributeActionsOnEncrypt" => attributeActionsOnEncrypt :- GetAttributeActions(obj.1);
         case "allowedUnsignedAttributePrefix" =>
-          :- Need(obj.1.String?, "Prefix must be of type String.");
+          :- Need(obj.1.String?, "allowedUnsignedAttributePrefix must be of type String.");
           prefix := obj.1.str;
         case "allowedUnsignedAttributes" => allowed :- GetAttrNames(obj.1);
         case "search" => var src :- GetOneSearchConfig(obj.1); search := Some(src);
@@ -1137,18 +1338,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     var config :=
       Types.DynamoDbTableEncryptionConfig(
-        logicalTableName := TableName,
-        partitionKeyName := HashName,
-        sortKeyName := None,
+        logicalTableName := logicalTableName,
+        partitionKeyName := partitionKeyName,
+        sortKeyName := sortKeyName,
         search := search,
         attributeActionsOnEncrypt := attributeActionsOnEncrypt,
         allowedUnsignedAttributes := OptSeq(allowed),
         allowedUnsignedAttributePrefix := OptSeq(prefix),
-        algorithmSuiteId := None,
+        algorithmSuiteId := algorithmSuiteId,
         keyring := Some(keyring),
         cmm := None,
-        legacyOverride := None,
-        plaintextOverride := None
+        legacyOverride := legacyOverride,
+        plaintextOverride := plaintextOverride
       );
     return Success(TableConfig(name, config, |data.obj| == 0));
   }
@@ -1220,6 +1421,32 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
                      signedParts := None
                    )
       );
+  }
+
+ method GetFakeBeaconVersion() returns (output : Result<SI.BeaconVersion, string>)
+  ensures output.Success? ==> output.value.ValidState() && fresh(output.value.Modifies())
+  {
+    var keyMaterial : KeyMaterial.KeyMaterial :=
+      KeyMaterial.StaticKeyStoreInformation("abc", UTF8.EncodeAscii("abc"), [1,2,3,4,5], [1,2,3,4,5]);
+    var store := SKS.CreateStaticKeyStore(keyMaterial);
+    var source : Types.BeaconKeySource := Types.single(Types.SingleKeyStore(keyId := "foo", cacheTTL := 42));
+
+    var sb := Types.StandardBeacon(name := "name", length := 5 as Types.BeaconBitLength, loc := None, style := None);
+
+    var mpl :- expect MaterialProviders.MaterialProviders();
+
+    var cacheType : MPT.CacheType := MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
+
+    var input := MPT.CreateCryptographicMaterialsCacheInput(
+      cache := cacheType
+    );
+    var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
+
+    var client :- expect Primitives.AtomicPrimitives();
+    var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32);
+
+    var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[]);
+    return Success(bv);
   }
 
   method GetAttributeActions(data : JSON) returns (output : Result<Types.AttributeActions, string>)

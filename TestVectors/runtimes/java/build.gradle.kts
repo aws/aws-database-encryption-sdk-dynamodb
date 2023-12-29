@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import java.io.File
 import java.io.FileInputStream
 import java.util.Properties
@@ -64,6 +67,7 @@ repositories {
         name = "DynamoDB Local Release Repository - US West (Oregon) Region"
         url  = URI.create("https://s3-us-west-2.amazonaws.com/dynamodb-local/release")
     }
+    mavenLocal()
     mavenCentral()
     if (caUrl != null && caPassword != null) {
         maven {

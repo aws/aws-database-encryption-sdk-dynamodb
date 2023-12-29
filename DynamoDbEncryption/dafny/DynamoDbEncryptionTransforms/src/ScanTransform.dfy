@@ -31,17 +31,18 @@ module ScanTransform {
     //# The Scan request MUST NOT refer to any legacy parameters,
     //# specifically AttributesToGet, ScanFilter and ConditionalOperator MUST NOT be set.
     ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
-              && input.sdkInput.AttributesToGet.None?
-              && input.sdkInput.ScanFilter.None?
+              && NoList(input.sdkInput.AttributesToGet)
+              && NoMap(input.sdkInput.ScanFilter)
               && input.sdkInput.ConditionalOperator.None?
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(ScanInputTransformOutput(transformedInput := input.sdkInput));
     } else {
-      :- Need(input.sdkInput.AttributesToGet.None?, E("Legacy parameter 'AttributesToGet' not supported in UpdateItem with Encryption"));
-      :- Need(input.sdkInput.ScanFilter.None?, E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
+      :- Need(NoList(input.sdkInput.AttributesToGet), E("Legacy parameter 'AttributesToGet' not supported in UpdateItem with Encryption"));
+      :- Need(NoMap(input.sdkInput.ScanFilter), E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+
       var finalResult :- ScanInputForBeacons(tableConfig, input.sdkInput);
       return Success(ScanInputTransformOutput(transformedInput := finalResult));
     }
@@ -59,15 +60,15 @@ module ScanTransform {
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
 
-    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? ==>
+    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || NoList(input.sdkOutput.Items) ==>
               && output.Success?
               && output.value.transformedOutput == input.sdkOutput
 
-    ensures output.Success?  && input.sdkOutput.Items.None?  ==> output.value.transformedOutput.Items.None?
+    ensures output.Success?  && NoList(input.sdkOutput.Items)  ==> NoList(output.value.transformedOutput.Items)
     ensures output.Success?  && input.sdkOutput.Items.Some?  ==> output.value.transformedOutput.Items.Some?
   {
     var tableName := input.originalInput.TableName;
-    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
+    if tableName !in config.tableEncryptionConfigs || NoList(input.sdkOutput.Items) {
       return Success(ScanOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     var tableConfig := config.tableEncryptionConfigs[tableName];

@@ -32,8 +32,8 @@ module GetItemTransform {
     //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
     //# equal to the `TableName` on the GetItem request.
     ensures output.Success? && input.originalInput.TableName !in config.tableEncryptionConfigs ==> output.value.transformedOutput == input.sdkOutput
-    ensures output.Success? && input.sdkOutput.Item.None? ==> output.value.transformedOutput.Item.None?
-    ensures output.Success? && input.originalInput.TableName in config.tableEncryptionConfigs && input.sdkOutput.Item.Some? ==>
+    ensures output.Success? && NoMap(input.sdkOutput.Item) ==> NoMap(output.value.transformedOutput.Item)
+    ensures output.Success? && input.originalInput.TableName in config.tableEncryptionConfigs && !NoMap(input.sdkOutput.Item) ==>
       var tableConfig := config.tableEncryptionConfigs[input.originalInput.TableName];
       var oldHistory := old(tableConfig.itemEncryptor.History.DecryptItem);
       var newHistory := tableConfig.itemEncryptor.History.DecryptItem;
@@ -67,7 +67,7 @@ module GetItemTransform {
     modifies ModifiesConfig(config)
   {
     var tableName := input.originalInput.TableName;
-    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Item.None? {
+    if tableName !in config.tableEncryptionConfigs || NoMap(input.sdkOutput.Item) {
       return Success(GetItemOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     var tableConfig := config.tableEncryptionConfigs[tableName];
