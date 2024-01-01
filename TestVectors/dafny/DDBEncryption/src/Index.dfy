@@ -4,6 +4,9 @@
 include "LibraryIndex.dfy"
 include "TestVectors.dfy"
 include "WriteSetPermutations.dfy"
+include "WriteManifest.dfy"
+include "EncryptManifest.dfy"
+include "DecryptManifest.dfy"
 
 module WrappedDDBEncryptionMain {
   import opened Wrappers
