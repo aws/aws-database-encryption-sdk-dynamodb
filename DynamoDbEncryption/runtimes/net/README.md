@@ -37,6 +37,7 @@ To build and test the AWS Encryption SDK, you must install the following .NET to
 
 * [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) or newer
 * [.NET Framework 4.8.0](https://docs.microsoft.com/en-us/dotnet/framework/install/) or newer (if on Windows)
+* [.NET Standard](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0) 2.0.
 
 You will also need to ensure that you fetch all submodules using either `git clone --recursive ...` when cloning the repository or `git submodule update --init` on an existing clone.
 
@@ -100,7 +101,7 @@ Most c# IDEs appreciate Solution files.
 To generate one Solution file for all the projects here,
 run:
 ```
-cd AwsEncryptionSDK/runtimes/net
+cd DynamoDbEncryption/runtimes/net
 dotnet new sln --name ESDK
 dotnet sln add $(find . -name '*.csproj')
 ```
