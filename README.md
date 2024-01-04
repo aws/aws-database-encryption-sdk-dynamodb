@@ -1,6 +1,7 @@
 # AWS Database Encryption SDK for DynamoDB
 
-📣 Note: This repository does not have a specific language in its name since it supports multiple languages.
+📣 Note: This repository contains the source code and related files for all
+language implementations of the AWS Database Encryption SDK for DynamoDB.
 See our [supported languages](#supported-languages) section for more information.
 
 The AWS Database Encryption SDK (DB-ESDK) for DynamoDB is a client-side encryption 
@@ -57,8 +58,6 @@ You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as
   [Creating Keys](https://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html).
 
 ## Supported Languages
-
-If you would like to see support for a language not in this list, please file an issue.
 
 - Java
 - .NET
