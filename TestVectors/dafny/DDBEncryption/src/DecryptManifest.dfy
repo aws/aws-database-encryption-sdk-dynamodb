@@ -11,15 +11,11 @@ module {:options "-functionSyntax:4"} DecryptManifest {
   import opened JSON.Values
   import JSON.API
   import JSON.Errors
-  import opened DynamoDbEncryptionUtil
-  import opened ComAmazonawsDynamodbTypes
-  import opened SortedSets
   import DdbItemJson
   import StandardLibrary.String
   import FileIO
   import opened JSONHelpers
   import JsonConfig
-  import DynamoDbItemEncryptor
   import ENC = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
 
   method OnePositiveTest(name : string, config : JSON, encrypted : JSON, plaintext : JSON) returns (output : Result<bool, string>)
@@ -34,6 +30,21 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     );
     expect decrypted.plaintextItem == plain.item;
 
+   return Success(true);
+  }
+
+  method OneNegativeTest(name : string, config : JSON, encrypted : JSON) returns (output : Result<bool, string>)
+  {
+    var enc :- JsonConfig.GetRecord(encrypted);
+    var encryptor :- JsonConfig.GetItemEncryptor(name, config);
+    var decrypted := encryptor.DecryptItem(
+      ENC.DecryptItemInput(
+        encryptedItem:=enc.item
+      )
+    );
+    if decrypted.Success? {
+      return Failure("Failed to fail to decrypt " + name);
+    }
    return Success(true);
   }
 
@@ -73,10 +84,12 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     :- Need(description.Some?, "Test requires a 'description' member.");
     :- Need(config.Some?, "Test requires a 'config' member.");
     :- Need(encrypted.Some?, "Test requires a 'encrypted' member.");
-    :- Need(plaintext.Some?, "Test requires a 'plaintext' member.");
 
     if types.value == "positive-decrypt" {
+      :- Need(plaintext.Some?, "positive-decrypt Test requires a 'plaintext' member.");
       output := OnePositiveTest(name, config.value, encrypted.value, plaintext.value);
+    } else if types.value == "negative-decrypt" {
+      output := OneNegativeTest(name, config.value, encrypted.value);
     } else {
       return Failure("Invalid encrypt type : '" + types.value + "'.");
     }

@@ -10,13 +10,9 @@ module {:options "-functionSyntax:4"} WriteManifest {
   import opened JSON.Values
   import JSON.API
   import JSON.Errors
-  import opened DynamoDbEncryptionUtil
-  import opened ComAmazonawsDynamodbTypes
-  import opened SortedSets
   import StandardLibrary.String
   import FileIO
   import opened JSONHelpers
-  import DynamoDbItemEncryptor
 
   function Manifest() : (string, JSON)
   {
@@ -35,10 +31,25 @@ module {:options "-functionSyntax:4"} WriteManifest {
           ""Junk"": ""ENCRYPT_AND_SIGN""
         }
       }"
-
-  method BasicConfigJson() returns (output : JSON)
+  const SignConfig := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_ONLY"",
+          ""Stuff"": ""SIGN_ONLY"",
+          ""Junk"": ""SIGN_ONLY""
+        }
+      }"
+  const NothingConfig := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_ONLY"",
+          ""Stuff"": ""DO_NOTHING"",
+          ""Junk"": ""DO_NOTHING""
+        },
+        ""allowedUnsignedAttributes"" : [""Stuff"", ""Junk""]
+      }"
+    
+  method TextToJson(x: string) returns (output : JSON)
   {
-    var str :- expect UTF8.Encode(BasicConfig);
+    var str :- expect UTF8.Encode(x);
     var json :- expect API.Deserialize(str);
     return json;
   }
@@ -48,25 +59,33 @@ module {:options "-functionSyntax:4"} WriteManifest {
           ""Stuff"": ""StuffData"",
           ""Junk"": ""JunkData""
         }"
+  const BadRecord := @"{
+          ""Stuff"": ""StuffData"",
+          ""Junk"": ""JunkData""
+        }"
 
-  method BasicRecordJson() returns (output : JSON)
+  method MakeTest(
+    name : string, 
+    typ : string, 
+    desc : string, 
+    configJson : string, 
+    recordJson : string, 
+    decryptConfigJson : Option<string> :=  None) returns (output : (string, JSON))
   {
-    var json :- expect API.Deserialize(UTF8.EncodeAscii(BasicRecord));
-    return json;
-  }
-
-  method BasicTest() returns (output : (string, JSON))
-  {
-    var config := BasicConfigJson();
-    var record := BasicRecordJson();
+    var config := TextToJson(configJson);
+    var record := TextToJson(recordJson);
     var result : seq<(string, JSON)> :=
       [
-        ("type", String("positive-encrypt")),
-        ("description", String("Basic encrypt")),
+        ("type", String(typ)),
+        ("description", String(desc)),
         ("config", config),
         ("record", record)
       ];
-    return("1", Object(result));
+    if decryptConfigJson.Some? {
+      var decryptConfig := TextToJson(decryptConfigJson.value);
+      result := result + [("decryptConfig", decryptConfig)];
+    }
+    return(name, Object(result));
   }
 
   method Write(fileName : string) returns (output : Result<bool, string>)
@@ -74,8 +93,12 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var result : seq<(string, JSON)> :=
       [Manifest(), ("keys", String("file://keys.json"))];
 
-    var test1 := BasicTest();
-    var tests : seq<(string, JSON)> := [test1];
+    var test1 := MakeTest("1", "positive-encrypt", "Basic encrypt", BasicConfig, BasicRecord);
+    var test2 := MakeTest("2", "positive-encrypt", "Change ENCRYPT_AND_SIGN to SIGN_ONLY", BasicConfig, BasicRecord, Some(SignConfig));
+    var test3 := MakeTest("3", "positive-encrypt", "Change SIGN_ONLY to ENCRYPT_AND_SIGN", SignConfig, BasicRecord, Some(BasicConfig));
+    var test4 := MakeTest("4", "negative-decrypt", "Change ENCRYPT_AND_SIGN to DO_NOTHING", BasicConfig, BasicRecord, Some(NothingConfig));
+    var test5 := MakeTest("5", "negative-encrypt", "Lacks primary key", BasicConfig, BadRecord);
+    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5];
     var final := Object(result + [("tests", Object(tests))]);
 
     var jsonBytes :- expect API.Serialize(final);
@@ -83,7 +106,6 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var x := FileIO.WriteBytesToFile(fileName, jsonBv);
     expect x.Success?;
     return Success(true);
-
   }
 
 }

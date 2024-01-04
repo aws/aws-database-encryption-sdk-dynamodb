@@ -12,14 +12,11 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   import JSON.API
   import JSON.Errors
   import opened DynamoDbEncryptionUtil
-  import opened ComAmazonawsDynamodbTypes
-  import opened SortedSets
   import DdbItemJson
   import StandardLibrary.String
   import FileIO
   import opened JSONHelpers
   import JsonConfig
-  import DynamoDbItemEncryptor
   import ENC = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
 
   function Manifest() : (string, JSON)
@@ -42,7 +39,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
     ("client", Object(result))
   }
 
-  method OnePositiveTest(name : string, desc : string, config : JSON, record : JSON) returns (output : Result<(string, JSON), string>)
+  method OnePositiveTest(name : string, theType : string, desc : string, config : JSON, decryptConfig : Option<JSON>, record : JSON) returns (output : Result<(string, JSON), string>)
   {
     var rec :- JsonConfig.GetRecord(record);
     var encryptor :- JsonConfig.GetItemEncryptor(name, config);
@@ -55,16 +52,32 @@ module {:options "-functionSyntax:4"} EncryptManifest {
 
     var result : seq<(string, JSON)> :=
       [
-        ("type", String("positive-decrypt")),
+        ("type", String(theType)),
         ("description", String(desc)),
-        ("config", config),
+        ("config", if decryptConfig.Some? then decryptConfig.value else config),
         ("plaintext", record),
         ("encrypted", item)
       ];
     return Success((name, Object(result)));
   }
 
-  method OneTest(name : string, value : JSON) returns (output : Result<(string, JSON), string>)
+  method OneNegativeTest(name : string, config : JSON, record : JSON) returns (output : Result<bool, string>)
+  {
+    var rec :- JsonConfig.GetRecord(record);
+    var encryptor :- JsonConfig.GetItemEncryptor(name, config);
+    var encrypted := encryptor.EncryptItem(
+      ENC.EncryptItemInput(
+        plaintextItem:=rec.item
+      )
+    );
+    if encrypted.Success? {
+      return Failure("Test " + name + " failed to fail to encrypt.");
+    }
+    return Success(true);
+  }
+
+
+  method OneTest(name : string, value : JSON) returns (output : Result<Option<(string, JSON)>, string>)
   {
     :- Need(value.Object?, "Test must be an object");
     print "Examining ", name, "\n";
@@ -72,6 +85,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
     var types : Option<string> := None;
     var description : Option<string> := None;
     var config : Option<JSON> := None;
+    var decryptConfig : Option<JSON> := None;
     var record : Option<JSON> := None;
 
     for i := 0 to |value.obj| {
@@ -86,6 +100,9 @@ module {:options "-functionSyntax:4"} EncryptManifest {
         case "config" =>
           :- Need(obj.1.Object?, "Value of 'config' must be an object.");
           config := Some(obj.1);
+        case "decryptConfig" =>
+          :- Need(obj.1.Object?, "Value of 'decryptConfig' must be an object.");
+          decryptConfig := Some(obj.1);
         case "record" =>
           :- Need(obj.1.Object?, "Value of 'record' must be an object.");
           record := Some(obj.1);
@@ -98,7 +115,14 @@ module {:options "-functionSyntax:4"} EncryptManifest {
     :- Need(record.Some?, "Test requires a 'record' member.");
 
     if types.value == "positive-encrypt" {
-      output := OnePositiveTest(name, description.value, config.value, record.value);
+      var x :- OnePositiveTest(name, "positive-decrypt", description.value, config.value, decryptConfig, record.value);
+      return Success(Some(x));
+    } else if types.value == "negative-decrypt" {
+      var x :- OnePositiveTest(name, "negative-decrypt", description.value, config.value, decryptConfig, record.value);
+      return Success(Some(x));
+    } else if types.value == "negative-encrypt" {
+      var _ := OneNegativeTest(name, config.value, record.value);
+      return Success(None);
     } else {
       return Failure("Invalid encrypt type : '" + types.value + "'.");
     }
@@ -156,7 +180,9 @@ module {:options "-functionSyntax:4"} EncryptManifest {
       var obj := tests.value[i];
       :- Need(obj.1.Object?, "Value of test '" + obj.0 + "' must be an Object.");
       var newTest :- OneTest(obj.0, obj.1);
-      test := test + [newTest];
+      if newTest.Some? {
+        test := test + [newTest.value];
+      }
     }
 
     var final := Object(result + [("tests", Object(test))]);
