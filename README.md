@@ -1,6 +1,9 @@
-# AWS Database Encryption SDK for DynamoDB in Java
+# AWS Database Encryption SDK for DynamoDB
 
-The AWS Database Encryption SDK (DB-ESDK) for DynamoDB in Java is a client-side encryption 
+📣 Note: This repository does not have a specific language in its name since it supports multiple languages.
+See our [supported languages](#supported-languages) section for more information.
+
+The AWS Database Encryption SDK (DB-ESDK) for DynamoDB is a client-side encryption 
 library that allows you to perform attribute-level encryption, enabling you to encrypt specific 
 attribute values within items before storing them in your DynamoDB table. All encryption and 
 decryption are performed within your application. This lets you protect sensitive data in-transit 
@@ -35,83 +38,12 @@ submitting pull requests through the following channels:
 
 # Getting Started
 
-## Required Prerequisites
-To use the DB-ESDK for DynamoDB in Java, you must have:
+### Repository structure
+This repository is a top level repository which houses all source code in order to compile this library into
+different runtimes.
 
-* **A Java 8 or newer development environment**
-  If you do not have one, 
-  go to [Java SE Downloads](https://www.oracle.com/technetwork/java/javase/downloads/index.html) on the Oracle website, 
-  then download and install the Java SE Development Kit (JDK). 
-  Java 8 or higher is required.
-
-  **Note:** If you use the Oracle JDK, 
-  you must also download and install 
-  the [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html).
-
-* **Declare a Dependency on the DB-ESDK for DynamoDB in Java and it's dependencies**  
-  This library requires the DynamoDB client
-  from the AWS SDK for Java V2
-  and the AwsCryptographicMaterialProviders library.
-
-  The KMS and DynamoDB-Enhanced Clients from the AWS SDK For Java V2
-  are **optional** dependencies.
-
-  * **Via Gradle Kotlin**  
-   In a Gradle Java Project, add the following to the _dependencies_ section:
-   ```kotlin
-   implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.1.2")
-   implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
-   implementation(platform("software.amazon.awssdk:bom:2.19.1"))
-   implementation("software.amazon.awssdk:dynamodb")
-   // The following are optional:
-   implementation("software.amazon.awssdk:dynamodb-enhanced")
-   implementation("software.amazon.awssdk:kms")
-   ```
-
-  * **Via Apache Maven**  
-  Add the following to your project's `pom.xml`.
-  ```xml
-  <project>
-  ...
-  <dependencyManagement>
-   <dependencies>
-      <dependency>
-        <groupId>software.amazon.awssdk</groupId>
-        <artifactId>bom</artifactId>
-        <version>2.19.1</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-   </dependencies>
-  </dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>software.amazon.awssdk</groupId>
-      <artifactId>dynamodb</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>software.amazon.cryptography</groupId>
-      <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
-      <version>3.1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>software.amazon.cryptography</groupId>
-      <artifactId>aws-cryptographic-material-providers</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <!-- The following are optional -->
-    <dependency>
-      <groupId>software.amazon.awssdk</groupId>
-      <artifactId>dynamodb-enhanced</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>software.amazon.awssdk</groupId>
-      <artifactId>kms</artifactId>
-    </dependency>
-  </dependencies>
-  ...
-  </project>
-  ```
+This library is written in Dafny, a formally verifiable programming language that can be compiled into
+different runtimes. This library is currently **ONLY** supported in Java and .NET 
 
 ### AWS Integration
 You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as it's specifically designed to work with Amazon DynamoDB. Optionally, you can use AWS Key Management Service (AWS KMS) as your main keyring provider.
@@ -124,17 +56,13 @@ You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as
 * **(Optional) To create a key in AWS KMS**, see
   [Creating Keys](https://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html).
 
-### Amazon Corretto Crypto Provider
-Many developers find that the Amazon Corretto Crypto Provider (ACCP)
-significantly improves the performance of the library.
-For help installing and using ACCP, see the 
-[amazon-corretto-crypto-provider repository](https://github.com/corretto/amazon-corretto-crypto-provider).
+## Supported Languages
 
-## Using the DB-ESDK for DynamoDB in Java
-There are several ways to use the library.  
-More details are provided in the
-[AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/).  
-Also see the [Examples](Examples/runtimes/java/DynamoDbEncryption).
+If you would like to see support for a language not in this list, please file an issue.
+
+- Java
+- .NET
+- Dafny
 
 # Contributing
 
