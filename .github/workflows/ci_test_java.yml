@@ -34,9 +34,8 @@ jobs:
         ]
         java-version: [ 8, 11, 16, 17 ]
         os: [
-          # TODO just test on mac for now
-          #windows-latest,
-          #ubuntu-latest,
+          # TODO windows-latest,
+          ubuntu-latest,
           macos-latest
         ]
     runs-on: ${{ matrix.os }}
