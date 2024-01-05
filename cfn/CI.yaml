@@ -22,6 +22,8 @@ Parameters:
     Type: String
     Description: A prefix that will be applied to any names
     Default: DDBEC-Dafny
+  # This parameter is no longer used.
+  # However removing it causes CloudFormation indigestion 
   GitHubRepo:
     Type: String
     Description: GitHub Repo that invokes CI
@@ -315,7 +317,10 @@ Resources:
                   "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                  "token.actions.githubusercontent.com:sub": [
+                    "repo:aws/aws-database-encryption-sdk-dynamodb-java:*",
+                    "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
+                  ]
                 }
               }
             },
@@ -366,7 +371,10 @@ Resources:
                   "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                  "token.actions.githubusercontent.com:sub": [
+                    "repo:aws/aws-database-encryption-sdk-dynamodb-java:*",
+                    "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
+                  ]
                 }
               }
             },
@@ -417,7 +425,10 @@ Resources:
                   "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                  "token.actions.githubusercontent.com:sub": [
+                    "repo:aws/aws-database-encryption-sdk-dynamodb-java:*",
+                    "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
+                  ]
                 }
               }
             },
