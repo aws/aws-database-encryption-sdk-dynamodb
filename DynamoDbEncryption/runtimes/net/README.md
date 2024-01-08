@@ -20,8 +20,6 @@ Alternatively, you may directly modify the `.csproj` and add the AWS Database En
 
 The AWS Database Encryption SDK for DynamoDB targets [.NET](https://learn.microsoft.com/en-us/dotnet/fundamentals/implementations#net-5-and-later-versions) 6.0
 and newer on all platforms,
-[.NET Standard](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0) 2.0
-and newer on all platforms,
 and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.8.0 and newer on Windows only.
 
 ### Additional setup for macOS only
