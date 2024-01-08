@@ -1,5 +1,3 @@
-# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   Template to build a CodeBuild Project, assumes that GitHub credentials are
@@ -8,11 +6,11 @@ Parameters:
   ProjectName:
     Type: String
     Description: The name of the CodeBuild Project
-    Default: AWS-DBESDK-DDB-Java
+    Default: AWS-DBESDK-DotNet
   ProjectDescription:
     Type: String
     Description: The description for the CodeBuild Project
-    Default: CFN stack for managing CodeBuild projects for the AWS DBESDK DDB Java
+    Default: CFN stack for managing CodeBuild projects for the AWS DBESDK Dotnet
   SourceLocation:
     Type: String
     Description: The https GitHub URL for the project
@@ -37,15 +35,15 @@ Resources:
     Type: "AWS::CodeBuild::Project"
     Properties:
       Name: !Sub "${ProjectName}-Release"
-      Description: !Sub "CodeBuild project for ${ProjectName} to release to Sonatype."
+      Description: !Sub "CodeBuild project for ${ProjectName} to sign packages and release to Nuget."
       Source:
         Location: !Ref SourceLocation
-        BuildSpec: codebuild/release/release.yml
+        BuildSpec: codebuild/net/release/release.yml
         ## https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codebuild-project-source.html#cfn-codebuild-project-source-gitclonedepth
         ## If this value is 0, greater than 25, or not provided then the full history is downloaded with each build project.
         GitCloneDepth: 0
         GitSubmodulesConfig:
-          FetchSubmodules: true 
+          FetchSubmodules: true
         InsecureSsl: false
         ReportBuildStatus: false
         Type: GITHUB
@@ -57,7 +55,7 @@ Resources:
         ComputeType: BUILD_GENERAL1_LARGE
         Image: "aws/codebuild/standard:5.0"
         ImagePullCredentialsType: CODEBUILD
-        PrivilegedMode: true
+        PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole: !GetAtt CodeBuildServiceRoleRelease.Arn
       TimeoutInMinutes: 60
@@ -91,12 +89,10 @@ Resources:
       ManagedPolicyArns:
         - !Ref CodeBuildBatchPolicyRelease
         - !Ref CodeBuildBasePolicy
-        - !Ref SecretsManagerPolicyRelease
-        - !Ref ParameterStorePolicy
+        - !Ref AssumeArtifactRolePolicy
+        - !Ref DbEsdkNugetAPIKeyPolicy
         - !Ref CodeBuildCISTSAllow
-        - "arn:aws:iam::aws:policy/AWSCodeArtifactReadOnlyAccess"
         - "arn:aws:iam::aws:policy/AWSCodeArtifactAdminAccess"
-
 
   CodeBuildCISTSAllow:
     Type: "AWS::IAM::ManagedPolicy"
@@ -111,20 +107,16 @@ Resources:
               {
                   "Effect": "Allow",
                   "Action": "sts:AssumeRole",
-                  "Resource": [
-                    "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2",
-                    "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-only-us-east-1-KMS-keys",
-                    "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-only-eu-west-1-KMS-keys"
-                  ]
+                  "Resource": "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2"
               }
           ]
         }
 
-  CodeBuildBatchPolicy:
+  AssumeArtifactRolePolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
       ManagedPolicyName: !Sub >-
-        CodeBuildBuildBatchPolicy-${ProjectName}-${AWS::Region}-codebuild-${ProjectName}-service-role
+        AssumeArtifactRolePolicy-${ProjectName}
       Path: /service-role/
       PolicyDocument: !Sub |
         {
@@ -133,14 +125,41 @@ Resources:
             {
               "Effect": "Allow",
               "Resource": [
-                "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${ProjectName}-Release",
-                "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${ProjectName}"
+                "arn:aws:iam::395857916204:role/DbEsdkNetCodeSigning-ArtifactAccessRole"
               ],
               "Action": [
-                "codebuild:StartBuild",
-                "codebuild:StopBuild",
-                "codebuild:RetryBuild",
-                "codebuild:BatchGetBuilds"
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        }
+
+  DbEsdkNugetAPIKeyPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: !Sub >-
+        DbEsdkNugetAPIKeyPolicy-${ProjectName}
+      Path: /service-role/
+      PolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:iam::582595803497:role/aws-crypto-tools-build-role"
+              ],
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:secretsmanager:us-west-2:582595803497:secret:production/build/aws-crypto-tools-nuget-api-key*"
+              ],
+              "Action": [
+                "secretsmanager:GetSecretValue"
               ]
             }
           ]
@@ -149,26 +168,25 @@ Resources:
   CodeBuildBatchPolicyRelease:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
-      ManagedPolicyName: !Sub >-
-        CodeBuildBuildBatchPolicy-${ProjectName}-Release-${AWS::Region}-codebuild-${ProjectName}-release-service-role
+      ManagedPolicyName: !Sub "CodeBuildBuildBatchPolicyRelease-${ProjectName}-${AWS::Region}"
       Path: /service-role/
       PolicyDocument: !Sub |
         {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Resource": [
-                        "arn:aws:codebuild:us-west-2:${AWS::AccountId}:project/${ProjectName}-Release"
-                    ],
-                    "Action": [
-                        "codebuild:StartBuild",
-                        "codebuild:StopBuild",
-                        "codebuild:RetryBuild"
-                    ]
-                }
-            ]
-          }
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${ProjectName}-Release"
+              ],
+              "Action": [
+                "codebuild:StartBuild",
+                "codebuild:StopBuild",
+                "codebuild:RetryBuild"
+              ]
+            }
+          ]
+        }
 
   CodeBuildBasePolicy:
     Type: "AWS::IAM::ManagedPolicy"
@@ -190,8 +208,7 @@ Resources:
               "Action": [
                 "logs:CreateLogGroup",
                 "logs:CreateLogStream",
-                "logs:PutLogEvents",
-                "logs:GetLogEvents"
+                "logs:PutLogEvents"
               ]
             },
             {
@@ -219,49 +236,6 @@ Resources:
               "Resource": [
                 "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/${ProjectName}-*"
               ]
-            }
-          ]
-        }
-
-  SecretsManagerPolicyRelease:
-    Type: "AWS::IAM::ManagedPolicy"
-    Properties:
-      ManagedPolicyName: !Sub "CryptoTools-SecretsManager-${ProjectName}-Release"
-      Path: "/service-role/"
-      PolicyDocument: !Sub |
-        {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Resource": [
-                "arn:aws:secretsmanager:us-west-2:${AWS::AccountId}:secret:Maven-GPG-Keys-CI-xjAvTM",
-                "arn:aws:secretsmanager:us-west-2:${AWS::AccountId}:secret:Maven-GPG-Keys-CI-Credentials-eBrSNB",
-                "arn:aws:secretsmanager:us-west-2:${AWS::AccountId}:secret:Maven-GPG-Keys-Release-haLIjZ",
-                "arn:aws:secretsmanager:us-west-2:${AWS::AccountId}:secret:Maven-GPG-Keys-Release-Credentials-WgJanS",
-                "arn:aws:secretsmanager:us-west-2:${AWS::AccountId}:secret:Sonatype-Team-Account-0tWvZm",
-                "arn:aws:secretsmanager:us-west-2:${AWS::AccountId}:secret:Github/aws-crypto-tools-ci-bot-AGUB3U"
-              ],
-              "Action": "secretsmanager:GetSecretValue"
-            }
-          ]
-        }
-
-  ParameterStorePolicy:
-    Type: "AWS::IAM::ManagedPolicy"
-    Properties:
-      ManagedPolicyName: !Sub "CryptoTools-ParameterStore-${ProjectName}"
-      Path: /service-role/
-      PolicyDocument: !Sub |
-        {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Resource": [
-                "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/CodeBuild/*"
-              ],
-              "Action": "ssm:GetParameters"
             }
           ]
         }
