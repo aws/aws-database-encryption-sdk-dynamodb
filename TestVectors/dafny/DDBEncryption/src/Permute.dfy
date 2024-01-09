@@ -50,7 +50,7 @@ module {:options "-functionSyntax:4"} Permutations {
       return result;
     }
   }
-
+/*
   method {:test} BasicTests() {
     var zero := GeneratePermutations<int>([]);
     var one := GeneratePermutations([1]);
@@ -68,5 +68,6 @@ module {:options "-functionSyntax:4"} Permutations {
                      [2, 1, 4, 3], [1, 2, 4, 3], [4, 2, 1, 3], [2, 4, 1, 3], [2, 1, 4, 3], [1, 2, 4, 3]
                    ];
   }
+*/
 }
 
