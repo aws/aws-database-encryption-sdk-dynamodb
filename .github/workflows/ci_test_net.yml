@@ -78,7 +78,7 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_net CORES=$CORES
-      - name: Test ${{ matrix.library }}
+      - name: Test ${{ matrix.library }} net6.0
         working-directory: ./${{ matrix.library }}
         shell: bash
         run: |
@@ -87,3 +87,10 @@ jobs:
           else
             make test_net
           fi
+      
+      - name: Test ${{ matrix.library }} net48
+        if: matrix.os == 'windows-latest'
+        working-directory: ./${{ matrix.library }}
+        shell: bash
+        run: |
+            make test_net FRAMEWORK=net48
