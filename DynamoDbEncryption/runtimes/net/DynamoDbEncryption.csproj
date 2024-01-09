@@ -9,7 +9,7 @@
 
     <AssemblyName>AWS.Cryptography.DbEncryptionSDK.DynamoDb</AssemblyName>
     <PackageId>AWS.Cryptography.DbEncryptionSDK.DynamoDb</PackageId>
-    <Title>AWSDatabaseEncryptionLibrary</Title>
+    <Title>AWSDatabaseEncryptionSDKDynamoDB</Title>
 
     <Description>The AWS Database Encryption SDK for DyanamoDB in .NET abstracts client-side encryption for Amazon DynamoDB operations. It uses cryptographic best practices to protect the data keys that protect your data.</Description>
     <Authors>Amazon Web Services</Authors>
