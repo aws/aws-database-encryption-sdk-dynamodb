@@ -135,7 +135,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
       match obj.0 {
         case "type" =>
           :- Need(obj.1.String?, "Value of 'type' must be a string.");
-          :- Need(obj.1.str == "aws-dbesdk-encrypt", "Value of 'type' must be 'aws-dbesdk-encrypt'");
+          :- Need(obj.1.str == "aws-dbesdk-decrypt", "Value of 'type' must be 'aws-dbesdk-decrypt'");
         case "version" =>
           :- Need(obj.1.String?, "Value of 'version' must be a string.");
           :- Need(obj.1.str == "1", "Value of 'version' must be '1'");

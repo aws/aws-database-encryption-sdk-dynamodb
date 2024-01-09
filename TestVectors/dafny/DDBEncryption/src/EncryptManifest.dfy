@@ -23,7 +23,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   {
     var result : seq<(string, JSON)> :=
       [
-        ("type", String("aws-dbesdk-encrypt")),
+        ("type", String("aws-dbesdk-decrypt")),
         ("version", String("1"))
       ];
     ("manifest", Object(result))
