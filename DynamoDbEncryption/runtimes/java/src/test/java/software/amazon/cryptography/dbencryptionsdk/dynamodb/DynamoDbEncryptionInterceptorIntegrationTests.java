@@ -392,11 +392,16 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .expressionAttributeValues(attrValues)
                 .consistentRead(true)
                 .build();
-
-        ScanResponse scanResponse  = ddbKmsKeyring.scan(scanRequest);
-        assertEquals(200, scanResponse.sdkHttpResponse().statusCode());
-        assertEquals(2, (double) scanResponse.count());
-        Map<String, AttributeValue> item = scanResponse.items().get(0);
+        List<Map<String,AttributeValue>> results = new ArrayList<>();
+        ScanResponse scanResponse;
+	do {
+           scanResponse  = ddbKmsKeyring.scan(scanRequest);
+           assertEquals(200, scanResponse.sdkHttpResponse().statusCode());
+	   results.addAll(scanResponse.items());
+	   scanRequest = scanRequest.toBuilder().exclusiveStartKey(scanResponse.lastEvaluatedKey()).build();
+	} while (scanResponse.lastEvaluatedKey().size() > 0);
+        assertEquals(2, (double) results.size());
+        Map<String, AttributeValue> item = results.get(0);
         assertEquals(partitionValue, item.get(TEST_PARTITION_NAME).s());
         assertEquals(attrValue, item.get(TEST_ATTR_NAME).s());
     }
