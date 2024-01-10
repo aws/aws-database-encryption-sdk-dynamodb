@@ -32,7 +32,7 @@ jobs:
       matrix:
         java-version: [ 8, 11, 16, 17 ]
         os: [
-          # TODO just test on mac for now
+          # TODO this is tracked in CrypTool-777
           #windows-latest,
           #ubuntu-latest,
           macos-latest

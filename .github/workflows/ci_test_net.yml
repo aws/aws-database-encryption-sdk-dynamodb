@@ -35,8 +35,6 @@ jobs:
         ]
         dotnet-version: [ '6.0.x' ]
         os: [
-          # TODO windows-latest,
-          # ubuntu-latest,
           macos-latest,
         ]
     runs-on: ${{ matrix.os }}
