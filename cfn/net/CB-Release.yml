@@ -125,7 +125,7 @@ Resources:
             {
               "Effect": "Allow",
               "Resource": [
-                "arn:aws:iam::395857916204:role/DbEsdkNetCodeSigning-ArtifactAccessRole"
+                "arn:aws:iam::367053968346:role/DbEsdkNetCodeSigning-ArtifactAccessRole"
               ],
               "Action": [
                 "sts:AssumeRole"
