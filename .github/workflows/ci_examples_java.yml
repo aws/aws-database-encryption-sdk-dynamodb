@@ -32,10 +32,6 @@ jobs:
       matrix:
         java-version: [ 8, 11, 16, 17 ]
         os: [
-          # TODO this is tracked in CrypTool-777
-          # TODO this is tracked in https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/777
-          #windows-latest,
-          #ubuntu-latest,
           macos-latest
         ]
     runs-on: ${{ matrix.os }}
