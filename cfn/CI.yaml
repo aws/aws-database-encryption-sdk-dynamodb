@@ -27,7 +27,7 @@ Parameters:
   GitHubRepo:
     Type: String
     Description: GitHub Repo that invokes CI
-    Default: aws/aws-database-encryption-sdk-dynamodb-java
+    Default: aws/aws-database-encryption-sdk-dynamodb
 
 Resources:
   TestTable:
@@ -318,7 +318,7 @@ Resources:
                 },
                 "StringLike": {
                   "token.actions.githubusercontent.com:sub": [
-                    "repo:aws/aws-database-encryption-sdk-dynamodb-java:*",
+                    "repo:aws/aws-database-encryption-sdk-dynamodb:*",
                     "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
                   ]
                 }
@@ -372,7 +372,7 @@ Resources:
                 },
                 "StringLike": {
                   "token.actions.githubusercontent.com:sub": [
-                    "repo:aws/aws-database-encryption-sdk-dynamodb-java:*",
+                    "repo:aws/aws-database-encryption-sdk-dynamodb:*",
                     "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
                   ]
                 }
@@ -426,7 +426,7 @@ Resources:
                 },
                 "StringLike": {
                   "token.actions.githubusercontent.com:sub": [
-                    "repo:aws/aws-database-encryption-sdk-dynamodb-java:*",
+                    "repo:aws/aws-database-encryption-sdk-dynamodb:*",
                     "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
                   ]
                 }
