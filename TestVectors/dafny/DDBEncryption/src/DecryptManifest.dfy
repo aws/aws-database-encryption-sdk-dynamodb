@@ -28,7 +28,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
         encryptedItem:=enc.item
       )
     );
-    expect decrypted.plaintextItem == plain.item;
+    expect DdbItemJson.NormalizeItem(decrypted.plaintextItem) == DdbItemJson.NormalizeItem(plain.item);
 
    return Success(true);
   }
