@@ -390,6 +390,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
                 .tableName(TEST_TABLE_NAME)
                 .filterExpression("partition_key = :val")
                 .expressionAttributeValues(attrValues)
+                .consistentRead(true)
                 .build();
 
         ScanResponse scanResponse  = ddbKmsKeyring.scan(scanRequest);
