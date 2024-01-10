@@ -334,6 +334,7 @@ Resources:
                 "StringEquals": {
                   "aws:PrincipalArn": [
                     "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DotNet-service-role-release",
                     "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
                   ]
                 }
@@ -388,6 +389,7 @@ Resources:
                 "StringEquals": {
                   "aws:PrincipalArn": [
                     "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DotNet-service-role-release",
                     "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
                   ]
                 }
@@ -442,6 +444,7 @@ Resources:
                 "StringEquals": {
                   "aws:PrincipalArn": [
                     "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DotNet-service-role-release",
                     "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
                   ]
                 }
