@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "JsonConfig.dfy"
+include "WriteManifest.dfy"
 include "../../../../DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy"
 
 module {:options "-functionSyntax:4"} EncryptManifest {
@@ -9,6 +10,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened JSON.Values
+  import opened WriteManifest
   import JSON.API
   import JSON.Errors
   import opened DynamoDbEncryptionUtil
@@ -23,7 +25,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   {
     var result : seq<(string, JSON)> :=
       [
-        ("type", String("aws-dbesdk-decrypt")),
+        ("type", String(DECRYPT_TYPE)),
         ("version", String("1"))
       ];
     ("manifest", Object(result))
@@ -33,7 +35,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   {
     var result : seq<(string, JSON)> :=
       [
-        ("name", String("aws/aws-dbesdk-" + lang)),
+        ("name", String(LIB_PREFIX + lang)),
         ("version", String(version))
       ];
     ("client", Object(result))
@@ -163,7 +165,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
       match obj.0 {
         case "type" =>
           :- Need(obj.1.String?, "Value of 'type' must be a string.");
-          :- Need(obj.1.str == "aws-dbesdk-encrypt", "Value of 'type' must be 'aws-dbesdk-encrypt'");
+          :- Need(obj.1.str == ENCRYPT_TYPE, "Value of 'type' must be '" + ENCRYPT_TYPE + "'.");
         case "version" =>
           :- Need(obj.1.String?, "Value of 'version' must be a string.");
           :- Need(obj.1.str == "1", "Value of 'version' must be '1'");

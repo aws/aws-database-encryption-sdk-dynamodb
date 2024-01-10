@@ -14,11 +14,15 @@ module {:options "-functionSyntax:4"} WriteManifest {
   import FileIO
   import opened JSONHelpers
 
+  const ENCRYPT_TYPE := "aws-dbesdk-encrypt"
+  const DECRYPT_TYPE := "aws-dbesdk-decrypt"
+  const LIB_PREFIX := "aws/aws-dbesdk-"
+
   function Manifest() : (string, JSON)
   {
     var result : seq<(string, JSON)> :=
       [
-        ("type", String("aws-dbesdk-encrypt")),
+        ("type", String(ENCRYPT_TYPE)),
         ("version", String("1"))
       ];
     ("manifest", Object(result))

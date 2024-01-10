@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "JsonConfig.dfy"
+include "WriteManifest.dfy"
 include "../../../../DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy"
 
 module {:options "-functionSyntax:4"} DecryptManifest {
@@ -9,6 +10,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened JSON.Values
+  import opened WriteManifest
   import JSON.API
   import JSON.Errors
   import DdbItemJson
@@ -135,7 +137,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
       match obj.0 {
         case "type" =>
           :- Need(obj.1.String?, "Value of 'type' must be a string.");
-          :- Need(obj.1.str == "aws-dbesdk-decrypt", "Value of 'type' must be 'aws-dbesdk-decrypt'");
+          :- Need(obj.1.str == DECRYPT_TYPE, "Value of 'type' must be '" + DECRYPT_TYPE + "'.");
         case "version" =>
           :- Need(obj.1.String?, "Value of 'version' must be a string.");
           :- Need(obj.1.str == "1", "Value of 'version' must be '1'");
