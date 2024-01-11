@@ -1,16 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-/*
-  TODO
-    queries that should pass in vanilla and fail in gazelle
-    configs that should fail
-    Better information printed on failure
-    Both algo suites, ensure fail if different on decrypt
-    Multiple Tables in config
-    Use vanilla client to damage encrypted record in subtle ways, ensure failure
-*/
-
 include "../Model/AwsCryptographyDynamoDbEncryptionTypesWrapped.dfy"
 include "CreateInterceptedDDBClient.dfy"
 include "JsonItem.dfy"
@@ -590,7 +580,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     }
     predicate QueryOutputEqual(actual : DDB.ItemList, expected : DDB.ItemList)
     {
-      // TODO - maybe the order isn't guaranteed?
       actual == expected
     }
 
@@ -876,7 +865,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
             ReturnConsumedCapacity := None
           )
         );
-        expect result.UnprocessedKeys.None? || |result.UnprocessedKeys.value| == 0; // TODO - actually handle this
+        expect result.UnprocessedKeys.None? || |result.UnprocessedKeys.value| == 0;
         expect result.Responses.Some?;
         expect |result.Responses.value| == 1;
         expect TableName in result.Responses.value;
