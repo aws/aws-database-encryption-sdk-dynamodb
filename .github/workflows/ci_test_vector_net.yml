@@ -59,6 +59,4 @@ jobs:
         working-directory: ./TestVectors/runtimes/net
         run: |
           cp ../java/*.json .
-          # dotnet run
-          echo can't build until we make type conversions public
-          echo can't run until we update MPL/ComAmazonawsDynamodb
+          dotnet run
