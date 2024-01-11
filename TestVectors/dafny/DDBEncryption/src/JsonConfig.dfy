@@ -224,33 +224,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
     return Success(results);
   }
 
-  /*
-  method GetDynamoDbItemEncryptorFrom(config : DynamoDbItemEncryptorConfig)
-    returns (encryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient)
-    ensures encryptor.ValidState()
-    ensures fresh(encryptor)
-    ensures fresh(encryptor.Modifies)
-  {
-    var keyring := GetKmsKeyring();
-    var encryptorConfig := DynamoDbItemEncryptorConfig(
-      logicalTableName := config.logicalTableName,
-      partitionKeyName := config.partitionKeyName,
-      sortKeyName := config.sortKeyName,
-      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
-      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
-      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
-      keyring := Some(keyring),
-      cmm := None(),
-      algorithmSuiteId := None(),
-      legacyOverride := None(),
-      plaintextOverride := None()
-    );
-    encryptor :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-  }
-
-  */
-
-
   method GetItemEncryptor(name : string, data : JSON)
     returns (encryptor : Result<DynamoDbItemEncryptor.DynamoDbItemEncryptorClient, string>)
     ensures encryptor.Success? ==>

@@ -50,24 +50,5 @@ module {:options "-functionSyntax:4"} Permutations {
       return result;
     }
   }
-/*
-  method {:test} BasicTests() {
-    var zero := GeneratePermutations<int>([]);
-    var one := GeneratePermutations([1]);
-    var two := GeneratePermutations([1,2]);
-    var three := GeneratePermutations([1,2,3]);
-    var four := GeneratePermutations([1,2,3,4]);
-    expect zero == [];
-    expect one == [[1]];
-    expect two == [[1,2],[2,1]];
-    expect three == [[1, 2, 3], [2, 1, 3], [3, 1, 2], [1, 3, 2], [1, 2, 3], [2, 1, 3]];
-    expect four == [
-                     [1, 2, 3, 4], [2, 1, 3, 4], [3, 1, 2, 4], [1, 3, 2, 4], [1, 2, 3, 4], [2, 1, 3, 4],
-                     [4, 1, 3, 2], [1, 4, 3, 2], [3, 4, 1, 2], [4, 3, 1, 2], [4, 1, 3, 2], [1, 4, 3, 2],
-                     [1, 2, 3, 4], [2, 1, 3, 4], [3, 1, 2, 4], [1, 3, 2, 4], [1, 2, 3, 4], [2, 1, 3, 4],
-                     [2, 1, 4, 3], [1, 2, 4, 3], [4, 2, 1, 3], [2, 4, 1, 3], [2, 1, 4, 3], [1, 2, 4, 3]
-                   ];
-  }
-*/
 }
 
