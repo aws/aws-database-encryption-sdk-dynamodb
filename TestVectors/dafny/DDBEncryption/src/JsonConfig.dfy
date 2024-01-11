@@ -33,6 +33,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import DynamoDbItemEncryptor
 
 
+  const DEFAULT_KEYS := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
   type ConfigName = string
 
@@ -296,7 +298,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     var keys :- expect KeyVectors.KeyVectors(
       KeyVectorsTypes.KeyVectorsConfig(
-        keyManifiestPath := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+        keyManifiestPath := DEFAULT_KEYS
       )
     );
     var keyDescription :-
@@ -398,7 +400,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     var keys :- expect KeyVectors.KeyVectors(
       KeyVectorsTypes.KeyVectorsConfig(
-        keyManifiestPath := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+        keyManifiestPath := DEFAULT_KEYS
       )
     );
     var keyDescription :-
@@ -545,7 +547,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
       case "ENCRYPT_AND_SIGN" => return Success(SE.ENCRYPT_AND_SIGN);
       case "SIGN_ONLY" => return Success(SE.SIGN_ONLY);
       case "DO_NOTHING" => return Success(SE.DO_NOTHING);
-      case _ => return Failure(data.str + " is not a value CryptoAction.");
+      case _ => return Failure(data.str + " is not a valid CryptoAction.");
     }
   }
 
@@ -921,9 +923,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
     :- Need(|split| == 1, "Split for Compound Beacon must be length 1.");
     return Success(Types.CompoundBeacon(name := name, split := split, encrypted := OptSeq(Encrypted), signed := OptSeq(Signed), constructors := OptSeq(constructors)));
   }
-
-  // datatype Type = Type
-  // method JsonToType(data : JSON) returns (output : Result<Type, string>)
 
   method GetConstructors(data : JSON) returns (output : Result<seq<Types.Constructor> , string>)
   {
