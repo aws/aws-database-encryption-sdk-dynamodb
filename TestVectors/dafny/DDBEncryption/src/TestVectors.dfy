@@ -91,6 +91,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var _ :- expect WriteManifest.Write("encrypt.json");
       var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.2");
       var _ :- expect DecryptManifest.Decrypt("decrypt.json");
+      if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
+        print "\nRunning no tests\n";
+        return;
+      }
       Validate();
       StringOrdering();
       BasicIoTest();

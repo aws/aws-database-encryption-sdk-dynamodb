@@ -58,5 +58,7 @@ jobs:
       - name: Test TestVectors
         working-directory: ./TestVectors/runtimes/net
         run: |
+          cp ../java/decrypt_java.json ../java/decrypt_dotnet.json .	
+          dotnet run
           cp ../java/*.json .
           dotnet run
