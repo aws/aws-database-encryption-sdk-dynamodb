@@ -327,8 +327,10 @@ module {:options "-functionSyntax:4"} JsonConfig {
           legacyOverride := legacyOverride,
           plaintextOverride := plaintextOverride
         );
-    var enc :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-    return Success(enc);
+    var enc : ENC.IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+    assert enc is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    var encr := enc as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    return Success(encr);
   }
 
   method GetOneTableConfig(name : string, data : JSON) returns (output : Result<TableConfig, string>)

@@ -29,8 +29,9 @@ module StructuredEncryptionHeader {
   const COMMITMENT_LEN := 32
   const PREFIX_LEN := VERSION_LEN + FLAVOR_LEN + MSGID_LEN
   const UINT8_LIMIT := 256
-  const ENCRYPT_AND_SIGN_LEGEND : uint8 := 0x65;
-  const SIGN_ONLY_LEGEND : uint8 := 0x73;
+  const ENCRYPT_AND_SIGN_LEGEND : uint8 := 0x65
+  const CONTEXT_AND_SIGN_LEGEND : uint8 := 0x63
+  const SIGN_ONLY_LEGEND : uint8 := 0x73
 
   //= specification/structured-encryption/header.md#format-version
   //= type=implication
@@ -69,7 +70,7 @@ module StructuredEncryptionHeader {
   }
 
   predicate method ValidLegendByte(x : uint8) {
-    x in [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND]
+    x in [ENCRYPT_AND_SIGN_LEGEND, CONTEXT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND]
   }
   
   predicate method ValidEncryptionContext(x : CMP.EncryptionContext) {
@@ -400,8 +401,8 @@ module StructuredEncryptionHeader {
     )
     : (ret : Result<Legend, Error>)
     requires forall k <- attrs :: k in data
-    requires forall k <- data.Keys :: data[k].content.Action?;
-    requires forall k <- data.Keys :: IsAuthAttr(data[k].content.Action);
+    requires forall k <- data.Keys :: data[k].content.Action?
+    requires forall k <- data.Keys :: IsAuthAttr(data[k].content.Action)
     requires |attrs| + |serialized| == |data|
     ensures ret.Success? ==> |ret.value| == |data|
   {
@@ -430,11 +431,13 @@ module StructuredEncryptionHeader {
     // - no entry if the attribute is not signed
     ensures match (x) {
       case ENCRYPT_AND_SIGN => ret == ENCRYPT_AND_SIGN_LEGEND
+      case CONTEXT_AND_SIGN => ret == CONTEXT_AND_SIGN_LEGEND
       case SIGN_ONLY => ret == SIGN_ONLY_LEGEND
     }
   {
     match (x) {
       case ENCRYPT_AND_SIGN => ENCRYPT_AND_SIGN_LEGEND
+      case CONTEXT_AND_SIGN => CONTEXT_AND_SIGN_LEGEND
       case SIGN_ONLY => SIGN_ONLY_LEGEND
     }
   }
