@@ -36,7 +36,7 @@ module DynamoToStruct {
     //= type=implication
     //# - MUST contain a [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
     //# for each attribute on the DynamoDB Item, and no others.
-    ensures ret.Success? ==> ret.value.Keys == item.Keys;
+    ensures ret.Success? ==> ret.value.Keys == item.Keys
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
     //= type=implication
@@ -78,7 +78,7 @@ module DynamoToStruct {
     //= type=implication
     //# - MUST contain an Attribute for every [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
     //# on the Structured Data, and not other Attributes.
-    ensures ret.Success? ==> ret.value.Keys == s.Keys;
+    ensures ret.Success? ==> ret.value.Keys == s.Keys
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
     //= type=implication
@@ -194,10 +194,10 @@ module DynamoToStruct {
     Success(attrValueAndLength.val)
   }
 
-    const BOOL_LEN : nat := 1;   // number of bytes in an encoded boolean
-    const TYPEID_LEN : nat := 2;   // number of bytes in a TerminalTypeId
-    const LENGTH_LEN : nat := 4; // number of bytes in an encoded count or length
-    const PREFIX_LEN : nat := 6; // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
+    const BOOL_LEN : nat := 1   // number of bytes in an encoded boolean
+    const TYPEID_LEN : nat := 2   // number of bytes in a TerminalTypeId
+    const LENGTH_LEN : nat := 4 // number of bytes in an encoded count or length
+    const PREFIX_LEN : nat := 6 // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
 
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#type-id
@@ -216,26 +216,26 @@ module DynamoToStruct {
     //# | Binary Set (BS)           | 0x01FF           |
     //# | Map (M)                   | 0x0200           |
     //# | List (L)                  | 0x0300           |
-    const TERM_T : uint8 := 0x00;
-    const SET_T  : uint8 := 0x01;
-    const MAP_T  : uint8 := 0x02;
-    const LIST_T : uint8 := 0x03;
-    const NULL_T : uint8 := 0x00;
-    const STRING_T  : uint8 := 0x01;
-    const NUMBER_T  : uint8 := 0x02;
-    const BINARY_T : uint8 := 0xFF;
-    const BOOLEAN_T : uint8 := 0x04;
+    const TERM_T : uint8 := 0x00
+    const SET_T  : uint8 := 0x01
+    const MAP_T  : uint8 := 0x02
+    const LIST_T : uint8 := 0x03
+    const NULL_T : uint8 := 0x00
+    const STRING_T  : uint8 := 0x01
+    const NUMBER_T  : uint8 := 0x02
+    const BINARY_T : uint8 := 0xFF
+    const BOOLEAN_T : uint8 := 0x04
 
-    const NULL       : TerminalTypeId := [TERM_T, NULL_T];
-    const STRING     : TerminalTypeId := [TERM_T, STRING_T];
-    const NUMBER     : TerminalTypeId := [TERM_T, NUMBER_T];
-    const BINARY     : TerminalTypeId := [0xFF, 0xFF];
-    const BOOLEAN    : TerminalTypeId := [TERM_T, BOOLEAN_T];
-    const STRING_SET : TerminalTypeId := [SET_T,  STRING_T];
-    const NUMBER_SET : TerminalTypeId := [SET_T,  NUMBER_T];
-    const BINARY_SET : TerminalTypeId := [SET_T,  BINARY_T];
-    const MAP        : TerminalTypeId := [MAP_T,  NULL_T];
-    const LIST       : TerminalTypeId := [LIST_T, NULL_T];
+    const NULL       : TerminalTypeId := [TERM_T, NULL_T]
+    const STRING     : TerminalTypeId := [TERM_T, STRING_T]
+    const NUMBER     : TerminalTypeId := [TERM_T, NUMBER_T]
+    const BINARY     : TerminalTypeId := [0xFF, 0xFF]
+    const BOOLEAN    : TerminalTypeId := [TERM_T, BOOLEAN_T]
+    const STRING_SET : TerminalTypeId := [SET_T,  STRING_T]
+    const NUMBER_SET : TerminalTypeId := [SET_T,  NUMBER_T]
+    const BINARY_SET : TerminalTypeId := [SET_T,  BINARY_T]
+    const MAP        : TerminalTypeId := [MAP_T,  NULL_T]
+    const LIST       : TerminalTypeId := [LIST_T, NULL_T]
 
   function method AttrToTypeId(a : AttributeValue) : TerminalTypeId
   {
@@ -1111,7 +1111,7 @@ module DynamoToStruct {
     set k <- m | m[k].Failure? :: m[k].error
   }
 
-  lemma OneBadResult<X,Y(==)>(m : map<X, Result<Y,string>>)
+  lemma OneBadResult<X,Y>(m : map<X, Result<Y,string>>)
     requires ! forall k <- m :: m[k].Success?
     ensures exists k <- m :: m[k].Failure?
     ensures |FlattenErrors(m)| > 0
@@ -1121,20 +1121,20 @@ module DynamoToStruct {
     assert exists k :: k in m && m[k].Failure? && (m[k].error in errors);
   }
 
-  lemma MapKeysMatchItems<X,Y(==)>(m : map<X,Y>)
+  lemma MapKeysMatchItems<X,Y>(m : map<X,Y>)
     ensures forall k :: k in m.Keys ==> (k, m[k]) in m.Items
   {}
 
   lemma OneBadKey<X,Y>(s : map<X,Y>, bad : set<X>, f : X -> bool)
     requires !forall k <- s.Keys :: f(k)
-    requires bad == set k <- s.Keys | !f(k) :: k;
+    requires bad == set k <- s.Keys | !f(k) :: k
     ensures exists k <- s.Keys :: !f(k)
     ensures |bad| > 0
   {
     assert exists v :: v in bad && !f(v) && (v in bad);
   }
 
-  lemma SimplifyMapValueSuccess<X,Y(==)>(m : map<X, Result<Y,string>>)
+  lemma SimplifyMapValueSuccess<X,Y>(m : map<X, Result<Y,string>>)
     ensures SimplifyMapValue(m).Success? <==> forall k <- m :: m[k].Success?
     ensures SimplifyMapValue(m).Success? ==> forall kv <- m.Items :: kv.1.Success?
     ensures SimplifyMapValue(m).Failure? <==> exists k : X | k in m.Keys :: m[k].Failure?

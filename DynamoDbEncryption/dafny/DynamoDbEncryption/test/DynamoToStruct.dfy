@@ -47,13 +47,13 @@ module DynamoToStructTest {
     DoFail([], LIST);
   }
 
-  const k := 'k' as uint8;
-  const e := 'e' as uint8;
-  const y := 'y' as uint8;
-  const A := 'A' as uint8;
-  const B := 'B' as uint8;
-  const C := 'C' as uint8;
-  const D := 'D' as uint8;
+  const k := 'k' as uint8
+  const e := 'e' as uint8
+  const y := 'y' as uint8
+  const A := 'A' as uint8
+  const B := 'B' as uint8
+  const C := 'C' as uint8
+  const D := 'D' as uint8
 
   method {:test} TestBadType() {
     DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST, 5);

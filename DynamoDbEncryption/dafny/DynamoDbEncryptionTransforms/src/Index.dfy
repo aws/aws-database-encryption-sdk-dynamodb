@@ -188,7 +188,11 @@ module
         assert itemEncryptorX is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
         var itemEncryptor := itemEncryptorX as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
         assert itemEncryptor.ValidState();
-        
+        var encConfig := itemEncryptor.config;
+        assert inputConfig.logicalTableName == encConfig.logicalTableName;
+        assert inputConfig.partitionKeyName == encConfig.partitionKeyName;
+        assert inputConfig.sortKeyName == encConfig.sortKeyName;
+
         var internalConfig: DdbMiddlewareConfig.ValidTableConfig := DdbMiddlewareConfig.TableConfig(
           physicalTableName := tableName,
           logicalTableName := inputConfig.logicalTableName,
@@ -197,12 +201,6 @@ module
           itemEncryptor := itemEncryptor,
           search := search
         );
-    //         var encryptorConfig := config.itemEncryptor.config;
-    // && config.logicalTableName == encryptorConfig.logicalTableName
-    // && config.partitionKeyName == encryptorConfig.partitionKeyName
-    // && config.sortKeyName == encryptorConfig.sortKeyName
-    // && config.itemEncryptor.ValidState()
-    // && OneSearchValidState(config)
 
         internalConfigs := internalConfigs[tableName := internalConfig];
         allLogicalTableNames := allLogicalTableNames + {internalConfig.logicalTableName};

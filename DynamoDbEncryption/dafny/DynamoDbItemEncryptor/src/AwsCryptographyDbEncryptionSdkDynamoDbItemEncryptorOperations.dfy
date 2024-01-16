@@ -29,7 +29,14 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import DynamoDbEncryptionUtil
   import StandardLibrary.String
 
+  type Version = x : int | ValidVersion(x) witness 1
+  predicate ValidVersion(x : int)
+  {
+    x == 1 || x == 2
+  }
+
   datatype Config = Config(
+    nameonly version : Version,
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
     nameonly logicalTableName: string,
     nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName,
@@ -276,6 +283,34 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       assert ec[SORT_NAME] == sortName;
       assert ec[sortKeyName] == sortKeyValue;
       Success(ec)
+  }
+
+  function method {:opaque} {:vcs_split_on_every_assert} MakeEncryptionContextV2(
+    config : InternalConfig,
+    item : DynamoToStruct.TerminalDataMap)
+    : (ret : Result<CMP.EncryptionContext, Error>)
+
+    ensures ret.Success? ==>
+              && config.partitionKeyName in item
+              && TABLE_NAME in ret.value
+              && DDBEncode(config.logicalTableName).Success?
+              && var logicalTableName : ValidUTF8Bytes := DDBEncode(config.logicalTableName).value;
+              && ret.value[TABLE_NAME] == logicalTableName
+              && PARTITION_NAME !in ret.value
+              && SORT_NAME !in ret.value
+  {
+    UTF8.EncodeAsciiUnique();
+    var logicalTableName : ValidUTF8Bytes :- DDBEncode(config.logicalTableName);
+    :- Need(|{TABLE_NAME, PARTITION_NAME, SORT_NAME}| == 3, E("Internal Error"));
+    var ec : CMP.EncryptionContext :=
+      map[
+        TABLE_NAME := logicalTableName
+      ];
+    assert TABLE_NAME in ec;
+    assert PARTITION_NAME !in ec;
+    assert SORT_NAME !in ec;
+    assert ec[TABLE_NAME] == logicalTableName;
+    Success(ec)
   }
 
   // string to Error
@@ -629,12 +664,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && SE.IsAuthAttr(parsedHeaderMap[k].content.Action))
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
-        // && output.value.parsedHeader.value == ParsedHeader(
-        //                                         attributeActionsOnEncrypt := maybeCryptoSchema.value,
-        //                                         algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
-        //                                         storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
-        //                                         encryptedDataKeys := structuredEncParsed.encryptedDataKeys
-        //                                       )
+        && output.value.parsedHeader.value == ParsedHeader(
+                                                attributeActionsOnEncrypt := maybeCryptoSchema.value,
+                                                algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
+                                                storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
+                                                encryptedDataKeys := structuredEncParsed.encryptedDataKeys,
+                                                encryptionContext := structuredEncParsed.encryptionContext
+                                              )
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -840,12 +876,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && SE.IsAuthAttr(structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action))
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
-        // && output.value.parsedHeader.value == ParsedHeader(
-        //                                         attributeActionsOnEncrypt := maybeCryptoSchema.value,
-        //                                         algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
-        //                                         storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
-        //                                         encryptedDataKeys := structuredEncParsed.encryptedDataKeys
-        //                                       )
+        && output.value.parsedHeader.value == ParsedHeader(
+                                                attributeActionsOnEncrypt := maybeCryptoSchema.value,
+                                                algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
+                                                storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
+                                                encryptedDataKeys := structuredEncParsed.encryptedDataKeys,
+                                                encryptionContext := structuredEncParsed.encryptionContext
+                                              )
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication

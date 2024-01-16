@@ -18,7 +18,6 @@ module
   import InternalLegacyOverride
   import SortedSets
   import DDB = ComAmazonawsDynamodbTypes
- // import AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionService
 
   // There is no sensible default, so construct something simple but invalid at runtime.
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
@@ -44,28 +43,49 @@ module
     !(ReservedPrefix <= attr)
   }
 
+  predicate method IsVersion2Schema(actions : DDBE.AttributeActions)
+  {
+    exists x <- actions :: actions[x] == CSE.CONTEXT_AND_SIGN
+  }
+  function method VersionFromActions(actions : DDBE.AttributeActions) : Operations.Version
+  {
+    if IsVersion2Schema(actions) then
+      2
+    else
+      1
+  }
+  function method KeyActionFromSchema(actions : DDBE.AttributeActions) : CSE.CryptoAction
+  {
+    if IsVersion2Schema(actions) then
+      CSE.CONTEXT_AND_SIGN
+    else
+      CSE.SIGN_ONLY
+
+  }
+
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
       && res.value is DynamoDbItemEncryptorClient
-      && var config := (res.value as DynamoDbItemEncryptorClient).config;
-      && config.logicalTableName == config.logicalTableName
-      && config.partitionKeyName == config.partitionKeyName
-      && config.sortKeyName == config.sortKeyName
-      && config.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
-      && config.allowedUnsignedAttributes == config.allowedUnsignedAttributes
-      && config.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
-      && config.algorithmSuiteId == config.algorithmSuiteId
+      && var rconfig := (res.value as DynamoDbItemEncryptorClient).config;
+      && rconfig.logicalTableName == config.logicalTableName
+      && rconfig.partitionKeyName == config.partitionKeyName
+      && rconfig.sortKeyName == config.sortKeyName
+      && rconfig.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
+      && rconfig.allowedUnsignedAttributes == config.allowedUnsignedAttributes
+      && rconfig.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
+      && rconfig.algorithmSuiteId == config.algorithmSuiteId
 
       //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-actions
       //= type=implication
       //# The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
       //# MUST be configured to the partition attribute and, if present, sort attribute.
+      && rconfig.version == VersionFromActions(config.attributeActionsOnEncrypt)
       && config.partitionKeyName in config.attributeActionsOnEncrypt
-      && config.attributeActionsOnEncrypt[config.partitionKeyName] == CSE.SIGN_ONLY
+      && config.attributeActionsOnEncrypt[config.partitionKeyName] == KeyActionFromSchema(config.attributeActionsOnEncrypt)
       && (config.sortKeyName.Some? ==>
           && config.sortKeyName.value in config.attributeActionsOnEncrypt
-          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == CSE.SIGN_ONLY)
+          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == KeyActionFromSchema(config.attributeActionsOnEncrypt))
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#plaintext-policy
     //# If not specified, encryption and decryption MUST behave according to `FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ`.
@@ -82,18 +102,20 @@ module
     :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
       message := "Must provide either a keyring or a CMM"
     ));
+    var version := VersionFromActions(config.attributeActionsOnEncrypt);
+    var keyAction := KeyActionFromSchema(config.attributeActionsOnEncrypt);
     :- Need(
         && config.partitionKeyName in config.attributeActionsOnEncrypt
-        && config.attributeActionsOnEncrypt[config.partitionKeyName] == CSE.SIGN_ONLY,
+        && config.attributeActionsOnEncrypt[config.partitionKeyName] == keyAction,
       DynamoDbItemEncryptorException(
-        message := "Partition key attribute action MUST be SIGN_ONLY"
+        message := "Partition key attribute action MUST be SIGN_ONLY" // FIXME
       ));
     :- Need(
       (config.sortKeyName.Some? ==>
         && config.sortKeyName.value in config.attributeActionsOnEncrypt
-        && config.attributeActionsOnEncrypt[config.sortKeyName.value] == CSE.SIGN_ONLY),
+        && config.attributeActionsOnEncrypt[config.sortKeyName.value] == keyAction),
       DynamoDbItemEncryptorException(
-        message := "Sort key attribute action MUST be SIGN_ONLY"
+        message := "Sort key attribute action MUST be SIGN_ONLY" // FIXME
       ));
 
     // We happen to order these values, but this ordering MUST NOT be relied upon.
@@ -185,6 +207,7 @@ module
       DDBE.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ;      
 
     var internalConfig := Operations.Config(
+      version := version,
       cmpClient := cmpClient,
       logicalTableName := config.logicalTableName,
       partitionKeyName := config.partitionKeyName,
