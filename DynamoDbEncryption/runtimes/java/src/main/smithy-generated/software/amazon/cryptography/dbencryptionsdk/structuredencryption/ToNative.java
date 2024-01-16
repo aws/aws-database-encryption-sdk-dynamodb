@@ -152,6 +152,7 @@ public class ToNative {
     nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
     nativeBuilder.encryptedDataKeys(software.amazon.cryptography.materialproviders.ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
     nativeBuilder.storedEncryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_storedEncryptionContext()));
+    nativeBuilder.encryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
     return nativeBuilder.build();
   }
 
@@ -194,6 +195,9 @@ public class ToNative {
       software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction dafnyValue) {
     if (dafnyValue.is_ENCRYPT__AND__SIGN()) {
       return CryptoAction.ENCRYPT_AND_SIGN;
+    }
+    if (dafnyValue.is_CONTEXT__AND__SIGN()) {
+      return CryptoAction.CONTEXT_AND_SIGN;
     }
     if (dafnyValue.is_SIGN__ONLY()) {
       return CryptoAction.SIGN_ONLY;

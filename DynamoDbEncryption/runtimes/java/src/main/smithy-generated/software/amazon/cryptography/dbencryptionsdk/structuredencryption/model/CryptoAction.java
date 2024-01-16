@@ -6,6 +6,8 @@ package software.amazon.cryptography.dbencryptionsdk.structuredencryption.model;
 public enum CryptoAction {
   ENCRYPT_AND_SIGN("ENCRYPT_AND_SIGN"),
 
+  CONTEXT_AND_SIGN("CONTEXT_AND_SIGN"),
+
   SIGN_ONLY("SIGN_ONLY"),
 
   DO_NOTHING("DO_NOTHING");

@@ -18,7 +18,7 @@ module
   import InternalLegacyOverride
   import SortedSets
   import DDB = ComAmazonawsDynamodbTypes
-
+ // import AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionService
 
   // There is no sensible default, so construct something simple but invalid at runtime.
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
@@ -45,15 +45,17 @@ module
   }
 
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
-    returns (res: Result<DynamoDbItemEncryptorClient, Error>)
+    returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
-      && res.value.config.logicalTableName == config.logicalTableName
-      && res.value.config.partitionKeyName == config.partitionKeyName
-      && res.value.config.sortKeyName == config.sortKeyName
-      && res.value.config.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
-      && res.value.config.allowedUnsignedAttributes == config.allowedUnsignedAttributes
-      && res.value.config.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
-      && res.value.config.algorithmSuiteId == config.algorithmSuiteId
+      && res.value is DynamoDbItemEncryptorClient
+      && var config := (res.value as DynamoDbItemEncryptorClient).config;
+      && config.logicalTableName == config.logicalTableName
+      && config.partitionKeyName == config.partitionKeyName
+      && config.sortKeyName == config.sortKeyName
+      && config.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
+      && config.allowedUnsignedAttributes == config.allowedUnsignedAttributes
+      && config.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
+      && config.algorithmSuiteId == config.algorithmSuiteId
 
       //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-actions
       //= type=implication
@@ -71,7 +73,8 @@ module
         && res.Success?
         && config.plaintextOverride.None?
       ==>
-        res.value.config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
+        && var config := (res.value as DynamoDbItemEncryptorClient).config;
+        && config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
   {
     :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
       message := "Cannot provide both a keyring and a CMM"
@@ -132,8 +135,10 @@ module
 
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
-    var structuredEncryption :- structuredEncryptionRes
+    var structuredEncryptionX : CSE.IStructuredEncryptionClient :- structuredEncryptionRes
       .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
+    assert structuredEncryptionX is StructuredEncryption.StructuredEncryptionClient;
+    var structuredEncryption := structuredEncryptionX as StructuredEncryption.StructuredEncryptionClient;
 
     var cmm;
     if (config.cmm.Some?) {
@@ -192,7 +197,7 @@ module
       //# The [algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md) that SHOULD be used for encryption.
       algorithmSuiteId := config.algorithmSuiteId,
       cmm := cmm,
-      structuredEncryption := structuredEncryption,
+      structuredEncryption := (structuredEncryption as StructuredEncryption.StructuredEncryptionClient),
       internalLegacyOverride := internalLegacyOverride,
       plaintextOverride := plaintextOverride
     );

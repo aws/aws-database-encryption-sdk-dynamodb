@@ -21,7 +21,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
 	| DO_NOT_SIGN
  datatype AuthenticateSchema = | AuthenticateSchema (
  nameonly content: AuthenticateSchemaContent ,
- nameonly attributes: Option<AuthenticateSchemaAttributes>
+ nameonly attributes: Option<AuthenticateSchemaAttributes> := Option.None
  )
  type AuthenticateSchemaAttributes = map<string, AuthenticateAction>
  datatype AuthenticateSchemaContent =
@@ -32,11 +32,12 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  type AuthenticateSchemaMap = map<string, AuthenticateSchema>
  datatype CryptoAction =
 	| ENCRYPT_AND_SIGN
+	| CONTEXT_AND_SIGN
 	| SIGN_ONLY
 	| DO_NOTHING
  datatype CryptoSchema = | CryptoSchema (
  nameonly content: CryptoSchemaContent ,
- nameonly attributes: Option<CryptoSchemaAttributes>
+ nameonly attributes: Option<CryptoSchemaAttributes> := Option.None
  )
  type CryptoSchemaAttributes = map<string, AuthenticateAction>
  datatype CryptoSchemaContent =
@@ -50,7 +51,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly encryptedStructure: StructuredData ,
  nameonly authenticateSchema: AuthenticateSchema ,
  nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
- nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
+ nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
  )
  datatype DecryptStructureOutput = | DecryptStructureOutput (
  nameonly plaintextStructure: StructuredData ,
@@ -61,8 +62,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly plaintextStructure: StructuredData ,
  nameonly cryptoSchema: CryptoSchema ,
  nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
- nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
- nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
+ nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
+ nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
  )
  datatype EncryptStructureOutput = | EncryptStructureOutput (
  nameonly encryptedStructure: StructuredData ,
@@ -72,11 +73,12 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly cryptoSchema: CryptoSchema ,
  nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
  nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
- nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
+ nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
+ nameonly encryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
  )
  datatype StructuredData = | StructuredData (
  nameonly content: StructuredDataContent ,
- nameonly attributes: Option<StructuredDataAttributes>
+ nameonly attributes: Option<StructuredDataAttributes> := Option.None
  )
  type StructuredDataAttributes = map<string, StructuredDataTerminal>
  datatype StructuredDataContent =
@@ -220,13 +222,20 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import Operations : AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations
  function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig
  method StructuredEncryption(config: StructuredEncryptionConfig := DefaultStructuredEncryptionConfig())
- returns (res: Result<StructuredEncryptionClient, Error>)
+ returns (res: Result<IStructuredEncryptionClient, Error>)
  ensures res.Success? ==> 
  && fresh(res.value)
  && fresh(res.value.Modifies)
  && fresh(res.value.History)
  && res.value.ValidState()
 
+ // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
+ function method CreateSuccessOfClient(client: IStructuredEncryptionClient): Result<IStructuredEncryptionClient, Error> {
+   Success(client)
+ } // Helper function for the benefit of native code to create a Failure(error) without referring to Dafny internals
+ function method CreateFailureOfError(error: Error): Result<IStructuredEncryptionClient, Error> {
+   Failure(error)
+ }
  class StructuredEncryptionClient extends IStructuredEncryptionClient
  {
  constructor(config: Operations.InternalConfig)

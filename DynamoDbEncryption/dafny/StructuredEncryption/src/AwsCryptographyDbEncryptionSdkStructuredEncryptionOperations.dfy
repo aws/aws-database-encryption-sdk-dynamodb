@@ -67,8 +67,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       && var inputSchema := input.cryptoSchema.content.SchemaMap;
       && CryptoSchemaMapIsFlat(inputSchema)
       && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
-      && (forall v :: v in headerSchema.Values ==>
-        (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?))
+      && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v.content.Action))
     )
   }
 
@@ -230,8 +229,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     && var headerSchema := c.cryptoSchema.content.SchemaMap;
     && |c.data_c| == |headerSchema|
     && (exists tableName :: (forall k :: k in headerSchema ==> Paths.SimpleCanon(tableName, k) in c.data_c))
-    && (forall v :: v in headerSchema.Values ==>
-      v.content.Action? && (v.content.Action.ENCRYPT_AND_SIGN? || v.content.Action.SIGN_ONLY?))
+    && (forall v :: v in headerSchema.Values ==> v.content.Action? && IsAuthAttr(v.content.Action))
   }
 
   type DecryptCanon = c: DecryptCanonData | ValidDecryptCanon?(c)
@@ -487,10 +485,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var cryptoSchema := input.cryptoSchema.content.SchemaMap;
     :- Need(CryptoSchemaMapIsFlat(cryptoSchema), E("Schema must be flat."));
     :- Need(forall k <- cryptoSchema :: ValidString(k), E("Schema has bad field name."));
-    :- Need(exists k <- cryptoSchema :: (
-        || cryptoSchema[k].content.Action == ENCRYPT_AND_SIGN
-        || cryptoSchema[k].content.Action == SIGN_ONLY
-      ), E("At least one field in the Crypto Schema must be ENCRYPT_AND_SIGN or SIGN_ONLY."));
+    :- Need(exists k <- cryptoSchema :: IsAuthAttr(cryptoSchema[k].content.Action),
+      E("At least one field in the Crypto Schema must be ENCRYPT_AND_SIGN, CONTEXT_AND_SIGN or SIGN_ONLY."));
 
     var plainRecord := input.plaintextStructure.content.DataMap;
     :- Need(DataMapIsFlat(plainRecord), E("Input DataMap must be flat."));
@@ -583,7 +579,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         cryptoSchema := canonData.cryptoSchema,
         algorithmSuiteId := headerAlgorithmSuite.id.DBE,
         encryptedDataKeys := head.dataKeys,
-        storedEncryptionContext := head.encContext
+        storedEncryptionContext := head.encContext,
+        encryptionContext := mat.encryptionContext
     );
     
     var encryptOutput := EncryptStructureOutput(
@@ -626,9 +623,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     && (forall k <- cryptoSchema.Keys :: k in authSchema && authSchema[k].content.Action.SIGN?)
     // The crypto map is not missing any SIGN fields from the auth map
     && (forall kv <- authSchema.Items | kv.1.content.Action.SIGN? :: kv.0 in cryptoSchema.Keys)
-    // Every field in the crypto map is ENCRYPT_AND_SIGN or SIGN_ONLY
-    && (forall v <- cryptoSchema.Values :: v.content.Action.SIGN_ONLY? || v.content.Action.ENCRYPT_AND_SIGN?)
-
+    // Every field in the crypto map is ENCRYPT_AND_SIGN, CONTEXT_AND_SIGN or SIGN_ONLY
+    && (forall v <- cryptoSchema.Values :: IsAuthAttr(v.content.Action))
   }
 
   const ReservedAuthMap : AuthSchemaPlain := map[
@@ -875,7 +871,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         cryptoSchema := canonData.cryptoSchema,
         algorithmSuiteId := headerAlgorithmSuite.id.DBE,
         encryptedDataKeys := head.dataKeys,
-        storedEncryptionContext := head.encContext
+        storedEncryptionContext := head.encContext,
+        encryptionContext := mat.encryptionContext
     );
 
     var decryptOutput := DecryptStructureOutput(

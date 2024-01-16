@@ -136,7 +136,10 @@ structure ParsedHeader {
     encryptedDataKeys: EncryptedDataKeyList,
     @required
     @javadoc("The portion of the encryption context that was stored in the header of this item.")
-    storedEncryptionContext: EncryptionContext
+    storedEncryptionContext: EncryptionContext,
+    @required
+    @javadoc("The full encryption context.")
+    encryptionContext: EncryptionContext
 }
 
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#encryptitem

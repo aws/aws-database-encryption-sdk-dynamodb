@@ -59,11 +59,13 @@ module StructuredEncryptionUtil {
   const DoSign :=
     CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
   const EncryptAndSign :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.ENCRYPT_AND_SIGN), attributes := None);
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.ENCRYPT_AND_SIGN), attributes := None)
+  const ContextAndSign :=
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.CONTEXT_AND_SIGN), attributes := None)
   const SignOnly :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_ONLY), attributes := None);
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_ONLY), attributes := None)
   const DoNothing :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.DO_NOTHING), attributes := None);
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.DO_NOTHING), attributes := None)
 
   type Key = x : seq<uint8> | |x| == KeySize witness *
   type Nonce = x : seq<uint8> | |x| == NonceSize witness *
@@ -146,7 +148,7 @@ module StructuredEncryptionUtil {
   // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
   {
-    x.ENCRYPT_AND_SIGN? || x.SIGN_ONLY?
+    x.ENCRYPT_AND_SIGN? || x.CONTEXT_AND_SIGN? || x.SIGN_ONLY?
   }
 
   // wrap a value in a StructuredData

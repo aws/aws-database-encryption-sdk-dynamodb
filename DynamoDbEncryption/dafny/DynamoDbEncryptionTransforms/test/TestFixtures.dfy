@@ -73,7 +73,7 @@ module TestFixtures {
     return s;
   }
 
-  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
 
   function method GetAttributeActions() : AttributeActions {
     map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY, "nothing" := CSE.DO_NOTHING]
@@ -125,7 +125,9 @@ module TestFixtures {
       legacyOverride := None(),
       plaintextOverride := None()
     );
-    encryptor :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+    var encryptor2 : IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+    assert encryptor2 is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    encryptor := encryptor2 as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
   }
 
   method GetDynamoDbItemEncryptor()
@@ -211,7 +213,7 @@ module TestFixtures {
     ensures fresh(encryption.Modifies)
   {
     var keyring := GetKmsKeyring();
-    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+    var encryption2 : IDynamoDbEncryptionTransformsClient :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
       DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
@@ -236,6 +238,8 @@ module TestFixtures {
         ]
       )
     );
+    assert encryption2 is DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
+    encryption := encryption2 as DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
     assume {:axiom} fresh(encryption.Modifies);
   }
 }

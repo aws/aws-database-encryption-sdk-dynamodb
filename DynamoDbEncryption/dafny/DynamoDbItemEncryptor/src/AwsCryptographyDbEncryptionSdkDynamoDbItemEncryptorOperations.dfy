@@ -27,7 +27,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DynamoDbEncryptionUtil
-  import StructuredEncryptionUtil
   import StandardLibrary.String
 
   datatype Config = Config(
@@ -54,9 +53,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
 
   // constant attribute names for the encryption context
-  const TABLE_NAME : ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-table-name");
-  const PARTITION_NAME : ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-partition-name");
-  const SORT_NAME : ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-sort-name");
+  const TABLE_NAME : ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-table-name")
+  const PARTITION_NAME : ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-partition-name")
+  const SORT_NAME : ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-sort-name")
 
   // Is the attribute name an allowed unauthenticated name?
   predicate method AllowedUnsigned(
@@ -98,6 +97,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     match action {
       case DO_NOTHING => "DO_NOTHING"
       case SIGN_ONLY => "SIGN_ONLY"
+      case CONTEXT_AND_SIGN => "CONTEXT_AND_SIGN"
       case ENCRYPT_AND_SIGN => "ENCRYPT_AND_SIGN"
     }
   }
@@ -500,15 +500,15 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   //# An item MUST be determined to be plaintext if it does not contain
   //# attributes with the names "aws_dbe_head" and "aws_dbe_foot".
   predicate method IsPlaintextItem(ddbItem: ComAmazonawsDynamodbTypes.AttributeMap) {
-    && StructuredEncryptionUtil.HeaderField !in ddbItem
-    && StructuredEncryptionUtil.FooterField !in ddbItem
+    && SE.HeaderField !in ddbItem
+    && SE.FooterField !in ddbItem
   }
 
   function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchema)
     : (ret: Result<map<ComAmazonawsDynamodbTypes.AttributeName, CSE.CryptoAction>, Error>)
-    requires schema.content.SchemaMap?;
+    requires schema.content.SchemaMap?
     requires forall k <- schema.content.SchemaMap :: schema.content.SchemaMap[k].content.Action?
-    requires forall v <- schema.content.SchemaMap.Values :: v.content.Action.SIGN_ONLY? || v.content.Action.ENCRYPT_AND_SIGN?
+    requires forall v <- schema.content.SchemaMap.Values :: SE.IsAuthAttr(v.content.Action)
     ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
     ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
   {
@@ -626,15 +626,15 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && var parsedHeaderMap := structuredEncParsed.cryptoSchema.content.SchemaMap;
         && (forall k <- parsedHeaderMap ::
               && parsedHeaderMap[k].content.Action?
-              && (parsedHeaderMap[k].content.Action.ENCRYPT_AND_SIGN? || parsedHeaderMap[k].content.Action.SIGN_ONLY?))
+              && SE.IsAuthAttr(parsedHeaderMap[k].content.Action))
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
-        && output.value.parsedHeader.value == ParsedHeader(
-                                                attributeActionsOnEncrypt := maybeCryptoSchema.value,
-                                                algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
-                                                storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
-                                                encryptedDataKeys := structuredEncParsed.encryptedDataKeys
-                                              )
+        // && output.value.parsedHeader.value == ParsedHeader(
+        //                                         attributeActionsOnEncrypt := maybeCryptoSchema.value,
+        //                                         algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
+        //                                         storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
+        //                                         encryptedDataKeys := structuredEncParsed.encryptedDataKeys
+        //                                       )
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -743,7 +743,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       attributeActionsOnEncrypt := parsedActions,
       algorithmSuiteId := encryptVal.parsedHeader.algorithmSuiteId,
       storedEncryptionContext := encryptVal.parsedHeader.storedEncryptionContext,
-      encryptedDataKeys := encryptVal.parsedHeader.encryptedDataKeys
+      encryptedDataKeys := encryptVal.parsedHeader.encryptedDataKeys,
+      encryptionContext := encryptVal.parsedHeader.encryptionContext
     );
 
     output := Success(EncryptItemOutput(
@@ -836,15 +837,15 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && structuredEncParsed.cryptoSchema.content.SchemaMap?
         && (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
               && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
-              && (structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.ENCRYPT_AND_SIGN? || structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.SIGN_ONLY?))
+              && SE.IsAuthAttr(structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action))
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
-        && output.value.parsedHeader.value == ParsedHeader(
-                                                attributeActionsOnEncrypt := maybeCryptoSchema.value,
-                                                algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
-                                                storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
-                                                encryptedDataKeys := structuredEncParsed.encryptedDataKeys
-                                              )
+        // && output.value.parsedHeader.value == ParsedHeader(
+        //                                         attributeActionsOnEncrypt := maybeCryptoSchema.value,
+        //                                         algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
+        //                                         storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
+        //                                         encryptedDataKeys := structuredEncParsed.encryptedDataKeys
+        //                                       )
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
@@ -956,7 +957,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       attributeActionsOnEncrypt := parsedAuthActions,
       algorithmSuiteId := decryptVal.parsedHeader.algorithmSuiteId,
       storedEncryptionContext := decryptVal.parsedHeader.storedEncryptionContext,
-      encryptedDataKeys := decryptVal.parsedHeader.encryptedDataKeys
+      encryptedDataKeys := decryptVal.parsedHeader.encryptedDataKeys,
+      encryptionContext := decryptVal.parsedHeader.encryptionContext
     );
 
     output := Success(

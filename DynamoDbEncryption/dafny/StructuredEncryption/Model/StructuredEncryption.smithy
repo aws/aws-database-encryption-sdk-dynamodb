@@ -53,7 +53,9 @@ structure ParsedHeader {
     @required
     encryptedDataKeys: EncryptedDataKeyList,
     @required
-    storedEncryptionContext: EncryptionContext
+    storedEncryptionContext: EncryptionContext,
+    @required
+    encryptionContext: EncryptionContext
 }
 
 structure EncryptStructureInput {
@@ -237,6 +239,10 @@ union CryptoSchemaContent {
     {
         "name": "ENCRYPT_AND_SIGN",
         "value": "ENCRYPT_AND_SIGN",
+    },
+    {
+        "name": "CONTEXT_AND_SIGN",
+        "value": "CONTEXT_AND_SIGN",
     },
     {
         "name": "SIGN_ONLY",

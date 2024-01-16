@@ -7,7 +7,6 @@ import Wrappers_Compile.Result;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.DynamoDbEncryptionTransformsClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.__default;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.IDynamoDbEncryptionTransformsClient;
@@ -72,7 +71,7 @@ public class DynamoDbEncryptionTransforms {
   protected DynamoDbEncryptionTransforms(BuilderImpl builder) {
     DynamoDbTablesEncryptionConfig input = builder.DynamoDbTablesEncryptionConfig();
     software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbTablesEncryptionConfig dafnyValue = software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny.DynamoDbTablesEncryptionConfig(input);
-    Result<DynamoDbEncryptionTransformsClient, Error> result = __default.DynamoDbEncryptionTransforms(dafnyValue);
+    Result<IDynamoDbEncryptionTransformsClient, Error> result = __default.DynamoDbEncryptionTransforms(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
