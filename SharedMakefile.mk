@@ -50,12 +50,7 @@ SMITHY_MODEL_ROOT := $(LIBRARY_ROOT)/Model
 # Our target language code still assumes it does,
 # so IF the /compileSuffix option is available in our verion of Dafny
 # we need to provide it.
-COMPILE_SUFFIX_OPTION_CHECK_EXIT_CODE := $(shell dafny /help | grep -q /compileSuffix; echo $$?)
-ifeq ($(COMPILE_SUFFIX_OPTION_CHECK_EXIT_CODE), 0)
-	COMPILE_SUFFIX_OPTION := -compileSuffix:1
-else
-	COMPILE_SUFFIX_OPTION :=
-endif
+COMPILE_SUFFIX_OPTION := -compileSuffix:1
 
 ########################## Dafny targets
 
@@ -305,20 +300,23 @@ transpile_test_net: _transpile_test_all
 transpile_dependencies_net: LANG=net
 transpile_dependencies_net: transpile_dependencies
 
+test_net: FRAMEWORK=net6.0
 test_net:
 	dotnet run \
 		--project runtimes/net/tests/ \
-		--framework net6.0
+		--framework $(FRAMEWORK)
 
+test_net_mac_intel: FRAMEWORK=net6.0
 test_net_mac_intel:
 	DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" dotnet run \
 		--project runtimes/net/tests/ \
-		--framework net6.0
+		--framework $(FRAMEWORK)
 
+test_net_mac_brew: FRAMEWORK=net6.0
 test_net_mac_brew:
-	DYLD_LIBRARY_PATH="$(brew --prefix)/opt/openssl@1.1/lib" dotnet run \
+	DYLD_LIBRARY_PATH="$(shell brew --prefix)/opt/openssl@1.1/lib/" dotnet run \
 		--project runtimes/net/tests/ \
-		--framework net6.0
+		--framework $(FRAMEWORK)
 
 setup_net:
 	dotnet restore runtimes/net/
