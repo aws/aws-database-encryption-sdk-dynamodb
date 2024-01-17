@@ -1,3 +1,4 @@
+AttributeResolver_Compile
 AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations_Compile
 AwsCryptographyDbEncryptionSdkDynamoDbOperations_Compile
 AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations_Compile
@@ -54,7 +55,7 @@ software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny
 software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor
 software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny
-software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.internal
+software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy
 software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types
 software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model
 software.amazon.cryptography.dbencryptionsdk.dynamodb.model
