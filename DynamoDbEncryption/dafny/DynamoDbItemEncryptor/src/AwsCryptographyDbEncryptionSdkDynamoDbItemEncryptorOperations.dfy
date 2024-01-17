@@ -291,7 +291,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     : (ret : Result<CMP.EncryptionContext, Error>)
 
     ensures ret.Success? ==>
-              && config.partitionKeyName in item
               && TABLE_NAME in ret.value
               && DDBEncode(config.logicalTableName).Success?
               && var logicalTableName : ValidUTF8Bytes := DDBEncode(config.logicalTableName).value;
