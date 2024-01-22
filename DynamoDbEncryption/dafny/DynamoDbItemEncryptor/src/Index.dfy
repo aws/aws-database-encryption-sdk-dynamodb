@@ -44,33 +44,6 @@ module
     && !(SE.ReservedCryptoContextPrefixString <= attr)
   }
 
-  predicate method IsVersion2Schema(actions : DDBE.AttributeActions)
-  {
-    exists x <- actions :: actions[x] == CSE.CONTEXT_AND_SIGN
-  }
-  function method VersionFromActions(actions : DDBE.AttributeActions) : StructuredEncryptionHeader.Version
-  {
-    if IsVersion2Schema(actions) then
-      2
-    else
-      1
-  }
-  function method KeyActionFromVersion(version : StructuredEncryptionHeader.Version) : CSE.CryptoAction
-  {
-    if version == 2 then
-      CSE.CONTEXT_AND_SIGN
-    else
-      CSE.SIGN_ONLY
-  }
-  function method KeyActionStringFromVersion(version : StructuredEncryptionHeader.Version) : string
-  {
-    if version == 2 then
-      "CONTEXT_AND_SIGN"
-    else
-      "SIGN_ONLY"
-  }
-
-
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
@@ -88,12 +61,12 @@ module
       //= type=implication
       //# The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
       //# MUST be configured to the partition attribute and, if present, sort attribute.
-      && rconfig.version == VersionFromActions(config.attributeActionsOnEncrypt)
+      && rconfig.version == Operations.VersionFromActions(config.attributeActionsOnEncrypt)
       && config.partitionKeyName in config.attributeActionsOnEncrypt
-      && config.attributeActionsOnEncrypt[config.partitionKeyName] == KeyActionFromVersion(rconfig.version)
+      && config.attributeActionsOnEncrypt[config.partitionKeyName] == Operations.KeyActionFromVersion(rconfig.version)
       && (config.sortKeyName.Some? ==>
           && config.sortKeyName.value in config.attributeActionsOnEncrypt
-          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == KeyActionFromVersion(rconfig.version))
+          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == Operations.KeyActionFromVersion(rconfig.version))
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#plaintext-policy
     //# If not specified, encryption and decryption MUST behave according to `FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ`.
@@ -110,9 +83,9 @@ module
     :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
       message := "Must provide either a keyring or a CMM"
     ));
-    var version := VersionFromActions(config.attributeActionsOnEncrypt);
-    var keyAction := KeyActionFromVersion(version);
-    var keyActionStr := KeyActionStringFromVersion(version);
+    var version := Operations.VersionFromActions(config.attributeActionsOnEncrypt);
+    var keyAction := Operations.KeyActionFromVersion(version);
+    var keyActionStr := Operations.KeyActionStringFromVersion(version);
     :- Need(
         && config.partitionKeyName in config.attributeActionsOnEncrypt
         && config.attributeActionsOnEncrypt[config.partitionKeyName] == keyAction,

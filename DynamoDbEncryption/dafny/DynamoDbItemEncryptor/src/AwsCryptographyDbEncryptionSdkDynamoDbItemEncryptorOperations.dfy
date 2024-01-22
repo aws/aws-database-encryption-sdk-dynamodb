@@ -322,6 +322,32 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     UTF8.Encode(s).MapFailure(e => DDBError(e))
   }
 
+  predicate method IsVersion2Schema(actions : DDBE.AttributeActions)
+  {
+    exists x <- actions :: actions[x] == CSE.CONTEXT_AND_SIGN
+  }
+  function method VersionFromActions(actions : DDBE.AttributeActions) : StructuredEncryptionHeader.Version
+  {
+    if IsVersion2Schema(actions) then
+      2
+    else
+      1
+  }
+  function method KeyActionFromVersion(version : StructuredEncryptionHeader.Version) : CSE.CryptoAction
+  {
+    if version == 2 then
+      CSE.CONTEXT_AND_SIGN
+    else
+      CSE.SIGN_ONLY
+  }
+  function method KeyActionStringFromVersion(version : StructuredEncryptionHeader.Version) : string
+  {
+    if version == 2 then
+      "CONTEXT_AND_SIGN"
+    else
+      "SIGN_ONLY"
+  }
+
   predicate ValidInternalConfig?(config: InternalConfig)
   {
     && config.cmm.ValidState()
@@ -332,11 +358,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     // The partition key MUST be CSE.SIGN_ONLY
     && config.partitionKeyName in config.attributeActionsOnEncrypt
-    && config.attributeActionsOnEncrypt[config.partitionKeyName] == CSE.SIGN_ONLY
+    && config.attributeActionsOnEncrypt[config.partitionKeyName] == KeyActionFromVersion(config.version)
        // The sort key MUST be CSE.SIGN_ONLY
     && (config.sortKeyName.Some? ==>
           && config.sortKeyName.value in config.attributeActionsOnEncrypt
-          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == CSE.SIGN_ONLY)
+          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == KeyActionFromVersion(config.version))
 
     // attributeActionsOnEncrypt only apply on Encrypt.
     // The config on Encrypt MAY NOT be the same as the config on Decrypt.
