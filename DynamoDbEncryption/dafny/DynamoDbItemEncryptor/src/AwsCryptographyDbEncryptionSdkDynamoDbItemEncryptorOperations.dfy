@@ -28,15 +28,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import DynamoDbEncryptionUtil
   import StandardLibrary.String
-
-  type Version = x : int | ValidVersion(x) witness 1
-  predicate ValidVersion(x : int)
-  {
-    x == 1 || x == 2
-  }
+  import StructuredEncryptionHeader
 
   datatype Config = Config(
-    nameonly version : Version,
+    nameonly version : StructuredEncryptionHeader.Version,
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
     nameonly logicalTableName: string,
     nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName,
@@ -130,7 +125,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       "it also begins with the reserved prefix."
   }
 
-
   // Is this attribute unknown to the config?
   predicate method UnknownAttribute(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
   {
@@ -139,12 +133,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
        // Attributes in signature scope MUST be configured in attributeActionsOnEncrypt
        // so these two lines are saying "in scope && not in scope"
        // and that's why it's an error
-  }
-
-  // Is the attribute SIGN_ONLY?
-  predicate method IsSignOnly(config : InternalConfig, attr : ComAmazonawsDynamodbTypes.AttributeName)
-  {
-    attr in config.attributeActionsOnEncrypt && config.attributeActionsOnEncrypt[attr] == CSE.SIGN_ONLY
   }
 
   // Is the attribute name in signature scope?
@@ -181,7 +169,18 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     EncodeAscii(Base64.Encode(t.typeId + t.value))
   }
 
-  function method {:opaque} {:vcs_split_on_every_assert} MakeEncryptionContext(
+  function method MakeEncryptionContext(
+    config : InternalConfig,
+    item : DynamoToStruct.TerminalDataMap)
+    : (ret : Result<CMP.EncryptionContext, Error>)
+  {
+    if config.version == 1 then
+      MakeEncryptionContextV1(config, item)
+    else
+      MakeEncryptionContextV2(config, item)
+  }
+
+  function method {:opaque} {:vcs_split_on_every_assert} MakeEncryptionContextV1(
     config : InternalConfig,
     item : DynamoToStruct.TerminalDataMap)
     : (ret : Result<CMP.EncryptionContext, Error>)

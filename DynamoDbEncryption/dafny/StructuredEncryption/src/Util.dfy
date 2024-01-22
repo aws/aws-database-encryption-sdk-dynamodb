@@ -130,6 +130,7 @@ module StructuredEncryptionUtil {
   {
     forall k <- data :: data[k].content.Action?
   }
+  type FlatSchemaMap = x : CryptoSchemaMap | CryptoSchemaMapIsFlat(x)
 
   // Schema must contain only Actions
   function method AuthSchemaIsFlat(data : AuthenticateSchemaMap) : (ret : bool)
@@ -144,6 +145,7 @@ module StructuredEncryptionUtil {
   {
     forall k <- data :: data[k].content.Terminal?
   }
+  type FlatDataMap = x : StructuredDataMap | DataMapIsFlat(x)
 
   // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
@@ -183,4 +185,41 @@ module StructuredEncryptionUtil {
   {
     x < y
   }
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#type-id
+    //= type=implication
+    //# Type ID indicates what type a DynamoDB Attribute Value MUST
+    //# be serialized and deserialized as.
+    //# | Attribute Value Data Type | Terminal Type ID |
+    //# | ------------------------- | ---------------- |
+    //# | Null (NULL)               | 0x0000           |
+    //# | String (S)                | 0x0001           |
+    //# | Number (N)                | 0x0002           |
+    //# | Binary (B)                | 0xFFFF           |
+    //# | Boolean (BOOL)            | 0x0004           |
+    //# | String Set (SS)           | 0x0101           |
+    //# | Number Set (NS)           | 0x0102           |
+    //# | Binary Set (BS)           | 0x01FF           |
+    //# | Map (M)                   | 0x0200           |
+    //# | List (L)                  | 0x0300           |
+    const TERM_T : uint8 := 0x00
+    const SET_T  : uint8 := 0x01
+    const MAP_T  : uint8 := 0x02
+    const LIST_T : uint8 := 0x03
+    const NULL_T : uint8 := 0x00
+    const STRING_T  : uint8 := 0x01
+    const NUMBER_T  : uint8 := 0x02
+    const BINARY_T : uint8 := 0xFF
+    const BOOLEAN_T : uint8 := 0x04
+
+    const NULL       : TerminalTypeId := [TERM_T, NULL_T]
+    const STRING     : TerminalTypeId := [TERM_T, STRING_T]
+    const NUMBER     : TerminalTypeId := [TERM_T, NUMBER_T]
+    const BINARY     : TerminalTypeId := [0xFF, 0xFF]
+    const BOOLEAN    : TerminalTypeId := [TERM_T, BOOLEAN_T]
+    const STRING_SET : TerminalTypeId := [SET_T,  STRING_T]
+    const NUMBER_SET : TerminalTypeId := [SET_T,  NUMBER_T]
+    const BINARY_SET : TerminalTypeId := [SET_T,  BINARY_T]
+    const MAP        : TerminalTypeId := [MAP_T,  NULL_T]
+    const LIST       : TerminalTypeId := [LIST_T, NULL_T]
 }

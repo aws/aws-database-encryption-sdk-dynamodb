@@ -54,7 +54,21 @@ module StructuredEncryptionHeader {
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
   predicate method ValidVersion(x : uint8) {
-    x == 1
+    x == 1 || x == 2
+  }
+
+  predicate method IsVersion2Schema(data : CryptoSchemaMap)
+    requires CryptoSchemaMapIsFlat(data)
+  {
+    exists x <- data :: data[x].content.Action == CONTEXT_AND_SIGN
+  }
+  function method VersionFromSchema(data : CryptoSchemaMap) : Version
+    requires CryptoSchemaMapIsFlat(data)
+  {
+    if IsVersion2Schema(data) then
+      2
+    else
+      1
   }
 
   //= specification/structured-encryption/header.md#format-flavor
@@ -230,7 +244,7 @@ module StructuredEncryptionHeader {
     // It is difficult for dafny to prove ValidEncryptionContext here, so perform a runtime check instead
     :- Need(ValidEncryptionContext(storedEC), E("Invalid Encryption Context"));
     Success(PartialHeader(
-      version := 1,
+      version := VersionFromSchema(schema.content.SchemaMap),
       flavor := mat.algorithmSuite.binaryId[1],
       msgID := msgID,
       legend := legend,

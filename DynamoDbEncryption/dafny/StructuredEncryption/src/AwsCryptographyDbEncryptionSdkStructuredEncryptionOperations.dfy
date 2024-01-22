@@ -16,6 +16,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   import CMP = AwsCryptographyMaterialProvidersTypes
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import Prim = AwsCryptographyPrimitivesTypes
+  import StructuredEncryptionHeader
   import Random
   import Aws.Cryptography.Primitives
   import Header = StructuredEncryptionHeader
@@ -83,6 +84,22 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       [fields[0]] + FilterEncrypted(fields[1..], legend[1..])
     else
       FilterEncrypted(fields[1..], legend[1..])
+  }
+
+  // given a list of fields, return only those that should be added to the encryption context, according to the legend
+  function method {:tailrecursion} {:opaque} FilterContext(fieldMap : CanonMap, fields : seq<CanonicalPath>, legend : Header.Legend, ghost data: StructuredDataPlain)
+    : (ret : seq<string>)
+    requires |fields| == |legend|
+    requires forall k <- fieldMap :: fieldMap[k] in data
+    requires forall k <- fields :: k in fieldMap
+    ensures forall k <- ret :: k in data
+  {
+    if |fields| == 0 then
+      []
+    else if legend[0] == Header.CONTEXT_AND_SIGN_LEGEND then
+      [fieldMap[fields[0]]] + FilterContext(fieldMap, fields[1..], legend[1..], data)
+    else
+      FilterContext(fieldMap, fields[1..], legend[1..], data)
   }
 
   // Fail unless the field exists, and is a binary terminal
@@ -243,8 +260,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                                         // i.e. an Authenticate Action of SIGN
     data_c : StructuredDataCanon,       // All signed fields with canonized paths
                                         // i.e. the Intermediate Encrypted Structured Data, properly encrypted
-    cryptoSchema : CryptoSchema         // The crypto schema calculated from the crypto legend.
+    cryptoSchema : CryptoSchema,        // The crypto schema calculated from the crypto legend.
                                         // This value is returned as part of the Parsed Header.
+    contextFields : seq<string>         // These fields have action CONTEXT_AND_SIGN
   )
 
   predicate ValidDecryptCanon?(c: DecryptCanonData) {
@@ -314,20 +332,26 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
       && ret.value.cryptoSchema.content.SchemaMap?
       && var trimmedSchema := ret.value.cryptoSchema.content.SchemaMap;
-      && (forall k :: k in trimmedSchema ==> k in schema && trimmedSchema[k] == schema[k]);
+      && (forall k :: k in trimmedSchema ==> k in schema && trimmedSchema[k] == schema[k])
   {
     var fieldMap := GetFieldMap(tableName, data, schema);
 
-    var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
-    var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
-    var encFields_c := FilterEncrypt(signedFields_c, fieldMap, schema);
+    var data_c : StructuredDataCanon := map k <- fieldMap :: k := data[fieldMap[k]];
+    var signedFields_c : seq<CanonicalPath> := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
+    var encFields_c : seq<CanonicalPath> := FilterEncrypt(signedFields_c, fieldMap, schema);
     var trimmedSchema := map k <- fieldMap :: fieldMap[k] := schema[fieldMap[k]];
 
     assert |data_c| == |trimmedSchema| by {
       assert data_c.Keys == fieldMap.Keys;
       assert trimmedSchema.Keys == fieldMap.Values;
       LemmaInjectiveImpliesUniqueValues(fieldMap);
-    }
+    }                                // with all extraneous DO_NOTHING actions removed
+
+    assert forall k :: k in encFields_c ==> k in signedFields_c;
+    assert forall k :: k in signedFields_c ==> k in data_c;
+    assert forall k :: k in data_c ==> k in signedFields_c;
+    var newSchema := CryptoSchemaContent.SchemaMap(trimmedSchema);
+    assert |data_c| == |newSchema.SchemaMap|;
 
     Success(
       EncryptCanonData(
@@ -335,7 +359,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         signedFields_c,
         data_c,
         CryptoSchema(
-          content := CryptoSchemaContent.SchemaMap(trimmedSchema),
+          content := newSchema,
           attributes := None
         )
       )
@@ -361,6 +385,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       && CryptoSchemaMapIsFlat(ret.value.cryptoSchema.content.SchemaMap)
       && AuthSchemaIsFlat(authSchema)
       && ValidParsedCryptoSchema(ret.value.cryptoSchema.content.SchemaMap, authSchema, tableName)
+    ensures ret.Success? ==> forall k <- ret.value.contextFields :: k in data
   {
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //# The `signed field list` MUST be all fields for which
@@ -374,7 +399,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var fieldMap := map k <- data | authSchema[k].content.Action == SIGN ::
       Paths.SimpleCanon(tableName, k) := k;
     assert Maps.Injective(fieldMap);
-
+    assert forall k <- fieldMap :: fieldMap[k] in data;
+  
     var data_c := map k <- fieldMap :: k := data[fieldMap[k]];
     var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(data_c.Keys, ByteLess);
 
@@ -392,6 +418,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# sorted by the field's [canonical path](./header.md#canonical-path).
     var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, legend);
     :- Need(|encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields."));
+
+    var contextFields : seq<string> := FilterContext(fieldMap, signedFields_c, legend, data);
+    assert forall k <- contextFields :: k in data;
 
     var actionMap := map k <- fieldMap ::
       fieldMap[k] := if Paths.SimpleCanon(tableName, fieldMap[k]) in encFields_c then
@@ -413,7 +442,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       encFields_c,
       signedFields_c,
       data_c,
-      cryptoSchema
+      cryptoSchema,
+      contextFields
     );
 
     assert |data_c| == |actionMap| by {
@@ -426,6 +456,31 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       (forall k :: k in c.cryptoSchema.content.SchemaMap ==> Paths.SimpleCanon(tableName, k) in c.data_c);
 
     Success(c)
+  }
+
+  method GetV2EncryptionContext(schema : FlatSchemaMap, oldContext : CMP.EncryptionContext, record : FlatDataMap)
+    returns (output : Result<CMP.EncryptionContext, Error>)
+    requires (forall x <- schema :: x in record)
+  {
+    var contextAttrs := set k <- schema | schema[k].content.Action == CONTEXT_AND_SIGN :: k;
+    var contextFields := SortedSets.ComputeSetToOrderedSequence2(contextAttrs, CharLess);
+    output := GetV2EncryptionContext2(contextFields, oldContext, record);
+  }
+
+  method GetV2EncryptionContext2(fields : seq<string>, oldContext : CMP.EncryptionContext, record : FlatDataMap)
+    returns (output : Result<CMP.EncryptionContext, Error>)
+    requires forall k <- fields :: k in record
+  {
+    var newContext := oldContext;
+    for i := 0 to |fields| {
+      var fieldStr := fields[i];
+      var fieldUtf8 :- UTF8.Encode(fieldStr).MapFailure(e => E(e));
+      var attr := record[fieldStr].content.Terminal;
+      :- Need(attr.typeId == STRING || attr.typeId == NUMBER, E(""));
+      :- Need(ValidUTF8Seq(attr.value), E("Internal error. Value for " + fieldStr + " was not utf8."));
+      newContext := oldContext[fieldUtf8 := attr.value];
+    }
+    return Success(newContext);
   }
 
   method {:vcs_split_on_every_assert} EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
@@ -488,8 +543,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(exists k <- cryptoSchema :: IsAuthAttr(cryptoSchema[k].content.Action),
       E("At least one field in the Crypto Schema must be ENCRYPT_AND_SIGN, CONTEXT_AND_SIGN or SIGN_ONLY."));
 
-    var plainRecord := input.plaintextStructure.content.DataMap;
-    :- Need(DataMapIsFlat(plainRecord), E("Input DataMap must be flat."));
+    :- Need(DataMapIsFlat(input.plaintextStructure.content.DataMap), E("Input DataMap must be flat."));
+    var plainRecord : FlatDataMap := input.plaintextStructure.content.DataMap;
     :- Need(HeaderField !in plainRecord, E("The field name " + HeaderField + " is reserved."));
     :- Need(FooterField !in plainRecord, E("The field name " + FooterField + " is reserved."));
     :- Need(plainRecord.Keys == cryptoSchema.Keys, E("Schema must exactly match record"));
@@ -497,9 +552,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
     var canonData :- CanonizeForEncrypt(input.tableName, plainRecord, cryptoSchema);
 
+    var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
+    encryptionContext :- GetV2EncryptionContext(cryptoSchema, encryptionContext, plainRecord);
     var mat :- GetStructuredEncryptionMaterials(
                 input.cmm,
-                input.encryptionContext,
+                Some(encryptionContext),
                 input.algorithmSuiteId,
                 |canonData.encFields_c|,
                 SumValueSize(canonData.encFields_c, canonData.data_c));
@@ -755,6 +812,12 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var head :- Header.PartialDeserialize(headerSerialized);
     var headerAlgorithmSuite :- head.GetAlgorithmSuite(config.materialProviders);
 
+    :- Need(ValidString(input.tableName), E("Bad Table Name"));
+    var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
+
+    var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
+    encryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encryptionContext, encRecord);
+
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
     //# This operation MUST obtain a set of decryption materials by calling
     //# [Decrypt Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
@@ -803,9 +866,6 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //= specification/structured-encryption/decrypt-structure.md#parse-the-header
     //# The header field value MUST be [verified](header.md#commitment-verification)
     var ok :- head.verifyCommitment(config.primitives, postCMMAlg, commitKey, headerSerialized);
-
-    :- Need(ValidString(input.tableName), E("Bad Table Name"));
-    var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
 
     //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
     //= type=implication
