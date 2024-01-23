@@ -150,23 +150,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# The key MUST be the following concatenation,
     //# where `attributeName` is the name of the attribute:
     //# "aws-crypto-attr." + `attributeName`.
-    ensures ret == DDBEncode(DynamoDbEncryptionUtil.DDBEC_ATTR_PREFIX + k)
+    ensures ret == DDBEncode(SE.SE_ATTR_PREFIX + k)
   {
-    DDBEncode(DynamoDbEncryptionUtil.DDBEC_ATTR_PREFIX + k)
-  }
-
-  function method EncodeValue(t : SET.StructuredDataTerminal) : (ret : UTF8.ValidUTF8Bytes)
-    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value
-    //= type=implication
-    //# The value MUST be the UTF8 Encoding of the
-    //# [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648),
-    //# of the concatenation of the bytes `typeID + serializedValue`
-    //# where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
-    //# and `serializedValue` is the attribute's value serialized according to
-    //# [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization).
-    ensures ret == EncodeAscii(Base64.Encode(t.typeId + t.value))
-  {
-    EncodeAscii(Base64.Encode(t.typeId + t.value))
+    DDBEncode(SE.SE_ATTR_PREFIX + k)
   }
 
   function method MakeEncryptionContext(
@@ -206,7 +192,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
               && EncodeName(config.partitionKeyName).Success?
               && var partitionKeyName : ValidUTF8Bytes := EncodeName(config.partitionKeyName).value;
-              && var partitionKeyValue : ValidUTF8Bytes := EncodeValue(item[config.partitionKeyName].content.Terminal);
+              && var partitionKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.partitionKeyName].content.Terminal);
               && partitionKeyName in ret.value
               && ret.value[partitionKeyName] == partitionKeyValue
 
@@ -225,7 +211,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && EncodeName(config.sortKeyName.value).Success?
               && var sortKeyName : ValidUTF8Bytes := EncodeName(config.sortKeyName.value).value;
               && sortKeyName in ret.value
-              && var sortKeyValue : ValidUTF8Bytes := EncodeValue(item[config.sortKeyName.value].content.Terminal);
+              && var sortKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.sortKeyName.value].content.Terminal);
               && ret.value[sortKeyName] == sortKeyValue
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context
@@ -240,7 +226,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var logicalTableName : ValidUTF8Bytes :- DDBEncode(config.logicalTableName);
     var partitionName : ValidUTF8Bytes :- DDBEncode(config.partitionKeyName);
     var partitionKeyName : ValidUTF8Bytes :- EncodeName(config.partitionKeyName);
-    var partitionKeyValue : ValidUTF8Bytes := EncodeValue(item[config.partitionKeyName].content.Terminal);
+    var partitionKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.partitionKeyName].content.Terminal);
     if (config.sortKeyName.None?) then
       :- Need(|{TABLE_NAME, PARTITION_NAME, SORT_NAME, partitionKeyName}| == 4, E("Internal Error"));
       var ec : CMP.EncryptionContext :=
@@ -261,7 +247,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       :- Need(config.sortKeyName.value in item, DDBError("Sort key " + config.sortKeyName.value + " not found in Item to be encrypted or decrypted"));
       var sortName :- DDBEncode(config.sortKeyName.value);
       var sortKeyName : ValidUTF8Bytes :- EncodeName(config.sortKeyName.value);
-      var sortKeyValue : ValidUTF8Bytes := EncodeValue(item[config.sortKeyName.value].content.Terminal);
+      var sortKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.sortKeyName.value].content.Terminal);
       :- Need(|{TABLE_NAME, PARTITION_NAME, partitionKeyName, SORT_NAME, sortKeyName}| == 5, E("Internal Error"));
       var ec : CMP.EncryptionContext :=
         map[

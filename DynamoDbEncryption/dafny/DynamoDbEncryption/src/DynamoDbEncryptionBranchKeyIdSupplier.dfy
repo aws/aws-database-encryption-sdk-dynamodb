@@ -14,13 +14,15 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
   import DynamoToStruct
   import Base64
   import DynamoDbEncryptionUtil
+  import StructuredEncryptionUtil
+  import SortedSets
 
   const MPL_EC_PARTITION_NAME: UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-partition-name")
   const MPL_EC_SORT_NAME: UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-sort-name")
 
   class DynamoDbEncryptionBranchKeyIdSupplier
     extends MPL.IBranchKeyIdSupplier
-  {
+    {
     const ddbKeyBranchKeyIdSupplier: IDynamoDbKeyBranchKeyIdSupplier
 
     predicate ValidState()
@@ -48,7 +50,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
     {true}
 
     method GetBranchKeyId'(input: MPL.GetBranchKeyIdInput)
-        returns (output: Result<MPL.GetBranchKeyIdOutput, MPL.Error>)
+      returns (output: Result<MPL.GetBranchKeyIdOutput, MPL.Error>)
       requires ValidState()
       modifies Modifies - {History}
       decreases Modifies - {History}
@@ -59,65 +61,53 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
       var context := input.encryptionContext;
       var attrMap: DDB.AttributeMap := map[];
 
-      // Add partition key to map
+        // Add partition key to map
       :- Need(MPL_EC_PARTITION_NAME in context.Keys,
-        MPL.AwsCryptographicMaterialProvidersException(
-          message := "Invalid encryption context: Missing partition name"));
-      var partitionName := context[MPL_EC_PARTITION_NAME];
-      var partitionValueKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + partitionName;
-      :- Need(partitionValueKey in context.Keys,
-        MPL.AwsCryptographicMaterialProvidersException(
-          message := "Invalid encryption context: Missing partition value"));
-      attrMap :- AddAttributeToMap(partitionValueKey, context[partitionValueKey], attrMap);
+              MPL.AwsCryptographicMaterialProvidersException(
+                message := "Invalid encryption context: Missing partition name"));
 
-      if MPL_EC_SORT_NAME in context.Keys {
-        var sortName := context[MPL_EC_SORT_NAME];
-        var sortValueKey := DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX + sortName;
-        :- Need(sortValueKey in context.Keys,
-          MPL.AwsCryptographicMaterialProvidersException(
-            message := "Invalid encryption context: Missing sort value"));
-        attrMap :- AddAttributeToMap(sortValueKey, context[sortValueKey], attrMap);
+      var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(context.Keys, StructuredEncryptionUtil.ByteLess);
+      for i := 0 to |keys|
+        invariant ValidState()
+      {
+        var key : UTF8.ValidUTF8Bytes := keys[i];
+        if StructuredEncryptionUtil.SE_EC_ATTR_PREFIX < key {
+          attrMap :- AddAttributeToMap(key, context[key], attrMap);
+        }
       }
-        
+
       // Get branch key id from these DDB attributes
       var branchKeyIdR := ddbKeyBranchKeyIdSupplier.GetBranchKeyIdFromDdbKey(
-            GetBranchKeyIdFromDdbKeyInput(ddbKey := attrMap)
-          );
+        GetBranchKeyIdFromDdbKeyInput(ddbKey := attrMap)
+      );
       var branchKeyIdOut :- branchKeyIdR.MapFailure(ConvertToMplError);
 
       return Success(MPL.GetBranchKeyIdOutput(branchKeyId:=branchKeyIdOut.branchKeyId));
     }
   }
 
-  function method AddAttributeToMap(ddbAttrKey: seq<uint8>, encodedAttrValue: seq<uint8>, attrMap: DDB.AttributeMap)
-      : (res: Result<DDB.AttributeMap, MPL.Error>) 
-    requires |ddbAttrKey| >= |DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|
+  function method AddAttributeToMap(ddbAttrKey: UTF8.ValidUTF8Bytes, encodedAttrValue: UTF8.ValidUTF8Bytes, attrMap: DDB.AttributeMap)
+    : (res: Result<DDB.AttributeMap, MPL.Error>)
+    requires |ddbAttrKey| >= |StructuredEncryptionUtil.SE_EC_ATTR_PREFIX|
   {
     // Obtain attribute name from EC kvPair key
-    var ddbAttrNameBytes := ddbAttrKey[|DynamoDbEncryptionUtil.DDBEC_EC_ATTR_PREFIX|..];
+    var ddbAttrNameBytes := ddbAttrKey[|StructuredEncryptionUtil.SE_EC_ATTR_PREFIX|..];
     var ddbAttrName :- UTF8.Decode(ddbAttrNameBytes)
-        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
+                       .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
     :- Need(DDB.IsValid_AttributeName(ddbAttrName),
-        MPL.AwsCryptographicMaterialProvidersException(
-          message := "Invalid serialization of DDB Attribute in encryption context."));
+            MPL.AwsCryptographicMaterialProvidersException(
+              message := "Invalid serialization of DDB Attribute in encryption context."));
 
     // Obtain attribute value from EC kvPair value
-    var utf8DecodedVal :- UTF8.Decode(encodedAttrValue)
-        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
-    var base64DecodedVal :- Base64.Decode(utf8DecodedVal)
-        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
-    :- Need(|base64DecodedVal| >= 2,
-        MPL.AwsCryptographicMaterialProvidersException(
-          message := "Invalid serialization of DDB Attribute in encryption context."));
-    var typeId := base64DecodedVal[..2];
-    var serializedValue := base64DecodedVal[2..];
-    var ddbAttrValue :- DynamoToStruct.BytesToAttr(serializedValue, typeId, false)
-        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
+    var terminal :- StructuredEncryptionUtil.DecodeTerminal(encodedAttrValue)
+                    .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
+    var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, false)
+                        .MapFailure(e => MPL.AwsCryptographicMaterialProvidersException(message:=e));
 
     // Add to our AttributeMap
     Success(attrMap[ddbAttrName := ddbAttrValue.val])
   }
-  
+
   function method ConvertToMplError(err: Error)
     :(ret: MPL.Error)
   {
