@@ -103,6 +103,8 @@ module DynamoDbItemEncryptorTest {
     expect |parsedHeader.value.storedEncryptionContext| == 1;
     expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
+    SE.PrintEncryptionContext(parsedHeader.value.storedEncryptionContext, "storedEncryptionContext");
+    SE.PrintEncryptionContext(parsedHeader.value.encryptionContext, "encryptionContext");
   }
 
   method {:test} TestMaxRoundTrip() {
