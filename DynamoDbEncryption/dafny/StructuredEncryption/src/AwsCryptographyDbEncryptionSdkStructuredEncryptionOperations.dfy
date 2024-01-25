@@ -590,6 +590,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var canonData :- CanonizeForEncrypt(input.tableName, plainRecord, cryptoSchema);
 
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
+     assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
     var cmm := input.cmm;
     if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == CONTEXT_AND_SIGN {
       var newEncryptionContext :- GetV2EncryptionContext(cryptoSchema, plainRecord);
@@ -866,6 +867,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
 
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
+    assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
     var cmm := input.cmm;
     if head.version == 2 {
       var newEncryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encRecord);
