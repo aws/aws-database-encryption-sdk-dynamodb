@@ -234,6 +234,18 @@ module StructuredEncryptionUtil {
   const MAP        : TerminalTypeId := [MAP_T,  NULL_T]
   const LIST       : TerminalTypeId := [LIST_T, NULL_T]
 
+  method EcAsString(ec : CMP.EncryptionContext) returns (output : map<string, string>)
+  {
+    var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(ec.Keys, ByteLess);
+    var ret : map<string, string> := map[];
+    for i := 0 to |keys| {
+      var key :- expect UTF8.Decode(keys[i]);
+      var value :- expect UTF8.Decode(ec[keys[i]]);
+      ret := ret[key := value];
+    }
+    return ret;
+  }
+
   method PrintEncryptionContext(ec : CMP.EncryptionContext, name : string)
   {
     var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(ec.Keys, ByteLess);
@@ -243,7 +255,7 @@ module StructuredEncryptionUtil {
       var value :- expect UTF8.Decode(ec[keys[i]]);
       print "  ", key, " := ", value, "\n";
     }
-    print name, "}\n";
+    print "}\n";
   }
 
   function method EncodeTerminal(t : StructuredDataTerminal) : (ret : UTF8.ValidUTF8Bytes)

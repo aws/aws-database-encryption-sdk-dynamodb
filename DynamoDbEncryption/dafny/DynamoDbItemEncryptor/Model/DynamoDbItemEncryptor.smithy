@@ -10,18 +10,21 @@ use com.amazonaws.dynamodb#AttributeMap
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#KeySchemaAttributeName
+use com.amazonaws.dynamodb#Key
+
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
+
 use aws.cryptography.dbEncryptionSdk.dynamoDb#AttributeActions
 use aws.cryptography.dbEncryptionSdk.dynamoDb#LegacyOverride
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#Version
 use aws.cryptography.dbEncryptionSdk.dynamoDb#PlaintextOverride
-
-use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
-use aws.cryptography.primitives#AwsCryptographicPrimitives
 use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
 
@@ -139,7 +142,10 @@ structure ParsedHeader {
     storedEncryptionContext: EncryptionContext,
     @required
     @javadoc("The full encryption context.")
-    encryptionContext: EncryptionContext
+    encryptionContext: EncryptionContext,
+    @required
+    @javadoc("The encryption context as presented to the branch key selector.")
+    selectorContext: Key
 }
 
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#encryptitem

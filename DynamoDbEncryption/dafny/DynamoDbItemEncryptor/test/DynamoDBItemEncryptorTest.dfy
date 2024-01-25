@@ -103,8 +103,16 @@ module DynamoDbItemEncryptorTest {
     expect |parsedHeader.value.storedEncryptionContext| == 1;
     expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
-    SE.PrintEncryptionContext(parsedHeader.value.storedEncryptionContext, "storedEncryptionContext");
-    SE.PrintEncryptionContext(parsedHeader.value.encryptionContext, "encryptionContext");
+
+    var strEC := SE.EcAsString(parsedHeader.value.encryptionContext);
+    expect "aws-crypto-public-key" in strEC.Keys;
+    strEC := strEC - {"aws-crypto-public-key"};
+    expect strEC == map[
+      "aws-crypto-attr.bar" := "AAFrZXk=",
+      "aws-crypto-partition-name" := "bar",
+      "aws-crypto-table-name" := "foo"
+    ];
+    expect parsedHeader.value.selectorContext == map["bar" := DDB.AttributeValue.S("key")];
   }
 
   method {:test} TestMaxRoundTrip() {

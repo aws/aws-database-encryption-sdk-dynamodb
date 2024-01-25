@@ -120,7 +120,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
  nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
  nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
- nameonly encryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
+ nameonly encryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
+ nameonly selectorContext: ComAmazonawsDynamodbTypes.Key
  )
  datatype Error =
  // Local Error structures are listed here

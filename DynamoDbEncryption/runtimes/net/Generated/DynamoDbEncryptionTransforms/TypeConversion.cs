@@ -6485,25 +6485,25 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     {
       switch (value)
       {
-        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor dafnyVal:
-          return AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.TypeConversion.FromDafny_CommonError(
-            dafnyVal._AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor
-          );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyMaterialProviders dafnyVal:
           return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyMaterialProviders
           );
-        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_ComAmazonawsDynamodb dafnyVal:
-          return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
-            dafnyVal._ComAmazonawsDynamodb
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkStructuredEncryption dafnyVal:
+          return AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.TypeConversion.FromDafny_CommonError(
+            dafnyVal._AwsCryptographyDbEncryptionSdkStructuredEncryption
+          );
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor dafnyVal:
+          return AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.TypeConversion.FromDafny_CommonError(
+            dafnyVal._AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor
           );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkDynamoDb dafnyVal:
           return AWS.Cryptography.DbEncryptionSDK.DynamoDb.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyDbEncryptionSdkDynamoDb
           );
-        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_AwsCryptographyDbEncryptionSdkStructuredEncryption dafnyVal:
-          return AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.TypeConversion.FromDafny_CommonError(
-            dafnyVal._AwsCryptographyDbEncryptionSdkStructuredEncryption
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_ComAmazonawsDynamodb dafnyVal:
+          return Com.Amazonaws.Dynamodb.TypeConversion.FromDafny_CommonError(
+            dafnyVal._ComAmazonawsDynamodb
           );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_DynamoDbEncryptionTransformsException dafnyVal:
           return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S37_DynamoDbEncryptionTransformsException(dafnyVal);

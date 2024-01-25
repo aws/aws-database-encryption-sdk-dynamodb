@@ -12,6 +12,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor
     private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys;
     private System.Collections.Generic.Dictionary<string, string> _storedEncryptionContext;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
+    private System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> _selectorContext;
     public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> AttributeActionsOnEncrypt
     {
       get { return this._attributeActionsOnEncrypt; }
@@ -57,6 +58,15 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor
     {
       return this._encryptionContext != null;
     }
+    public System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> SelectorContext
+    {
+      get { return this._selectorContext; }
+      set { this._selectorContext = value; }
+    }
+    public bool IsSetSelectorContext()
+    {
+      return this._selectorContext != null;
+    }
     public void Validate()
     {
       if (!IsSetAttributeActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'AttributeActionsOnEncrypt'");
@@ -64,6 +74,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor
       if (!IsSetEncryptedDataKeys()) throw new System.ArgumentException("Missing value for required property 'EncryptedDataKeys'");
       if (!IsSetStoredEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'StoredEncryptionContext'");
       if (!IsSetEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'EncryptionContext'");
+      if (!IsSetSelectorContext()) throw new System.ArgumentException("Missing value for required property 'SelectorContext'");
 
     }
   }
