@@ -458,32 +458,16 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       Success(c)
   }
 
-  method GetV2EncryptionContext(schema : FlatSchemaMap, oldContext : CMP.EncryptionContext, record : FlatDataMap)
+  method GetV2EncryptionContext(schema : FlatSchemaMap, record : FlatDataMap)
     returns (output : Result<CMP.EncryptionContext, Error>)
     requires (forall x <- schema :: x in record)
   {
     var contextAttrs := set k <- schema | schema[k].content.Action == CONTEXT_AND_SIGN :: k;
     var contextFields := SortedSets.ComputeSetToOrderedSequence2(contextAttrs, CharLess);
-    output := GetV2EncryptionContext2(contextFields, oldContext, record);
+    output := GetV2EncryptionContext2(contextFields, record);
   }
 
-  method GetV2EncryptionContext2(fields : seq<string>, oldContext : CMP.EncryptionContext, record : FlatDataMap)
-    returns (output : Result<CMP.EncryptionContext, Error>)
-    requires forall k <- fields :: k in record
-  {
-    var newContext : CMP.EncryptionContext := oldContext;
-    for i := 0 to |fields| {
-      var fieldStr := fields[i];
-      var newFieldStr := ATTR_PREFIX + fieldStr;
-      var fieldUtf8 : ValidUTF8Bytes :- UTF8.Encode(newFieldStr).MapFailure(e => E(e));
-      var attr : StructuredDataTerminal := record[fieldStr].content.Terminal;
-      var attrStr : ValidUTF8Bytes := EncodeTerminal(attr);
-      newContext := newContext[fieldUtf8 := attrStr];
-    }
-    return Success(newContext);
-  }
-
-  method GetV2EncryptionContext2X(fields : seq<string>, oldContext : CMP.EncryptionContext, record : FlatDataMap)
+  method GetV2EncryptionContext2(fields : seq<string>, record : FlatDataMap)
     returns (output : Result<CMP.EncryptionContext, Error>)
     requires forall k <- fields :: k in record
   {
@@ -495,10 +479,12 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       fieldMap := fieldMap[utf8Value := fields[i]];
     }
     var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(fieldMap.Keys, ByteLess);
-
-    var newContext : CMP.EncryptionContext := oldContext;
+    var newContext : CMP.EncryptionContext := map[];
     var legend : string := "";
-    for i := 0 to |keys| {
+    for i := 0 to |keys|
+      //invariant newContext.Keys == set x:UTF8.ValidUTF8Bytes | x in keys[..i] :: x;
+      //invariant |legend| == |newContext|
+    {
       var fieldUtf8 := keys[i];
       var fieldStr := fieldMap[fieldUtf8];
       var attr : StructuredDataTerminal := record[fieldStr].content.Terminal;
@@ -511,6 +497,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         legendChar := LEGEND_STRING;
         :- Need(ValidUTF8Seq(attr.value), E("Internal Error : string was not UTF8."));
         attrStr := attr.value;
+        var yy :- expect UTF8.Decode(attrStr);
       } else if attr.typeId == NUMBER {
         legendChar := LEGEND_NUMBER;
         :- Need(ValidUTF8Seq(attr.value), E("Internal Error : number was not UTF8."));
@@ -523,6 +510,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         legendChar := LEGEND_BINARY;
         attrStr := EncodeTerminal(attr);
       }
+      //assert fieldUtf8 !in newContext;
       newContext := newContext[fieldUtf8 := attrStr];
       legend := legend + [legendChar];
     }
@@ -602,11 +590,21 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var canonData :- CanonizeForEncrypt(input.tableName, plainRecord, cryptoSchema);
 
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
+    var cmm := input.cmm;
     if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == CONTEXT_AND_SIGN {
-      encryptionContext :- GetV2EncryptionContext(cryptoSchema, encryptionContext, plainRecord);
+      var newEncryptionContext :- GetV2EncryptionContext(cryptoSchema, plainRecord);
+      encryptionContext := encryptionContext + newEncryptionContext;
+      var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
+        CMP.CreateRequiredEncryptionContextCMMInput(
+          underlyingCMM := Some(cmm),
+          keyring := None,
+          requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess)
+        )
+      );
+      cmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
     }
     var mat :- GetStructuredEncryptionMaterials(
-      input.cmm,
+      cmm,
       Some(encryptionContext),
       input.algorithmSuiteId,
       |canonData.encFields_c|,
@@ -867,9 +865,20 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
 
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
+    var cmm := input.cmm;
     if head.version == 2 {
-      encryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encryptionContext, encRecord);
+      var newEncryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encRecord);
+      encryptionContext := encryptionContext + newEncryptionContext;
+      var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
+        CMP.CreateRequiredEncryptionContextCMMInput(
+          underlyingCMM := Some(cmm),
+          keyring := None,
+          requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess)
+        )
+      );
+      cmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
     }
+
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
     //# This operation MUST obtain a set of decryption materials by calling
     //# [Decrypt Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
@@ -884,13 +893,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //   parsed in the header.
     // - Encrypted Data Keys: The [Encrypted Data Keys parsed from the header](./header.md#encrypted-data-keys).
 
-    var matR := input.cmm.DecryptMaterials(
+    var matR := cmm.DecryptMaterials(
       CMP.DecryptMaterialsInput (
         algorithmSuiteId := headerAlgorithmSuite.id,
         commitmentPolicy := DBE_COMMITMENT_POLICY,
         encryptedDataKeys := head.dataKeys,
         encryptionContext := head.encContext,
-        reproducedEncryptionContext := input.encryptionContext
+        reproducedEncryptionContext := Some(encryptionContext)
       )
     );
     var matOutput :- matR.MapFailure(e => AwsCryptographyMaterialProviders(e));

@@ -271,25 +271,63 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     : (ret : Result<CMP.EncryptionContext, Error>)
 
     ensures ret.Success? ==>
+              && config.partitionKeyName in item
               && TABLE_NAME in ret.value
               && DDBEncode(config.logicalTableName).Success?
               && var logicalTableName : ValidUTF8Bytes := DDBEncode(config.logicalTableName).value;
               && ret.value[TABLE_NAME] == logicalTableName
-              && PARTITION_NAME !in ret.value
-              && SORT_NAME !in ret.value
+
+              && PARTITION_NAME in ret.value
+              && DDBEncode(config.partitionKeyName).Success?
+              && var partitionName : ValidUTF8Bytes := DDBEncode(config.partitionKeyName).value;
+              && ret.value[PARTITION_NAME] == partitionName
+
+    ensures ret.Success? && config.sortKeyName.Some? ==>
+              && config.sortKeyName.value in item
+              && SORT_NAME in ret.value
+              && DDBEncode(config.sortKeyName.value).Success?
+              && var sortName := DDBEncode(config.sortKeyName.value).value;
+              && ret.value[SORT_NAME] == sortName
+
+    ensures ret.Success? && config.sortKeyName.None? ==>
+              SORT_NAME !in ret.value
   {
     UTF8.EncodeAsciiUnique();
+    :- Need(config.partitionKeyName in item, DDBError("Partition key " + config.partitionKeyName + " not found in Item to be encrypted or decrypted"));
     var logicalTableName : ValidUTF8Bytes :- DDBEncode(config.logicalTableName);
-    :- Need(|{TABLE_NAME, PARTITION_NAME, SORT_NAME}| == 3, E("Internal Error"));
-    var ec : CMP.EncryptionContext :=
-      map[
-        TABLE_NAME := logicalTableName
-      ];
-    assert TABLE_NAME in ec;
-    assert PARTITION_NAME !in ec;
-    assert SORT_NAME !in ec;
-    assert ec[TABLE_NAME] == logicalTableName;
-    Success(ec)
+    var partitionName : ValidUTF8Bytes :- DDBEncode(config.partitionKeyName);
+    var partitionKeyName : ValidUTF8Bytes :- EncodeName(config.partitionKeyName);
+    if (config.sortKeyName.None?) then
+      assert |{TABLE_NAME, PARTITION_NAME, SORT_NAME}| == 3;
+      var ec : CMP.EncryptionContext :=
+        map[
+          TABLE_NAME := logicalTableName,
+          PARTITION_NAME := partitionName
+        ];
+      assert TABLE_NAME in ec;
+      assert PARTITION_NAME in ec;
+      assert SORT_NAME !in ec;
+      assert ec[TABLE_NAME] == logicalTableName;
+      assert ec[PARTITION_NAME] == partitionName;
+      Success(ec)
+    else
+      :- Need(config.sortKeyName.value in item, DDBError("Sort key " + config.sortKeyName.value + " not found in Item to be encrypted or decrypted"));
+      var sortName :- DDBEncode(config.sortKeyName.value);
+      var sortKeyName : ValidUTF8Bytes :- EncodeName(config.sortKeyName.value);
+      assert |{TABLE_NAME, PARTITION_NAME, SORT_NAME}| == 3;
+      var ec : CMP.EncryptionContext :=
+        map[
+          TABLE_NAME := logicalTableName,
+          PARTITION_NAME := partitionName,
+          SORT_NAME := sortName
+        ];
+      assert TABLE_NAME in ec;
+      assert PARTITION_NAME in ec;
+      assert SORT_NAME in ec;
+      assert ec[TABLE_NAME] == logicalTableName;
+      assert ec[PARTITION_NAME] == partitionName;
+      assert ec[SORT_NAME] == sortName;
+      Success(ec)
   }
 
   // string to Error

@@ -79,6 +79,7 @@ module DynamoDbItemEncryptorUtil {
         if SE.EC_ATTR_PREFIX < key {
           :- Need(|legend| > attrPos, "Encryption Context Legend is too short.");
           var ddbAttrName :- GetAttributeName(key);
+          // NOTE - Dafny is broken, and so I can't say "LEGEND_STRING" and such below
           match legend[attrPos] {
             case 'S' =>
               var value :- UTF8.Decode(context[key]);
