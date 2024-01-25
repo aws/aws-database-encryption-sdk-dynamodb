@@ -594,6 +594,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == CONTEXT_AND_SIGN {
       var newEncryptionContext :- GetV2EncryptionContext(cryptoSchema, plainRecord);
       encryptionContext := encryptionContext + newEncryptionContext;
+      assert cmm.Modifies !! {config.materialProviders.History};
       var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
         CMP.CreateRequiredEncryptionContextCMMInput(
           underlyingCMM := Some(cmm),
@@ -869,6 +870,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     if head.version == 2 {
       var newEncryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encRecord);
       encryptionContext := encryptionContext + newEncryptionContext;
+      assert cmm.Modifies !! {config.materialProviders.History};
       var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
         CMP.CreateRequiredEncryptionContextCMMInput(
           underlyingCMM := Some(cmm),
