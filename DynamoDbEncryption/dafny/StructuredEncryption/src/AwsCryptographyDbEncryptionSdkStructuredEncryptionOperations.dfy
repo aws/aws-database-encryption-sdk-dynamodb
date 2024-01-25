@@ -471,15 +471,64 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     returns (output : Result<CMP.EncryptionContext, Error>)
     requires forall k <- fields :: k in record
   {
-    var newContext := oldContext;
+    var newContext : CMP.EncryptionContext := oldContext;
     for i := 0 to |fields| {
       var fieldStr := fields[i];
-      var newFieldStr := SE_ATTR_PREFIX + fieldStr;
+      var newFieldStr := ATTR_PREFIX + fieldStr;
       var fieldUtf8 : ValidUTF8Bytes :- UTF8.Encode(newFieldStr).MapFailure(e => E(e));
       var attr : StructuredDataTerminal := record[fieldStr].content.Terminal;
       var attrStr : ValidUTF8Bytes := EncodeTerminal(attr);
-      newContext := oldContext[fieldUtf8 := attrStr];
+      newContext := newContext[fieldUtf8 := attrStr];
     }
+    return Success(newContext);
+  }
+
+  method GetV2EncryptionContext2X(fields : seq<string>, oldContext : CMP.EncryptionContext, record : FlatDataMap)
+    returns (output : Result<CMP.EncryptionContext, Error>)
+    requires forall k <- fields :: k in record
+  {
+    var fieldMap : map<ValidUTF8Bytes, string> := map[];
+    for i := 0 to |fields|
+      invariant forall k <- fieldMap :: fieldMap[k] in record
+    {
+      var utf8Value :- UTF8.Encode(ATTR_PREFIX + fields[i]).MapFailure(e =>E(e));
+      fieldMap := fieldMap[utf8Value := fields[i]];
+    }
+    var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(fieldMap.Keys, ByteLess);
+
+    var newContext : CMP.EncryptionContext := oldContext;
+    var legend : string := "";
+    for i := 0 to |keys| {
+      var fieldUtf8 := keys[i];
+      var fieldStr := fieldMap[fieldUtf8];
+      var attr : StructuredDataTerminal := record[fieldStr].content.Terminal;
+      var attrStr : ValidUTF8Bytes;
+      var legendChar : char;
+      if attr.typeId == NULL {
+        legendChar := LEGEND_LITERAL;
+        attrStr := UTF8.EncodeAscii("null");
+      } else if attr.typeId == STRING {
+        legendChar := LEGEND_STRING;
+        :- Need(ValidUTF8Seq(attr.value), E("Internal Error : string was not UTF8."));
+        attrStr := attr.value;
+      } else if attr.typeId == NUMBER {
+        legendChar := LEGEND_NUMBER;
+        :- Need(ValidUTF8Seq(attr.value), E("Internal Error : number was not UTF8."));
+        attrStr := attr.value;
+      } else if attr.typeId == BOOLEAN {
+        legendChar := LEGEND_LITERAL;
+        :- Need(|attr.value| == 1, E("Internal Error : boolean was not of length 1."));
+        attrStr := if attr.value[0] == 0 then UTF8.EncodeAscii("false") else UTF8.EncodeAscii("true");
+      } else {
+        legendChar := LEGEND_BINARY;
+        attrStr := EncodeTerminal(attr);
+      }
+      newContext := newContext[fieldUtf8 := attrStr];
+      legend := legend + [legendChar];
+    }
+    var utf8Legend :- UTF8.Encode(legend).MapFailure(e =>E(e));
+    newContext := newContext[LEGEND_UTF8 := utf8Legend];
+
     return Success(newContext);
   }
 
@@ -553,7 +602,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var canonData :- CanonizeForEncrypt(input.tableName, plainRecord, cryptoSchema);
 
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
-    encryptionContext :- GetV2EncryptionContext(cryptoSchema, encryptionContext, plainRecord);
+    if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == CONTEXT_AND_SIGN {
+      encryptionContext :- GetV2EncryptionContext(cryptoSchema, encryptionContext, plainRecord);
+    }
     var mat :- GetStructuredEncryptionMaterials(
       input.cmm,
       Some(encryptionContext),
@@ -816,8 +867,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
 
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
-    encryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encryptionContext, encRecord);
-
+    if head.version == 2 {
+      encryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encryptionContext, encRecord);
+    }
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
     //# This operation MUST obtain a set of decryption materials by calling
     //# [Decrypt Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)

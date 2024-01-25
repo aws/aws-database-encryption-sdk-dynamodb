@@ -21,10 +21,16 @@ module StructuredEncryptionUtil {
   const HeaderField := ReservedPrefix + "head"
   const FooterField := ReservedPrefix + "foot"
   const ReservedCryptoContextPrefixString := "aws-crypto-"
-  const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii("aws-crypto-")
+  const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii(ReservedCryptoContextPrefixString)
 
-  const SE_ATTR_PREFIX := "aws-crypto-attr."
-  const SE_EC_ATTR_PREFIX: UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(SE_ATTR_PREFIX)
+  const ATTR_PREFIX := ReservedCryptoContextPrefixString + "attr."
+  const EC_ATTR_PREFIX : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(ATTR_PREFIX)
+  const LEGEND := ReservedCryptoContextPrefixString + "legend"
+  const LEGEND_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(LEGEND)
+  const LEGEND_STRING : char := 'S'
+  const LEGEND_NUMBER : char := 'N'
+  const LEGEND_LITERAL : char := 'L'
+  const LEGEND_BINARY : char := 'B'
 
   //= specification/structured-encryption/encrypt-structure.md#header-field
   //= type=implication

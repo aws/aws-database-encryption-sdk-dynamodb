@@ -150,9 +150,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# The key MUST be the following concatenation,
     //# where `attributeName` is the name of the attribute:
     //# "aws-crypto-attr." + `attributeName`.
-    ensures ret == DDBEncode(SE.SE_ATTR_PREFIX + k)
+    ensures ret == DDBEncode(SE.ATTR_PREFIX + k)
   {
-    DDBEncode(SE.SE_ATTR_PREFIX + k)
+    DDBEncode(SE.ATTR_PREFIX + k)
   }
 
   function method MakeEncryptionContext(
