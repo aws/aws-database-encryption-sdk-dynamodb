@@ -63,13 +63,13 @@ module DynamoDbItemEncryptorTest {
 
   method {:test} TestV2RoundTrip2() {
     var actions := map[
-      "bar" := CSE.CONTEXT_AND_SIGN,
-      "sortKey" := CSE.CONTEXT_AND_SIGN,
+      "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "encrypt" := CSE.ENCRYPT_AND_SIGN,
-      "sign" := CSE.CONTEXT_AND_SIGN,
-      "sign2" := CSE.CONTEXT_AND_SIGN,
-      "sign3" := CSE.CONTEXT_AND_SIGN,
-      "sign4" := CSE.CONTEXT_AND_SIGN,
+      "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sign2" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "nothing" := CSE.DO_NOTHING
     ];
     var config := TestFixtures.GetEncryptorConfigFromActions(actions, Some("sortKey"));

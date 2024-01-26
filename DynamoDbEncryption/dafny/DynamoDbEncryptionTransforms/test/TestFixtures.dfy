@@ -79,7 +79,7 @@ module TestFixtures {
     map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY, "nothing" := CSE.DO_NOTHING]
   }
   function method GetV2AttributeActions() : AttributeActions {
-    map["bar" := CSE.CONTEXT_AND_SIGN, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.CONTEXT_AND_SIGN, "nothing" := CSE.DO_NOTHING]
+    map["bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, "nothing" := CSE.DO_NOTHING]
   }
 
   function method GetSignedAttributeActions() : AttributeActions {

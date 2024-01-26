@@ -32,7 +32,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  type AuthenticateSchemaMap = map<string, AuthenticateSchema>
  datatype CryptoAction =
 	| ENCRYPT_AND_SIGN
-	| CONTEXT_AND_SIGN
+	| SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
 	| SIGN_ONLY
 	| DO_NOTHING
  datatype CryptoSchema = | CryptoSchema (

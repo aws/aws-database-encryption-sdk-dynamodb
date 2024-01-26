@@ -211,8 +211,8 @@ public class ToDafny {
       case ENCRYPT_AND_SIGN: {
         return CryptoAction.create_ENCRYPT__AND__SIGN();
       }
-      case CONTEXT_AND_SIGN: {
-        return CryptoAction.create_CONTEXT__AND__SIGN();
+      case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT: {
+        return CryptoAction.create_SIGN__AND__INCLUDE__IN__ENCRYPTION__CONTEXT();
       }
       case SIGN_ONLY: {
         return CryptoAction.create_SIGN__ONLY();

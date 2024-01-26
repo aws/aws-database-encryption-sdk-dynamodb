@@ -72,7 +72,7 @@ module StructuredEncryptionUtil {
   const EncryptAndSign :=
     CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.ENCRYPT_AND_SIGN), attributes := None)
   const ContextAndSign :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.CONTEXT_AND_SIGN), attributes := None)
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT), attributes := None)
   const SignOnly :=
     CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_ONLY), attributes := None)
   const DoNothing :=
@@ -161,7 +161,7 @@ module StructuredEncryptionUtil {
   // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
   {
-    x.ENCRYPT_AND_SIGN? || x.CONTEXT_AND_SIGN? || x.SIGN_ONLY?
+    x.ENCRYPT_AND_SIGN? || x.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT? || x.SIGN_ONLY?
   }
 
   // wrap a value in a StructuredData

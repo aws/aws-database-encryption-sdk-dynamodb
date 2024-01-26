@@ -96,7 +96,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     if |fields| == 0 then
       []
-    else if legend[0] == Header.CONTEXT_AND_SIGN_LEGEND then
+    else if legend[0] == Header.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND then
       [fieldMap[fields[0]]] + FilterContext(fieldMap, fields[1..], legend[1..], data)
     else
       FilterContext(fieldMap, fields[1..], legend[1..], data)
@@ -262,7 +262,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                                         // i.e. the Intermediate Encrypted Structured Data, properly encrypted
     cryptoSchema : CryptoSchema,        // The crypto schema calculated from the crypto legend.
                                         // This value is returned as part of the Parsed Header.
-    contextFields : seq<string>         // These fields have action CONTEXT_AND_SIGN
+    contextFields : seq<string>         // These fields have action SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   )
 
   predicate ValidDecryptCanon?(c: DecryptCanonData) {
@@ -430,7 +430,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                                           )
                                         else if fieldMap[k] in contextFields then
                                           CryptoSchema(
-                                            content := CryptoSchemaContent.Action(CONTEXT_AND_SIGN),
+                                            content := CryptoSchemaContent.Action(SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
                                             attributes := None
                                           )
                                         else
@@ -467,7 +467,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     returns (output : Result<CMP.EncryptionContext, Error>)
     requires (forall x <- schema :: x in record)
   {
-    var contextAttrs := set k <- schema | schema[k].content.Action == CONTEXT_AND_SIGN :: k;
+    var contextAttrs := set k <- schema | schema[k].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT :: k;
     var contextFields := SortedSets.ComputeSetToOrderedSequence2(contextAttrs, CharLess);
     output := GetV2EncryptionContext2(contextFields, record);
   }
@@ -487,7 +487,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var newContext : CMP.EncryptionContext := map[];
     var legend : string := "";
     for i := 0 to |keys|
-      //invariant newContext.Keys == set x:UTF8.ValidUTF8Bytes | x in keys[..i] :: x;
+      //invariant (set j | 0 <= j < i :: keys[j]) == newContext.Keys
       //invariant |legend| == |newContext|
     {
       var fieldUtf8 := keys[i];
@@ -583,7 +583,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(CryptoSchemaMapIsFlat(cryptoSchema), E("Schema must be flat."));
     :- Need(forall k <- cryptoSchema :: ValidString(k), E("Schema has bad field name."));
     :- Need(exists k <- cryptoSchema :: IsAuthAttr(cryptoSchema[k].content.Action),
-            E("At least one field in the Crypto Schema must be ENCRYPT_AND_SIGN, CONTEXT_AND_SIGN or SIGN_ONLY."));
+            E("At least one field in the Crypto Schema must be ENCRYPT_AND_SIGN, SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT or SIGN_ONLY."));
 
     :- Need(DataMapIsFlat(input.plaintextStructure.content.DataMap), E("Input DataMap must be flat."));
     var plainRecord : FlatDataMap := input.plaintextStructure.content.DataMap;
@@ -597,7 +597,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
      assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
     var cmm := input.cmm;
-    if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == CONTEXT_AND_SIGN {
+    if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT {
       var newEncryptionContext :- GetV2EncryptionContext(cryptoSchema, plainRecord);
       encryptionContext := encryptionContext + newEncryptionContext;
       assert cmm.Modifies !! {config.materialProviders.History};
@@ -736,7 +736,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     && (forall k <- cryptoSchema.Keys :: k in authSchema && authSchema[k].content.Action.SIGN?)
        // The crypto map is not missing any SIGN fields from the auth map
     && (forall kv <- authSchema.Items | kv.1.content.Action.SIGN? :: kv.0 in cryptoSchema.Keys)
-       // Every field in the crypto map is ENCRYPT_AND_SIGN, CONTEXT_AND_SIGN or SIGN_ONLY
+       // Every field in the crypto map is ENCRYPT_AND_SIGN, SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT or SIGN_ONLY
     && (forall v <- cryptoSchema.Values :: IsAuthAttr(v.content.Action))
   }
 

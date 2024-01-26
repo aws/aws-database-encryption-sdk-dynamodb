@@ -196,8 +196,8 @@ public class ToNative {
     if (dafnyValue.is_ENCRYPT__AND__SIGN()) {
       return CryptoAction.ENCRYPT_AND_SIGN;
     }
-    if (dafnyValue.is_CONTEXT__AND__SIGN()) {
-      return CryptoAction.CONTEXT_AND_SIGN;
+    if (dafnyValue.is_SIGN__AND__INCLUDE__IN__ENCRYPTION__CONTEXT()) {
+      return CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT;
     }
     if (dafnyValue.is_SIGN__ONLY()) {
       return CryptoAction.SIGN_ONLY;

@@ -94,7 +94,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     match action {
       case DO_NOTHING => "DO_NOTHING"
       case SIGN_ONLY => "SIGN_ONLY"
-      case CONTEXT_AND_SIGN => "CONTEXT_AND_SIGN"
+      case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT => "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"
       case ENCRYPT_AND_SIGN => "ENCRYPT_AND_SIGN"
     }
   }
@@ -343,7 +343,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
   predicate method IsVersion2Schema(actions : DDBE.AttributeActions)
   {
-    exists x <- actions :: actions[x] == CSE.CONTEXT_AND_SIGN
+    exists x <- actions :: actions[x] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   }
   function method VersionFromActions(actions : DDBE.AttributeActions) : StructuredEncryptionHeader.Version
   {
@@ -355,14 +355,14 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   function method KeyActionFromVersion(version : StructuredEncryptionHeader.Version) : CSE.CryptoAction
   {
     if version == 2 then
-      CSE.CONTEXT_AND_SIGN
+      CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
     else
       CSE.SIGN_ONLY
   }
   function method KeyActionStringFromVersion(version : StructuredEncryptionHeader.Version) : string
   {
     if version == 2 then
-      "CONTEXT_AND_SIGN"
+      "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"
     else
       "SIGN_ONLY"
   }

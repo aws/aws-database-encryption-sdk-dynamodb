@@ -241,8 +241,8 @@ union CryptoSchemaContent {
         "value": "ENCRYPT_AND_SIGN",
     },
     {
-        "name": "CONTEXT_AND_SIGN",
-        "value": "CONTEXT_AND_SIGN",
+        "name": "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT",
+        "value": "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT",
     },
     {
         "name": "SIGN_ONLY",

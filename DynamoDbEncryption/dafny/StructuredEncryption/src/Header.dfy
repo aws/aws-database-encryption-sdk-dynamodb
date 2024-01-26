@@ -30,7 +30,7 @@ module StructuredEncryptionHeader {
   const PREFIX_LEN := VERSION_LEN + FLAVOR_LEN + MSGID_LEN
   const UINT8_LIMIT := 256
   const ENCRYPT_AND_SIGN_LEGEND : uint8 := 0x65
-  const CONTEXT_AND_SIGN_LEGEND : uint8 := 0x63
+  const SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND : uint8 := 0x63
   const SIGN_ONLY_LEGEND : uint8 := 0x73
 
   //= specification/structured-encryption/header.md#format-version
@@ -60,7 +60,7 @@ module StructuredEncryptionHeader {
   predicate method IsVersion2Schema(data : CryptoSchemaMap)
     requires CryptoSchemaMapIsFlat(data)
   {
-    exists x <- data :: data[x].content.Action == CONTEXT_AND_SIGN
+    exists x <- data :: data[x].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   }
   function method VersionFromSchema(data : CryptoSchemaMap) : Version
     requires CryptoSchemaMapIsFlat(data)
@@ -84,7 +84,7 @@ module StructuredEncryptionHeader {
   }
 
   predicate method ValidLegendByte(x : uint8) {
-    x in [ENCRYPT_AND_SIGN_LEGEND, CONTEXT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND]
+    x in [ENCRYPT_AND_SIGN_LEGEND, SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND, SIGN_ONLY_LEGEND]
   }
   
   predicate method ValidEncryptionContext(x : CMP.EncryptionContext) {
@@ -445,13 +445,13 @@ module StructuredEncryptionHeader {
     // - no entry if the attribute is not signed
     ensures match (x) {
       case ENCRYPT_AND_SIGN => ret == ENCRYPT_AND_SIGN_LEGEND
-      case CONTEXT_AND_SIGN => ret == CONTEXT_AND_SIGN_LEGEND
+      case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT => ret == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND
       case SIGN_ONLY => ret == SIGN_ONLY_LEGEND
     }
   {
     match (x) {
       case ENCRYPT_AND_SIGN => ENCRYPT_AND_SIGN_LEGEND
-      case CONTEXT_AND_SIGN => CONTEXT_AND_SIGN_LEGEND
+      case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT => SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND
       case SIGN_ONLY => SIGN_ONLY_LEGEND
     }
   }

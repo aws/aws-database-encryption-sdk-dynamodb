@@ -88,7 +88,7 @@ module SearchConfigToInfo {
       match outer.attributeActionsOnEncrypt[keyFieldName] {
         case DO_NOTHING => Success(true)
         case SIGN_ONLY => Success(false)
-        case CONTEXT_AND_SIGN => Success(false)
+        case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT => Success(false)
         case ENCRYPT_AND_SIGN => Failure(E("Beacon key field name " + keyFieldName + " is configured as ENCRYPT_AND_SIGN which is not allowed."))
       }
   }
@@ -266,7 +266,7 @@ module SearchConfigToInfo {
     && var name := loc[0].key;
     && name in outer.attributeActionsOnEncrypt
     && (
-      || outer.attributeActionsOnEncrypt[name] == SE.CONTEXT_AND_SIGN
+      || outer.attributeActionsOnEncrypt[name] == SE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
       || outer.attributeActionsOnEncrypt[name] == SE.SIGN_ONLY
       )
   }
