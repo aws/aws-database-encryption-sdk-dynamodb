@@ -35,11 +35,6 @@ module DynamoDbItemEncryptorUtil {
     x < y
   }
 
-  const LEGEND_STRING : char := SE.LEGEND_STRING
-  const LEGEND_NUMBER : char := SE.LEGEND_NUMBER
-  const LEGEND_LITERAL : char := SE.LEGEND_LITERAL
-  const LEGEND_BINARY : char := SE.LEGEND_BINARY
-
   const TABLE_NAME : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-table-name")
   const PARTITION_NAME : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-partition-name")
   const SORT_NAME : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-sort-name")
@@ -54,10 +49,15 @@ module DynamoDbItemEncryptorUtil {
     match str {
       case "true" => Success(DDB.AttributeValue.BOOL(true))
       case "false" => Success(DDB.AttributeValue.BOOL(false))
-      case "null" => Success(DDB.AttributeValue.NULL(false))
+      case "null" => Success(DDB.AttributeValue.NULL(true))
       case _ => Failure("Encryption Context literal value has unexpected value : '" + str + "'.")
     }
   }
+
+  const LEGEND_STRING : char := SE.LEGEND_STRING
+  const LEGEND_NUMBER : char := SE.LEGEND_NUMBER
+  const LEGEND_LITERAL : char := SE.LEGEND_LITERAL
+  const LEGEND_BINARY : char := SE.LEGEND_BINARY
 
   method ConvertContextForSelector(context : MPL.EncryptionContext)
     returns (output: Result<DDB.Key, string>)

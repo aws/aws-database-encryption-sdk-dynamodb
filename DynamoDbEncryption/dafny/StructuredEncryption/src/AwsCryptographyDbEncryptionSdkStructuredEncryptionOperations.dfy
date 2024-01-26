@@ -428,6 +428,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                                             content := CryptoSchemaContent.Action(ENCRYPT_AND_SIGN),
                                             attributes := None
                                           )
+                                        else if fieldMap[k] in contextFields then
+                                          CryptoSchema(
+                                            content := CryptoSchemaContent.Action(CONTEXT_AND_SIGN),
+                                            attributes := None
+                                          )
                                         else
                                           CryptoSchema(
                                             content := CryptoSchemaContent.Action(SIGN_ONLY),
