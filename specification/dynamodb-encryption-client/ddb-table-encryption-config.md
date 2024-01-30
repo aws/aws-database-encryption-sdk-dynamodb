@@ -108,6 +108,19 @@ of the DynamoDB Table identified by the [input DynamoDB Table Name](#dynamodb-ta
 
 This Sort Key Name MUST be a valid DynamoDB Key Schema Attribute Name
 
+### Configuration Version
+
+If any of the [Attribute Actions](#attribute-actions) are configured as 
+[SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign)
+then the configuration version MUST be 2; otherwise,
+the configuration version MUST be 1.
+
+### Key Action
+
+if the [configuration version](#configuration-version) is 2, then
+the key action MUST be [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign);
+otherwise, the key action MUST be [SIGN_ONLY](../structured-encryption/structures.md#signonly).
+
 ### Attribute Actions
 
 Attribute Actions is a map of attribute names to
@@ -115,7 +128,7 @@ Attribute Actions is a map of attribute names to
 that describes what Crypto Action applies to a particular attribute
 (if it exists) during encryption.
 
-The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
+The [Key Action](#key-action)
 MUST be configured to the partition attribute and, if present, sort attribute.
 
 ### CMM

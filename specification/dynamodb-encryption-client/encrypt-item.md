@@ -131,6 +131,12 @@ into the [Encrypted DynamoDB Item](#encrypted-dynamodb-item).
 
 ### DynamoDB Item Base Context
 
+If the [Configuration Version](./ddb-table-encryption-config.md#configuration-version) is 2,
+then the base context MUST be the [version 2](#dynamodb-item-base-context-version-2) context;
+otherwise, the base context MUST be the [version 1](#dynamodb-item-base-context-version-1) context.
+
+### DynamoDB Item Base Context Version 1
+
 A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 
@@ -146,6 +152,23 @@ If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST conta
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
+
+### DynamoDB Item Base Context Version 2
+
+A DynamoDB Item Base Context is a map of string key-values pairs
+that contains information related to a particular DynamoDB Item.
+
+The DynamoDB Item Base Context MUST contain:
+  - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
+    this item is stored in (or will be stored in).
+  - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
+
+If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
+  - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+
+If this item does not have a sort key attribute,
+the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
+
 
 #### Base Context Value
 

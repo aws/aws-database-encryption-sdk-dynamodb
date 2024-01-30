@@ -154,6 +154,12 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     config : InternalConfig,
     item : DynamoToStruct.TerminalDataMap)
     : (ret : Result<CMP.EncryptionContext, Error>)
+    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context
+    //= type=implication
+    //# If the [Configuration Version](./ddb-table-encryption-config.md#configuration-version) is 2,
+    //# then the base context MUST be the [version 2](#dynamodb-item-base-context-version-2) context;
+    //# otherwise, the base context MUST be the [version 1](#dynamodb-item-base-context-version-1) context.
+    ensures config.version == 2 <==> ret == MakeEncryptionContextV2(config, item)
   {
     if config.version == 1 then
       MakeEncryptionContextV1(config, item)
@@ -166,7 +172,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     item : DynamoToStruct.TerminalDataMap)
     : (ret : Result<CMP.EncryptionContext, Error>)
 
-    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context
+    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-1
     //= type=implication
     //# The DynamoDB Item Base Context MUST contain:
     //# - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
@@ -191,7 +197,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && partitionKeyName in ret.value
               && ret.value[partitionKeyName] == partitionKeyValue
 
-    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context
+    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-1
     //= type=implication
     //# If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
     //# - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
@@ -209,7 +215,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && var sortKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.sortKeyName.value].content.Terminal);
               && ret.value[sortKeyName] == sortKeyValue
 
-    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context
+    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-1
     //= type=implication
     //# If this item does not have a sort key attribute,
     //# the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
@@ -270,6 +276,12 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     item : DynamoToStruct.TerminalDataMap)
     : (ret : Result<CMP.EncryptionContext, Error>)
 
+    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-2
+    //= type=implication
+    //# The DynamoDB Item Base Context MUST contain:
+    //#  - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
+    //#    this item is stored in (or will be stored in).
+    //#  - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
     ensures ret.Success? ==>
               && config.partitionKeyName in item
               && TABLE_NAME in ret.value
@@ -282,6 +294,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && var partitionName : ValidUTF8Bytes := DDBEncode(config.partitionKeyName).value;
               && ret.value[PARTITION_NAME] == partitionName
 
+    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-2
+    //= type=implication
+    //# If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
+    //#  - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
     ensures ret.Success? && config.sortKeyName.Some? ==>
               && config.sortKeyName.value in item
               && SORT_NAME in ret.value
@@ -289,6 +305,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && var sortName := DDBEncode(config.sortKeyName.value).value;
               && ret.value[SORT_NAME] == sortName
 
+    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-2
+    //= type=implication
+    //# If this item does not have a sort key attribute,
+    //# the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
     ensures ret.Success? && config.sortKeyName.None? ==>
               SORT_NAME !in ret.value
   {
@@ -345,14 +365,29 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   {
     exists x <- actions :: actions[x] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   }
-  function method VersionFromActions(actions : DDBE.AttributeActions) : StructuredEncryptionHeader.Version
+  function method VersionFromActions(actions : DDBE.AttributeActions) : (ret : StructuredEncryptionHeader.Version)
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#configuration-version
+    //= type=implication
+    //# If any of the [Attribute Actions](#attribute-actions) are configured as
+    //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign)
+    //# then the configuration version MUST be 2; otherwise,
+    //# the configuration version MUST be 1.
+    ensures (exists x <- actions :: actions[x] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> ret == 2
+    ensures !(exists x <- actions :: actions[x] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> ret == 1
   {
     if IsVersion2Schema(actions) then
       2
     else
       1
   }
-  function method KeyActionFromVersion(version : StructuredEncryptionHeader.Version) : CSE.CryptoAction
+  function method KeyActionFromVersion(version : StructuredEncryptionHeader.Version) : (ret : CSE.CryptoAction)
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#key-action
+    //= type=implication
+    //# if the [configuration version](#configuration-version) is 2, then
+    //# the key action MUST be [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign);
+    //# otherwise, the key action MUST be [SIGN_ONLY](../structured-encryption/structures.md#signonly).
+    ensures version == 1 <==> ret == CSE.SIGN_ONLY
+    ensures version == 2 <==> ret == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   {
     if version == 2 then
       CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT

@@ -59,7 +59,7 @@ module
 
       //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-actions
       //= type=implication
-      //# The [SIGN_ONLY](../structured-encryption/structures.md#signonly) Crypto Action
+      //# The [Key Action](#key-action)
       //# MUST be configured to the partition attribute and, if present, sort attribute.
       && rconfig.version == Operations.VersionFromActions(config.attributeActionsOnEncrypt)
       && config.partitionKeyName in config.attributeActionsOnEncrypt
