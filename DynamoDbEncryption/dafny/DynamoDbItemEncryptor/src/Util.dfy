@@ -43,21 +43,19 @@ module DynamoDbItemEncryptorUtil {
   const SELECTOR_PARTITION_NAME : DDB.AttributeName := "aws_dbe_partition_name"
   const SELECTOR_SORT_NAME : DDB.AttributeName := "aws_dbe_sort_name"
 
-  function method GetLiteralValue(x : seq<uint8>) : Result<DDB.AttributeValue, string>
+  method GetLiteralValue(x : seq<uint8>) returns (ret : Result<DDB.AttributeValue, string>)
   {
     var str :- UTF8.Decode(x);
-    match str {
-      case "true" => Success(DDB.AttributeValue.BOOL(true))
-      case "false" => Success(DDB.AttributeValue.BOOL(false))
-      case "null" => Success(DDB.AttributeValue.NULL(true))
-      case _ => Failure("Encryption Context literal value has unexpected value : '" + str + "'.")
+    if str == SE.TRUE_STR {
+      return Success(DDB.AttributeValue.BOOL(true));
+    } else if str == SE.FALSE_STR {
+      return Success(DDB.AttributeValue.BOOL(false));
+    } else if str == SE.NULL_STR {
+      return Success(DDB.AttributeValue.NULL(true));
+    } else {
+      return Failure("Encryption Context literal value has unexpected value : '" + str + "'.");
     }
   }
-
-  const LEGEND_STRING : char := SE.LEGEND_STRING
-  const LEGEND_NUMBER : char := SE.LEGEND_NUMBER
-  const LEGEND_LITERAL : char := SE.LEGEND_LITERAL
-  const LEGEND_BINARY : char := SE.LEGEND_BINARY
 
   method ConvertContextForSelector(context : MPL.EncryptionContext)
     returns (output: Result<DDB.Key, string>)
@@ -79,19 +77,20 @@ module DynamoDbItemEncryptorUtil {
         if SE.EC_ATTR_PREFIX < key {
           :- Need(|legend| > attrPos, "Encryption Context Legend is too short.");
           var ddbAttrName :- GetAttributeName(key);
-          // NOTE - Dafny is broken, and so I can't say "LEGEND_STRING" and such below
-          match legend[attrPos] {
-            case 'S' =>
-              var value :- UTF8.Decode(context[key]);
-              attrMap := attrMap[ddbAttrName := DDB.AttributeValue.S(value)];
-            case 'N' =>
-              var value :- UTF8.Decode(context[key]);
-              attrMap := attrMap[ddbAttrName := DDB.AttributeValue.N(value)];
-            case 'L' =>
-              var value :- GetLiteralValue(context[key]);
-              attrMap := attrMap[ddbAttrName := value];
-            case 'B' => attrMap :- AddAttributeToMap(key, context[key], attrMap);
-            case _ => return Failure("Encryption Context Legend has unexpected character : '" + [legend[attrPos]] + "'.");
+          var ch := legend[attrPos];
+          if ch == SE.LEGEND_STRING {
+            var value :- UTF8.Decode(context[key]);
+            attrMap := attrMap[ddbAttrName := DDB.AttributeValue.S(value)];
+          } else if ch == SE.LEGEND_NUMBER {
+            var value :- UTF8.Decode(context[key]);
+            attrMap := attrMap[ddbAttrName := DDB.AttributeValue.N(value)];
+          } else if ch == SE.LEGEND_LITERAL {
+            var value :- GetLiteralValue(context[key]);
+            attrMap := attrMap[ddbAttrName := value];
+          } else if ch == SE.LEGEND_BINARY {
+            attrMap :- AddAttributeToMap(key, context[key], attrMap);
+          } else {
+            return Failure("Encryption Context Legend has unexpected character : '" + [legend[attrPos]] + "'.");
           }
           attrPos := attrPos + 1;
         }

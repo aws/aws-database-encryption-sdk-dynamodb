@@ -472,7 +472,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     output := GetV2EncryptionContext2(contextFields, record);
   }
 
-  method GetV2EncryptionContext2(fields : seq<string>, record : FlatDataMap)
+  method {:vcs_split_on_every_assert} GetV2EncryptionContext2(fields : seq<string>, record : FlatDataMap)
     returns (output : Result<CMP.EncryptionContext, Error>)
     requires forall k <- fields :: k in record
   {
@@ -487,9 +487,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var newContext : CMP.EncryptionContext := map[];
     var legend : string := "";
     for i := 0 to |keys|
-      //invariant (set j | 0 <= j < i :: keys[j]) == newContext.Keys
-      //invariant |legend| == |newContext|
+      invariant forall j | 0 <= j < i :: keys[j] in newContext
+      invariant forall k <- newContext :: k in keys[..i]
+      invariant |legend| == |newContext| == i
     {
+      assert keys[i] !in newContext by {
+        reveal Seq.HasNoDuplicates();
+      }
       var fieldUtf8 := keys[i];
       var fieldStr := fieldMap[fieldUtf8];
       var attr : StructuredDataTerminal := record[fieldStr].content.Terminal;
@@ -497,7 +501,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       var legendChar : char;
       if attr.typeId == NULL {
         legendChar := LEGEND_LITERAL;
-        attrStr := UTF8.EncodeAscii("null");
+        attrStr := NULL_UTF8;
       } else if attr.typeId == STRING {
         legendChar := LEGEND_STRING;
         :- Need(ValidUTF8Seq(attr.value), E("Internal Error : string was not UTF8."));
@@ -510,14 +514,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       } else if attr.typeId == BOOLEAN {
         legendChar := LEGEND_LITERAL;
         :- Need(|attr.value| == 1, E("Internal Error : boolean was not of length 1."));
-        attrStr := if attr.value[0] == 0 then UTF8.EncodeAscii("false") else UTF8.EncodeAscii("true");
+        attrStr := if attr.value[0] == 0 then FALSE_UTF8 else TRUE_UTF8;
       } else {
         legendChar := LEGEND_BINARY;
         attrStr := EncodeTerminal(attr);
       }
-      //assert fieldUtf8 !in newContext;
+      assert fieldUtf8 !in newContext;
       newContext := newContext[fieldUtf8 := attrStr];
       legend := legend + [legendChar];
+      assert forall j | 0 <= j < i+1 :: keys[j] in newContext by {
+        assert keys[i] in newContext;
+      }
     }
     var utf8Legend :- UTF8.Encode(legend).MapFailure(e =>E(e));
     newContext := newContext[LEGEND_UTF8 := utf8Legend];
@@ -595,7 +602,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var canonData :- CanonizeForEncrypt(input.tableName, plainRecord, cryptoSchema);
 
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
-     assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
+    assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
     var cmm := input.cmm;
     if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT {
       var newEncryptionContext :- GetV2EncryptionContext(cryptoSchema, plainRecord);

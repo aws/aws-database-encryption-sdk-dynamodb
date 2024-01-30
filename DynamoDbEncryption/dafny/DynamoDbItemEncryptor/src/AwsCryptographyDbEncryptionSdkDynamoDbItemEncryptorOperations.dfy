@@ -159,12 +159,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# If the [Configuration Version](./ddb-table-encryption-config.md#configuration-version) is 2,
     //# then the base context MUST be the [version 2](#dynamodb-item-base-context-version-2) context;
     //# otherwise, the base context MUST be the [version 1](#dynamodb-item-base-context-version-1) context.
-    ensures config.version == 2 <==> ret == MakeEncryptionContextV2(config, item)
+    ensures config.version == 2 ==> ret == MakeEncryptionContextV2(config, item)
+    ensures config.version != 2 ==> ret == MakeEncryptionContextV1(config, item)
   {
-    if config.version == 1 then
-      MakeEncryptionContextV1(config, item)
-    else
+    if config.version == 2 then
       MakeEncryptionContextV2(config, item)
+    else
+      MakeEncryptionContextV1(config, item)
   }
 
   function method {:opaque} {:vcs_split_on_every_assert} MakeEncryptionContextV1(

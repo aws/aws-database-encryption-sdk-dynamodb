@@ -32,6 +32,13 @@ module StructuredEncryptionUtil {
   const LEGEND_LITERAL : char := 'L'
   const LEGEND_BINARY : char := 'B'
 
+  const NULL_STR : string := "null"
+  const NULL_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(NULL_STR)
+  const TRUE_STR : string := "true"
+  const TRUE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(TRUE_STR)
+  const FALSE_STR : string := "false"
+  const FALSE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(FALSE_STR)
+
   //= specification/structured-encryption/encrypt-structure.md#header-field
   //= type=implication
   //# The Header Field name MUST be `aws_dbe_head`
