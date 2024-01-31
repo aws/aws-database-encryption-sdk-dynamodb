@@ -37,6 +37,9 @@ module StructuredEncryptionHeader {
   //= type=implication
   //# The Version MUST be `0x01` or `0x02`.
   type Version = x : uint8 | ValidVersion(x) witness 1
+  predicate method ValidVersion(x : uint8) {
+    x == 1 || x == 2
+  }
 
   type Flavor = x : uint8 | ValidFlavor(x)
 
@@ -52,10 +55,6 @@ module StructuredEncryptionHeader {
   type LegendByte = x : uint8 | ValidLegendByte(x) witness SIGN_ONLY_LEGEND
   type Legend = x : seq<LegendByte> | |x| < UINT16_LIMIT
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
-
-  predicate method ValidVersion(x : uint8) {
-    x == 1 || x == 2
-  }
 
   predicate method IsVersion2Schema(data : CryptoSchemaMap)
     requires CryptoSchemaMapIsFlat(data)
@@ -224,6 +223,16 @@ module StructuredEncryptionHeader {
     mat : CMP.EncryptionMaterials
   )
     : (ret : Result<PartialHeader, Error>)
+
+    //= specification/structured-encryption/header.md#format-version
+    //= type=implication
+    //# If any [Crypto Action](./structures.md#crypto-action) is configured as
+    //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+    //# the Version MUST be 0x02; otherwise, Version MUST be 0x01.
+    ensures ret.Success? ==>
+              && schema.content.SchemaMap?
+              && CryptoSchemaMapIsFlat(schema.content.SchemaMap)
+              && ret.value.version == VersionFromSchema(schema.content.SchemaMap)
   {
     :- Need(ValidString(tableName), E("Invalid table name."));
     :- Need(ValidEncryptionContext(mat.encryptionContext), E("Invalid Encryption Context"));

@@ -96,6 +96,14 @@ SIGN_ONLY indicates that the following actions apply to a [Terminal Data](#termi
 - [DO_NOT_ENCRYPT](#donotencrypt)
 - [SIGN](#sign)
 
+##### SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+
+SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT indicates that the following actions apply to a [Terminal Data](#terminal-data):
+- [DO_NOT_ENCRYPT](#donotencrypt)
+- [SIGN](#sign)
+
+and further that the [Terminal Data](#terminal-data) MUST be included in the encryption context.
+
 ##### DO_NOTHING
 
 DO_NOTHING indicates that the following actions apply to a [Terminal Data](#terminal-data):

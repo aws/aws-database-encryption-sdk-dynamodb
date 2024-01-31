@@ -67,7 +67,7 @@ module DynamoDbItemEncryptorTest {
       "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "encrypt" := CSE.ENCRYPT_AND_SIGN,
       "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign2" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sign2" := CSE.SIGN_ONLY,
       "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "nothing" := CSE.DO_NOTHING
@@ -108,7 +108,7 @@ module DynamoDbItemEncryptorTest {
       "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "encrypt" := CSE.ENCRYPT_AND_SIGN,
       "sign" := CSE.SIGN_ONLY,
-      "sign2" := CSE.SIGN_ONLY,
+      "sign2" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "sign3" := CSE.SIGN_ONLY,
       "sign4" := CSE.SIGN_ONLY,
       "nothing" := CSE.DO_NOTHING
@@ -176,7 +176,7 @@ module DynamoDbItemEncryptorTest {
       "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "encrypt" := CSE.ENCRYPT_AND_SIGN,
       "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign2" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sign2" := CSE.SIGN_ONLY,
       "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "nothing" := CSE.DO_NOTHING
@@ -263,6 +263,26 @@ module DynamoDbItemEncryptorTest {
              "aws_dbe_partition_name" := DDB.AttributeValue.S("bar"),
              "aws_dbe_sort_name" := DDB.AttributeValue.S("sortKey")
            ];
+  }
+
+  method {:test} TestMissingContext() {
+    var actions := TestFixtures.GetV2AttributeActions();
+    var config := TestFixtures.GetEncryptorConfigFromActions(actions);
+    var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config);
+
+    var inputItem := map[
+      "bar" := DDBS("key"),
+      "encrypt" := DDBS("text"),
+      "nothing" := DDBS("baz")
+    ];
+
+    var encryptRes := encryptor.EncryptItem(
+      Types.EncryptItemInput(
+        plaintextItem:=inputItem
+      )
+    );
+    expect encryptRes.Failure?;
+    expect encryptRes.error == E("Attribute sign was configured with SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT but was not present in item to be encrypted.");
   }
 
   method {:test} TestV2RoundTrip() {

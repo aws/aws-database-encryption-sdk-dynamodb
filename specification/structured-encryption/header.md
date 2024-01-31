@@ -40,6 +40,10 @@ as well as the specific serialized header and footer format.
 
 The Version MUST be `0x01` or `0x02`.
 
+If any [Crypto Action](./structures.md#crypto-action) is configured as
+[SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+the Version MUST be 0x02; otherwise, Version MUST be 0x01.
+
 ### Format Flavor
 
 The flavor dictates the

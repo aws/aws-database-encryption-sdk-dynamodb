@@ -91,12 +91,16 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
   function method CryptoActionString(action: CSE.CryptoAction) : string
   {
-    match action {
-      case DO_NOTHING => "DO_NOTHING"
-      case SIGN_ONLY => "SIGN_ONLY"
-      case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT => "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"
-      case ENCRYPT_AND_SIGN => "ENCRYPT_AND_SIGN"
-    }
+    if action == CSE.DO_NOTHING then
+      "DO_NOTHING"
+    else if action == CSE.SIGN_ONLY then
+      "SIGN_ONLY"
+    else if action == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT then
+      "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"
+    else if action == CSE.ENCRYPT_AND_SIGN then
+      "ENCRYPT_AND_SIGN"
+    else
+      "internal error"
   }
 
   function method ExplainNotForwardCompatible(
@@ -670,6 +674,25 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     + GetItemNames(item) + "."
   }
 
+  predicate method ContextAttrsExist(actions : DDBE.AttributeActions, item : DDB.AttributeMap)
+  {
+    forall k <- actions :: (actions[k] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) ==> (k in item)
+  }
+  function method ContextMissingMsg(actions : DDBE.AttributeActions, item : DDB.AttributeMap) : string
+  {
+    var s := set k <- actions |
+                 && actions[k] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+                 && k !in item;
+    var missing := SortedSets.ComputeSetToOrderedSequence2(s, CharLess);
+    if |missing| == 0 then
+      "No missing SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attributes."
+    else if |missing| == 1 then
+      "Attribute " + missing[0] + " was configured with SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT but was not present in item to be encrypted."
+    else
+      "These attributes were configured with SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT but were not present in item to be encrypted."
+      + Join(missing, ",")
+  }
+
   // public Encrypt method
   method {:vcs_split_on_every_assert} EncryptItem(config: InternalConfig, input: EncryptItemInput)
     returns (output: Result<EncryptItemOutput, Error>)
@@ -694,6 +717,16 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     // Otherwise this operation MUST yield an error.
     ensures config.sortKeyName.Some? && config.sortKeyName.value !in input.plaintextItem ==> output.Failure?
+
+    //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item
+    //= type=implication
+    //# If the [DynamoDB Item Encryptor](./ddb-item-encryptor.md)
+    //# has any attribute configured as
+    //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign)
+    //# then this item MUST include an Attribute with that name.
+    ensures output.Success? ==>
+      forall k <- config.attributeActionsOnEncrypt :: (config.attributeActionsOnEncrypt[k] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) ==> (k in input.plaintextItem)
+      // ContextAttrsExist(config.attributeActionsOnEncrypt, input.plaintextItem)
 
     ensures
       && output.Success?
@@ -763,6 +796,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       && config.partitionKeyName in input.plaintextItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
     , E(KeyMissingMsg(config, input.plaintextItem, "Encrypt")));
+
+    :- Need(ContextAttrsExist(config.attributeActionsOnEncrypt, input.plaintextItem),
+            E(ContextMissingMsg(config.attributeActionsOnEncrypt, input.plaintextItem)));
 
     if |input.plaintextItem| > MAX_ATTRIBUTE_COUNT {
       var actCount := String.Base10Int2String(|input.plaintextItem|);

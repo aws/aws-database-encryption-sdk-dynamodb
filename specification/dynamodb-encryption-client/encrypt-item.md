@@ -45,6 +45,11 @@ has a [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-ke
 this item MUST include an Attribute with that name.
 Otherwise this operation MUST yield an error.
 
+If the [DynamoDB Item Encryptor](./ddb-item-encryptor.md)
+has any attribute configured as
+[SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign)
+then this item MUST include an Attribute with that name.
+
 ## Output
 
 This operation MUST output the following:
