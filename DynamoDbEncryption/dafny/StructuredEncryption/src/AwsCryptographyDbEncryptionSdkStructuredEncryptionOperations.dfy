@@ -162,13 +162,16 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# This operation MUST obtain a set of encryption materials by calling
               //# [Get Encryption Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
               //# on the input [CMM](#cmm).
+
+              //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+              //= type=implication
+              //# This operation MUST call Get Encryption Materials on the CMM constructed above as follows.
               && (|cmm.History.GetEncryptionMaterials| == |old(cmm.History.GetEncryptionMaterials)| + 1)
               && Seq.Last(cmm.History.GetEncryptionMaterials).output.Success?
               && var getEncIn := Seq.Last(cmm.History.GetEncryptionMaterials).input;
               //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
               //= type=implication
-              //# - Encryption Context: If provided, this MUST be the [input encryption context](#encryption-context);
-              //# otherwise, this is an empty encryption context.
+              //# - Encryption Context: This MUST be the encryption context calculated above.
               && (|| (encryptionContext.None? && getEncIn.encryptionContext == map[])
                   || (encryptionContext.Some? && getEncIn.encryptionContext == encryptionContext.value))
 
@@ -469,6 +472,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     var contextAttrs := set k <- schema | schema[k].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT :: k;
     var contextFields := SortedSets.ComputeSetToOrderedSequence2(contextAttrs, CharLess);
+    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //# Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2) to the encryption context for every
+    //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+    //# [Terminal Data](./structures.md#terminal-data)
+    //# in the input record, plus the Legend.
     output := GetV2EncryptionContext2(contextFields, record);
   }
 
@@ -476,6 +484,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     returns (output : Result<CMP.EncryptionContext, Error>)
     requires forall k <- fields :: k in record
   {
+    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2
+    //# The key MUST be the following concatenation,
+    //# where `attributeName` is the name of the attribute:
+    //# "aws-crypto-attr." + `attributeName`.
     var fieldMap : map<ValidUTF8Bytes, string> := map[];
     for i := 0 to |fields|
       invariant forall k <- fieldMap :: fieldMap[k] in record
@@ -486,6 +498,23 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(fieldMap.Keys, ByteLess);
     var newContext : CMP.EncryptionContext := map[];
     var legend : string := "";
+
+    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2
+    //# The value MUST be :
+    //# - If the type is Number or String, the unaltered (already utf8) bytes of the value
+    //# - If the type if Null, the string "null"
+    //# - If the type is Boolean, then the string "true" for true and the string "false" for false.
+    //# - Else, the value as defined in [Base Context Value Version 1](#base-context-value-version-1)
+
+    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //# The Legend MUST be named "aws-crypto-legend" and be a string with one character per attribute added above,
+    //# with a one-to-one correspondence with the attributes sorted by their UTF8 encoding,
+    //# each character designating the original type of the attribute,
+    //# to allow reversing of the [encoding](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2).
+    //# - 'S' if the attribute was of type String
+    //# - 'N' if the attribute was of type Number
+    //# - 'L' if the attribute was of type Null or Boolean
+    //# - 'B' otherwise
     for i := 0 to |keys|
       invariant forall j | 0 <= j < i :: keys[j] in newContext
       invariant forall k <- newContext :: k in keys[..i]
@@ -601,13 +630,25 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
     var canonData :- CanonizeForEncrypt(input.tableName, plainRecord, cryptoSchema);
 
+    //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+    //# This operation MUST [calculate the appropriate CMM and encryption context](#create-new-encryption-context-and-cmm).
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
-    assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
     var cmm := input.cmm;
+
+    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //# If no [Crypto Action](./structures.md#crypto-action) is configured to be
+    //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+    //# then the input cmm and encryption context MUST be used unchanged.
     if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT {
+      assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
       var newEncryptionContext :- GetV2EncryptionContext(cryptoSchema, plainRecord);
       encryptionContext := encryptionContext + newEncryptionContext;
       assert cmm.Modifies !! {config.materialProviders.History};
+      //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+      //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+      //# with the following inputs:
+      //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
+      //# - The name of every entry added above.
       var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
         CMP.CreateRequiredEncryptionContextCMMInput(
           underlyingCMM := Some(cmm),

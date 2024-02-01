@@ -266,7 +266,7 @@ module StructuredEncryptionUtil {
   }
 
   function method EncodeTerminal(t : StructuredDataTerminal) : (ret : UTF8.ValidUTF8Bytes)
-    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value
+    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-1
     //= type=implication
     //# The value MUST be the UTF8 Encoding of the
     //# [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648),

@@ -116,13 +116,14 @@ If any of these steps fails, this operation MUST halt and indicate a failure to 
 
 ### Retrieve Encryption Materials
 
+This operation MUST [calculate the appropriate CMM and encryption context](#create-new-encryption-context-and-cmm).
+
 This operation MUST obtain a set of encryption materials by calling
 [Get Encryption Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
 on the input [CMM](#cmm).
 
-The call to Get Encryption Materials is constructed as follows:
-- Encryption Context: If provided, this MUST be the [input encryption context](#encryption-context);
-  otherwise, this is an empty encryption context.
+This operation MUST call Get Encryption Materials on the CMM constructed above as follows.
+- Encryption Context: This MUST be the encryption context calculated above.
 - Commitment Policy: This MUST be
   [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
 - Algorithm Suite: If provided, this is the [input algorithm suite](#algorithm-suite);
@@ -144,6 +145,31 @@ Note that the algorithm suite in the retrieved encryption materials MAY be diffe
 If this algorithm suite is not a
 [supported suite for Database Encryption (DBE)](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum),
 this operation MUST yield an error.
+
+#### Create New Encryption Context and CMM
+
+If no [Crypto Action](./structures.md#crypto-action) is configured to be
+[SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+then the input cmm and encryption context MUST be used unchanged.
+
+Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2) to the encryption context for every
+[SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+[Terminal Data](./structures.md#terminal-data)
+in the input record, plus the Legend.
+
+The Legend MUST be named "aws-crypto-legend" and be a string with one character per attribute added above,
+with a one-to-one correspondence with the attributes sorted by their UTF8 encoding,
+each character designating the original type of the attribute,
+to allow reversing of the [encoding](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2).
+- 'S' if the attribute was of type String
+- 'N' if the attribute was of type Number
+- 'L' if the attribute was of type Null or Boolean
+- 'B' otherwise
+
+Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+with the following inputs:
+- This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
+- The name of every entry added above.
 
 ### Calculate Intermediate Encrypted Structured Data
 

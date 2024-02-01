@@ -762,6 +762,9 @@ operation GetBranchKeyIdFromDdbKey {
   output: GetBranchKeyIdFromDdbKeyOutput
 }
 
+//= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#dynamodbkeybranchkeyidsupplier
+//= type=implication
+//# This operation MUST take in a DDB `Key` structure (and attribute map containing the partition and sort attributes) as input.
 @javadoc("Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.")
 structure GetBranchKeyIdFromDdbKeyInput {
   @required
@@ -769,6 +772,9 @@ structure GetBranchKeyIdFromDdbKeyInput {
   ddbKey: Key
 }
 
+//= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#dynamodbkeybranchkeyidsupplier
+//= type=implication
+//# This operation MUST return a branch key id (string) as output.
 @javadoc("Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.")
 structure GetBranchKeyIdFromDdbKeyOutput {
   @required
@@ -776,12 +782,18 @@ structure GetBranchKeyIdFromDdbKeyOutput {
   branchKeyId: String
 }
 
+//= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#operation
+//= type=implication
+//# The `CreateDynamoDbEncryptionBranchKeyIdSupplier` is an operation that MUST be vended alongside the DynamoDb Item Encryptor.
 @javadoc("Create a Branch Key Supplier for use with the Hierarchical Keyring that decides what Branch Key to use based on the primary key of the DynamoDB item being read or written.")
 operation CreateDynamoDbEncryptionBranchKeyIdSupplier {
   input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput,
   output: CreateDynamoDbEncryptionBranchKeyIdSupplierOutput
 }
 
+//= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#input
+//= type=implication
+//# This operation MUST take in a [DynamoDbKeyBranchKeyIdSupplier](#dynamodb-key-branch-key-id-supplier) as input.
 @javadoc("Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier")
 structure CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
   @required
@@ -789,6 +801,9 @@ structure CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
   ddbKeyBranchKeyIdSupplier: DynamoDbKeyBranchKeyIdSupplierReference,
 }
 
+//= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#output
+//= type=implication
+//# This operation MUST output a BranchKeyIdSupplierReference.
 @javadoc("Outputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier")
 structure CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
   @required

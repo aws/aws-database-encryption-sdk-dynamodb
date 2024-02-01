@@ -149,11 +149,11 @@ The DynamoDB Item Base Context MUST contain:
   - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
     this item is stored in (or will be stored in).
   - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
-  - the [value](#base-context-value) of the Partition Key.
+  - the [value](#base-context-value-version-1) of the Partition Key.
 
 If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
   - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-  - the [value](#base-context-value) of the Sort Key.
+  - the [value](#base-context-value-version-1) of the Sort Key.
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
@@ -175,7 +175,7 @@ If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
 
 
-#### Base Context Value
+#### Base Context Value Version 1
 
 The key MUST be the following concatenation,
 where `attributeName` is the name of the attribute:
@@ -187,3 +187,15 @@ of the concatenation of the bytes `typeID + serializedValue`
 where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
 and `serializedValue` is the attribute's value serialized according to
 [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization).
+
+#### Base Context Value Version 2
+
+The key MUST be the following concatenation,
+where `attributeName` is the name of the attribute:
+"aws-crypto-attr." + `attributeName`.
+
+The value MUST be :
+- If the type is Number or String, the unaltered (already utf8) bytes of the value
+- If the type if Null, the string "null"
+- If the type is Boolean, then the string "true" for true and the string "false" for false.
+- Else, the value as defined in [Base Context Value Version 1](#base-context-value-version-1)

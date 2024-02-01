@@ -144,7 +144,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   }
 
   function method EncodeName(k : string) : (ret : Result<UTF8.ValidUTF8Bytes, Error>)
-    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value
+    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-1
     //= type=implication
     //# The key MUST be the following concatenation,
     //# where `attributeName` is the name of the attribute:
@@ -183,7 +183,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
     //#   this item is stored in (or will be stored in).
     //# - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
-    //# - the [value](#base-context-value) of the Partition Key.
+    //# - the [value](#base-context-value-version-1) of the Partition Key.
     ensures ret.Success? ==>
               && config.partitionKeyName in item
               && TABLE_NAME in ret.value
@@ -206,7 +206,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= type=implication
     //# If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
     //# - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-    //# - the [value](#base-context-value) of the Sort Key.
+    //# - the [value](#base-context-value-version-1) of the Sort Key.
     ensures ret.Success? && config.sortKeyName.Some? ==>
               && config.sortKeyName.value in item
               && SORT_NAME in ret.value

@@ -233,6 +233,11 @@ module DynamoDbItemEncryptorTest {
     expect parsedHeader.value.algorithmSuiteId == AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384.id.DBE;
     expect parsedHeader.value.attributeActionsOnEncrypt == actions - {"nothing", "sign2"};
     // Expect the verification key in the context
+    // only one item in the stored context shows that the CMM was properly constructed
+    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= type=test
+    //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+    //# with the following inputs:
     expect |parsedHeader.value.storedEncryptionContext| == 1;
     expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
@@ -240,6 +245,38 @@ module DynamoDbItemEncryptorTest {
     var strEC := SE.EcAsString(parsedHeader.value.encryptionContext);
     expect "aws-crypto-public-key" in strEC.Keys;
     strEC := strEC - {"aws-crypto-public-key"};
+
+    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2
+    //= type=test
+    //# The key MUST be the following concatenation,
+    //# where `attributeName` is the name of the attribute:
+    //# "aws-crypto-attr." + `attributeName`.
+
+    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2
+    //= type=test
+    //# The value MUST be :
+    //# - If the type is Number or String, the unaltered (already utf8) bytes of the value
+    //# - If the type if Null, the string "null"
+    //# - If the type is Boolean, then the string "true" for true and the string "false" for false.
+    //# - Else, the value as defined in [Base Context Value Version 1](#base-context-value-version-1)
+
+    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= type=test
+    //# Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2) to the encryption context for every
+    //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+    //# [Terminal Data](./structures.md#terminal-data)
+    //# in the input record, plus the Legend.
+
+    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= type=test
+    //# The Legend MUST be named "aws-crypto-legend" and be a string with one character per attribute added above,
+    //# with a one-to-one correspondence with the attributes sorted by their UTF8 encoding,
+    //# each character designating the original type of the attribute,
+    //# to allow reversing of the [encoding](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2).
+    //# - 'S' if the attribute was of type String
+    //# - 'N' if the attribute was of type Number
+    //# - 'L' if the attribute was of type Null or Boolean
+    //# - 'B' otherwise
     expect strEC == map[
                       "aws-crypto-legend" := "NLLLB",
                       "aws-crypto-attr.bar" := "1234",
@@ -399,6 +436,11 @@ module DynamoDbItemEncryptorTest {
     expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
 
+    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= type=test
+    //# If no [Crypto Action](./structures.md#crypto-action) is configured to be
+    //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+    //# then the input cmm and encryption context MUST be used unchanged.
     var strEC := SE.EcAsString(parsedHeader.value.encryptionContext);
     expect "aws-crypto-public-key" in strEC.Keys;
     strEC := strEC - {"aws-crypto-public-key"};

@@ -28,20 +28,22 @@ This operation MUST take in a [DynamoDbKeyBranchKeyIdSupplier](#dynamodb-key-bra
 
 ### Output
 
-This operation MUST output a string.
-This string is the Branch Key Id that MUST be used by the hierarchical keyring for decryption of this item.
+This operation MUST output a BranchKeyIdSupplierReference.
 
 ### Behavior
 
-This operation MUST return an implementation of the `BranchKeyIdSupplier` that behaves in the following way on `GetBranchKeyId`:
+The returned implementation of `BranchKeyIdSupplier` behaves in the following way on `GetBranchKeyId`:
 - It MUST deserialize the "aws-crypto-partition-name" value in the input encryption context to determine the partition name.
-  If this key does not exist in the encryption context, this operation MUST fail.
+- If the partition name does not exist in the encryption context, this operation MUST fail.
 - It MUST get the serialized partition value by grabbing the `aws-crypto-attr.<partition_name>` from the encryption context.
-  If this key does not exist in the encryption context, this operation MUST fail.
+- If the partition value does not exist in the encryption context, this operation MUST fail.
 - It MUST check for the existence of "aws-crypto-sort-name" in the input encryption context.
-  - If this key exists, it gets the serialized sort value by grabbing the `aws-crypto.attr:<sort_name>` from the encryption context.
-    If this does not exist in the context, this operation MUST fail.
-- If MUST [deserialize the partition (and optionally sort) value](./ddb-attribute-serialization.md), and create a Key with these values.
+  - If this key exists, it MUST get the serialized sort value by grabbing the `aws-crypto.attr:<sort_name>` from the encryption context.
+  - If the sort value does not exist in the context, this operation MUST fail.
+- If the field "aws-crypto-legend" exists in the encryption context,
+it MUST [deserialize](./ddb-attribute-serialization.md), all values with keys beginning "aws-crypto-attr.",
+and create a Key with these values, using names with the "aws-crypto-attr." removed.
+- If the field "aws-crypto-legend" does not exist in the encryption context, it MUST [deserialize the partition (and optionally sort) value](./ddb-attribute-serialization.md), and create a Key with these values.
 - It passes this Key to the supplied DynamoDbKeyBranchKeyIdSupplier via the `GetBranchKeyIdFromDdbKey` operation.
   - If successful, the resulting string MUST be outputted by this operation.
   - Otherwise, this operation MUST fail.
@@ -49,5 +51,5 @@ This operation MUST return an implementation of the `BranchKeyIdSupplier` that b
 ## DynamoDbKeyBranchKeyIdSupplier
 
 The DynamoDb Key Branch Key Id Supplier is an interface containing the `GetBranchKeyIdFromDdbKey` operation.
-This operation MUST take in a DDB `Key` structure (and attribute map containing the partition and sort attributes) as input,
-and return a branch key id (string) as output.
+This operation MUST take in a DDB `Key` structure (and attribute map containing the partition and sort attributes) as input.
+This operation MUST return a branch key id (string) as output.

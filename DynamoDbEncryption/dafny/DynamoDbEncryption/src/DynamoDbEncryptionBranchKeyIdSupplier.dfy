@@ -54,8 +54,12 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
       var branchKeyIdR := ddbKeyBranchKeyIdSupplier.GetBranchKeyIdFromDdbKey(
         GetBranchKeyIdFromDdbKeyInput(ddbKey := attrMap)
       );
+      //= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#behavior
+      //# - Otherwise, this operation MUST fail.
       var branchKeyIdOut :- branchKeyIdR.MapFailure(ConvertToMplError);
 
+      //= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#behavior
+      //# - If successful, the resulting string MUST be outputted by this operation.
       return Success(MPL.GetBranchKeyIdOutput(branchKeyId:=branchKeyIdOut.branchKeyId));
     }
   }
