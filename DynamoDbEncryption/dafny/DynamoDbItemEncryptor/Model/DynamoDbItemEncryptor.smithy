@@ -126,6 +126,9 @@ structure DynamoDbItemEncryptorConfig {
 //#     calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the structure,
 //#     converted into Attribute Actions.
 //#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
+//#   - [Stored Encryption Context](../structured-encryption/header.md#encryption-context): The Encryption Context stored in the header.
+//#   - [Encryption Context](../structured-encryption/decrypt-structure#encryption-context): The full Encryption Context used.
+//#   - Selector Context : the AttributeMap as passed to the [Branch Key Supplier](./ddb-encryption-branch-key-id-supplier.md)
 @javadoc("A parsed version of the header that was written with or read on an encrypted DynamoDB item.")
 structure ParsedHeader {
     @required

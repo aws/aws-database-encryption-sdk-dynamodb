@@ -71,6 +71,9 @@ representing the deserialized form of the header of the input encrypted structur
   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the structure,
   converted into Attribute Actions.
 - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
+- [Stored Encryption Context](../structured-encryption/header.md#encryption-context): The Encryption Context stored in the header.
+- [Encryption Context](../structured-encryption/decrypt-structure#encryption-context): The full Encryption Context used.
+- Selector Context : the AttributeMap as passed to the [Branch Key Supplier](./ddb-encryption-branch-key-id-supplier.md)
 
 ## Behavior
 

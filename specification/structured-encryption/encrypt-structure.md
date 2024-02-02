@@ -92,6 +92,12 @@ for one such use.
 
 ## Outputs
 
+## Output
+
+This operation MUST output the following:
+- [Encrypted Structured Data](#encrypted-structured-data)
+- [Parsed Header](./decrypt-structure.md#parsed-header)
+
 ### Encrypted Structured Data
 
 An encrypted form of the [input Structured Data](#structured-data),

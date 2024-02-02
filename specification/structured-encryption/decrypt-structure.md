@@ -106,6 +106,7 @@ representing the deserialized form of the header of the input encrypted structur
   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
 - [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
 - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
+- [Encryption Context](#encryption-context): The full Encryption Context used.
 
 ## Behavior
 
