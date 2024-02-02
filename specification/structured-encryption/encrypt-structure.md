@@ -120,9 +120,9 @@ This operation MUST [calculate the appropriate CMM and encryption context](#crea
 
 This operation MUST obtain a set of encryption materials by calling
 [Get Encryption Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
-on the input [CMM](#cmm).
+on the [CMM](#cmm) calculated above.
 
-This operation MUST call Get Encryption Materials on the CMM constructed above as follows.
+This operation MUST call Get Encryption Materials on the CMM as follows.
 - Encryption Context: This MUST be the encryption context calculated above.
 - Commitment Policy: This MUST be
   [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).

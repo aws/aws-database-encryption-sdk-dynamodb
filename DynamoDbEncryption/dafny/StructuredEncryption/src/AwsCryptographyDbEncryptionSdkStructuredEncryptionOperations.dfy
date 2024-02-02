@@ -161,11 +161,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //= type=implication
               //# This operation MUST obtain a set of encryption materials by calling
               //# [Get Encryption Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
-              //# on the input [CMM](#cmm).
+              //# on the [CMM](#cmm) calculated above.
 
               //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
               //= type=implication
-              //# This operation MUST call Get Encryption Materials on the CMM constructed above as follows.
+              //# This operation MUST call Get Encryption Materials on the CMM as follows.
               && (|cmm.History.GetEncryptionMaterials| == |old(cmm.History.GetEncryptionMaterials)| + 1)
               && Seq.Last(cmm.History.GetEncryptionMaterials).output.Success?
               && var getEncIn := Seq.Last(cmm.History.GetEncryptionMaterials).input;
@@ -694,12 +694,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(|canonData.encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields"));
     var encryptedItems :- Crypt.Encrypt(config.primitives, alg, key, head, canonData.encFields_c, canonData.data_c);
 
-    var result : map<string, StructuredData> := map k <- plainRecord | true :: k :=
-                                                                            var c := Paths.SimpleCanon(input.tableName, k);
-                                                                            if c in encryptedItems then
-                                                                              encryptedItems[c]
-                                                                            else
-                                                                              plainRecord[k];
+    var result : map<string, StructuredData> := map k <- plainRecord | true
+      :: k :=
+      var c := Paths.SimpleCanon(input.tableName, k);
+      if c in encryptedItems then
+        encryptedItems[c]
+      else
+        plainRecord[k];
 
     //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
     //= type=implication
@@ -919,13 +920,31 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
     var canonData :- CanonizeForDecrypt(input.tableName, encRecord, authSchema, head.legend);
 
-    var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
     assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
+
+    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //# This operation MUST [calculate the appropriate CMM and encryption context](#create-new-encryption-context-and-cmm).
+    var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
     var cmm := input.cmm;
+
+    //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+    //# If the version stored in the header is 1,
+    //# then the input cmm and encryption context MUST be used unchanged.
     if head.version == 2 {
+      //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+      //# Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2) to the encryption context for every
+      //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+      //# [Terminal Data](./structures.md#terminal-data)
+      //# in the input record, plus the Legend.
       var newEncryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encRecord);
       encryptionContext := encryptionContext + newEncryptionContext;
       assert cmm.Modifies !! {config.materialProviders.History};
+
+      //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+      //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+      //# with the following inputs:
+      //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
+      //# - The name of every entry added above.
       var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
         CMP.CreateRequiredEncryptionContextCMMInput(
           underlyingCMM := Some(cmm),
@@ -939,7 +958,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
     //# This operation MUST obtain a set of decryption materials by calling
     //# [Decrypt Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
-    //# on the [input CMM](#cmm).
+    //# on the [CMM](#cmm) calculated above.
 
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
     //# The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
@@ -1006,12 +1025,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                              canonData.signedFields_c, canonData.encFields_c, map[], canonData.data_c, headerSerialized);
     var decryptedItems :- Crypt.Decrypt(config.primitives, postCMMAlg, key, head, canonData.encFields_c, canonData.data_c);
 
-    var result : map<string, StructuredData> := map k <- encRecord | true :: k :=
-                                                                          var c := Paths.SimpleCanon(input.tableName, k);
-                                                                          if c in decryptedItems then
-                                                                            decryptedItems[c]
-                                                                          else
-                                                                            encRecord[k];
+    var result : map<string, StructuredData> := map k <- encRecord | true
+      :: k :=
+      var c := Paths.SimpleCanon(input.tableName, k);
+      if c in decryptedItems then
+        decryptedItems[c]
+      else
+        encRecord[k];
 
     //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
     //# - For every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
