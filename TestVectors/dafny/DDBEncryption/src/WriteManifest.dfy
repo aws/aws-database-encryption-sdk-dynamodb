@@ -53,7 +53,7 @@ module {:options "-functionSyntax:4"} WriteManifest {
       }"
   const LongerV2Config2 := @"{
         ""attributeActionsOnEncrypt"": {
-          ""RecNum"": ""SIGN_ONLY"",
+          ""RecNum"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
           ""Stuff"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
           ""Junk"": ""ENCRYPT_AND_SIGN"",
           ""Thing2"": ""ENCRYPT_AND_SIGN"",
