@@ -32,10 +32,13 @@ will cause a version 2 record to be written.
 If any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attribute is configured,
 then the primary partition and sort keys must also be SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
 
+And like the primary partition and sort keys, and attribute configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+is required in any item to be encrypted.
+
 If any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attribute is configured,
 - All SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attributes will be included in the encryption context
 - All SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attributes will be available to the Branch Key Selector
-- The values of the attributes in the encryption context will be human readable. Specifically :
+- The values of the attributes in the encryption context will be more human readable. Specifically :
 
 | Type | attribute value | encryption context value |
 | ----------- | ----------- | ----------- |
@@ -47,7 +50,7 @@ If any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attribute is configured,
 | Anything else | n/a | the version 1 value, looking something like "AAFrZXk=" |
 
 Note that the values presented to the Branch Key Selector were always, and still are, DynamoDB AttributeValues.
-The changes in encryption context values refer to the raw encryption context.
+The changes in encryption context values refer only to the raw encryption context.
 
 An additional item, "aws-crypto-legend", will also be included in the encryption context,
 providing the types of the attributes in the encryption context.
