@@ -88,6 +88,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
       var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_42.json");
       var _ :- expect DecryptManifest.Decrypt("decrypt_java_42.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_43.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_43.json");
       var _ :- expect WriteManifest.Write("encrypt.json");
       var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.2");
       var _ :- expect DecryptManifest.Decrypt("decrypt.json");
