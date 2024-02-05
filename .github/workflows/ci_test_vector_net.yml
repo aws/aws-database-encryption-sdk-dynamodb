@@ -58,7 +58,7 @@ jobs:
       - name: Test TestVectors on .NET 6.0
         working-directory: ./TestVectors/runtimes/net
         run: |
-          cp ../java/decrypt_java_43.json ../java/decrypt_dotnet_43.json .
+          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json .
           dotnet run
           cp ../java/*.json .
           dotnet run --framework net6.0
