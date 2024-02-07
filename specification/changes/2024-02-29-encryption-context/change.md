@@ -62,7 +62,7 @@ based solely on the encryption context -- since no configuration or version numb
 ### Parsed Header
 
 For both record versions, the Parsed Header returned from Structured Encryption operations now
-contains an additional field : the full encryption context used for encryption. 
+contains an additional field : the full encryption context. 
 
 Similarly, the Parsed Header returned from Item Encryptor operations now
 contains two additional fields : the full encryption context used for encryption,
