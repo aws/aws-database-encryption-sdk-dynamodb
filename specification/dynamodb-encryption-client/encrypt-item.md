@@ -146,8 +146,8 @@ A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 
 The DynamoDB Item Base Context MUST contain:
-  - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
-    this item is stored in (or will be stored in).
+  - the key "aws-crypto-table-name" with a value equal to the configured
+  [logical table name](./ddb-table-encryption-config.md#logical-table-name).
   - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
   - the [value](#base-context-value-version-1) of the Partition Key.
 

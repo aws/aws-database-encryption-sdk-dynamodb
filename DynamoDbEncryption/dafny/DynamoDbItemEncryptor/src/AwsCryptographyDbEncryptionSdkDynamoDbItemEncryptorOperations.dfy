@@ -164,7 +164,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# then the base context MUST be the [version 2](#dynamodb-item-base-context-version-2) context;
     //# otherwise, the base context MUST be the [version 1](#dynamodb-item-base-context-version-1) context.
     ensures config.version == 2 ==> ret == MakeEncryptionContextV2(config, item)
-    ensures config.version != 2 ==> ret == MakeEncryptionContextV1(config, item)
+    ensures config.version == 1 ==> ret == MakeEncryptionContextV1(config, item)
+    ensures (config.version == 1) || (config.version == 2)
   {
     if config.version == 2 then
       MakeEncryptionContextV2(config, item)
@@ -180,8 +181,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-1
     //= type=implication
     //# The DynamoDB Item Base Context MUST contain:
-    //# - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
-    //#   this item is stored in (or will be stored in).
+    //# - the key "aws-crypto-table-name" with a value equal to the configured
+    //# [logical table name](./ddb-table-encryption-config.md#logical-table-name).
     //# - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
     //# - the [value](#base-context-value-version-1) of the Partition Key.
     ensures ret.Success? ==>

@@ -90,8 +90,6 @@ The prefix `aws-crypto-` is reserved for internal use by the AWS Encryption SDK;
 [the Default CMM spec](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/default-cmm.md)
 for one such use.
 
-## Outputs
-
 ## Output
 
 This operation MUST output the following:
