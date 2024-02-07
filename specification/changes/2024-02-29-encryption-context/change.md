@@ -65,7 +65,7 @@ For both record versions, the Parsed Header returned from Structured Encryption 
 contains an additional field : the full encryption context. 
 
 Similarly, the Parsed Header returned from Item Encryptor operations now
-contains two additional fields : the full encryption context used for encryption,
+contains two additional fields : the full encryption context,
 and the value map that would be passed to the Branch Key Selector.
 
 ## Implementation Changes
