@@ -85,11 +85,6 @@ module DynamoDbItemEncryptorUtil {
               && var partitionValueKey := SE.EC_ATTR_PREFIX + partitionName;
               && (partitionValueKey !in context.Keys) ==> output.Failure?
 
-    ensures output.Success? && SORT_NAME in context.Keys ==>
-              && var sortName := context[SORT_NAME];
-              && var sortValueKey := SE.EC_ATTR_PREFIX + sortName;
-              && sortValueKey in context.Keys
-
     //= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#behavior
     //= type=implication
     //# - It MUST check for the existence of "aws-crypto-sort-name" in the input encryption context.
@@ -97,6 +92,10 @@ module DynamoDbItemEncryptorUtil {
     //= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#behavior
     //= type=implication
     //# - If this key exists, it MUST get the serialized sort value by grabbing the `aws-crypto.attr:<sort_name>` from the encryption context.
+    ensures output.Success? && SORT_NAME in context.Keys ==>
+              && var sortName := context[SORT_NAME];
+              && var sortValueKey := SE.EC_ATTR_PREFIX + sortName;
+              && sortValueKey in context.Keys
 
     //= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#behavior
     //= type=implication
