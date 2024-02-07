@@ -32,7 +32,7 @@ will cause a version 2 record to be written.
 If any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attribute is configured,
 then the primary partition and sort keys must also be SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
 
-And like the primary partition and sort keys, and attribute configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+And like the primary partition and sort keys, an attribute configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
 is required in any item to be encrypted.
 
 If any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attribute is configured,
