@@ -100,11 +100,12 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     else if action == CSE.ENCRYPT_AND_SIGN then
       "ENCRYPT_AND_SIGN"
     else
-      assert action != CSE.DO_NOTHING;
-      assert action != CSE.SIGN_ONLY;
-      assert action != CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT;
-      assert action != CSE.ENCRYPT_AND_SIGN;
-      assert false;
+      assert false by {
+        assert action != CSE.DO_NOTHING;
+        assert action != CSE.SIGN_ONLY;
+        assert action != CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT;
+        assert action != CSE.ENCRYPT_AND_SIGN;
+      }
       "internal error"
   }
 
@@ -731,8 +732,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign)
     //# then this item MUST include an Attribute with that name.
     ensures output.Success? ==>
-      forall k <- config.attributeActionsOnEncrypt :: (config.attributeActionsOnEncrypt[k] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) ==> (k in input.plaintextItem)
-      // ContextAttrsExist(config.attributeActionsOnEncrypt, input.plaintextItem)
+              forall k <- config.attributeActionsOnEncrypt :: (config.attributeActionsOnEncrypt[k] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) ==> (k in input.plaintextItem)
+    // ContextAttrsExist(config.attributeActionsOnEncrypt, input.plaintextItem)
 
     ensures
       && output.Success?
@@ -782,6 +783,16 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && SE.IsAuthAttr(parsedHeaderMap[k].content.Action))
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
+        && ConvertContextForSelector(structuredEncParsed.encryptionContext).Success?
+        && var selectorContext := ConvertContextForSelector(structuredEncParsed.encryptionContext).value;
+        && output.value.parsedHeader.value == ParsedHeader(
+                                                attributeActionsOnEncrypt := maybeCryptoSchema.value,
+                                                algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
+                                                storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
+                                                encryptedDataKeys := structuredEncParsed.encryptedDataKeys,
+                                                encryptionContext := structuredEncParsed.encryptionContext,
+                                                selectorContext := selectorContext
+                                              )
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -993,6 +1004,16 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && SE.IsAuthAttr(structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action))
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
+        && ConvertContextForSelector(structuredEncParsed.encryptionContext).Success?
+        && var selectorContext := ConvertContextForSelector(structuredEncParsed.encryptionContext).value;
+        && output.value.parsedHeader.value == ParsedHeader(
+                                                attributeActionsOnEncrypt := maybeCryptoSchema.value,
+                                                algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
+                                                storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
+                                                encryptedDataKeys := structuredEncParsed.encryptedDataKeys,
+                                                encryptionContext := structuredEncParsed.encryptionContext,
+                                                selectorContext := selectorContext
+                                              )
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
