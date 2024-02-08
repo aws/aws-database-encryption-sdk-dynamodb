@@ -153,7 +153,7 @@ module DynamoDbItemEncryptorUtil {
       AddAttributeToMap(partitionValueKey, context[partitionValueKey], map[])
     else
       var attrMap :- AddAttributeToMap(partitionValueKey, context[partitionValueKey], map[]);
-      AddAttributeToMap(sortValueKey.value, context[sortValueKey.value], map[])
+      AddAttributeToMap(sortValueKey.value, context[sortValueKey.value], attrMap)
   }
 
   function method GetAttrValue(ecValue : UTF8.ValidUTF8Bytes, legend : char)
