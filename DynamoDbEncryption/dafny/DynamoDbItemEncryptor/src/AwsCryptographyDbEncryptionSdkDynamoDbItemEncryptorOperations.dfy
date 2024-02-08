@@ -100,6 +100,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     else if action == CSE.ENCRYPT_AND_SIGN then
       "ENCRYPT_AND_SIGN"
     else
+      assert action != CSE.DO_NOTHING;
+      assert action != CSE.SIGN_ONLY;
+      assert action != CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT;
+      assert action != CSE.ENCRYPT_AND_SIGN;
+      assert false;
       "internal error"
   }
 
