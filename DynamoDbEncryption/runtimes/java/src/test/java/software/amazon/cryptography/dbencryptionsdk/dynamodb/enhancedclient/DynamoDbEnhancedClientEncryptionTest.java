@@ -32,6 +32,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
     public void TestMultipleTables() {
         TableSchema<SimpleClass> simpleSchema = TableSchema.fromBean(SimpleClass.class);
         TableSchema<SignOnlyClass> signOnlySchema = TableSchema.fromBean(SignOnlyClass.class);
+        TableSchema<SignAndIncludeClass> signAndIncludeSchema = TableSchema.fromBean(SignAndIncludeClass.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put("SimpleClassTestTable",
                 DynamoDbEnhancedTableEncryptionConfig.builder()
@@ -46,13 +47,19 @@ public class DynamoDbEnhancedClientEncryptionTest {
                         .keyring(createKmsKeyring())
                         .schemaOnEncrypt(signOnlySchema)
                         .build());
+        tableConfigs.put("SignAndIncludeClassTestTable",
+                DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName("SignAndIncludeClassTestTable")
+                        .keyring(createKmsKeyring())
+                        .schemaOnEncrypt(signAndIncludeSchema)
+                        .build());
         DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
                         CreateDynamoDbEncryptionInterceptorInput.builder()
                                 .tableEncryptionConfigs(tableConfigs)
                                 .build()
                 );
-        assertEquals(2, interceptor.config().tableEncryptionConfigs().size());
+        assertEquals(3, interceptor.config().tableEncryptionConfigs().size());
 
         DynamoDbTableEncryptionConfig simpleConfig = interceptor.config().tableEncryptionConfigs().get("SimpleClassTestTable");
         assertEquals(CryptoAction.DO_NOTHING, simpleConfig.attributeActionsOnEncrypt().get("doNothing"));
@@ -66,6 +73,12 @@ public class DynamoDbEnhancedClientEncryptionTest {
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActionsOnEncrypt().get("sort_key"));
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActionsOnEncrypt().get("attr1"));
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActionsOnEncrypt().get("attr2"));
+
+        DynamoDbTableEncryptionConfig signAndIncludeConfig = interceptor.config().tableEncryptionConfigs().get("SignOnlyClassTestTable");
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr1"));
+        assertEquals(CryptoAction.SIGN_ONLY, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr2"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("partition_key"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("sort_key"));
     }
 
     @Test

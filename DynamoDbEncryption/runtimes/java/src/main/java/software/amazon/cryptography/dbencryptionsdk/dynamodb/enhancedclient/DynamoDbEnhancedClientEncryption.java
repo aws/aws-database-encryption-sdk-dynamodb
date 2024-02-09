@@ -24,6 +24,7 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
 
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DoNothingTag.CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX;
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.SignOnlyTag.CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX;
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.SignAndIncludeTag.CUSTOM_DDB_ENCRYPTION_SIGN_AND_INCLUDE_PREFIX;
 
 public class DynamoDbEnhancedClientEncryption {
     public static DynamoDbEncryptionInterceptor CreateDynamoDbEncryptionInterceptor(
@@ -66,6 +67,7 @@ public class DynamoDbEnhancedClientEncryption {
 
         TableSchema<?> topTableSchema = configWithSchema.schemaOnEncrypt();
         Set<String> signOnlyAttributes = getSignOnlyAttributes(topTableSchema);
+        Set<String> signAndIncludeAttributes = getSignAndIncludeAttributes(topTableSchema);
         Set<String> doNothingAttributes = getDoNothingAttributes(topTableSchema);
         Set<String> keyAttributes = attributeNamesUsedInIndices(topTableSchema.tableMetadata());
 
@@ -81,6 +83,18 @@ public class DynamoDbEnhancedClientEncryption {
                         "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute. Found on Table Name: %s",
                         tableName))
                     .build();
+        } else if (!Collections.disjoint(signOnlyAttributes, signAndIncludeAttributes)) {
+            throw DynamoDbEncryptionException.builder()
+                    .message(String.format(
+                        "Cannot use @DynamoDbEncryptionSignAndInclude and @DynamoDbEncryptionSignOnly on same attribute. Found on Table Name: %s",
+                        tableName))
+                    .build();
+        } else if (!Collections.disjoint(doNothingAttributes, signAndIncludeAttributes)) {
+            throw DynamoDbEncryptionException.builder()
+                    .message(String.format(
+                        "Cannot use @DynamoDbEncryptionSignAndInclude and @DynamoDbEncryptionDoNothing on same attribute. Found on Table Name: %s",
+                        tableName))
+                    .build();
         }
 
         List<String> attributeNames = topTableSchema.attributeNames();
@@ -88,10 +102,15 @@ public class DynamoDbEnhancedClientEncryption {
         path.append(tableName).append(".");
         for (String attributeName : attributeNames) {
             if (keyAttributes.contains(attributeName)) {
-                // key attributes are always SIGN_ONLY
-                actions.put(attributeName, CryptoAction.SIGN_ONLY);
+		if (signAndIncludeAttributes.isEmpty()) {
+                    actions.put(attributeName, CryptoAction.SIGN_ONLY);
+		} else {
+                    actions.put(attributeName, CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT);
+		}
             } else if (signOnlyAttributes.contains(attributeName)) {
                 actions.put(attributeName, CryptoAction.SIGN_ONLY);
+            } else if (signAndIncludeAttributes.contains(attributeName)) {
+                actions.put(attributeName, CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT);
             } else if (doNothingAttributes.contains(attributeName)) {
                 actions.put(attributeName, CryptoAction.DO_NOTHING);
             } else {
@@ -143,6 +162,13 @@ public class DynamoDbEnhancedClientEncryption {
     }
 
     @SuppressWarnings("unchecked")
+    private static Set<String> getSignAndIncludeAttributes(TableSchema<?> tableSchema) {
+        return tableSchema.tableMetadata()
+            .customMetadataObject(CUSTOM_DDB_ENCRYPTION_SIGN_AND_INCLUDE_PREFIX, Set.class)
+            .orElseGet(HashSet::new);
+    }
+
+    @SuppressWarnings("unchecked")
     private static Set<String> getDoNothingAttributes(TableSchema<?> tableSchema) {
         return tableSchema.tableMetadata()
             .customMetadataObject(CUSTOM_DDB_ENCRYPTION_DO_NOTHING_PREFIX, Set.class)
@@ -184,6 +210,16 @@ public class DynamoDbEnhancedClientEncryption {
                             "This is NOT Supported at this time!",
                         CUSTOM_DDB_ENCRYPTION_SIGN_ONLY_PREFIX,
                         attributePath.append(signOnlyAttributes.toArray()[0])))
+                    .build();
+            }
+            Set<String> signAndIncludeAttributes = getSignAndIncludeAttributes(subTableSchema);
+            if (signAndIncludeAttributes.size() > 0) {
+                throw DynamoDbEncryptionException.builder()
+                    .message(String.format(
+                        "Detected DynamoDbEncryption Tag %s on a nested attribute with Path %s. " +
+                            "This is NOT Supported at this time!",
+                        CUSTOM_DDB_ENCRYPTION_SIGN_AND_INCLUDE_PREFIX,
+                        attributePath.append(signAndIncludeAttributes.toArray()[0])))
                     .build();
             }
             Set<String> doNothingAttributes = getDoNothingAttributes(subTableSchema);
