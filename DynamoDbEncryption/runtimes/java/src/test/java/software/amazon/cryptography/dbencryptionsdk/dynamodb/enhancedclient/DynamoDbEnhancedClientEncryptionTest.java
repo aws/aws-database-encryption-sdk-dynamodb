@@ -74,11 +74,11 @@ public class DynamoDbEnhancedClientEncryptionTest {
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActionsOnEncrypt().get("attr1"));
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActionsOnEncrypt().get("attr2"));
 
-        DynamoDbTableEncryptionConfig signAndIncludeConfig = interceptor.config().tableEncryptionConfigs().get("SignOnlyClassTestTable");
-        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr1"));
-        assertEquals(CryptoAction.SIGN_ONLY, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr2"));
+        DynamoDbTableEncryptionConfig signAndIncludeConfig = interceptor.config().tableEncryptionConfigs().get("SignAndIncludeClassTestTable");
         assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("partition_key"));
         assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("sort_key"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr1"));
+        assertEquals(CryptoAction.SIGN_ONLY, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr2"));
     }
 
     @Test
