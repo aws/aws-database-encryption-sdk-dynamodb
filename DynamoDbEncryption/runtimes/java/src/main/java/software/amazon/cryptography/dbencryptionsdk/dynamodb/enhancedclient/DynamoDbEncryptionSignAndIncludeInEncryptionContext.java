@@ -9,5 +9,5 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.BeanTableSche
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @BeanTableSchemaAttributeTag(EncryptionAttributeTags.class)
-public @interface DynamoDbEncryptionSignAndInclude {
+public @interface DynamoDbEncryptionSignAndIncludeInEncryptionContext {
 }
