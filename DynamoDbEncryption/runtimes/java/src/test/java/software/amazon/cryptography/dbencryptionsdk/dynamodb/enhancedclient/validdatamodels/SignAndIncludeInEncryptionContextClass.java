@@ -5,10 +5,10 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionSignOnly;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionSignAndInclude;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionSignAndIncludeInEncryptionContext;
 
 @DynamoDbBean
-public class SignAndIncludeClass {
+public class SignAndIncludeInEncryptionContextClass {
 
     private String partitionKey;
     private int sortKey;
@@ -35,7 +35,7 @@ public class SignAndIncludeClass {
         this.sortKey = sortKey;
     }
 
-    @DynamoDbEncryptionSignAndInclude
+    @DynamoDbEncryptionSignAndIncludeInEncryptionContext
     public String getAttr1() {
         return this.attr1;
     }
