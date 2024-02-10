@@ -32,7 +32,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
     public void TestMultipleTables() {
         TableSchema<SimpleClass> simpleSchema = TableSchema.fromBean(SimpleClass.class);
         TableSchema<SignOnlyClass> signOnlySchema = TableSchema.fromBean(SignOnlyClass.class);
-        TableSchema<SignAndIncludeClass> signAndIncludeSchema = TableSchema.fromBean(SignAndIncludeClass.class);
+        TableSchema<SignAndIncludeInEncryptionContextClass> signAndIncludeSchema = TableSchema.fromBean(SignAndIncludeInEncryptionContextClass.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put("SimpleClassTestTable",
                 DynamoDbEnhancedTableEncryptionConfig.builder()
@@ -47,9 +47,9 @@ public class DynamoDbEnhancedClientEncryptionTest {
                         .keyring(createKmsKeyring())
                         .schemaOnEncrypt(signOnlySchema)
                         .build());
-        tableConfigs.put("SignAndIncludeClassTestTable",
+        tableConfigs.put("SignAndIncludeInEncryptionContextClassTestTable",
                 DynamoDbEnhancedTableEncryptionConfig.builder()
-                        .logicalTableName("SignAndIncludeClassTestTable")
+                        .logicalTableName("SignAndIncludeInEncryptionContextClassTestTable")
                         .keyring(createKmsKeyring())
                         .schemaOnEncrypt(signAndIncludeSchema)
                         .build());
@@ -74,7 +74,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActionsOnEncrypt().get("attr1"));
         assertEquals(CryptoAction.SIGN_ONLY, signOnlyConfig.attributeActionsOnEncrypt().get("attr2"));
 
-        DynamoDbTableEncryptionConfig signAndIncludeConfig = interceptor.config().tableEncryptionConfigs().get("SignAndIncludeClassTestTable");
+        DynamoDbTableEncryptionConfig signAndIncludeConfig = interceptor.config().tableEncryptionConfigs().get("SignAndIncludeInEncryptionContextClassTestTable");
         assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("partition_key"));
         assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("sort_key"));
         assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr1"));
