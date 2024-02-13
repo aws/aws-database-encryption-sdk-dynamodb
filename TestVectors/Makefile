@@ -58,3 +58,6 @@ SERVICE_DEPS_DDBEncryption := \
 
 format_net:
 	pushd runtimes/net && dotnet format && popd
+
+clean:
+	rm -f runtimes/java/WriteTests1.json runtimes/java/decrypt.json runtimes/java/encrypt.json runtimes/net/*.json
