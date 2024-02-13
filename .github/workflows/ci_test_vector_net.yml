@@ -55,10 +55,11 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           make transpile_net
 
-      - name: Test TestVectors
+      - name: Test TestVectors on .NET 6.0
         working-directory: ./TestVectors/runtimes/net
         run: |
+          cp ../java/decrypt_java.json ../java/decrypt_dotnet.json .	
+          dotnet run
           cp ../java/*.json .
-          # dotnet run
-          echo can't build until we make type conversions public
-          echo can't run until we update MPL/ComAmazonawsDynamodb
+          dotnet run --framework net6.0
+
