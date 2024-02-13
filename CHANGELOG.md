@@ -1,5 +1,23 @@
 # Changelog
 
+## 3.2.0 2024-01-16
+
+### Features
+- support for .NET
+- Beacon Styles :
+  - PartOnly : save a little bit of space for a beacon that used as part of a Compound Beacon, but never alone
+  - AsSet : turn a set of values into a set of beacons, rather than into a single beacon
+  - Twinned : calculate beacons for one attribute to be compatible with those from a different attribute
+  - TwinnedSet : both AsSet and Twinned
+- Global Parts List : all compound beacons can now share a single list of Parts
+- Test vectors to ensure cross language compatibility
+- explicit error message when searching on a Compound Beacon that could never exist.
+- New APIs : ResolveAttributes and GetVirtualFields to assist in development and debugging.
+
+### Fix
+ - String compare for client side filtering of Scan and Query results could somtimes produce the wrong result for certain characters.
+
+
 ## 3.1.2 2023-11-13
 
 ### Fix

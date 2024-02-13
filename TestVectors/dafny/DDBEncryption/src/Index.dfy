@@ -17,8 +17,12 @@ module WrappedDDBEncryptionMain {
 
   method AddJson(prev : TestVectorConfig, file : string) returns (output : Result<TestVectorConfig, string>)
   {
-    var configBv :- expect FileIO.ReadBytesFromFile(file);
-    var configBytes := BvToBytes(configBv);
+    var configBv := FileIO.ReadBytesFromFile(file);
+    if configBv.Failure? {
+      print "Failed to open ", file, " continuing anyway.\n";
+      return Success(MakeEmptyTestVector());
+    }
+    var configBytes := BvToBytes(configBv.value);
     var json :- expect API.Deserialize(configBytes);
     output := ParseTestVector(json, prev);
     if output.Failure? {

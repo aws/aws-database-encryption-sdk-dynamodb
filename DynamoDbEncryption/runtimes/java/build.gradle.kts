@@ -138,7 +138,7 @@ publishing {
             pom {
                 name.set("AWS Database Encryption SDK for DynamoDB")
                 description.set("AWS Database Encryption SDK for DynamoDB in Java")
-                url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb-java")
+                url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb")
                 licenses {
                     license {
                         name.set("Apache License 2.0")
@@ -155,7 +155,7 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb-java.git")
+                    url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb.git")
                 }
             }
         }
