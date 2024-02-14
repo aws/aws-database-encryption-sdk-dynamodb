@@ -11,7 +11,7 @@ public class BeaconConfig
 {
     /*
      * This file is used in an example to demonstrate complex queries
-     * you can perform using beacons.
+     * that you can perform using beacons.
      * The example data used is for demonstrative purposes only,
      * and might not meet the distribution and correlation uniqueness
      * recommendations for beacons.
@@ -26,7 +26,7 @@ public class BeaconConfig
     public static AmazonDynamoDBClient SetupBeaconConfig(String ddbTableName, String branchKeyId,
         String branchKeyWrappingKmsKeyArn, String branchKeyDdbTableName)
     {
-        // 1. Create Keystore and branch key.
+        // 1. Create keystore and branch key
         //    These are the same constructions as in the Basic examples, which describe this in more detail.
         KeyStore keyStore = new KeyStore(new KeyStoreConfig
         {
@@ -85,7 +85,7 @@ public class BeaconConfig
         };
 
 
-        // 4. Define signed parts.
+        // 4. Define signed parts
         //    These are unencrypted attributes we would like to use in beacon queries.
         //    In this example, all of these represent dates or times.
         //    Keeping these attributes unencrypted allows us to use them in comparison-based queries. If a signed
@@ -98,7 +98,7 @@ public class BeaconConfig
             new SignedPart { Name = "ProjectStart", Prefix = "PS-" }
         };
 
-        // 6. Create constructor parts.
+        // 6. Create constructor parts
         //    Constructor parts are used to assemble constructors (constructors described more in next step).
         //    For each attribute that will be used in a constructor, there must be a corresponding constructor part.
         //    A constructor part must receive:
@@ -216,7 +216,7 @@ public class BeaconConfig
             Parts = new List<ConstructorPart> { buildingConstructorPart, floorConstructorPart, deskConstructorPart }
         };
 
-        // 5. Add constructors to the compound beacon constructor list in desired construction order.
+        // 5. Add constructors to the compound beacon constructor list in desired construction order
         //    In a compound beacon with multiple constructors, the order the constructors are added to
         //        the constructor list determines their priority.
         //    The first constructor added to a constructor list will be the first constructor that is executed.
@@ -224,7 +224,7 @@ public class BeaconConfig
         //    If no constructors match, an attribute value is not written for that beacon.
         //    A general strategy is to add constructors with unique conditions at the beginning of the list,
         //       and add constructors with general conditions at the end of the list. This would allow a given
-        //       item would trigger the constructor most specific to its attributes.
+        //       item to trigger the constructor most specific to its attributes.
         var pk0ConstructorList = new List<Constructor>
         {
             employeeIdConstructor,
@@ -285,7 +285,7 @@ public class BeaconConfig
             new CompoundBeacon { Name = "SK3", Split = "~", Constructors = sk3ConstructorList }
         };
 
-        // 10. Create BeaconVersion.
+        // 10. Create BeaconVersion
         var beaconVersions = new List<BeaconVersion>
         {
             new BeaconVersion
@@ -339,7 +339,7 @@ public class BeaconConfig
             // These are not beaconized attributes, but are sensitive data that must be encrypted
             ["Attendees"] = CryptoAction.ENCRYPT_AND_SIGN,
             ["Subject"] = CryptoAction.ENCRYPT_AND_SIGN,
-            // signed parts and unencrypted attributes can be configured as SIGN_ONLY or DO_NOTHING
+            // Signed parts and unencrypted attributes can be configured as SIGN_ONLY or DO_NOTHING
             // For this example, we will set these to SIGN_ONLY to ensure authenticity
             ["TicketModTime"] = CryptoAction.SIGN_ONLY,
             ["MeetingStart"] = CryptoAction.SIGN_ONLY,

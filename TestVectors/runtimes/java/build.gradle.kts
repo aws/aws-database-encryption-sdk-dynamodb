@@ -92,14 +92,14 @@ dependencies {
     implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
     implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:1.0-SNAPSHOT")
 
-    implementation(platform("software.amazon.awssdk:bom:2.20.138"))
+    implementation(platform("software.amazon.awssdk:bom:2.24.2"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:core:2.19.1")
+    implementation("software.amazon.awssdk:core:2.22.7")
     implementation("software.amazon.awssdk:kms")
-    testImplementation("com.amazonaws:DynamoDBLocal:1.+")
+    testImplementation("com.amazonaws:DynamoDBLocal:2.+")
     // This is where we gather the SQLLite files to copy over
-    dynamodb("com.amazonaws:DynamoDBLocal:1.+")
+    dynamodb("com.amazonaws:DynamoDBLocal:2.+")
     // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
     // This checks the dependencies and adds a native library
     // to support this architecture.

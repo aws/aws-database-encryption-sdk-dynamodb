@@ -83,7 +83,7 @@ dependencies {
     implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
-    implementation(platform("software.amazon.awssdk:bom:2.20.128"))
+    implementation(platform("software.amazon.awssdk:bom:2.24.2"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
@@ -92,7 +92,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     
     //    For the DDB-EC v1
-    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.531")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.658")
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
@@ -138,7 +138,7 @@ publishing {
             pom {
                 name.set("AWS Database Encryption SDK for DynamoDB")
                 description.set("AWS Database Encryption SDK for DynamoDB in Java")
-                url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb-java")
+                url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb")
                 licenses {
                     license {
                         name.set("Apache License 2.0")
@@ -155,7 +155,7 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb-java.git")
+                    url.set("https://github.com/aws/aws-database-encryption-sdk-dynamodb.git")
                 }
             }
         }
