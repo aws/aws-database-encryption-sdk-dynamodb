@@ -328,6 +328,7 @@ module SearchConfigToInfo {
     if |badNames| == 0 then
       None
     else
+      // We happen to order these values, but this ordering MUST NOT be relied upon.
       var badSeq := SortedSets.ComputeSetToOrderedSequence2(badNames, CharLess);
       Some(badSeq[0])
   }
@@ -399,35 +400,36 @@ module SearchConfigToInfo {
     if |badNames| == 0 then
       None
     else
+      // We happen to order these values, but this ordering MUST NOT be relied upon.
       var badSeq := SortedSets.ComputeSetToOrderedSequence2(badNames, CharLess);
       Some(badSeq[0])
   }
 
-  function method IsValidTwin(converted : I.BeaconMap, name : string, length : B.BeaconLength, twin : string)
+  function method IsValidShare(converted : I.BeaconMap, name : string, length : B.BeaconLength, share : string)
     : (ret : Result<bool, Error>)
     ensures ret.Success? ==>
-              && twin in converted
-              && converted[twin].Standard?
-              && converted[twin].std.length == length
+              && share in converted
+              && converted[share].Standard?
+              && converted[share].std.length == length
   {
-    if twin in converted then
-      var tb := converted[twin];
+    if share in converted then
+      var tb := converted[share];
       if tb.Standard? then
-        if tb.std.twin.Some? then
-          if name == twin then
-            Failure(E("Beacon " + name + " is twinned to itself."))
+        if tb.std.share.Some? then
+          if name == share then
+            Failure(E("Beacon " + name + " is shared to itself."))
           else
-            Failure(E("Beacon " + name + " is twinned to " + twin + " which is in turn twinned to " + tb.std.twin.value
-                      + ". Twin chains are not allowed."))
+            Failure(E("Beacon " + name + " is shared to " + share + " which is in turn shared to " + tb.std.share.value
+                      + ". Share chains are not allowed."))
         else if tb.std.length == length then
           Success(true)
         else
-          Failure(E("Beacon " + name + " is twinned to " + twin + " but " + name + " has length " + Base10Int2String(length as int)
-                    + " and " + twin + " has length " + Base10Int2String(tb.std.length as int) + "."))
+          Failure(E("Beacon " + name + " is shared to " + share + " but " + name + " has length " + Base10Int2String(length as int)
+                    + " and " + share + " has length " + Base10Int2String(tb.std.length as int) + "."))
       else
-        Failure(E("Beacon " + name + " is twinned to " + twin + " but " + twin + " is a compound beacon."))
+        Failure(E("Beacon " + name + " is shared to " + share + " but " + share + " is a compound beacon."))
     else
-      Failure(E("Beacon " + name + " is twinned to " + twin + " which is not defined."))
+      Failure(E("Beacon " + name + " is shared to " + share + " which is not defined."))
   }
 
   // convert configured StandardBeacons to internal Beacons
@@ -482,20 +484,20 @@ module SearchConfigToInfo {
     var locString := GetLocStr(beacons[0].name, beacons[0].loc);
     var isPartOnly := false;
     var isAsSet := false;
-    var twin : Option<string> := None;
+    var share : Option<string> := None;
     if beacons[0].style.Some? {
       match beacons[0].style.value {
         case partOnly(t) => isPartOnly := true;
-        case twinned(t) => twin := Some(t.other);
+        case shared(t) => share := Some(t.other);
         case asSet(t) => isAsSet := true;
-        //= specification/searchable-encryption/beacons.md#twinnedset-initialization
-        //# A TwinnedSet Beacon MUST behave both as [Twinned](#twinned-initialization) and [AsSet](#asset-initialization).
-        case twinnedSet(t) => twin := Some(t.other); isAsSet := true;
+        //= specification/searchable-encryption/beacons.md#sharedset-initialization
+        //# A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
+        case sharedSet(t) => share := Some(t.other); isAsSet := true;
       }
 
     }
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString,
-                                          isPartOnly, isAsSet, twin);
+                                          isPartOnly, isAsSet, share);
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
@@ -1070,18 +1072,18 @@ module SearchConfigToInfo {
     //# Initialization MUST fail if the configuration does not use a PartOnly in a [compound beacon](#compound-beacon).
     ensures |names| != 0 && I.IsPartOnly(data[names[0]]) && !ExistsInCompound(allNames, names[0], data) ==> ret.Failure?
 
-    ensures ret.Success? && 0 < |names| && data[names[0]].Standard? && data[names[0]].std.twin.Some? ==>
-              && var twin := data[names[0]].std.twin.value;
-              && IsValidTwin(data, names[0], data[names[0]].std.length, twin).Success?
-                 //= specification/searchable-encryption/beacons.md#twinned-initialization
+    ensures ret.Success? && 0 < |names| && data[names[0]].Standard? && data[names[0]].std.share.Some? ==>
+              && var share := data[names[0]].std.share.value;
+              && IsValidShare(data, names[0], data[names[0]].std.length, share).Success?
+                 //= specification/searchable-encryption/beacons.md#shared-initialization
                  //= type=implication
                  //# This name MUST be the name of a previously defined Standard Beacon.
-              && twin in data
-              && data[twin].Standard?
-                 //= specification/searchable-encryption/beacons.md#twinned-initialization
+              && share in data
+              && data[share].Standard?
+                 //= specification/searchable-encryption/beacons.md#shared-initialization
                  //= type=implication
                  //# This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
-              && data[twin].std.length == data[names[0]].std.length
+              && data[share].std.length == data[names[0]].std.length
   {
     if |names| == 0 then
       Success(true)
@@ -1089,8 +1091,9 @@ module SearchConfigToInfo {
       var b := data[names[0]];
       if I.IsPartOnly(b) && !ExistsInCompound(allNames, names[0], data) then
         Failure(E("PartOnly beacon " + names[0] + " MUST be used in a compound beacon."))
-      else if b.Standard? && b.std.twin.Some? then
-        IsValidTwin(data, names[0], b.std.length, b.std.twin.value)
+      else if b.Standard? && b.std.share.Some? then
+        var _ :- IsValidShare(data, names[0], b.std.length, b.std.share.value);
+        CheckAllBeacons(names[1..], allNames, data)
       else
         CheckAllBeacons(names[1..], allNames, data)
   }

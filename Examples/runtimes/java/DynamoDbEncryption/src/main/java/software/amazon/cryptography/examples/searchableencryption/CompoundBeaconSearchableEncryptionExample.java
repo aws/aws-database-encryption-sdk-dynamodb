@@ -328,6 +328,9 @@ public class CompoundBeaconSearchableEncryptionExample {
         .expressionAttributeValues(expressionAttributeValues)
         .build();
 
+    // GSIs do not update instantly
+    // so if the results come back empty
+    // we retry after a short sleep
     for (int i=0; i<10; ++i) {
 	QueryResponse queryResponse = ddb.query(queryRequest);
 	List<Map<String, AttributeValue>> attributeValues = queryResponse.items();

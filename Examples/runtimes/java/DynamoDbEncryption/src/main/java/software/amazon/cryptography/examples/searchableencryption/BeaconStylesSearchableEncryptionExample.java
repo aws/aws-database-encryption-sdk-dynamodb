@@ -20,8 +20,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySour
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconVersion;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CompoundBeacon;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconStyle;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.TwinnedSet;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Twinned;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SharedSet;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Shared;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Constructor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.ConstructorPart;
@@ -90,14 +90,14 @@ public class BeaconStylesSearchableEncryptionExample {
     // The basket beacon allows searching on the encrypted basket attribute
     // basket is used as a Set, and therefore needs a beacon style to reflect that.
     // Further, we need to be able to compare the items in basket to the fruit attribute
-    // so we `twin` this beacon to `fruit`.
-    // Since we need both of these things, we use the TwinnedSet style.
+    // so we `share` this beacon with `fruit`.
+    // Since we need both of these things, we use the SharedSet style.
     StandardBeacon basketBeacon = StandardBeacon.builder()
         .name("basket")
         .length(30)
         .style(
             BeaconStyle.builder()
-                .twinnedSet(TwinnedSet.builder().other("fruit").build())
+                .sharedSet(SharedSet.builder().other("fruit").build())
             .build()
         )
         .build();
@@ -105,13 +105,13 @@ public class BeaconStylesSearchableEncryptionExample {
 
     // The dessert beacon allows searching on the encrypted dessert attribute
     // We need to be able to compare the dessert attribute to the fruit attribute
-    // so we `twin` this beacon to `fruit`.
+    // so we `share` this beacon with `fruit`.
     StandardBeacon dessertBeacon = StandardBeacon.builder()
         .name("dessert")
         .length(30)
         .style(
             BeaconStyle.builder()
-                .twinned(Twinned.builder().other("fruit").build())
+                .shared(Shared.builder().other("fruit").build())
             .build()
         )
         .build();
@@ -195,8 +195,8 @@ public class BeaconStylesSearchableEncryptionExample {
     item1.put("dessert", AttributeValue.builder().s("cake").build());
     item1.put("fruit", AttributeValue.builder().s("banana").build());
     ArrayList<String> basket = new ArrayList<String>();
-    basket.add("banana");
     basket.add("apple");
+    basket.add("banana");
     basket.add("pear");
     item1.put("basket", AttributeValue.builder().ss(basket).build());
 
@@ -207,9 +207,9 @@ public class BeaconStylesSearchableEncryptionExample {
     item2.put("fruit", AttributeValue.builder().s("orange").build());
     item2.put("dessert", AttributeValue.builder().s("orange").build());
     basket = new ArrayList<String>();
-    basket.add("strawberry");
-    basket.add("blueberry");
     basket.add("blackberry");
+    basket.add("blueberry");
+    basket.add("strawberry");
     item2.put("basket", AttributeValue.builder().ss(basket).build());
 
     // 10. Create the DynamoDb Encryption Interceptor
@@ -283,8 +283,8 @@ public class BeaconStylesSearchableEncryptionExample {
     // Select records where the fruit attribute exists in a particular set
     ArrayList<String> basket3 = new ArrayList<String>();
     basket3.add("boysenberry");
-    basket3.add("orange");
     basket3.add("grape");
+    basket3.add("orange");
     expressionAttributeValues.put(":value", AttributeValue.builder().ss(basket3).build());
 
     scanRequest = ScanRequest.builder()
@@ -302,7 +302,7 @@ public class BeaconStylesSearchableEncryptionExample {
     assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item2);
 
-    // Test a Twinned search. Select records where the dessert attribute matches the fruit attribute
+    // Test a Shared search. Select records where the dessert attribute matches the fruit attribute
     scanRequest = ScanRequest.builder()
         .tableName(ddbTableName)
         .filterExpression("dessert = fruit")

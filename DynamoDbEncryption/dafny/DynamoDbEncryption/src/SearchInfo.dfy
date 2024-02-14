@@ -30,7 +30,7 @@ module SearchableEncryptionInfo {
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
   //# A version number MUST be `1`.
-  newtype VersionNumber = x : uint64 | x == 1 witness 1
+  newtype VersionNumber = x : int | x == 1 witness 1
 
   type ValidSearchInfo = x : SearchInfo | x.ValidState() witness *
 
@@ -344,12 +344,6 @@ module SearchableEncryptionInfo {
       versions[currWrite].IsVirtualField(field)
     }
 
-    function method GenerateClosure(fields : seq<string>) : seq<string>
-      requires ValidState()
-    {
-      versions[currWrite].GenerateClosure(fields)
-    }
-
     method GeneratePlainBeacons(item : DDB.AttributeMap) returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
     {
@@ -559,6 +553,7 @@ module SearchableEncryptionInfo {
     requires version == 1
     requires keySource.ValidState()
   {
+    // We happen to order these values, but this ordering MUST NOT be relied upon.
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
     var stdKeys := Seq.Filter((k : string) => k in beacons && beacons[k].Standard?, beaconNames);
     FilterPreservesHasNoDuplicates((k : string) => k in beacons && beacons[k].Standard?, beaconNames);
@@ -575,6 +570,7 @@ module SearchableEncryptionInfo {
     keySource : KeySource,
     virtualFields : VirtualFieldMap,
     beacons : BeaconMap,
+    // The ordering of `beaconNames` MUST NOT be relied upon.
     beaconNames : seq<string>,
     stdNames : seq<string>,
     encryptedFields : set<string>
@@ -612,13 +608,6 @@ module SearchableEncryptionInfo {
         beacons[field].GetFields(virtualFields) + ["aws_dbe_b_" + field]
       else
         [field]
-    }
-
-    function method GenerateClosure(fields : seq<string>) : seq<string>
-    {
-      var fieldLists := Seq.Map((s : string) => GetFields(s), fields);
-      var fieldSet := set f <- fieldLists, g <- f :: g;
-      SortedSets.ComputeSetToOrderedSequence2(fieldSet, CharLess)
     }
 
     method getKeyMap(keyId : MaybeKeyId) returns (output : Result<MaybeKeyMap, Error>)

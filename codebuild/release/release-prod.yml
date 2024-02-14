@@ -4,8 +4,6 @@
 version: 0.2
 
 env:
-  variables:
-    BRANCH: "main"
   parameter-store:
     ACCOUNT: /CodeBuild/AccountId
   secrets-manager:
@@ -28,10 +26,9 @@ phases:
       - curl https://services.gradle.org/distributions/gradle-7.6-all.zip -L -o gradle.zip
       - unzip -qq gradle.zip && rm gradle.zip
       - export PATH="$PWD/gradle-7.6/bin:$PATH"
-      - cd  aws-database-encryption-sdk-dynamodb-java/
+      - cd  aws-database-encryption-sdk-dynamodb/
   pre_build:
     commands:
-      - git checkout $BRANCH
       - aws secretsmanager get-secret-value --region us-west-2 --secret-id Maven-GPG-Keys-Release --query SecretBinary --output text | base64 -d > ~/mvn_gpg.tgz
       - tar -xvf ~/mvn_gpg.tgz -C ~
       # Create default location where GPG looks for creds and keys

@@ -1262,19 +1262,41 @@ module DynamoDBFilterExpr {
     case _ => Failure(E("invalid op in apply_binary_bool"))
   }
 
-  predicate method LexicographicLess<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  predicate method IsHighSurrogate(ch : char)
   {
-    !LexicographicLessOrEqual(b, a, less)
+    0xd800 as char <= ch <= 0xdbff as char
   }
 
-  predicate method LexicographicGreater<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  // If no surrogates are involved, comparison is normal
+  // If only surrogates are involved, comparison is normal
+  // if one surrogate is involved, the surrogate is larger
+  // results undefined if not valid UTF16 encodings, but the idea of 'less' is also undefined for invalid encodings.
+  predicate method {:tailrecursion} UnicodeLess(a : string, b : string)
   {
-    !LexicographicLessOrEqual(a, b, less)
+    if |a| == 0 && |b| == 0 then
+      false
+    else if |a| == 0 then
+      true
+    else if |b| == 0 then
+      false
+    else
+      if a[0] == b[0] then
+        UnicodeLess(a[1..], b[1..]) // correct independent of surrogate status
+      else
+        var aIsHighSurrogate := IsHighSurrogate(a[0]);
+        var bIsHighSurrogate := IsHighSurrogate(b[0]);
+        if aIsHighSurrogate == bIsHighSurrogate then
+          a[0] < b[0]
+        else
+          bIsHighSurrogate
+          // we know aIsHighSurrogate != bIsHighSurrogate and a[0] != b[0]
+          // so if bIsHighSurrogate then a is less
+          // and if aIsHighSurrogate then a is greater
   }
 
-  predicate method LexicographicGreaterOrEqual<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  predicate method UnicodeLessOrEqual(a : string, b : string)
   {
-    LexicographicLessOrEqual(b, a, less)
+    !UnicodeLess(b, a)
   }
 
   function method CompareFloat(x : string, y : string) : Result<FloatCompare.CompareType, Error>
@@ -1305,7 +1327,7 @@ module DynamoDBFilterExpr {
       var ret :- CompareFloat(a.N, b.N);
       Success(ret <= 0)
     else if a.S? && b.S? then
-      Success(LexicographicLessOrEqual(a.S, b.S, CharLess))
+      Success(UnicodeLessOrEqual(a.S, b.S))
     else if a.B? && b.B? then
       Success(LexicographicLessOrEqual(a.B, b.B, ByteLess))
     else
@@ -1429,17 +1451,15 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if |ItemList| == 0 {
-      return Success([]);
+    var acc : DDB.ItemList := [];
+    for i := 0 to |ItemList| {
+      var newAttrs :- b.GeneratePlainBeacons(ItemList[i]);
+      var doesMatch :- EvalExpr(parsed, ItemList[i] + newAttrs, names, values);
+      if doesMatch {
+        acc := acc + [ItemList[i]];
+      }
     }
-    var newAttrs :- b.GeneratePlainBeacons(ItemList[0]);
-    var doesMatch :- EvalExpr(parsed, ItemList[0] + newAttrs, names, values);
-    var rest :- FilterItems(b, parsed, ItemList[1..], names, values);
-    if doesMatch {
-      return Success(ItemList[..1] + rest);
-    } else {
-      return Success(rest);
-    }
+    return Success(acc);
   }
 
   // return the results for which the expression is true

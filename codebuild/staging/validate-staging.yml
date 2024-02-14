@@ -25,7 +25,7 @@ phases:
       - curl https://services.gradle.org/distributions/gradle-7.6-all.zip -L -o gradle.zip
       - unzip -qq gradle.zip && rm gradle.zip
       - export PATH="$PWD/gradle-7.6/bin:$PATH"
-      - cd  aws-database-encryption-sdk-dynamodb-java/
+      - cd  aws-database-encryption-sdk-dynamodb/
   pre_build:
     commands:
       # Get published CA DBESDK jar 

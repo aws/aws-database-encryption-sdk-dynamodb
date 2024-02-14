@@ -479,25 +479,25 @@ structure PartOnly {}
 @javadoc("Attribute must be a Set. Beacon value will also be a Set.")
 structure AsSet {}
 
-//= specification/searchable-encryption/beacons.md#twinned-initialization
+//= specification/searchable-encryption/beacons.md#shared-initialization
 //= type=implication
-//# On initialization of a Twinned, the caller MUST provide:
+//# On initialization of a Shared, the caller MUST provide:
 //#
 //# * other : a beacon name
 @javadoc("This beacon should calculate values like another beacon, so they can be compared.")
-structure Twinned {
+structure Shared {
   @required
   @javadoc("Calculate beacon values as for this beacon.")
   other : String,
 }
 
-//= specification/searchable-encryption/beacons.md#twinnedset-initialization
+//= specification/searchable-encryption/beacons.md#sharedset-initialization
 //= type=implication
-//# On initialization of a TwinnedSet, the caller MUST provide:
+//# On initialization of a SharedSet, the caller MUST provide:
 //#
 //# * other : a beacon name
-@javadoc("Both Twinned and AsSet.")
-structure TwinnedSet {
+@javadoc("Both Shared and AsSet.")
+structure SharedSet {
   @required
   @javadoc("Calculate beacon values as for this beacon.")
   other : String,
@@ -508,15 +508,15 @@ structure TwinnedSet {
 //# On initialization of a Beacon Style, the caller MUST provide exactly one of
 //# 
 //#  * a [PartOnly](#partonly-initialization)
-//#  * a [Twinned](#twinned-initialization)
+//#  * a [Shared](#shared-initialization)
 //#  * an [AsSet](#asset-initialization)
-//#  * a [TwinnedSet](#twinnedset-initialization)
+//#  * a [SharedSet](#sharedset-initialization)
 
 union BeaconStyle {
   partOnly: PartOnly,
-  twinned: Twinned,
+  shared: Shared,
   asSet: AsSet,
-  twinnedSet: TwinnedSet,
+  sharedSet: SharedSet,
 }
 
 //= specification/searchable-encryption/beacons.md#encrypted-part-initialization
