@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  include "../../DynamoDbEncryption/src/Index.dfy"
+ include "../../StructuredEncryption/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/AwsCryptographyPrimitives/src/Index.dfy"
  include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy"
@@ -12,6 +13,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import opened StandardLibrary.UInt
  import opened UTF8
  import AwsCryptographyDbEncryptionSdkDynamoDbTypes
+ import AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
  import AwsCryptographyMaterialProvidersTypes
  import AwsCryptographyPrimitivesTypes
  import ComAmazonawsDynamodbTypes
@@ -126,6 +128,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  // Any dependent models are listed here
  | AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDb: AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error)
+ | AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryption: AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error)
  | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
  | AwsCryptographyPrimitives(AwsCryptographyPrimitives: AwsCryptographyPrimitivesTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)

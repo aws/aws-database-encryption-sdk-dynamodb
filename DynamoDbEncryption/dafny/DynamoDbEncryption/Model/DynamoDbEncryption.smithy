@@ -465,6 +465,60 @@ union VirtualTransform {
   segments : GetSegments
 }
 
+//= specification/searchable-encryption/beacons.md#partonly-initialization
+//= type=implication
+//# On initialization of a PartOnly, the caller MUST NOT provide any
+//# additional parameters to the PartOnly.
+@javadoc("Attribute must be used as part of a Compound Beacon, never alone.")
+structure PartOnly {}
+
+//= specification/searchable-encryption/beacons.md#asset-initialization
+//= type=implication
+//# On initialization of as AsSet, the caller MUST NOT provide any
+//# additional parameters to the AsSet.
+@javadoc("Attribute must be a Set. Beacon value will also be a Set.")
+structure AsSet {}
+
+//= specification/searchable-encryption/beacons.md#shared-initialization
+//= type=implication
+//# On initialization of a Shared, the caller MUST provide:
+//#
+//# * other : a beacon name
+@javadoc("This beacon should calculate values like another beacon, so they can be compared.")
+structure Shared {
+  @required
+  @javadoc("Calculate beacon values as for this beacon.")
+  other : String,
+}
+
+//= specification/searchable-encryption/beacons.md#sharedset-initialization
+//= type=implication
+//# On initialization of a SharedSet, the caller MUST provide:
+//#
+//# * other : a beacon name
+@javadoc("Both Shared and AsSet.")
+structure SharedSet {
+  @required
+  @javadoc("Calculate beacon values as for this beacon.")
+  other : String,
+}
+
+//= specification/searchable-encryption/beacons.md#beacon-style-initialization
+//= type=implication
+//# On initialization of a Beacon Style, the caller MUST provide exactly one of
+//# 
+//#  * a [PartOnly](#partonly-initialization)
+//#  * a [Shared](#shared-initialization)
+//#  * an [AsSet](#asset-initialization)
+//#  * a [SharedSet](#sharedset-initialization)
+
+union BeaconStyle {
+  partOnly: PartOnly,
+  shared: Shared,
+  asSet: AsSet,
+  sharedSet: SharedSet,
+}
+
 //= specification/searchable-encryption/beacons.md#encrypted-part-initialization
 //= type=implication
 //# On initialization of a [encrypted part](#encrypted-part-initialization), the caller MUST provide:
@@ -552,7 +606,9 @@ structure StandardBeacon {
   @javadoc("The length of the calculated beacon.")
   length : BeaconBitLength,
   @javadoc("The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.")
-  loc : TerminalLocation
+  loc : TerminalLocation,
+  @javadoc("Optional augmented behavior.")
+  style : BeaconStyle,
 }
 
 //= specification/searchable-encryption/beacons.md#compound-beacon-initialization
@@ -666,6 +722,11 @@ structure BeaconVersion {
   compoundBeacons : CompoundBeaconList,
   @javadoc("The Virtual Fields to be calculated, supporting other searchable enryption configurations.")
   virtualFields : VirtualFieldList,
+
+  @javadoc("The list of Encrypted Parts that may be included in any compound beacon.")
+  encryptedParts : EncryptedPartsList,
+  @javadoc("The list of Signed Parts that may be included in any compound beacon.")
+  signedParts : SignedPartsList,
 }
 
 //= specification/searchable-encryption/search-config.md#initialization

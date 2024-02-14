@@ -582,22 +582,34 @@ public class QueryRequests {
         .expressionAttributeValues(query14AttributeValues)
         .build();
 
-    QueryResponse query14Response = ddb.query(query14Request);
-    // Validate query was returned successfully
-    assert 200 == query14Response.sdkHttpResponse().statusCode();
+    // GSIs do not update instantly
+    // so if the results come back empty
+    // we retry after a short sleep
+    for (int i=0; i<10; ++i) {
+	QueryResponse query14Response = ddb.query(query14Request);
+	// Validate query was returned successfully
+	assert 200 == query14Response.sdkHttpResponse().statusCode();
 
-    // Assert 1 item was returned: `employee1`
-    assert query14Response.items().size() == 1;
-    // Known value test: Assert some properties on one of the items
-    boolean foundKnownValueItemQuery14 = false;
-    for (Map<String, AttributeValue> item : query14Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
-        foundKnownValueItemQuery14 = true;
-        assert item.get("EmployeeID").s().equals("emp_001");
-        assert item.get("Location").m().get("Desk").s().equals("3");
-      }
+	// if no results, sleep and try again
+        if (query14Response.items().size() == 0) {
+            try {Thread.sleep(20);} catch (Exception e) {}
+            continue;
+        }
+
+	// Assert 1 item was returned: `employee1`
+	assert query14Response.items().size() == 1;
+	// Known value test: Assert some properties on one of the items
+	boolean foundKnownValueItemQuery14 = false;
+	for (Map<String, AttributeValue> item : query14Response.items()) {
+	    if (item.get("partition_key").s().equals("employee1")) {
+		foundKnownValueItemQuery14 = true;
+		assert item.get("EmployeeID").s().equals("emp_001");
+		assert item.get("Location").m().get("Desk").s().equals("3");
+	    }
+	}
+	assert foundKnownValueItemQuery14;
+	break;
     }
-    assert foundKnownValueItemQuery14;
   }
 
   public static void runQuery15(String ddbTableName, DynamoDbClient ddb) {

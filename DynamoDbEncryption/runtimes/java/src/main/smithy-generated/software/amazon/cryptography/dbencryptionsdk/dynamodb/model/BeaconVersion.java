@@ -17,7 +17,7 @@ public class BeaconVersion {
   private final int version;
 
   /**
-   * The Key Store that contains the Becon Keys to use with searchable encryption.
+   * The Key Store that contains the Beacon Keys to use with searchable encryption.
    */
   private final KeyStore keyStore;
 
@@ -41,6 +41,16 @@ public class BeaconVersion {
    */
   private final List<VirtualField> virtualFields;
 
+  /**
+   * The list of Encrypted Parts that may be included in any compound beacon.
+   */
+  private final List<EncryptedPart> encryptedParts;
+
+  /**
+   * The list of Signed Parts that may be included in any compound beacon.
+   */
+  private final List<SignedPart> signedParts;
+
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
     this.keyStore = builder.keyStore();
@@ -48,6 +58,8 @@ public class BeaconVersion {
     this.standardBeacons = builder.standardBeacons();
     this.compoundBeacons = builder.compoundBeacons();
     this.virtualFields = builder.virtualFields();
+    this.encryptedParts = builder.encryptedParts();
+    this.signedParts = builder.signedParts();
   }
 
   /**
@@ -58,7 +70,7 @@ public class BeaconVersion {
   }
 
   /**
-   * @return The Key Store that contains the Becon Keys to use with searchable encryption.
+   * @return The Key Store that contains the Beacon Keys to use with searchable encryption.
    */
   public KeyStore keyStore() {
     return this.keyStore;
@@ -92,6 +104,20 @@ public class BeaconVersion {
     return this.virtualFields;
   }
 
+  /**
+   * @return The list of Encrypted Parts that may be included in any compound beacon.
+   */
+  public List<EncryptedPart> encryptedParts() {
+    return this.encryptedParts;
+  }
+
+  /**
+   * @return The list of Signed Parts that may be included in any compound beacon.
+   */
+  public List<SignedPart> signedParts() {
+    return this.signedParts;
+  }
+
   public Builder toBuilder() {
     return new BuilderImpl(this);
   }
@@ -112,12 +138,12 @@ public class BeaconVersion {
     int version();
 
     /**
-     * @param keyStore The Key Store that contains the Becon Keys to use with searchable encryption.
+     * @param keyStore The Key Store that contains the Beacon Keys to use with searchable encryption.
      */
     Builder keyStore(KeyStore keyStore);
 
     /**
-     * @return The Key Store that contains the Becon Keys to use with searchable encryption.
+     * @return The Key Store that contains the Beacon Keys to use with searchable encryption.
      */
     KeyStore keyStore();
 
@@ -161,6 +187,26 @@ public class BeaconVersion {
      */
     List<VirtualField> virtualFields();
 
+    /**
+     * @param encryptedParts The list of Encrypted Parts that may be included in any compound beacon.
+     */
+    Builder encryptedParts(List<EncryptedPart> encryptedParts);
+
+    /**
+     * @return The list of Encrypted Parts that may be included in any compound beacon.
+     */
+    List<EncryptedPart> encryptedParts();
+
+    /**
+     * @param signedParts The list of Signed Parts that may be included in any compound beacon.
+     */
+    Builder signedParts(List<SignedPart> signedParts);
+
+    /**
+     * @return The list of Signed Parts that may be included in any compound beacon.
+     */
+    List<SignedPart> signedParts();
+
     BeaconVersion build();
   }
 
@@ -179,6 +225,10 @@ public class BeaconVersion {
 
     protected List<VirtualField> virtualFields;
 
+    protected List<EncryptedPart> encryptedParts;
+
+    protected List<SignedPart> signedParts;
+
     protected BuilderImpl() {
     }
 
@@ -190,6 +240,8 @@ public class BeaconVersion {
       this.standardBeacons = model.standardBeacons();
       this.compoundBeacons = model.compoundBeacons();
       this.virtualFields = model.virtualFields();
+      this.encryptedParts = model.encryptedParts();
+      this.signedParts = model.signedParts();
     }
 
     public Builder version(int version) {
@@ -247,6 +299,24 @@ public class BeaconVersion {
       return this.virtualFields;
     }
 
+    public Builder encryptedParts(List<EncryptedPart> encryptedParts) {
+      this.encryptedParts = encryptedParts;
+      return this;
+    }
+
+    public List<EncryptedPart> encryptedParts() {
+      return this.encryptedParts;
+    }
+
+    public Builder signedParts(List<SignedPart> signedParts) {
+      this.signedParts = signedParts;
+      return this;
+    }
+
+    public List<SignedPart> signedParts() {
+      return this.signedParts;
+    }
+
     public BeaconVersion build() {
       if (!this._versionSet) {
         throw new IllegalArgumentException("Missing value for required field `version`");
@@ -271,6 +341,12 @@ public class BeaconVersion {
       }
       if (Objects.nonNull(this.virtualFields()) && this.virtualFields().size() < 1) {
         throw new IllegalArgumentException("The size of `virtualFields` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.encryptedParts()) && this.encryptedParts().size() < 1) {
+        throw new IllegalArgumentException("The size of `encryptedParts` must be greater than or equal to 1");
+      }
+      if (Objects.nonNull(this.signedParts()) && this.signedParts().size() < 1) {
+        throw new IllegalArgumentException("The size of `signedParts` must be greater than or equal to 1");
       }
       return new BeaconVersion(this);
     }

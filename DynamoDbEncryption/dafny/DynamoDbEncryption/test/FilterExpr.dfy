@@ -29,6 +29,32 @@ module TestDynamoDBFilterExpr {
     expect does_contain(haystack, needle) == negate;
   }
 
+  method {:test} UnicodeLessTest() {
+    // A..F must be strictly increasing
+    var A := "A";
+    var B := "퀀"; // Ud000"
+    var C := "﹌"; // Ufe4c"
+    var D := "𐀁"; // U10001
+    var E := "𐀂"; // U10002 - same high surrogate as D
+    var F := "𠀂"; // U20002 - different high surrogate as D
+    assert |A| == 1;
+    assert |B| == 1;
+    assert |C| == 1;
+    assert |D| == 2;
+    assert |E| == 2;
+    assert |F| == 2;
+
+    // strings in strs must be strictly increasing
+    var strs := [A+B+C+D, B+C, C+D, D+C, D+C+B+A, E+D, F+D];
+
+    for i := 0 to |strs| {
+      for j := 0 to |strs| {
+        expect ((i < j) == UnicodeLess(strs[i], strs[j]));
+        expect ((i <= j) == !UnicodeLess(strs[j], strs[i]));
+      }
+    }
+  }
+
   method {:test} LowLevelTests() {
     expect_equal(ParseExpr("and"), [And]);
     expect_equal(ParseExpr("  AnD   "), [And]);

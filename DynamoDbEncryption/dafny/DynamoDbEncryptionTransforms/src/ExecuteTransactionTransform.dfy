@@ -41,12 +41,15 @@ module ExecuteTransactionTransform {
   {
     for i := 0 to |input.sdkInput.TransactStatements|
       invariant forall x : nat | 0 <= x < i ::
-        var statement := DdbStatement.TableFromStatement(input.sdkInput.TransactStatements[x].Statement);
-        statement.Success? && statement.value !in config.tableEncryptionConfigs;
+        var tableName := DdbStatement.TableFromStatement(input.sdkInput.TransactStatements[x].Statement);
+        tableName.Success? && tableName.value !in config.tableEncryptionConfigs
     {
       var statement := input.sdkInput.TransactStatements[i].Statement;
-      var tableName :- MapString(DdbStatement.TableFromStatement(statement));
-      if tableName in config.tableEncryptionConfigs {
+      var tableName := DdbStatement.TableFromStatement(statement);
+      if tableName.Failure? {
+        return Failure(Error.DynamoDbEncryptionTransformsException(message := tableName.error));
+      }
+      if tableName.value in config.tableEncryptionConfigs {
         return MakeError("ExecuteTransaction not Supported on encrypted tables.");
       }
     }

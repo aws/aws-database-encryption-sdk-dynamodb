@@ -23,15 +23,8 @@ module DynamoToStruct {
   type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
   type TerminalDataMap = map<AttributeName, StructuredDataTerminalType>
 
-//= specification/dynamodb-encryption-client/ddb-item-conversion.md#overview
-//= type=TODO
-//# The conversion from DDB Item to Structured Data must be lossless,
-//# meaning that converting a DDB Item to
-//# a Structured Data and back to a DDB Item again
-//# MUST result in the exact same DDB Item.
-
   // This file exists for these two functions : ItemToStructured and StructuredToItem
-  // which provide lossless conversion between an AttributeMap and a StructuredDataMap
+  // which provide conversion between an AttributeMap and a StructuredDataMap
 
   // Convert AttributeMap to StructuredDataMap
   //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
@@ -107,6 +100,7 @@ module DynamoToStruct {
     else
       var badNames := set k <- s | !IsValid_AttributeName(k) :: k;
       OneBadKey(s, badNames, IsValid_AttributeName);
+      // We happen to order these values, but this ordering MUST NOT be relied upon.
       var orderedAttrNames := SetToOrderedSequence(badNames, CharLess);
       var attrNameList := Join(orderedAttrNames, ",");
       MakeError("Not valid attribute names : " + attrNameList)
@@ -317,7 +311,11 @@ module DynamoToStruct {
  
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#number
     //= type=implication
-    //# Number MUST be serialized as UTF-8 encoded bytes.
+    //# This value MUST be normalized in the same way as DynamoDB normalizes numbers.
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#number
+    //= type=implication
+    //# This normalized value MUST then be serialized as UTF-8 encoded bytes.
     ensures a.N? && ret.Success? && !prefix ==>
       && Norm.NormalizeNumber(a.N).Success?
       && var nn := Norm.NormalizeNumber(a.N).value;
@@ -488,30 +486,52 @@ module DynamoToStruct {
   function method StringSetAttrToBytes(ss: StringSetAttributeValue): (ret: Result<seq<uint8>, string>)
     ensures ret.Success? ==> Seq.HasNoDuplicates(ss)
   {
-    :- Need(|Seq.ToSet(ss)| == |ss|, "String Set had duplicate values");
+    var asSet := Seq.ToSet(ss);
+    :- Need(|asSet| == |ss|, "String Set had duplicate values");
     Seq.LemmaNoDuplicatesCardinalityOfSet(ss);
-    var count :- U32ToBigEndian(|ss|);
-    var body :- CollectString(ss);
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+    //# Entries in a String Set MUST be ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+    var sortedList := SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess);
+    var count :- U32ToBigEndian(|sortedList|);
+    var body :- CollectString(sortedList);
     Success(count + body)
   }
 
   function method NumberSetAttrToBytes(ns: NumberSetAttributeValue): (ret: Result<seq<uint8>, string>)
     ensures ret.Success? ==> Seq.HasNoDuplicates(ns)
   {
-    :- Need(|Seq.ToSet(ns)| == |ns|, "Number Set had duplicate values");
+    var asSet := Seq.ToSet(ns);
+    :- Need(|asSet| == |ns|, "Number Set had duplicate values");
     Seq.LemmaNoDuplicatesCardinalityOfSet(ns);
-    var count :- U32ToBigEndian(|ns|);
-    var body :- CollectString(ns);
+
+    var normList :- Seq.MapWithResult(n => Norm.NormalizeNumber(n), ns);
+    var asSet := Seq.ToSet(normList);
+    :- Need(|asSet| == |normList|, "Number Set had duplicate values after normalization.");
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+    //# Entries in a Number Set MUST be ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+    //# This ordering MUST be applied after normalization of the number value.
+    var sortedList := SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess);
+    var count :- U32ToBigEndian(|sortedList|);
+    var body :- CollectString(sortedList);
     Success(count + body)
   }
 
   function method BinarySetAttrToBytes(bs: BinarySetAttributeValue): (ret: Result<seq<uint8>, string>)
     ensures ret.Success? ==> Seq.HasNoDuplicates(bs)
   {
-    :- Need(|Seq.ToSet(bs)| == |bs|, "Binary Set had duplicate values");
+    var asSet := Seq.ToSet(bs);
+    :- Need(|asSet| == |bs|, "Binary Set had duplicate values");
     Seq.LemmaNoDuplicatesCardinalityOfSet(bs);
-    var count :- U32ToBigEndian(|bs|);
-    var body :- CollectBinary(bs);
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
+    //# Entries in a Binary Set MUST be ordered lexicographically by their underlying bytes in ascending order.
+    var sortedList := SortedSets.ComputeSetToOrderedSequence2(asSet, ByteLess);
+    var count :- U32ToBigEndian(|sortedList|);
+    var body :- CollectBinary(sortedList);
     Success(count + body)
   }
 
@@ -749,6 +769,9 @@ module DynamoToStruct {
     ensures (ret.Success? && |mapToSerialize| == 0) ==> (ret.value == serialized)
     ensures (ret.Success? && |mapToSerialize| == 0) ==> (|ret.value| == |serialized|)
   {
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
+    //# Entries in a serialized Map MUST be ordered by key value,
+    //# ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
     var keys := SortedSets.ComputeSetToOrderedSequence2(mapToSerialize.Keys, CharLess);
     CollectOrderedMapSubset(keys, mapToSerialize, serialized)
   }
@@ -1088,17 +1111,17 @@ module DynamoToStruct {
     set k <- m | m[k].Failure? :: m[k].error
   }
 
-  lemma OneBadResult<X,Y>(m : map<X, Result<Y,string>>)
-    requires ! forall v <- m.Values :: v.Success?
-    ensures exists v <- m.Values :: v.Failure?
+  lemma OneBadResult<X,Y(==)>(m : map<X, Result<Y,string>>)
+    requires ! forall k <- m :: m[k].Success?
+    ensures exists k <- m :: m[k].Failure?
     ensures |FlattenErrors(m)| > 0
   {
-    assert exists v <- m.Values :: v.Failure?;
+    assert exists k <- m :: m[k].Failure?;
     var errors := FlattenErrors(m);
-    assert exists v :: v in m.Values && v.Failure? && (v.error in errors);
+    assert exists k :: k in m && m[k].Failure? && (m[k].error in errors);
   }
 
-  lemma MapKeysMatchItems<X,Y>(m : map<X,Y>)
+  lemma MapKeysMatchItems<X,Y(==)>(m : map<X,Y>)
     ensures forall k :: k in m.Keys ==> (k, m[k]) in m.Items
   {}
 
@@ -1111,7 +1134,7 @@ module DynamoToStruct {
     assert exists v :: v in bad && !f(v) && (v in bad);
   }
 
-  lemma SimplifyMapValueSuccess<X,Y>(m : map<X, Result<Y,string>>)
+  lemma SimplifyMapValueSuccess<X,Y(==)>(m : map<X, Result<Y,string>>)
     ensures SimplifyMapValue(m).Success? <==> forall k <- m :: m[k].Success?
     ensures SimplifyMapValue(m).Success? ==> forall kv <- m.Items :: kv.1.Success?
     ensures SimplifyMapValue(m).Failure? <==> exists k : X | k in m.Keys :: m[k].Failure?
@@ -1136,6 +1159,7 @@ module DynamoToStruct {
       OneBadResult(m);
       var badValues := FlattenErrors(m);
       assert(|badValues| > 0);
+      // We happen to order these values, but this ordering MUST NOT be relied upon.
       var badValueSeq := SetToOrderedSequence(badValues, CharLess);
       Failure(Join(badValueSeq, "\n"))
   }
