@@ -1,5 +1,44 @@
 # Changelog
 
+## 3.2.0 2024-01-16
+
+### Features
+- support for .NET
+- Beacon Styles :
+  - PartOnly : save a little bit of space for a beacon that used as part of a Compound Beacon, but never alone
+  - AsSet : turn a set of values into a set of beacons, rather than into a single beacon
+  - Twinned : calculate beacons for one attribute to be compatible with those from a different attribute
+  - TwinnedSet : both AsSet and Twinned
+- Global Parts List : all compound beacons can now share a single list of Parts
+- Test vectors to ensure cross language compatibility
+- explicit error message when searching on a Compound Beacon that could never exist.
+- New APIs : ResolveAttributes and GetVirtualFields to assist in development and debugging.
+
+### Fix
+ - String compare for client side filtering of Scan and Query results could somtimes produce the wrong result for certain characters.
+
+
+## 3.1.2 2023-11-13
+
+### Fix
+
+Fixed an issue where, when using the DynamoDbEncryptionInterceptor,
+an encrypted item in the Attributes field of a DeleteItem, PutItem, or UpdateItem
+response was passed through unmodified instead of being decrypted.
+
+## 3.1.1 2023-11-07
+
+### Fix
+
+Issue when a DynamoDB Set attribute is marked as SIGN_ONLY in the AWS Database Encryption SDK (DB-ESDK) for DynamoDB.
+
+DB-ESDK for DynamoDB supports SIGN_ONLY and ENCRYPT_AND_SIGN attribute actions. In version 3.1.0 and below, when a Set type is assigned a SIGN_ONLY attribute action, there is a chance that signature validation of the record containing a Set will fail on read, even if the Set attributes contain the same values. The probability of a failure depends on the order of the elements in the Set combined with how DynamoDB returns this data, which is undefined.
+
+This update addresses the issue by ensuring that any Set values are canonicalized in the same order while written to DynamoDB as when read back from DynamoDB.
+
+See: https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/tree/v3.1.1/DecryptWithPermute for additional details for additional details
+
+
 ## 3.1.0 2023-09-07
 
 ### Features

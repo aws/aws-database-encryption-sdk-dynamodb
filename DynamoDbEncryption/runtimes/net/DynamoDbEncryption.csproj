@@ -1,46 +1,58 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <RootNamespace>AWS Cryptography DynamoDb Encryption</RootNamespace>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>disable</Nullable>
-        <LangVersion>10</LangVersion>
-        <TargetFrameworks>net6.0;net48</TargetFrameworks>
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPackable>true</IsPackable>
 
-    <ItemGroup>
-        <PackageReference Include="AWSSDK.Core" Version="3.7.103" />
-        <PackageReference Include="DafnyRuntime" Version="4.2.0" />
-        <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
-        <!--
-          System.Collections.Immutable can be removed once dafny.msbuild is updated with
-          https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
-        -->
-        <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
-        <!-- Work around for dafny-lang/dafny/issues/1951; remove once resolved -->
-        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <Version>3.2.0</Version>
 
-        <Compile Include="Extern/**/*.cs" />
-        <Compile Include="Generated/**/*.cs" />
-        <Compile Include="ImplementationFromDafny.cs" />
-    </ItemGroup>
+    <AssemblyName>AWS.Cryptography.DbEncryptionSDK.DynamoDb</AssemblyName>
+    <PackageId>AWS.Cryptography.DbEncryptionSDK.DynamoDb</PackageId>
+    <Title>AWSDatabaseEncryptionSDKDynamoDB</Title>
 
-    <ItemGroup>
-        <PackageReference Include="AWS.Cryptography.Internal.StandardLibrary" Version="1.1.1" />
-        <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.0.0" />
-        <PackageReference Include="AWS.Cryptography.Internal.AwsCryptographyPrimitives" Version="1.0.0" />
-        <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsDynamodb" Version="1.0.0" />
-        <PackageReference Include="AWS.Cryptography.Internal.ComAmazonawsKms" Version="1.0.0" />
-    </ItemGroup>
+    <Description>The AWS Database Encryption SDK for DyanamoDB in .NET abstracts client-side encryption for Amazon DynamoDB operations. It uses cryptographic best practices to protect the data keys that protect your data.</Description>
+    <Authors>Amazon Web Services</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/aws/aws-database-encryption-sdk-dynamodb</RepositoryUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>AWS;Amazon;KMS;Encryption;Cryptography;DynamoDB</PackageTags>
 
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <LangVersion>10</LangVersion>
+    <TargetFrameworks>net6.0;net48</TargetFrameworks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <!--
-      TODO .NET assemblies are expected to have an ICON.
-      This MUST be replaced before launch.
+      Ignore errors from generated code. Ideally this would be scoped to just the relevant files.
+      CS0105: duplicate namespace, CS0618: obsolete members
     -->
-    <!-- <ItemGroup>
-      <None Include="..\icon.png" Pack="true" PackagePath="" />
-      <None Include="..\README.md" Pack="true" PackagePath="" />
-    </ItemGroup> -->
+    <NoWarn>CS0105,CS0618</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.300.2"/>
+    <PackageReference Include="AWSSDK.Core" Version="3.7.300.2"/>
+    <PackageReference Include="DafnyRuntime" Version="4.2.0" />
+    <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>
+    <!--
+              System.Collections.Immutable can be removed once dafny.msbuild is updated with
+              https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
+            -->
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.0"/>
+    <!-- Work around for dafny-lang/dafny/issues/1951; remove once resolved -->
+    <PackageReference Include="System.ValueTuple" Version="4.5.0"/>
+
+    <Compile Include="Extern/**/*.cs"/>
+    <Compile Include="Generated/**/*.cs"/>
+    <Compile Include="src/**/*.cs"/>
+    <Compile Include="ImplementationFromDafny.cs"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
 
 </Project>
