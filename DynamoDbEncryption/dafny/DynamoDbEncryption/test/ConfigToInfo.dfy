@@ -16,7 +16,7 @@ module TestDynamoDBConfigToInfo {
   import opened DynamoDbEncryptionUtil
 
   method {:test} TestTwoBeaconsOneLoc() {
-    var fred := StandardBeacon(name := "fred", length := 16, loc := Some("std6[0]"));
+    var fred := StandardBeacon(name := "fred", length := 16, loc := Some("std6[0]"), style := None);
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var newBeacons := version.(standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB, fred]);

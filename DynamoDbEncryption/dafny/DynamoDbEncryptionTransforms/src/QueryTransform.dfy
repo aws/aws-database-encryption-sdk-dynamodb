@@ -23,27 +23,28 @@ module QueryTransform {
     //# If the `TableName` in the request does not refer to an [encrypted-table](#encrypted-table),
     //# the Query request MUST be unchanged.
     ensures input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
-      && output.Success?
-      && output.value.transformedInput == input.sdkInput
+              && output.Success?
+              && output.value.transformedInput == input.sdkInput
 
     ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
-      //= type=implication
-      //# The Query request MUST NOT refer to any legacy parameters,
-      //# specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST NOT be set.
-      && input.sdkInput.AttributesToGet.None?
-      && input.sdkInput.KeyConditions.None?
-      && input.sdkInput.QueryFilter.None?
-      && input.sdkInput.ConditionalOperator.None?
+              //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#modify-before-query
+              //= type=implication
+              //# The Query request MUST NOT refer to any legacy parameters,
+              //# specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator MUST NOT be set.
+              && NoList(input.sdkInput.AttributesToGet)
+              && NoMap(input.sdkInput.KeyConditions)
+              && NoMap(input.sdkInput.QueryFilter)
+              && input.sdkInput.ConditionalOperator.None?
   {
     if input.sdkInput.TableName !in config.tableEncryptionConfigs {
       return Success(QueryInputTransformOutput(transformedInput := input.sdkInput));
     } else {
-      :- Need(input.sdkInput.AttributesToGet.None?, E("Legacy parameter 'AttributesToGet' not supported in UpdateItem with Encryption"));
-      :- Need(input.sdkInput.KeyConditions.None?, E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
-      :- Need(input.sdkInput.QueryFilter.None?, E("Legacy parameter 'ScanFilter' not supported in UpdateItem with Encryption"));
-      :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
+      :- Need(NoList(input.sdkInput.AttributesToGet), E("Legacy parameter 'AttributesToGet' not supported in Query with Encryption"));
+      :- Need(NoMap(input.sdkInput.KeyConditions), E("Legacy parameter 'KeyConditions' not supported in Query with Encryption"));
+      :- Need(NoMap(input.sdkInput.QueryFilter), E("Legacy parameter 'QueryFilter' not supported in Query with Encryption"));
+      :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in Query with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
+
       var finalResult :- QueryInputForBeacons(tableConfig, input.sdkInput);
       return Success(QueryInputTransformOutput(transformedInput := finalResult));
     }
@@ -61,15 +62,15 @@ module QueryTransform {
     ensures ValidConfig?(config)
     modifies ModifiesConfig(config)
 
-    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? ==>
-      && output.Success?
-      && output.value.transformedOutput == input.sdkOutput
+    ensures input.originalInput.TableName !in config.tableEncryptionConfigs || NoList(input.sdkOutput.Items) ==>
+              && output.Success?
+              && output.value.transformedOutput == input.sdkOutput
 
     ensures output.Success?  && input.sdkOutput.Items.Some? ==> output.value.transformedOutput.Items.Some?
-    ensures output.Success?  && input.sdkOutput.Items.None? ==> output.value.transformedOutput.Items.None?
+    ensures output.Success?  && NoList(input.sdkOutput.Items) ==> NoList(output.value.transformedOutput.Items)
   {
     var tableName := input.originalInput.TableName;
-    if tableName !in config.tableEncryptionConfigs || input.sdkOutput.Items.None? {
+    if tableName !in config.tableEncryptionConfigs || NoList(input.sdkOutput.Items) {
       return Success(QueryOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     var tableConfig := config.tableEncryptionConfigs[tableName];

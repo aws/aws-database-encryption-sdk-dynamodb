@@ -1,8 +1,8 @@
 package software.amazon.cryptography.examples;
 
 public class TestUtils {
-    public static final String TEST_KEYSTORE_NAME = "KeyStoreTestTable";
-    public static final String TEST_LOGICAL_KEYSTORE_NAME = "KeyStoreTestTable";
+    public static final String TEST_KEYSTORE_NAME = "KeyStoreDdbTable";
+    public static final String TEST_LOGICAL_KEYSTORE_NAME = "KeyStoreDdbTable";
     public static final String TEST_KEYSTORE_KMS_KEY_ID = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
 
     public static final String TEST_AWS_ACCOUNT_ID = "658956600833";

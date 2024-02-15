@@ -1,0 +1,46 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 6.0
+      python: 3.x
+    commands:
+      - cd ..
+      # Get Dafny
+      #- export `cat ./aws-database-encryption-sdk-dynamodb/project.properties`
+      - curl https://github.com/dafny-lang/dafny/releases/download/v$dafnyVersion/dafny-$dafnyVersion-x64-ubuntu-20.04.zip  -L -o dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny:$PATH"
+      # Switch back to the main directory
+      - cd aws-database-encryption-sdk-dynamodb
+  pre_build:
+    commands:
+      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
+      # the different parts of the asynchronous signing process together
+      - echo "Using unique id for flow $UNIQUE_ID"
+  build:
+    commands:
+      ## Build Library from Source
+      - cd DynamoDbEncryption
+      - make transpile_net
+      - TMP_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" --role-session-name "CB-TestVectorResources")
+      - export TMP_ROLE
+      - export AWS_ACCESS_KEY_ID=$(echo "${TMP_ROLE}" | jq -r '.Credentials.AccessKeyId')
+      - export AWS_SECRET_ACCESS_KEY=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SecretAccessKey')
+      - export AWS_SESSION_TOKEN=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SessionToken')
+      - aws sts get-caller-identity
+      - make test_net FRAMEWORK=net6.0
+
+      ## Unset temp creds so that we get dropped back into the aws codebuild service role
+      - unset AWS_ACCESS_KEY_ID; unset AWS_SECRET_ACCESS_KEY; unset AWS_SESSION_TOKEN;
+
+      - dotnet build runtimes/net /p:Configuration=Release -nowarn:CS0162,CS0168
+      - export ASSEMBLY_NAME="AWS.Cryptography.DbEncryptionSDK.DynamoDb.dll"
+      - export BASE=../codebuild/net
+      - python $BASE/upload_assembly.py --target net6.0 --unique-id $UNIQUE_ID
+      - python $BASE/upload_assembly.py --target net48 --unique-id $UNIQUE_ID
+      ## Retrieve the signed assembly. We're not going to use it, but this
+      ## ensures that the signing process is complete
+      - python $BASE/retrieve_signed_assembly.py --target net6.0 --unique-id $UNIQUE_ID
+      - python $BASE/retrieve_signed_assembly.py --target net48 --unique-id $UNIQUE_ID

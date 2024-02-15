@@ -506,7 +506,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test(
             expectedExceptions = DynamoDbItemEncryptorException.class,
-            expectedExceptionsMessageRegExp = "Configuration mismatch partition or sort key does not exist in item."
+            expectedExceptionsMessageRegExp = "On Encrypt : Partition key 'partition_key' does not exist in item. Item contains these attributes : attr1 attr2 sort_key."
     )
     public void TestPutMissingPartition() {
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");
@@ -530,7 +530,7 @@ public class DynamoDbEncryptionInterceptorTest {
 
     @Test(
             expectedExceptions = DynamoDbItemEncryptorException.class,
-            expectedExceptionsMessageRegExp = "Configuration mismatch partition or sort key does not exist in item."
+            expectedExceptionsMessageRegExp = "On Encrypt : Sort key 'sort_key' does not exist in item. Item contains these attributes : attr1 attr2 partition_key."
     )
     public void TestPutMissingSort() {
         Map<String, AttributeValue> item = createTestItem("foo", "10", "bar", "awol");

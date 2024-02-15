@@ -30,7 +30,7 @@ module BatchGetItemTransform {
       && output.value.transformedOutput.Responses.Some?
       // true but expensive -- input.sdkOutput.Responses.value.Keys == output.value.transformedOutput.Responses.value.Keys
   {
-    if input.sdkOutput.Responses.None? {
+    if NoMap(input.sdkOutput.Responses) {
       return Success(BatchGetItemOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     var tableNames := input.sdkOutput.Responses.value.Keys;

@@ -15,7 +15,9 @@ import java.lang.String;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.AsSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconKeySource;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconStyle;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconVersion;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CompoundBeacon;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Constructor;
@@ -41,8 +43,11 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Lower;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.MultiKeyStore;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PartOnly;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SearchConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Shared;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SharedSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SignedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.StandardBeacon;
@@ -55,6 +60,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncry
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 import software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient;
+import software.amazon.cryptography.materialproviders.internaldafny.types.CacheType;
 import software.amazon.cryptography.materialproviders.internaldafny.types.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.internaldafny.types.IBranchKeyIdSupplier;
 import software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager;
@@ -88,6 +94,11 @@ public class ToDafny {
     return Error.create_CollectionOfErrors(list, message);
   }
 
+  public static AsSet AsSet(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.AsSet nativeValue) {
+    return new AsSet();
+  }
+
   public static BeaconVersion BeaconVersion(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconVersion nativeValue) {
     Integer version;
@@ -106,7 +117,15 @@ public class ToDafny {
     virtualFields = (Objects.nonNull(nativeValue.virtualFields()) && nativeValue.virtualFields().size() > 0) ?
         Option.create_Some(ToDafny.VirtualFieldList(nativeValue.virtualFields()))
         : Option.create_None();
-    return new BeaconVersion(version, keyStore, keySource, standardBeacons, compoundBeacons, virtualFields);
+    Option<DafnySequence<? extends EncryptedPart>> encryptedParts;
+    encryptedParts = (Objects.nonNull(nativeValue.encryptedParts()) && nativeValue.encryptedParts().size() > 0) ?
+        Option.create_Some(ToDafny.EncryptedPartsList(nativeValue.encryptedParts()))
+        : Option.create_None();
+    Option<DafnySequence<? extends SignedPart>> signedParts;
+    signedParts = (Objects.nonNull(nativeValue.signedParts()) && nativeValue.signedParts().size() > 0) ?
+        Option.create_Some(ToDafny.SignedPartsList(nativeValue.signedParts()))
+        : Option.create_None();
+    return new BeaconVersion(version, keyStore, keySource, standardBeacons, compoundBeacons, virtualFields, encryptedParts, signedParts);
   }
 
   public static CompoundBeacon CompoundBeacon(
@@ -318,9 +337,16 @@ public class ToDafny {
     keyFieldName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyFieldName());
     Integer cacheTTL;
     cacheTTL = (nativeValue.cacheTTL());
-    Integer maxCacheSize;
-    maxCacheSize = (nativeValue.maxCacheSize());
-    return new MultiKeyStore(keyFieldName, cacheTTL, maxCacheSize);
+    Option<CacheType> cache;
+    cache = Objects.nonNull(nativeValue.cache()) ?
+        Option.create_Some(software.amazon.cryptography.materialproviders.ToDafny.CacheType(nativeValue.cache()))
+        : Option.create_None();
+    return new MultiKeyStore(keyFieldName, cacheTTL, cache);
+  }
+
+  public static PartOnly PartOnly(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PartOnly nativeValue) {
+    return new PartOnly();
   }
 
   public static SearchConfig SearchConfig(
@@ -330,6 +356,20 @@ public class ToDafny {
     Integer writeVersion;
     writeVersion = (nativeValue.writeVersion());
     return new SearchConfig(versions, writeVersion);
+  }
+
+  public static Shared Shared(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Shared nativeValue) {
+    DafnySequence<? extends Character> other;
+    other = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.other());
+    return new Shared(other);
+  }
+
+  public static SharedSet SharedSet(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SharedSet nativeValue) {
+    DafnySequence<? extends Character> other;
+    other = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.other());
+    return new SharedSet(other);
   }
 
   public static SignedPart SignedPart(
@@ -364,7 +404,11 @@ public class ToDafny {
     loc = Objects.nonNull(nativeValue.loc()) ?
         Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.loc()))
         : Option.create_None();
-    return new StandardBeacon(name, length, loc);
+    Option<BeaconStyle> style;
+    style = Objects.nonNull(nativeValue.style()) ?
+        Option.create_Some(ToDafny.BeaconStyle(nativeValue.style()))
+        : Option.create_None();
+    return new StandardBeacon(name, length, loc, style);
   }
 
   public static Upper Upper(
@@ -443,6 +487,23 @@ public class ToDafny {
       return BeaconKeySource.create_multi(ToDafny.MultiKeyStore(nativeValue.multi()));
     }
     throw new IllegalArgumentException("Cannot convert " + nativeValue + " to software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconKeySource.");
+  }
+
+  public static BeaconStyle BeaconStyle(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconStyle nativeValue) {
+    if (Objects.nonNull(nativeValue.partOnly())) {
+      return BeaconStyle.create_partOnly(ToDafny.PartOnly(nativeValue.partOnly()));
+    }
+    if (Objects.nonNull(nativeValue.shared())) {
+      return BeaconStyle.create_shared(ToDafny.Shared(nativeValue.shared()));
+    }
+    if (Objects.nonNull(nativeValue.asSet())) {
+      return BeaconStyle.create_asSet(ToDafny.AsSet(nativeValue.asSet()));
+    }
+    if (Objects.nonNull(nativeValue.sharedSet())) {
+      return BeaconStyle.create_sharedSet(ToDafny.SharedSet(nativeValue.sharedSet()));
+    }
+    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconStyle.");
   }
 
   public static VirtualTransform VirtualTransform(

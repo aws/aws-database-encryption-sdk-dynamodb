@@ -252,6 +252,17 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                         .sdkHttpResponse(originalResponse.sdkHttpResponse())
                         .build();
                 break;
+            } case "DeleteItem": {
+                DeleteItemResponse transformedResponse = transformer.DeleteItemOutputTransform(
+                        DeleteItemOutputTransformInput.builder()
+                                .sdkOutput((DeleteItemResponse) originalResponse)
+                                .originalInput((DeleteItemRequest) originalRequest)
+                                .build()).transformedOutput();
+                outgoingResponse = transformedResponse.toBuilder()
+                        .responseMetadata(((DeleteItemResponse) originalResponse).responseMetadata())
+                        .sdkHttpResponse(originalResponse.sdkHttpResponse())
+                        .build();
+                break;
             } case "ExecuteStatement": {
                 ExecuteStatementResponse transformedResponse = transformer.ExecuteStatementOutputTransform(
                         ExecuteStatementOutputTransformInput.builder()
