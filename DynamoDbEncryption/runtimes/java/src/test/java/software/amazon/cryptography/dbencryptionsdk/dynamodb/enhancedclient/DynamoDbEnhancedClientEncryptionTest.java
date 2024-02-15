@@ -33,6 +33,9 @@ public class DynamoDbEnhancedClientEncryptionTest {
         TableSchema<SimpleClass> simpleSchema = TableSchema.fromBean(SimpleClass.class);
         TableSchema<SignOnlyClass> signOnlySchema = TableSchema.fromBean(SignOnlyClass.class);
         TableSchema<SignAndIncludeInEncryptionContextClass> signAndIncludeSchema = TableSchema.fromBean(SignAndIncludeInEncryptionContextClass.class);
+        TableSchema<SingleTable1> singleTable1Schema = TableSchema.fromBean(SingleTable1.class);
+        TableSchema<SingleTable2> singleTable2Schema = TableSchema.fromBean(SingleTable2.class);
+        TableSchema<SingleTable3> singleTable3Schema = TableSchema.fromBean(SingleTable3.class);
         Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
         tableConfigs.put("SimpleClassTestTable",
                 DynamoDbEnhancedTableEncryptionConfig.builder()
@@ -53,13 +56,23 @@ public class DynamoDbEnhancedClientEncryptionTest {
                         .keyring(createKmsKeyring())
                         .schemaOnEncrypt(signAndIncludeSchema)
                         .build());
+        tableConfigs.put("SingleTableTestTable",
+                DynamoDbEnhancedTableEncryptionConfig.builder()
+                        .logicalTableName("SingleTableTestTable")
+                        .keyring(createKmsKeyring())
+                        .allowedUnsignedAttributes(Arrays.asList("doNothing"))
+                        .allowedUnsignedAttributePrefix("extraDoNothing")
+                        .schemaOnEncrypt(singleTable1Schema)
+                        .schemaOnEncrypt(singleTable2Schema)
+                        .schemaOnEncrypt(singleTable3Schema)
+                        .build());
         DynamoDbEncryptionInterceptor interceptor =
                 DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
                         CreateDynamoDbEncryptionInterceptorInput.builder()
                                 .tableEncryptionConfigs(tableConfigs)
                                 .build()
                 );
-        assertEquals(3, interceptor.config().tableEncryptionConfigs().size());
+        assertEquals(4, interceptor.config().tableEncryptionConfigs().size());
 
         DynamoDbTableEncryptionConfig simpleConfig = interceptor.config().tableEncryptionConfigs().get("SimpleClassTestTable");
         assertEquals(CryptoAction.DO_NOTHING, simpleConfig.attributeActionsOnEncrypt().get("doNothing"));
@@ -79,6 +92,41 @@ public class DynamoDbEnhancedClientEncryptionTest {
         assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("sort_key"));
         assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr1"));
         assertEquals(CryptoAction.SIGN_ONLY, signAndIncludeConfig.attributeActionsOnEncrypt().get("attr2"));
+
+        DynamoDbTableEncryptionConfig singleTableConfig = interceptor.config().tableEncryptionConfigs().get("SingleTableTestTable");
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, singleTableConfig.attributeActionsOnEncrypt().get("partition_key"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, singleTableConfig.attributeActionsOnEncrypt().get("sort_key"));
+        assertEquals(CryptoAction.DO_NOTHING, singleTableConfig.attributeActionsOnEncrypt().get("doNothing"));
+        assertEquals(CryptoAction.SIGN_ONLY, singleTableConfig.attributeActionsOnEncrypt().get("signOnly"));
+        assertEquals(CryptoAction.ENCRYPT_AND_SIGN, singleTableConfig.attributeActionsOnEncrypt().get("encryptAndSign"));
+
+        assertEquals(CryptoAction.DO_NOTHING, singleTableConfig.attributeActionsOnEncrypt().get("extraDoNothing1"));
+        assertEquals(CryptoAction.DO_NOTHING, singleTableConfig.attributeActionsOnEncrypt().get("extraDoNothing2"));
+        assertEquals(CryptoAction.DO_NOTHING, singleTableConfig.attributeActionsOnEncrypt().get("extraDoNothing3"));
+        assertEquals(CryptoAction.DO_NOTHING, singleTableConfig.attributeActionsOnEncrypt().get("extraDoNothing12"));
+        assertEquals(CryptoAction.DO_NOTHING, singleTableConfig.attributeActionsOnEncrypt().get("extraDoNothing13"));
+        assertEquals(CryptoAction.DO_NOTHING, singleTableConfig.attributeActionsOnEncrypt().get("extraDoNothing23"));
+
+        assertEquals(CryptoAction.SIGN_ONLY, singleTableConfig.attributeActionsOnEncrypt().get("extraSignOnly1"));
+        assertEquals(CryptoAction.SIGN_ONLY, singleTableConfig.attributeActionsOnEncrypt().get("extraSignOnly2"));
+        assertEquals(CryptoAction.SIGN_ONLY, singleTableConfig.attributeActionsOnEncrypt().get("extraSignOnly3"));
+        assertEquals(CryptoAction.SIGN_ONLY, singleTableConfig.attributeActionsOnEncrypt().get("extraSignOnly12"));
+        assertEquals(CryptoAction.SIGN_ONLY, singleTableConfig.attributeActionsOnEncrypt().get("extraSignOnly13"));
+        assertEquals(CryptoAction.SIGN_ONLY, singleTableConfig.attributeActionsOnEncrypt().get("extraSignOnly23"));
+
+        assertEquals(CryptoAction.ENCRYPT_AND_SIGN, singleTableConfig.attributeActionsOnEncrypt().get("extraEncryptAndSign1"));
+        assertEquals(CryptoAction.ENCRYPT_AND_SIGN, singleTableConfig.attributeActionsOnEncrypt().get("extraEncryptAndSign2"));
+        assertEquals(CryptoAction.ENCRYPT_AND_SIGN, singleTableConfig.attributeActionsOnEncrypt().get("extraEncryptAndSign3"));
+        assertEquals(CryptoAction.ENCRYPT_AND_SIGN, singleTableConfig.attributeActionsOnEncrypt().get("extraEncryptAndSign12"));
+        assertEquals(CryptoAction.ENCRYPT_AND_SIGN, singleTableConfig.attributeActionsOnEncrypt().get("extraEncryptAndSign13"));
+        assertEquals(CryptoAction.ENCRYPT_AND_SIGN, singleTableConfig.attributeActionsOnEncrypt().get("extraEncryptAndSign23"));
+
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, singleTableConfig.attributeActionsOnEncrypt().get("extraSignAndInclude1"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, singleTableConfig.attributeActionsOnEncrypt().get("extraSignAndInclude2"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, singleTableConfig.attributeActionsOnEncrypt().get("extraSignAndInclude3"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, singleTableConfig.attributeActionsOnEncrypt().get("extraSignAndInclude12"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, singleTableConfig.attributeActionsOnEncrypt().get("extraSignAndInclude13"));
+        assertEquals(CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, singleTableConfig.attributeActionsOnEncrypt().get("extraSignAndInclude23"));
     }
 
     @Test
