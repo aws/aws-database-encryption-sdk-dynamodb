@@ -59,6 +59,16 @@ public class DynamoDbEnhancedClientEncryption {
         return allIndexAttributes;
     }
 
+    private static Set<String> attributeNamesUsedInPrimaryKey(
+        final TableMetadata tableMetadata
+    ) {
+        Set<String> keyAttributes = new HashSet<>();
+        tableMetadata.keyAttributes().stream()
+            .map(KeyAttributeMetadata::name)
+            .forEach(keyAttributes::add);
+        return keyAttributes;
+    }
+
     private static DynamoDbTableEncryptionConfig getTableConfig(
         final DynamoDbEnhancedTableEncryptionConfig configWithSchema,
         final String tableName
@@ -70,6 +80,7 @@ public class DynamoDbEnhancedClientEncryption {
         Set<String> signAndIncludeAttributes = getSignAndIncludeInEncryptionContextAttributes(topTableSchema);
         Set<String> doNothingAttributes = getDoNothingAttributes(topTableSchema);
         Set<String> keyAttributes = attributeNamesUsedInIndices(topTableSchema.tableMetadata());
+        Set<String> tableKeys = attributeNamesUsedInPrimaryKey(topTableSchema.tableMetadata());
 
         if (!Collections.disjoint(keyAttributes, doNothingAttributes)) {
             throw DynamoDbEncryptionException.builder()
@@ -101,12 +112,14 @@ public class DynamoDbEnhancedClientEncryption {
         StringBuilder path = new StringBuilder();
         path.append(tableName).append(".");
         for (String attributeName : attributeNames) {
-            if (keyAttributes.contains(attributeName)) {
+            if (tableKeys.contains(attributeName)) {
 		if (signAndIncludeAttributes.isEmpty()) {
                     actions.put(attributeName, CryptoAction.SIGN_ONLY);
 		} else {
                     actions.put(attributeName, CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT);
 		}
+            } else if (keyAttributes.contains(attributeName)) {
+                actions.put(attributeName, CryptoAction.SIGN_ONLY);
             } else if (signOnlyAttributes.contains(attributeName)) {
                 actions.put(attributeName, CryptoAction.SIGN_ONLY);
             } else if (signAndIncludeAttributes.contains(attributeName)) {
