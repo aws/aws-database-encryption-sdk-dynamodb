@@ -1,6 +1,7 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
@@ -14,7 +15,7 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
 public class DynamoDbEnhancedTableEncryptionConfig {
     private final String logicalTableName;
-    private final TableSchema<?> schemaOnEncrypt;
+    private final List<TableSchema<?>> schemaOnEncrypt;
     private final List<String> allowedUnsignedAttributes;
     private final String allowedUnsignedAttributePrefix;
     private final Keyring keyring;
@@ -39,7 +40,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
     public String logicalTableName() { return this.logicalTableName; }
 
-    public TableSchema<?> schemaOnEncrypt() {
+    public List<TableSchema<?>> schemaOnEncrypt() {
         return this.schemaOnEncrypt;
     }
 
@@ -83,7 +84,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         String logicalTableName();
         Builder logicalTableName(String logicalTableName);
         Builder schemaOnEncrypt(TableSchema<?> schemaOnEncrypt);
-        TableSchema<?> schemaOnEncrypt();
+        List<TableSchema<?>> schemaOnEncrypt();
         Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
         List<String> allowedUnsignedAttributes();
         Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix);
@@ -101,7 +102,7 @@ public class DynamoDbEnhancedTableEncryptionConfig {
 
     protected static class BuilderImpl implements Builder {
         protected String logicalTableName;
-        protected TableSchema<?> schemaOnEncrypt;
+        protected List<TableSchema<?>> schemaOnEncrypt;
         protected List<String> allowedUnsignedAttributes;
         protected String allowedUnsignedAttributePrefix;
         protected Keyring keyring;
@@ -132,11 +133,14 @@ public class DynamoDbEnhancedTableEncryptionConfig {
         public String logicalTableName() { return this.logicalTableName; }
 
         public Builder schemaOnEncrypt(TableSchema<?> schemaOnEncrypt) {
-            this.schemaOnEncrypt = schemaOnEncrypt;
+            if (Objects.isNull(this.schemaOnEncrypt())) {
+                this.schemaOnEncrypt = new ArrayList();
+            }
+            this.schemaOnEncrypt.add(schemaOnEncrypt);
             return this;
         }
 
-        public TableSchema<?> schemaOnEncrypt() {
+        public List<TableSchema<?>> schemaOnEncrypt() {
             return this.schemaOnEncrypt;
         }
 

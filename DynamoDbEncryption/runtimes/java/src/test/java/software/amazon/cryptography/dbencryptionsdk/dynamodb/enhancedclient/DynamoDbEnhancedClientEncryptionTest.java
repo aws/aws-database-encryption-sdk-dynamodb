@@ -140,7 +140,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
+            expectedExceptionsMessageRegExp = "Attribute id of table DynamoDbEncryptionInterceptorTestTable is used as both a primary key and @DynamoDbEncryptionDoNothing."
     )
     public void TestDoNothingOnPartitionAttribute() {
         TableSchema<InvalidAnnotatedPartitionClass> schemaOnEncrypt = TableSchema.fromBean(InvalidAnnotatedPartitionClass.class);
@@ -202,7 +202,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing on primary key attributes. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
+            expectedExceptionsMessageRegExp = "Attribute sortKey of table DynamoDbEncryptionInterceptorTestTable is used as both a primary key and @DynamoDbEncryptionDoNothing."
     )
     public void TestDoNothingOnSortAttribute() {
         TableSchema<InvalidAnnotatedSortClass> schemaOnEncrypt = TableSchema.fromBean(InvalidAnnotatedSortClass.class);
@@ -221,7 +221,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
 
     @Test(
             expectedExceptions = DynamoDbEncryptionException.class,
-            expectedExceptionsMessageRegExp = "Cannot use @DynamoDbEncryptionDoNothing and @DynamoDbEncryptionSignOnly on same attribute. Found on Table Name: DynamoDbEncryptionInterceptorTestTable"
+            expectedExceptionsMessageRegExp = "Attribute invalid of table DynamoDbEncryptionInterceptorTestTable is used as both @DynamoDbEncryptionSignOnly and @DynamoDbEncryptionDoNothing."
     )
     public void TestDoubleAnnotationOnAttribute() {
         TableSchema<InvalidDoubleAnnotationClass> schemaOnEncrypt = TableSchema.fromBean(InvalidDoubleAnnotationClass.class);
