@@ -83,7 +83,7 @@ dependencies {
     implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
-    implementation(platform("software.amazon.awssdk:bom:2.20.128"))
+    implementation(platform("software.amazon.awssdk:bom:2.24.2"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
@@ -92,7 +92,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     
     //    For the DDB-EC v1
-    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.531")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.658")
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
@@ -117,8 +117,8 @@ dependencies {
     // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc
     testImplementation("edu.umd.cs.mtc:multithreadedtc:1.01")
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    testImplementation("org.projectlombok:lombok:1.18.28")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.28")
+    testImplementation("org.projectlombok:lombok:1.18.30")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 publishing {
