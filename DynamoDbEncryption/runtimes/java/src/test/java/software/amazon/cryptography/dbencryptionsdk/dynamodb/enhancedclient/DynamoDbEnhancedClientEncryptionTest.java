@@ -306,6 +306,29 @@ public class DynamoDbEnhancedClientEncryptionTest {
                 .build());
     }
 
+    @Test(
+        expectedExceptions = DynamoDbEncryptionException.class,
+        expectedExceptionsMessageRegExp = "Attribute partition_key set to SIGN_ONLY in one table and SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT in another."
+    )
+    public void TestIncompatibleClasses() {
+        TableSchema<?> schemaOnEncrypt1 =
+            TableSchema.fromBean(SignOnlyClass.class);
+        TableSchema<?> schemaOnEncrypt2 =
+            TableSchema.fromBean(SignAndIncludeInEncryptionContextClass.class);
+        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+        tableConfigs.put(TEST_TABLE_NAME,
+            DynamoDbEnhancedTableEncryptionConfig.builder()
+                .logicalTableName(TEST_TABLE_NAME)
+                .keyring(createKmsKeyring())
+                .schemaOnEncrypt(schemaOnEncrypt1)
+                .schemaOnEncrypt(schemaOnEncrypt2)
+                .build());
+        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+            CreateDynamoDbEncryptionInterceptorInput.builder()
+                .tableEncryptionConfigs(tableConfigs)
+                .build());
+    }
+
     @Test
     public void TestFlattenedNestedBeanAnnotation() {
         TableSchema<AnnotatedFlattenedBean> schemaOnEncrypt =
