@@ -3,6 +3,7 @@
 include "../src/Index.dfy"
 
 module JsonEncryptorTest {
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbJsonTypes
   import opened Wrappers
   import opened StandardLibrary.UInt
   import MaterialProviders
@@ -10,15 +11,12 @@ module JsonEncryptorTest {
   import JsonToStruct
   import UTF8
   import JSON.API
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import SE = StructuredEncryptionUtil
 
   // import AwsCryptographyMaterialProvidersTypes
-  // import Types = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
-  // import UTF8
   // import DDB = ComAmazonawsDynamodbTypes
-  // import TestFixtures
-  // import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
-  // import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
-  // import SE = StructuredEncryptionUtil
+  // import AwsCryptographyDbEncryptionSdkJsonEncryptorOperations
   // import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   // import AlgorithmSuites
   // import StandardLibrary.String
@@ -78,6 +76,98 @@ module JsonEncryptorTest {
     TestRoundTrip("{\"abc\" : []}");
     TestRoundTrip("{\"abc\" : [1,2,true,false,null,\"aaa\"]}");
     TestRoundTrip("{\"abc\" : {\"bcd\" : 42, \"abcde\" : null, \"cde\" : \"foo\", \"qwert\" : [1,2,3]}}");
+  }
+
+  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
+  method GetKmsKeyring()
+      returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
+    ensures keyring.ValidState()
+    ensures fresh(keyring)
+    ensures fresh(keyring.Modifies)
+  {
+    var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
+    var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMultiKeyringInput(
+      generator := Some(PUBLIC_US_WEST_2_KMS_TEST_KEY),
+      kmsKeyIds := None(),
+      clientSupplier := None(),
+      grantTokens := None()
+    );
+    keyring :- expect matProv.CreateAwsKmsMultiKeyring(keyringInput);
+  }
+
+  method GetConfigFromActions(actions : AttributeActions) returns (output : JsonEncryptorConfig) {
+    var keyring := GetKmsKeyring();
+    var logicalTableName := "foo";
+    output := JsonEncryptorConfig(
+      logicalTableName := logicalTableName,
+      attributeActionsOnEncrypt := actions,
+      allowedUnsignedAttributes := Some(["nothing"]),
+      allowedUnsignedAttributePrefix := None,
+      keyring := Some(keyring),
+      cmm := None,
+      algorithmSuiteId := None
+    );
+  }
+
+  method GetEncryptorFromConfig(config : JsonEncryptorConfig)
+    returns (encryptor: JsonEncryptor.JsonEncryptorClient)
+    ensures encryptor.ValidState()
+    ensures fresh(encryptor)
+    ensures fresh(encryptor.Modifies)
+  {
+    var keyring := GetKmsKeyring();
+    var encryptorConfig := JsonEncryptorConfig(
+      logicalTableName := config.logicalTableName,
+      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
+      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
+      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
+      keyring := Some(keyring),
+      cmm := None,
+      algorithmSuiteId := None
+    );
+    var encryptor2 : IJsonEncryptorClient :- expect JsonEncryptor.JsonEncryptor(encryptorConfig);
+    assert encryptor2 is JsonEncryptor.JsonEncryptorClient;
+    encryptor := encryptor2 as JsonEncryptor.JsonEncryptorClient;
+  }
+
+  method GetEncryptorFromActions(actions : AttributeActions)
+    returns (encryptor: JsonEncryptor.JsonEncryptorClient)
+    ensures encryptor.ValidState()
+    ensures fresh(encryptor)
+    ensures fresh(encryptor.Modifies)
+  {
+    var config := GetConfigFromActions(actions);
+    encryptor := GetEncryptorFromConfig(config);
+  }
+
+  method TestEncryptRoundTrip(encryptor : JsonEncryptor.JsonEncryptorClient, item : string)
+    requires encryptor.ValidState()
+    ensures encryptor.ValidState()
+    modifies encryptor.Modifies
+  {
+    print "TestEncryptRoundTrip plain : ", item, "\n";
+    var encItem :- expect encryptor.EncryptObject(EncryptObjectInput(plaintextObject := item));
+//  nameonly parsedHeader: Option<ParsedHeader> := Option.None
+
+    var decItem :- expect encryptor.DecryptObject(DecryptObjectInput(encryptedObject := encItem.encryptedObject));
+//  nameonly parsedHeader: Option<ParsedHeader> := Option.None
+  ExpectEqualJson(item, decItem.plaintextObject);
+  }
+
+  method {:test} TestEncryptRoundTrips() {
+    var actions := map[
+      "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "encrypt" := CSE.ENCRYPT_AND_SIGN,
+      "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sign2" := CSE.SIGN_ONLY,
+      "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      "nothing" := CSE.DO_NOTHING
+    ];
+    var encryptor := GetEncryptorFromActions(actions);
+    TestEncryptRoundTrip(encryptor, "{\"bar\" : \"abc\"}");
+    TestEncryptRoundTrip(encryptor, "{\"bar\" : \"abc\", \"encrypt\" : 42}");
   }
 
 }

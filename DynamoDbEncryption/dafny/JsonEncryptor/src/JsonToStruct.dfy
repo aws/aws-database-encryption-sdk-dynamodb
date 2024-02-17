@@ -42,20 +42,18 @@ module JsonToStruct {
     ensures ret.Success? ==> forall kv <- ret.value.Items :: kv.0 in ret.value.Keys && ret.value[kv.0].content.Terminal?
   {
     var obj :- UTF8.Encode(item);
-    var json :- API.Deserialize(obj).MapFailure(e => "Bad JSON Deserialize");
+    var json :- API.Deserialize(obj).MapFailure((e : Errors.DeserializationError) => e.ToString());
     :- Need(json.Object?, "JSON to encrypt must be an Object : " + item);
     var result : TerminalDataMap := map[];
     for i := 0 to |json.obj| {
       var struct :- AttrToStructured(json.obj[i].1, IsEncrypted(actions, json.obj[i].0));
       result := result[json.obj[i].0 := struct];
     }
-    print "ObjectToStructured : ", result, "\n";
     return Success(result);
   }
 
   method StructuredToObject(s : StructuredDataMap) returns (ret : Result<string, string>)
   {
-    print "StructuredToObject : ", s, "\n";
     var keys := SortedSets.ComputeSetToOrderedSequence2(s.Keys, CharLess);
     var result : seq<(string, JSON)> := [];
     for i := 0 to |keys| {
@@ -63,7 +61,7 @@ module JsonToStruct {
       result := result + [(keys[i], j)];
     }
     var final := Object(result);
-    var jsonBytes :- API.Serialize(final).MapFailure(e => "Bad JSON Serialize");
+    var jsonBytes :- API.Serialize(final).MapFailure((e : Errors.SerializationError) => e.ToString());
     return UTF8.Decode(jsonBytes);
   }
 
@@ -71,7 +69,8 @@ module JsonToStruct {
 
   predicate method IsEncrypted(actions : Option<JT.AttributeActions>, name : string)
   {
-    actions.Some? && name in actions.value && actions.value[name] == ENCRYPT_AND_SIGN
+    || (ReservedPrefix < name)
+    || (actions.Some? && name in actions.value && actions.value[name] == ENCRYPT_AND_SIGN)
   }
 
   function method MakeError<T>(s : string) : Result<T, Error> {
@@ -178,7 +177,6 @@ module JsonToStruct {
     var Terminal(s) := s.content;
     :- Need(|s.typeId| == 2, "Type ID must be two bytes");
     var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
-    print "returned length=", attrValueAndLength.len, " expected length=", |s.value|, "\n";
     :- Need(attrValueAndLength.len == |s.value|, "Mismatch between length of encoded data and length of data");
     return Success(attrValueAndLength.val);
   }
@@ -315,7 +313,6 @@ module JsonToStruct {
         var data :- SerializeMapObject(keySeq[i], one);
         baseBytes := baseBytes + data;
       }
-      print "Serialized object  : ", |baseBytes|, "\n";
     } else if a.Array? {
       baseBytes :- U32ToBigEndian(|a.arr|);
       var body : seq<uint8> := [];
@@ -323,7 +320,6 @@ module JsonToStruct {
         var val :- AttrToBytes(a.arr[i], true, depth+1);
         baseBytes := baseBytes + val;
       }
-      print "Serialized array  : ", |baseBytes|, "\n";
     } else if a.Bool? {
       baseBytes := [BoolToUint8(a.b)];
     } else if a.Null? {
@@ -331,10 +327,8 @@ module JsonToStruct {
     }
     if prefix {
       var len :- U32ToBigEndian(|baseBytes|);
-      print "Serialized sub-thing with ", |AttrToTypeId(a) + len + baseBytes|, "bytes\n";
       return Success(AttrToTypeId(a) + len + baseBytes);
     } else {
-      print "Serialized thing with ", |baseBytes|, "bytes\n";
       return Success(baseBytes);
     }
   }
@@ -489,7 +483,6 @@ module JsonToStruct {
       }
       assert currPos <= origLength;
     } else {
-      print "type id ", typeId, "\n";
       return Failure("Unsupported TerminalTypeId");
     }
     assert currPos <= origLength;
@@ -581,7 +574,6 @@ module JsonToStruct {
       currPos := newLen;
 
       var resultList : seq<JSON> := [];
-      print "List has ", count, " items\n";
       for i := 0 to count
         invariant currPos <= |value|
       {
@@ -601,7 +593,6 @@ module JsonToStruct {
         assert newLen <= origLength;
         assert (newLen-currPos) < origLength;
         assert |value[currPos..newLen]| < origLength;
-        print "currPos=", currPos, " valueLen=", valueLen, " newLen=", newLen, "\n";
         var nval :- BytesToAttr(value[currPos..newLen], terminalTypeId, false, depth+1);
         currPos := newLen;
         if nval.len != valueLen {

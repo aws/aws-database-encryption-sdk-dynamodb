@@ -143,12 +143,19 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     EncodeAscii(Base64.Encode(t.typeId + t.value))
   }
 
+  const TABLE_NAME : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-table-name")
   function method {:opaque} {:vcs_split_on_every_assert} MakeEncryptionContext(
     config : InternalConfig,
     item : JsonToStruct.TerminalDataMap)
     : (ret : Result<CMP.EncryptionContext, Error>)
   {
-	Success(map[])
+    var logicalTableName : ValidUTF8Bytes :- DDBEncode(config.logicalTableName);
+      var ec : CMP.EncryptionContext :=
+        map[
+          TABLE_NAME := logicalTableName
+        ];
+      assert TABLE_NAME in ec;
+      Success(ec)
   }
 
   // string to Error
