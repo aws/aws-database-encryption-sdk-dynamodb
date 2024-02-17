@@ -19,7 +19,7 @@ PROJECT_SERVICES := \
 SERVICE_NAMESPACE_StructuredEncryption=aws.cryptography.dbEncryptionSdk.structuredEncryption
 SERVICE_NAMESPACE_DynamoDbEncryption=aws.cryptography.dbEncryptionSdk.dynamoDb
 SERVICE_NAMESPACE_DynamoDbItemEncryptor=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor
-SERVICE_NAMESPACE_JsonEncryptor=aws.cryptography.dbEncryptionSdk.json.encryptor
+SERVICE_NAMESPACE_JsonEncryptor=aws.cryptography.dbEncryptionSdk.dynamoDb.json
 SERVICE_NAMESPACE_DynamoDbEncryptionTransforms=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms
 
 MAX_RESOURCE_COUNT=20000000
