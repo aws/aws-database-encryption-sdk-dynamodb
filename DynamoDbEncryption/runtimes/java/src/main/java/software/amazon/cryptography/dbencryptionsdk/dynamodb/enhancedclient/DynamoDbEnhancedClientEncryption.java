@@ -82,8 +82,10 @@ public class DynamoDbEnhancedClientEncryption {
 
     }
 
-    // Any given attribute must be only one thing. It can't be both SignOnly and DoNothing, for example.
-    // validateAttributeUsage throws an error if the given attribute is used in any of the given capacities.
+    // Any given attribute MUST have one and only one Cryptographic Action. 
+    // i.e: It can't be both SignOnly and DoNothing.
+    // validateAttributeUsage throws an error if 
+    // the given attribute is marked with `usage` and another Cryptographic Action.
     // For example, for a SignOnly, signOnly will be empty, and an error must be reported
     // if the attribute exists in any of the other sets.
     private static void validateAttributeUsage(
