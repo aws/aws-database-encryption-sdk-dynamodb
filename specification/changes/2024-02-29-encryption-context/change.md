@@ -87,3 +87,38 @@ Then Structured Encryption adds all of the appropriate values to the encryption 
 which includes at least the primary hash and sort keys, possibly others,
 and wraps the RequiredEncryptionContextCMM passed in from the Item Encryptor in
 another layer of RequiredEncryptionContextCMM to include those value.
+
+# Java Enhanced Client
+
+To use this new functionality with the DynamoDB Enhanced Client in Java,
+tag your attribute with `@DynamoDbEncryptionSignAndIncludeInEncryptionContext`
+
+### Single Table Design
+
+To better handle [Single-Table Design](https://aws.amazon.com/blogs/compute/creating-a-single-table-design-with-amazon-dynamodb/),
+one can now specify multiple schemas when building a DynamoDbEnhancedTableEncryptionConfig
+as shown below.
+
+```
+TableSchema<SimpleClass> tableSchema1 = TableSchema.fromBean(Class1.class);
+TableSchema<SimpleClass2> tableSchema2 = TableSchema.fromBean(Class2.class);
+TableSchema<SimpleClass3> tableSchema3 = TableSchema.fromBean(Class3.class);
+
+DynamoDbEnhancedTableEncryptionConfig.builder()
+  .logicalTableName(MyTableName)
+  .schemaOnEncrypt(tableSchema1)
+  .schemaOnEncrypt(tableSchema2)
+  .schemaOnEncrypt(tableSchema3)
+  ...
+  .build());
+
+DynamoDbTable<Class1> table1 = enhancedClient.table(MyTableName, tableSchema1);
+DynamoDbTable<Class2> table2 = enhancedClient.table(MyTableName, tableSchema2);
+DynamoDbTable<Class3> table3 = enhancedClient.table(MyTableName, tableSchema3);
+
+TransactWriteItemsEnhancedRequest.builder()
+  .addPutItem(table1, item1)
+  .addPutItem(table2, item2)
+  .addPutItem(table3, item3)
+  .build();
+```
