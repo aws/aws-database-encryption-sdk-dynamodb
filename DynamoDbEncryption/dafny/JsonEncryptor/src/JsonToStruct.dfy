@@ -5,72 +5,127 @@ include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbJsonTypes.dfy"
 include "Util.dfy"
 
 module JsonToStruct {
-
-  import JT = AwsCryptographyDbEncryptionSdkDynamoDbJsonTypes
-  import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbJsonTypes
   import opened JsonEncryptorUtil
-  import SE = StructuredEncryptionUtil
+
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+
   import UTF8
   import SortedSets
-  import Seq
   import Base64
 
-  import JSON.Utils.Cursors
-  import JSON.Grammar
+  import JSON.Spec
   import JSON.API
   import opened JSON.Values
   import JSON.Errors
-  import JSON.Spec
-  import JSON.Serializer
-  import JSON.ZeroCopy
-  import JSON.Deserializer
 
-  type Error = JT.Error
-
-  type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
+  type StructuredDataTerminalType = x : SE.StructuredData | x.content.Terminal? witness *
   type TerminalDataMap = map<string, StructuredDataTerminalType>
 
   // This file exists for these two functions : ObjectToStructured and StructuredToObject
   // which provide conversion between an JSON object and a StructuredDataMap
 
-  method ObjectToStructured(item : string, actions : Option<JT.AttributeActions> := None) returns (ret : Result<TerminalDataMap, string>)
 
-    ensures ret.Success? ==> forall v <- ret.value.Values :: v.content.Terminal?
-    ensures ret.Success? ==> forall kv <- ret.value.Items :: kv.0 in ret.value.Keys && ret.value[kv.0].content.Terminal?
+  // If attribute in isBinary, then value MUST be a Base64 encoded string and MUST become type BINARY
+  // If attribute not in isSigned, drop it
+  method ObjectToStructured(json : JSON, isSigned : set<string>, isBinary : set<string>)
+    returns (ret : Result<TerminalDataMap, string>)
+    requires json.Object?
+    requires isBinary <= isSigned
   {
-    var obj :- UTF8.Encode(item);
-    var json :- API.Deserialize(obj).MapFailure((e : Errors.DeserializationError) => e.ToString());
-    :- Need(json.Object?, "JSON to encrypt must be an Object : " + item);
+    var isSigned2 := isSigned + {"aws_dbe_head", "aws_dbe_foot"};
+    var isBinary2 := isBinary + {"aws_dbe_head", "aws_dbe_foot"};
     var result : TerminalDataMap := map[];
     for i := 0 to |json.obj| {
-      var struct :- AttrToStructured(json.obj[i].1, IsEncrypted(actions, json.obj[i].0));
-      result := result[json.obj[i].0 := struct];
+      if json.obj[i].0 in isSigned2 {
+        var struct :- AttrToStructured(json.obj[i].1, json.obj[i].0 in isBinary2);
+        result := result[json.obj[i].0 := struct];
+      }
     }
     return Success(result);
   }
 
-  method StructuredToObject(s : StructuredDataMap) returns (ret : Result<string, string>)
+  // if attribute in isEncrypted, return its deserialize form
+  // else return corresponding entry in orig
+  method StructuredToObject(s : SE.StructuredDataMap, orig : JSON, isEncrypted : set<string>)
+    returns (ret : Result<JSON, string>)
+    requires orig.Object?
+    ensures ret.Success? ==> ret.value.Object?
   {
+    :- Need(orig.Object?, "Original JSON must be an Object : ");
+    var isEncrypted2 := isEncrypted + {"aws_dbe_head", "aws_dbe_foot"};
     var keys := SortedSets.ComputeSetToOrderedSequence2(s.Keys, CharLess);
     var result : seq<(string, JSON)> := [];
     for i := 0 to |keys| {
-      var j :- StructuredToAttr(s[keys[i]]);
-      result := result + [(keys[i], j)];
+      if keys[i] in isEncrypted2 {
+        var j :- StructuredToAttr(s[keys[i]]);
+        result := result + [(keys[i], j)];
+      } else {
+        var j := FindItem(orig.obj, keys[i]);
+        if j.Some? {
+          result := result + [(keys[i], j.value)];
+        } else {
+          return Failure("Attribute " + keys[i] + " not found.");
+        }
+      }
     }
-    var final := Object(result);
-    var jsonBytes :- API.Serialize(final).MapFailure((e : Errors.SerializationError) => e.ToString());
-    return UTF8.Decode(jsonBytes);
+    return Success(Object(result));
   }
 
   // everything past here is to implement those two
 
-  predicate method IsEncrypted(actions : Option<JT.AttributeActions>, name : string)
+  const TERM_T : uint8 := 0x00
+  const MAP_T  : uint8 := 0x02
+  const LIST_T : uint8 := 0x03
+  const NULL_T : uint8 := 0x00
+  const STRING_T  : uint8 := 0x01
+  const NUMBER_T  : uint8 := 0x02
+  const BINARY_T : uint8 := 0xFF
+  const BOOLEAN_T : uint8 := 0x04
+
+  const NULL       : SE.TerminalTypeId := [TERM_T, NULL_T]
+  const STRING     : SE.TerminalTypeId := [TERM_T, STRING_T]
+  const NUMBER     : SE.TerminalTypeId := [TERM_T, NUMBER_T]
+  const BINARY     : SE.TerminalTypeId := [0xFF, 0xFF]
+  const BOOLEAN    : SE.TerminalTypeId := [TERM_T, BOOLEAN_T]
+  const MAP        : SE.TerminalTypeId := [MAP_T,  NULL_T]
+  const LIST       : SE.TerminalTypeId := [LIST_T, NULL_T]
+
+
+  function method StringToJsonObject(item : string) : (res :Result<JSON, string>)
+    ensures res.Success? ==> res.value.Object?
   {
-    || (ReservedPrefix < name)
-    || (actions.Some? && name in actions.value && actions.value[name] == ENCRYPT_AND_SIGN)
+    var json :- StringToJson(item);
+    :- Need(json.Object?, "JSON to encrypt/decrypt must be an Object : " + item);
+    Success(json)
+  }
+
+  function method StringToJson(item : string) : Result<JSON, string>
+  {
+    var obj :- UTF8.Encode(item);
+    var json :- API.Deserialize(obj).MapFailure((e : Errors.DeserializationError) => e.ToString());
+    Success(json)
+  }
+
+  function method JsonToString(json : JSON) : Result<string, string>
+  {
+    var jsonBytes :- API.Serialize(json).MapFailure((e : Errors.SerializationError) => e.ToString());
+    UTF8.Decode(jsonBytes)
+  }
+
+  function method {:tailrecursion} FindItem(orig : seq<(string, JSON)>, key : string)
+    : Option<JSON>
+  {
+    if |orig| == 0 then
+      None
+    else if orig[0].0 == key then
+      Some(orig[0].1)
+    else
+      FindItem(orig[1..], key)
   }
 
   function method MakeError<T>(s : string) : Result<T, Error> {
@@ -154,20 +209,20 @@ module JsonToStruct {
     ret := AttrToBytes(a, false);
   }
 
-  method  AttrToStructured(item : JSON, isEncrypted : bool) returns (ret : Result<StructuredData, string>)
+  method  AttrToStructured(item : JSON, isEncrypted : bool) returns (ret : Result<SE.StructuredData, string>)
     ensures ret.Success? ==> ret.value.content.Terminal?
   {
     if isEncrypted {
       :- Need(item.String?, "Encrypted attribute's value was not of type String.");
       var data : seq<uint8> :- Base64.Decode(item.str);
-      return Success(StructuredData(content := Terminal(StructuredDataTerminal(value := data, typeId := SE.BINARY)), attributes := None));
+      return Success(SE.StructuredData(content := SE.Terminal(SE.StructuredDataTerminal(value := data, typeId := BINARY)), attributes := None));
     } else {
       var body :- TopLevelAttributeToBytes(item);
-      return Success(StructuredData(content := Terminal(StructuredDataTerminal(value := body, typeId := AttrToTypeId(item))), attributes := None));
+      return Success(SE.StructuredData(content := SE.Terminal(SE.StructuredDataTerminal(value := body, typeId := AttrToTypeId(item))), attributes := None));
     }
   }
 
-  method StructuredToAttr(s : StructuredData) returns (ret : Result<JSON, string>)
+  method StructuredToAttr(s : SE.StructuredData) returns (ret : Result<JSON, string>)
     ensures ret.Success? ==> s.content.Terminal?
     ensures ret.Success? ==> s.attributes.None?
   {
@@ -187,15 +242,15 @@ module JsonToStruct {
   const PREFIX_LEN : nat := 6 // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
 
 
-  function method AttrToTypeId(a : JSON) : TerminalTypeId
+  function method AttrToTypeId(a : JSON) : SE.TerminalTypeId
   {
     match a {
-      case String(s) => SE.STRING
-      case Number(n) => SE.NUMBER
-      case Object(o) => SE.MAP
-      case Array(a) => SE.LIST
-      case Null => SE.NULL
-      case Bool(b) => SE.BOOLEAN
+      case String(s) => STRING
+      case Number(n) => NUMBER
+      case Object(o) => MAP
+      case Array(a) => LIST
+      case Null => NULL
+      case Bool(b) => BOOLEAN
     }
   }
 
@@ -207,14 +262,9 @@ module JsonToStruct {
 
   function method StringToNumber(str : string) : Result<Decimal, string>
   {
-    var utf8 :- UTF8.Encode(str);
-    :- Need(|utf8| < BoundedInts.TWO_TO_THE_32, "String too long");
-    var cursor : Cursors.FreshCursor := Cursors.Cursor(utf8, 0, 0, |utf8| as uint32);
-    var num : Cursors.Split<Grammar.jnumber> :- ZeroCopy.Deserializer.Numbers.Number(cursor)
-                                                .MapFailure((e : Cursors.CursorError<Errors.DeserializationError>) => e.ToString(
-                                                                (f : Errors.DeserializationError) => f.ToString()
-                                                              ));
-    Deserializer.Number(num.t).MapFailure((e : Errors.DeserializationError) => e.ToString())
+    var json :- StringToJson(str);
+    :- Need(json.Number?, "Should have been a number : '" + str + "'.");
+    Success(json.num)
   }
 
   // convert JSON to byte sequence
@@ -387,26 +437,28 @@ module JsonToStruct {
     Success(len + val)
   }
 
-  function method SerializeMapObject(key : string, value : seq<uint8>) : (ret : Result<seq<uint8>, string>)
-    // ensures ret.Success? ==>
-    //           && |ret.value| >= TYPEID_LEN
-    //           && ret.value[0..TYPEID_LEN] == STRING
-    //           && UTF8.Encode(key).Success?
-    //           && |ret.value| == TYPEID_LEN + LENGTH_LEN + |UTF8.Encode(key).value| + |value|
-    //           && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(key).value|]).Success?
-    //           && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(key).value|]).value == key
-
-    // ensures ret.Success? ==>
-    //           && UTF8.Encode(key).Success?
-    //           && U32ToBigEndian(|UTF8.Encode(key).value|).Success?
-    //           && |ret.value| >= TYPEID_LEN+LENGTH_LEN
-    //           && ret.value[TYPEID_LEN..TYPEID_LEN+LENGTH_LEN] == U32ToBigEndian(|UTF8.Encode(key).value|).value
+  function method {:opaque} SerializeMapObject(key : string, value : seq<uint8>) : (ret : Result<seq<uint8>, string>)
+    ensures ret.Success? ==>
+              && UTF8.Encode(key).Success?
+              && var name := UTF8.Encode(key).value;
+              && U32ToBigEndian(|UTF8.Encode(key).value|).Success?
+              && var len := U32ToBigEndian(|name|).value;
+              && ret.value == STRING + len + name + value
+              && |ret.value| == |STRING| + |len| + |name| + |value|
+              && |ret.value| >= TYPEID_LEN
+              && |STRING| == TYPEID_LEN
+              // && ret.value[0..TYPEID_LEN] == STRING
+              // && |ret.value| == TYPEID_LEN + LENGTH_LEN + |UTF8.Encode(key).value| + |value|
+              // && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(key).value|]).Success?
+              // && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(key).value|]).value == key
+              // && U32ToBigEndian(|UTF8.Encode(key).value|).Success?
+              // && ret.value[TYPEID_LEN..TYPEID_LEN+LENGTH_LEN] == U32ToBigEndian(|UTF8.Encode(key).value|).value
   {
     var name :- UTF8.Encode(key);
     assert UTF8.Decode(name).Success?;
     var len :- U32ToBigEndian(|name|);
 
-    var serialized := SE.STRING + len + name + value;
+    var serialized := STRING + len + name + value;
     assert |serialized| == TYPEID_LEN + LENGTH_LEN + |name| + |value|;
     Success(serialized)
   }
@@ -424,7 +476,7 @@ module JsonToStruct {
 
   method {:vcs_split_on_every_assert} BytesToAttrSimple(
     value : seq<uint8>,
-    typeId : TerminalTypeId,
+    typeId : SE.TerminalTypeId,
     startPos : nat,
     len : nat
   )
@@ -438,21 +490,21 @@ module JsonToStruct {
     ghost var origValue := value;
     var currPos : nat := startPos;
     var retVal : JSON;
-    if typeId == SE.NULL {
+    if typeId == NULL {
       if len != 0 {
         return Failure("NULL type did not have length zero");
       }
       retVal := JSON.Null;
       assert currPos <= origLength;
     }
-    else if typeId == SE.STRING {
+    else if typeId == STRING {
       var newLen := currPos + len;
       var str :- UTF8.Decode(value[currPos..newLen]);
       currPos := newLen;
       retVal := JSON.String(str);
       assert currPos <= origLength;
     }
-    else if typeId == SE.NUMBER {
+    else if typeId == NUMBER {
       var newLen := currPos + len;
       var str :- UTF8.Decode(value[currPos..newLen]);
       currPos := newLen;
@@ -460,14 +512,14 @@ module JsonToStruct {
       retVal := JSON.Number(num);
       assert currPos <= origLength;
     }
-    else if typeId == SE.BINARY {
+    else if typeId == BINARY {
       var newLen := currPos + len;
       var str := Base64.Encode(value[currPos..newLen]);
       currPos := newLen;
       retVal := JSON.String(str);
       assert currPos <= origLength;
     }
-    else if typeId == SE.BOOLEAN {
+    else if typeId == BOOLEAN {
       if len != BOOL_LEN {
         return Failure("Boolean Structured Data has more than one byte");
       } else if value[currPos] == 0x00 {
@@ -497,7 +549,7 @@ module JsonToStruct {
   // Bytes to JSON
   method {:vcs_split_on_every_assert} BytesToAttr(
     value : seq<uint8>,
-    typeId : TerminalTypeId,
+    typeId : SE.TerminalTypeId,
     hasLen : bool,
     depth : nat := 1
   )
@@ -522,7 +574,7 @@ module JsonToStruct {
     if |value| < (currPos+len) {
       return Failure("Structured Data has too few bytes");
     }
-    else if typeId == SE.MAP {
+    else if typeId == MAP {
       var newLen := currPos + LENGTH_LEN;
       :- Need(newLen <= |value|, "Map Structured Data has less than 4 bytes.");
       var count :- BigEndianToU32(value[currPos..]);
@@ -536,7 +588,7 @@ module JsonToStruct {
         var newLen := currPos + TYPEID_LEN;
         :- Need(newLen <= |value|, "Out of bytes reading Map Key");
         var TerminalTypeId_key := value[currPos..newLen];
-        :- Need(TerminalTypeId_key == SE.STRING, "Key of Map is not String");
+        :- Need(TerminalTypeId_key == STRING, "Key of Map is not String");
         currPos := newLen;
 
         // get key
@@ -553,7 +605,7 @@ module JsonToStruct {
         // get typeId of value
         newLen := currPos + TYPEID_LEN;
         :- Need(newLen <= |value|, "Out of bytes reading Map Value");
-        var TerminalTypeId_value : TerminalTypeId := value[currPos..newLen];
+        var TerminalTypeId_value : SE.TerminalTypeId := value[currPos..newLen];
         currPos := newLen;
 
         // get value and construct result
@@ -567,7 +619,7 @@ module JsonToStruct {
       }
       assert currPos <= origLength;
       retVal := JSON.Object(resultList);
-    } else if typeId == SE.LIST {
+    } else if typeId == LIST {
       var newLen := currPos + LENGTH_LEN;
       :- Need(newLen <= |value|, "List Structured Data has less than 4 bytes.");
       var count :- BigEndianToU32(value[currPos..]);
@@ -579,7 +631,7 @@ module JsonToStruct {
       {
         newLen := currPos + TYPEID_LEN;
         :- Need(newLen <= |value|, "Out of bytes reading List Value");
-        var terminalTypeId : TerminalTypeId := value[currPos..newLen];
+        var terminalTypeId : SE.TerminalTypeId := value[currPos..newLen];
         currPos := newLen;
 
         newLen := currPos + LENGTH_LEN;
@@ -615,7 +667,6 @@ module JsonToStruct {
     assert returnVal.len <= |value|;
     return Success(returnVal);
   }
-
 
   function method FlattenValueMap<X,Y>(m : map<X, Result<Y,string>>): map<X,Y> {
     map k <- m | m[k].Success? :: k := m[k].value

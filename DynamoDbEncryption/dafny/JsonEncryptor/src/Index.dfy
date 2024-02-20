@@ -11,7 +11,6 @@ module
   import opened JsonEncryptorUtil
   import StructuredEncryption
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
-  import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import MaterialProviders
   import Operations = AwsCryptographyDbEncryptionSdkJsonEncryptorOperations
   import SE =  StructuredEncryptionUtil

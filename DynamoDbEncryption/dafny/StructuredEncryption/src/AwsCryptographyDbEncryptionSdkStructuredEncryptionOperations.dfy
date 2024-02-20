@@ -369,6 +369,34 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     )
   }
 
+  function method {:opaque} GetEncryptedFields(
+    tableName: string,
+    signedFields: set<string>,
+    headerSerialized : seq<uint8>
+  ) : (ret : Result<set<GoodString>, Error>)
+  {
+    var header :- Header.PartialDeserialize(headerSerialized);
+    :- Need(ValidString(tableName), E("Bad Table Name"));
+    :- Need(forall k <- signedFields :: ValidString(k), E("Bad Attribute Name"));
+
+    reveal Maps.Injective();
+    Paths.SimpleCanonUnique(tableName);
+    var fieldMap := map k <- signedFields :: Paths.SimpleCanon(tableName, k) := k;
+    assert Maps.Injective(fieldMap);
+    assert forall k <- fieldMap :: fieldMap[k] in signedFields;
+
+    var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(fieldMap.Keys, ByteLess);
+
+    if |header.legend| < |signedFields_c| then
+      Failure(E("Schema changed : something that was unsigned is now signed."))
+    else if |header.legend| > |signedFields_c| then
+      Failure(E("Schema changed : something that was signed is now unsigned."))
+    else
+      var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, header.legend);
+      var encFields : set<string> := set k <- encFields_c :: fieldMap[k];
+      Success(encFields)
+  }
+
   // construct the DecryptCanon
   function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(
     tableName: GoodString,
@@ -642,21 +670,23 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     if exists x <- cryptoSchema :: cryptoSchema[x].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT {
       assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
       var newEncryptionContext :- GetV2EncryptionContext(cryptoSchema, plainRecord);
-      encryptionContext := encryptionContext + newEncryptionContext;
-      assert cmm.Modifies !! {config.materialProviders.History};
-      //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
-      //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
-      //# with the following inputs:
-      //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
-      //# - The name of every entry added above.
-      var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
-        CMP.CreateRequiredEncryptionContextCMMInput(
-          underlyingCMM := Some(cmm),
-          keyring := None,
-          requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess)
-        )
-      );
-      cmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+      if |newEncryptionContext| != 0 {
+        encryptionContext := encryptionContext + newEncryptionContext;
+        assert cmm.Modifies !! {config.materialProviders.History};
+        //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+        //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+        //# with the following inputs:
+        //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
+        //# - The name of every entry added above.
+        var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
+          CMP.CreateRequiredEncryptionContextCMMInput(
+            underlyingCMM := Some(cmm),
+            keyring := None,
+            requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess)
+          )
+        );
+        cmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+      }
     }
     var mat :- GetStructuredEncryptionMaterials(
       cmm,
@@ -937,22 +967,24 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       //# [Terminal Data](./structures.md#terminal-data)
       //# in the input record, plus the Legend.
       var newEncryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encRecord);
-      encryptionContext := encryptionContext + newEncryptionContext;
-      assert cmm.Modifies !! {config.materialProviders.History};
+      if |newEncryptionContext| != 0 {
+        encryptionContext := encryptionContext + newEncryptionContext;
+        assert cmm.Modifies !! {config.materialProviders.History};
 
-      //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
-      //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
-      //# with the following inputs:
-      //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
-      //# - The name of every entry added above.
-      var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
-        CMP.CreateRequiredEncryptionContextCMMInput(
-          underlyingCMM := Some(cmm),
-          keyring := None,
-          requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess)
-        )
-      );
-      cmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+        //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+        //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+        //# with the following inputs:
+        //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
+        //# - The name of every entry added above.
+        var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
+          CMP.CreateRequiredEncryptionContextCMMInput(
+            underlyingCMM := Some(cmm),
+            keyring := None,
+            requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess)
+          )
+        );
+        cmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+      }
     }
 
     //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials

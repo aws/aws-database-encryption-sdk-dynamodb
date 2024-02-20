@@ -27,4 +27,11 @@ module JsonEncryptorUtil {
   {
     x < y
   }
+
+  function printFromFunction<T>(x: T): () {
+    ()
+  } by method {
+    print x,"\n";
+    return ();
+  }
 }

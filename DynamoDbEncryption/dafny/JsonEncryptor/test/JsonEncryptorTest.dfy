@@ -4,22 +4,53 @@ include "../src/Index.dfy"
 
 module JsonEncryptorTest {
   import opened AwsCryptographyDbEncryptionSdkDynamoDbJsonTypes
+  import opened JsonEncryptorUtil
   import opened Wrappers
   import opened StandardLibrary.UInt
   import MaterialProviders
   import JsonEncryptor
   import JsonToStruct
   import UTF8
+  import JSON.Spec
   import JSON.API
+  import opened JSON.Values
+  import JSON.Errors
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
-  import SE = StructuredEncryptionUtil
+  import SortedSets
 
-  // import AwsCryptographyMaterialProvidersTypes
-  // import DDB = ComAmazonawsDynamodbTypes
-  // import AwsCryptographyDbEncryptionSdkJsonEncryptorOperations
-  // import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
-  // import AlgorithmSuites
-  // import StandardLibrary.String
+
+  predicate method IsEncrypted(actions : Option<AttributeActions>, name : string)
+  {
+    || (ReservedPrefix < name)
+    || (actions.Some? && name in actions.value && actions.value[name] == CSE.ENCRYPT_AND_SIGN)
+  }
+
+  method ObjectToStructuredFull(item : string, actions : Option<AttributeActions> := None)
+    returns (ret : Result<CSE.StructuredDataMap, string>)
+  {
+    var obj :- UTF8.Encode(item);
+    var json :- API.Deserialize(obj).MapFailure((e : Errors.DeserializationError) => e.ToString());
+    :- Need(json.Object?, "JSON to encrypt must be an Object : " + item);
+    var result : CSE.StructuredDataMap := map[];
+    for i := 0 to |json.obj| {
+      var struct :- JsonToStruct.AttrToStructured(json.obj[i].1, IsEncrypted(actions, json.obj[i].0));
+      result := result[json.obj[i].0 := struct];
+    }
+    return Success(result);
+  }
+
+  method StructuredToObjectFull(s : CSE.StructuredDataMap) returns (ret : Result<string, string>)
+  {
+    var keys := SortedSets.ComputeSetToOrderedSequence2(s.Keys, CharLess);
+    var result : seq<(string, JSON)> := [];
+    for i := 0 to |keys| {
+      var j :- JsonToStruct.StructuredToAttr(s[keys[i]]);
+      result := result + [(keys[i], j)];
+    }
+    var final := Object(result);
+    var jsonBytes :- API.Serialize(final).MapFailure((e : Errors.SerializationError) => e.ToString());
+    return UTF8.Decode(jsonBytes);
+  }
 
 
   method ExpectEqualJson(item : string, final : string)
@@ -47,12 +78,12 @@ module JsonEncryptorTest {
   method TestRoundTrip(item : string)
   {
     print "Testing ", item, "\n";
-    var o2s := JsonToStruct.ObjectToStructured(item, None);
+    var o2s := ObjectToStructuredFull(item, None);
     if o2s.Failure? {
       print "Unexpected ObjectToStructured error : \n", o2s.error, "\n", item, "\n";
     }
     expect o2s.Success?;
-    var s2o := JsonToStruct.StructuredToObject(o2s.value);
+    var s2o := StructuredToObjectFull(o2s.value);
     if s2o.Failure? {
       print "Unexpected StructuredToObject error : \n", s2o.error, "\n", item, "\n", o2s.value, "\n";
     }
