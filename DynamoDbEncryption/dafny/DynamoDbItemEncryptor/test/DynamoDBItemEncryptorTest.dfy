@@ -25,6 +25,8 @@ module DynamoDbItemEncryptorTest {
   // encrypt => encrypted fields changed, others did not
   // various errors
 
+  const PublicKeyUtf8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-public-key")
+
   function method DDBS(x : string) : DDB.AttributeValue {
     DDB.AttributeValue.S(x)
   }
@@ -61,8 +63,15 @@ module DynamoDbItemEncryptorTest {
                                );
   }
 
-  method {:test} TestV2RoundTripComplexSwitch() {
-    var actions := map[
+  function method {:opaque} GetAttrName(s : string) : DDB.AttributeName
+  {
+    if DDB.IsValid_AttributeName(s) then
+      s
+    else
+      "spoo"
+  }
+
+  const Actions1 : DDBE.AttributeActions := map[
       "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "encrypt" := CSE.ENCRYPT_AND_SIGN,
@@ -71,11 +80,24 @@ module DynamoDbItemEncryptorTest {
       "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "nothing" := CSE.DO_NOTHING
-    ];
-    var config := TestFixtures.GetEncryptorConfigFromActions(actions, Some("sortKey"));
+    ]
+
+    const Actions2 : DDBE.AttributeActions := map[
+      GetAttrName("bar") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      GetAttrName("sortKey") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      GetAttrName("encrypt") := CSE.ENCRYPT_AND_SIGN,
+      GetAttrName("sign") := CSE.SIGN_ONLY,
+      GetAttrName("sign2") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      GetAttrName("sign3") := CSE.SIGN_ONLY,
+      GetAttrName("sign4") := CSE.SIGN_ONLY,
+      GetAttrName("nothing") := CSE.DO_NOTHING
+    ]
+
+  method {:test} TestV2RoundTripComplexSwitch() {
+    var config := TestFixtures.GetEncryptorConfigFromActions(Actions1, Some("sortKey"));
     var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config);
 
-    var inputItem := map[
+    var inputItem : map<DDB.AttributeName, DDB.AttributeValue> := map[
       "bar" := DDB.AttributeValue.N("1234"),
       "sortKey" := DDB.AttributeValue.B([1,2,3,4]),
       "encrypt" := DDBS("text"),
@@ -103,17 +125,7 @@ module DynamoDbItemEncryptorTest {
     expect encryptRes.value.encryptedItem["sign4"] == inputItem["sign4"];
     expect encryptRes.value.encryptedItem["nothing"] == inputItem["nothing"];
 
-    var actions2 := map[
-      "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "encrypt" := CSE.ENCRYPT_AND_SIGN,
-      "sign" := CSE.SIGN_ONLY,
-      "sign2" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign3" := CSE.SIGN_ONLY,
-      "sign4" := CSE.SIGN_ONLY,
-      "nothing" := CSE.DO_NOTHING
-    ];
-    var config2 := TestFixtures.GetEncryptorConfigFromActions(actions2, Some("sortKey"));
+    var config2 := TestFixtures.GetEncryptorConfigFromActions(Actions2, Some("sortKey"));
     var encryptor2 := TestFixtures.GetDynamoDbItemEncryptorFrom(config2);
 
     var decryptRes := encryptor2.DecryptItem(
@@ -135,10 +147,10 @@ module DynamoDbItemEncryptorTest {
     var parsedHeader := decryptRes.value.parsedHeader;
     expect parsedHeader.Some?;
     expect parsedHeader.value.algorithmSuiteId == AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384.id.DBE;
-    expect parsedHeader.value.attributeActionsOnEncrypt == actions - {"nothing", "sign2"};
+    expect parsedHeader.value.attributeActionsOnEncrypt == Actions1 - {"nothing", "sign2"};
     // Expect the verification key in the context
     expect |parsedHeader.value.storedEncryptionContext| == 1;
-    expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
+    expect PublicKeyUtf8 in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
 
     var strEC := SE.EcAsString(parsedHeader.value.encryptionContext);
@@ -239,7 +251,7 @@ module DynamoDbItemEncryptorTest {
     //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
     //# with the following inputs:
     expect |parsedHeader.value.storedEncryptionContext| == 1;
-    expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
+    expect PublicKeyUtf8 in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
 
     var strEC := SE.EcAsString(parsedHeader.value.encryptionContext);
@@ -372,7 +384,7 @@ module DynamoDbItemEncryptorTest {
     expect parsedHeader.value.attributeActionsOnEncrypt == actions - {"nothing"};
     // Expect the verification key in the context
     expect |parsedHeader.value.storedEncryptionContext| == 1;
-    expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
+    expect PublicKeyUtf8 in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
 
     var strEC := SE.EcAsString(parsedHeader.value.encryptionContext);
@@ -433,7 +445,7 @@ module DynamoDbItemEncryptorTest {
     expect parsedHeader.value.attributeActionsOnEncrypt == TestFixtures.GetSignedAttributeActions();
     // Expect the verification key in the context
     expect |parsedHeader.value.storedEncryptionContext| == 1;
-    expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
+    expect PublicKeyUtf8 in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
 
     //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
@@ -493,7 +505,7 @@ module DynamoDbItemEncryptorTest {
     expect parsedHeader.value.algorithmSuiteId == AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384.id.DBE;
     // Expect the verification key in the context
     expect |parsedHeader.value.storedEncryptionContext| == 1;
-    expect UTF8.EncodeAscii("aws-crypto-public-key") in parsedHeader.value.storedEncryptionContext.Keys;
+    expect PublicKeyUtf8 in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
   }
 
