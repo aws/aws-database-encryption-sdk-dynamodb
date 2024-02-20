@@ -392,16 +392,22 @@ module JsonToStruct {
     ensures U32ToBigEndian(x).Success? ==>
               && BigEndianToU32(U32ToBigEndian(x).value).Success?
               && BigEndianToU32(U32ToBigEndian(x).value).value == x
-  {}
+  {
+    reveal BigEndianToU32();
+    reveal U32ToBigEndian();
+  }
 
   lemma BigEndianToU32RoundTrip(x : seq<uint8>)
     requires |x| == 4
     ensures BigEndianToU32(x).Success? ==>
               && U32ToBigEndian(BigEndianToU32(x).value).Success?
               && U32ToBigEndian(BigEndianToU32(x).value).value == x
-  {}
+  {
+    reveal BigEndianToU32();
+    reveal U32ToBigEndian();
+  }
 
-  function method U32ToBigEndian(x : nat) : (ret : Result<seq<uint8>, string>)
+  function method {:opaque} U32ToBigEndian(x : nat) : (ret : Result<seq<uint8>, string>)
     ensures ret.Success? ==> |ret.value| == LENGTH_LEN
   {
     if x > 0xffff_ffff then
@@ -410,7 +416,8 @@ module JsonToStruct {
       Success(UInt32ToSeq(x as uint32))
   }
 
-  function method BigEndianToU32(x : seq<uint8>) : (ret : Result<nat, string>)
+  function method {:opaque} BigEndianToU32(x : seq<uint8>) : (ret : Result<nat, string>)
+    ensures ret.Success? ==> 0 <= ret.value < BoundedInts.TWO_TO_THE_32
   {
     if |x| < LENGTH_LEN then
       Failure("Length of 4-byte integer was less than 4")
