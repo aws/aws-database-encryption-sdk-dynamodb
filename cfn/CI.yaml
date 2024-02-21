@@ -18,6 +18,22 @@ Parameters:
     Type: String
     Description: Testing Keystore Table Name
     Default: CiKeystoreTestTable
+  BasicTestJavaTableName:
+    Type: String
+    Description: Table Name for Basic Examples in Java
+    Default: DynamoDbEncryptionInterceptorTestTable
+  BasicTestDotNetTableName:
+    Type: String
+    Description: Table Name for Basic Examples in Dotnet
+    Default: DynamoDbEncryptionInterceptorTestTableCS
+  SearchTestJavaTableName:
+    Type: String
+    Description: Table Name for Search Examples in Java
+    Default: UnitInspectionTestTable
+  SearchTestDotnetTableName:
+    Type: String
+    Description: Table Name for Search Examples in Dotnet
+    Default: UnitInspectionTestTableCS
   ProjectName:
     Type: String
     Description: A prefix that will be applied to any names
@@ -47,6 +63,132 @@ Resources:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
       TableName: !Ref TableName
+
+  BasicTestJavaTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "partition_key"
+          AttributeType: "S"
+        - AttributeName: "sort_key"
+          AttributeType: "N"
+      KeySchema:
+        - AttributeName: "partition_key"
+          KeyType: "HASH"
+        - AttributeName: "sort_key"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref BasicTestJavaTableName
+
+  BasicTestDotnetTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "partition_key"
+          AttributeType: "S"
+        - AttributeName: "sort_key"
+          AttributeType: "N"
+      KeySchema:
+        - AttributeName: "partition_key"
+          KeyType: "HASH"
+        - AttributeName: "sort_key"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref BasicTestDotnetTableName
+
+  SearchTestJavaTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "aws_dbe_b_inspector_id_last4"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_last4UnitCompound"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_unit"
+          AttributeType: "S"
+        - AttributeName: "inspection_date"
+          AttributeType: "S"
+        - AttributeName: "work_id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "work_id"
+          KeyType: "HASH"
+        - AttributeName: "inspection_date"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref SearchTestJavaTableName
+      GlobalSecondaryIndexes:
+        - IndexName: "last4-unit-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_inspector_id_last4"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_unit"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "last4UnitCompound-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_last4UnitCompound"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+
+  SearchTestDotnetTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "aws_dbe_b_inspector_id_last4"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_last4UnitCompound"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_unit"
+          AttributeType: "S"
+        - AttributeName: "inspection_date"
+          AttributeType: "S"
+        - AttributeName: "work_id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "work_id"
+          KeyType: "HASH"
+        - AttributeName: "inspection_date"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref SearchTestDotnetTableName
+      GlobalSecondaryIndexes:
+        - IndexName: "last4-unit-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_inspector_id_last4"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_unit"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "last4UnitCompound-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_last4UnitCompound"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
 
   TestTableWithSimpleBeaconIndex:
     Type: AWS::DynamoDB::Table
@@ -241,6 +383,12 @@ Resources:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableWithComplexBeaconIndexName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeystoreTableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeystoreTableName}/index/*"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BasicTestJavaTableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BasicTestDotnetTableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestJavaTableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestJavaTableName}/index/*"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestDotnetTableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestDotnetTableName}/index/*"
 
   KMSUsage:
     Type: "AWS::IAM::ManagedPolicy"
