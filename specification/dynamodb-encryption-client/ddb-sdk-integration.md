@@ -124,6 +124,9 @@ MUST have the following modified behavior:
 - [Encrypt before BatchWriteItem](#encrypt-before-batchwriteitem)
 - [Encrypt before TransactWriteItems](#encrypt-before-transactwriteitems)
 - [Decrypt after GetItem](#decrypt-after-getitem)
+- [Decrypt after PutItem](#decrypt-after-putitem)
+- [Decrypt after UpdateItem](#decrypt-after-updateitem)
+- [Decrypt after DeleteItem](#decrypt-after-deleteitem)
 - [Decrypt after BatchGetItem](#decrypt-after-batchgetitem)
 - [Decrypt after Scan](#decrypt-after-scan)
 - [Decrypt after Query](#decrypt-after-query)
@@ -333,6 +336,92 @@ Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
 
 The GetItem response's `Item` field MUST be
 replaced by the encrypted DynamoDb Item outputted above.
+
+### Decrypt after PutItem
+
+After a [PutItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html)
+call is made to DynamoDB,
+the resulting response MUST be modified before
+being returned to the caller if:
+- there exists an Item Encryptor specified within the
+  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+  with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  equal to the `TableName` on the PutItem request.
+- the response contains [Attributes](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html#DDB-PutItem-response-Attributes).
+  The response will contain Attributes if the related PutItem request's
+  [ReturnValues](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html#DDB-PutItem-request-ReturnValues)
+  had a value of `ALL_OLD` and the PutItem call replaced a pre-existing item.
+
+In this case, the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Decrypt Item](./decrypt-item.md) where the input
+[DynamoDB Item](./decrypt-item.md#dynamodb-item)
+is the `Attributes` field in the original response
+
+Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+
+The PutItem response's `Attributes` field MUST be
+replaced by the encrypted DynamoDb Item outputted above.
+
+### Decrypt after DeleteItem
+
+After a [DeleteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html)
+call is made to DynamoDB,
+the resulting response MUST be modified before
+being returned to the caller if:
+- there exists an Item Encryptor specified within the
+  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+  with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  equal to the `TableName` on the DeleteItem request.
+- the response contains [Attributes](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html#DDB-DeleteItem-response-Attributes).
+  The response will contain Attributes if the related DeleteItem request's
+  [ReturnValues](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html#DDB-DeleteItem-request-ReturnValues)
+  had a value of `ALL_OLD` and an item was deleted.
+
+In this case, the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Decrypt Item](./decrypt-item.md) where the input
+[DynamoDB Item](./decrypt-item.md#dynamodb-item)
+is the `Attributes` field in the original response
+
+Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+
+The DeleteItem response's `Attributes` field MUST be
+replaced by the encrypted DynamoDb Item outputted above.
+
+### Decrypt after UpdateItem
+
+After a [UpdateItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html)
+call is made to DynamoDB,
+the resulting response MUST be modified before
+being returned to the caller if:
+- there exists an Item Encryptor specified within the
+  [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
+  with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
+  equal to the `TableName` on the UpdateItem request.
+- the response contains [Attributes](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html#DDB-UpdateItem-response-Attributes).
+- the original UpdateItem request had a 
+  [ReturnValues](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html#DDB-UpdateItem-request-ReturnValues)
+  with a value of `ALL_OLD` or `ALL_NEW`.
+
+In this case, the [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+[Decrypt Item](./decrypt-item.md) where the input
+[DynamoDB Item](./decrypt-item.md#dynamodb-item)
+is the `Attributes` field in the original response
+
+Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+
+The UpdateItem response's `Attributes` field MUST be
+replaced by the encrypted DynamoDb Item outputted above.
+
+In all other cases, the UpdateItem response MUST NOT be modified.
+
+Additionally, if a value of `UPDATED_OLD` or `UPDATED_NEW` was used,
+and any Attributes in the response are authenticated
+per the [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration),
+an error MUST be raised.
+Given that we [validate UpdateItem requests](#validate-before-updateitem),
+and thus updates will not modify any signed field,
+an error here would indicate a bug in
+our library or a bug within DynamoDB.
 
 ### Decrypt after BatchGetItem
 

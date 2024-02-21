@@ -38,10 +38,12 @@ Parameters:
     Type: String
     Description: A prefix that will be applied to any names
     Default: DDBEC-Dafny
+  # This parameter is no longer used.
+  # However removing it causes CloudFormation indigestion 
   GitHubRepo:
     Type: String
     Description: GitHub Repo that invokes CI
-    Default: aws/aws-database-encryption-sdk-dynamodb-java
+    Default: aws/aws-database-encryption-sdk-dynamodb
 
 Resources:
   TestTable:
@@ -463,7 +465,10 @@ Resources:
                   "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                  "token.actions.githubusercontent.com:sub": [
+                    "repo:aws/aws-database-encryption-sdk-dynamodb:*",
+                    "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
+                  ]
                 }
               }
             },
@@ -477,6 +482,7 @@ Resources:
                 "StringEquals": {
                   "aws:PrincipalArn": [
                     "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DotNet-service-role-release",
                     "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
                   ]
                 }
@@ -514,7 +520,10 @@ Resources:
                   "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                  "token.actions.githubusercontent.com:sub": [
+                    "repo:aws/aws-database-encryption-sdk-dynamodb:*",
+                    "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
+                  ]
                 }
               }
             },
@@ -528,6 +537,7 @@ Resources:
                 "StringEquals": {
                   "aws:PrincipalArn": [
                     "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DotNet-service-role-release",
                     "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
                   ]
                 }
@@ -565,7 +575,10 @@ Resources:
                   "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                  "token.actions.githubusercontent.com:sub": "repo:${GitHubRepo}:*"
+                  "token.actions.githubusercontent.com:sub": [
+                    "repo:aws/aws-database-encryption-sdk-dynamodb:*",
+                    "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
+                  ]
                 }
               }
             },
@@ -579,6 +592,7 @@ Resources:
                 "StringEquals": {
                   "aws:PrincipalArn": [
                     "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DDB-Java-service-role-release",
+                    "arn:aws:iam::587316601012:role/service-role/codebuild-AWS-DBESDK-DotNet-service-role-release",
                     "arn:aws:iam::${AWS::AccountId}:role/ToolsDevelopment"
                   ]
                 }

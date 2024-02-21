@@ -14,8 +14,6 @@ DynamoDbEncryption is a project containing the following Dafny 'localServices' u
 
 `runtimes` contains the implementation (generated and hand-written) of this project in each supported target language.
 
-Currently this project only supports Java.
-
 #### Java
 
 `runtimes/java` contains the Java related code and build instructions for this project.
@@ -25,6 +23,14 @@ Within `runtimes/java`:
 - `src/main/java` contains all hand written Java code, including externs.
 - `src/main/dafny-generated` contains all Dafny to Java transpiled code.
 - `src/main/smithy-generated` contains all Smithy to Java generated code.
+
+#### .NET
+
+`runtimes/net` contains the .NET related code and build instructions for this project.
+
+- `Extern/` contains all hand written Dotnet code, including externs.
+- `ImplementationFromDafny.cs` contains all Dafny to .NET transpiled code.
+- `Generated/` contains all Smithy to .NET generated code.
 
 ### Development
 
@@ -62,6 +68,11 @@ Common Makefile targets are:
     again if you want to run the full test suite locally.
     Only use this target for local testing.
 - `make test_java` builds and tests the transpiled code in Java.
+- `make transpile_net` transpiles and builds everything from scratch in .NET.
+  You will need to run this the first time you clone this repo, and any time you introduce changes
+  that end up adding or removing dafny-generated files.
+  - The above command takes a while to complete.
+- `make test_net_mac_intel` builds and tests the transpiled code in .NET in an Intel-MacOS environment.
 
 ### Development Requirements
 
