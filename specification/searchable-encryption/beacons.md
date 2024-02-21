@@ -287,11 +287,63 @@ On initialization of a Standard Beacon, the caller MUST provide:
  On initialization of a Standard Beacon, the caller MAY provide:
 
  * a [terminal location](virtual.md#terminal-location) -- a string
+ * a [beacon style](beacon-style-initialization)
 
 If no [terminal location](virtual.md#terminal-location) is provided,
 the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 Initialization MUST fail if two standard beacons are configured with the same location.
+
+ ### Beacon Style Initialization
+
+On initialization of a Beacon Style, the caller MUST provide exactly one of
+
+ * a [PartOnly](#partonly-initialization)
+ * a [Shared](#shared-initialization)
+ * an [AsSet](#asset-initialization)
+ * a [SharedSet](#sharedset-initialization)
+
+### PartOnly Initialization
+
+On initialization of a PartOnly, the caller MUST NOT provide any
+additional parameters to the PartOnly.
+
+Initialization MUST fail if the configuration does not use a PartOnly in a [compound beacon](#compound-beacon).
+
+The Standard Beacon MUST NOT be stored in the item for a PartOnly beacon.
+
+A query MUST fail if it tries to search on a PartOnly beacon directly.
+
+### AsSet Initialization
+
+On initialization of as AsSet, the caller MUST NOT provide any
+additional parameters to the AsSet.
+
+* initialization MUST fail if any compound beacon has an AsSet beacon as a part.
+* Writing an item MUST fail if the item contains this beacon's attribute,
+and that attribute is not of type Set.
+* The Standard Beacon MUST be stored in the item as a Set,
+comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
+
+### Shared Initialization
+
+On initialization of a Shared, the caller MUST provide:
+
+* other : a beacon name
+
+This name MUST be the name of a previously defined Standard Beacon.
+
+This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
+
+This beacon MUST calculate its [value](#beacon-value) as if it were the `other` beacon.
+
+### SharedSet Initialization
+
+On initialization of a SharedSet, the caller MUST provide:
+
+* other : a beacon name
+
+A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
 
 
 ### Compound Beacon Initialization
@@ -343,11 +395,15 @@ On initialization of a constructor part, the caller MUST provide:
 
 This name MUST match the name of one of the [encrypted](#encrypted-part-initialization) or [signed](#signed-part-initialization) parts.
 
+These parts may come from these locally defined parts lists, or from the
+[Global Parts List](search-config.md#global-parts-list), in any combination.
+
 ### Default Construction
 
 * If no constructors are configured, a default constructor MUST be generated.
 * This default constructor MUST be all of the signed parts,
 followed by all the encrypted parts, all parts being required.
+* Initialization MUST fail if no constructors are configured, and no local parts are configured.
 
 ### Part
 
@@ -398,11 +454,28 @@ of the input string, the HMAC key from the [key materials](./search-config.md#ge
 associated with this beacon, and the beacon length associated with this beacon.
 
 ### value for a standard beacon
- * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional string.
+ * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html).
  * This operation MUST return no value if the associated field does not exist in the record
+ * If this beacon is marked AsSet then this operation MUST return the
+ [set value](#value-for-a-set-standard-beacon),
+otherwise it MUST return the [non-set value](#value-for-a-non-set-standard-beacon)
+
+### value for a non-set standard beacon
  * This operation MUST convert the attribute value of the associated field to
 a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
- * This operation MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
+ * This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
+ * The returned
+[AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
+MUST be type "S" String.
+
+### value for a set standard beacon
+ * This operation MUST convert the value of each item in the set to
+a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
+ * This operation MUST return a set containing the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
+ * The resulting set MUST NOT contain duplicates.
+ * The returned
+[AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
+MUST be type "SS" StringSet.
 
 ### value for a compound beacon
 

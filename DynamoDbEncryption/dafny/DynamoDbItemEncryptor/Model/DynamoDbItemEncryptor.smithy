@@ -23,6 +23,7 @@ use aws.cryptography.dbEncryptionSdk.dynamoDb#PlaintextOverride
 use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 use aws.cryptography.primitives#AwsCryptographicPrimitives
 use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
+use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
 
 @localService(
   sdkId: "DynamoDbItemEncryptor",
@@ -31,7 +32,8 @@ use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
     AwsCryptographicPrimitives,
     DynamoDB_20120810,
     AwsCryptographicMaterialProviders,
-    DynamoDbEncryption
+    StructuredEncryption,
+    DynamoDbEncryption,
   ]
 )
 service DynamoDbItemEncryptor {
@@ -206,6 +208,8 @@ structure DecryptItemOutput {
 
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
 structure AtomicPrimitivesReference {}
+@aws.polymorph#reference(service: aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption)
+structure StructuredEncryptionReference {}
 
 /////////////
 // Errors

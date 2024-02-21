@@ -16,12 +16,13 @@ module TestBaseBeacon {
   import I = SearchableEncryptionInfo
   import SI = SearchableEncryptionInfo
   import DDB = ComAmazonawsDynamodbTypes
+  import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
     var bb := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo");
-    var b := StandardBeacon(bb, 8, TermLocMap("foo"));
+    var b := StandardBeacon(bb, 8, TermLocMap("foo"), false, false, None);
     var bytes :- expect bb.getHmac([1,2,3], key := [1,2]);
     expect bytes == [0x27, 0x93, 0x93, 0x8b, 0x26, 0xe9, 0x52, 0x7e];
     var str :- expect b.hash([1,2,3], key := [1,2]);
@@ -42,7 +43,9 @@ module TestBaseBeacon {
       keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
       standardBeacons := [NameB, TitleB, TooBadB],
       compoundBeacons := Some([BadPrefix]),
-      virtualFields := None
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None
     );
     var src := GetLiteralSource([1,2,3,4,5], version);
     var res := C.ConvertVersionWithSource(FullTableConfig, version, src);
@@ -157,6 +160,46 @@ module TestBaseBeacon {
   }
 
 
+  method {:test} TestCompoundQueries() {
+    var context := ExprContext (
+      None,
+      Some("Mixed = :mixed"),
+      None,
+      None
+    );
+    var version := GetLotsaBeacons();
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName.Y_1984")]));
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("Y_1984")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("T_foo")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("M_bar")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("T_foo.M_bar")]));
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName.N_MyName")]));
+    var badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect badContext.Failure?;
+    expect badContext.error == E("Compound Beacon value 'N_MyName.N_MyName' cannot be constructed from any available constructor for Mixed value parsed as N_N_ available constructors are N_Y_, T_[M_].");
+
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("Y_1984.N_MyName")]));
+    badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect badContext.Failure?;
+    expect badContext.error == E("Compound Beacon value 'Y_1984.N_MyName' cannot be constructed from any available constructor for Mixed value parsed as Y_N_ available constructors are N_Y_, T_[M_].");
+
+    context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("M_bar.T_foo")]));
+    badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    expect badContext.Failure?;
+    expect badContext.error == E("Compound Beacon value 'M_bar.T_foo' cannot be constructed from any available constructor for Mixed value parsed as M_T_ available constructors are N_Y_, T_[M_].");
+  }
+
   method {:test} TestQueryBeacons() {
     var context := ExprContext (
       None,
@@ -173,7 +216,7 @@ module TestBaseBeacon {
              ":NameTitle" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
              ":NameTitleN" := DDB.AttributeValue.S("N_MyName"),
              ":NameTitleT" := DDB.AttributeValue.S("T_MyTitle"),
-             ":NameTitleTN" := DDB.AttributeValue.S("T_MyTitle.N_MyName"),
+             ":NameTitleTN" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
              ":NameTitleField" := DDB.AttributeValue.S("MyName__mytitle"),
              ":YearName" := DDB.AttributeValue.S("Y_1984.N_MyName")
            ]),
@@ -187,7 +230,7 @@ module TestBaseBeacon {
                                        ":Mixed" := DDB.AttributeValue.S("N_" + Name_beacon + ".Y_1984"),
                                        ":Name" := DDB.AttributeValue.S(Name_beacon),
                                        ":NameTitle" := DDB.AttributeValue.S("N_" + Name_beacon + ".T_" + Title_beacon),
-                                       ":NameTitleTN" := DDB.AttributeValue.S("T_" + Title_beacon + ".N_" + Name_beacon),
+                                       ":NameTitleTN" := DDB.AttributeValue.S("N_" + Name_beacon + ".T_" + Title_beacon),
                                        ":NameTitleN" := DDB.AttributeValue.S("N_" + Name_beacon),
                                        ":NameTitleT" := DDB.AttributeValue.S("T_" + Title_beacon),
                                        ":NameTitleField" := DDB.AttributeValue.S(NameTitle_beacon),
@@ -199,5 +242,502 @@ module TestBaseBeacon {
                                      ]);
     expect newContext.names == None;
     //expect_equal(newContext.expr, Some("aws_dbe_b_std2 <> :A AND #Field4 = :B"));
+  }
+
+  method {:test} TestUnusedPartOnly()
+  {
+    var version := GetLotsaBeacons();
+    var badBeacon := T.StandardBeacon(name := "badBeacon", length := 24, loc := None,
+                                      style := Some(
+                                        T.partOnly(T.PartOnly())
+                                      ));
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["badBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(standardBeacons := version.standardBeacons + [badBeacon]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("PartOnly beacon badBeacon MUST be used in a compound beacon.");
+  }
+
+  method {:test} TestCompoundWithUnknown()
+  {
+    var Unknown := T.EncryptedPart(name := "Unknown", prefix := "U_");
+
+    var NameUnknown := T.CompoundBeacon (
+      name := "NameUnknown",
+      split := ".",
+      encrypted := Some([Name,Unknown]),
+      signed := None,
+      constructors := None
+    );
+    var version := GetLotsaBeacons();
+    expect version.compoundBeacons.Some?;
+    version := version.(compoundBeacons := Some(version.compoundBeacons.value + [NameUnknown]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Compound beacon NameUnknown refers to standard beacon Unknown which is not configured.");
+  }
+
+  method {:test} TesSetInCompound()
+  {
+    var version := GetLotsaBeacons();
+    var setBeacon := T.StandardBeacon(name := "setBeacon", length := 24, loc := None,
+                                      style := Some(
+                                        T.asSet(T.AsSet())
+                                      ));
+    var compoundSet := T.CompoundBeacon (
+      name := "compoundSet",
+      split := ".",
+      encrypted := Some([Name,T.EncryptedPart(name := "setBeacon", prefix := "S_")]),
+      signed := None,
+      constructors := None
+    );
+
+    expect version.compoundBeacons.Some?;
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["setBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(standardBeacons := version.standardBeacons + [setBeacon],
+    compoundBeacons := Some(version.compoundBeacons.value + [compoundSet]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Compound beacon compoundSet uses setBeacon which is an AsSet beacon, and therefore cannot be used in a Compound Beacon.");
+  }
+
+  method {:test} SharedBadReferenceToCompound()
+  {
+    var version := GetLotsaBeacons();
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 24, loc := None,
+                                       style := Some(
+                                         T.shared(T.Shared(other := "NameTitle"))
+                                       ));
+
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(standardBeacons := version.standardBeacons + [shareBeacon]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Beacon shareBeacon is shared to NameTitle but NameTitle is a compound beacon.");
+  }
+
+  method {:test} ChainedShare()
+  {
+    var version := GetLotsaBeacons();
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 24, loc := None,
+                                       style := Some(
+                                         T.shared(T.Shared(other := "std2"))
+                                       ));
+    var other := T.StandardBeacon(name := "std4", length := 24, loc := None,
+                                       style := Some(
+                                         T.shared(T.Shared(other := "shareBeacon"))
+                                       ));
+
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(compoundBeacons := None, standardBeacons :=  [std2, shareBeacon, other]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Beacon std4 is shared to shareBeacon which is in turn shared to std2. Share chains are not allowed.");
+  }
+
+  method {:test} SelfShare()
+  {
+    var version := GetLotsaBeacons();
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 24, loc := None,
+                                       style := Some(
+                                         T.shared(T.Shared(other := "shareBeacon"))
+                                       ));
+
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
+    version := version.(compoundBeacons := None, standardBeacons :=  [std2, shareBeacon]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    print "\n", bv.error, "\n";
+    expect bv.error == E("Beacon shareBeacon is shared to itself.");
+  }
+
+  method {:test} SharedBadReferenceNonExistent()
+  {
+    var version := GetLotsaBeacons();
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 24, loc := None,
+                                       style := Some(
+                                         T.shared(T.Shared(other := "DoesNotExist"))
+                                       ));
+
+    version := version.(standardBeacons := version.standardBeacons + [shareBeacon]);
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Beacon shareBeacon is shared to DoesNotExist which is not defined.");
+  }
+
+
+  method {:test} SharedBadLength()
+  {
+    var version := GetLotsaBeacons();
+    var shareBeacon := T.StandardBeacon(name := "shareBeacon", length := 23, loc := None,
+                                       style := Some(
+                                         T.shared(T.Shared(other := "std2"))
+                                       ));
+
+    version := version.(standardBeacons := version.standardBeacons + [shareBeacon]);
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["shareBeacon" := SE.ENCRYPT_AND_SIGN]);
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(newConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Beacon shareBeacon is shared to std2 but shareBeacon has length 23 and std2 has length 24.");
+  }
+
+  method {:test} TestPartOnlyNotStored()
+  {
+    var MyItem : DDB.AttributeMap := map[
+      "std2" := DDB.AttributeValue.S("abc"),
+      "partOnly" := DDB.AttributeValue.S("def")
+    ];
+    var compoundPart := T.CompoundBeacon (
+      name := "compoundPart",
+      split := ".",
+      encrypted := Some([T.EncryptedPart(name := "partOnly", prefix := "S_")]),
+      signed := None,
+      constructors := None
+    );
+    var context := ExprContext (
+      None,
+      Some("partOnly = :val"),
+      Some(map[":val" := DDB.AttributeValue.S("foo")]),
+      None
+    );
+
+    var version := GetLotsaBeacons();
+    expect version.compoundBeacons.Some?;
+    var partBeacon := T.StandardBeacon(name := "partOnly", length := 23, loc := None, style := None);
+    var newVersion := version.(
+    standardBeacons := version.standardBeacons + [partBeacon],
+    compoundBeacons := Some(version.compoundBeacons.value + [compoundPart])
+    );
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["partOnly" := SE.ENCRYPT_AND_SIGN]);
+
+    var src := GetLiteralSource([1,2,3,4,5], newVersion);
+    var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
+
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    expect goodAttrs == map[
+                          "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
+                          "aws_dbe_b_partOnly" := DDB.AttributeValue.S("405a51"),
+                          "aws_dbe_b_compoundPart" := DDB.AttributeValue.S("S_405a51")
+                        ];
+    var goodQuery := Beaconize(bv, context, DontUseKeyId);
+    expect goodQuery.Success?;
+
+
+    partBeacon := T.StandardBeacon(name := "partOnly", length := 23, loc := None,
+                                   style := Some(
+                                     T.partOnly(T.PartOnly())
+                                   ));
+    newVersion := version.(
+    standardBeacons := version.standardBeacons + [partBeacon],
+    compoundBeacons := Some(version.compoundBeacons.value + [compoundPart])
+    );
+    bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
+    goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+
+    //= specification/searchable-encryption/beacons.md#partonly-initialization
+    //= type=test
+    //# The Standard Beacon MUST NOT be stored in the item for a PartOnly beacon.
+    expect goodAttrs == map[
+                          "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
+                          "aws_dbe_b_compoundPart" := DDB.AttributeValue.S("S_405a51")
+                        ];
+
+    //= specification/searchable-encryption/beacons.md#partonly-initialization
+    //= type=test
+    //# A query MUST fail if it tries to search on a PartOnly beacon directly.
+    var badQuery := Beaconize(bv, context, DontUseKeyId);
+    expect badQuery.Failure?;
+    expect badQuery.error == E("Field partOnly is encrypted, and has a PartOnly beacon, and so can only be used as part of a compound beacon.");
+  }
+
+  method {:test} TestShareSameBeacon()
+  {
+    var MyItem : DDB.AttributeMap := map[
+      "std2" := DDB.AttributeValue.S("abc"),
+      "partOnly" := DDB.AttributeValue.S("abc")
+    ];
+
+    var version := GetLotsaBeacons();
+    expect version.compoundBeacons.Some?;
+    var partBeacon := T.StandardBeacon(name := "partOnly", length := 24, loc := None, style := None);
+    var newVersion := version.(
+    standardBeacons := version.standardBeacons + [partBeacon]
+    );
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["partOnly" := SE.ENCRYPT_AND_SIGN]);
+
+    var src := GetLiteralSource([1,2,3,4,5], newVersion);
+    var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
+
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    expect goodAttrs == map[
+                          "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
+                          "aws_dbe_b_partOnly" := DDB.AttributeValue.S("928d9b")
+                        ];
+
+
+    partBeacon := T.StandardBeacon(name := "partOnly", length := 24, loc := None,
+                                   style := Some(
+                                     T.shared(T.Shared(other := "std2"))
+                                   ));
+    newVersion := version.(
+    standardBeacons := version.standardBeacons + [partBeacon]
+    );
+    bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
+    goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+
+    //= specification/searchable-encryption/beacons.md#shared-initialization
+    //= type=test
+    //# This beacon MUST calculate its [value](#beacon-value) as if it were the `other` beacon.
+    expect goodAttrs == map[
+                          "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
+                          "aws_dbe_b_partOnly" := DDB.AttributeValue.S("51e1da")
+                        ];
+
+    // also check matching beacon value in query
+    var context := ExprContext (
+      None,
+      Some("partOnly = :pVal AND std2 = :sVal"),
+      Some(map[":pVal" := DDB.AttributeValue.S("foo"), ":sVal" := DDB.AttributeValue.S("foo")]),
+      None
+    );
+    var goodQuery :- expect Beaconize(bv, context, DontUseKeyId);
+    expect goodQuery.values == Some(map[":pVal" := DDB.AttributeValue.S("4379a7"), ":sVal" := DDB.AttributeValue.S("4379a7")]);
+  }
+
+  method {:test} TestBeaconSetQuery()
+  {
+    var context := ExprContext (
+      None,
+      Some("setAttr = :setVal"),
+      Some(map[":setVal" := DDB.AttributeValue.SS(["abc", "def", "ghi"])]),
+      None
+    );
+    var setBeacon := T.StandardBeacon(name := "setAttr", length := 24, loc := None,
+                                      style := Some(
+                                        T.asSet(T.AsSet())
+                                      ));
+
+    var version := GetLotsaBeacons();
+    var newVersion := version.(
+    standardBeacons := version.standardBeacons + [setBeacon]
+    );
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["setAttr" := SE.ENCRYPT_AND_SIGN]);
+
+    var src := GetLiteralSource([1,2,3,4,5], newVersion);
+    var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
+
+    // also check matching beacon value in query
+    var goodQuery :- expect Beaconize(bv, context, DontUseKeyId);
+    expect goodQuery.values == Some(map[":setVal" := DDB.AttributeValue.SS(["43c4d8", "2f3278", "f1972e"])]);
+
+    context := ExprContext (
+      None,
+      Some("setAttr = :setVal"),
+      Some(map[":setVal" := DDB.AttributeValue.S("abc")]),
+      None
+    );
+    goodQuery :- expect Beaconize(bv, context, DontUseKeyId);
+
+    context := ExprContext (
+      None,
+      Some("setAttr = :setVal"),
+      Some(map[":setVal" := DDB.AttributeValue.L([])]),
+      None
+    );
+    var badQuery := Beaconize(bv, context, DontUseKeyId);
+    expect badQuery.Failure?;
+    expect badQuery.error == E("Beacon setAttr has style AsSet, but attribute has type L.");
+  }
+
+  method {:test} TestSetNotSet()
+  {
+    var MyItem : DDB.AttributeMap := map[
+      "std2" := DDB.AttributeValue.S("abc"),
+      "partOnly" := DDB.AttributeValue.SS(["abc", "def", "ghi"])
+    ];
+
+    var version := GetLotsaBeacons();
+    expect version.compoundBeacons.Some?;
+    var partBeacon := T.StandardBeacon(name := "partOnly", length := 24, loc := None,
+                                       style := Some(
+                                         T.asSet(T.AsSet())
+                                       ));
+    var newVersion := version.(
+    standardBeacons := version.standardBeacons + [partBeacon]
+    );
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["partOnly" := SE.ENCRYPT_AND_SIGN]);
+
+    var src := GetLiteralSource([1,2,3,4,5], newVersion);
+    var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
+    expect "partOnly" in bv.beacons;
+    expect bv.beacons["partOnly"].Standard?;
+    var goodAttrs := bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    if goodAttrs.Failure? {
+      print "\n", goodAttrs.error, "\n";
+    }
+    //= specification/searchable-encryption/beacons.md#asset-initialization
+    //= type=test
+    //# * The Standard Beacon MUST be stored in the item as a Set,
+    //# comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
+    expect goodAttrs.Success?;
+    expect goodAttrs.value == map[
+                                "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
+                                "aws_dbe_b_partOnly" := DDB.AttributeValue.SS(["928d9b", "405a51", "9c6c2e"])
+                              ];
+
+    //= specification/searchable-encryption/beacons.md#asset-initialization
+    //= type=test
+    //# * Writing an item MUST fail if the item contains this beacon's attribute,
+    //# and that attribute is not of type Set.
+    var BadItem := MyItem["partOnly" := DDB.AttributeValue.S("abc")];
+    var badAttrs := bv.GenerateEncryptedBeacons(BadItem, DontUseKeyId);
+    expect badAttrs.Failure?;
+    expect badAttrs.error == E("Beacon partOnly has style AsSet, but attribute has type S.");
+  }
+
+  method {:test} TestSharedSet()
+  {
+    var MyItem : DDB.AttributeMap := map[
+      "std2" := DDB.AttributeValue.S("abc"),
+      "partOnly" := DDB.AttributeValue.SS(["abc", "def", "ghi"])
+    ];
+
+    var version := GetLotsaBeacons();
+    expect version.compoundBeacons.Some?;
+    var partBeacon := T.StandardBeacon(name := "partOnly", length := 24, loc := None,
+                                       style := Some(
+                                         T.sharedSet(T.SharedSet(other := "std2"))
+                                       ));
+    var newVersion := version.(
+    standardBeacons := version.standardBeacons + [partBeacon]
+    );
+    var newConfig := FullTableConfig.(attributeActionsOnEncrypt := FullTableConfig.attributeActionsOnEncrypt["partOnly" := SE.ENCRYPT_AND_SIGN]);
+
+    var src := GetLiteralSource([1,2,3,4,5], newVersion);
+    var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
+    expect "partOnly" in bv.beacons;
+    expect bv.beacons["partOnly"].Standard?;
+    var goodAttrs := bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    if goodAttrs.Failure? {
+      print "\n", goodAttrs.error, "\n";
+    }
+
+    //= specification/searchable-encryption/beacons.md#sharedset-initialization
+    //= type=test
+    //# A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
+    expect goodAttrs.Success?;
+    expect goodAttrs.value == map[
+                                "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
+                                "aws_dbe_b_partOnly" := DDB.AttributeValue.SS(["51e1da", "39ef85", "3ff06a"])
+                              ];
+  }
+
+  method {:test} GlobalPartNotExist()
+  {
+    var version := GetLotsaBeacons();
+    var NotExist := T.EncryptedPart(name := "NotExist", prefix := "Q_");
+
+    version := version.(encryptedParts := Some([NotExist]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Global Parts List refers to standard beacon NotExist which is not configured.");
+  }
+
+  method {:test} DuplicateGlobalSigned()
+  {
+    var version := GetLotsaBeacons();
+    version := version.(compoundBeacons := None, signedParts := Some([Year, Month, Year]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Duplicate part name Year in Global Parts List.");
+  }
+
+  method {:test} DuplicateGlobalEncrypted()
+  {
+    var version := GetLotsaBeacons();
+    version := version.(compoundBeacons := None, encryptedParts := Some([Name, Title, Name]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Duplicate part name Name in Global Parts List.");
+  }
+
+  method {:test} DuplicateGlobalPrefix()
+  {
+    var version := GetLotsaBeacons();
+    var Std6 := T.EncryptedPart(name := "std6", prefix := "N_");
+    version := version.(compoundBeacons := None, encryptedParts := Some([Name, Title, Std6]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Duplicate prefix N_ in Global Parts List.");
+  }
+
+  method {:test} DuplicateGlobalVsLocalEncrypted()
+  {
+    var version := GetLotsaBeacons();
+    version := version.(encryptedParts := Some([Name]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Compound beacon NameTitle defines encrypted part Name which is already defined as a global part.");
+  }
+
+  method {:test} DuplicateGlobalVsLocalSigned()
+  {
+    var version := GetLotsaBeacons();
+    version := version.(signedParts := Some([Month]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Compound beacon Mixed defines signed part Month which is already defined as a global part.");
+  }
+
+  method {:test} CompoundNoConstructor()
+  {
+    var compoundDefault := T.CompoundBeacon (
+      name := "compoundDefault",
+      split := ".",
+      encrypted := None,
+      signed := None,
+      constructors := None
+    );
+
+    var version := GetLotsaBeacons();
+    version := version.(compoundBeacons := Some([compoundDefault]), signedParts := Some([Month]), encryptedParts := Some([Name, Title]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect bv.Failure?;
+    expect bv.error == E("Compound beacon compoundDefault defines no constructors, and also no local parts. Cannot make a default constructor from global parts.");
+  }
+
+  method {:test} CompoundMixed()
+  {
+  var Mixed := T.CompoundBeacon (
+                   name := "Mixed",
+                   split := ".",
+                   encrypted := Some([Title]),
+                   signed := Some([Month]),
+                   constructors := Some([
+                                          T.Constructor(parts := [T.ConstructorPart(name := "Name", required := true), T.ConstructorPart(name := "Year", required := true)]),
+                                          T.Constructor(parts := [T.ConstructorPart(name := "Title", required := true), T.ConstructorPart(name := "Month", required := false)])
+                                        ])
+                 );
+
+    var version := GetLotsaBeacons();
+    version := version.(compoundBeacons := Some([Mixed]), signedParts := Some([Year]), encryptedParts := Some([Name]));
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
   }
 }

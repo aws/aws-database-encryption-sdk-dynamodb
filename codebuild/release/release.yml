@@ -28,7 +28,7 @@ batch:
 
   - identifier: validate_staging_corretto11
     depend-on:
-        - release_staging
+        - validate_staging_corretto8
     buildspec: codebuild/staging/validate-staging.yml
     env:
       variables:
@@ -38,7 +38,7 @@ batch:
   
   - identifier: validate_staging_corretto17
     depend-on:
-        - release_staging
+        - validate_staging_corretto11
     buildspec: codebuild/staging/validate-staging.yml
     env:
       variables:
@@ -73,7 +73,7 @@ batch:
 
   - identifier: validate_release_corretto11
     depend-on:
-        - upload_to_sonatype
+        - validate_release_corretto8
     buildspec: codebuild/release/validate-release.yml
     env:
       variables:
@@ -83,7 +83,7 @@ batch:
   
   - identifier: validate_release_corretto17
     depend-on:
-        - upload_to_sonatype
+        - validate_release_corretto11
     buildspec: codebuild/release/validate-release.yml
     env:
       variables:

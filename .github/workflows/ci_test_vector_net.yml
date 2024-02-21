@@ -1,0 +1,65 @@
+# This workflow performs test vectors in DotNet.
+name: Library DotNet Test Vectors
+
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  testDotNet:
+    strategy:
+      matrix:
+        dotnet-version: [ '6.0.x' ]
+        os: [
+          # Run on ubuntu image that comes pre-configured with docker
+          ubuntu-latest
+        ]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v2.0.1
+        with:
+          port: 8000
+          cors: '*'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-DotNet-Tests
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.6.1
+        with:
+          dafny-version: '4.2.0'
+
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Build TestVectors implementation
+        shell: bash
+        working-directory: ./TestVectors
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          make transpile_net
+
+      - name: Test TestVectors on .NET 6.0
+        working-directory: ./TestVectors/runtimes/net
+        run: |
+          cp ../java/decrypt_java.json ../java/decrypt_dotnet.json .	
+          dotnet run
+          cp ../java/*.json .
+          dotnet run --framework net6.0
+

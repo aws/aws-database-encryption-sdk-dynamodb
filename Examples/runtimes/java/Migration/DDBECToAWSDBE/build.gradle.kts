@@ -1,3 +1,6 @@
+import java.io.File
+import java.io.FileInputStream
+import java.util.Properties
 import java.net.URI
 import javax.annotation.Nullable
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -8,9 +11,16 @@ plugins {
     `java-library`
 }
 
+var props = Properties().apply {
+    load(FileInputStream(File(rootProject.rootDir, "../../../../../project.properties")))
+}
+
 group = "software.amazon.cryptography"
 version = "1.0-SNAPSHOT"
 description = "AWSDatabaseEncryptionSDKMigrationExamples"
+
+var mplVersion = props.getProperty("mplDependencyJavaVersion")
+var ddbecVersion = props.getProperty("projectJavaVersion")
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
@@ -37,12 +47,12 @@ if (!caPasswordString.isNullOrBlank()) {
 }
 
 repositories {
+    mavenLocal()
     maven {
         name = "DynamoDB Local Release Repository - US West (Oregon) Region"
         url  = URI.create("https://s3-us-west-2.amazonaws.com/dynamodb-local/release")
     }
     mavenCentral()
-    mavenLocal()
     if (caUrl != null && caPassword != null) {
         maven {
             name = "CodeArtifact"
@@ -56,8 +66,8 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.0.0")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.0")
+    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:dynamodb")

@@ -24,10 +24,16 @@ public class StandardBeacon {
    */
   private final String loc;
 
+  /**
+   * Optional augmented behavior.
+   */
+  private final BeaconStyle style;
+
   protected StandardBeacon(BuilderImpl builder) {
     this.name = builder.name();
     this.length = builder.length();
     this.loc = builder.loc();
+    this.style = builder.style();
   }
 
   /**
@@ -49,6 +55,13 @@ public class StandardBeacon {
    */
   public String loc() {
     return this.loc;
+  }
+
+  /**
+   * @return Optional augmented behavior.
+   */
+  public BeaconStyle style() {
+    return this.style;
   }
 
   public Builder toBuilder() {
@@ -90,6 +103,16 @@ public class StandardBeacon {
      */
     String loc();
 
+    /**
+     * @param style Optional augmented behavior.
+     */
+    Builder style(BeaconStyle style);
+
+    /**
+     * @return Optional augmented behavior.
+     */
+    BeaconStyle style();
+
     StandardBeacon build();
   }
 
@@ -102,6 +125,8 @@ public class StandardBeacon {
 
     protected String loc;
 
+    protected BeaconStyle style;
+
     protected BuilderImpl() {
     }
 
@@ -110,6 +135,7 @@ public class StandardBeacon {
       this.length = model.length();
       this._lengthSet = true;
       this.loc = model.loc();
+      this.style = model.style();
     }
 
     public Builder name(String name) {
@@ -138,6 +164,15 @@ public class StandardBeacon {
 
     public String loc() {
       return this.loc;
+    }
+
+    public Builder style(BeaconStyle style) {
+      this.style = style;
+      return this;
+    }
+
+    public BeaconStyle style() {
+      return this.style;
     }
 
     public StandardBeacon build() {

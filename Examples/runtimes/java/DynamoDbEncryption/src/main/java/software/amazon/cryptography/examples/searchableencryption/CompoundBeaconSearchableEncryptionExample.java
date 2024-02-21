@@ -27,6 +27,9 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.DynamoDbEncryptionTransforms;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesOutput;
 import software.amazon.cryptography.keystore.KeyStore;
 import software.amazon.cryptography.keystore.model.CreateKeyOutput;
 import software.amazon.cryptography.keystore.model.KMSConfiguration;
@@ -220,14 +223,49 @@ public class CompoundBeaconSearchableEncryptionExample {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 9. Create the DynamoDb Encryption Interceptor
-    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
-        .config(DynamoDbTablesEncryptionConfig.builder()
+    // 9. Create config
+    final DynamoDbTablesEncryptionConfig encryptionConfig =
+        DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
-            .build())
+            .build();
+
+    // 10. Create an item with both attributes used in the compound beacon.
+    final HashMap<String, AttributeValue> item = new HashMap<>();
+    item.put("work_id", AttributeValue.builder().s("9ce39272-8068-4efd-a211-cd162ad65d4c").build());
+    item.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
+    item.put("inspector_id_last4", AttributeValue.builder().s("5678").build());
+    item.put("unit", AttributeValue.builder().s("011899988199").build());
+
+    // 11. If developing or debugging, verify config by checking compound beacon values directly
+    final DynamoDbEncryptionTransforms trans = DynamoDbEncryptionTransforms.builder()
+        .DynamoDbTablesEncryptionConfig(encryptionConfig).build();
+
+
+    final ResolveAttributesInput resolveInput = ResolveAttributesInput.builder()
+        .TableName(ddbTableName)
+        .Item(item)
+        .Version(1)
         .build();
 
-    // 10. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    final ResolveAttributesOutput resolveOutput = trans.ResolveAttributes(resolveInput);
+
+    // VirtualFields is empty because we have no Virtual Fields configured
+    assert resolveOutput.VirtualFields().isEmpty();
+
+    // Verify that CompoundBeacons has the expected value
+    Map<String, String> cbs = new HashMap<>();
+    cbs.put("last4UnitCompound", "L-5678.U-011899988199");
+    assert resolveOutput.CompoundBeacons().equals(cbs);
+    // Note : the compound beacon actually stored in the table is not "L-5678.U-011899988199"
+    // but rather something like "L-abc.U-123", as both parts are EncryptedParts
+    // and therefore the text is replaced by the associated beacon
+
+    // 12. Create the DynamoDb Encryption Interceptor
+    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
+        .config(encryptionConfig)
+        .build();
+
+    // 13. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
@@ -235,14 +273,13 @@ public class CompoundBeaconSearchableEncryptionExample {
                 .build())
         .build();
 
-    // Perform PutItem and Query
-    PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName);
+    PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName, item);
 
     // If instead you were working in a multi-threaded context
     // it might look like this
     Runnable myThread = () -> {
         for(int i = 0; i < 20; ++i) {
-            PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName);
+            PutAndQueryItemWithCompoundBeacon(ddb, ddbTableName, item);
         }
     };
     ExecutorService pool = Executors.newFixedThreadPool(MAX_CONCURRENT_QUERY_THREADS);  
@@ -253,15 +290,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     try {pool.awaitTermination(30, TimeUnit.SECONDS);} catch (Exception e) {}
   }
 
-  public static void PutAndQueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName) {
-
-    // 11. Put an item with both attributes used in the compound beacon.
-    final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("work_id", AttributeValue.builder().s("9ce39272-8068-4efd-a211-cd162ad65d4c").build());
-    item.put("inspection_date", AttributeValue.builder().s("2023-06-13").build());
-    item.put("inspector_id_last4", AttributeValue.builder().s("5678").build());
-    item.put("unit", AttributeValue.builder().s("011899988199").build());
-
+  public static void PutAndQueryItemWithCompoundBeacon(DynamoDbClient ddb, String ddbTableName, HashMap<String, AttributeValue> item) {
+    // 14. Write the item to the table
     final PutItemRequest putRequest = PutItemRequest.builder()
         .tableName(ddbTableName)
         .item(item)
@@ -271,7 +301,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     // Validate object put successfully
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    // 12. Query for the item we just put.
+    // 15. Query for the item we just put.
     Map<String, String> expressionAttributesNames = new HashMap<>();
     expressionAttributesNames.put("#compound", "last4UnitCompound");
 
@@ -298,16 +328,29 @@ public class CompoundBeaconSearchableEncryptionExample {
         .expressionAttributeValues(expressionAttributeValues)
         .build();
 
-    QueryResponse queryResponse = ddb.query(queryRequest);
-    List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
-    // Validate query was returned successfully
-    assert 200 == queryResponse.sdkHttpResponse().statusCode();
-    // Validate only 1 item was returned: the item we just put
-    assert attributeValues.size() == 1;
-    Map<String, AttributeValue> returnedItem = attributeValues.get(0);
-    // Validate the item has the expected attributes
-    assert returnedItem.get("inspector_id_last4").s().equals("5678");
-    assert returnedItem.get("unit").s().equals("011899988199");
+    // GSIs do not update instantly
+    // so if the results come back empty
+    // we retry after a short sleep
+    for (int i=0; i<10; ++i) {
+	QueryResponse queryResponse = ddb.query(queryRequest);
+	List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
+	// Validate query was returned successfully
+	assert 200 == queryResponse.sdkHttpResponse().statusCode();
+
+	// if no results, sleep and try again
+        if (attributeValues.size() == 0) {
+            try {Thread.sleep(20);} catch (Exception e) {}
+            continue;
+        }
+
+	// Validate only 1 item was returned: the item we just put
+	assert attributeValues.size() == 1;
+	Map<String, AttributeValue> returnedItem = attributeValues.get(0);
+	// Validate the item has the expected attributes
+	assert returnedItem.get("inspector_id_last4").s().equals("5678");
+	assert returnedItem.get("unit").s().equals("011899988199");
+	break;
+    }
   }
 
   public static void main(final String[] args) {

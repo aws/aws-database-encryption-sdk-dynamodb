@@ -93,6 +93,7 @@ module
         message := "Sort key attribute action MUST be SIGN_ONLY"
       ));
 
+    // We happen to order these values, but this ordering MUST NOT be relied upon.
     var attributeNames : seq<DDB.AttributeName> := SortedSets.ComputeSetToOrderedSequence2(config.attributeActionsOnEncrypt.Keys, CharLess);
     for i := 0 to |attributeNames|
       invariant forall j | 0 <= j < i ::

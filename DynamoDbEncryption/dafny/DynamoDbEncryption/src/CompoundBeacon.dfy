@@ -140,6 +140,23 @@ module CompoundBeacon {
         :: OkPrefixPair(x, y)
     }
 
+    // Does these parts refer to `name`
+    predicate method {:tailrecursion} HasBeacon2(parts : seq<BeaconPart>, name : string)
+    {
+      if |parts| == 0 then
+        false
+      else if parts[0].getName() == name then
+        true
+      else
+        HasBeacon2(parts[1..], name)
+    }
+
+    // Does this compound beacon refer to `name`
+    predicate method HasBeacon(name : string)
+    {
+      HasBeacon2(parts, name)
+    }
+
     // Does this beacon have any encrypted parts
     predicate method isEncrypted() {
       numSigned < |parts|
@@ -151,6 +168,83 @@ module CompoundBeacon {
       ensures ret.Success? ==> ret.value.prefix <= value
     {
       partFromPrefix(parts, value)
+    }
+
+    function method PartsToString(p : seq<BeaconPart>) : string
+    {
+      var beaconParts := Seq.Map((s : BeaconPart) => s.getPrefix(), p);
+      if |beaconParts| == 0 then
+        ""
+      else
+        Join(beaconParts, "")
+    }
+
+    function method CPartToString(s : ConstructorPart) : string
+    {
+      if s.required then
+        s.part.getPrefix()
+      else
+        "[" + s.part.getPrefix() + "]"
+    }
+
+    function method CPartsToString(p : seq<ConstructorPart>) : string
+    {
+      var beaconParts := Seq.Map((s : ConstructorPart) => CPartToString(s), p);
+      if |beaconParts| == 0 then
+        ""
+      else
+        Join(beaconParts, "")
+    }
+  
+    function method CListToString(p : ConstructorList) : string
+    {
+      var beaconParts := Seq.Map((s : Constructor) => CPartsToString(s.parts), p);
+      Join(beaconParts, ", ")
+    }
+  
+    // Can this constructor produce this list of parts? 
+    // e.g. if the constructor has A_.B_ then
+    // these are ok : A_foo, B_foo, A_foo.B_foo
+    // these are bad : B_foo.A_foo, A_foo.A_foo
+    // that is, we can skip a arbitrary number of parts,
+    // but once we match a part, the rest of inParts must be able to directly follow
+    predicate method CanConstruct(con : seq<ConstructorPart>, inParts : seq<BeaconPart>, matched : bool := false)
+    {
+      if |inParts| == 0 then
+        true
+      else if |con| == 0 then
+        false
+      else if con[0].part == inParts[0] then
+        CanConstruct(con[1..], inParts[1..], true)
+      else if !con[0].required || !matched then
+        CanConstruct(con[1..], inParts, matched)
+      else
+        false
+    }
+
+    // Fail unless one of these constructor can make a beacon composed of this sequence of parts 
+    predicate method {:tailrecursion} IsValidPartOrder(candidates : seq<Constructor>, inParts : seq<BeaconPart>)
+    {
+      if |candidates| == 0 then
+        false
+      else if CanConstruct(candidates[0].parts, inParts) then
+        true
+      else
+        IsValidPartOrder(candidates[1..], inParts)
+    }
+
+    // Fail unless it is possible to construct a beacon composed of this sequence of parts 
+    function method ValidatePartOrder(inParts : seq<BeaconPart>, orig : string) : Result<bool, Error>
+    {
+      if IsValidPartOrder(construct, inParts) then
+        Success(true)
+      else
+        var msg :=
+          "Compound Beacon value '" + orig +
+          "' cannot be constructed from any available constructor for " + base.name +
+          " value parsed as " + PartsToString(inParts) +
+          " available constructors are " + CListToString(construct) + ".";
+        Failure(E(msg))
     }
 
     // find the part whose prefix matches this value
@@ -221,6 +315,8 @@ module CompoundBeacon {
         Failure(E("CompoundBeacon " + base.name + " can only be queried as a string, not as " + AttrTypeToStr(value)))
       else
         var parts := Split(value.S, split);
+        var partsUsed :- Seq.MapWithResult(s => getPartFromPrefix(s), parts);
+        var _ :- ValidatePartOrder(partsUsed, value.S);
         var beaconParts :- Seq.MapWithResult(s => FindAndCalcPart(s, keys), parts);
         var lastIsPrefix :- justPrefix(Seq.Last(parts));
         if !forEquality && lastIsPrefix then

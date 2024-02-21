@@ -51,6 +51,8 @@ On initialization of the Beacon Version, the caller MAY provide:
 
  - A list of [compound beacons](beacons.md#compound-beacon-initialization)
  - A list of [virtual fields](virtual.md#virtual-field-initialization)
+ - A list of [signed parts](beacons.md#signed-part-initialization)
+ - A list of [encrypted parts](beacons.md#encrypted-part-initialization)
 
 Initialization MUST fail if the [version number](#version number) is not `1`.
 
@@ -109,6 +111,16 @@ reference by a [standard beacon](beacons.md#standard-beacon) is not `encrypted`.
 Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
 reference by a [signed part](beacons.md#signed-part) is `encrypted`,
 or is not `signed`.
+
+#### Global Parts List
+
+The [signed parts](beacons.md#signed-part-initialization) and
+[encrypted parts](beacons.md#encrypted-part-initialization) together are known as the
+Global Parts List.
+Parts specified in a [compound beacon's](beacons.md#compound-beacon-initialization) constructor,
+may come from any combination of their local definitions or the Global Parts List.
+
+
 
 ### Version Number
 

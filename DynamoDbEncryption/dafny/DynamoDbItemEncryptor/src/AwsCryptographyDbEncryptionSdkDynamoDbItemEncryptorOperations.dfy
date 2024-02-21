@@ -227,7 +227,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# If this item does not have a sort key attribute,
     //# the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
     ensures ret.Success? && config.sortKeyName.None? ==>
-      SORT_NAME !in ret.value
+              SORT_NAME !in ret.value
   {
     UTF8.EncodeAsciiUnique();
     :- Need(config.partitionKeyName in item, DDBError("Partition key " + config.partitionKeyName + " not found in Item to be encrypted or decrypted"));
@@ -514,14 +514,47 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   {
     // We can formally verify these properties, but it is too resource intensive
     :- Need(forall k <- schema.content.SchemaMap :: InSignatureScope(config, k),
-            DynamoDbItemEncryptorException( message := "Recieved unexpected Crypto Schema: mismatch with signature scope"));
+            DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: mismatch with signature scope"));
     :- Need(forall k <- schema.content.SchemaMap :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
-            DynamoDbItemEncryptorException( message := "Recieved unexpected Crypto Schema: Invalid attribute names"));
+            DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: Invalid attribute names"));
     Success(map k <- schema.content.SchemaMap :: k := schema.content.SchemaMap[k].content.Action)
   }
 
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
   {true}
+
+  function method GetItemNames(item : ComAmazonawsDynamodbTypes.AttributeMap) : string
+  {
+    // We happen to order these values, but this ordering MUST NOT be relied upon.
+    var keys := SortedSets.ComputeSetToOrderedSequence2(item.Keys, CharLess);
+    if |keys| == 0 then
+      "item is empty"
+    else
+      Join(keys, " ")
+  }
+
+  function method KeyMissingMsg(
+    config: InternalConfig,
+    item : ComAmazonawsDynamodbTypes.AttributeMap,
+    tag : string)
+    : string
+  {
+    "On " + tag + " : "
+    +
+    (if config.partitionKeyName !in item then
+       "Partition key '" + config.partitionKeyName + "' does not exist in item. "
+     else
+       "")
+
+    +
+    (if config.sortKeyName.Some? &&  config.sortKeyName.value !in item then
+       "Sort key '" + config.sortKeyName.value + "' does not exist in item. "
+     else
+       "")
+
+    + "Item contains these attributes : "
+    + GetItemNames(item) + "."
+  }
 
   // public Encrypt method
   method {:vcs_split_on_every_assert} EncryptItem(config: InternalConfig, input: EncryptItemInput)
@@ -621,7 +654,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     :- Need(
       && config.partitionKeyName in input.plaintextItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.plaintextItem)
-    , DynamoDbItemEncryptorException( message := "Configuration mismatch partition or sort key does not exist in item."));
+    , E(KeyMissingMsg(config, input.plaintextItem, "Encrypt")));
 
     if |input.plaintextItem| > MAX_ATTRIBUTE_COUNT {
       var actCount := String.Base10Int2String(|input.plaintextItem|);
@@ -839,7 +872,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     :- Need(
       && config.partitionKeyName in input.encryptedItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
-    , DynamoDbItemEncryptorException( message := "Configuration mismatch partition or sort key does not exist in item."));
+    , DynamoDbItemEncryptorException( message := KeyMissingMsg(config, input.encryptedItem, "Decrypt")));
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of

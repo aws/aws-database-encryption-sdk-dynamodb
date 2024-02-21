@@ -175,12 +175,21 @@ module DynamoDBFilterExpr {
   }
 
   function method GetBeacon2(b : SI.BeaconVersion, t : Token, names : Option<DDB.ExpressionAttributeNameMap>)
-    : Result<SI.Beacon, Error>
+    : (ret : Result<SI.Beacon, Error>)
     requires HasBeacon(b, t, names)
+    //= specification/searchable-encryption/beacons.md#partonly-initialization
+    //= type=implication
+    //# A query MUST fail if it tries to search on a PartOnly beacon directly.
+    ensures
+      var name := RealName(t.s);
+      name in b.beacons && SI.IsPartOnly(b.beacons[name]) ==> ret.Failure?
   {
     var name := RealName(t.s);
     if name in b.beacons then
-      Success(b.beacons[name])
+      if SI.IsPartOnly(b.beacons[name]) then
+        Failure(E("Field " + name + " is encrypted, and has a PartOnly beacon, and so can only be used as part of a compound beacon."))
+      else
+        Success(b.beacons[name])
     else if names.Some? && name in names.value && RealName(names.value[name]) in b.beacons then
       var name2 := RealName(names.value[name]);
       Success(b.beacons[name2])
@@ -193,7 +202,8 @@ module DynamoDBFilterExpr {
 
   datatype EqualityBeacon = EqualityBeacon (
     beacon : Option<SI.Beacon>,
-    forEquality : bool
+    forEquality : bool,
+    forContains : bool
   )
 
   // returns Beacon, if any, and a flag indicating that the operation is exact match
@@ -211,7 +221,7 @@ module DynamoDBFilterExpr {
   {
     var b :- GetBeacon2(bv, t, names);
     var _ :- CanBeacon(b, op, value.s, values);
-    Success(EqualityBeacon(Some(b), IsEquality(op)))
+    Success(EqualityBeacon(Some(b), IsEquality(op), op == Contains))
   }
 
   function method GetBetweenBeacon(
@@ -238,14 +248,14 @@ module DynamoDBFilterExpr {
   {
     var b :- GetBeacon2(bv, t, names);
     var _ :- CanBetween(b, op, leftValue.s, rightValue.s, values);
-    Success(EqualityBeacon(Some(b), false))
+    Success(EqualityBeacon(Some(b), false, false))
   }
 
   function method CanStandardBeacon(op : Token) : (ret : Result<bool, Error>)
     ensures ret.Success? ==> ret.value
   {
     match op {
-      case Ne | Lt | Gt | Le | Ge | Between | BeginsWith | Contains =>
+      case Ne | Lt | Gt | Le | Ge | Between | BeginsWith =>
         Failure(E("The operation '" + TokenToString(op) + "' cannot be used with a standard beacon."))
       case _ => Success(true)
     }
@@ -389,6 +399,10 @@ module DynamoDBFilterExpr {
     else if 4 <= pos && (expr[pos-4].Contains? || expr[pos-4].BeginsWith?) && expr[pos-3].Open?
             && HasBeacon(b, expr[pos-2], names) && expr[pos-1].Comma? then
       GetBeacon(b, expr[pos-2], expr[pos-4], expr[pos], names, values)
+    // contains(value, ATTR .or. begins_with(value, ATTR
+    else if 2 <= pos < |expr|-2 && (expr[pos-2].Contains? || expr[pos-2].BeginsWith?) && expr[pos-1].Open?
+            && HasBeacon(b, expr[pos+2], names) && expr[pos+1].Comma? then
+      GetBeacon(b, expr[pos+2], expr[pos-2], expr[pos], names, values)
     // ATTR BETWEEN value AND *
     else if 2 <= pos < |expr|-2 && expr[pos-1].Between? && HasBeacon(b, expr[pos-2], names) && expr[pos+2].Value? then
       GetBetweenBeacon(b, expr[pos-2], expr[pos-1], expr[pos], expr[pos+2], names, values)
@@ -399,13 +413,13 @@ module DynamoDBFilterExpr {
     else if expr[pos].Value? then
       var in_pos := GetInPos(expr, pos);
       if in_pos.None? then
-        Success(EqualityBeacon(None, true))
+        Success(EqualityBeacon(None, true, false))
       else if HasBeacon(b, expr[in_pos.value-1], names) then
         GetBeacon(b, expr[in_pos.value-1], expr[in_pos.value], expr[pos], names, values)
       else
-        Success(EqualityBeacon(None, true))
+        Success(EqualityBeacon(None, true, false))
     else
-      Success(EqualityBeacon(None, true))
+      Success(EqualityBeacon(None, true, false))
   }
 
   // expr[pos] is a value; return the Attr to which that value refers
@@ -462,7 +476,7 @@ module DynamoDBFilterExpr {
   }
 
   // expr[pos] is an argument to a function, which is an Attr which is a beacon
-  // return an error if that function can operate neither on encrypted values nor on beacons
+  // return false if that function can operate neither on encrypted values nor on beacons
   predicate method IsAllowedOnBeaconPred(expr : seq<Token>, pos : nat)
     requires pos < |expr|
     requires expr[pos].Attr?
@@ -544,7 +558,7 @@ module DynamoDBFilterExpr {
       :- Need(name in oldValues, E(name + " not found in ExpressionAttributeValueMap"));
       var oldValue := oldValues[name];
       var eb :- BeaconForValue(b, expr, pos, names, oldValues);
-      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality);
+      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality, eb.forContains);
       //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
       //# If a single value in ExpressionAttributeValues is used in more than one context,
       //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`
@@ -691,6 +705,8 @@ module DynamoDBFilterExpr {
     else if 'A'  <= ch <= 'Z' then
       true
     else if '0' <= ch <= '9' then
+      true
+    else if ch == '_' then
       true
     else
       false
@@ -1246,19 +1262,41 @@ module DynamoDBFilterExpr {
     case _ => Failure(E("invalid op in apply_binary_bool"))
   }
 
-  predicate method LexicographicLess<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  predicate method IsHighSurrogate(ch : char)
   {
-    !LexicographicLessOrEqual(b, a, less)
+    0xd800 as char <= ch <= 0xdbff as char
   }
 
-  predicate method LexicographicGreater<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  // If no surrogates are involved, comparison is normal
+  // If only surrogates are involved, comparison is normal
+  // if one surrogate is involved, the surrogate is larger
+  // results undefined if not valid UTF16 encodings, but the idea of 'less' is also undefined for invalid encodings.
+  predicate method {:tailrecursion} UnicodeLess(a : string, b : string)
   {
-    !LexicographicLessOrEqual(a, b, less)
+    if |a| == 0 && |b| == 0 then
+      false
+    else if |a| == 0 then
+      true
+    else if |b| == 0 then
+      false
+    else
+      if a[0] == b[0] then
+        UnicodeLess(a[1..], b[1..]) // correct independent of surrogate status
+      else
+        var aIsHighSurrogate := IsHighSurrogate(a[0]);
+        var bIsHighSurrogate := IsHighSurrogate(b[0]);
+        if aIsHighSurrogate == bIsHighSurrogate then
+          a[0] < b[0]
+        else
+          bIsHighSurrogate
+          // we know aIsHighSurrogate != bIsHighSurrogate and a[0] != b[0]
+          // so if bIsHighSurrogate then a is less
+          // and if aIsHighSurrogate then a is greater
   }
 
-  predicate method LexicographicGreaterOrEqual<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  predicate method UnicodeLessOrEqual(a : string, b : string)
   {
-    LexicographicLessOrEqual(b, a, less)
+    !UnicodeLess(b, a)
   }
 
   function method CompareFloat(x : string, y : string) : Result<FloatCompare.CompareType, Error>
@@ -1289,7 +1327,7 @@ module DynamoDBFilterExpr {
       var ret :- CompareFloat(a.N, b.N);
       Success(ret <= 0)
     else if a.S? && b.S? then
-      Success(LexicographicLessOrEqual(a.S, b.S, CharLess))
+      Success(UnicodeLessOrEqual(a.S, b.S))
     else if a.B? && b.B? then
       Success(LexicographicLessOrEqual(a.B, b.B, ByteLess))
     else
@@ -1413,17 +1451,15 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if |ItemList| == 0 {
-      return Success([]);
+    var acc : DDB.ItemList := [];
+    for i := 0 to |ItemList| {
+      var newAttrs :- b.GeneratePlainBeacons(ItemList[i]);
+      var doesMatch :- EvalExpr(parsed, ItemList[i] + newAttrs, names, values);
+      if doesMatch {
+        acc := acc + [ItemList[i]];
+      }
     }
-    var newAttrs :- b.GeneratePlainBeacons(ItemList[0]);
-    var doesMatch :- EvalExpr(parsed, ItemList[0] + newAttrs, names, values);
-    var rest :- FilterItems(b, parsed, ItemList[1..], names, values);
-    if doesMatch {
-      return Success(ItemList[..1] + rest);
-    } else {
-      return Success(rest);
-    }
+    return Success(acc);
   }
 
   // return the results for which the expression is true
@@ -1636,13 +1672,18 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if (context.keyExpr.None? && context.filterExpr.None?) || context.values.None? {
+    if (context.keyExpr.None? && context.filterExpr.None?) {
       return Success(context);
     } else {
       var keys := DontUseKeys;
       if !naked {
         keys :- b.getKeyMap(keyId);
       }
+      var values :=
+        if context.values.Some? then
+          context.values.value
+        else
+          map[];
       var newValues : DDB.ExpressionAttributeValueMap := map[];
       var newKeyExpr := context.keyExpr;
       var newFilterExpr := context.filterExpr;
@@ -1650,19 +1691,19 @@ module DynamoDBFilterExpr {
 
       if context.keyExpr.Some? {
         var parsed := ParseExpr(context.keyExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, newNames, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues);
         newKeyExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
       }
       if context.filterExpr.Some? {
         var parsed := ParseExpr(context.filterExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, context.values.value, newNames, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues);
         newFilterExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
       }
-      return Success(ExprContext(newKeyExpr, newFilterExpr, Some(newValues), newNames));
+      return Success(ExprContext(newKeyExpr, newFilterExpr, if |newValues| == 0 then None else Some(newValues), newNames));
     }
   }
 

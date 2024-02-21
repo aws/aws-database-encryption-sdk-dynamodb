@@ -22,13 +22,13 @@ jobs:
       contents: read
     steps:
       - name: Setup DynamoDB Local
-        uses: rrainn/dynamodb-action@v2.0.1
+        uses: rrainn/dynamodb-action@v3.0.0
         with:
           port: 8000
           cors: '*'
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
@@ -39,12 +39,12 @@ jobs:
           submodules: recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.6.1
+        uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
-          dafny-version: '4.1.0'
+          dafny-version: '4.2.0'
 
       - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: ${{ matrix.java-version }}
@@ -60,8 +60,4 @@ jobs:
       - name: Test TestVectors
         working-directory: ./TestVectors
         run: |
-          # Clear MPL from cache
-          # We have to do this because MakeFile does not do this yet. The MakeFile automatically builds and deploys dependencies
-          # instead it should be picking it up from Maven.
-          rm -rf ~/.m2/repository/software/amazon/cryptography/aws-cryptographic-material-providers
           make test_java

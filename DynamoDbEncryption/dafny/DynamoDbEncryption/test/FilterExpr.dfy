@@ -29,10 +29,37 @@ module TestDynamoDBFilterExpr {
     expect does_contain(haystack, needle) == negate;
   }
 
+  method {:test} UnicodeLessTest() {
+    // A..F must be strictly increasing
+    var A := "A";
+    var B := "퀀"; // Ud000"
+    var C := "﹌"; // Ufe4c"
+    var D := "𐀁"; // U10001
+    var E := "𐀂"; // U10002 - same high surrogate as D
+    var F := "𠀂"; // U20002 - different high surrogate as D
+    assert |A| == 1;
+    assert |B| == 1;
+    assert |C| == 1;
+    assert |D| == 2;
+    assert |E| == 2;
+    assert |F| == 2;
+
+    // strings in strs must be strictly increasing
+    var strs := [A+B+C+D, B+C, C+D, D+C, D+C+B+A, E+D, F+D];
+
+    for i := 0 to |strs| {
+      for j := 0 to |strs| {
+        expect ((i < j) == UnicodeLess(strs[i], strs[j]));
+        expect ((i <= j) == !UnicodeLess(strs[j], strs[i]));
+      }
+    }
+  }
+
   method {:test} LowLevelTests() {
     expect_equal(ParseExpr("and"), [And]);
     expect_equal(ParseExpr("  AnD   "), [And]);
     expect_equal(ParseExpr(" A  AnD  B "), [MakeAttr("A"), And, MakeAttr("B")]);
+    expect_equal(ParseExpr(" A_B  AnD  B_C "), [MakeAttr("A_B"), And, MakeAttr("B_C")]);
 
     var input := [Not, MakeAttr("A"), In, Open, MakeAttr("B"), Comma, MakeAttr("C"), Close, Or];
     expect IsIN(input[1..]);
@@ -95,13 +122,13 @@ module TestDynamoDBFilterExpr {
   method {:test} TestBasicParse() {
     var context := ExprContext (
       None,
-      Some("std2 = :A AND #Field4 = :B"),
+      Some("std2 = :A AND #Field_4 = :B"),
       Some(map[
              ":A" := DDB.AttributeValue.N("1.23"),
              ":B" := DDB.AttributeValue.S("abc")
            ]),
       Some(map[
-             "#Field4" := "std4"
+             "#Field_4" := "std4"
            ])
     );
     var version := GetLotsaBeacons();
@@ -117,7 +144,7 @@ module TestDynamoDBFilterExpr {
 
     var newContext :- expect BeaconizeParsedExpr(beaconVersion, parsed, 0, context.values.value, context.names, DontUseKeys, map[]);
     var exprString := ParsedExprToString(newContext.expr);
-    expect exprString == "aws_dbe_b_std2 = :A AND #Field4 = :B";
+    expect exprString == "aws_dbe_b_std2 = :A AND #Field_4 = :B";
   }
 
     method {:test} TestNoBeaconFail() {
