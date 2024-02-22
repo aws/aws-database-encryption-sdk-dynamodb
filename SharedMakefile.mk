@@ -210,6 +210,7 @@ _polymorph:
 	cd $(CODEGEN_CLI_ROOT); \
 	./../gradlew run --args="\
 	--library-root $(LIBRARY_ROOT) \
+	$(UPDATE_PATCH_FILES_OPTION) \
 	$(OUTPUT_DAFNY) \
 	$(OUTPUT_DOTNET) \
 	$(OUTPUT_JAVA) \
