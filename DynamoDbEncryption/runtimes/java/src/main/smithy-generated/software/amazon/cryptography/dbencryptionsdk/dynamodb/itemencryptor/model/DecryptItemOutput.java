@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  * Outputs for decrypting a DynamoDB Item.
  */
 public class DecryptItemOutput {
+
   /**
    * The decrypted DynamoDB item.
    */
@@ -73,12 +74,12 @@ public class DecryptItemOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Map<String, AttributeValue> plaintextItem;
 
     protected ParsedHeader parsedHeader;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptItemOutput model) {
       this.plaintextItem = model.plaintextItem();
@@ -104,8 +105,10 @@ public class DecryptItemOutput {
     }
 
     public DecryptItemOutput build() {
-      if (Objects.isNull(this.plaintextItem()))  {
-        throw new IllegalArgumentException("Missing value for required field `plaintextItem`");
+      if (Objects.isNull(this.plaintextItem())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `plaintextItem`"
+        );
       }
       return new DecryptItemOutput(this);
     }

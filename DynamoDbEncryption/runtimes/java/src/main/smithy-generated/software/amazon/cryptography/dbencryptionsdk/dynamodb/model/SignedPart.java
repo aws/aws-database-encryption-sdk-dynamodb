@@ -9,6 +9,7 @@ import java.util.Objects;
  * A part of a Compound Beacon that contains signed plaintext data.
  */
 public class SignedPart {
+
   /**
    * The name for this Signed Part.
    */
@@ -94,14 +95,14 @@ public class SignedPart {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String name;
 
     protected String prefix;
 
     protected String loc;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(SignedPart model) {
       this.name = model.name();
@@ -137,17 +138,25 @@ public class SignedPart {
     }
 
     public SignedPart build() {
-      if (Objects.isNull(this.name()))  {
-        throw new IllegalArgumentException("Missing value for required field `name`");
+      if (Objects.isNull(this.name())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `name`"
+        );
       }
-      if (Objects.isNull(this.prefix()))  {
-        throw new IllegalArgumentException("Missing value for required field `prefix`");
+      if (Objects.isNull(this.prefix())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `prefix`"
+        );
       }
       if (Objects.nonNull(this.prefix()) && this.prefix().length() < 1) {
-        throw new IllegalArgumentException("The size of `prefix` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `prefix` must be greater than or equal to 1"
+        );
       }
       if (Objects.nonNull(this.loc()) && this.loc().length() < 1) {
-        throw new IllegalArgumentException("The size of `loc` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `loc` must be greater than or equal to 1"
+        );
       }
       return new SignedPart(this);
     }

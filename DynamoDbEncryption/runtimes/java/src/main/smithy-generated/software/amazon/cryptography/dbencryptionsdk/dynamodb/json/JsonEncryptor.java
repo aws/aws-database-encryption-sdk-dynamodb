@@ -16,12 +16,16 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EncryptO
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.JsonEncryptorConfig;
 
 public class JsonEncryptor {
+
   private final IJsonEncryptorClient _impl;
 
   protected JsonEncryptor(BuilderImpl builder) {
     JsonEncryptorConfig input = builder.JsonEncryptorConfig();
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.JsonEncryptorConfig dafnyValue = ToDafny.JsonEncryptorConfig(input);
-    Result<IJsonEncryptorClient, Error> result = __default.JsonEncryptor(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.JsonEncryptorConfig dafnyValue =
+      ToDafny.JsonEncryptorConfig(input);
+    Result<IJsonEncryptorClient, Error> result = __default.JsonEncryptor(
+      dafnyValue
+    );
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -43,8 +47,12 @@ public class JsonEncryptor {
    * @return Outputs for decrypting a JSON object.
    */
   public DecryptObjectOutput DecryptObject(DecryptObjectInput input) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DecryptObjectInput dafnyValue = ToDafny.DecryptObjectInput(input);
-    Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DecryptObjectOutput, Error> result = this._impl.DecryptObject(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DecryptObjectInput dafnyValue =
+      ToDafny.DecryptObjectInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DecryptObjectOutput,
+      Error
+    > result = this._impl.DecryptObject(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -58,8 +66,12 @@ public class JsonEncryptor {
    * @return Outputs for encrypting a JSON object.
    */
   public EncryptObjectOutput EncryptObject(EncryptObjectInput input) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EncryptObjectInput dafnyValue = ToDafny.EncryptObjectInput(input);
-    Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EncryptObjectOutput, Error> result = this._impl.EncryptObject(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EncryptObjectInput dafnyValue =
+      ToDafny.EncryptObjectInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EncryptObjectOutput,
+      Error
+    > result = this._impl.EncryptObject(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -85,12 +97,14 @@ public class JsonEncryptor {
   }
 
   static class BuilderImpl implements Builder {
+
     protected JsonEncryptorConfig JsonEncryptorConfig;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
-    public Builder JsonEncryptorConfig(JsonEncryptorConfig JsonEncryptorConfig) {
+    public Builder JsonEncryptorConfig(
+      JsonEncryptorConfig JsonEncryptorConfig
+    ) {
       this.JsonEncryptorConfig = JsonEncryptorConfig;
       return this;
     }
@@ -100,8 +114,10 @@ public class JsonEncryptor {
     }
 
     public JsonEncryptor build() {
-      if (Objects.isNull(this.JsonEncryptorConfig()))  {
-        throw new IllegalArgumentException("Missing value for required field `JsonEncryptorConfig`");
+      if (Objects.isNull(this.JsonEncryptorConfig())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `JsonEncryptorConfig`"
+        );
       }
       return new JsonEncryptor(this);
     }

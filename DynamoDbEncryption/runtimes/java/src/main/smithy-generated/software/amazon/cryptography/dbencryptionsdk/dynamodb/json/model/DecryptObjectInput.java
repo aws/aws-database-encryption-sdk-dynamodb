@@ -9,6 +9,7 @@ import java.util.Objects;
  * Inputs for decrypting a JSON object.
  */
 public class DecryptObjectInput {
+
   /**
    * The encrypted JSON object to decrypt.
    */
@@ -48,10 +49,10 @@ public class DecryptObjectInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String encryptedObject;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptObjectInput model) {
       this.encryptedObject = model.encryptedObject();
@@ -67,8 +68,10 @@ public class DecryptObjectInput {
     }
 
     public DecryptObjectInput build() {
-      if (Objects.isNull(this.encryptedObject()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedObject`");
+      if (Objects.isNull(this.encryptedObject())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedObject`"
+        );
       }
       return new DecryptObjectInput(this);
     }

@@ -9,6 +9,7 @@ import java.util.Objects;
  * Outputs for encrypting a JSON object.
  */
 public class EncryptObjectOutput {
+
   /**
    * The encrypted JSON object.
    */
@@ -71,12 +72,12 @@ public class EncryptObjectOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String encryptedObject;
 
     protected ParsedHeader parsedHeader;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptObjectOutput model) {
       this.encryptedObject = model.encryptedObject();
@@ -102,8 +103,10 @@ public class EncryptObjectOutput {
     }
 
     public EncryptObjectOutput build() {
-      if (Objects.isNull(this.encryptedObject()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedObject`");
+      if (Objects.isNull(this.encryptedObject())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedObject`"
+        );
       }
       return new EncryptObjectOutput(this);
     }

@@ -3,63 +3,36 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
-import software.amazon.cryptography.materialproviders.CryptographicMaterialsManager;
-import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
-import software.amazon.cryptography.materialproviders.IKeyring;
-import software.amazon.cryptography.materialproviders.Keyring;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
 /**
  * The configuration for the client-side encryption of JSON objects.
  */
 public class JsonEncryptorConfig {
+
   /**
    * The logical table name for this table. This is the name that is cryptographically bound with your data.
    */
   private final String logicalTableName;
 
   /**
-   * A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
+   * A full description of the cryptographic actions that should be applied to each attributes.
    */
-  private final Map<String, CryptoAction> attributeActionsOnEncrypt;
-
-  /**
-   * A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
-   */
-  private final List<String> allowedUnsignedAttributes;
-
-  /**
-   * A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
-   */
-  private final String allowedUnsignedAttributePrefix;
+  private final Actions actions;
 
   /**
    * An ID for the algorithm suite to use during encryption and decryption.
    */
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
-  /**
-   * The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
-   */
-  private final IKeyring keyring;
-
-  /**
-   * The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.
-   */
-  private final ICryptographicMaterialsManager cmm;
+  private final KeyAccess keyAccess;
 
   protected JsonEncryptorConfig(BuilderImpl builder) {
     this.logicalTableName = builder.logicalTableName();
-    this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
-    this.allowedUnsignedAttributes = builder.allowedUnsignedAttributes();
-    this.allowedUnsignedAttributePrefix = builder.allowedUnsignedAttributePrefix();
+    this.actions = builder.actions();
     this.algorithmSuiteId = builder.algorithmSuiteId();
-    this.keyring = builder.keyring();
-    this.cmm = builder.cmm();
+    this.keyAccess = builder.keyAccess();
   }
 
   /**
@@ -70,24 +43,10 @@ public class JsonEncryptorConfig {
   }
 
   /**
-   * @return A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
+   * @return A full description of the cryptographic actions that should be applied to each attributes.
    */
-  public Map<String, CryptoAction> attributeActionsOnEncrypt() {
-    return this.attributeActionsOnEncrypt;
-  }
-
-  /**
-   * @return A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
-   */
-  public List<String> allowedUnsignedAttributes() {
-    return this.allowedUnsignedAttributes;
-  }
-
-  /**
-   * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
-   */
-  public String allowedUnsignedAttributePrefix() {
-    return this.allowedUnsignedAttributePrefix;
+  public Actions actions() {
+    return this.actions;
   }
 
   /**
@@ -97,18 +56,8 @@ public class JsonEncryptorConfig {
     return this.algorithmSuiteId;
   }
 
-  /**
-   * @return The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
-   */
-  public IKeyring keyring() {
-    return this.keyring;
-  }
-
-  /**
-   * @return The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.
-   */
-  public ICryptographicMaterialsManager cmm() {
-    return this.cmm;
+  public KeyAccess keyAccess() {
+    return this.keyAccess;
   }
 
   public Builder toBuilder() {
@@ -131,34 +80,14 @@ public class JsonEncryptorConfig {
     String logicalTableName();
 
     /**
-     * @param attributeActionsOnEncrypt A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
+     * @param actions A full description of the cryptographic actions that should be applied to each attributes.
      */
-    Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
+    Builder actions(Actions actions);
 
     /**
-     * @return A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
+     * @return A full description of the cryptographic actions that should be applied to each attributes.
      */
-    Map<String, CryptoAction> attributeActionsOnEncrypt();
-
-    /**
-     * @param allowedUnsignedAttributes A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
-     */
-    Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
-
-    /**
-     * @return A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
-     */
-    List<String> allowedUnsignedAttributes();
-
-    /**
-     * @param allowedUnsignedAttributePrefix A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
-     */
-    Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix);
-
-    /**
-     * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
-     */
-    String allowedUnsignedAttributePrefix();
+    Actions actions();
 
     /**
      * @param algorithmSuiteId An ID for the algorithm suite to use during encryption and decryption.
@@ -170,55 +99,30 @@ public class JsonEncryptorConfig {
      */
     DBEAlgorithmSuiteId algorithmSuiteId();
 
-    /**
-     * @param keyring The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
-     */
-    Builder keyring(IKeyring keyring);
+    Builder keyAccess(KeyAccess keyAccess);
 
-    /**
-     * @return The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
-     */
-    IKeyring keyring();
-
-    /**
-     * @param cmm The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.
-     */
-    Builder cmm(ICryptographicMaterialsManager cmm);
-
-    /**
-     * @return The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.
-     */
-    ICryptographicMaterialsManager cmm();
+    KeyAccess keyAccess();
 
     JsonEncryptorConfig build();
   }
 
   static class BuilderImpl implements Builder {
+
     protected String logicalTableName;
 
-    protected Map<String, CryptoAction> attributeActionsOnEncrypt;
-
-    protected List<String> allowedUnsignedAttributes;
-
-    protected String allowedUnsignedAttributePrefix;
+    protected Actions actions;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
-    protected IKeyring keyring;
+    protected KeyAccess keyAccess;
 
-    protected ICryptographicMaterialsManager cmm;
-
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(JsonEncryptorConfig model) {
       this.logicalTableName = model.logicalTableName();
-      this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
-      this.allowedUnsignedAttributes = model.allowedUnsignedAttributes();
-      this.allowedUnsignedAttributePrefix = model.allowedUnsignedAttributePrefix();
+      this.actions = model.actions();
       this.algorithmSuiteId = model.algorithmSuiteId();
-      this.keyring = model.keyring();
-      this.cmm = model.cmm();
+      this.keyAccess = model.keyAccess();
     }
 
     public Builder logicalTableName(String logicalTableName) {
@@ -230,31 +134,13 @@ public class JsonEncryptorConfig {
       return this.logicalTableName;
     }
 
-    public Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt) {
-      this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
+    public Builder actions(Actions actions) {
+      this.actions = actions;
       return this;
     }
 
-    public Map<String, CryptoAction> attributeActionsOnEncrypt() {
-      return this.attributeActionsOnEncrypt;
-    }
-
-    public Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes) {
-      this.allowedUnsignedAttributes = allowedUnsignedAttributes;
-      return this;
-    }
-
-    public List<String> allowedUnsignedAttributes() {
-      return this.allowedUnsignedAttributes;
-    }
-
-    public Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix) {
-      this.allowedUnsignedAttributePrefix = allowedUnsignedAttributePrefix;
-      return this;
-    }
-
-    public String allowedUnsignedAttributePrefix() {
-      return this.allowedUnsignedAttributePrefix;
+    public Actions actions() {
+      return this.actions;
     }
 
     public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
@@ -266,30 +152,30 @@ public class JsonEncryptorConfig {
       return this.algorithmSuiteId;
     }
 
-    public Builder keyring(IKeyring keyring) {
-      this.keyring = Keyring.wrap(keyring);
+    public Builder keyAccess(KeyAccess keyAccess) {
+      this.keyAccess = keyAccess;
       return this;
     }
 
-    public IKeyring keyring() {
-      return this.keyring;
-    }
-
-    public Builder cmm(ICryptographicMaterialsManager cmm) {
-      this.cmm = CryptographicMaterialsManager.wrap(cmm);
-      return this;
-    }
-
-    public ICryptographicMaterialsManager cmm() {
-      return this.cmm;
+    public KeyAccess keyAccess() {
+      return this.keyAccess;
     }
 
     public JsonEncryptorConfig build() {
-      if (Objects.isNull(this.logicalTableName()))  {
-        throw new IllegalArgumentException("Missing value for required field `logicalTableName`");
+      if (Objects.isNull(this.logicalTableName())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `logicalTableName`"
+        );
       }
-      if (Objects.isNull(this.attributeActionsOnEncrypt()))  {
-        throw new IllegalArgumentException("Missing value for required field `attributeActionsOnEncrypt`");
+      if (Objects.isNull(this.actions())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `actions`"
+        );
+      }
+      if (Objects.isNull(this.keyAccess())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `keyAccess`"
+        );
       }
       return new JsonEncryptorConfig(this);
     }

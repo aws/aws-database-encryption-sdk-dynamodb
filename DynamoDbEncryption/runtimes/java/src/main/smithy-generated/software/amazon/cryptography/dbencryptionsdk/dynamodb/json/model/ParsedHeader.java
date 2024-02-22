@@ -11,9 +11,10 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
 
 /**
- * A parsed version of the header that was written with or read on an encrypted Json objext.
+ * A parsed version of the header that was written with or read on an encrypted Json object.
  */
 public class ParsedHeader {
+
   /**
    * The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
    */
@@ -34,11 +35,17 @@ public class ParsedHeader {
    */
   private final Map<String, String> storedEncryptionContext;
 
+  /**
+   * The full encryption context.
+   */
+  private final Map<String, String> encryptionContext;
+
   protected ParsedHeader(BuilderImpl builder) {
     this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.encryptedDataKeys = builder.encryptedDataKeys();
     this.storedEncryptionContext = builder.storedEncryptionContext();
+    this.encryptionContext = builder.encryptionContext();
   }
 
   /**
@@ -69,6 +76,13 @@ public class ParsedHeader {
     return this.storedEncryptionContext;
   }
 
+  /**
+   * @return The full encryption context.
+   */
+  public Map<String, String> encryptionContext() {
+    return this.encryptionContext;
+  }
+
   public Builder toBuilder() {
     return new BuilderImpl(this);
   }
@@ -81,7 +95,9 @@ public class ParsedHeader {
     /**
      * @param attributeActionsOnEncrypt The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
      */
-    Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
+    Builder attributeActionsOnEncrypt(
+      Map<String, CryptoAction> attributeActionsOnEncrypt
+    );
 
     /**
      * @return The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
@@ -111,17 +127,30 @@ public class ParsedHeader {
     /**
      * @param storedEncryptionContext The portion of the encryption context that was stored in the header of this object.
      */
-    Builder storedEncryptionContext(Map<String, String> storedEncryptionContext);
+    Builder storedEncryptionContext(
+      Map<String, String> storedEncryptionContext
+    );
 
     /**
      * @return The portion of the encryption context that was stored in the header of this object.
      */
     Map<String, String> storedEncryptionContext();
 
+    /**
+     * @param encryptionContext The full encryption context.
+     */
+    Builder encryptionContext(Map<String, String> encryptionContext);
+
+    /**
+     * @return The full encryption context.
+     */
+    Map<String, String> encryptionContext();
+
     ParsedHeader build();
   }
 
   static class BuilderImpl implements Builder {
+
     protected Map<String, CryptoAction> attributeActionsOnEncrypt;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
@@ -130,17 +159,21 @@ public class ParsedHeader {
 
     protected Map<String, String> storedEncryptionContext;
 
-    protected BuilderImpl() {
-    }
+    protected Map<String, String> encryptionContext;
+
+    protected BuilderImpl() {}
 
     protected BuilderImpl(ParsedHeader model) {
       this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.encryptedDataKeys = model.encryptedDataKeys();
       this.storedEncryptionContext = model.storedEncryptionContext();
+      this.encryptionContext = model.encryptionContext();
     }
 
-    public Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt) {
+    public Builder attributeActionsOnEncrypt(
+      Map<String, CryptoAction> attributeActionsOnEncrypt
+    ) {
       this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
       return this;
     }
@@ -167,7 +200,9 @@ public class ParsedHeader {
       return this.encryptedDataKeys;
     }
 
-    public Builder storedEncryptionContext(Map<String, String> storedEncryptionContext) {
+    public Builder storedEncryptionContext(
+      Map<String, String> storedEncryptionContext
+    ) {
       this.storedEncryptionContext = storedEncryptionContext;
       return this;
     }
@@ -176,18 +211,40 @@ public class ParsedHeader {
       return this.storedEncryptionContext;
     }
 
+    public Builder encryptionContext(Map<String, String> encryptionContext) {
+      this.encryptionContext = encryptionContext;
+      return this;
+    }
+
+    public Map<String, String> encryptionContext() {
+      return this.encryptionContext;
+    }
+
     public ParsedHeader build() {
-      if (Objects.isNull(this.attributeActionsOnEncrypt()))  {
-        throw new IllegalArgumentException("Missing value for required field `attributeActionsOnEncrypt`");
+      if (Objects.isNull(this.attributeActionsOnEncrypt())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `attributeActionsOnEncrypt`"
+        );
       }
-      if (Objects.isNull(this.algorithmSuiteId()))  {
-        throw new IllegalArgumentException("Missing value for required field `algorithmSuiteId`");
+      if (Objects.isNull(this.algorithmSuiteId())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `algorithmSuiteId`"
+        );
       }
-      if (Objects.isNull(this.encryptedDataKeys()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedDataKeys`");
+      if (Objects.isNull(this.encryptedDataKeys())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedDataKeys`"
+        );
       }
-      if (Objects.isNull(this.storedEncryptionContext()))  {
-        throw new IllegalArgumentException("Missing value for required field `storedEncryptionContext`");
+      if (Objects.isNull(this.storedEncryptionContext())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `storedEncryptionContext`"
+        );
+      }
+      if (Objects.isNull(this.encryptionContext())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptionContext`"
+        );
       }
       return new ParsedHeader(this);
     }

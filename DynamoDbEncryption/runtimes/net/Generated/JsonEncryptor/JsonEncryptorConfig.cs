@@ -8,12 +8,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
   public class JsonEncryptorConfig
   {
     private string _logicalTableName;
-    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> _attributeActionsOnEncrypt;
-    private System.Collections.Generic.List<string> _allowedUnsignedAttributes;
-    private string _allowedUnsignedAttributePrefix;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Actions _actions;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
-    private AWS.Cryptography.MaterialProviders.IKeyring _keyring;
-    private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.KeyAccess _keyAccess;
     public string LogicalTableName
     {
       get { return this._logicalTableName; }
@@ -23,32 +20,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._logicalTableName != null;
     }
-    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> AttributeActionsOnEncrypt
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Actions Actions
     {
-      get { return this._attributeActionsOnEncrypt; }
-      set { this._attributeActionsOnEncrypt = value; }
+      get { return this._actions; }
+      set { this._actions = value; }
     }
-    public bool IsSetAttributeActionsOnEncrypt()
+    public bool IsSetActions()
     {
-      return this._attributeActionsOnEncrypt != null;
-    }
-    public System.Collections.Generic.List<string> AllowedUnsignedAttributes
-    {
-      get { return this._allowedUnsignedAttributes; }
-      set { this._allowedUnsignedAttributes = value; }
-    }
-    public bool IsSetAllowedUnsignedAttributes()
-    {
-      return this._allowedUnsignedAttributes != null;
-    }
-    public string AllowedUnsignedAttributePrefix
-    {
-      get { return this._allowedUnsignedAttributePrefix; }
-      set { this._allowedUnsignedAttributePrefix = value; }
-    }
-    public bool IsSetAllowedUnsignedAttributePrefix()
-    {
-      return this._allowedUnsignedAttributePrefix != null;
+      return this._actions != null;
     }
     public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId
     {
@@ -59,28 +38,20 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._algorithmSuiteId != null;
     }
-    public AWS.Cryptography.MaterialProviders.IKeyring Keyring
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.KeyAccess KeyAccess
     {
-      get { return this._keyring; }
-      set { this._keyring = value; }
+      get { return this._keyAccess; }
+      set { this._keyAccess = value; }
     }
-    public bool IsSetKeyring()
+    public bool IsSetKeyAccess()
     {
-      return this._keyring != null;
-    }
-    public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager Cmm
-    {
-      get { return this._cmm; }
-      set { this._cmm = value; }
-    }
-    public bool IsSetCmm()
-    {
-      return this._cmm != null;
+      return this._keyAccess != null;
     }
     public void Validate()
     {
       if (!IsSetLogicalTableName()) throw new System.ArgumentException("Missing value for required property 'LogicalTableName'");
-      if (!IsSetAttributeActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'AttributeActionsOnEncrypt'");
+      if (!IsSetActions()) throw new System.ArgumentException("Missing value for required property 'Actions'");
+      if (!IsSetKeyAccess()) throw new System.ArgumentException("Missing value for required property 'KeyAccess'");
 
     }
   }
