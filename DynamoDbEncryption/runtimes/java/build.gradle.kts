@@ -89,7 +89,7 @@ dependencies {
     implementation("software.amazon.awssdk:kms")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     
     //    For the DDB-EC v1
     implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.658")
