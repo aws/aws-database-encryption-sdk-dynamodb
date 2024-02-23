@@ -69,9 +69,8 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
     public Builder ddbKeyBranchKeyIdSupplier(
       IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier
     ) {
-      this.ddbKeyBranchKeyIdSupplier = DynamoDbKeyBranchKeyIdSupplier.wrap(
-        ddbKeyBranchKeyIdSupplier
-      );
+      this.ddbKeyBranchKeyIdSupplier =
+        DynamoDbKeyBranchKeyIdSupplier.wrap(ddbKeyBranchKeyIdSupplier);
       return this;
     }
 

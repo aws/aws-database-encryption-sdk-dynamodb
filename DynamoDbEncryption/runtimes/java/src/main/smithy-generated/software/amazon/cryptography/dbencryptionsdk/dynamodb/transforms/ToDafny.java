@@ -594,9 +594,10 @@ public class ToDafny {
         nativeValue.Item()
       );
     Option<Integer> version;
-    version = Objects.nonNull(nativeValue.Version())
-      ? Option.create_Some((nativeValue.Version()))
-      : Option.create_None();
+    version =
+      Objects.nonNull(nativeValue.Version())
+        ? Option.create_Some((nativeValue.Version()))
+        : Option.create_None();
     return new ResolveAttributesInput(tableName, item, version);
   }
 

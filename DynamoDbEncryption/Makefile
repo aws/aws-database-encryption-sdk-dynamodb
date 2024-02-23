@@ -88,5 +88,5 @@ format_net:
 	pushd runtimes/net && dotnet format DynamoDbEncryption.csproj && popd
 
 polymorph:
-	npm i --no-save prettier prettier-plugin-java
+	npm i --no-save prettier@3 prettier-plugin-java@2.5
 	make polymorph_code_gen CODEGEN_CLI_ROOT=../submodules/smithy-dafny/codegen/smithy-dafny-codegen-cli

@@ -389,7 +389,8 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
       attributeActionsOnEncrypt := parsedActions,
       algorithmSuiteId := encryptVal.parsedHeader.algorithmSuiteId,
       storedEncryptionContext := encryptVal.parsedHeader.storedEncryptionContext,
-      encryptedDataKeys := encryptVal.parsedHeader.encryptedDataKeys
+      encryptedDataKeys := encryptVal.parsedHeader.encryptedDataKeys,
+      encryptionContext := encryptVal.parsedHeader.encryptionContext
     );
 
     output := Success(EncryptObjectOutput(
@@ -496,7 +497,8 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
       attributeActionsOnEncrypt := parsedAuthActions,
       algorithmSuiteId := decryptVal.parsedHeader.algorithmSuiteId,
       storedEncryptionContext := decryptVal.parsedHeader.storedEncryptionContext,
-      encryptedDataKeys := decryptVal.parsedHeader.encryptedDataKeys
+      encryptedDataKeys := decryptVal.parsedHeader.encryptedDataKeys,
+      encryptionContext := decryptVal.parsedHeader.encryptionContext
     );
 
     output := Success(

@@ -75,46 +75,47 @@ public class ToDafny {
       ? extends DafnySequence<? extends Character>,
       ? extends CryptoAction
     > attributeActionsOnEncrypt;
-    attributeActionsOnEncrypt = ToDafny.AttributeActions(
-      nativeValue.attributeActionsOnEncrypt()
-    );
+    attributeActionsOnEncrypt =
+      ToDafny.AttributeActions(nativeValue.attributeActionsOnEncrypt());
     Option<
       DafnyMap<? extends DafnySequence<? extends Character>, ? extends Actions>
     > nestedActionsOnEncrypt;
-    nestedActionsOnEncrypt = (Objects.nonNull(
-          nativeValue.nestedActionsOnEncrypt()
-        ) &&
-        nativeValue.nestedActionsOnEncrypt().size() > 0)
-      ? Option.create_Some(
-        ToDafny.NestedActions(nativeValue.nestedActionsOnEncrypt())
-      )
-      : Option.create_None();
+    nestedActionsOnEncrypt =
+      (Objects.nonNull(nativeValue.nestedActionsOnEncrypt()) &&
+          nativeValue.nestedActionsOnEncrypt().size() > 0)
+        ? Option.create_Some(
+          ToDafny.NestedActions(nativeValue.nestedActionsOnEncrypt())
+        )
+        : Option.create_None();
     Option<
       DafnyMap<
         ? extends DafnySequence<? extends Character>,
         ? extends JsonEncryptorConfig
       >
     > nestedEncryptors;
-    nestedEncryptors = (Objects.nonNull(nativeValue.nestedEncryptors()) &&
-        nativeValue.nestedEncryptors().size() > 0)
-      ? Option.create_Some(
-        ToDafny.NestedEncryptors(nativeValue.nestedEncryptors())
-      )
-      : Option.create_None();
+    nestedEncryptors =
+      (Objects.nonNull(nativeValue.nestedEncryptors()) &&
+          nativeValue.nestedEncryptors().size() > 0)
+        ? Option.create_Some(
+          ToDafny.NestedEncryptors(nativeValue.nestedEncryptors())
+        )
+        : Option.create_None();
     Option<
       DafnyMap<
         ? extends DafnySequence<? extends Character>,
         ? extends KeyAccess
       >
     > eSDKActions;
-    eSDKActions = (Objects.nonNull(nativeValue.eSDKActions()) &&
-        nativeValue.eSDKActions().size() > 0)
-      ? Option.create_Some(ToDafny.ESDKActions(nativeValue.eSDKActions()))
-      : Option.create_None();
+    eSDKActions =
+      (Objects.nonNull(nativeValue.eSDKActions()) &&
+          nativeValue.eSDKActions().size() > 0)
+        ? Option.create_Some(ToDafny.ESDKActions(nativeValue.eSDKActions()))
+        : Option.create_None();
     Option<DefaultAction> defaultAction;
-    defaultAction = Objects.nonNull(nativeValue.defaultAction())
-      ? Option.create_Some(ToDafny.DefaultAction(nativeValue.defaultAction()))
-      : Option.create_None();
+    defaultAction =
+      Objects.nonNull(nativeValue.defaultAction())
+        ? Option.create_Some(ToDafny.DefaultAction(nativeValue.defaultAction()))
+        : Option.create_None();
     return new Actions(
       attributeActionsOnEncrypt,
       nestedActionsOnEncrypt,
@@ -144,9 +145,10 @@ public class ToDafny {
         nativeValue.plaintextObject()
       );
     Option<ParsedHeader> parsedHeader;
-    parsedHeader = Objects.nonNull(nativeValue.parsedHeader())
-      ? Option.create_Some(ToDafny.ParsedHeader(nativeValue.parsedHeader()))
-      : Option.create_None();
+    parsedHeader =
+      Objects.nonNull(nativeValue.parsedHeader())
+        ? Option.create_Some(ToDafny.ParsedHeader(nativeValue.parsedHeader()))
+        : Option.create_None();
     return new DecryptObjectOutput(plaintextObject, parsedHeader);
   }
 
@@ -170,9 +172,10 @@ public class ToDafny {
         nativeValue.encryptedObject()
       );
     Option<ParsedHeader> parsedHeader;
-    parsedHeader = Objects.nonNull(nativeValue.parsedHeader())
-      ? Option.create_Some(ToDafny.ParsedHeader(nativeValue.parsedHeader()))
-      : Option.create_None();
+    parsedHeader =
+      Objects.nonNull(nativeValue.parsedHeader())
+        ? Option.create_Some(ToDafny.ParsedHeader(nativeValue.parsedHeader()))
+        : Option.create_None();
     return new EncryptObjectOutput(encryptedObject, parsedHeader);
   }
 
@@ -182,24 +185,22 @@ public class ToDafny {
     Option<
       DafnySequence<? extends DafnySequence<? extends Character>>
     > allowedUnsignedAttributes;
-    allowedUnsignedAttributes = (Objects.nonNull(
-          nativeValue.allowedUnsignedAttributes()
-        ) &&
-        nativeValue.allowedUnsignedAttributes().size() > 0)
-      ? Option.create_Some(
-        ToDafny.AttributeNameList(nativeValue.allowedUnsignedAttributes())
-      )
-      : Option.create_None();
-    Option<DafnySequence<? extends Character>> allowedUnsignedAttributePrefix;
-    allowedUnsignedAttributePrefix = Objects.nonNull(
-        nativeValue.allowedUnsignedAttributePrefix()
-      )
-      ? Option.create_Some(
-        software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-          nativeValue.allowedUnsignedAttributePrefix()
+    allowedUnsignedAttributes =
+      (Objects.nonNull(nativeValue.allowedUnsignedAttributes()) &&
+          nativeValue.allowedUnsignedAttributes().size() > 0)
+        ? Option.create_Some(
+          ToDafny.AttributeNameList(nativeValue.allowedUnsignedAttributes())
         )
-      )
-      : Option.create_None();
+        : Option.create_None();
+    Option<DafnySequence<? extends Character>> allowedUnsignedAttributePrefix;
+    allowedUnsignedAttributePrefix =
+      Objects.nonNull(nativeValue.allowedUnsignedAttributePrefix())
+        ? Option.create_Some(
+          software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+            nativeValue.allowedUnsignedAttributePrefix()
+          )
+        )
+        : Option.create_None();
     return new ExplicitUnsigned(
       allowedUnsignedAttributes,
       allowedUnsignedAttributePrefix
@@ -217,13 +218,14 @@ public class ToDafny {
     Actions actions;
     actions = ToDafny.Actions(nativeValue.actions());
     Option<DBEAlgorithmSuiteId> algorithmSuiteId;
-    algorithmSuiteId = Objects.nonNull(nativeValue.algorithmSuiteId())
-      ? Option.create_Some(
-        software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(
-          nativeValue.algorithmSuiteId()
+    algorithmSuiteId =
+      Objects.nonNull(nativeValue.algorithmSuiteId())
+        ? Option.create_Some(
+          software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(
+            nativeValue.algorithmSuiteId()
+          )
         )
-      )
-      : Option.create_None();
+        : Option.create_None();
     KeyAccess keyAccess;
     keyAccess = ToDafny.KeyAccess(nativeValue.keyAccess());
     return new JsonEncryptorConfig(
@@ -241,9 +243,8 @@ public class ToDafny {
       ? extends DafnySequence<? extends Character>,
       ? extends CryptoAction
     > attributeActionsOnEncrypt;
-    attributeActionsOnEncrypt = ToDafny.AttributeActions(
-      nativeValue.attributeActionsOnEncrypt()
-    );
+    attributeActionsOnEncrypt =
+      ToDafny.AttributeActions(nativeValue.attributeActionsOnEncrypt());
     DBEAlgorithmSuiteId algorithmSuiteId;
     algorithmSuiteId =
       software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(
