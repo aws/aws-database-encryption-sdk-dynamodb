@@ -5,10 +5,11 @@ using System;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json;
 namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
-  public class KeyAccess
+  public class DbesdkEncrypt
   {
     private AWS.Cryptography.MaterialProviders.IKeyring _keyring;
     private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
+    private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
     public AWS.Cryptography.MaterialProviders.IKeyring Keyring
     {
       get { return this._keyring; }
@@ -27,13 +28,17 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._cmm != null;
     }
+    public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId
+    {
+      get { return this._algorithmSuiteId; }
+      set { this._algorithmSuiteId = value; }
+    }
+    public bool IsSetAlgorithmSuiteId()
+    {
+      return this._algorithmSuiteId != null;
+    }
     public void Validate()
     {
-      var numberOfPropertiesSet = Convert.ToUInt16(IsSetKeyring()) +
-      Convert.ToUInt16(IsSetCmm());
-      if (numberOfPropertiesSet == 0) throw new System.ArgumentException("No union value set");
-
-      if (numberOfPropertiesSet > 1) throw new System.ArgumentException("Multiple union values set");
 
     }
   }

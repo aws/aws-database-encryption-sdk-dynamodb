@@ -10,12 +10,14 @@ import dafny.TypeDescriptor;
 import java.lang.Byte;
 import java.lang.Character;
 import java.lang.IllegalArgumentException;
+import java.lang.Long;
 import java.lang.RuntimeException;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.Actions;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DbesdkEncrypt;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DecryptObjectInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DecryptObjectOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DefaultAction;
@@ -23,17 +25,21 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EncryptObjectOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.Error_JsonEncryptorException;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EsdkEncrypt;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.ExplicitUnsigned;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.IJsonEncryptorClient;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.Json;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.JsonEncryptorConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.KeyAccess;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.ParsedHeader;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.JsonEncryptorException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 import software.amazon.cryptography.materialproviders.internaldafny.types.DBEAlgorithmSuiteId;
+import software.amazon.cryptography.materialproviders.internaldafny.types.ESDKAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.internaldafny.types.EncryptedDataKey;
+import software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager;
+import software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring;
 
 public class ToDafny {
 
@@ -87,30 +93,6 @@ public class ToDafny {
           ToDafny.NestedActions(nativeValue.nestedActionsOnEncrypt())
         )
         : Option.create_None();
-    Option<
-      DafnyMap<
-        ? extends DafnySequence<? extends Character>,
-        ? extends JsonEncryptorConfig
-      >
-    > nestedEncryptors;
-    nestedEncryptors =
-      (Objects.nonNull(nativeValue.nestedEncryptors()) &&
-          nativeValue.nestedEncryptors().size() > 0)
-        ? Option.create_Some(
-          ToDafny.NestedEncryptors(nativeValue.nestedEncryptors())
-        )
-        : Option.create_None();
-    Option<
-      DafnyMap<
-        ? extends DafnySequence<? extends Character>,
-        ? extends KeyAccess
-      >
-    > eSDKActions;
-    eSDKActions =
-      (Objects.nonNull(nativeValue.eSDKActions()) &&
-          nativeValue.eSDKActions().size() > 0)
-        ? Option.create_Some(ToDafny.ESDKActions(nativeValue.eSDKActions()))
-        : Option.create_None();
     Option<DefaultAction> defaultAction;
     defaultAction =
       Objects.nonNull(nativeValue.defaultAction())
@@ -119,31 +101,56 @@ public class ToDafny {
     return new Actions(
       attributeActionsOnEncrypt,
       nestedActionsOnEncrypt,
-      nestedEncryptors,
-      eSDKActions,
       defaultAction
     );
+  }
+
+  public static DbesdkEncrypt DbesdkEncrypt(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DbesdkEncrypt nativeValue
+  ) {
+    Option<IKeyring> keyring;
+    keyring =
+      Objects.nonNull(nativeValue.keyring())
+        ? Option.create_Some(
+          software.amazon.cryptography.materialproviders.ToDafny.Keyring(
+            nativeValue.keyring()
+          )
+        )
+        : Option.create_None();
+    Option<ICryptographicMaterialsManager> cmm;
+    cmm =
+      Objects.nonNull(nativeValue.cmm())
+        ? Option.create_Some(
+          software.amazon.cryptography.materialproviders.ToDafny.CryptographicMaterialsManager(
+            nativeValue.cmm()
+          )
+        )
+        : Option.create_None();
+    Option<DBEAlgorithmSuiteId> algorithmSuiteId;
+    algorithmSuiteId =
+      Objects.nonNull(nativeValue.algorithmSuiteId())
+        ? Option.create_Some(
+          software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(
+            nativeValue.algorithmSuiteId()
+          )
+        )
+        : Option.create_None();
+    return new DbesdkEncrypt(keyring, cmm, algorithmSuiteId);
   }
 
   public static DecryptObjectInput DecryptObjectInput(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DecryptObjectInput nativeValue
   ) {
-    DafnySequence<? extends Character> encryptedObject;
-    encryptedObject =
-      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        nativeValue.encryptedObject()
-      );
+    Json encryptedObject;
+    encryptedObject = ToDafny.Json(nativeValue.encryptedObject());
     return new DecryptObjectInput(encryptedObject);
   }
 
   public static DecryptObjectOutput DecryptObjectOutput(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DecryptObjectOutput nativeValue
   ) {
-    DafnySequence<? extends Character> plaintextObject;
-    plaintextObject =
-      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        nativeValue.plaintextObject()
-      );
+    Json plaintextObject;
+    plaintextObject = ToDafny.Json(nativeValue.plaintextObject());
     Option<ParsedHeader> parsedHeader;
     parsedHeader =
       Objects.nonNull(nativeValue.parsedHeader())
@@ -155,28 +162,65 @@ public class ToDafny {
   public static EncryptObjectInput EncryptObjectInput(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EncryptObjectInput nativeValue
   ) {
-    DafnySequence<? extends Character> plaintextObject;
-    plaintextObject =
-      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        nativeValue.plaintextObject()
-      );
+    Json plaintextObject;
+    plaintextObject = ToDafny.Json(nativeValue.plaintextObject());
     return new EncryptObjectInput(plaintextObject);
   }
 
   public static EncryptObjectOutput EncryptObjectOutput(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EncryptObjectOutput nativeValue
   ) {
-    DafnySequence<? extends Character> encryptedObject;
-    encryptedObject =
-      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        nativeValue.encryptedObject()
-      );
+    Json encryptedObject;
+    encryptedObject = ToDafny.Json(nativeValue.encryptedObject());
     Option<ParsedHeader> parsedHeader;
     parsedHeader =
       Objects.nonNull(nativeValue.parsedHeader())
         ? Option.create_Some(ToDafny.ParsedHeader(nativeValue.parsedHeader()))
         : Option.create_None();
     return new EncryptObjectOutput(encryptedObject, parsedHeader);
+  }
+
+  public static EsdkEncrypt EsdkEncrypt(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EsdkEncrypt nativeValue
+  ) {
+    Option<ICryptographicMaterialsManager> materialsManager;
+    materialsManager =
+      Objects.nonNull(nativeValue.materialsManager())
+        ? Option.create_Some(
+          software.amazon.cryptography.materialproviders.ToDafny.CryptographicMaterialsManager(
+            nativeValue.materialsManager()
+          )
+        )
+        : Option.create_None();
+    Option<IKeyring> keyring;
+    keyring =
+      Objects.nonNull(nativeValue.keyring())
+        ? Option.create_Some(
+          software.amazon.cryptography.materialproviders.ToDafny.Keyring(
+            nativeValue.keyring()
+          )
+        )
+        : Option.create_None();
+    Option<ESDKAlgorithmSuiteId> algorithmSuiteId;
+    algorithmSuiteId =
+      Objects.nonNull(nativeValue.algorithmSuiteId())
+        ? Option.create_Some(
+          software.amazon.cryptography.materialproviders.ToDafny.ESDKAlgorithmSuiteId(
+            nativeValue.algorithmSuiteId()
+          )
+        )
+        : Option.create_None();
+    Option<Long> frameLength;
+    frameLength =
+      Objects.nonNull(nativeValue.frameLength())
+        ? Option.create_Some((nativeValue.frameLength()))
+        : Option.create_None();
+    return new EsdkEncrypt(
+      materialsManager,
+      keyring,
+      algorithmSuiteId,
+      frameLength
+    );
   }
 
   public static ExplicitUnsigned ExplicitUnsigned(
@@ -217,23 +261,12 @@ public class ToDafny {
       );
     Actions actions;
     actions = ToDafny.Actions(nativeValue.actions());
-    Option<DBEAlgorithmSuiteId> algorithmSuiteId;
-    algorithmSuiteId =
-      Objects.nonNull(nativeValue.algorithmSuiteId())
-        ? Option.create_Some(
-          software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(
-            nativeValue.algorithmSuiteId()
-          )
-        )
+    Option<DbesdkEncrypt> encrypt;
+    encrypt =
+      Objects.nonNull(nativeValue.encrypt())
+        ? Option.create_Some(ToDafny.DbesdkEncrypt(nativeValue.encrypt()))
         : Option.create_None();
-    KeyAccess keyAccess;
-    keyAccess = ToDafny.KeyAccess(nativeValue.keyAccess());
-    return new JsonEncryptorConfig(
-      logicalTableName,
-      actions,
-      algorithmSuiteId,
-      keyAccess
-    );
+    return new JsonEncryptorConfig(logicalTableName, actions, encrypt);
   }
 
   public static ParsedHeader ParsedHeader(
@@ -297,10 +330,10 @@ public class ToDafny {
         ToDafny.ExplicitUnsigned(nativeValue.explicitUnsigned())
       );
     }
-    if (Objects.nonNull(nativeValue.defaultAction())) {
-      return DefaultAction.create_defaultAction(
+    if (Objects.nonNull(nativeValue.action())) {
+      return DefaultAction.create_action(
         software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToDafny.CryptoAction(
-          nativeValue.defaultAction()
+          nativeValue.action()
         )
       );
     }
@@ -311,27 +344,27 @@ public class ToDafny {
     );
   }
 
-  public static KeyAccess KeyAccess(
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.KeyAccess nativeValue
+  public static Json Json(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.Json nativeValue
   ) {
-    if (Objects.nonNull(nativeValue.keyring())) {
-      return KeyAccess.create_keyring(
-        software.amazon.cryptography.materialproviders.ToDafny.Keyring(
-          nativeValue.keyring()
+    if (Objects.nonNull(nativeValue.utf8())) {
+      return Json.create_utf8(
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple.DafnyUtf8Bytes(
+          nativeValue.utf8()
         )
       );
     }
-    if (Objects.nonNull(nativeValue.cmm())) {
-      return KeyAccess.create_cmm(
-        software.amazon.cryptography.materialproviders.ToDafny.CryptographicMaterialsManager(
-          nativeValue.cmm()
+    if (Objects.nonNull(nativeValue.text())) {
+      return Json.create_text(
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+          nativeValue.text()
         )
       );
     }
     throw new IllegalArgumentException(
       "Cannot convert " +
       nativeValue +
-      " to software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.KeyAccess."
+      " to software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.Json."
     );
   }
 
@@ -363,17 +396,17 @@ public class ToDafny {
 
   public static DafnyMap<
     ? extends DafnySequence<? extends Character>,
-    ? extends KeyAccess
+    ? extends EsdkEncrypt
   > ESDKActions(
     Map<
       String,
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.KeyAccess
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EsdkEncrypt
     > nativeValue
   ) {
     return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
       nativeValue,
       software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence,
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.json.ToDafny::KeyAccess
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.json.ToDafny::EsdkEncrypt
     );
   }
 

@@ -8,7 +8,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
   public class DefaultAction
   {
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.ExplicitUnsigned _explicitUnsigned;
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction _defaultAction;
+    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction _action;
     public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.ExplicitUnsigned ExplicitUnsigned
     {
       get { return this._explicitUnsigned; }
@@ -18,19 +18,19 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._explicitUnsigned != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction DefaultAction
+    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction Action
     {
-      get { return this._defaultAction; }
-      set { this._defaultAction = value; }
+      get { return this._action; }
+      set { this._action = value; }
     }
-    public bool IsSetDefaultAction()
+    public bool IsSetAction()
     {
-      return this._defaultAction != null;
+      return this._action != null;
     }
     public void Validate()
     {
       var numberOfPropertiesSet = Convert.ToUInt16(IsSetExplicitUnsigned()) +
-      Convert.ToUInt16(IsSetDefaultAction());
+      Convert.ToUInt16(IsSetAction());
       if (numberOfPropertiesSet == 0) throw new System.ArgumentException("No union value set");
 
       if (numberOfPropertiesSet > 1) throw new System.ArgumentException("Multiple union values set");

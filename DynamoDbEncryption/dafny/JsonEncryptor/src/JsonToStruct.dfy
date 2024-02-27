@@ -96,28 +96,61 @@ module JsonToStruct {
   const LIST       : SE.TerminalTypeId := [LIST_T, NULL_T]
 
 
-  function method StringToJsonObject(item : string) : (res :Result<JSON, string>)
+  function method {:opaque} SmithyJsonToObject(item : Json) : (res :Result<JSON, string>)
     ensures res.Success? ==> res.value.Object?
   {
-    var json :- StringToJson(item);
-    :- Need(json.Object?, "JSON to encrypt/decrypt must be an Object : " + item);
+    var json :- if item.text? then
+      StringToJson(item.text)
+    else
+      Utf8ToJson(item.utf8);
+
+    :- Need(json.Object?, "JSON to encrypt/decrypt must be an Object : " + SmithyJsonToString(item));
     Success(json)
   }
 
-  function method StringToJson(item : string) : Result<JSON, string>
+  function method {:opaque} JsonToSmithyJson(item : JSON, example : Json) : Result<Json, string>
+  {
+    var jsonBytes :- API.Serialize(item).MapFailure((e : Errors.SerializationError) => e.ToString());
+    if example.utf8? then
+      Success(utf8(example.utf8))
+    else
+      var textStr :- UTF8.Decode(jsonBytes);
+      Success(text(textStr))
+  }
+
+  function method {:opaque} SmithyJsonToString(item : Json) : string
+  {
+    if item.text? then
+      item.text
+    else
+      var text := UTF8.Decode(item.utf8);
+      if text.Success? then
+        text.value
+      else
+        "Invalid UTF8 in Json type."
+  }
+
+
+  function method {:opaque} StringToJson(item : string) : Result<JSON, string>
   {
     var obj :- UTF8.Encode(item);
     var json :- API.Deserialize(obj).MapFailure((e : Errors.DeserializationError) => e.ToString());
     Success(json)
   }
 
-  function method JsonToString(json : JSON) : Result<string, string>
+  function method {:opaque} Utf8ToJson(item : seq<uint8>) : Result<JSON, string>
+  {
+    var json :- API.Deserialize(item).MapFailure((e : Errors.DeserializationError) => e.ToString());
+    Success(json)
+  }
+
+  function method {:opaque} JsonToString(json : JSON) : Result<string, string>
   {
     var jsonBytes :- API.Serialize(json).MapFailure((e : Errors.SerializationError) => e.ToString());
     UTF8.Decode(jsonBytes)
   }
 
-  function method {:tailrecursion} FindItem(orig : seq<(string, JSON)>, key : string)
+  function method {:tailrecursion} {:opaque} FindItem(orig : seq<(string, JSON)>, key : string)
     : Option<JSON>
   {
     if |orig| == 0 then

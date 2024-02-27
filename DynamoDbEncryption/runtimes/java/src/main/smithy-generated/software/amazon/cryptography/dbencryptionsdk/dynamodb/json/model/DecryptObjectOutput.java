@@ -13,7 +13,7 @@ public class DecryptObjectOutput {
   /**
    * The decrypted JSON object.
    */
-  private final String plaintextObject;
+  private final Json plaintextObject;
 
   /**
    * A parsed version of the header on the encrypted JSON object.
@@ -28,7 +28,7 @@ public class DecryptObjectOutput {
   /**
    * @return The decrypted JSON object.
    */
-  public String plaintextObject() {
+  public Json plaintextObject() {
     return this.plaintextObject;
   }
 
@@ -51,12 +51,12 @@ public class DecryptObjectOutput {
     /**
      * @param plaintextObject The decrypted JSON object.
      */
-    Builder plaintextObject(String plaintextObject);
+    Builder plaintextObject(Json plaintextObject);
 
     /**
      * @return The decrypted JSON object.
      */
-    String plaintextObject();
+    Json plaintextObject();
 
     /**
      * @param parsedHeader A parsed version of the header on the encrypted JSON object.
@@ -73,7 +73,7 @@ public class DecryptObjectOutput {
 
   static class BuilderImpl implements Builder {
 
-    protected String plaintextObject;
+    protected Json plaintextObject;
 
     protected ParsedHeader parsedHeader;
 
@@ -84,12 +84,12 @@ public class DecryptObjectOutput {
       this.parsedHeader = model.parsedHeader();
     }
 
-    public Builder plaintextObject(String plaintextObject) {
+    public Builder plaintextObject(Json plaintextObject) {
       this.plaintextObject = plaintextObject;
       return this;
     }
 
-    public String plaintextObject() {
+    public Json plaintextObject() {
       return this.plaintextObject;
     }
 

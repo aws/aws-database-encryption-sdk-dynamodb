@@ -20,16 +20,6 @@ public class Actions {
   private final Map<String, Actions> nestedActionsOnEncrypt;
 
   /**
-   * Separate encryption of sub-objects, each getting their own header and footer.
-   */
-  private final Map<String, JsonEncryptorConfig> nestedEncryptors;
-
-  /**
-   * A map that allows separate encryption of individual values.
-   */
-  private final Map<String, KeyAccess> eSDKActions;
-
-  /**
    * What to do with actions not explicitly mentioned in attributeActionsOnEncrypt.
    */
   private final DefaultAction defaultAction;
@@ -37,8 +27,6 @@ public class Actions {
   protected Actions(BuilderImpl builder) {
     this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
     this.nestedActionsOnEncrypt = builder.nestedActionsOnEncrypt();
-    this.nestedEncryptors = builder.nestedEncryptors();
-    this.eSDKActions = builder.eSDKActions();
     this.defaultAction = builder.defaultAction();
   }
 
@@ -54,20 +42,6 @@ public class Actions {
    */
   public Map<String, Actions> nestedActionsOnEncrypt() {
     return this.nestedActionsOnEncrypt;
-  }
-
-  /**
-   * @return Separate encryption of sub-objects, each getting their own header and footer.
-   */
-  public Map<String, JsonEncryptorConfig> nestedEncryptors() {
-    return this.nestedEncryptors;
-  }
-
-  /**
-   * @return A map that allows separate encryption of individual values.
-   */
-  public Map<String, KeyAccess> eSDKActions() {
-    return this.eSDKActions;
   }
 
   /**
@@ -109,26 +83,6 @@ public class Actions {
     Map<String, Actions> nestedActionsOnEncrypt();
 
     /**
-     * @param nestedEncryptors Separate encryption of sub-objects, each getting their own header and footer.
-     */
-    Builder nestedEncryptors(Map<String, JsonEncryptorConfig> nestedEncryptors);
-
-    /**
-     * @return Separate encryption of sub-objects, each getting their own header and footer.
-     */
-    Map<String, JsonEncryptorConfig> nestedEncryptors();
-
-    /**
-     * @param eSDKActions A map that allows separate encryption of individual values.
-     */
-    Builder eSDKActions(Map<String, KeyAccess> eSDKActions);
-
-    /**
-     * @return A map that allows separate encryption of individual values.
-     */
-    Map<String, KeyAccess> eSDKActions();
-
-    /**
      * @param defaultAction What to do with actions not explicitly mentioned in attributeActionsOnEncrypt.
      */
     Builder defaultAction(DefaultAction defaultAction);
@@ -147,10 +101,6 @@ public class Actions {
 
     protected Map<String, Actions> nestedActionsOnEncrypt;
 
-    protected Map<String, JsonEncryptorConfig> nestedEncryptors;
-
-    protected Map<String, KeyAccess> eSDKActions;
-
     protected DefaultAction defaultAction;
 
     protected BuilderImpl() {}
@@ -158,8 +108,6 @@ public class Actions {
     protected BuilderImpl(Actions model) {
       this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
       this.nestedActionsOnEncrypt = model.nestedActionsOnEncrypt();
-      this.nestedEncryptors = model.nestedEncryptors();
-      this.eSDKActions = model.eSDKActions();
       this.defaultAction = model.defaultAction();
     }
 
@@ -183,26 +131,6 @@ public class Actions {
 
     public Map<String, Actions> nestedActionsOnEncrypt() {
       return this.nestedActionsOnEncrypt;
-    }
-
-    public Builder nestedEncryptors(
-      Map<String, JsonEncryptorConfig> nestedEncryptors
-    ) {
-      this.nestedEncryptors = nestedEncryptors;
-      return this;
-    }
-
-    public Map<String, JsonEncryptorConfig> nestedEncryptors() {
-      return this.nestedEncryptors;
-    }
-
-    public Builder eSDKActions(Map<String, KeyAccess> eSDKActions) {
-      this.eSDKActions = eSDKActions;
-      return this;
-    }
-
-    public Map<String, KeyAccess> eSDKActions() {
-      return this.eSDKActions;
     }
 
     public Builder defaultAction(DefaultAction defaultAction) {

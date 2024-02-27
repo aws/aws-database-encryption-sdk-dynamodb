@@ -7,9 +7,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
   public class DecryptObjectOutput
   {
-    private string _plaintextObject;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Json _plaintextObject;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.ParsedHeader _parsedHeader;
-    public string PlaintextObject
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Json PlaintextObject
     {
       get { return this._plaintextObject; }
       set { this._plaintextObject = value; }

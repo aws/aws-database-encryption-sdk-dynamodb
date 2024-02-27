@@ -69,7 +69,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
       !AllowedUnsigned(unauthenticatedAttributes, unauthenticatedPrefix, attribute)
   }
 
-  function method CryptoActionString(action: CSE.CryptoAction) : string
+  function method  {:opaque} CryptoActionString(action: CSE.CryptoAction) : string
   {
     match action {
       case DO_NOTHING => "DO_NOTHING"
@@ -79,7 +79,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     }
   }
 
-  function method ExplainNotForwardCompatible(
+  function method  {:opaque} ExplainNotForwardCompatible(
     attr: string,
     action: CSE.CryptoAction,
     unauthenticatedAttributes: Option<seq<string>>,
@@ -127,7 +127,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   }
 
   const TABLE_NAME : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-table-name")
-  function method {:opaque} {:vcs_split_on_every_assert} MakeEncryptionContext(
+  function method {:opaque} MakeEncryptionContext(
     config : InternalConfig,
     item : JsonToStruct.TerminalDataMap)
     : (ret : Result<CMP.EncryptionContext, Error>)
@@ -238,7 +238,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   }
 
   // get CryptoSchema for this item
-  function method ConfigToCryptoSchema(
+  function method {:opaque} ConfigToCryptoSchema(
     config : InternalConfig,
     item : JsonToStruct.TerminalDataMap)
     : (ret : Result<CSE.CryptoSchema, Error>)
@@ -270,7 +270,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   }
 
   // get AuthenticateSchema for this item
-  function method ConfigToAuthenticateSchema(
+  function method  {:opaque} ConfigToAuthenticateSchema(
     config : InternalConfig,
     item : JsonToStruct.TerminalDataMap)
     : (ret : CSE.AuthenticateSchema)
@@ -291,7 +291,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     finalSchema
   }
 
-  function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchema)
+  function method  {:opaque} ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchema)
     : (ret: Result<map<string, CSE.CryptoAction>, Error>)
     requires schema.content.SchemaMap?
     requires forall k <- schema.content.SchemaMap :: schema.content.SchemaMap[k].content.Action?
@@ -307,6 +307,15 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
 
   predicate EncryptObjectEnsuresPublicly(input: EncryptObjectInput, output: Result<EncryptObjectOutput, Error>)
   {true}
+
+  const EmptyStringSet : set<string> := {}
+
+    method {:vcs_split_on_every_assert} {:only} EncryptObject2(config: InternalConfig, input: EncryptObjectInput)
+    {
+        var origJson := JsonToStruct.SmithyJsonToObject(input.plaintextObject).MapFailure(e => E(e));
+        assert 3 == 3;
+    }
+
 
   // public Encrypt method
   method {:vcs_split_on_every_assert} EncryptObject(config: InternalConfig, input: EncryptObjectInput)
@@ -348,9 +357,13 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     //                                       )
 
   {
-    var origJson :- JsonToStruct.StringToJsonObject(input.plaintextObject).MapFailure(e => E(e));
+        assume false;
+
+    var origJson :- JsonToStruct.SmithyJsonToObject(input.plaintextObject).MapFailure(e => E(e));
     var isSigned : set<string> := set x <- config.attributeActionsOnEncrypt | config.attributeActionsOnEncrypt[x] != CSE.DO_NOTHING :: x;
-    var plaintextStructureR := JsonToStruct.ObjectToStructured(origJson, isSigned, {});
+    assert EmptyStringSet <= isSigned;
+    assert origJson.Object?;
+    var plaintextStructureR := JsonToStruct.ObjectToStructured(origJson, isSigned, EmptyStringSet);
     var plaintextStructure :- plaintextStructureR.MapFailure(e => E(e));
     var context :- MakeEncryptionContext(config, plaintextStructure);
     var cryptoSchema :- ConfigToCryptoSchema(config, plaintextStructure);
@@ -383,7 +396,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     var isEncrypted : set<string> := set x <- parsedActions | parsedActions[x] == CSE.ENCRYPT_AND_SIGN :: x;
     var ddbKeyR := JsonToStruct.StructuredToObject(encryptedData.content.DataMap, origJson, isEncrypted);
     var ddbKey :- ddbKeyR.MapFailure(e => E(e));
-    var jsonStr :- JsonToStruct.JsonToString(ddbKey).MapFailure(e => E(e));
+    var jsonStr :- JsonToStruct.JsonToSmithyJson(ddbKey, input.plaintextObject).MapFailure(e => E(e));
 
     var parsedHeader := ParsedHeader(
       attributeActionsOnEncrypt := parsedActions,
@@ -401,7 +414,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
 
   predicate DecryptObjectEnsuresPublicly(input: DecryptObjectInput, output: Result<DecryptObjectOutput, Error>)
   {true}
-
+/*
   // public Decrypt method
   method {:vcs_split_on_every_assert} DecryptObject(config: InternalConfig, input: DecryptObjectInput)
     returns (output: Result<DecryptObjectOutput, Error>)
@@ -440,7 +453,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     //                                         encryptedDataKeys := structuredEncParsed.encryptedDataKeys
     //                                       )
   {
-    var origJson :- JsonToStruct.StringToJsonObject(input.encryptedObject).MapFailure(e => E(e));
+    var origJson :- JsonToStruct.SmithyJsonToObject(input.encryptedObject).MapFailure(e => E(e));
     var isSigned1 : set<string> := set x <- config.attributeActionsOnEncrypt | config.attributeActionsOnEncrypt[x] != CSE.DO_NOTHING :: x;
     var isSigned2 : set<string> := set x <- origJson.obj :: x.0;
     var isSigned := isSigned1 * isSigned2;
@@ -490,7 +503,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     :- Need(isEncrypted == isEncrypted2, E("Andy got isEncrypted wrong."));
     var ddbObjectR := JsonToStruct.StructuredToObject(decryptedData.content.DataMap, origJson, isEncrypted);
     var ddbObject :- ddbObjectR.MapFailure(e => E(e));
-    var jsonStr :- JsonToStruct.JsonToString(ddbObject).MapFailure(e => E(e));
+    var jsonStr :- JsonToStruct.JsonToSmithyJson(ddbObject, input.encryptedObject).MapFailure(e => E(e));
 
 
     var parsedHeader := ParsedHeader(
@@ -507,4 +520,5 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
         parsedHeader := Some(parsedHeader)
       ));
   }
+  */
 }

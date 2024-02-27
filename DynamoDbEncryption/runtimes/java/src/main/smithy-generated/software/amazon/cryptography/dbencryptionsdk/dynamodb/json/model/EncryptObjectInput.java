@@ -13,7 +13,7 @@ public class EncryptObjectInput {
   /**
    * The JSON object to encrypt.
    */
-  private final String plaintextObject;
+  private final Json plaintextObject;
 
   protected EncryptObjectInput(BuilderImpl builder) {
     this.plaintextObject = builder.plaintextObject();
@@ -22,7 +22,7 @@ public class EncryptObjectInput {
   /**
    * @return The JSON object to encrypt.
    */
-  public String plaintextObject() {
+  public Json plaintextObject() {
     return this.plaintextObject;
   }
 
@@ -38,19 +38,19 @@ public class EncryptObjectInput {
     /**
      * @param plaintextObject The JSON object to encrypt.
      */
-    Builder plaintextObject(String plaintextObject);
+    Builder plaintextObject(Json plaintextObject);
 
     /**
      * @return The JSON object to encrypt.
      */
-    String plaintextObject();
+    Json plaintextObject();
 
     EncryptObjectInput build();
   }
 
   static class BuilderImpl implements Builder {
 
-    protected String plaintextObject;
+    protected Json plaintextObject;
 
     protected BuilderImpl() {}
 
@@ -58,12 +58,12 @@ public class EncryptObjectInput {
       this.plaintextObject = model.plaintextObject();
     }
 
-    public Builder plaintextObject(String plaintextObject) {
+    public Builder plaintextObject(Json plaintextObject) {
       this.plaintextObject = plaintextObject;
       return this;
     }
 
-    public String plaintextObject() {
+    public Json plaintextObject() {
       return this.plaintextObject;
     }
 

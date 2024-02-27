@@ -21,34 +21,50 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.json.inte
   datatype Actions = | Actions (
     nameonly attributeActionsOnEncrypt: AttributeActions ,
     nameonly nestedActionsOnEncrypt: Option<NestedActions> := Option.None ,
-    nameonly nestedEncryptors: Option<NestedEncryptors> := Option.None ,
-    nameonly eSDKActions: Option<ESDKActions> := Option.None ,
     nameonly defaultAction: Option<DefaultAction> := Option.None
   )
   type AttributeActions = map<string, AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
   type AttributeNameList = seq<string>
+  datatype DbesdkEncrypt = | DbesdkEncrypt (
+    nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
+    nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
+    nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None
+  )
   datatype DecryptObjectInput = | DecryptObjectInput (
-    nameonly encryptedObject: string
+    nameonly encryptedObject: Json
   )
   datatype DecryptObjectOutput = | DecryptObjectOutput (
-    nameonly plaintextObject: string ,
+    nameonly plaintextObject: Json ,
     nameonly parsedHeader: Option<ParsedHeader> := Option.None
   )
   datatype DefaultAction =
     | explicitUnsigned(explicitUnsigned: ExplicitUnsigned)
-    | defaultAction(defaultAction: AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction)
+    | action(action: AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction)
   datatype EncryptObjectInput = | EncryptObjectInput (
-    nameonly plaintextObject: string
+    nameonly plaintextObject: Json
   )
   datatype EncryptObjectOutput = | EncryptObjectOutput (
-    nameonly encryptedObject: string ,
+    nameonly encryptedObject: Json ,
     nameonly parsedHeader: Option<ParsedHeader> := Option.None
   )
-  type ESDKActions = map<string, KeyAccess>
+  type ESDKActions = map<string, EsdkEncrypt>
+  datatype EsdkEncrypt = | EsdkEncrypt (
+    nameonly materialsManager: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
+    nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
+    nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.ESDKAlgorithmSuiteId> := Option.None ,
+    nameonly frameLength: Option<FrameLength> := Option.None
+  )
   datatype ExplicitUnsigned = | ExplicitUnsigned (
     nameonly allowedUnsignedAttributes: Option<AttributeNameList> := Option.None ,
     nameonly allowedUnsignedAttributePrefix: Option<string> := Option.None
   )
+  type FrameLength = x: int64 | IsValid_FrameLength(x) witness *
+  predicate method IsValid_FrameLength(x: int64) {
+    ( 1 <= x <= 4294967296 )
+  }
+  datatype Json =
+    | utf8(utf8: Utf8Bytes)
+    | text(text: string)
   class IJsonEncryptorClientCallHistory {
     ghost constructor() {
       EncryptObject := [];
@@ -118,12 +134,8 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.json.inte
   datatype JsonEncryptorConfig = | JsonEncryptorConfig (
     nameonly logicalTableName: string ,
     nameonly actions: Actions ,
-    nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
-    nameonly keyAccess: KeyAccess
+    nameonly encrypt: Option<DbesdkEncrypt> := Option.None
   )
-  datatype KeyAccess =
-    | keyring(keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
-    | cmm(cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager)
   type NestedActions = map<string, Actions>
   type NestedEncryptors = map<string, JsonEncryptorConfig>
   datatype ParsedHeader = | ParsedHeader (
@@ -133,6 +145,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.json.inte
     nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
     nameonly encryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
   )
+  type Utf8Bytes = ValidUTF8Bytes
   datatype Error =
       // Local Error structures are listed here
     | JsonEncryptorException (
@@ -180,32 +193,44 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbJsonService
   function method DefaultJsonEncryptorConfig(): JsonEncryptorConfig
   method JsonEncryptor(config: JsonEncryptorConfig := DefaultJsonEncryptorConfig())
     returns (res: Result<IJsonEncryptorClient, Error>)
-    requires config.keyAccess.keyring? ==>
-               config.keyAccess.keyring.ValidState()
-    requires config.keyAccess.cmm? ==>
-               config.keyAccess.cmm.ValidState()
-    modifies if config.keyAccess.keyring? then
-               config.keyAccess.keyring.Modifies
+    requires config.encrypt.Some? ==>
+               config.encrypt.value.keyring.Some? ==>
+                 config.encrypt.value.keyring.value.ValidState()
+    requires config.encrypt.Some? ==>
+               config.encrypt.value.cmm.Some? ==>
+                 config.encrypt.value.cmm.value.ValidState()
+    modifies if config.encrypt.Some? then
+               if config.encrypt.value.keyring.Some? then
+                 config.encrypt.value.keyring.value.Modifies
+               else {}
              else {}
-    modifies if config.keyAccess.cmm? then
-               config.keyAccess.cmm.Modifies
+    modifies if config.encrypt.Some? then
+               if config.encrypt.value.cmm.Some? then
+                 config.encrypt.value.cmm.value.Modifies
+               else {}
              else {}
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies
-                       - ( if config.keyAccess.keyring? then
-                             config.keyAccess.keyring.Modifies
+                       - ( if config.encrypt.Some? then
+                             if config.encrypt.value.keyring.Some? then
+                               config.encrypt.value.keyring.value.Modifies
+                             else {}
                            else {}
-                       ) - ( if config.keyAccess.cmm? then
-                               config.keyAccess.cmm.Modifies
+                       ) - ( if config.encrypt.Some? then
+                               if config.encrypt.value.cmm.Some? then
+                                 config.encrypt.value.cmm.value.Modifies
+                               else {}
                              else {}
                        ) )
               && fresh(res.value.History)
               && res.value.ValidState()
-    ensures config.keyAccess.keyring? ==>
-              config.keyAccess.keyring.ValidState()
-    ensures config.keyAccess.cmm? ==>
-              config.keyAccess.cmm.ValidState()
+    ensures config.encrypt.Some? ==>
+              config.encrypt.value.keyring.Some? ==>
+                config.encrypt.value.keyring.value.ValidState()
+    ensures config.encrypt.Some? ==>
+              config.encrypt.value.cmm.Some? ==>
+                config.encrypt.value.cmm.value.ValidState()
 
   // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IJsonEncryptorClient): Result<IJsonEncryptorClient, Error> {

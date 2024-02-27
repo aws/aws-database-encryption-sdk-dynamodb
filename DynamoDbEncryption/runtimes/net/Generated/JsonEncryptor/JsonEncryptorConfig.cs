@@ -9,8 +9,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
   {
     private string _logicalTableName;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Actions _actions;
-    private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
-    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.KeyAccess _keyAccess;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.DbesdkEncrypt _encrypt;
     public string LogicalTableName
     {
       get { return this._logicalTableName; }
@@ -29,29 +28,19 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._actions != null;
     }
-    public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.DbesdkEncrypt Encrypt
     {
-      get { return this._algorithmSuiteId; }
-      set { this._algorithmSuiteId = value; }
+      get { return this._encrypt; }
+      set { this._encrypt = value; }
     }
-    public bool IsSetAlgorithmSuiteId()
+    public bool IsSetEncrypt()
     {
-      return this._algorithmSuiteId != null;
-    }
-    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.KeyAccess KeyAccess
-    {
-      get { return this._keyAccess; }
-      set { this._keyAccess = value; }
-    }
-    public bool IsSetKeyAccess()
-    {
-      return this._keyAccess != null;
+      return this._encrypt != null;
     }
     public void Validate()
     {
       if (!IsSetLogicalTableName()) throw new System.ArgumentException("Missing value for required property 'LogicalTableName'");
       if (!IsSetActions()) throw new System.ArgumentException("Missing value for required property 'Actions'");
-      if (!IsSetKeyAccess()) throw new System.ArgumentException("Missing value for required property 'KeyAccess'");
 
     }
   }

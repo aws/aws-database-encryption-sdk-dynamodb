@@ -4,7 +4,6 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model;
 
 import java.util.Objects;
-import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
 /**
  * The configuration for the client-side encryption of JSON objects.
@@ -22,17 +21,14 @@ public class JsonEncryptorConfig {
   private final Actions actions;
 
   /**
-   * An ID for the algorithm suite to use during encryption and decryption.
+   * Setting for encryption and decryption.
    */
-  private final DBEAlgorithmSuiteId algorithmSuiteId;
-
-  private final KeyAccess keyAccess;
+  private final DbesdkEncrypt encrypt;
 
   protected JsonEncryptorConfig(BuilderImpl builder) {
     this.logicalTableName = builder.logicalTableName();
     this.actions = builder.actions();
-    this.algorithmSuiteId = builder.algorithmSuiteId();
-    this.keyAccess = builder.keyAccess();
+    this.encrypt = builder.encrypt();
   }
 
   /**
@@ -50,14 +46,10 @@ public class JsonEncryptorConfig {
   }
 
   /**
-   * @return An ID for the algorithm suite to use during encryption and decryption.
+   * @return Setting for encryption and decryption.
    */
-  public DBEAlgorithmSuiteId algorithmSuiteId() {
-    return this.algorithmSuiteId;
-  }
-
-  public KeyAccess keyAccess() {
-    return this.keyAccess;
+  public DbesdkEncrypt encrypt() {
+    return this.encrypt;
   }
 
   public Builder toBuilder() {
@@ -90,18 +82,14 @@ public class JsonEncryptorConfig {
     Actions actions();
 
     /**
-     * @param algorithmSuiteId An ID for the algorithm suite to use during encryption and decryption.
+     * @param encrypt Setting for encryption and decryption.
      */
-    Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
+    Builder encrypt(DbesdkEncrypt encrypt);
 
     /**
-     * @return An ID for the algorithm suite to use during encryption and decryption.
+     * @return Setting for encryption and decryption.
      */
-    DBEAlgorithmSuiteId algorithmSuiteId();
-
-    Builder keyAccess(KeyAccess keyAccess);
-
-    KeyAccess keyAccess();
+    DbesdkEncrypt encrypt();
 
     JsonEncryptorConfig build();
   }
@@ -112,17 +100,14 @@ public class JsonEncryptorConfig {
 
     protected Actions actions;
 
-    protected DBEAlgorithmSuiteId algorithmSuiteId;
-
-    protected KeyAccess keyAccess;
+    protected DbesdkEncrypt encrypt;
 
     protected BuilderImpl() {}
 
     protected BuilderImpl(JsonEncryptorConfig model) {
       this.logicalTableName = model.logicalTableName();
       this.actions = model.actions();
-      this.algorithmSuiteId = model.algorithmSuiteId();
-      this.keyAccess = model.keyAccess();
+      this.encrypt = model.encrypt();
     }
 
     public Builder logicalTableName(String logicalTableName) {
@@ -143,22 +128,13 @@ public class JsonEncryptorConfig {
       return this.actions;
     }
 
-    public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
-      this.algorithmSuiteId = algorithmSuiteId;
+    public Builder encrypt(DbesdkEncrypt encrypt) {
+      this.encrypt = encrypt;
       return this;
     }
 
-    public DBEAlgorithmSuiteId algorithmSuiteId() {
-      return this.algorithmSuiteId;
-    }
-
-    public Builder keyAccess(KeyAccess keyAccess) {
-      this.keyAccess = keyAccess;
-      return this;
-    }
-
-    public KeyAccess keyAccess() {
-      return this.keyAccess;
+    public DbesdkEncrypt encrypt() {
+      return this.encrypt;
     }
 
     public JsonEncryptorConfig build() {
@@ -170,11 +146,6 @@ public class JsonEncryptorConfig {
       if (Objects.isNull(this.actions())) {
         throw new IllegalArgumentException(
           "Missing value for required field `actions`"
-        );
-      }
-      if (Objects.isNull(this.keyAccess())) {
-        throw new IllegalArgumentException(
-          "Missing value for required field `keyAccess`"
         );
       }
       return new JsonEncryptorConfig(this);

@@ -13,7 +13,7 @@ public class DecryptObjectInput {
   /**
    * The encrypted JSON object to decrypt.
    */
-  private final String encryptedObject;
+  private final Json encryptedObject;
 
   protected DecryptObjectInput(BuilderImpl builder) {
     this.encryptedObject = builder.encryptedObject();
@@ -22,7 +22,7 @@ public class DecryptObjectInput {
   /**
    * @return The encrypted JSON object to decrypt.
    */
-  public String encryptedObject() {
+  public Json encryptedObject() {
     return this.encryptedObject;
   }
 
@@ -38,19 +38,19 @@ public class DecryptObjectInput {
     /**
      * @param encryptedObject The encrypted JSON object to decrypt.
      */
-    Builder encryptedObject(String encryptedObject);
+    Builder encryptedObject(Json encryptedObject);
 
     /**
      * @return The encrypted JSON object to decrypt.
      */
-    String encryptedObject();
+    Json encryptedObject();
 
     DecryptObjectInput build();
   }
 
   static class BuilderImpl implements Builder {
 
-    protected String encryptedObject;
+    protected Json encryptedObject;
 
     protected BuilderImpl() {}
 
@@ -58,12 +58,12 @@ public class DecryptObjectInput {
       this.encryptedObject = model.encryptedObject();
     }
 
-    public Builder encryptedObject(String encryptedObject) {
+    public Builder encryptedObject(Json encryptedObject) {
       this.encryptedObject = encryptedObject;
       return this;
     }
 
-    public String encryptedObject() {
+    public Json encryptedObject() {
       return this.encryptedObject;
     }
 

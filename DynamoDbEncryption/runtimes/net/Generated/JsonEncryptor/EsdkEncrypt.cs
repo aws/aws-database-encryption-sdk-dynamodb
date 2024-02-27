@@ -1,0 +1,55 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
+using System;
+using AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json;
+namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
+{
+  public class EsdkEncrypt
+  {
+    private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _materialsManager;
+    private AWS.Cryptography.MaterialProviders.IKeyring _keyring;
+    private AWS.Cryptography.MaterialProviders.ESDKAlgorithmSuiteId _algorithmSuiteId;
+    private long? _frameLength;
+    public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager MaterialsManager
+    {
+      get { return this._materialsManager; }
+      set { this._materialsManager = value; }
+    }
+    public bool IsSetMaterialsManager()
+    {
+      return this._materialsManager != null;
+    }
+    public AWS.Cryptography.MaterialProviders.IKeyring Keyring
+    {
+      get { return this._keyring; }
+      set { this._keyring = value; }
+    }
+    public bool IsSetKeyring()
+    {
+      return this._keyring != null;
+    }
+    public AWS.Cryptography.MaterialProviders.ESDKAlgorithmSuiteId AlgorithmSuiteId
+    {
+      get { return this._algorithmSuiteId; }
+      set { this._algorithmSuiteId = value; }
+    }
+    public bool IsSetAlgorithmSuiteId()
+    {
+      return this._algorithmSuiteId != null;
+    }
+    public long FrameLength
+    {
+      get { return this._frameLength.GetValueOrDefault(); }
+      set { this._frameLength = value; }
+    }
+    public bool IsSetFrameLength()
+    {
+      return this._frameLength.HasValue;
+    }
+    public void Validate()
+    {
+
+    }
+  }
+}

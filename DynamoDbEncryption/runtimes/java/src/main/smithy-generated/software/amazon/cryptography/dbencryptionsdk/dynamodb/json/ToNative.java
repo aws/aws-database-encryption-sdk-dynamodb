@@ -17,15 +17,17 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.IJsonEncryptorClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.Actions;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.CollectionOfErrors;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DbesdkEncrypt;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DecryptObjectInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DecryptObjectOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DefaultAction;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EncryptObjectInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EncryptObjectOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EsdkEncrypt;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.ExplicitUnsigned;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.Json;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.JsonEncryptorConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.JsonEncryptorException;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.KeyAccess;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.ParsedHeader;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
@@ -111,21 +113,37 @@ public class ToNative {
         )
       );
     }
-    if (dafnyValue.dtor_nestedEncryptors().is_Some()) {
-      nativeBuilder.nestedEncryptors(
-        ToNative.NestedEncryptors(
-          dafnyValue.dtor_nestedEncryptors().dtor_value()
-        )
-      );
-    }
-    if (dafnyValue.dtor_eSDKActions().is_Some()) {
-      nativeBuilder.eSDKActions(
-        ToNative.ESDKActions(dafnyValue.dtor_eSDKActions().dtor_value())
-      );
-    }
     if (dafnyValue.dtor_defaultAction().is_Some()) {
       nativeBuilder.defaultAction(
         ToNative.DefaultAction(dafnyValue.dtor_defaultAction().dtor_value())
+      );
+    }
+    return nativeBuilder.build();
+  }
+
+  public static DbesdkEncrypt DbesdkEncrypt(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.DbesdkEncrypt dafnyValue
+  ) {
+    DbesdkEncrypt.Builder nativeBuilder = DbesdkEncrypt.builder();
+    if (dafnyValue.dtor_keyring().is_Some()) {
+      nativeBuilder.keyring(
+        software.amazon.cryptography.materialproviders.ToNative.Keyring(
+          dafnyValue.dtor_keyring().dtor_value()
+        )
+      );
+    }
+    if (dafnyValue.dtor_cmm().is_Some()) {
+      nativeBuilder.cmm(
+        software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(
+          dafnyValue.dtor_cmm().dtor_value()
+        )
+      );
+    }
+    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
+      nativeBuilder.algorithmSuiteId(
+        software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(
+          dafnyValue.dtor_algorithmSuiteId().dtor_value()
+        )
       );
     }
     return nativeBuilder.build();
@@ -136,9 +154,7 @@ public class ToNative {
   ) {
     DecryptObjectInput.Builder nativeBuilder = DecryptObjectInput.builder();
     nativeBuilder.encryptedObject(
-      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
-        dafnyValue.dtor_encryptedObject()
-      )
+      ToNative.Json(dafnyValue.dtor_encryptedObject())
     );
     return nativeBuilder.build();
   }
@@ -148,9 +164,7 @@ public class ToNative {
   ) {
     DecryptObjectOutput.Builder nativeBuilder = DecryptObjectOutput.builder();
     nativeBuilder.plaintextObject(
-      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
-        dafnyValue.dtor_plaintextObject()
-      )
+      ToNative.Json(dafnyValue.dtor_plaintextObject())
     );
     if (dafnyValue.dtor_parsedHeader().is_Some()) {
       nativeBuilder.parsedHeader(
@@ -165,9 +179,7 @@ public class ToNative {
   ) {
     EncryptObjectInput.Builder nativeBuilder = EncryptObjectInput.builder();
     nativeBuilder.plaintextObject(
-      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
-        dafnyValue.dtor_plaintextObject()
-      )
+      ToNative.Json(dafnyValue.dtor_plaintextObject())
     );
     return nativeBuilder.build();
   }
@@ -177,14 +189,43 @@ public class ToNative {
   ) {
     EncryptObjectOutput.Builder nativeBuilder = EncryptObjectOutput.builder();
     nativeBuilder.encryptedObject(
-      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
-        dafnyValue.dtor_encryptedObject()
-      )
+      ToNative.Json(dafnyValue.dtor_encryptedObject())
     );
     if (dafnyValue.dtor_parsedHeader().is_Some()) {
       nativeBuilder.parsedHeader(
         ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader().dtor_value())
       );
+    }
+    return nativeBuilder.build();
+  }
+
+  public static EsdkEncrypt EsdkEncrypt(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EsdkEncrypt dafnyValue
+  ) {
+    EsdkEncrypt.Builder nativeBuilder = EsdkEncrypt.builder();
+    if (dafnyValue.dtor_materialsManager().is_Some()) {
+      nativeBuilder.materialsManager(
+        software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(
+          dafnyValue.dtor_materialsManager().dtor_value()
+        )
+      );
+    }
+    if (dafnyValue.dtor_keyring().is_Some()) {
+      nativeBuilder.keyring(
+        software.amazon.cryptography.materialproviders.ToNative.Keyring(
+          dafnyValue.dtor_keyring().dtor_value()
+        )
+      );
+    }
+    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
+      nativeBuilder.algorithmSuiteId(
+        software.amazon.cryptography.materialproviders.ToNative.ESDKAlgorithmSuiteId(
+          dafnyValue.dtor_algorithmSuiteId().dtor_value()
+        )
+      );
+    }
+    if (dafnyValue.dtor_frameLength().is_Some()) {
+      nativeBuilder.frameLength((dafnyValue.dtor_frameLength().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -220,14 +261,11 @@ public class ToNative {
       )
     );
     nativeBuilder.actions(ToNative.Actions(dafnyValue.dtor_actions()));
-    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
-      nativeBuilder.algorithmSuiteId(
-        software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(
-          dafnyValue.dtor_algorithmSuiteId().dtor_value()
-        )
+    if (dafnyValue.dtor_encrypt().is_Some()) {
+      nativeBuilder.encrypt(
+        ToNative.DbesdkEncrypt(dafnyValue.dtor_encrypt().dtor_value())
       );
     }
-    nativeBuilder.keyAccess(ToNative.KeyAccess(dafnyValue.dtor_keyAccess()));
     return nativeBuilder.build();
   }
 
@@ -270,31 +308,31 @@ public class ToNative {
         ToNative.ExplicitUnsigned(dafnyValue.dtor_explicitUnsigned())
       );
     }
-    if (dafnyValue.is_defaultAction()) {
-      nativeBuilder.defaultAction(
+    if (dafnyValue.is_action()) {
+      nativeBuilder.action(
         software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative.CryptoAction(
-          dafnyValue.dtor_defaultAction()
+          dafnyValue.dtor_action()
         )
       );
     }
     return nativeBuilder.build();
   }
 
-  public static KeyAccess KeyAccess(
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.KeyAccess dafnyValue
+  public static Json Json(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.Json dafnyValue
   ) {
-    KeyAccess.Builder nativeBuilder = KeyAccess.builder();
-    if (dafnyValue.is_keyring()) {
-      nativeBuilder.keyring(
-        software.amazon.cryptography.materialproviders.ToNative.Keyring(
-          dafnyValue.dtor_keyring()
+    Json.Builder nativeBuilder = Json.builder();
+    if (dafnyValue.is_utf8()) {
+      nativeBuilder.utf8(
+        software.amazon.smithy.dafny.conversion.ToNative.Simple.DafnyUtf8Bytes(
+          dafnyValue.dtor_utf8()
         )
       );
     }
-    if (dafnyValue.is_cmm()) {
-      nativeBuilder.cmm(
-        software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(
-          dafnyValue.dtor_cmm()
+    if (dafnyValue.is_text()) {
+      nativeBuilder.text(
+        software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+          dafnyValue.dtor_text()
         )
       );
     }
@@ -323,16 +361,16 @@ public class ToNative {
     );
   }
 
-  public static Map<String, KeyAccess> ESDKActions(
+  public static Map<String, EsdkEncrypt> ESDKActions(
     DafnyMap<
       ? extends DafnySequence<? extends Character>,
-      ? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.KeyAccess
+      ? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EsdkEncrypt
     > dafnyValue
   ) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
       dafnyValue,
       software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.json.ToNative::KeyAccess
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.json.ToNative::EsdkEncrypt
     );
   }
 

@@ -10,19 +10,19 @@ public class DefaultAction {
 
   private final ExplicitUnsigned explicitUnsigned;
 
-  private final CryptoAction defaultAction;
+  private final CryptoAction action;
 
   protected DefaultAction(BuilderImpl builder) {
     this.explicitUnsigned = builder.explicitUnsigned();
-    this.defaultAction = builder.defaultAction();
+    this.action = builder.action();
   }
 
   public ExplicitUnsigned explicitUnsigned() {
     return this.explicitUnsigned;
   }
 
-  public CryptoAction defaultAction() {
-    return this.defaultAction;
+  public CryptoAction action() {
+    return this.action;
   }
 
   public Builder toBuilder() {
@@ -38,9 +38,9 @@ public class DefaultAction {
 
     ExplicitUnsigned explicitUnsigned();
 
-    Builder defaultAction(CryptoAction defaultAction);
+    Builder action(CryptoAction action);
 
-    CryptoAction defaultAction();
+    CryptoAction action();
 
     DefaultAction build();
   }
@@ -49,13 +49,13 @@ public class DefaultAction {
 
     protected ExplicitUnsigned explicitUnsigned;
 
-    protected CryptoAction defaultAction;
+    protected CryptoAction action;
 
     protected BuilderImpl() {}
 
     protected BuilderImpl(DefaultAction model) {
       this.explicitUnsigned = model.explicitUnsigned();
-      this.defaultAction = model.defaultAction();
+      this.action = model.action();
     }
 
     public Builder explicitUnsigned(ExplicitUnsigned explicitUnsigned) {
@@ -67,13 +67,13 @@ public class DefaultAction {
       return this.explicitUnsigned;
     }
 
-    public Builder defaultAction(CryptoAction defaultAction) {
-      this.defaultAction = defaultAction;
+    public Builder action(CryptoAction action) {
+      this.action = action;
       return this;
     }
 
-    public CryptoAction defaultAction() {
-      return this.defaultAction;
+    public CryptoAction action() {
+      return this.action;
     }
 
     public DefaultAction build() {
@@ -86,7 +86,7 @@ public class DefaultAction {
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = { this.explicitUnsigned, this.defaultAction };
+      Object[] allValues = { this.explicitUnsigned, this.action };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

@@ -53,19 +53,18 @@ module JsonEncryptorTest {
   }
 
 
-  method ExpectEqualJson(item : string, final : string)
+  method ExpectEqualJson(item : string, final : Json)
   {
     var obj :- expect UTF8.Encode(item);
     var itemJson :- expect API.Deserialize(obj);
     var jsonBytes :- expect API.Serialize(itemJson);
     var newItem :- expect UTF8.Decode(jsonBytes);
 
-  if newItem == final {
+  if final.text? && newItem == final.text {
     return;
   }
 
-    obj :- expect UTF8.Encode(final);
-    var finalJson :- expect API.Deserialize(obj);
+    var finalJson :- expect JsonToStruct.SmithyJsonToObject(final);
     if JsonToStruct.JsonEqual(itemJson, finalJson) {
       print "Item seemed to change from : ", item, " to ", final, " but it was really still the same\n";
 
@@ -88,7 +87,7 @@ module JsonEncryptorTest {
       print "Unexpected StructuredToObject error : \n", s2o.error, "\n", item, "\n", o2s.value, "\n";
     }
     expect s2o.Success?;
-    ExpectEqualJson(item, s2o.value);
+    ExpectEqualJson(item, text(s2o.value));
 
   }
   method {:test} TestRoundTrips() {
@@ -131,12 +130,14 @@ module JsonEncryptorTest {
     var logicalTableName := "foo";
     output := JsonEncryptorConfig(
       logicalTableName := logicalTableName,
+      actions := Actions(
       attributeActionsOnEncrypt := actions,
+      defaultAction := Some(explicitUnsigned(ExplicitUnsigned(
       allowedUnsignedAttributes := Some(["nothing"]),
-      allowedUnsignedAttributePrefix := None,
-      keyring := Some(keyring),
-      cmm := None,
-      algorithmSuiteId := None
+      allowedUnsignedAttributePrefix := None
+      )))
+      ),
+      encrypt := Some(DbesdkEncrypt(keyring := Some(keyring)))
     );
   }
 
@@ -149,12 +150,8 @@ module JsonEncryptorTest {
     var keyring := GetKmsKeyring();
     var encryptorConfig := JsonEncryptorConfig(
       logicalTableName := config.logicalTableName,
-      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
-      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
-      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
-      keyring := Some(keyring),
-      cmm := None,
-      algorithmSuiteId := None
+      actions := config.actions,
+      encrypt := Some(DbesdkEncrypt(keyring := Some(keyring)))
     );
     var encryptor2 : IJsonEncryptorClient :- expect JsonEncryptor.JsonEncryptor(encryptorConfig);
     assert encryptor2 is JsonEncryptor.JsonEncryptorClient;
@@ -177,7 +174,7 @@ module JsonEncryptorTest {
     modifies encryptor.Modifies
   {
     print "TestEncryptRoundTrip plain : ", item, "\n";
-    var encItem :- expect encryptor.EncryptObject(EncryptObjectInput(plaintextObject := item));
+    var encItem :- expect encryptor.EncryptObject(EncryptObjectInput(plaintextObject := text(item)));
 //  nameonly parsedHeader: Option<ParsedHeader> := Option.None
 
     var decItem :- expect encryptor.DecryptObject(DecryptObjectInput(encryptedObject := encItem.encryptedObject));

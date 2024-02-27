@@ -21,12 +21,7 @@ module
   {
     JsonEncryptorConfig(
       logicalTableName := "TableName",
-      attributeActionsOnEncrypt := map[],
-      allowedUnsignedAttributes := None(),
-      allowedUnsignedAttributePrefix := None(),
-      keyring := None(),
-      cmm := None(),
-      algorithmSuiteId := None()
+      actions := Actions(attributeActionsOnEncrypt := map[])
     )
   }
 
@@ -39,42 +34,42 @@ module
   method {:vcs_split_on_every_assert} JsonEncryptor(config: JsonEncryptorConfig)
     returns (res: Result<IJsonEncryptorClient, Error>)
     ensures res.Success? ==>
-      && res.value is JsonEncryptorClient
-      && var rconfig := (res.value as JsonEncryptorClient).config;
-      && rconfig.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
-      && rconfig.allowedUnsignedAttributes == config.allowedUnsignedAttributes
-      && rconfig.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
-      && rconfig.algorithmSuiteId == config.algorithmSuiteId
+              && res.value is JsonEncryptorClient
+              && var rconfig := (res.value as JsonEncryptorClient).config;
+              && rconfig.attributeActionsOnEncrypt == config.actions.attributeActionsOnEncrypt
+              && config.encrypt.Some?
+              && config.actions.defaultAction.Some?
+              && config.actions.defaultAction.value.explicitUnsigned?
+              && rconfig.allowedUnsignedAttributes == config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes
+              && rconfig.allowedUnsignedAttributePrefix == config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix
+              && rconfig.algorithmSuiteId == config.encrypt.value.algorithmSuiteId
   {
-    :- Need(config.keyring.None? || config.cmm.None?, JsonEncryptorException(
-      message := "Cannot provide both a keyring and a CMM"
-    ));
-    :- Need(config.keyring.Some? || config.cmm.Some?, JsonEncryptorException(
-      message := "Must provide either a keyring or a CMM"
-    ));
 
-    // We happen to order these values, but this ordering MUST NOT be relied upon.
-    var attributeNames : seq<string> := SortedSets.ComputeSetToOrderedSequence2(config.attributeActionsOnEncrypt.Keys, CharLess);
+    :- Need(config.encrypt.Some?, E("foo"));
+    :- Need(config.actions.defaultAction.Some?, E("foo"));
+    :- Need(config.actions.defaultAction.value.explicitUnsigned?, E("foo"));
+
+    var attributeNames : seq<string> := SortedSets.ComputeSetToSequence(config.actions.attributeActionsOnEncrypt.Keys);
     for i := 0 to |attributeNames|
       invariant forall j | 0 <= j < i ::
       && UnreservedPrefix(attributeNames[j])
       && (Operations.ForwardCompatibleAttributeAction(
                attributeNames[j],
-               config.attributeActionsOnEncrypt[attributeNames[j]],
-               config.allowedUnsignedAttributes,
-               config.allowedUnsignedAttributePrefix))
+               config.actions.attributeActionsOnEncrypt[attributeNames[j]],
+               config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes,
+               config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix))
     {
       var attributeName := attributeNames[i];
-      var action := config.attributeActionsOnEncrypt[attributeName];
+      var action := config.actions.attributeActionsOnEncrypt[attributeName];
       if !(Operations.ForwardCompatibleAttributeAction(
           attributeName,
           action,
-          config.allowedUnsignedAttributes,
-          config.allowedUnsignedAttributePrefix
+          config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes,
+          config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix
         ))
       {
         return Failure(JsonEncryptorException(
-          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.allowedUnsignedAttributes, config.allowedUnsignedAttributePrefix)
+          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes, config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix)
         ));
       }
       if !UnreservedPrefix(attributeName) {
@@ -87,21 +82,21 @@ module
     }
 
     assert (forall attribute <- attributeNames :: UnreservedPrefix(attribute));
-    assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
-    assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
+    assert (forall attribute <- config.actions.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
+    assert (forall attribute <- config.actions.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
 
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
     var structuredEncryptionX : CSE.IStructuredEncryptionClient :- structuredEncryptionRes
-      .MapFailure(e => AwsCryptographyDbEncryptionSdkStructuredEncryption(e));
+    .MapFailure(e => AwsCryptographyDbEncryptionSdkStructuredEncryption(e));
     assert structuredEncryptionX is StructuredEncryption.StructuredEncryptionClient;
     var structuredEncryption := structuredEncryptionX as StructuredEncryption.StructuredEncryptionClient;
 
     var cmm;
-    if (config.cmm.Some?) {
-      cmm := config.cmm.value;
-    } else {
-      var keyring := config.keyring.value;
+    if (config.encrypt.value.cmm.Some?) {
+      cmm := config.encrypt.value.cmm.value;
+    } else if (config.encrypt.value.keyring.Some?) {
+      var keyring := config.encrypt.value.keyring.value;
       var matProv :- expect MaterialProviders.MaterialProviders();
       var maybeCmm := matProv.CreateDefaultCryptographicMaterialsManager(
         AwsCryptographyMaterialProvidersTypes.CreateDefaultCryptographicMaterialsManagerInput(
@@ -109,6 +104,8 @@ module
         )
       );
       cmm :- maybeCmm.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    } else {
+      return Failure(E("Either a CMM or a Keyring must be provided."));
     }
 
     var maybeCmpClient := MaterialProviders.MaterialProviders();
@@ -117,10 +114,10 @@ module
     var internalConfig := Operations.Config(
       logicalTableName := config.logicalTableName,
       cmpClient := cmpClient,
-      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
-      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
-      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
-      algorithmSuiteId := config.algorithmSuiteId,
+      attributeActionsOnEncrypt := config.actions.attributeActionsOnEncrypt,
+      allowedUnsignedAttributes := config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes,
+      allowedUnsignedAttributePrefix := config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix,
+      algorithmSuiteId := config.encrypt.value.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption
     );
@@ -133,8 +130,8 @@ module
     var client := new JsonEncryptorClient(internalConfig);
 
     assert fresh(client.Modifies
-      - ( if config.keyring.Some? then config.keyring.value.Modifies else {})
-      - ( if config.cmm.Some? then config.cmm.value.Modifies else {} ));
+                 - ( if config.encrypt.value.keyring.Some? then config.encrypt.value.keyring.value.Modifies else {})
+                 - ( if config.encrypt.value.cmm.Some? then config.encrypt.value.cmm.value.Modifies else {} ));
 
     return Success(client);
   }
