@@ -5,6 +5,8 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
@@ -17,8 +19,11 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 /*
   This example sets up DynamoDb Encryption for the DynamoDb Enhanced Client
@@ -153,6 +158,14 @@ public class EnhancedPutGetExample {
 
         // Demonstrate we get the original item back
         assert result.getAttribute1().equals("encrypt and sign me!");
+
+        // retrieve the same record via a Query
+        PageIterable<SimpleClass> items = table.query(QueryConditional.keyEqualTo(k -> k.partitionValue("EnhancedPutGetExample")));
+        List<SimpleClass> itemList = new ArrayList<SimpleClass>();
+
+        items.stream().forEach(p -> p.items().forEach(itemList::add));
+        assert itemList.size() == 1;
+        assert itemList.get(0).getAttribute1().equals("encrypt and sign me!");
     }
 
     public static void main(final String[] args) {
