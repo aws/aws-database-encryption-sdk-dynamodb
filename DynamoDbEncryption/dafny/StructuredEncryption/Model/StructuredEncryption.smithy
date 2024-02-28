@@ -47,7 +47,7 @@ integer Version
 
 structure ParsedHeader {
     @required
-    cryptoSchema: CryptoSchema,
+    cryptoSchema: CryptoSchemaMap,
     @required
     algorithmSuiteId: DBEAlgorithmSuiteId,
     @required
@@ -67,9 +67,9 @@ structure EncryptStructureInput {
     @required
     tableName: String,
     @required
-    plaintextStructure: StructuredData,
+    plaintextStructure: StructuredDataMap,
     @required
-    cryptoSchema: CryptoSchema,
+    cryptoSchema: CryptoSchemaMap,
     @required
     cmm: CryptographicMaterialsManagerReference,
 
@@ -90,7 +90,7 @@ structure EncryptStructureInput {
 
 structure EncryptStructureOutput {
     @required
-    encryptedStructure: StructuredData,
+    encryptedStructure: StructuredDataMap,
     @required
     parsedHeader: ParsedHeader,
 }
@@ -106,9 +106,9 @@ structure DecryptStructureInput {
     @required
     tableName: String,
     @required
-    encryptedStructure: StructuredData,
+    encryptedStructure: StructuredDataMap,
     @required
-    authenticateSchema: AuthenticateSchema,
+    authenticateSchema: AuthenticateSchemaMap,
     @required
     cmm: CryptographicMaterialsManagerReference,
 
@@ -126,41 +126,9 @@ structure DecryptStructureOutput {
     //#   - [Structured Data](#structured-data)
     //#   - [Parsed Header](#parsed-header)
     @required
-    plaintextStructure: StructuredData,
+    plaintextStructure: StructuredDataMap,
     @required
     parsedHeader: ParsedHeader,
-}
-
-
-structure StructuredData {
-    // Each "node" in our structured data holds either
-    // a map of more data, a list of more data, or a terminal value
-    //= specification/structured-encryption/structures.md#structured-data
-    //= type=implication
-    //# A Structured Data MUST consist of:
-    // - a [Structured Data Content](#structured-data-content)
-    @required
-    content: StructuredDataContent,
-
-    // Each "node" in our structured data may additionally
-    // have a flat map to express something akin to XML attributes
-    //= specification/structured-encryption/structures.md#structured-data
-    //= type=implication
-    //# - an OPTIONAL map of [Attributes](#structured-data-attributes)
-    attributes: StructuredDataAttributes
-}
-
-//= specification/structured-encryption/structures.md#structured-data-content
-//= type=implication
-//# Structured Data Content is a union of one of three separate structures;
-//# Structured Data Content MUST be one of:
-// - [Terminal Data](#terminal-data)
-// - [Structured Data Map](#structured-data-map)
-// - [Structured Data List](#structured-data-list)
-union StructuredDataContent {
-    Terminal: StructuredDataTerminal,
-    DataList: StructuredDataList,
-    DataMap: StructuredDataMap
 }
 
 // Only handles bytes.
@@ -200,37 +168,7 @@ blob TerminalTypeId
 //# - This map MUST NOT allow duplicate key values
 map StructuredDataMap {
     key: String,
-    value: StructuredData
-}
-
-//= specification/structured-encryption/structures.md#structured-data-list
-//= type=implication
-//# A Structured Data List MUST consist of:
-// - A numerical-indexed array of [Structured Data](#structured-data).
-list StructuredDataList {
-    member: StructuredData
-}
-
-//= specification/structured-encryption/structures.md#structured-data-attributes
-//= type=implication
-//# Structured Data Attributes MUST be map of strings to [Terminal Data](#terminal-data).
-map StructuredDataAttributes {
-    key: String,
     value: StructuredDataTerminal
-}
-
-// This mimics the same structure as StructuredData above,
-// only it's "leaves" are AuthenticateAction instead of Terminal.
-structure CryptoSchema {
-    @required
-    content: CryptoSchemaContent,
-    attributes: CryptoSchemaAttributes
-}
-
-union CryptoSchemaContent {
-    Action: CryptoAction,
-    SchemaMap: CryptoSchemaMap,
-    SchemaList: CryptoSchemaList
 }
 
 @enum([
@@ -251,30 +189,7 @@ string CryptoAction
 
 map CryptoSchemaMap {
     key: String,
-    value: CryptoSchema
-}
-
-list CryptoSchemaList {
-    member: CryptoSchema
-}
-
-map CryptoSchemaAttributes {
-    key: String,
-    value: AuthenticateAction
-}
-
-// This mimics the same structure as StructuredData above,
-// only it's "leaves" are AuthenticateAction instead of Terminal.
-structure AuthenticateSchema {
-    @required
-    content: AuthenticateSchemaContent,
-    attributes: AuthenticateSchemaAttributes
-}
-
-union AuthenticateSchemaContent {
-    Action: AuthenticateAction,
-    SchemaMap: AuthenticateSchemaMap,
-    SchemaList: AuthenticateSchemaList
+    value: CryptoAction
 }
 
 @enum([
@@ -290,15 +205,6 @@ union AuthenticateSchemaContent {
 string AuthenticateAction
 
 map AuthenticateSchemaMap {
-    key: String,
-    value: AuthenticateSchema
-}
-
-list AuthenticateSchemaList {
-    member: AuthenticateSchema
-}
-
-map AuthenticateSchemaAttributes {
     key: String,
     value: AuthenticateAction
 }
