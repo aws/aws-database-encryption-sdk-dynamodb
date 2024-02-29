@@ -96,7 +96,25 @@ module JsonToStruct {
   const LIST       : SE.TerminalTypeId := [LIST_T, NULL_T]
 
 
-  function method {:opaque} SmithyJsonToObject(item : Json) : (res :Result<JSON, string>)
+  method SmithyJsonToObject(item : Json) returns (res :Result<JSON, string>)
+    ensures res.Success? ==> res.value.Object?
+  {
+    var json :- if item.text? then
+      StringToJson(item.text)
+    else
+      Utf8ToJson(item.utf8);
+
+    :- Need(json.Object?, "JSON to encrypt/decrypt must be an Object : " + SmithyJsonToString(item));
+    return Success(json);
+  }
+
+  function method {:opaque} SmithyJsonToObjectYYY(item : Json) : (res :Result<JSON, string>)
+    ensures res.Success? ==> res.value.Object?
+  {
+    SmithyJsonToObjectXXX(item)
+  }
+
+  function method {:opaque} SmithyJsonToObjectXXX(item : Json) : (res :Result<JSON, string>)
     ensures res.Success? ==> res.value.Object?
   {
     var json :- if item.text? then
@@ -108,7 +126,18 @@ module JsonToStruct {
     Success(json)
   }
 
-  function method {:opaque} JsonToSmithyJson(item : JSON, example : Json) : Result<Json, string>
+  method JsonToSmithyJson(item : JSON, example : Json) returns (res : Result<Json, string>)
+  {
+    var jsonBytes :- API.Serialize(item).MapFailure((e : Errors.SerializationError) => e.ToString());
+    if example.utf8? {
+      return Success(utf8(example.utf8));
+    } else {
+      var textStr :- UTF8.Decode(jsonBytes);
+      return Success(text(textStr));
+    }
+  }
+
+  function method {:opaque} JsonToSmithyJsonXXX(item : JSON, example : Json) : Result<Json, string>
   {
     var jsonBytes :- API.Serialize(item).MapFailure((e : Errors.SerializationError) => e.ToString());
     if example.utf8? then
@@ -159,6 +188,17 @@ module JsonToStruct {
       Some(orig[0].1)
     else
       FindItem(orig[1..], key)
+  }
+
+  method FindItem2(orig : seq<(string, JSON)>, key : string)
+    returns (ret : Option<JSON>)
+  {
+    for i := 0 to |orig| {
+      if orig[i].0 == key {
+        return Some(orig[i].1);
+      }
+    }
+    return None;
   }
 
   function method MakeError<T>(s : string) : Result<T, Error> {

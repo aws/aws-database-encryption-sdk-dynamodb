@@ -7,12 +7,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
   public class ParsedHeader
   {
-    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> _attributeActionsOnEncrypt;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> _attributeActionsOnEncrypt;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
     private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys;
     private System.Collections.Generic.Dictionary<string, string> _storedEncryptionContext;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> AttributeActionsOnEncrypt
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> AttributeActionsOnEncrypt
     {
       get { return this._attributeActionsOnEncrypt; }
       set { this._attributeActionsOnEncrypt = value; }

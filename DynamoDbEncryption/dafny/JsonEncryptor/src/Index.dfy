@@ -10,8 +10,8 @@ module
 {
   import opened JsonEncryptorUtil
   import StructuredEncryption
-  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MaterialProviders
+  import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import Operations = AwsCryptographyDbEncryptionSdkJsonEncryptorOperations
   import SE =  StructuredEncryptionUtil
   import SortedSets
@@ -21,7 +21,8 @@ module
   {
     JsonEncryptorConfig(
       logicalTableName := "TableName",
-      actions := Actions(attributeActionsOnEncrypt := map[])
+      attributeActionsOnEncrypt := map[],
+      encrypt := DbesdkEncrypt()
     )
   }
 
@@ -36,40 +37,33 @@ module
     ensures res.Success? ==>
               && res.value is JsonEncryptorClient
               && var rconfig := (res.value as JsonEncryptorClient).config;
-              && rconfig.attributeActionsOnEncrypt == config.actions.attributeActionsOnEncrypt
-              && config.encrypt.Some?
-              && config.actions.defaultAction.Some?
-              && config.actions.defaultAction.value.explicitUnsigned?
-              && rconfig.allowedUnsignedAttributes == config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes
-              && rconfig.allowedUnsignedAttributePrefix == config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix
-              && rconfig.algorithmSuiteId == config.encrypt.value.algorithmSuiteId
+              //&& rconfig.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt FIXME TODO
+              && rconfig.allowedUnsignedAttributes == config.allowedUnsignedAttributes
+              && rconfig.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
+              && rconfig.algorithmSuiteId == config.encrypt.algorithmSuiteId
   {
-
-    :- Need(config.encrypt.Some?, E("foo"));
-    :- Need(config.actions.defaultAction.Some?, E("foo"));
-    :- Need(config.actions.defaultAction.value.explicitUnsigned?, E("foo"));
-
-    var attributeNames : seq<string> := SortedSets.ComputeSetToSequence(config.actions.attributeActionsOnEncrypt.Keys);
+    :- Need(forall k <- config.attributeActionsOnEncrypt :: config.attributeActionsOnEncrypt[k].crypto?, E(""));
+    var attributeNames : seq<string> := SortedSets.ComputeSetToSequence(config.attributeActionsOnEncrypt.Keys);
     for i := 0 to |attributeNames|
       invariant forall j | 0 <= j < i ::
       && UnreservedPrefix(attributeNames[j])
       && (Operations.ForwardCompatibleAttributeAction(
                attributeNames[j],
-               config.actions.attributeActionsOnEncrypt[attributeNames[j]],
-               config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes,
-               config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix))
+               config.attributeActionsOnEncrypt[attributeNames[j]].crypto,
+               config.allowedUnsignedAttributes,
+               config.allowedUnsignedAttributePrefix))
     {
       var attributeName := attributeNames[i];
-      var action := config.actions.attributeActionsOnEncrypt[attributeName];
+      var action := config.attributeActionsOnEncrypt[attributeName].crypto;
       if !(Operations.ForwardCompatibleAttributeAction(
           attributeName,
           action,
-          config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes,
-          config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix
+          config.allowedUnsignedAttributes,
+          config.allowedUnsignedAttributePrefix
         ))
       {
         return Failure(JsonEncryptorException(
-          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes, config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix)
+          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.allowedUnsignedAttributes, config.allowedUnsignedAttributePrefix)
         ));
       }
       if !UnreservedPrefix(attributeName) {
@@ -82,8 +76,8 @@ module
     }
 
     assert (forall attribute <- attributeNames :: UnreservedPrefix(attribute));
-    assert (forall attribute <- config.actions.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
-    assert (forall attribute <- config.actions.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
+    assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
+    assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
 
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
@@ -93,10 +87,10 @@ module
     var structuredEncryption := structuredEncryptionX as StructuredEncryption.StructuredEncryptionClient;
 
     var cmm;
-    if (config.encrypt.value.cmm.Some?) {
-      cmm := config.encrypt.value.cmm.value;
-    } else if (config.encrypt.value.keyring.Some?) {
-      var keyring := config.encrypt.value.keyring.value;
+    if (config.encrypt.cmm.Some?) {
+      cmm := config.encrypt.cmm.value;
+    } else if (config.encrypt.keyring.Some?) {
+      var keyring := config.encrypt.keyring.value;
       var matProv :- expect MaterialProviders.MaterialProviders();
       var maybeCmm := matProv.CreateDefaultCryptographicMaterialsManager(
         AwsCryptographyMaterialProvidersTypes.CreateDefaultCryptographicMaterialsManagerInput(
@@ -114,10 +108,10 @@ module
     var internalConfig := Operations.Config(
       logicalTableName := config.logicalTableName,
       cmpClient := cmpClient,
-      attributeActionsOnEncrypt := config.actions.attributeActionsOnEncrypt,
-      allowedUnsignedAttributes := config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributes,
-      allowedUnsignedAttributePrefix := config.actions.defaultAction.value.explicitUnsigned.allowedUnsignedAttributePrefix,
-      algorithmSuiteId := config.encrypt.value.algorithmSuiteId,
+      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
+      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
+      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
+      algorithmSuiteId := config.encrypt.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption
     );
@@ -130,8 +124,8 @@ module
     var client := new JsonEncryptorClient(internalConfig);
 
     assert fresh(client.Modifies
-                 - ( if config.encrypt.value.keyring.Some? then config.encrypt.value.keyring.value.Modifies else {})
-                 - ( if config.encrypt.value.cmm.Some? then config.encrypt.value.cmm.value.Modifies else {} ));
+                 - ( if config.encrypt.keyring.Some? then config.encrypt.keyring.value.Modifies else {})
+                 - ( if config.encrypt.cmm.Some? then config.encrypt.cmm.value.Modifies else {} ));
 
     return Success(client);
   }

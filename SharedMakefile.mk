@@ -212,6 +212,7 @@ _polymorph:
 	--library-root $(LIBRARY_ROOT) \
 	$(UPDATE_PATCH_FILES_OPTION) \
 	$(OUTPUT_DAFNY) \
+	$(POLYMORPH_OPTIONS) \
 	$(OUTPUT_DOTNET) \
 	$(OUTPUT_JAVA) \
 	--dafny-version 4.1 \

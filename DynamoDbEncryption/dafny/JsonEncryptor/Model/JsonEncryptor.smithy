@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 namespace aws.cryptography.dbEncryptionSdk.dynamoDb.json
 
-// use smithy.api#Unit
-
 use aws.polymorph#localService
 use aws.polymorph#javadoc
 use aws.polymorph#dafnyUtf8Bytes
@@ -13,6 +11,7 @@ use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
+//use aws.cryptography.materialProviders#FrameLength
 
 use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 use aws.cryptography.primitives#AwsCryptographicPrimitives
@@ -37,6 +36,16 @@ service JsonEncryptor {
 @dafnyUtf8Bytes
 string Utf8Bytes
 
+// On decrypt, a member named `decrypt` should be decrypted a if it were `encrypt`
+structure DecryptAs {
+  encrypt : String,
+  decrypt : String
+}
+
+list DecryptAsList {
+  member: String
+}
+
 // list of member names
 list AttributeNameList {
   member: String
@@ -48,20 +57,25 @@ union Json {
   text : String
 }
 
-
 // Associate a CryptoAction with a member name
 map AttributeActions {
     key: String,
-    value: CryptoAction,
+    value: Action,
 }
 
-// FIXME - import from ESDK
+union Action {
+  crypto : CryptoAction,
+  esdk : EsdkEncrypt,
+  dbesdk : DbesdkEncrypt
+}
+
+// FIXME - import from ESDK, but
+// `use aws.cryptography.materialProviders#FrameLength` doesn't work.
 @range(min: 1, max: 4294967296)
 long FrameLength
 
 structure EsdkEncrypt {
-  // Pretty sure we don't want custom EC, right?
-  // encryptionContext: aws.cryptography.materialProviders#EncryptionContext,
+  encryptionContext: aws.cryptography.materialProviders#EncryptionContext,
 
   // One of keyring or CMM are required
   materialsManager: aws.cryptography.materialProviders#CryptographicMaterialsManagerReference,
@@ -84,63 +98,6 @@ structure DbesdkEncrypt {
   algorithmSuiteId: DBEAlgorithmSuiteId,
 }
 
-// Associate a keyring with a member name, also says :
-// encrypt this separately with the ESDK and sign the encrypted bytes
-map ESDKActions {
-    key: String,
-    value: EsdkEncrypt
-}
-
-// key must refer to an Object
-// Apply actions to members of that object
-map NestedActions {
-    key: String,
-    value: Actions,
-}
-
-// key must refer to an Object
-// Separately encrypt that object, with header and footer and all
-map NestedEncryptors {
-    key: String,
-    value: JsonEncryptorConfig
-}
-
-// Every member must have an action
-// further, and DO_NOTHING action must also appear here
-structure ExplicitUnsigned {
-  @javadoc("A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.")
-  allowedUnsignedAttributes: AttributeNameList,
-
-  @javadoc("A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.")
-  allowedUnsignedAttributePrefix: String,
-}
-
-// What to do with members that have no explicit action?
-union DefaultAction {
-    explicitUnsigned : ExplicitUnsigned,
-    action : CryptoAction
-}
-
-// For each member, what do we do with it?
-// it is an error for any member to be mentioned in more than one of these maps
-structure Actions {
-  @required
-  @javadoc("A map that describes which members should be encrypted and/or signed on encrypt.")
-  attributeActionsOnEncrypt: AttributeActions,
-
-  @javadoc("A map that provides Actions for sub-objects.")
-  nestedActionsOnEncrypt: NestedActions,
-
-  // @javadoc("Separate encryption of sub-objects, each getting their own header and footer.")
-  // nestedEncryptors: NestedEncryptors,
-
-  // @javadoc("A map that allows separate encryption of individual values.")
-  // eSDKActions: ESDKActions,
-
-  @javadoc("What to do with actions not explicitly mentioned in attributeActionsOnEncrypt.")
-  defaultAction: DefaultAction
-}
-
 @javadoc("The configuration for the client-side encryption of JSON objects.")
 structure JsonEncryptorConfig {
     @required
@@ -148,11 +105,21 @@ structure JsonEncryptorConfig {
     logicalTableName: String,
 
     @required
-    @javadoc("A full description of the cryptographic actions that should be applied to each attributes.")
-    actions: Actions,
+    @javadoc("A map that describes which members should be encrypted and/or signed on encrypt.")
+    attributeActionsOnEncrypt: AttributeActions,
 
+    @javadoc("A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.")
+    allowedUnsignedAttributes: AttributeNameList,
+
+    @javadoc("A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.")
+    allowedUnsignedAttributePrefix: String,
+
+    @required
     @javadoc("Setting for encryption and decryption.")
     encrypt: DbesdkEncrypt,
+
+    @javadoc("Allow decrypt when structure has changed.")
+    decryptAs : DecryptAsList
 }
 
 @javadoc("A parsed version of the header that was written with or read on an encrypted Json object.")

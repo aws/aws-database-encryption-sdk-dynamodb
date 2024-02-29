@@ -7,10 +7,20 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
   public class EsdkEncrypt
   {
+    private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
     private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _materialsManager;
     private AWS.Cryptography.MaterialProviders.IKeyring _keyring;
     private AWS.Cryptography.MaterialProviders.ESDKAlgorithmSuiteId _algorithmSuiteId;
     private long? _frameLength;
+    public System.Collections.Generic.Dictionary<string, string> EncryptionContext
+    {
+      get { return this._encryptionContext; }
+      set { this._encryptionContext = value; }
+    }
+    public bool IsSetEncryptionContext()
+    {
+      return this._encryptionContext != null;
+    }
     public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager MaterialsManager
     {
       get { return this._materialsManager; }
