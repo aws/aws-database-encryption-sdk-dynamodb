@@ -164,7 +164,7 @@ public class EsdkEncrypt {
       }
       if (this._frameLengthSet && this.frameLength() > 2000000000) {
         throw new IllegalArgumentException(
-          "`frameLength` must be less than or equal to 4294967295."
+          "`frameLength` must be less than or equal to 2000000000."
         );
       }
       return new EsdkEncrypt(this);

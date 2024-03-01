@@ -90,3 +90,8 @@ format_net:
 polymorph:
 	npm i --no-save prettier@3 prettier-plugin-java@2.5
 	make polymorph_code_gen CODEGEN_CLI_ROOT=../submodules/smithy-dafny/codegen/smithy-dafny-codegen-cli
+
+polydiff:
+	npm i --no-save prettier@3 prettier-plugin-java@2.5
+	make polymorph_code_gen CODEGEN_CLI_ROOT=../submodules/smithy-dafny/codegen/smithy-dafny-codegen-cli POLYMORPH_OPTIONS="--update-patch-files"
+

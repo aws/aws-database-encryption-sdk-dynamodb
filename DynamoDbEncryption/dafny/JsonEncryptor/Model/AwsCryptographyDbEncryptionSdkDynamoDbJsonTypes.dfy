@@ -47,7 +47,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.json.inte
   )
   type FrameLength = x: int64 | IsValid_FrameLength(x) witness *
   predicate method IsValid_FrameLength(x: int64) {
-    ( 1 <= x <= 4294967296 )
+    ( 1 <= x <= 2000000000 )
   }
   datatype Json =
     | utf8(utf8: Utf8Bytes)
@@ -208,14 +208,14 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbJsonService
     modifies if config.encrypt.cmm.Some? then
                config.encrypt.cmm.value.Modifies
              else {}
-    modifies set tmps2 <- set t2 <- config.attributeActionsOnEncrypt.Values
-                                    | t2.esdk?
-                              && t2.esdk.materialsManager.Some?
+    modifies set tmps2 <- set t2 <- config.attributeActionsOnEncrypt.Values | true
+                                                                              && t2.esdk?
+                                                                              && t2.esdk.materialsManager.Some?
                             :: t2.esdk.materialsManager.value,
                obj <- tmps2.Modifies | obj in tmps2.Modifies :: obj
-    modifies set tmps3 <- set t3 <- config.attributeActionsOnEncrypt.Values
-                                    | t3.esdk?
-                              && t3.esdk.keyring.Some?
+    modifies set tmps3 <- set t3 <- config.attributeActionsOnEncrypt.Values | true
+                                                                              && t3.esdk?
+                                                                              && t3.esdk.keyring.Some?
                             :: t3.esdk.keyring.value,
                obj <- tmps3.Modifies | obj in tmps3.Modifies :: obj
     ensures res.Success? ==>
@@ -227,14 +227,14 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbJsonService
                        ) - ( if config.encrypt.cmm.Some? then
                                config.encrypt.cmm.value.Modifies
                              else {}
-                       ) - ( set tmps4 <- set t4 <- config.attributeActionsOnEncrypt.Values
-                                                    | t4.esdk?
-                                              && t4.esdk.materialsManager.Some?
+                       ) - ( set tmps4 <- set t4 <- config.attributeActionsOnEncrypt.Values | true
+                                                                                              && t4.esdk?
+                                                                                              && t4.esdk.materialsManager.Some?
                                             :: t4.esdk.materialsManager.value,
                                obj <- tmps4.Modifies | obj in tmps4.Modifies :: obj
-                       ) - ( set tmps5 <- set t5 <- config.attributeActionsOnEncrypt.Values
-                                                    | t5.esdk?
-                                              && t5.esdk.keyring.Some?
+                       ) - ( set tmps5 <- set t5 <- config.attributeActionsOnEncrypt.Values | true
+                                                                                              && t5.esdk?
+                                                                                              && t5.esdk.keyring.Some?
                                             :: t5.esdk.keyring.value,
                                obj <- tmps5.Modifies | obj in tmps5.Modifies :: obj
                        ) )
