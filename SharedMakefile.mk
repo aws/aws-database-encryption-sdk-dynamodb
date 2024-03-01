@@ -212,6 +212,7 @@ _polymorph:
 	--library-root $(LIBRARY_ROOT) \
 	$(UPDATE_PATCH_FILES_OPTION) \
 	$(OUTPUT_DAFNY) \
+	--patch-files-dir $(if $(DIR_STRUCTURE_V2),$(LIBRARY_ROOT)/codegen-patches/$(SERVICE),$(LIBRARY_ROOT)/codegen-patches) \
 	$(POLYMORPH_OPTIONS) \
 	$(OUTPUT_DOTNET) \
 	$(OUTPUT_JAVA) \
