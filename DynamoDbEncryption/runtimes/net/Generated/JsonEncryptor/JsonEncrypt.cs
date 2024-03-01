@@ -5,11 +5,13 @@ using System;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json;
 namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
-  public class DbesdkEncrypt
+  public class JsonEncrypt
   {
     private AWS.Cryptography.MaterialProviders.IKeyring _keyring;
     private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
+    private System.Collections.Generic.Dictionary<string, string> _signedValue;
+    private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
     public AWS.Cryptography.MaterialProviders.IKeyring Keyring
     {
       get { return this._keyring; }
@@ -36,6 +38,24 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     public bool IsSetAlgorithmSuiteId()
     {
       return this._algorithmSuiteId != null;
+    }
+    public System.Collections.Generic.Dictionary<string, string> SignedValue
+    {
+      get { return this._signedValue; }
+      set { this._signedValue = value; }
+    }
+    public bool IsSetSignedValue()
+    {
+      return this._signedValue != null;
+    }
+    public System.Collections.Generic.Dictionary<string, string> EncryptionContext
+    {
+      get { return this._encryptionContext; }
+      set { this._encryptionContext = value; }
+    }
+    public bool IsSetEncryptionContext()
+    {
+      return this._encryptionContext != null;
     }
     public void Validate()
     {

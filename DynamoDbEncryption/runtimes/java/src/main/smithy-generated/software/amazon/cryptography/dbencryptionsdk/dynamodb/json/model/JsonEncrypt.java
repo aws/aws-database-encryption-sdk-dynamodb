@@ -3,13 +3,14 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model;
 
+import java.util.Map;
 import software.amazon.cryptography.materialproviders.CryptographicMaterialsManager;
 import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.Keyring;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 
-public class DbesdkEncrypt {
+public class JsonEncrypt {
 
   /**
    * The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.
@@ -26,10 +27,22 @@ public class DbesdkEncrypt {
    */
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
-  protected DbesdkEncrypt(BuilderImpl builder) {
+  /**
+   * Extra key-value pairs to include in the signature.
+   */
+  private final Map<String, String> signedValue;
+
+  /**
+   * Extra key-value pairs to include in the required encryption context.
+   */
+  private final Map<String, String> encryptionContext;
+
+  protected JsonEncrypt(BuilderImpl builder) {
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
     this.algorithmSuiteId = builder.algorithmSuiteId();
+    this.signedValue = builder.signedValue();
+    this.encryptionContext = builder.encryptionContext();
   }
 
   /**
@@ -51,6 +64,20 @@ public class DbesdkEncrypt {
    */
   public DBEAlgorithmSuiteId algorithmSuiteId() {
     return this.algorithmSuiteId;
+  }
+
+  /**
+   * @return Extra key-value pairs to include in the signature.
+   */
+  public Map<String, String> signedValue() {
+    return this.signedValue;
+  }
+
+  /**
+   * @return Extra key-value pairs to include in the required encryption context.
+   */
+  public Map<String, String> encryptionContext() {
+    return this.encryptionContext;
   }
 
   public Builder toBuilder() {
@@ -92,7 +119,27 @@ public class DbesdkEncrypt {
      */
     DBEAlgorithmSuiteId algorithmSuiteId();
 
-    DbesdkEncrypt build();
+    /**
+     * @param signedValue Extra key-value pairs to include in the signature.
+     */
+    Builder signedValue(Map<String, String> signedValue);
+
+    /**
+     * @return Extra key-value pairs to include in the signature.
+     */
+    Map<String, String> signedValue();
+
+    /**
+     * @param encryptionContext Extra key-value pairs to include in the required encryption context.
+     */
+    Builder encryptionContext(Map<String, String> encryptionContext);
+
+    /**
+     * @return Extra key-value pairs to include in the required encryption context.
+     */
+    Map<String, String> encryptionContext();
+
+    JsonEncrypt build();
   }
 
   static class BuilderImpl implements Builder {
@@ -103,12 +150,18 @@ public class DbesdkEncrypt {
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
+    protected Map<String, String> signedValue;
+
+    protected Map<String, String> encryptionContext;
+
     protected BuilderImpl() {}
 
-    protected BuilderImpl(DbesdkEncrypt model) {
+    protected BuilderImpl(JsonEncrypt model) {
       this.keyring = model.keyring();
       this.cmm = model.cmm();
       this.algorithmSuiteId = model.algorithmSuiteId();
+      this.signedValue = model.signedValue();
+      this.encryptionContext = model.encryptionContext();
     }
 
     public Builder keyring(IKeyring keyring) {
@@ -138,8 +191,26 @@ public class DbesdkEncrypt {
       return this.algorithmSuiteId;
     }
 
-    public DbesdkEncrypt build() {
-      return new DbesdkEncrypt(this);
+    public Builder signedValue(Map<String, String> signedValue) {
+      this.signedValue = signedValue;
+      return this;
+    }
+
+    public Map<String, String> signedValue() {
+      return this.signedValue;
+    }
+
+    public Builder encryptionContext(Map<String, String> encryptionContext) {
+      this.encryptionContext = encryptionContext;
+      return this;
+    }
+
+    public Map<String, String> encryptionContext() {
+      return this.encryptionContext;
+    }
+
+    public JsonEncrypt build() {
+      return new JsonEncrypt(this);
     }
   }
 }

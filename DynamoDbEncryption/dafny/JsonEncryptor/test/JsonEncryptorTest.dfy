@@ -9,7 +9,7 @@ module JsonEncryptorTest {
   import opened StandardLibrary.UInt
   import MaterialProviders
   import JsonEncryptor
-  import JsonToStruct
+  import JsonToStruct`Fun
   import UTF8
   import JSON.Spec
   import JSON.API
@@ -22,7 +22,7 @@ module JsonEncryptorTest {
   predicate method IsEncrypted(actions : Option<AttributeActions>, name : string)
   {
     || (ReservedPrefix < name)
-    || (actions.Some? && name in actions.value && actions.value[name] == CSE.ENCRYPT_AND_SIGN)
+    || (actions.Some? && name in actions.value && actions.value[name].crypto? && actions.value[name].crypto == CSE.ENCRYPT_AND_SIGN)
   }
 
   method ObjectToStructuredFull(item : string, actions : Option<AttributeActions> := None)
@@ -129,15 +129,11 @@ module JsonEncryptorTest {
     var keyring := GetKmsKeyring();
     var logicalTableName := "foo";
     output := JsonEncryptorConfig(
-      logicalTableName := logicalTableName,
-      actions := Actions(
+      domain := logicalTableName,
       attributeActionsOnEncrypt := actions,
-      defaultAction := Some(explicitUnsigned(ExplicitUnsigned(
       allowedUnsignedAttributes := Some(["nothing"]),
-      allowedUnsignedAttributePrefix := None
-      )))
-      ),
-      encrypt := Some(DbesdkEncrypt(keyring := Some(keyring)))
+      allowedUnsignedAttributePrefix := None,
+      encrypt := JsonEncrypt(keyring := Some(keyring))
     );
   }
 
@@ -149,10 +145,13 @@ module JsonEncryptorTest {
   {
     var keyring := GetKmsKeyring();
     var encryptorConfig := JsonEncryptorConfig(
-      logicalTableName := config.logicalTableName,
-      actions := config.actions,
-      encrypt := Some(DbesdkEncrypt(keyring := Some(keyring)))
+      domain := config.domain,
+      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
+      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
+      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
+      encrypt := JsonEncrypt(keyring := Some(keyring))
     );
+    expect forall k <- encryptorConfig.attributeActionsOnEncrypt :: encryptorConfig.attributeActionsOnEncrypt[k].crypto?;
     var encryptor2 : IJsonEncryptorClient :- expect JsonEncryptor.JsonEncryptor(encryptorConfig);
     assert encryptor2 is JsonEncryptor.JsonEncryptorClient;
     encryptor := encryptor2 as JsonEncryptor.JsonEncryptorClient;
@@ -183,15 +182,15 @@ module JsonEncryptorTest {
   }
 
   method {:test} TestEncryptRoundTrips() {
-    var actions := map[
-      "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "encrypt" := CSE.ENCRYPT_AND_SIGN,
-      "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign2" := CSE.SIGN_ONLY,
-      "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "nothing" := CSE.DO_NOTHING
+    var actions : AttributeActions := map[
+      "bar" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "sortKey" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "encrypt" := crypto(CSE.ENCRYPT_AND_SIGN),
+      "sign" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "sign2" := crypto(CSE.SIGN_ONLY),
+      "sign3" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "sign4" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "nothing" := crypto(CSE.DO_NOTHING)
     ];
     var encryptor := GetEncryptorFromActions(actions);
     TestEncryptRoundTrip(encryptor, "{\"bar\" : \"abc\"}");

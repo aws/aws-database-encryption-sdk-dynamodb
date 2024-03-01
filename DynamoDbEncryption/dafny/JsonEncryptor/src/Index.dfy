@@ -20,9 +20,9 @@ module
   function method DefaultJsonEncryptorConfig(): JsonEncryptorConfig
   {
     JsonEncryptorConfig(
-      logicalTableName := "TableName",
+      domain := "TableName",
       attributeActionsOnEncrypt := map[],
-      encrypt := DbesdkEncrypt()
+      encrypt := JsonEncrypt()
     )
   }
 
@@ -37,7 +37,7 @@ module
     ensures res.Success? ==>
               && res.value is JsonEncryptorClient
               && var rconfig := (res.value as JsonEncryptorClient).config;
-              //&& rconfig.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt FIXME TODO
+              && rconfig.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
               && rconfig.allowedUnsignedAttributes == config.allowedUnsignedAttributes
               && rconfig.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
               && rconfig.algorithmSuiteId == config.encrypt.algorithmSuiteId
@@ -106,7 +106,7 @@ module
     var cmpClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     var internalConfig := Operations.Config(
-      logicalTableName := config.logicalTableName,
+      domain := config.domain,
       cmpClient := cmpClient,
       attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
       allowedUnsignedAttributes := config.allowedUnsignedAttributes,

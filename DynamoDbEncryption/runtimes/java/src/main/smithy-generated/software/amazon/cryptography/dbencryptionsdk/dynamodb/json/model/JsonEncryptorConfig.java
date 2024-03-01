@@ -3,6 +3,8 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -11,44 +13,71 @@ import java.util.Objects;
 public class JsonEncryptorConfig {
 
   /**
-   * The logical table name for this table. This is the name that is cryptographically bound with your data.
+   * The is the name that is cryptographically bound with your data.
    */
-  private final String logicalTableName;
+  private final String domain;
 
   /**
-   * A full description of the cryptographic actions that should be applied to each attributes.
+   * A map that describes which members should be encrypted and/or signed on encrypt.
    */
-  private final Actions actions;
+  private final Map<String, Action> attributeActionsOnEncrypt;
+
+  /**
+   * A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+   */
+  private final List<String> allowedUnsignedAttributes;
+
+  /**
+   * A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+   */
+  private final String allowedUnsignedAttributePrefix;
 
   /**
    * Setting for encryption and decryption.
    */
-  private final DbesdkEncrypt encrypt;
+  private final JsonEncrypt encrypt;
 
   protected JsonEncryptorConfig(BuilderImpl builder) {
-    this.logicalTableName = builder.logicalTableName();
-    this.actions = builder.actions();
+    this.domain = builder.domain();
+    this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
+    this.allowedUnsignedAttributes = builder.allowedUnsignedAttributes();
+    this.allowedUnsignedAttributePrefix =
+      builder.allowedUnsignedAttributePrefix();
     this.encrypt = builder.encrypt();
   }
 
   /**
-   * @return The logical table name for this table. This is the name that is cryptographically bound with your data.
+   * @return The is the name that is cryptographically bound with your data.
    */
-  public String logicalTableName() {
-    return this.logicalTableName;
+  public String domain() {
+    return this.domain;
   }
 
   /**
-   * @return A full description of the cryptographic actions that should be applied to each attributes.
+   * @return A map that describes which members should be encrypted and/or signed on encrypt.
    */
-  public Actions actions() {
-    return this.actions;
+  public Map<String, Action> attributeActionsOnEncrypt() {
+    return this.attributeActionsOnEncrypt;
+  }
+
+  /**
+   * @return A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+   */
+  public List<String> allowedUnsignedAttributes() {
+    return this.allowedUnsignedAttributes;
+  }
+
+  /**
+   * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+   */
+  public String allowedUnsignedAttributePrefix() {
+    return this.allowedUnsignedAttributePrefix;
   }
 
   /**
    * @return Setting for encryption and decryption.
    */
-  public DbesdkEncrypt encrypt() {
+  public JsonEncrypt encrypt() {
     return this.encrypt;
   }
 
@@ -62,90 +91,150 @@ public class JsonEncryptorConfig {
 
   public interface Builder {
     /**
-     * @param logicalTableName The logical table name for this table. This is the name that is cryptographically bound with your data.
+     * @param domain The is the name that is cryptographically bound with your data.
      */
-    Builder logicalTableName(String logicalTableName);
+    Builder domain(String domain);
 
     /**
-     * @return The logical table name for this table. This is the name that is cryptographically bound with your data.
+     * @return The is the name that is cryptographically bound with your data.
      */
-    String logicalTableName();
+    String domain();
 
     /**
-     * @param actions A full description of the cryptographic actions that should be applied to each attributes.
+     * @param attributeActionsOnEncrypt A map that describes which members should be encrypted and/or signed on encrypt.
      */
-    Builder actions(Actions actions);
+    Builder attributeActionsOnEncrypt(
+      Map<String, Action> attributeActionsOnEncrypt
+    );
 
     /**
-     * @return A full description of the cryptographic actions that should be applied to each attributes.
+     * @return A map that describes which members should be encrypted and/or signed on encrypt.
      */
-    Actions actions();
+    Map<String, Action> attributeActionsOnEncrypt();
+
+    /**
+     * @param allowedUnsignedAttributes A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+     */
+    Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
+
+    /**
+     * @return A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+     */
+    List<String> allowedUnsignedAttributes();
+
+    /**
+     * @param allowedUnsignedAttributePrefix A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+     */
+    Builder allowedUnsignedAttributePrefix(
+      String allowedUnsignedAttributePrefix
+    );
+
+    /**
+     * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+     */
+    String allowedUnsignedAttributePrefix();
 
     /**
      * @param encrypt Setting for encryption and decryption.
      */
-    Builder encrypt(DbesdkEncrypt encrypt);
+    Builder encrypt(JsonEncrypt encrypt);
 
     /**
      * @return Setting for encryption and decryption.
      */
-    DbesdkEncrypt encrypt();
+    JsonEncrypt encrypt();
 
     JsonEncryptorConfig build();
   }
 
   static class BuilderImpl implements Builder {
 
-    protected String logicalTableName;
+    protected String domain;
 
-    protected Actions actions;
+    protected Map<String, Action> attributeActionsOnEncrypt;
 
-    protected DbesdkEncrypt encrypt;
+    protected List<String> allowedUnsignedAttributes;
+
+    protected String allowedUnsignedAttributePrefix;
+
+    protected JsonEncrypt encrypt;
 
     protected BuilderImpl() {}
 
     protected BuilderImpl(JsonEncryptorConfig model) {
-      this.logicalTableName = model.logicalTableName();
-      this.actions = model.actions();
+      this.domain = model.domain();
+      this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
+      this.allowedUnsignedAttributes = model.allowedUnsignedAttributes();
+      this.allowedUnsignedAttributePrefix =
+        model.allowedUnsignedAttributePrefix();
       this.encrypt = model.encrypt();
     }
 
-    public Builder logicalTableName(String logicalTableName) {
-      this.logicalTableName = logicalTableName;
+    public Builder domain(String domain) {
+      this.domain = domain;
       return this;
     }
 
-    public String logicalTableName() {
-      return this.logicalTableName;
+    public String domain() {
+      return this.domain;
     }
 
-    public Builder actions(Actions actions) {
-      this.actions = actions;
+    public Builder attributeActionsOnEncrypt(
+      Map<String, Action> attributeActionsOnEncrypt
+    ) {
+      this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
       return this;
     }
 
-    public Actions actions() {
-      return this.actions;
+    public Map<String, Action> attributeActionsOnEncrypt() {
+      return this.attributeActionsOnEncrypt;
     }
 
-    public Builder encrypt(DbesdkEncrypt encrypt) {
+    public Builder allowedUnsignedAttributes(
+      List<String> allowedUnsignedAttributes
+    ) {
+      this.allowedUnsignedAttributes = allowedUnsignedAttributes;
+      return this;
+    }
+
+    public List<String> allowedUnsignedAttributes() {
+      return this.allowedUnsignedAttributes;
+    }
+
+    public Builder allowedUnsignedAttributePrefix(
+      String allowedUnsignedAttributePrefix
+    ) {
+      this.allowedUnsignedAttributePrefix = allowedUnsignedAttributePrefix;
+      return this;
+    }
+
+    public String allowedUnsignedAttributePrefix() {
+      return this.allowedUnsignedAttributePrefix;
+    }
+
+    public Builder encrypt(JsonEncrypt encrypt) {
       this.encrypt = encrypt;
       return this;
     }
 
-    public DbesdkEncrypt encrypt() {
+    public JsonEncrypt encrypt() {
       return this.encrypt;
     }
 
     public JsonEncryptorConfig build() {
-      if (Objects.isNull(this.logicalTableName())) {
+      if (Objects.isNull(this.domain())) {
         throw new IllegalArgumentException(
-          "Missing value for required field `logicalTableName`"
+          "Missing value for required field `domain`"
         );
       }
-      if (Objects.isNull(this.actions())) {
+      if (Objects.isNull(this.attributeActionsOnEncrypt())) {
         throw new IllegalArgumentException(
-          "Missing value for required field `actions`"
+          "Missing value for required field `attributeActionsOnEncrypt`"
+        );
+      }
+      if (Objects.isNull(this.encrypt())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encrypt`"
         );
       }
       return new JsonEncryptorConfig(this);

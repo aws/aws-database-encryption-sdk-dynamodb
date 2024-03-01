@@ -9,7 +9,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
   {
     private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction _crypto;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.EsdkEncrypt _esdk;
-    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.DbesdkEncrypt _dbesdk;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt _dbesdk;
     public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction Crypto
     {
       get { return this._crypto; }
@@ -28,7 +28,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._esdk != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.DbesdkEncrypt Dbesdk
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt Dbesdk
     {
       get { return this._dbesdk; }
       set { this._dbesdk = value; }

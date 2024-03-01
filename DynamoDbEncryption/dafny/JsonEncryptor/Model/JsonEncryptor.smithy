@@ -11,7 +11,7 @@ use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
-//use aws.cryptography.materialProviders#FrameLength
+// use aws.cryptography.encryptionSdk#FrameLength
 
 use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 use aws.cryptography.primitives#AwsCryptographicPrimitives
@@ -36,16 +36,6 @@ service JsonEncryptor {
 @dafnyUtf8Bytes
 string Utf8Bytes
 
-// On decrypt, a member named `decrypt` should be decrypted a if it were `encrypt`
-structure DecryptAs {
-  encrypt : String,
-  decrypt : String
-}
-
-list DecryptAsList {
-  member: String
-}
-
 // list of member names
 list AttributeNameList {
   member: String
@@ -63,15 +53,21 @@ map AttributeActions {
     value: Action,
 }
 
+// Associate a CryptoAction with a member name
+map SignedValues {
+    key: String,
+    value: String,
+}
+
+
 union Action {
   crypto : CryptoAction,
   esdk : EsdkEncrypt,
-  dbesdk : DbesdkEncrypt
+  dbesdk : JsonEncrypt
 }
 
-// FIXME - import from ESDK, but
-// `use aws.cryptography.materialProviders#FrameLength` doesn't work.
-@range(min: 1, max: 4294967296)
+// FIXME - import from ESDK
+@range(min: 1, max: 2000000000)
 long FrameLength
 
 structure EsdkEncrypt {
@@ -86,7 +82,7 @@ structure EsdkEncrypt {
   frameLength: FrameLength
 }
 
-structure DbesdkEncrypt {
+structure JsonEncrypt {
 
   // Requires a Keyring XOR a CMM
   @javadoc("The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.")
@@ -96,13 +92,19 @@ structure DbesdkEncrypt {
 
   @javadoc("An ID for the algorithm suite to use during encryption and decryption.")
   algorithmSuiteId: DBEAlgorithmSuiteId,
+
+  @javadoc("Extra key-value pairs to include in the signature.")
+  signedValue : SignedValues,
+
+  @javadoc("Extra key-value pairs to include in the required encryption context.")
+  encryptionContext: aws.cryptography.materialProviders#EncryptionContext,
 }
 
 @javadoc("The configuration for the client-side encryption of JSON objects.")
 structure JsonEncryptorConfig {
     @required
-    @javadoc("The logical table name for this table. This is the name that is cryptographically bound with your data.")
-    logicalTableName: String,
+    @javadoc("The is the name that is cryptographically bound with your data.")
+    domain: String,
 
     @required
     @javadoc("A map that describes which members should be encrypted and/or signed on encrypt.")
@@ -111,15 +113,16 @@ structure JsonEncryptorConfig {
     @javadoc("A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.")
     allowedUnsignedAttributes: AttributeNameList,
 
+    // this makes a little less sense in the context of nested structure
+    // If allowedUnsignedAttributes are JSONPaths, and support A.B.*, is that enough?
+    // What if generally our JSONPaths supported A.B.C*
+    // Or should allowedUnsignedAttributePrefix interpret A.B.C as A.B.C*
     @javadoc("A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.")
     allowedUnsignedAttributePrefix: String,
 
     @required
     @javadoc("Setting for encryption and decryption.")
-    encrypt: DbesdkEncrypt,
-
-    @javadoc("Allow decrypt when structure has changed.")
-    decryptAs : DecryptAsList
+    encrypt: JsonEncrypt,
 }
 
 @javadoc("A parsed version of the header that was written with or read on an encrypted Json object.")

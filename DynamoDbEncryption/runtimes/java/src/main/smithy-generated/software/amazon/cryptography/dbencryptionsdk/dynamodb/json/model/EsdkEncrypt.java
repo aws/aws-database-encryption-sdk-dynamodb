@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model;
 
+import java.util.Map;
 import software.amazon.cryptography.materialproviders.CryptographicMaterialsManager;
 import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
 import software.amazon.cryptography.materialproviders.IKeyring;
@@ -10,6 +11,8 @@ import software.amazon.cryptography.materialproviders.Keyring;
 import software.amazon.cryptography.materialproviders.model.ESDKAlgorithmSuiteId;
 
 public class EsdkEncrypt {
+
+  private final Map<String, String> encryptionContext;
 
   private final ICryptographicMaterialsManager materialsManager;
 
@@ -20,10 +23,15 @@ public class EsdkEncrypt {
   private final long frameLength;
 
   protected EsdkEncrypt(BuilderImpl builder) {
+    this.encryptionContext = builder.encryptionContext();
     this.materialsManager = builder.materialsManager();
     this.keyring = builder.keyring();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.frameLength = builder.frameLength();
+  }
+
+  public Map<String, String> encryptionContext() {
+    return this.encryptionContext;
   }
 
   public ICryptographicMaterialsManager materialsManager() {
@@ -51,6 +59,10 @@ public class EsdkEncrypt {
   }
 
   public interface Builder {
+    Builder encryptionContext(Map<String, String> encryptionContext);
+
+    Map<String, String> encryptionContext();
+
     Builder materialsManager(ICryptographicMaterialsManager materialsManager);
 
     ICryptographicMaterialsManager materialsManager();
@@ -72,6 +84,8 @@ public class EsdkEncrypt {
 
   static class BuilderImpl implements Builder {
 
+    protected Map<String, String> encryptionContext;
+
     protected ICryptographicMaterialsManager materialsManager;
 
     protected IKeyring keyring;
@@ -85,11 +99,21 @@ public class EsdkEncrypt {
     protected BuilderImpl() {}
 
     protected BuilderImpl(EsdkEncrypt model) {
+      this.encryptionContext = model.encryptionContext();
       this.materialsManager = model.materialsManager();
       this.keyring = model.keyring();
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.frameLength = model.frameLength();
       this._frameLengthSet = true;
+    }
+
+    public Builder encryptionContext(Map<String, String> encryptionContext) {
+      this.encryptionContext = encryptionContext;
+      return this;
+    }
+
+    public Map<String, String> encryptionContext() {
+      return this.encryptionContext;
     }
 
     public Builder materialsManager(
@@ -138,9 +162,9 @@ public class EsdkEncrypt {
           "`frameLength` must be greater than or equal to 1"
         );
       }
-      if (this._frameLengthSet && this.frameLength() > 4294967296) {
+      if (this._frameLengthSet && this.frameLength() > 2000000000) {
         throw new IllegalArgumentException(
-          "`frameLength` must be less than or equal to 4294967296."
+          "`frameLength` must be less than or equal to 4294967295."
         );
       }
       return new EsdkEncrypt(this);

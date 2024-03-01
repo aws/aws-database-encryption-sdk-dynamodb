@@ -6,7 +6,6 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
 
@@ -18,7 +17,7 @@ public class ParsedHeader {
   /**
    * The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
    */
-  private final Map<String, CryptoAction> attributeActionsOnEncrypt;
+  private final Map<String, Action> attributeActionsOnEncrypt;
 
   /**
    * The ID of the algorithm suite that was used to encrypt this object.
@@ -51,7 +50,7 @@ public class ParsedHeader {
   /**
    * @return The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
    */
-  public Map<String, CryptoAction> attributeActionsOnEncrypt() {
+  public Map<String, Action> attributeActionsOnEncrypt() {
     return this.attributeActionsOnEncrypt;
   }
 
@@ -96,13 +95,13 @@ public class ParsedHeader {
      * @param attributeActionsOnEncrypt The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
      */
     Builder attributeActionsOnEncrypt(
-      Map<String, CryptoAction> attributeActionsOnEncrypt
+      Map<String, Action> attributeActionsOnEncrypt
     );
 
     /**
      * @return The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
      */
-    Map<String, CryptoAction> attributeActionsOnEncrypt();
+    Map<String, Action> attributeActionsOnEncrypt();
 
     /**
      * @param algorithmSuiteId The ID of the algorithm suite that was used to encrypt this object.
@@ -151,7 +150,7 @@ public class ParsedHeader {
 
   static class BuilderImpl implements Builder {
 
-    protected Map<String, CryptoAction> attributeActionsOnEncrypt;
+    protected Map<String, Action> attributeActionsOnEncrypt;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -172,13 +171,13 @@ public class ParsedHeader {
     }
 
     public Builder attributeActionsOnEncrypt(
-      Map<String, CryptoAction> attributeActionsOnEncrypt
+      Map<String, Action> attributeActionsOnEncrypt
     ) {
       this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
       return this;
     }
 
-    public Map<String, CryptoAction> attributeActionsOnEncrypt() {
+    public Map<String, Action> attributeActionsOnEncrypt() {
       return this.attributeActionsOnEncrypt;
     }
 

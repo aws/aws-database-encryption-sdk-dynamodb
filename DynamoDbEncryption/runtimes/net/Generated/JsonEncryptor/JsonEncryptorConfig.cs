@@ -7,20 +7,19 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
   public class JsonEncryptorConfig
   {
-    private string _logicalTableName;
+    private string _domain;
     private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> _attributeActionsOnEncrypt;
     private System.Collections.Generic.List<string> _allowedUnsignedAttributes;
     private string _allowedUnsignedAttributePrefix;
-    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.DbesdkEncrypt _encrypt;
-    private System.Collections.Generic.List<string> _decryptAs;
-    public string LogicalTableName
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt _encrypt;
+    public string Domain
     {
-      get { return this._logicalTableName; }
-      set { this._logicalTableName = value; }
+      get { return this._domain; }
+      set { this._domain = value; }
     }
-    public bool IsSetLogicalTableName()
+    public bool IsSetDomain()
     {
-      return this._logicalTableName != null;
+      return this._domain != null;
     }
     public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> AttributeActionsOnEncrypt
     {
@@ -49,7 +48,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._allowedUnsignedAttributePrefix != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.DbesdkEncrypt Encrypt
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt Encrypt
     {
       get { return this._encrypt; }
       set { this._encrypt = value; }
@@ -58,18 +57,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._encrypt != null;
     }
-    public System.Collections.Generic.List<string> DecryptAs
-    {
-      get { return this._decryptAs; }
-      set { this._decryptAs = value; }
-    }
-    public bool IsSetDecryptAs()
-    {
-      return this._decryptAs != null;
-    }
     public void Validate()
     {
-      if (!IsSetLogicalTableName()) throw new System.ArgumentException("Missing value for required property 'LogicalTableName'");
+      if (!IsSetDomain()) throw new System.ArgumentException("Missing value for required property 'Domain'");
       if (!IsSetAttributeActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'AttributeActionsOnEncrypt'");
       if (!IsSetEncrypt()) throw new System.ArgumentException("Missing value for required property 'Encrypt'");
 
