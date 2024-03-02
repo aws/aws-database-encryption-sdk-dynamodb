@@ -5,9 +5,8 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.enhanced.dynamodb.Document;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
@@ -18,12 +17,11 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Crea
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.util.ArrayList;
 
 /*
   This example sets up DynamoDb Encryption for the DynamoDb Enhanced Client
@@ -38,9 +36,9 @@ import java.util.ArrayList;
     - Partition key is named "partition_key" with type (S)
     - Sort key is named "sort_key" with type (S)
  */
-public class EnhancedPutGetExample {
+public class SingleTableExample {
 
-    public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
+    public static void TransactWriteItems(String kmsKeyId, String ddbTableName) {
         // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
         //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
         //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -60,7 +58,9 @@ public class EnhancedPutGetExample {
         //    use the `DynamoDbEncryptionSignOnly` annotation.
         //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
         //    use the `DynamoDbEncryptionDoNothing` annotation.
-        final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass> tableSchema1 = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass2> tableSchema2 = TableSchema.fromBean(SimpleClass2.class);
+        final TableSchema<SimpleClass3> tableSchema3 = TableSchema.fromBean(SimpleClass3.class);
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
@@ -98,7 +98,9 @@ public class EnhancedPutGetExample {
                         .logicalTableName(ddbTableName)
                         .keyring(kmsKeyring)
                         .allowedUnsignedAttributePrefix(unsignAttrPrefix)
-                        .schemaOnEncrypt(tableSchema)
+                        .schemaOnEncrypt(tableSchema1)
+                        .schemaOnEncrypt(tableSchema2)
+                        .schemaOnEncrypt(tableSchema3)
                         // Specifying an algorithm suite is not required,
                         // but is done here to demonstrate how to do so.
                         // We suggest using the
@@ -132,40 +134,72 @@ public class EnhancedPutGetExample {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
+        final DynamoDbTable<SimpleClass> table1 = enhancedClient.table(ddbTableName, tableSchema1);
+        final DynamoDbTable<SimpleClass2> table2 = enhancedClient.table(ddbTableName, tableSchema2);
+        final DynamoDbTable<SimpleClass3> table3 = enhancedClient.table(ddbTableName, tableSchema3);
 
         // 8. Put an item into your table using the DynamoDb Enhanced Client.
         //    The item will be encrypted client-side according to your
         //    configuration above before it is sent to DynamoDb.
-        final SimpleClass item = new SimpleClass();
-        item.setPartitionKey("EnhancedPutGetExample");
-        item.setSortKey(0);
-        item.setAttribute1("encrypt and sign me!");
-        item.setAttribute2("sign me!");
-        item.setAttribute3("ignore me!");
+        final SimpleClass item1 = new SimpleClass();
+        item1.setPartitionKey("EnhancedPutGetExample1");
+        item1.setSortKey(0);
+        item1.setAttribute1("item1 encrypt and sign me!");
+        item1.setAttribute2("item1 sign me!");
+        item1.setAttribute3("item1 ignore me!");
 
-        table.putItem(item);
+        final SimpleClass2 item2 = new SimpleClass2();
+        item2.setPartitionKey("EnhancedPutGetExample2");
+        item2.setSortKey(0);
+        item2.setAttribute4("item2 encrypt and sign me!");
+        item2.setAttribute5("item2 sign me!");
+        item2.setAttribute3("item2 ignore me!");
+
+        final SimpleClass3 item3 = new SimpleClass3();
+        item3.setPartitionKey("EnhancedPutGetExample3");
+        item3.setSortKey(0);
+        item3.setAttribute6("item3 encrypt and sign me!");
+        item3.setAttribute2("item3 sign me!");
+        item3.setAttribute7("item3 ignore me!");
+
+        // Create enhanced request providing the table schema and the item types we want to write
+        final TransactWriteItemsEnhancedRequest request = TransactWriteItemsEnhancedRequest.builder()
+                .addPutItem(table1, item1)
+                .addPutItem(table2, item2)
+                .addPutItem(table3, item3)
+                .build();
+        enhancedClient.transactWriteItems(request);
 
         // 9. Get the item back from the table using the DynamoDb Enhanced Client.
         //    The item will be decrypted client-side, and you will get back the
         //    original item.
-        final Key key = Key.builder()
-                .partitionValue("EnhancedPutGetExample").sortValue(0)
-                .build();
+        final SimpleClass key1 = new SimpleClass();
+        key1.setPartitionKey("EnhancedPutGetExample1");
+        key1.setSortKey(0);
 
-        final SimpleClass result = table.getItem(
-                (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
+        final SimpleClass2 key2 = new SimpleClass2();
+        key2.setPartitionKey("EnhancedPutGetExample2");
+        key2.setSortKey(0);
+
+        final SimpleClass3 key3 = new SimpleClass3();
+        key3.setPartitionKey("EnhancedPutGetExample3");
+        key3.setSortKey(0);
+
+        final TransactGetItemsEnhancedRequest getRequest = TransactGetItemsEnhancedRequest.builder()
+                .addGetItem(table1, key1)
+                .addGetItem(table2, key2)
+                .addGetItem(table3, key3)
+                .build();
+        List<Document> getResult = enhancedClient.transactGetItems(getRequest);
+
+        final SimpleClass result1 = getResult.get(0).getItem(table1);
+        final SimpleClass2 result2 = getResult.get(1).getItem(table2);
+        final SimpleClass3 result3 = getResult.get(2).getItem(table3);
 
         // Demonstrate we get the original item back
-        assert result.getAttribute1().equals("encrypt and sign me!");
-
-        // retrieve the same record via a Query
-        PageIterable<SimpleClass> items = table.query(QueryConditional.keyEqualTo(k -> k.partitionValue("EnhancedPutGetExample")));
-        List<SimpleClass> itemList = new ArrayList<SimpleClass>();
-
-        items.stream().forEach(p -> p.items().forEach(itemList::add));
-        assert itemList.size() == 1;
-        assert itemList.get(0).getAttribute1().equals("encrypt and sign me!");
+        assert result1.getAttribute1().equals("item1 encrypt and sign me!");
+        assert result2.getAttribute4().equals("item2 encrypt and sign me!");
+        assert result3.getAttribute6().equals("item3 encrypt and sign me!");
     }
 
     public static void main(final String[] args) {
@@ -174,6 +208,6 @@ public class EnhancedPutGetExample {
         }
         final String kmsKeyId = args[0];
         final String ddbTableName = args[1];
-        PutItemGetItem(kmsKeyId, ddbTableName);
+        TransactWriteItems(kmsKeyId, ddbTableName);
     }
 }

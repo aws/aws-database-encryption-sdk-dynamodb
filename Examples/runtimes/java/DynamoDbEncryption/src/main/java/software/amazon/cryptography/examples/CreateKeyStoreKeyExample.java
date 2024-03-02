@@ -57,7 +57,7 @@ public class CreateKeyStoreKeyExample {
         }
         final String keyStoreTableName = args[0];
         final String logicalKeyStoreName = args[1];
-        final String kmsKeyArn = args[1];
+        final String kmsKeyArn = args[2];
         KeyStoreCreateKey(keyStoreTableName, logicalKeyStoreName, kmsKeyArn);
     }
 }
