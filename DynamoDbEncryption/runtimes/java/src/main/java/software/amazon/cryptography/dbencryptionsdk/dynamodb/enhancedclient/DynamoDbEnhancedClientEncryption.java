@@ -61,7 +61,9 @@ public class DynamoDbEnhancedClientEncryption {
         return allIndexAttributes;
     }
 
-
+    // return attributes used in the primary table index
+    private static Set<String> attributeNamesUsedInPrimaryKey(
+        final TableMetadata tableMetadata
     ) {
         Set<String> keyAttributes = new HashSet<>();
         tableMetadata.keyAttributes().stream()
@@ -124,7 +126,6 @@ public class DynamoDbEnhancedClientEncryption {
         Set<String> doNothingAttributes = getDoNothingAttributes(topTableSchema);
         Set<String> keyAttributes = attributeNamesUsedInIndices(topTableSchema.tableMetadata());
         Set<String> tableKeys = attributeNamesUsedInPrimaryKey(topTableSchema.tableMetadata());
-
         List<String> attributeNames = topTableSchema.attributeNames();
 
         Map<String, CryptoAction> actions = new HashMap<>();
@@ -132,12 +133,15 @@ public class DynamoDbEnhancedClientEncryption {
         path.append(tableName).append(".");
         for (String attributeName : attributeNames) {
             if (tableKeys.contains(attributeName)) {
-
+                if (signAndIncludeAttributes.isEmpty()) {
+                    validateAttributeUsage(tableName, attributeName, "a primary key", Optional.empty(), Optional.of(signAndIncludeAttributes), Optional.of(doNothingAttributes));
                     actions.put(attributeName, CryptoAction.SIGN_ONLY);
                 } else {
                     validateAttributeUsage(tableName, attributeName, "a primary key", Optional.of(signOnlyAttributes), Optional.empty(), Optional.of(doNothingAttributes));
                     actions.put(attributeName, CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT);
-
+                }
+            } else if (keyAttributes.contains(attributeName)) {
+                validateAttributeUsage(tableName, attributeName, "an index key", Optional.empty(), Optional.of(signAndIncludeAttributes), Optional.of(doNothingAttributes));
                 actions.put(attributeName, CryptoAction.SIGN_ONLY);
             } else if (signOnlyAttributes.contains(attributeName)) {
                 validateAttributeUsage(tableName, attributeName, "@DynamoDbEncryptionSignOnly", Optional.empty(), Optional.of(signAndIncludeAttributes), Optional.of(doNothingAttributes));
