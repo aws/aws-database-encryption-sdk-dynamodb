@@ -7,6 +7,7 @@ import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 
 public class GetItemInputTransformOutput {
+
   private final GetItemRequest transformedInput;
 
   protected GetItemInputTransformOutput(BuilderImpl builder) {
@@ -34,10 +35,10 @@ public class GetItemInputTransformOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected GetItemRequest transformedInput;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetItemInputTransformOutput model) {
       this.transformedInput = model.transformedInput();
@@ -53,8 +54,10 @@ public class GetItemInputTransformOutput {
     }
 
     public GetItemInputTransformOutput build() {
-      if (Objects.isNull(this.transformedInput()))  {
-        throw new IllegalArgumentException("Missing value for required field `transformedInput`");
+      if (Objects.isNull(this.transformedInput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `transformedInput`"
+        );
       }
       return new GetItemInputTransformOutput(this);
     }

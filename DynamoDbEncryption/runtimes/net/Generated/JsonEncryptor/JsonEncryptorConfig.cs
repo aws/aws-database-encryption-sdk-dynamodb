@@ -7,23 +7,21 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
   public class JsonEncryptorConfig
   {
-    private string _logicalTableName;
-    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> _attributeActionsOnEncrypt;
+    private string _domain;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> _attributeActionsOnEncrypt;
     private System.Collections.Generic.List<string> _allowedUnsignedAttributes;
     private string _allowedUnsignedAttributePrefix;
-    private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
-    private AWS.Cryptography.MaterialProviders.IKeyring _keyring;
-    private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
-    public string LogicalTableName
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt _encrypt;
+    public string Domain
     {
-      get { return this._logicalTableName; }
-      set { this._logicalTableName = value; }
+      get { return this._domain; }
+      set { this._domain = value; }
     }
-    public bool IsSetLogicalTableName()
+    public bool IsSetDomain()
     {
-      return this._logicalTableName != null;
+      return this._domain != null;
     }
-    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> AttributeActionsOnEncrypt
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> AttributeActionsOnEncrypt
     {
       get { return this._attributeActionsOnEncrypt; }
       set { this._attributeActionsOnEncrypt = value; }
@@ -50,37 +48,20 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._allowedUnsignedAttributePrefix != null;
     }
-    public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt Encrypt
     {
-      get { return this._algorithmSuiteId; }
-      set { this._algorithmSuiteId = value; }
+      get { return this._encrypt; }
+      set { this._encrypt = value; }
     }
-    public bool IsSetAlgorithmSuiteId()
+    public bool IsSetEncrypt()
     {
-      return this._algorithmSuiteId != null;
-    }
-    public AWS.Cryptography.MaterialProviders.IKeyring Keyring
-    {
-      get { return this._keyring; }
-      set { this._keyring = value; }
-    }
-    public bool IsSetKeyring()
-    {
-      return this._keyring != null;
-    }
-    public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager Cmm
-    {
-      get { return this._cmm; }
-      set { this._cmm = value; }
-    }
-    public bool IsSetCmm()
-    {
-      return this._cmm != null;
+      return this._encrypt != null;
     }
     public void Validate()
     {
-      if (!IsSetLogicalTableName()) throw new System.ArgumentException("Missing value for required property 'LogicalTableName'");
+      if (!IsSetDomain()) throw new System.ArgumentException("Missing value for required property 'Domain'");
       if (!IsSetAttributeActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'AttributeActionsOnEncrypt'");
+      if (!IsSetEncrypt()) throw new System.ArgumentException("Missing value for required property 'Encrypt'");
 
     }
   }

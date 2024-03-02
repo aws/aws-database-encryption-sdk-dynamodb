@@ -9,10 +9,11 @@ import java.util.Objects;
  * Outputs for encrypting a JSON object.
  */
 public class EncryptObjectOutput {
+
   /**
    * The encrypted JSON object.
    */
-  private final String encryptedObject;
+  private final Json encryptedObject;
 
   /**
    * A parsed version of the header written with the encrypted JSON object.
@@ -27,7 +28,7 @@ public class EncryptObjectOutput {
   /**
    * @return The encrypted JSON object.
    */
-  public String encryptedObject() {
+  public Json encryptedObject() {
     return this.encryptedObject;
   }
 
@@ -50,12 +51,12 @@ public class EncryptObjectOutput {
     /**
      * @param encryptedObject The encrypted JSON object.
      */
-    Builder encryptedObject(String encryptedObject);
+    Builder encryptedObject(Json encryptedObject);
 
     /**
      * @return The encrypted JSON object.
      */
-    String encryptedObject();
+    Json encryptedObject();
 
     /**
      * @param parsedHeader A parsed version of the header written with the encrypted JSON object.
@@ -71,24 +72,24 @@ public class EncryptObjectOutput {
   }
 
   static class BuilderImpl implements Builder {
-    protected String encryptedObject;
+
+    protected Json encryptedObject;
 
     protected ParsedHeader parsedHeader;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptObjectOutput model) {
       this.encryptedObject = model.encryptedObject();
       this.parsedHeader = model.parsedHeader();
     }
 
-    public Builder encryptedObject(String encryptedObject) {
+    public Builder encryptedObject(Json encryptedObject) {
       this.encryptedObject = encryptedObject;
       return this;
     }
 
-    public String encryptedObject() {
+    public Json encryptedObject() {
       return this.encryptedObject;
     }
 
@@ -102,8 +103,10 @@ public class EncryptObjectOutput {
     }
 
     public EncryptObjectOutput build() {
-      if (Objects.isNull(this.encryptedObject()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedObject`");
+      if (Objects.isNull(this.encryptedObject())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedObject`"
+        );
       }
       return new EncryptObjectOutput(this);
     }

@@ -60,7 +60,6 @@ verify:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:csv \
@@ -77,7 +76,6 @@ verify_single:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:text \
@@ -93,7 +91,6 @@ verify_service:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:csv \
@@ -104,7 +101,6 @@ verify_service:
 format:
 	dafny format \
 		--function-syntax 3 \
-		--quantifier-syntax 3 \
 		--unicode-char false \
 		`find . -name '*.dfy'`
 
@@ -112,7 +108,6 @@ format-check:
 	dafny format \
 		--check \
 		--function-syntax 3 \
-		--quantifier-syntax 3 \
 		--unicode-char false \
 		`find . -name '*.dfy'`
 
@@ -160,7 +155,6 @@ transpile_implementation:
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
 		$(COMPILE_SUFFIX_OPTION) \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-useRuntimeLib \
@@ -183,7 +177,6 @@ transpile_test:
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
 		$(COMPILE_SUFFIX_OPTION) \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-useRuntimeLib \
@@ -216,7 +209,11 @@ _polymorph:
 	@: $(if ${CODEGEN_CLI_ROOT},,$(error You must pass the path CODEGEN_CLI_ROOT: CODEGEN_CLI_ROOT=/[path]/[to]/smithy-dafny/codegen/smithy-dafny-codegen-cli));
 	cd $(CODEGEN_CLI_ROOT); \
 	./../gradlew run --args="\
+	--library-root $(LIBRARY_ROOT) \
+	$(UPDATE_PATCH_FILES_OPTION) \
 	$(OUTPUT_DAFNY) \
+	--patch-files-dir $(if $(DIR_STRUCTURE_V2),$(LIBRARY_ROOT)/codegen-patches/$(SERVICE),$(LIBRARY_ROOT)/codegen-patches) \
+	$(POLYMORPH_OPTIONS) \
 	$(OUTPUT_DOTNET) \
 	$(OUTPUT_JAVA) \
 	--dafny-version 4.1 \

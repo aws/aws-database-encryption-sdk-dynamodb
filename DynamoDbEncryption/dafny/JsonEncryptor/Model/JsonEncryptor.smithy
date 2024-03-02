@@ -4,13 +4,14 @@ namespace aws.cryptography.dbEncryptionSdk.dynamoDb.json
 
 use aws.polymorph#localService
 use aws.polymorph#javadoc
+use aws.polymorph#dafnyUtf8Bytes
 
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
-use aws.cryptography.dbEncryptionSdk.structuredEncryption#Version
+// use aws.cryptography.encryptionSdk#FrameLength
 
 use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 use aws.cryptography.primitives#AwsCryptographicPrimitives
@@ -27,46 +28,104 @@ use aws.cryptography.dbEncryptionSdk.structuredEncryption#CryptoAction
   ]
 )
 service JsonEncryptor {
-    version: "2022-08-26",
+    version: "2024-02-14",
     operations: [EncryptObject, DecryptObject],
-    errors: [JsonEncryptorException],
+    errors: [JsonEncryptorException]
 }
 
+@dafnyUtf8Bytes
+string Utf8Bytes
+
+// list of member names
 list AttributeNameList {
   member: String
 }
+
+// Json structure. One day, we should add `Document`
+union Json {
+  utf8 : Utf8Bytes,
+  text : String
+}
+
+// Associate a CryptoAction with a member name
 map AttributeActions {
     key: String,
-    value: CryptoAction,
+    value: Action,
+}
+
+// Associate a CryptoAction with a member name
+map SignedValues {
+    key: String,
+    value: String,
+}
+
+
+union Action {
+  crypto : CryptoAction,
+  esdk : EsdkEncrypt,
+  dbesdk : JsonEncrypt
+}
+
+// FIXME - import from ESDK
+@range(min: 1, max: 2000000000)
+long FrameLength
+
+structure EsdkEncrypt {
+  encryptionContext: aws.cryptography.materialProviders#EncryptionContext,
+
+  // One of keyring or CMM are required
+  materialsManager: aws.cryptography.materialProviders#CryptographicMaterialsManagerReference,
+  keyring: aws.cryptography.materialProviders#KeyringReference,
+
+  algorithmSuiteId: aws.cryptography.materialProviders#ESDKAlgorithmSuiteId,
+
+  frameLength: FrameLength
+}
+
+structure JsonEncrypt {
+
+  // Requires a Keyring XOR a CMM
+  @javadoc("The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.")
+  keyring: KeyringReference,
+  @javadoc("The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.")
+  cmm: CryptographicMaterialsManagerReference,
+
+  @javadoc("An ID for the algorithm suite to use during encryption and decryption.")
+  algorithmSuiteId: DBEAlgorithmSuiteId,
+
+  @javadoc("Extra key-value pairs to include in the signature.")
+  signedValue : SignedValues,
+
+  @javadoc("Extra key-value pairs to include in the required encryption context.")
+  encryptionContext: aws.cryptography.materialProviders#EncryptionContext,
 }
 
 @javadoc("The configuration for the client-side encryption of JSON objects.")
 structure JsonEncryptorConfig {
     @required
-    @javadoc("The logical table name for this table. This is the name that is cryptographically bound with your data.")
-    logicalTableName: String,
+    @javadoc("The is the name that is cryptographically bound with your data.")
+    domain: String,
 
     @required
-    @javadoc("A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.")
+    @javadoc("A map that describes which members should be encrypted and/or signed on encrypt.")
     attributeActionsOnEncrypt: AttributeActions,
 
     @javadoc("A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.")
     allowedUnsignedAttributes: AttributeNameList,
 
+    // this makes a little less sense in the context of nested structure
+    // If allowedUnsignedAttributes are JSONPaths, and support A.B.*, is that enough?
+    // What if generally our JSONPaths supported A.B.C*
+    // Or should allowedUnsignedAttributePrefix interpret A.B.C as A.B.C*
     @javadoc("A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.")
     allowedUnsignedAttributePrefix: String,
 
-    @javadoc("An ID for the algorithm suite to use during encryption and decryption.")
-    algorithmSuiteId: DBEAlgorithmSuiteId,
-
-    // Requires a Keyring XOR a CMM
-    @javadoc("The Keyring that should be used to wrap and unwrap data keys. If specified a Default Cryptographic Materials Manager with this Keyring is used to obtain materials for encryption and decryption. Either a Keyring or a Cryptographic Materials Manager must be specified.")
-    keyring: KeyringReference,
-    @javadoc("The Cryptographic Materials Manager that is used to obtain materials for encryption and decryption.  Either a Keyring or a Cryptographic Materials Manager must be specified.")
-    cmm: CryptographicMaterialsManagerReference,
+    @required
+    @javadoc("Setting for encryption and decryption.")
+    encrypt: JsonEncrypt,
 }
 
-@javadoc("A parsed version of the header that was written with or read on an encrypted Json objext.")
+@javadoc("A parsed version of the header that was written with or read on an encrypted Json object.")
 structure ParsedHeader {
     @required
     @javadoc("The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.")
@@ -79,7 +138,10 @@ structure ParsedHeader {
     encryptedDataKeys: EncryptedDataKeyList,
     @required
     @javadoc("The portion of the encryption context that was stored in the header of this object.")
-    storedEncryptionContext: EncryptionContext
+    storedEncryptionContext: EncryptionContext,
+    @required
+    @javadoc("The full encryption context.")
+    encryptionContext: EncryptionContext
 }
 
 @javadoc("Encrypt a Json object.")
@@ -98,16 +160,15 @@ operation DecryptObject {
 structure EncryptObjectInput {
     @required
     @javadoc("The JSON object to encrypt.")
-    plaintextObject: String,
+    plaintextObject: Json,
 }
 
 @javadoc("Outputs for encrypting a JSON object.")
 structure EncryptObjectOutput {
     @required
     @javadoc("The encrypted JSON object.")
-    encryptedObject: String,
+    encryptedObject: Json,
 
-    // MAY be None if in plaintext/legacy mode
     @javadoc("A parsed version of the header written with the encrypted JSON object.")
     parsedHeader: ParsedHeader,
 }
@@ -116,20 +177,18 @@ structure EncryptObjectOutput {
 structure DecryptObjectInput {
     @required
     @javadoc("The encrypted JSON object to decrypt.")
-    encryptedObject: String,
+    encryptedObject: Json,
 }
 
 @javadoc("Outputs for decrypting a JSON object.")
 structure DecryptObjectOutput {
     @required
     @javadoc("The decrypted JSON object.")
-    plaintextObject: String,
+    plaintextObject: Json,
 
-    // MAY be None if in plaintext/legacy mode
     @javadoc("A parsed version of the header on the encrypted JSON object.")
     parsedHeader: ParsedHeader,
 }
-
 
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
 structure AtomicPrimitivesReference {}

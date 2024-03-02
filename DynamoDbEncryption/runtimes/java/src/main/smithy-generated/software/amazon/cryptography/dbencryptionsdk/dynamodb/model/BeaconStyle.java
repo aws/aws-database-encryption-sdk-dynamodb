@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 public class BeaconStyle {
+
   /**
    * Attribute must be used as part of a Compound Beacon, never alone.
    */
@@ -114,6 +115,7 @@ public class BeaconStyle {
   }
 
   static class BuilderImpl implements Builder {
+
     protected PartOnly partOnly;
 
     protected Shared shared;
@@ -122,8 +124,7 @@ public class BeaconStyle {
 
     protected SharedSet sharedSet;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(BeaconStyle model) {
       this.partOnly = model.partOnly();
@@ -170,13 +171,20 @@ public class BeaconStyle {
 
     public BeaconStyle build() {
       if (!onlyOneNonNull()) {
-        throw new IllegalArgumentException("`BeaconStyle` is a Union. A Union MUST have one and only one value set.");
+        throw new IllegalArgumentException(
+          "`BeaconStyle` is a Union. A Union MUST have one and only one value set."
+        );
       }
       return new BeaconStyle(this);
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.partOnly, this.shared, this.asSet, this.sharedSet};
+      Object[] allValues = {
+        this.partOnly,
+        this.shared,
+        this.asSet,
+        this.sharedSet,
+      };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

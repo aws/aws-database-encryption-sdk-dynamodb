@@ -9,10 +9,11 @@ import java.util.Objects;
  * Inputs for encrypting a JSON object.
  */
 public class EncryptObjectInput {
+
   /**
    * The JSON object to encrypt.
    */
-  private final String plaintextObject;
+  private final Json plaintextObject;
 
   protected EncryptObjectInput(BuilderImpl builder) {
     this.plaintextObject = builder.plaintextObject();
@@ -21,7 +22,7 @@ public class EncryptObjectInput {
   /**
    * @return The JSON object to encrypt.
    */
-  public String plaintextObject() {
+  public Json plaintextObject() {
     return this.plaintextObject;
   }
 
@@ -37,38 +38,40 @@ public class EncryptObjectInput {
     /**
      * @param plaintextObject The JSON object to encrypt.
      */
-    Builder plaintextObject(String plaintextObject);
+    Builder plaintextObject(Json plaintextObject);
 
     /**
      * @return The JSON object to encrypt.
      */
-    String plaintextObject();
+    Json plaintextObject();
 
     EncryptObjectInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected String plaintextObject;
 
-    protected BuilderImpl() {
-    }
+    protected Json plaintextObject;
+
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptObjectInput model) {
       this.plaintextObject = model.plaintextObject();
     }
 
-    public Builder plaintextObject(String plaintextObject) {
+    public Builder plaintextObject(Json plaintextObject) {
       this.plaintextObject = plaintextObject;
       return this;
     }
 
-    public String plaintextObject() {
+    public Json plaintextObject() {
       return this.plaintextObject;
     }
 
     public EncryptObjectInput build() {
-      if (Objects.isNull(this.plaintextObject()))  {
-        throw new IllegalArgumentException("Missing value for required field `plaintextObject`");
+      if (Objects.isNull(this.plaintextObject())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `plaintextObject`"
+        );
       }
       return new EncryptObjectInput(this);
     }

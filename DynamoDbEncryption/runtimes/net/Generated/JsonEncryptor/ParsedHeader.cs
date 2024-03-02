@@ -7,11 +7,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
   public class ParsedHeader
   {
-    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> _attributeActionsOnEncrypt;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> _attributeActionsOnEncrypt;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
     private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys;
     private System.Collections.Generic.Dictionary<string, string> _storedEncryptionContext;
-    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> AttributeActionsOnEncrypt
+    private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> AttributeActionsOnEncrypt
     {
       get { return this._attributeActionsOnEncrypt; }
       set { this._attributeActionsOnEncrypt = value; }
@@ -47,12 +48,22 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._storedEncryptionContext != null;
     }
+    public System.Collections.Generic.Dictionary<string, string> EncryptionContext
+    {
+      get { return this._encryptionContext; }
+      set { this._encryptionContext = value; }
+    }
+    public bool IsSetEncryptionContext()
+    {
+      return this._encryptionContext != null;
+    }
     public void Validate()
     {
       if (!IsSetAttributeActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'AttributeActionsOnEncrypt'");
       if (!IsSetAlgorithmSuiteId()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuiteId'");
       if (!IsSetEncryptedDataKeys()) throw new System.ArgumentException("Missing value for required property 'EncryptedDataKeys'");
       if (!IsSetStoredEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'StoredEncryptionContext'");
+      if (!IsSetEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'EncryptionContext'");
 
     }
   }

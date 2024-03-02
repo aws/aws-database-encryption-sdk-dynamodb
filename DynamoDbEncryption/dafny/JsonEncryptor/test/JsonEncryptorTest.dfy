@@ -9,7 +9,7 @@ module JsonEncryptorTest {
   import opened StandardLibrary.UInt
   import MaterialProviders
   import JsonEncryptor
-  import JsonToStruct
+  import JsonToStruct`Fun
   import UTF8
   import JSON.Spec
   import JSON.API
@@ -22,7 +22,7 @@ module JsonEncryptorTest {
   predicate method IsEncrypted(actions : Option<AttributeActions>, name : string)
   {
     || (ReservedPrefix < name)
-    || (actions.Some? && name in actions.value && actions.value[name] == CSE.ENCRYPT_AND_SIGN)
+    || (actions.Some? && name in actions.value && actions.value[name].crypto? && actions.value[name].crypto == CSE.ENCRYPT_AND_SIGN)
   }
 
   method ObjectToStructuredFull(item : string, actions : Option<AttributeActions> := None)
@@ -53,19 +53,18 @@ module JsonEncryptorTest {
   }
 
 
-  method ExpectEqualJson(item : string, final : string)
+  method ExpectEqualJson(item : string, final : Json)
   {
     var obj :- expect UTF8.Encode(item);
     var itemJson :- expect API.Deserialize(obj);
     var jsonBytes :- expect API.Serialize(itemJson);
     var newItem :- expect UTF8.Decode(jsonBytes);
 
-  if newItem == final {
+  if final.text? && newItem == final.text {
     return;
   }
 
-    obj :- expect UTF8.Encode(final);
-    var finalJson :- expect API.Deserialize(obj);
+    var finalJson :- expect JsonToStruct.SmithyJsonToObject(final);
     if JsonToStruct.JsonEqual(itemJson, finalJson) {
       print "Item seemed to change from : ", item, " to ", final, " but it was really still the same\n";
 
@@ -88,7 +87,7 @@ module JsonEncryptorTest {
       print "Unexpected StructuredToObject error : \n", s2o.error, "\n", item, "\n", o2s.value, "\n";
     }
     expect s2o.Success?;
-    ExpectEqualJson(item, s2o.value);
+    ExpectEqualJson(item, text(s2o.value));
 
   }
   method {:test} TestRoundTrips() {
@@ -130,13 +129,11 @@ module JsonEncryptorTest {
     var keyring := GetKmsKeyring();
     var logicalTableName := "foo";
     output := JsonEncryptorConfig(
-      logicalTableName := logicalTableName,
+      domain := logicalTableName,
       attributeActionsOnEncrypt := actions,
       allowedUnsignedAttributes := Some(["nothing"]),
       allowedUnsignedAttributePrefix := None,
-      keyring := Some(keyring),
-      cmm := None,
-      algorithmSuiteId := None
+      encrypt := JsonEncrypt(keyring := Some(keyring))
     );
   }
 
@@ -148,14 +145,13 @@ module JsonEncryptorTest {
   {
     var keyring := GetKmsKeyring();
     var encryptorConfig := JsonEncryptorConfig(
-      logicalTableName := config.logicalTableName,
+      domain := config.domain,
       attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
       allowedUnsignedAttributes := config.allowedUnsignedAttributes,
       allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
-      keyring := Some(keyring),
-      cmm := None,
-      algorithmSuiteId := None
+      encrypt := JsonEncrypt(keyring := Some(keyring))
     );
+    expect forall k <- encryptorConfig.attributeActionsOnEncrypt :: encryptorConfig.attributeActionsOnEncrypt[k].crypto?;
     var encryptor2 : IJsonEncryptorClient :- expect JsonEncryptor.JsonEncryptor(encryptorConfig);
     assert encryptor2 is JsonEncryptor.JsonEncryptorClient;
     encryptor := encryptor2 as JsonEncryptor.JsonEncryptorClient;
@@ -177,7 +173,7 @@ module JsonEncryptorTest {
     modifies encryptor.Modifies
   {
     print "TestEncryptRoundTrip plain : ", item, "\n";
-    var encItem :- expect encryptor.EncryptObject(EncryptObjectInput(plaintextObject := item));
+    var encItem :- expect encryptor.EncryptObject(EncryptObjectInput(plaintextObject := text(item)));
 //  nameonly parsedHeader: Option<ParsedHeader> := Option.None
 
     var decItem :- expect encryptor.DecryptObject(DecryptObjectInput(encryptedObject := encItem.encryptedObject));
@@ -186,15 +182,15 @@ module JsonEncryptorTest {
   }
 
   method {:test} TestEncryptRoundTrips() {
-    var actions := map[
-      "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "encrypt" := CSE.ENCRYPT_AND_SIGN,
-      "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign2" := CSE.SIGN_ONLY,
-      "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "nothing" := CSE.DO_NOTHING
+    var actions : AttributeActions := map[
+      "bar" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "sortKey" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "encrypt" := crypto(CSE.ENCRYPT_AND_SIGN),
+      "sign" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "sign2" := crypto(CSE.SIGN_ONLY),
+      "sign3" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "sign4" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
+      "nothing" := crypto(CSE.DO_NOTHING)
     ];
     var encryptor := GetEncryptorFromActions(actions);
     TestEncryptRoundTrip(encryptor, "{\"bar\" : \"abc\"}");
