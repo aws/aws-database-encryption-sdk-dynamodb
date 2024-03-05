@@ -19,13 +19,13 @@ module JsonEncryptorTest {
   import SortedSets
 
 
-  predicate method IsEncrypted(actions : Option<AttributeActions>, name : string)
+  predicate method IsEncrypted(actions : Option<MemberActions>, name : string)
   {
     || (ReservedPrefix < name)
     || (actions.Some? && name in actions.value && actions.value[name].crypto? && actions.value[name].crypto == CSE.ENCRYPT_AND_SIGN)
   }
 
-  method ObjectToStructuredFull(item : string, actions : Option<AttributeActions> := None)
+  method ObjectToStructuredFull(item : string, actions : Option<MemberActions> := None)
     returns (ret : Result<CSE.StructuredDataMap, string>)
   {
     var obj :- UTF8.Encode(item);
@@ -125,14 +125,14 @@ module JsonEncryptorTest {
     keyring :- expect matProv.CreateAwsKmsMultiKeyring(keyringInput);
   }
 
-  method GetConfigFromActions(actions : AttributeActions) returns (output : JsonEncryptorConfig) {
+  method GetConfigFromActions(actions : MemberActions) returns (output : JsonEncryptorConfig) {
     var keyring := GetKmsKeyring();
     var logicalTableName := "foo";
     output := JsonEncryptorConfig(
       domain := logicalTableName,
-      attributeActionsOnEncrypt := actions,
-      allowedUnsignedAttributes := Some(["nothing"]),
-      allowedUnsignedAttributePrefix := None,
+      memberActionsOnEncrypt := actions,
+      allowedUnsignedMembers := Some(["nothing"]),
+      allowedUnsignedMemberPrefix := None,
       encrypt := JsonEncrypt(keyring := Some(keyring))
     );
   }
@@ -146,18 +146,18 @@ module JsonEncryptorTest {
     var keyring := GetKmsKeyring();
     var encryptorConfig := JsonEncryptorConfig(
       domain := config.domain,
-      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
-      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
-      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
+      memberActionsOnEncrypt := config.memberActionsOnEncrypt,
+      allowedUnsignedMembers := config.allowedUnsignedMembers,
+      allowedUnsignedMemberPrefix := config.allowedUnsignedMemberPrefix,
       encrypt := JsonEncrypt(keyring := Some(keyring))
     );
-    expect forall k <- encryptorConfig.attributeActionsOnEncrypt :: encryptorConfig.attributeActionsOnEncrypt[k].crypto?;
+    expect forall k <- encryptorConfig.memberActionsOnEncrypt :: encryptorConfig.memberActionsOnEncrypt[k].crypto?;
     var encryptor2 : IJsonEncryptorClient :- expect JsonEncryptor.JsonEncryptor(encryptorConfig);
     assert encryptor2 is JsonEncryptor.JsonEncryptorClient;
     encryptor := encryptor2 as JsonEncryptor.JsonEncryptorClient;
   }
 
-  method GetEncryptorFromActions(actions : AttributeActions)
+  method GetEncryptorFromActions(actions : MemberActions)
     returns (encryptor: JsonEncryptor.JsonEncryptorClient)
     ensures encryptor.ValidState()
     ensures fresh(encryptor)
@@ -182,7 +182,7 @@ module JsonEncryptorTest {
   }
 
   method {:test} TestEncryptRoundTrips() {
-    var actions : AttributeActions := map[
+    var actions : MemberActions := map[
       "bar" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
       "sortKey" := crypto(CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT),
       "encrypt" := crypto(CSE.ENCRYPT_AND_SIGN),

@@ -10,22 +10,15 @@ public class Action {
 
   private final CryptoAction crypto;
 
-  private final EsdkEncrypt esdk;
-
   private final JsonEncrypt dbesdk;
 
   protected Action(BuilderImpl builder) {
     this.crypto = builder.crypto();
-    this.esdk = builder.esdk();
     this.dbesdk = builder.dbesdk();
   }
 
   public CryptoAction crypto() {
     return this.crypto;
-  }
-
-  public EsdkEncrypt esdk() {
-    return this.esdk;
   }
 
   public JsonEncrypt dbesdk() {
@@ -45,10 +38,6 @@ public class Action {
 
     CryptoAction crypto();
 
-    Builder esdk(EsdkEncrypt esdk);
-
-    EsdkEncrypt esdk();
-
     Builder dbesdk(JsonEncrypt dbesdk);
 
     JsonEncrypt dbesdk();
@@ -60,15 +49,12 @@ public class Action {
 
     protected CryptoAction crypto;
 
-    protected EsdkEncrypt esdk;
-
     protected JsonEncrypt dbesdk;
 
     protected BuilderImpl() {}
 
     protected BuilderImpl(Action model) {
       this.crypto = model.crypto();
-      this.esdk = model.esdk();
       this.dbesdk = model.dbesdk();
     }
 
@@ -79,15 +65,6 @@ public class Action {
 
     public CryptoAction crypto() {
       return this.crypto;
-    }
-
-    public Builder esdk(EsdkEncrypt esdk) {
-      this.esdk = esdk;
-      return this;
-    }
-
-    public EsdkEncrypt esdk() {
-      return this.esdk;
     }
 
     public Builder dbesdk(JsonEncrypt dbesdk) {
@@ -109,7 +86,7 @@ public class Action {
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = { this.crypto, this.esdk, this.dbesdk };
+      Object[] allValues = { this.crypto, this.dbesdk };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

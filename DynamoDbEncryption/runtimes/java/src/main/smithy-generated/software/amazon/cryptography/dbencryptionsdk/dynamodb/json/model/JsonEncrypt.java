@@ -28,11 +28,6 @@ public class JsonEncrypt {
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
   /**
-   * Extra key-value pairs to include in the signature.
-   */
-  private final Map<String, String> signedValue;
-
-  /**
    * Extra key-value pairs to include in the required encryption context.
    */
   private final Map<String, String> encryptionContext;
@@ -41,7 +36,6 @@ public class JsonEncrypt {
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
     this.algorithmSuiteId = builder.algorithmSuiteId();
-    this.signedValue = builder.signedValue();
     this.encryptionContext = builder.encryptionContext();
   }
 
@@ -64,13 +58,6 @@ public class JsonEncrypt {
    */
   public DBEAlgorithmSuiteId algorithmSuiteId() {
     return this.algorithmSuiteId;
-  }
-
-  /**
-   * @return Extra key-value pairs to include in the signature.
-   */
-  public Map<String, String> signedValue() {
-    return this.signedValue;
   }
 
   /**
@@ -120,16 +107,6 @@ public class JsonEncrypt {
     DBEAlgorithmSuiteId algorithmSuiteId();
 
     /**
-     * @param signedValue Extra key-value pairs to include in the signature.
-     */
-    Builder signedValue(Map<String, String> signedValue);
-
-    /**
-     * @return Extra key-value pairs to include in the signature.
-     */
-    Map<String, String> signedValue();
-
-    /**
      * @param encryptionContext Extra key-value pairs to include in the required encryption context.
      */
     Builder encryptionContext(Map<String, String> encryptionContext);
@@ -150,8 +127,6 @@ public class JsonEncrypt {
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
-    protected Map<String, String> signedValue;
-
     protected Map<String, String> encryptionContext;
 
     protected BuilderImpl() {}
@@ -160,7 +135,6 @@ public class JsonEncrypt {
       this.keyring = model.keyring();
       this.cmm = model.cmm();
       this.algorithmSuiteId = model.algorithmSuiteId();
-      this.signedValue = model.signedValue();
       this.encryptionContext = model.encryptionContext();
     }
 
@@ -189,15 +163,6 @@ public class JsonEncrypt {
 
     public DBEAlgorithmSuiteId algorithmSuiteId() {
       return this.algorithmSuiteId;
-    }
-
-    public Builder signedValue(Map<String, String> signedValue) {
-      this.signedValue = signedValue;
-      return this;
-    }
-
-    public Map<String, String> signedValue() {
-      return this.signedValue;
     }
 
     public Builder encryptionContext(Map<String, String> encryptionContext) {

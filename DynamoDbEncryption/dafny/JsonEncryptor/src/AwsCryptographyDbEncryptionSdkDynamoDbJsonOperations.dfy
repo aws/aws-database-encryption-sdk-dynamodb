@@ -28,9 +28,9 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     nameonly domain : string,
     nameonly cmpClient : MaterialProviders.MaterialProvidersClient,
     nameonly cmm: CMP.ICryptographicMaterialsManager,
-    nameonly attributeActionsOnEncrypt: AttributeActions,
-    nameonly allowedUnsignedAttributes: Option<seq<string>>,
-    nameonly allowedUnsignedAttributePrefix: Option<string>,
+    nameonly memberActionsOnEncrypt: MemberActions,
+    nameonly allowedUnsignedMembers: Option<seq<string>>,
+    nameonly allowedUnsignedMemberPrefix: Option<string>,
     nameonly algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
     nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient
   )
@@ -43,33 +43,33 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   const DoSign :=
     CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
 
-  // Is the attribute name an allowed unauthenticated name?
+  // Is the member name an allowed unauthenticated name?
   predicate method AllowedUnsigned(
-    unauthenticatedAttributes: Option<seq<string>>,
+    unauthenticatedMembers: Option<seq<string>>,
     unauthenticatedPrefix: Option<string>,
     attr : string)
   {
-    || (unauthenticatedAttributes.Some? && attr in unauthenticatedAttributes.value)
+    || (unauthenticatedMembers.Some? && attr in unauthenticatedMembers.value)
     || (unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attr)
     || ReservedPrefix <= attr
-       // Attributes with the reserved prefix are "allowed unauthenticated" in that
-       // they are not specified as signed within attributeActionsOnEncrypt.
-       // These attributes MAY still be authenticated via other methods,
+       // Members with the reserved prefix are "allowed unauthenticated" in that
+       // they are not specified as signed within memberActionsOnEncrypt.
+       // These members MAY still be authenticated via other methods,
        // such as "aws_dbe_head" which is explicitly added to the canonical hash
        // used in signing.
   }
 
-  predicate method ForwardCompatibleAttributeAction(
-    attribute: string,
+  predicate method ForwardCompatibleMemberAction(
+    member: string,
     action: CSE.CryptoAction,
-    unauthenticatedAttributes: Option<seq<string>>,
+    unauthenticatedMembers: Option<seq<string>>,
     unauthenticatedPrefix: Option<string>
   )
   {
     if action == CSE.DO_NOTHING then
-      AllowedUnsigned(unauthenticatedAttributes, unauthenticatedPrefix, attribute)
+      AllowedUnsigned(unauthenticatedMembers, unauthenticatedPrefix, member)
     else
-      !AllowedUnsigned(unauthenticatedAttributes, unauthenticatedPrefix, attribute)
+      !AllowedUnsigned(unauthenticatedMembers, unauthenticatedPrefix, member)
   }
 
   function method  {:opaque} CryptoActionString(action: CSE.CryptoAction) : string
@@ -85,17 +85,17 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   function method  {:opaque} ExplainNotForwardCompatible(
     attr: string,
     action: CSE.CryptoAction,
-    unauthenticatedAttributes: Option<seq<string>>,
+    unauthenticatedMembers: Option<seq<string>>,
     unauthenticatedPrefix: Option<string>
   )
     : string
-    requires !ForwardCompatibleAttributeAction(attr, action, unauthenticatedAttributes, unauthenticatedPrefix)
+    requires !ForwardCompatibleMemberAction(attr, action, unauthenticatedMembers, unauthenticatedPrefix)
   {
-    "Attribute " + attr + " is configured as " + CryptoActionString(action) + " but " +
+    "Member " + attr + " is configured as " + CryptoActionString(action) + " but " +
     if action == CSE.DO_NOTHING then
-      "it must also be in unauthenticatedAttributes or begin with the unauthenticatedPrefix."
-    else if unauthenticatedAttributes.Some? && attr in unauthenticatedAttributes.value then
-      "it is also in unauthenticatedAttributes."
+      "it must also be in unauthenticatedMembers or begin with the unauthenticatedPrefix."
+    else if unauthenticatedMembers.Some? && attr in unauthenticatedMembers.value then
+      "it is also in unauthenticatedMembers."
     else if unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attr then
       "it also begins with the unauthenticatedPrefix."
     else
@@ -104,28 +104,28 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   }
 
 
-  // Is this attribute unknown to the config?
-  predicate method UnknownAttribute(config : ValidConfig, attr : string)
+  // Is this member unknown to the config?
+  predicate method UnknownMember(config : ValidConfig, attr : string)
   {
     && InSignatureScope(config, attr)
-    && attr !in config.attributeActionsOnEncrypt
-       // Attributes in signature scope MUST be configured in attributeActionsOnEncrypt
+    && attr !in config.memberActionsOnEncrypt
+       // Members in signature scope MUST be configured in memberActionsOnEncrypt
        // so these two lines are saying "in scope && not in scope"
        // and that's why it's an error
   }
 
-  // Is the attribute SIGN_ONLY?
+  // Is the member SIGN_ONLY?
   predicate method IsSignOnly(config : ValidConfig, attr : string)
   {
-    attr in config.attributeActionsOnEncrypt && config.attributeActionsOnEncrypt[attr].crypto == CSE.SIGN_ONLY
+    attr in config.memberActionsOnEncrypt && config.memberActionsOnEncrypt[attr].crypto == CSE.SIGN_ONLY
   }
 
-  // Is the attribute name in signature scope?
+  // Is the member name in signature scope?
   predicate method InSignatureScope(config : ValidConfig, attr : string)
   {
     !AllowedUnsigned(
-      config.allowedUnsignedAttributes,
-      config.allowedUnsignedAttributePrefix,
+      config.allowedUnsignedMembers,
+      config.allowedUnsignedMemberPrefix,
       attr)
   }
 
@@ -162,35 +162,35 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     && config.cmm.Modifies !! {config.cmpClient.History}
     && config.structuredEncryption.ValidState()
     && (config.cmm.Modifies !! config.structuredEncryption.Modifies)
-    && (forall k <- config.attributeActionsOnEncrypt :: config.attributeActionsOnEncrypt[k].crypto?)
+    && (forall k <- config.memberActionsOnEncrypt :: config.memberActionsOnEncrypt[k].crypto?)
 
-    // attributeActionsOnEncrypt only apply on Encrypt.
+    // memberActionsOnEncrypt only apply on Encrypt.
     // The config on Encrypt MAY NOT be the same as the config on Decrypt.
     // This means that Encrypt MUST be "forward compatible" with Decrypt.
     // Every current and *past* CSE.DO_NOTHING action
     // MUST be derivable from allowedUnsigned information
-    // otherwise Decrypt will attempt to authenticate an attribute that was unauthenticated on Encrypt.
+    // otherwise Decrypt will attempt to authenticate an member that was unauthenticated on Encrypt.
     // Also, every current and *past* CSE.ENCRYPT_AND_SIGN or CSE.SIGN_ONLY action
     // MUST NOT overlap with allowedUnsigned information
-    // otherwise Decrypt will not authenticate at attribute that was authenticate on Encrypt.
+    // otherwise Decrypt will not authenticate at member that was authenticate on Encrypt.
     // For this to work the scope of allowedUnsigned information MUST only increase.
-    // This means that an attribute that is added to allowedUnsignedAttributes
+    // This means that an member that is added to allowedUnsignedMembers
     // MUST NOT ever be removed.
-    // This means that is a allowedUnsignedAttributePrefix is added
-    // allowedUnsignedAttributePrefix <= old(allowedUnsignedAttributePrefix).
-    // The simple case is do not change allowedUnsignedAttributePrefix.
-    // But allowedUnsignedAttributePrefix MAY get shorter,
-    // however this is a dangerous operation as it may impact other attributes.
-    && (forall attribute <- config.attributeActionsOnEncrypt.Keys
-          :: ForwardCompatibleAttributeAction(
-               attribute,
-               config.attributeActionsOnEncrypt[attribute].crypto,
-               config.allowedUnsignedAttributes,
-               config.allowedUnsignedAttributePrefix))
+    // This means that is a allowedUnsignedMemberPrefix is added
+    // allowedUnsignedMemberPrefix <= old(allowedUnsignedMemberPrefix).
+    // The simple case is do not change allowedUnsignedMemberPrefix.
+    // But allowedUnsignedMemberPrefix MAY get shorter,
+    // however this is a dangerous operation as it may impact other members.
+    && (forall member <- config.memberActionsOnEncrypt.Keys
+          :: ForwardCompatibleMemberAction(
+               member,
+               config.memberActionsOnEncrypt[member].crypto,
+               config.allowedUnsignedMembers,
+               config.allowedUnsignedMemberPrefix))
 
-    // It is forbidden to explicitly configure an attribute with the reserved prefix
-    && (forall attribute <- config.attributeActionsOnEncrypt.Keys ::
-          !(ReservedPrefix <= attribute))
+    // It is forbidden to explicitly configure an member with the reserved prefix
+    && (forall member <- config.memberActionsOnEncrypt.Keys ::
+          !(ReservedPrefix <= member))
   }
 
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
@@ -205,14 +205,14 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     config : ValidConfig,
     attr : string)
     : (ret : Result<CSE.CryptoAction, string>)
-    ensures (attr !in config.attributeActionsOnEncrypt && InSignatureScope(config, attr)) ==> ret.Failure?
+    ensures (attr !in config.memberActionsOnEncrypt && InSignatureScope(config, attr)) ==> ret.Failure?
   {
-    if attr in config.attributeActionsOnEncrypt then
-      Success(config.attributeActionsOnEncrypt[attr].crypto)
+    if attr in config.memberActionsOnEncrypt then
+      Success(config.memberActionsOnEncrypt[attr].crypto)
     else if !InSignatureScope(config, attr) then
       Success(CSE.CryptoAction.DO_NOTHING)
     else
-      Failure("No Crypto Action configured for attribute " + attr)
+      Failure("No Crypto Action configured for member " + attr)
   }
 
   // get Crypto Action and wrap in CryptoSchema
@@ -220,7 +220,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     config : ValidConfig,
     attr : string)
     : (ret : Result<CSE.CryptoSchema, string>)
-    ensures (attr !in config.attributeActionsOnEncrypt && InSignatureScope(config, attr)) ==> ret.Failure?
+    ensures (attr !in config.memberActionsOnEncrypt && InSignatureScope(config, attr)) ==> ret.Failure?
   {
     var action :- GetCryptoSchemaActionInner(config, attr);
     var newElement := CSE.CryptoSchemaContent.Action(action);
@@ -247,16 +247,16 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     : (ret : Result<CSE.CryptoSchema, Error>)
 
     ensures forall k <- item.Keys ::
-              (k !in config.attributeActionsOnEncrypt && InSignatureScope(config, k)) ==> ret.Failure?
+              (k !in config.memberActionsOnEncrypt && InSignatureScope(config, k)) ==> ret.Failure?
 
     ensures ret.Success? ==> ret.value.content.SchemaMap? && item.Keys == ret.value.content.SchemaMap.Keys
 
     ensures ret.Success? ==> forall k <-item.Keys ::
                 && GetCryptoSchemaAction(config, k).Success?
                 && ret.value.content.SchemaMap[k] == GetCryptoSchemaAction(config, k).value
-                && (k in config.attributeActionsOnEncrypt ==>
+                && (k in config.memberActionsOnEncrypt ==>
                       ret.value.content.SchemaMap[k].content ==
-                      CSE.CryptoSchemaContent.Action(config.attributeActionsOnEncrypt[k].crypto))
+                      CSE.CryptoSchemaContent.Action(config.memberActionsOnEncrypt[k].crypto))
   {
     var schema := map k <- item :: k := GetCryptoSchemaAction(config, k);
     JsonToStruct.MapKeysMatchItems(item);
@@ -308,8 +308,8 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     && (forall v <- schema.content.SchemaMap.Values :: IsAuthAttr(v.content.Action))
   }
 
-  function method  {:opaque} CryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchema)
-    : (ret: Result<AttributeActions, Error>)
+  function method  {:opaque} CryptoSchemaToMemberActions(config: ValidConfig, schema: CSE.CryptoSchema)
+    : (ret: Result<MemberActions, Error>)
     requires IsValidCryptoSchema(schema)
     ensures ret.Success? ==> 
       && (forall k <- ret.value.Keys :: InSignatureScope(config, k))
@@ -344,7 +344,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     // && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.plaintextStructure
     //    == CSE.StructuredData(
     //         content := CSE.StructuredDataContent.DataMap(plaintextStructure),
-    //         attributes := None)
+    //         members := None)
 
     // && MakeEncryptionContext(config, plaintextStructure).Success?
     // && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.encryptionContext
@@ -357,10 +357,10 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     // && (forall k <- parsedHeaderMap ::
     //       && parsedHeaderMap[k].content.Action?
     //       && (parsedHeaderMap[k].content.Action.ENCRYPT_AND_SIGN? || parsedHeaderMap[k].content.Action.SIGN_ONLY?))
-    // && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
+    // && var maybeCryptoSchema := ConvertCryptoSchemaToMemberActions(config, structuredEncParsed.cryptoSchema);
     // && maybeCryptoSchema.Success?
     // && output.value.parsedHeader.value == ParsedHeader(
-    //                                         attributeActionsOnEncrypt := maybeCryptoSchema.value,
+    //                                         memberActionsOnEncrypt := maybeCryptoSchema.value,
     //                                         algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
     //                                         storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
     //                                         encryptedDataKeys := structuredEncParsed.encryptedDataKeys
@@ -369,7 +369,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   {
     var origJsonR := JsonToStruct.SmithyJsonToObject(input.plaintextObject);
     var origJson :- origJsonR.MapFailure(e => E(e));
-    var isSigned : set<string> := set x <- config.attributeActionsOnEncrypt | config.attributeActionsOnEncrypt[x].crypto != CSE.DO_NOTHING :: x;
+    var isSigned : set<string> := set x <- config.memberActionsOnEncrypt | config.memberActionsOnEncrypt[x].crypto != CSE.DO_NOTHING :: x;
     assert EmptyStringSet <= isSigned;
     assert origJson.Object?;
     var plaintextStructureR := JsonToStruct.ObjectToStructured(origJson, isSigned, EmptyStringSet);
@@ -408,7 +408,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
       && (Seq.Last(config.structuredEncryption.History.EncryptStructure).output.Success?);
 
     var encryptedData := encryptVal.encryptedStructure;
-    var parsedActions :- CryptoSchemaToAttributeActions(config, encryptVal.parsedHeader.cryptoSchema);
+    var parsedActions :- CryptoSchemaToMemberActions(config, encryptVal.parsedHeader.cryptoSchema);
     var isEncrypted : set<string> := set x <- parsedActions | parsedActions[x].crypto == CSE.ENCRYPT_AND_SIGN :: x;
     var ddbKeyR := JsonToStruct.StructuredToObject(encryptedData.content.DataMap, origJson, isEncrypted);
     var ddbKey :- ddbKeyR.MapFailure(e => E(e));
@@ -416,7 +416,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     var jsonStr :- jsonStrR.MapFailure(e => E(e));
 
     var parsedHeader := ParsedHeader(
-      attributeActionsOnEncrypt := parsedActions,
+      memberActionsOnEncrypt := parsedActions,
       algorithmSuiteId := encryptVal.parsedHeader.algorithmSuiteId,
       storedEncryptionContext := encryptVal.parsedHeader.storedEncryptionContext,
       encryptedDataKeys := encryptVal.parsedHeader.encryptedDataKeys,
@@ -462,7 +462,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     // && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptedStructure
     //    == CSE.StructuredData(
     //         content := CSE.StructuredDataContent.DataMap(plaintextStructure),
-    //         attributes := None)
+    //         members := None)
 
     // && MakeEncryptionContext(config, plaintextStructure).Success?
     // && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptionContext
@@ -474,10 +474,10 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     // && (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
     //       && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
     //       && (structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.ENCRYPT_AND_SIGN? || structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action.SIGN_ONLY?))
-    // && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
+    // && var maybeCryptoSchema := ConvertCryptoSchemaToMemberActions(config, structuredEncParsed.cryptoSchema);
     // && maybeCryptoSchema.Success?
     // && output.value.parsedHeader.value == ParsedHeader(
-    //                                         attributeActionsOnEncrypt := maybeCryptoSchema.value,
+    //                                         memberActionsOnEncrypt := maybeCryptoSchema.value,
     //                                         algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
     //                                         storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
     //                                         encryptedDataKeys := structuredEncParsed.encryptedDataKeys
@@ -485,7 +485,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   {
     var origJsonR := JsonToStruct.SmithyJsonToObject(input.encryptedObject);
     var origJson :- origJsonR.MapFailure(e => E(e));
-    var isSigned1 : set<string> := set x <- config.attributeActionsOnEncrypt | config.attributeActionsOnEncrypt[x].crypto != CSE.DO_NOTHING :: x;
+    var isSigned1 : set<string> := set x <- config.memberActionsOnEncrypt | config.memberActionsOnEncrypt[x].crypto != CSE.DO_NOTHING :: x;
     var isSigned2 : set<string> := set x <- origJson.obj :: x.0;
     var isSigned := isSigned1 * isSigned2;
 
@@ -530,7 +530,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
 
     var decryptedData := decryptVal.plaintextStructure;
     var schemaToConvert := decryptVal.parsedHeader.cryptoSchema;
-    var parsedAuthActions :- CryptoSchemaToAttributeActions(config, schemaToConvert);
+    var parsedAuthActions :- CryptoSchemaToMemberActions(config, schemaToConvert);
 
     var isEncrypted2 : set<string> := set x <- parsedAuthActions | parsedAuthActions[x].crypto == CSE.ENCRYPT_AND_SIGN :: x;
     :- Need(isEncrypted == isEncrypted2, E("Andy got isEncrypted wrong."));
@@ -540,7 +540,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
     var jsonStr :- jsonStrR.MapFailure(e => E(e));
 
     var parsedHeader := ParsedHeader(
-      attributeActionsOnEncrypt := parsedAuthActions,
+      memberActionsOnEncrypt := parsedAuthActions,
       algorithmSuiteId := decryptVal.parsedHeader.algorithmSuiteId,
       storedEncryptionContext := decryptVal.parsedHeader.storedEncryptionContext,
       encryptedDataKeys := decryptVal.parsedHeader.encryptedDataKeys,

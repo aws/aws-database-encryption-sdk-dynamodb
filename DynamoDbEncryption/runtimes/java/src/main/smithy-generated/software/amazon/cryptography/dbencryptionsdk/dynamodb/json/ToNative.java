@@ -21,7 +21,6 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DecryptO
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.DecryptObjectOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EncryptObjectInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EncryptObjectOutput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.EsdkEncrypt;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.Json;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.JsonEncrypt;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.json.model.JsonEncryptorConfig;
@@ -146,44 +145,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static EsdkEncrypt EsdkEncrypt(
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.EsdkEncrypt dafnyValue
-  ) {
-    EsdkEncrypt.Builder nativeBuilder = EsdkEncrypt.builder();
-    if (dafnyValue.dtor_encryptionContext().is_Some()) {
-      nativeBuilder.encryptionContext(
-        software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(
-          dafnyValue.dtor_encryptionContext().dtor_value()
-        )
-      );
-    }
-    if (dafnyValue.dtor_materialsManager().is_Some()) {
-      nativeBuilder.materialsManager(
-        software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(
-          dafnyValue.dtor_materialsManager().dtor_value()
-        )
-      );
-    }
-    if (dafnyValue.dtor_keyring().is_Some()) {
-      nativeBuilder.keyring(
-        software.amazon.cryptography.materialproviders.ToNative.Keyring(
-          dafnyValue.dtor_keyring().dtor_value()
-        )
-      );
-    }
-    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
-      nativeBuilder.algorithmSuiteId(
-        software.amazon.cryptography.materialproviders.ToNative.ESDKAlgorithmSuiteId(
-          dafnyValue.dtor_algorithmSuiteId().dtor_value()
-        )
-      );
-    }
-    if (dafnyValue.dtor_frameLength().is_Some()) {
-      nativeBuilder.frameLength((dafnyValue.dtor_frameLength().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static JsonEncrypt JsonEncrypt(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.JsonEncrypt dafnyValue
   ) {
@@ -209,11 +170,6 @@ public class ToNative {
         )
       );
     }
-    if (dafnyValue.dtor_signedValue().is_Some()) {
-      nativeBuilder.signedValue(
-        ToNative.SignedValues(dafnyValue.dtor_signedValue().dtor_value())
-      );
-    }
     if (dafnyValue.dtor_encryptionContext().is_Some()) {
       nativeBuilder.encryptionContext(
         software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(
@@ -233,20 +189,20 @@ public class ToNative {
         dafnyValue.dtor_domain()
       )
     );
-    nativeBuilder.attributeActionsOnEncrypt(
-      ToNative.AttributeActions(dafnyValue.dtor_attributeActionsOnEncrypt())
+    nativeBuilder.memberActionsOnEncrypt(
+      ToNative.MemberActions(dafnyValue.dtor_memberActionsOnEncrypt())
     );
-    if (dafnyValue.dtor_allowedUnsignedAttributes().is_Some()) {
-      nativeBuilder.allowedUnsignedAttributes(
-        ToNative.AttributeNameList(
-          dafnyValue.dtor_allowedUnsignedAttributes().dtor_value()
+    if (dafnyValue.dtor_allowedUnsignedMembers().is_Some()) {
+      nativeBuilder.allowedUnsignedMembers(
+        ToNative.MemberNameList(
+          dafnyValue.dtor_allowedUnsignedMembers().dtor_value()
         )
       );
     }
-    if (dafnyValue.dtor_allowedUnsignedAttributePrefix().is_Some()) {
-      nativeBuilder.allowedUnsignedAttributePrefix(
+    if (dafnyValue.dtor_allowedUnsignedMemberPrefix().is_Some()) {
+      nativeBuilder.allowedUnsignedMemberPrefix(
         software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
-          dafnyValue.dtor_allowedUnsignedAttributePrefix().dtor_value()
+          dafnyValue.dtor_allowedUnsignedMemberPrefix().dtor_value()
         )
       );
     }
@@ -258,8 +214,8 @@ public class ToNative {
     software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.ParsedHeader dafnyValue
   ) {
     ParsedHeader.Builder nativeBuilder = ParsedHeader.builder();
-    nativeBuilder.attributeActionsOnEncrypt(
-      ToNative.AttributeActions(dafnyValue.dtor_attributeActionsOnEncrypt())
+    nativeBuilder.memberActionsOnEncrypt(
+      ToNative.MemberActions(dafnyValue.dtor_memberActionsOnEncrypt())
     );
     nativeBuilder.algorithmSuiteId(
       software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(
@@ -295,9 +251,6 @@ public class ToNative {
         )
       );
     }
-    if (dafnyValue.is_esdk()) {
-      nativeBuilder.esdk(ToNative.EsdkEncrypt(dafnyValue.dtor_esdk()));
-    }
     if (dafnyValue.is_dbesdk()) {
       nativeBuilder.dbesdk(ToNative.JsonEncrypt(dafnyValue.dtor_dbesdk()));
     }
@@ -325,7 +278,7 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static List<String> AttributeNameList(
+  public static List<String> MemberNameList(
     DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue
   ) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
@@ -334,7 +287,7 @@ public class ToNative {
     );
   }
 
-  public static Map<String, Action> AttributeActions(
+  public static Map<String, Action> MemberActions(
     DafnyMap<
       ? extends DafnySequence<? extends Character>,
       ? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.json.internaldafny.types.Action
@@ -344,19 +297,6 @@ public class ToNative {
       dafnyValue,
       software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
       software.amazon.cryptography.dbencryptionsdk.dynamodb.json.ToNative::Action
-    );
-  }
-
-  public static Map<String, String> SignedValues(
-    DafnyMap<
-      ? extends DafnySequence<? extends Character>,
-      ? extends DafnySequence<? extends Character>
-    > dafnyValue
-  ) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
-      dafnyValue,
-      software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
-      software.amazon.smithy.dafny.conversion.ToNative.Simple::String
     );
   }
 

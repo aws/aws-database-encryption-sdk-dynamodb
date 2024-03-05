@@ -8,7 +8,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
   public class Action
   {
     private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction _crypto;
-    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.EsdkEncrypt _esdk;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt _dbesdk;
     public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction Crypto
     {
@@ -18,15 +17,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     public bool IsSetCrypto()
     {
       return this._crypto != null;
-    }
-    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.EsdkEncrypt Esdk
-    {
-      get { return this._esdk; }
-      set { this._esdk = value; }
-    }
-    public bool IsSetEsdk()
-    {
-      return this._esdk != null;
     }
     public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt Dbesdk
     {
@@ -40,7 +30,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     public void Validate()
     {
       var numberOfPropertiesSet = Convert.ToUInt16(IsSetCrypto()) +
-      Convert.ToUInt16(IsSetEsdk()) +
       Convert.ToUInt16(IsSetDbesdk());
       if (numberOfPropertiesSet == 0) throw new System.ArgumentException("No union value set");
 

@@ -17,7 +17,7 @@ public class ParsedHeader {
   /**
    * The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
    */
-  private final Map<String, Action> attributeActionsOnEncrypt;
+  private final Map<String, Action> memberActionsOnEncrypt;
 
   /**
    * The ID of the algorithm suite that was used to encrypt this object.
@@ -40,7 +40,7 @@ public class ParsedHeader {
   private final Map<String, String> encryptionContext;
 
   protected ParsedHeader(BuilderImpl builder) {
-    this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
+    this.memberActionsOnEncrypt = builder.memberActionsOnEncrypt();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.encryptedDataKeys = builder.encryptedDataKeys();
     this.storedEncryptionContext = builder.storedEncryptionContext();
@@ -50,8 +50,8 @@ public class ParsedHeader {
   /**
    * @return The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
    */
-  public Map<String, Action> attributeActionsOnEncrypt() {
-    return this.attributeActionsOnEncrypt;
+  public Map<String, Action> memberActionsOnEncrypt() {
+    return this.memberActionsOnEncrypt;
   }
 
   /**
@@ -92,16 +92,14 @@ public class ParsedHeader {
 
   public interface Builder {
     /**
-     * @param attributeActionsOnEncrypt The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
+     * @param memberActionsOnEncrypt The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
      */
-    Builder attributeActionsOnEncrypt(
-      Map<String, Action> attributeActionsOnEncrypt
-    );
+    Builder memberActionsOnEncrypt(Map<String, Action> memberActionsOnEncrypt);
 
     /**
      * @return The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.
      */
-    Map<String, Action> attributeActionsOnEncrypt();
+    Map<String, Action> memberActionsOnEncrypt();
 
     /**
      * @param algorithmSuiteId The ID of the algorithm suite that was used to encrypt this object.
@@ -150,7 +148,7 @@ public class ParsedHeader {
 
   static class BuilderImpl implements Builder {
 
-    protected Map<String, Action> attributeActionsOnEncrypt;
+    protected Map<String, Action> memberActionsOnEncrypt;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -163,22 +161,22 @@ public class ParsedHeader {
     protected BuilderImpl() {}
 
     protected BuilderImpl(ParsedHeader model) {
-      this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
+      this.memberActionsOnEncrypt = model.memberActionsOnEncrypt();
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.encryptedDataKeys = model.encryptedDataKeys();
       this.storedEncryptionContext = model.storedEncryptionContext();
       this.encryptionContext = model.encryptionContext();
     }
 
-    public Builder attributeActionsOnEncrypt(
-      Map<String, Action> attributeActionsOnEncrypt
+    public Builder memberActionsOnEncrypt(
+      Map<String, Action> memberActionsOnEncrypt
     ) {
-      this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
+      this.memberActionsOnEncrypt = memberActionsOnEncrypt;
       return this;
     }
 
-    public Map<String, Action> attributeActionsOnEncrypt() {
-      return this.attributeActionsOnEncrypt;
+    public Map<String, Action> memberActionsOnEncrypt() {
+      return this.memberActionsOnEncrypt;
     }
 
     public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
@@ -220,9 +218,9 @@ public class ParsedHeader {
     }
 
     public ParsedHeader build() {
-      if (Objects.isNull(this.attributeActionsOnEncrypt())) {
+      if (Objects.isNull(this.memberActionsOnEncrypt())) {
         throw new IllegalArgumentException(
-          "Missing value for required field `attributeActionsOnEncrypt`"
+          "Missing value for required field `memberActionsOnEncrypt`"
         );
       }
       if (Objects.isNull(this.algorithmSuiteId())) {

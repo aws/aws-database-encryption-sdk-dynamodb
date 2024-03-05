@@ -10,7 +10,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     private AWS.Cryptography.MaterialProviders.IKeyring _keyring;
     private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
-    private System.Collections.Generic.Dictionary<string, string> _signedValue;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
     public AWS.Cryptography.MaterialProviders.IKeyring Keyring
     {
@@ -38,15 +37,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     public bool IsSetAlgorithmSuiteId()
     {
       return this._algorithmSuiteId != null;
-    }
-    public System.Collections.Generic.Dictionary<string, string> SignedValue
-    {
-      get { return this._signedValue; }
-      set { this._signedValue = value; }
-    }
-    public bool IsSetSignedValue()
-    {
-      return this._signedValue != null;
     }
     public System.Collections.Generic.Dictionary<string, string> EncryptionContext
     {

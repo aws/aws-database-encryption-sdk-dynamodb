@@ -21,7 +21,7 @@ module
   {
     JsonEncryptorConfig(
       domain := "TableName",
-      attributeActionsOnEncrypt := map[],
+      memberActionsOnEncrypt := map[],
       encrypt := JsonEncrypt()
     )
   }
@@ -37,47 +37,47 @@ module
     ensures res.Success? ==>
               && res.value is JsonEncryptorClient
               && var rconfig := (res.value as JsonEncryptorClient).config;
-              && rconfig.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
-              && rconfig.allowedUnsignedAttributes == config.allowedUnsignedAttributes
-              && rconfig.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
+              && rconfig.memberActionsOnEncrypt == config.memberActionsOnEncrypt
+              && rconfig.allowedUnsignedMembers == config.allowedUnsignedMembers
+              && rconfig.allowedUnsignedMemberPrefix == config.allowedUnsignedMemberPrefix
               && rconfig.algorithmSuiteId == config.encrypt.algorithmSuiteId
   {
-    :- Need(forall k <- config.attributeActionsOnEncrypt :: config.attributeActionsOnEncrypt[k].crypto?, E(""));
-    var attributeNames : seq<string> := SortedSets.ComputeSetToSequence(config.attributeActionsOnEncrypt.Keys);
-    for i := 0 to |attributeNames|
+    :- Need(forall k <- config.memberActionsOnEncrypt :: config.memberActionsOnEncrypt[k].crypto?, E(""));
+    var memberNames : seq<string> := SortedSets.ComputeSetToSequence(config.memberActionsOnEncrypt.Keys);
+    for i := 0 to |memberNames|
       invariant forall j | 0 <= j < i ::
-      && UnreservedPrefix(attributeNames[j])
-      && (Operations.ForwardCompatibleAttributeAction(
-               attributeNames[j],
-               config.attributeActionsOnEncrypt[attributeNames[j]].crypto,
-               config.allowedUnsignedAttributes,
-               config.allowedUnsignedAttributePrefix))
+      && UnreservedPrefix(memberNames[j])
+      && (Operations.ForwardCompatibleMemberAction(
+               memberNames[j],
+               config.memberActionsOnEncrypt[memberNames[j]].crypto,
+               config.allowedUnsignedMembers,
+               config.allowedUnsignedMemberPrefix))
     {
-      var attributeName := attributeNames[i];
-      var action := config.attributeActionsOnEncrypt[attributeName].crypto;
-      if !(Operations.ForwardCompatibleAttributeAction(
-          attributeName,
+      var memberName := memberNames[i];
+      var action := config.memberActionsOnEncrypt[memberName].crypto;
+      if !(Operations.ForwardCompatibleMemberAction(
+          memberName,
           action,
-          config.allowedUnsignedAttributes,
-          config.allowedUnsignedAttributePrefix
+          config.allowedUnsignedMembers,
+          config.allowedUnsignedMemberPrefix
         ))
       {
         return Failure(JsonEncryptorException(
-          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.allowedUnsignedAttributes, config.allowedUnsignedAttributePrefix)
+          message := Operations.ExplainNotForwardCompatible(memberName, action, config.allowedUnsignedMembers, config.allowedUnsignedMemberPrefix)
         ));
       }
-      if !UnreservedPrefix(attributeName) {
+      if !UnreservedPrefix(memberName) {
         return Failure(JsonEncryptorException(
-          message := "Attribute: " + attributeName + " is reserved, and may not be configured."
+          message := "Member: " + memberName + " is reserved, and may not be configured."
         ));
       }
-      assert UnreservedPrefix(attributeName);
-      assert UnreservedPrefix(attributeNames[i]);
+      assert UnreservedPrefix(memberName);
+      assert UnreservedPrefix(memberNames[i]);
     }
 
-    assert (forall attribute <- attributeNames :: UnreservedPrefix(attribute));
-    assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
-    assert (forall attribute <- config.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
+    assert (forall member <- memberNames :: UnreservedPrefix(member));
+    assert (forall member <- config.memberActionsOnEncrypt.Keys :: UnreservedPrefix(member));
+    assert (forall member <- config.memberActionsOnEncrypt.Keys :: !(ReservedPrefix <= member));
 
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
@@ -108,17 +108,17 @@ module
     var internalConfig := Operations.Config(
       domain := config.domain,
       cmpClient := cmpClient,
-      attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
-      allowedUnsignedAttributes := config.allowedUnsignedAttributes,
-      allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
+      memberActionsOnEncrypt := config.memberActionsOnEncrypt,
+      allowedUnsignedMembers := config.allowedUnsignedMembers,
+      allowedUnsignedMemberPrefix := config.allowedUnsignedMemberPrefix,
       algorithmSuiteId := config.encrypt.algorithmSuiteId,
       cmm := cmm,
       structuredEncryption := structuredEncryption
     );
 
     // Dafny needs some extra help here
-    assert (forall attribute <- internalConfig.attributeActionsOnEncrypt.Keys :: UnreservedPrefix(attribute));
-    assert (forall attribute <- internalConfig.attributeActionsOnEncrypt.Keys :: !(ReservedPrefix <= attribute));
+    assert (forall member <- internalConfig.memberActionsOnEncrypt.Keys :: UnreservedPrefix(member));
+    assert (forall member <- internalConfig.memberActionsOnEncrypt.Keys :: !(ReservedPrefix <= member));
     assert Operations.ValidInternalConfig?(internalConfig);
 
     var client := new JsonEncryptorClient(internalConfig);

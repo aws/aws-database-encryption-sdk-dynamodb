@@ -7,19 +7,19 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
 {
   public class ParsedHeader
   {
-    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> _attributeActionsOnEncrypt;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> _memberActionsOnEncrypt;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
     private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys;
     private System.Collections.Generic.Dictionary<string, string> _storedEncryptionContext;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> AttributeActionsOnEncrypt
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> MemberActionsOnEncrypt
     {
-      get { return this._attributeActionsOnEncrypt; }
-      set { this._attributeActionsOnEncrypt = value; }
+      get { return this._memberActionsOnEncrypt; }
+      set { this._memberActionsOnEncrypt = value; }
     }
-    public bool IsSetAttributeActionsOnEncrypt()
+    public bool IsSetMemberActionsOnEncrypt()
     {
-      return this._attributeActionsOnEncrypt != null;
+      return this._memberActionsOnEncrypt != null;
     }
     public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId
     {
@@ -59,7 +59,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     }
     public void Validate()
     {
-      if (!IsSetAttributeActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'AttributeActionsOnEncrypt'");
+      if (!IsSetMemberActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'MemberActionsOnEncrypt'");
       if (!IsSetAlgorithmSuiteId()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuiteId'");
       if (!IsSetEncryptedDataKeys()) throw new System.ArgumentException("Missing value for required property 'EncryptedDataKeys'");
       if (!IsSetStoredEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'StoredEncryptionContext'");

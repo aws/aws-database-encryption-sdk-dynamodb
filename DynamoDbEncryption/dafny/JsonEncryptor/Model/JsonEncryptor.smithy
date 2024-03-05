@@ -36,50 +36,26 @@ service JsonEncryptor {
 @dafnyUtf8Bytes
 string Utf8Bytes
 
-// list of member names
-list AttributeNameList {
+// list of member names, JSONPath format
+list MemberNameList {
   member: String
 }
 
-// Json structure. One day, we should add `Document`
+// Json structure. One day, we should add `Document` to allow language's JSON format
 union Json {
   utf8 : Utf8Bytes,
   text : String
 }
 
 // Associate a CryptoAction with a member name
-map AttributeActions {
+map MemberActions {
     key: String,
     value: Action,
 }
 
-// Associate a CryptoAction with a member name
-map SignedValues {
-    key: String,
-    value: String,
-}
-
-
 union Action {
   crypto : CryptoAction,
-  esdk : EsdkEncrypt,
   dbesdk : JsonEncrypt
-}
-
-// FIXME - import from ESDK
-@range(min: 1, max: 2000000000)
-long FrameLength
-
-structure EsdkEncrypt {
-  encryptionContext: aws.cryptography.materialProviders#EncryptionContext,
-
-  // One of keyring or CMM are required
-  materialsManager: aws.cryptography.materialProviders#CryptographicMaterialsManagerReference,
-  keyring: aws.cryptography.materialProviders#KeyringReference,
-
-  algorithmSuiteId: aws.cryptography.materialProviders#ESDKAlgorithmSuiteId,
-
-  frameLength: FrameLength
 }
 
 structure JsonEncrypt {
@@ -93,9 +69,6 @@ structure JsonEncrypt {
   @javadoc("An ID for the algorithm suite to use during encryption and decryption.")
   algorithmSuiteId: DBEAlgorithmSuiteId,
 
-  @javadoc("Extra key-value pairs to include in the signature.")
-  signedValue : SignedValues,
-
   @javadoc("Extra key-value pairs to include in the required encryption context.")
   encryptionContext: aws.cryptography.materialProviders#EncryptionContext,
 }
@@ -108,17 +81,13 @@ structure JsonEncryptorConfig {
 
     @required
     @javadoc("A map that describes which members should be encrypted and/or signed on encrypt.")
-    attributeActionsOnEncrypt: AttributeActions,
+    memberActionsOnEncrypt: MemberActions,
 
-    @javadoc("A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.")
-    allowedUnsignedAttributes: AttributeNameList,
+    @javadoc("A list of member names such that, if encountered during decryption, those members are treated as unsigned.")
+    allowedUnsignedMembers: MemberNameList,
 
-    // this makes a little less sense in the context of nested structure
-    // If allowedUnsignedAttributes are JSONPaths, and support A.B.*, is that enough?
-    // What if generally our JSONPaths supported A.B.C*
-    // Or should allowedUnsignedAttributePrefix interpret A.B.C as A.B.C*
-    @javadoc("A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.")
-    allowedUnsignedAttributePrefix: String,
+    @javadoc("A prefix such that, if during decryption any member has a name with this prefix, it is treated as unsigned.")
+    allowedUnsignedMemberPrefix: String,
 
     @required
     @javadoc("Setting for encryption and decryption.")
@@ -129,7 +98,7 @@ structure JsonEncryptorConfig {
 structure ParsedHeader {
     @required
     @javadoc("The non-DO_NOTHING Crypto Actions that were configured when this object was originally encrypted.")
-    attributeActionsOnEncrypt: AttributeActions,
+    memberActionsOnEncrypt: MemberActions,
     @required
     @javadoc("The ID of the algorithm suite that was used to encrypt this object.")
     algorithmSuiteId: DBEAlgorithmSuiteId,

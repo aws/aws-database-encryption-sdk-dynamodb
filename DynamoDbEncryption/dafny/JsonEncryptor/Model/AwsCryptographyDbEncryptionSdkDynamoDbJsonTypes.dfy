@@ -20,10 +20,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.json.inte
 
   datatype Action =
     | crypto(crypto: AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction)
-    | esdk(esdk: EsdkEncrypt)
     | dbesdk(dbesdk: JsonEncrypt)
-  type AttributeActions = map<string, Action>
-  type AttributeNameList = seq<string>
   datatype DecryptObjectInput = | DecryptObjectInput (
     nameonly encryptedObject: Json
   )
@@ -38,17 +35,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.json.inte
     nameonly encryptedObject: Json ,
     nameonly parsedHeader: Option<ParsedHeader> := Option.None
   )
-  datatype EsdkEncrypt = | EsdkEncrypt (
-    nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None ,
-    nameonly materialsManager: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
-    nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
-    nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.ESDKAlgorithmSuiteId> := Option.None ,
-    nameonly frameLength: Option<FrameLength> := Option.None
-  )
-  type FrameLength = x: int64 | IsValid_FrameLength(x) witness *
-  predicate method IsValid_FrameLength(x: int64) {
-    ( 1 <= x <= 2000000000 )
-  }
   datatype Json =
     | utf8(utf8: Utf8Bytes)
     | text(text: string)
@@ -56,7 +42,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.json.inte
     nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
     nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
     nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
-    nameonly signedValue: Option<SignedValues> := Option.None ,
     nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
   )
   class IJsonEncryptorClientCallHistory {
@@ -127,19 +112,20 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.json.inte
   }
   datatype JsonEncryptorConfig = | JsonEncryptorConfig (
     nameonly domain: string ,
-    nameonly attributeActionsOnEncrypt: AttributeActions ,
-    nameonly allowedUnsignedAttributes: Option<AttributeNameList> := Option.None ,
-    nameonly allowedUnsignedAttributePrefix: Option<string> := Option.None ,
+    nameonly memberActionsOnEncrypt: MemberActions ,
+    nameonly allowedUnsignedMembers: Option<MemberNameList> := Option.None ,
+    nameonly allowedUnsignedMemberPrefix: Option<string> := Option.None ,
     nameonly encrypt: JsonEncrypt
   )
+  type MemberActions = map<string, Action>
+  type MemberNameList = seq<string>
   datatype ParsedHeader = | ParsedHeader (
-    nameonly attributeActionsOnEncrypt: AttributeActions ,
+    nameonly memberActionsOnEncrypt: MemberActions ,
     nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
     nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
     nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
     nameonly encryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
   )
-  type SignedValues = map<string, string>
   type Utf8Bytes = ValidUTF8Bytes
   datatype Error =
       // Local Error structures are listed here
@@ -192,32 +178,12 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbJsonService
                config.encrypt.keyring.value.ValidState()
     requires config.encrypt.cmm.Some? ==>
                config.encrypt.cmm.value.ValidState()
-    requires var tmps0 := set t0 | t0 in config.attributeActionsOnEncrypt.Values;
-             forall tmp0 :: tmp0 in tmps0 ==>
-                              tmp0.esdk? ==>
-                                tmp0.esdk.materialsManager.Some? ==>
-                                  tmp0.esdk.materialsManager.value.ValidState()
-    requires var tmps1 := set t1 | t1 in config.attributeActionsOnEncrypt.Values;
-             forall tmp1 :: tmp1 in tmps1 ==>
-                              tmp1.esdk? ==>
-                                tmp1.esdk.keyring.Some? ==>
-                                  tmp1.esdk.keyring.value.ValidState()
     modifies if config.encrypt.keyring.Some? then
                config.encrypt.keyring.value.Modifies
              else {}
     modifies if config.encrypt.cmm.Some? then
                config.encrypt.cmm.value.Modifies
              else {}
-    modifies set tmps2 <- set t2 <- config.attributeActionsOnEncrypt.Values | true
-                                                                              && t2.esdk?
-                                                                              && t2.esdk.materialsManager.Some?
-                            :: t2.esdk.materialsManager.value,
-               obj <- tmps2.Modifies | obj in tmps2.Modifies :: obj
-    modifies set tmps3 <- set t3 <- config.attributeActionsOnEncrypt.Values | true
-                                                                              && t3.esdk?
-                                                                              && t3.esdk.keyring.Some?
-                            :: t3.esdk.keyring.value,
-               obj <- tmps3.Modifies | obj in tmps3.Modifies :: obj
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies
@@ -227,16 +193,6 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbJsonService
                        ) - ( if config.encrypt.cmm.Some? then
                                config.encrypt.cmm.value.Modifies
                              else {}
-                       ) - ( set tmps4 <- set t4 <- config.attributeActionsOnEncrypt.Values | true
-                                                                                              && t4.esdk?
-                                                                                              && t4.esdk.materialsManager.Some?
-                                            :: t4.esdk.materialsManager.value,
-                               obj <- tmps4.Modifies | obj in tmps4.Modifies :: obj
-                       ) - ( set tmps5 <- set t5 <- config.attributeActionsOnEncrypt.Values | true
-                                                                                              && t5.esdk?
-                                                                                              && t5.esdk.keyring.Some?
-                                            :: t5.esdk.keyring.value,
-                               obj <- tmps5.Modifies | obj in tmps5.Modifies :: obj
                        ) )
               && fresh(res.value.History)
               && res.value.ValidState()
@@ -244,16 +200,6 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbJsonService
               config.encrypt.keyring.value.ValidState()
     ensures config.encrypt.cmm.Some? ==>
               config.encrypt.cmm.value.ValidState()
-    ensures var tmps6 := set t6 | t6 in config.attributeActionsOnEncrypt.Values;
-            forall tmp6 :: tmp6 in tmps6 ==>
-                             tmp6.esdk? ==>
-                               tmp6.esdk.materialsManager.Some? ==>
-                                 tmp6.esdk.materialsManager.value.ValidState()
-    ensures var tmps7 := set t7 | t7 in config.attributeActionsOnEncrypt.Values;
-            forall tmp7 :: tmp7 in tmps7 ==>
-                             tmp7.esdk? ==>
-                               tmp7.esdk.keyring.Some? ==>
-                                 tmp7.esdk.keyring.value.ValidState()
 
   // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IJsonEncryptorClient): Result<IJsonEncryptorClient, Error> {

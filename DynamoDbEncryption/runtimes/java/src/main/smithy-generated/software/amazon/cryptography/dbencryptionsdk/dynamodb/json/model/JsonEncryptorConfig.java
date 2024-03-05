@@ -20,17 +20,17 @@ public class JsonEncryptorConfig {
   /**
    * A map that describes which members should be encrypted and/or signed on encrypt.
    */
-  private final Map<String, Action> attributeActionsOnEncrypt;
+  private final Map<String, Action> memberActionsOnEncrypt;
 
   /**
-   * A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+   * A list of member names such that, if encountered during decryption, those members are treated as unsigned.
    */
-  private final List<String> allowedUnsignedAttributes;
+  private final List<String> allowedUnsignedMembers;
 
   /**
-   * A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+   * A prefix such that, if during decryption any member has a name with this prefix, it is treated as unsigned.
    */
-  private final String allowedUnsignedAttributePrefix;
+  private final String allowedUnsignedMemberPrefix;
 
   /**
    * Setting for encryption and decryption.
@@ -39,10 +39,9 @@ public class JsonEncryptorConfig {
 
   protected JsonEncryptorConfig(BuilderImpl builder) {
     this.domain = builder.domain();
-    this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
-    this.allowedUnsignedAttributes = builder.allowedUnsignedAttributes();
-    this.allowedUnsignedAttributePrefix =
-      builder.allowedUnsignedAttributePrefix();
+    this.memberActionsOnEncrypt = builder.memberActionsOnEncrypt();
+    this.allowedUnsignedMembers = builder.allowedUnsignedMembers();
+    this.allowedUnsignedMemberPrefix = builder.allowedUnsignedMemberPrefix();
     this.encrypt = builder.encrypt();
   }
 
@@ -56,22 +55,22 @@ public class JsonEncryptorConfig {
   /**
    * @return A map that describes which members should be encrypted and/or signed on encrypt.
    */
-  public Map<String, Action> attributeActionsOnEncrypt() {
-    return this.attributeActionsOnEncrypt;
+  public Map<String, Action> memberActionsOnEncrypt() {
+    return this.memberActionsOnEncrypt;
   }
 
   /**
-   * @return A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+   * @return A list of member names such that, if encountered during decryption, those members are treated as unsigned.
    */
-  public List<String> allowedUnsignedAttributes() {
-    return this.allowedUnsignedAttributes;
+  public List<String> allowedUnsignedMembers() {
+    return this.allowedUnsignedMembers;
   }
 
   /**
-   * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+   * @return A prefix such that, if during decryption any member has a name with this prefix, it is treated as unsigned.
    */
-  public String allowedUnsignedAttributePrefix() {
-    return this.allowedUnsignedAttributePrefix;
+  public String allowedUnsignedMemberPrefix() {
+    return this.allowedUnsignedMemberPrefix;
   }
 
   /**
@@ -101,38 +100,34 @@ public class JsonEncryptorConfig {
     String domain();
 
     /**
-     * @param attributeActionsOnEncrypt A map that describes which members should be encrypted and/or signed on encrypt.
+     * @param memberActionsOnEncrypt A map that describes which members should be encrypted and/or signed on encrypt.
      */
-    Builder attributeActionsOnEncrypt(
-      Map<String, Action> attributeActionsOnEncrypt
-    );
+    Builder memberActionsOnEncrypt(Map<String, Action> memberActionsOnEncrypt);
 
     /**
      * @return A map that describes which members should be encrypted and/or signed on encrypt.
      */
-    Map<String, Action> attributeActionsOnEncrypt();
+    Map<String, Action> memberActionsOnEncrypt();
 
     /**
-     * @param allowedUnsignedAttributes A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+     * @param allowedUnsignedMembers A list of member names such that, if encountered during decryption, those members are treated as unsigned.
      */
-    Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes);
+    Builder allowedUnsignedMembers(List<String> allowedUnsignedMembers);
 
     /**
-     * @return A list of attribute names such that, if encountered during decryption, those attributes are treated as unsigned.
+     * @return A list of member names such that, if encountered during decryption, those members are treated as unsigned.
      */
-    List<String> allowedUnsignedAttributes();
+    List<String> allowedUnsignedMembers();
 
     /**
-     * @param allowedUnsignedAttributePrefix A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+     * @param allowedUnsignedMemberPrefix A prefix such that, if during decryption any member has a name with this prefix, it is treated as unsigned.
      */
-    Builder allowedUnsignedAttributePrefix(
-      String allowedUnsignedAttributePrefix
-    );
+    Builder allowedUnsignedMemberPrefix(String allowedUnsignedMemberPrefix);
 
     /**
-     * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
+     * @return A prefix such that, if during decryption any member has a name with this prefix, it is treated as unsigned.
      */
-    String allowedUnsignedAttributePrefix();
+    String allowedUnsignedMemberPrefix();
 
     /**
      * @param encrypt Setting for encryption and decryption.
@@ -151,11 +146,11 @@ public class JsonEncryptorConfig {
 
     protected String domain;
 
-    protected Map<String, Action> attributeActionsOnEncrypt;
+    protected Map<String, Action> memberActionsOnEncrypt;
 
-    protected List<String> allowedUnsignedAttributes;
+    protected List<String> allowedUnsignedMembers;
 
-    protected String allowedUnsignedAttributePrefix;
+    protected String allowedUnsignedMemberPrefix;
 
     protected JsonEncrypt encrypt;
 
@@ -163,10 +158,9 @@ public class JsonEncryptorConfig {
 
     protected BuilderImpl(JsonEncryptorConfig model) {
       this.domain = model.domain();
-      this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
-      this.allowedUnsignedAttributes = model.allowedUnsignedAttributes();
-      this.allowedUnsignedAttributePrefix =
-        model.allowedUnsignedAttributePrefix();
+      this.memberActionsOnEncrypt = model.memberActionsOnEncrypt();
+      this.allowedUnsignedMembers = model.allowedUnsignedMembers();
+      this.allowedUnsignedMemberPrefix = model.allowedUnsignedMemberPrefix();
       this.encrypt = model.encrypt();
     }
 
@@ -179,37 +173,35 @@ public class JsonEncryptorConfig {
       return this.domain;
     }
 
-    public Builder attributeActionsOnEncrypt(
-      Map<String, Action> attributeActionsOnEncrypt
+    public Builder memberActionsOnEncrypt(
+      Map<String, Action> memberActionsOnEncrypt
     ) {
-      this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
+      this.memberActionsOnEncrypt = memberActionsOnEncrypt;
       return this;
     }
 
-    public Map<String, Action> attributeActionsOnEncrypt() {
-      return this.attributeActionsOnEncrypt;
+    public Map<String, Action> memberActionsOnEncrypt() {
+      return this.memberActionsOnEncrypt;
     }
 
-    public Builder allowedUnsignedAttributes(
-      List<String> allowedUnsignedAttributes
-    ) {
-      this.allowedUnsignedAttributes = allowedUnsignedAttributes;
+    public Builder allowedUnsignedMembers(List<String> allowedUnsignedMembers) {
+      this.allowedUnsignedMembers = allowedUnsignedMembers;
       return this;
     }
 
-    public List<String> allowedUnsignedAttributes() {
-      return this.allowedUnsignedAttributes;
+    public List<String> allowedUnsignedMembers() {
+      return this.allowedUnsignedMembers;
     }
 
-    public Builder allowedUnsignedAttributePrefix(
-      String allowedUnsignedAttributePrefix
+    public Builder allowedUnsignedMemberPrefix(
+      String allowedUnsignedMemberPrefix
     ) {
-      this.allowedUnsignedAttributePrefix = allowedUnsignedAttributePrefix;
+      this.allowedUnsignedMemberPrefix = allowedUnsignedMemberPrefix;
       return this;
     }
 
-    public String allowedUnsignedAttributePrefix() {
-      return this.allowedUnsignedAttributePrefix;
+    public String allowedUnsignedMemberPrefix() {
+      return this.allowedUnsignedMemberPrefix;
     }
 
     public Builder encrypt(JsonEncrypt encrypt) {
@@ -227,9 +219,9 @@ public class JsonEncryptorConfig {
           "Missing value for required field `domain`"
         );
       }
-      if (Objects.isNull(this.attributeActionsOnEncrypt())) {
+      if (Objects.isNull(this.memberActionsOnEncrypt())) {
         throw new IllegalArgumentException(
-          "Missing value for required field `attributeActionsOnEncrypt`"
+          "Missing value for required field `memberActionsOnEncrypt`"
         );
       }
       if (Objects.isNull(this.encrypt())) {

@@ -8,9 +8,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
   public class JsonEncryptorConfig
   {
     private string _domain;
-    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> _attributeActionsOnEncrypt;
-    private System.Collections.Generic.List<string> _allowedUnsignedAttributes;
-    private string _allowedUnsignedAttributePrefix;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> _memberActionsOnEncrypt;
+    private System.Collections.Generic.List<string> _allowedUnsignedMembers;
+    private string _allowedUnsignedMemberPrefix;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt _encrypt;
     public string Domain
     {
@@ -21,32 +21,32 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     {
       return this._domain != null;
     }
-    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> AttributeActionsOnEncrypt
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.Action> MemberActionsOnEncrypt
     {
-      get { return this._attributeActionsOnEncrypt; }
-      set { this._attributeActionsOnEncrypt = value; }
+      get { return this._memberActionsOnEncrypt; }
+      set { this._memberActionsOnEncrypt = value; }
     }
-    public bool IsSetAttributeActionsOnEncrypt()
+    public bool IsSetMemberActionsOnEncrypt()
     {
-      return this._attributeActionsOnEncrypt != null;
+      return this._memberActionsOnEncrypt != null;
     }
-    public System.Collections.Generic.List<string> AllowedUnsignedAttributes
+    public System.Collections.Generic.List<string> AllowedUnsignedMembers
     {
-      get { return this._allowedUnsignedAttributes; }
-      set { this._allowedUnsignedAttributes = value; }
+      get { return this._allowedUnsignedMembers; }
+      set { this._allowedUnsignedMembers = value; }
     }
-    public bool IsSetAllowedUnsignedAttributes()
+    public bool IsSetAllowedUnsignedMembers()
     {
-      return this._allowedUnsignedAttributes != null;
+      return this._allowedUnsignedMembers != null;
     }
-    public string AllowedUnsignedAttributePrefix
+    public string AllowedUnsignedMemberPrefix
     {
-      get { return this._allowedUnsignedAttributePrefix; }
-      set { this._allowedUnsignedAttributePrefix = value; }
+      get { return this._allowedUnsignedMemberPrefix; }
+      set { this._allowedUnsignedMemberPrefix = value; }
     }
-    public bool IsSetAllowedUnsignedAttributePrefix()
+    public bool IsSetAllowedUnsignedMemberPrefix()
     {
-      return this._allowedUnsignedAttributePrefix != null;
+      return this._allowedUnsignedMemberPrefix != null;
     }
     public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json.JsonEncrypt Encrypt
     {
@@ -60,7 +60,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Json
     public void Validate()
     {
       if (!IsSetDomain()) throw new System.ArgumentException("Missing value for required property 'Domain'");
-      if (!IsSetAttributeActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'AttributeActionsOnEncrypt'");
+      if (!IsSetMemberActionsOnEncrypt()) throw new System.ArgumentException("Missing value for required property 'MemberActionsOnEncrypt'");
       if (!IsSetEncrypt()) throw new System.ArgumentException("Missing value for required property 'Encrypt'");
 
     }
