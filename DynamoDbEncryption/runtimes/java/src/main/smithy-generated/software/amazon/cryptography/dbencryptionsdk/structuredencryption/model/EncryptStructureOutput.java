@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.structuredencryption.model;
 import java.util.Objects;
 
 public class EncryptStructureOutput {
+
   private final StructuredData encryptedStructure;
 
   private final ParsedHeader parsedHeader;
@@ -44,12 +45,12 @@ public class EncryptStructureOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected StructuredData encryptedStructure;
 
     protected ParsedHeader parsedHeader;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptStructureOutput model) {
       this.encryptedStructure = model.encryptedStructure();
@@ -75,11 +76,15 @@ public class EncryptStructureOutput {
     }
 
     public EncryptStructureOutput build() {
-      if (Objects.isNull(this.encryptedStructure()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedStructure`");
+      if (Objects.isNull(this.encryptedStructure())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedStructure`"
+        );
       }
-      if (Objects.isNull(this.parsedHeader()))  {
-        throw new IllegalArgumentException("Missing value for required field `parsedHeader`");
+      if (Objects.isNull(this.parsedHeader())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `parsedHeader`"
+        );
       }
       return new EncryptStructureOutput(this);
     }

@@ -9,6 +9,7 @@ import java.util.Objects;
  * The Virtual Part Transformation that appends a literal string.
  */
 public class Insert {
+
   /**
    * The literal string to append.
    */
@@ -48,10 +49,10 @@ public class Insert {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String literal;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(Insert model) {
       this.literal = model.literal();
@@ -67,8 +68,10 @@ public class Insert {
     }
 
     public Insert build() {
-      if (Objects.isNull(this.literal()))  {
-        throw new IllegalArgumentException("Missing value for required field `literal`");
+      if (Objects.isNull(this.literal())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `literal`"
+        );
       }
       return new Insert(this);
     }

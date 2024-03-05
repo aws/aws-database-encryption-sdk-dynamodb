@@ -10,6 +10,7 @@ import java.util.Objects;
  * The configuration for a particular Compound Beacon construction.
  */
 public class Constructor {
+
   /**
    * The ordered list of parts for a particular Compound Beacon construction. If the item contains all required Parts, a Compound beacon will be written using each Part that exists on the item, in the order specified.
    */
@@ -49,10 +50,10 @@ public class Constructor {
   }
 
   static class BuilderImpl implements Builder {
+
     protected List<ConstructorPart> parts;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(Constructor model) {
       this.parts = model.parts();
@@ -68,11 +69,15 @@ public class Constructor {
     }
 
     public Constructor build() {
-      if (Objects.isNull(this.parts()))  {
-        throw new IllegalArgumentException("Missing value for required field `parts`");
+      if (Objects.isNull(this.parts())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `parts`"
+        );
       }
       if (Objects.nonNull(this.parts()) && this.parts().size() < 1) {
-        throw new IllegalArgumentException("The size of `parts` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `parts` must be greater than or equal to 1"
+        );
       }
       return new Constructor(this);
     }

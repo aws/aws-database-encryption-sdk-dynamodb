@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class CryptoSchemaContent {
+
   private final CryptoAction Action;
 
   private final Map<String, CryptoSchema> SchemaMap;
@@ -57,14 +58,14 @@ public class CryptoSchemaContent {
   }
 
   static class BuilderImpl implements Builder {
+
     protected CryptoAction Action;
 
     protected Map<String, CryptoSchema> SchemaMap;
 
     protected List<CryptoSchema> SchemaList;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(CryptoSchemaContent model) {
       this.Action = model.Action();
@@ -101,13 +102,15 @@ public class CryptoSchemaContent {
 
     public CryptoSchemaContent build() {
       if (!onlyOneNonNull()) {
-        throw new IllegalArgumentException("`CryptoSchemaContent` is a Union. A Union MUST have one and only one value set.");
+        throw new IllegalArgumentException(
+          "`CryptoSchemaContent` is a Union. A Union MUST have one and only one value set."
+        );
       }
       return new CryptoSchemaContent(this);
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.Action, this.SchemaMap, this.SchemaList};
+      Object[] allValues = { this.Action, this.SchemaMap, this.SchemaList };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

@@ -13,5 +13,7 @@ public interface IDynamoDbKeyBranchKeyIdSupplier {
    * @param input Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
    * @return Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
    */
-  GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(GetBranchKeyIdFromDdbKeyInput input);
+  GetBranchKeyIdFromDdbKeyOutput GetBranchKeyIdFromDdbKey(
+    GetBranchKeyIdFromDdbKeyInput input
+  );
 }

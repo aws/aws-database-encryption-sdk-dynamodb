@@ -9,6 +9,7 @@ import java.util.Objects;
  * The Virtual Part Transformation that gets the suffix of a string.
  */
 public class GetSuffix {
+
   /**
    * If positive, the number of characters to return from the end. If negative, the absolute number of characters to exclude from the front. e.g. GetSuffix(-1) returns all but the first character.
    */
@@ -48,10 +49,10 @@ public class GetSuffix {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Integer length;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetSuffix model) {
       this.length = model.length();
@@ -67,8 +68,10 @@ public class GetSuffix {
     }
 
     public GetSuffix build() {
-      if (Objects.isNull(this.length()))  {
-        throw new IllegalArgumentException("Missing value for required field `length`");
+      if (Objects.isNull(this.length())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `length`"
+        );
       }
       return new GetSuffix(this);
     }

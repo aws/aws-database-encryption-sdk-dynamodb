@@ -10,6 +10,7 @@ import java.util.Objects;
  * The configuration for a Virtual Field. A Virtual Field is a field constructed from parts of other fields for use with beacons, but never itself stored on items.
  */
 public class VirtualField {
+
   /**
    * The name of the Virtual Field.
    */
@@ -72,12 +73,12 @@ public class VirtualField {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String name;
 
     protected List<VirtualPart> parts;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(VirtualField model) {
       this.name = model.name();
@@ -103,14 +104,20 @@ public class VirtualField {
     }
 
     public VirtualField build() {
-      if (Objects.isNull(this.name()))  {
-        throw new IllegalArgumentException("Missing value for required field `name`");
+      if (Objects.isNull(this.name())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `name`"
+        );
       }
-      if (Objects.isNull(this.parts()))  {
-        throw new IllegalArgumentException("Missing value for required field `parts`");
+      if (Objects.isNull(this.parts())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `parts`"
+        );
       }
       if (Objects.nonNull(this.parts()) && this.parts().size() < 1) {
-        throw new IllegalArgumentException("The size of `parts` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `parts` must be greater than or equal to 1"
+        );
       }
       return new VirtualField(this);
     }

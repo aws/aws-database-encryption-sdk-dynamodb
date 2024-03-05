@@ -10,6 +10,7 @@ import java.util.Objects;
  * A Virtual Part is the configuration of a transformation on an existing field in an item.
  */
 public class VirtualPart {
+
   /**
    * The DynamoDB document path to the value for this part.
    */
@@ -72,12 +73,12 @@ public class VirtualPart {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String loc;
 
     protected List<VirtualTransform> trans;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(VirtualPart model) {
       this.loc = model.loc();
@@ -103,14 +104,20 @@ public class VirtualPart {
     }
 
     public VirtualPart build() {
-      if (Objects.isNull(this.loc()))  {
-        throw new IllegalArgumentException("Missing value for required field `loc`");
+      if (Objects.isNull(this.loc())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `loc`"
+        );
       }
       if (Objects.nonNull(this.loc()) && this.loc().length() < 1) {
-        throw new IllegalArgumentException("The size of `loc` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `loc` must be greater than or equal to 1"
+        );
       }
       if (Objects.nonNull(this.trans()) && this.trans().size() < 1) {
-        throw new IllegalArgumentException("The size of `trans` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `trans` must be greater than or equal to 1"
+        );
       }
       return new VirtualPart(this);
     }

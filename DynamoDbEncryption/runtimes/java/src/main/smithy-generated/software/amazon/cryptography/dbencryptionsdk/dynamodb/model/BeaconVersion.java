@@ -11,6 +11,7 @@ import software.amazon.cryptography.keystore.KeyStore;
  * The configuration for a particular version of searchable encryption. Currently the only supported version is '1'.
  */
 public class BeaconVersion {
+
   /**
    * The version of searchable encryption configured. This must be '1'.
    */
@@ -211,6 +212,7 @@ public class BeaconVersion {
   }
 
   static class BuilderImpl implements Builder {
+
     protected int version;
 
     private boolean _versionSet = false;
@@ -229,8 +231,7 @@ public class BeaconVersion {
 
     protected List<SignedPart> signedParts;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(BeaconVersion model) {
       this.version = model.version();
@@ -319,34 +320,67 @@ public class BeaconVersion {
 
     public BeaconVersion build() {
       if (!this._versionSet) {
-        throw new IllegalArgumentException("Missing value for required field `version`");
+        throw new IllegalArgumentException(
+          "Missing value for required field `version`"
+        );
       }
       if (this._versionSet && this.version() < 1) {
-        throw new IllegalArgumentException("`version` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "`version` must be greater than or equal to 1"
+        );
       }
-      if (Objects.isNull(this.keyStore()))  {
-        throw new IllegalArgumentException("Missing value for required field `keyStore`");
+      if (Objects.isNull(this.keyStore())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `keyStore`"
+        );
       }
-      if (Objects.isNull(this.keySource()))  {
-        throw new IllegalArgumentException("Missing value for required field `keySource`");
+      if (Objects.isNull(this.keySource())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `keySource`"
+        );
       }
-      if (Objects.isNull(this.standardBeacons()))  {
-        throw new IllegalArgumentException("Missing value for required field `standardBeacons`");
+      if (Objects.isNull(this.standardBeacons())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `standardBeacons`"
+        );
       }
-      if (Objects.nonNull(this.standardBeacons()) && this.standardBeacons().size() < 1) {
-        throw new IllegalArgumentException("The size of `standardBeacons` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.standardBeacons()) &&
+        this.standardBeacons().size() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `standardBeacons` must be greater than or equal to 1"
+        );
       }
-      if (Objects.nonNull(this.compoundBeacons()) && this.compoundBeacons().size() < 1) {
-        throw new IllegalArgumentException("The size of `compoundBeacons` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.compoundBeacons()) &&
+        this.compoundBeacons().size() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `compoundBeacons` must be greater than or equal to 1"
+        );
       }
-      if (Objects.nonNull(this.virtualFields()) && this.virtualFields().size() < 1) {
-        throw new IllegalArgumentException("The size of `virtualFields` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.virtualFields()) && this.virtualFields().size() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `virtualFields` must be greater than or equal to 1"
+        );
       }
-      if (Objects.nonNull(this.encryptedParts()) && this.encryptedParts().size() < 1) {
-        throw new IllegalArgumentException("The size of `encryptedParts` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.encryptedParts()) &&
+        this.encryptedParts().size() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `encryptedParts` must be greater than or equal to 1"
+        );
       }
-      if (Objects.nonNull(this.signedParts()) && this.signedParts().size() < 1) {
-        throw new IllegalArgumentException("The size of `signedParts` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.signedParts()) && this.signedParts().size() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `signedParts` must be greater than or equal to 1"
+        );
       }
       return new BeaconVersion(this);
     }

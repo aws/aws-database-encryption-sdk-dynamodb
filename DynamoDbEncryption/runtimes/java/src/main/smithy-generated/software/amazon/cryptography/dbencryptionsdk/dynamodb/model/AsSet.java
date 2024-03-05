@@ -7,8 +7,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
  * Attribute must be a Set. Beacon value will also be a Set.
  */
 public class AsSet {
-  protected AsSet(BuilderImpl builder) {
-  }
+
+  protected AsSet(BuilderImpl builder) {}
 
   public Builder toBuilder() {
     return new BuilderImpl(this);
@@ -23,11 +23,10 @@ public class AsSet {
   }
 
   static class BuilderImpl implements Builder {
-    protected BuilderImpl() {
-    }
 
-    protected BuilderImpl(AsSet model) {
-    }
+    protected BuilderImpl() {}
+
+    protected BuilderImpl(AsSet model) {}
 
     public AsSet build() {
       return new AsSet(this);

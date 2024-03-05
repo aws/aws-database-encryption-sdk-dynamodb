@@ -9,6 +9,7 @@ import java.util.Objects;
  * A part of a Compound Beacon that contains a beacon over encrypted data.
  */
 public class EncryptedPart {
+
   /**
    * The name of the Standard Beacon, whose value this Part will hold.
    */
@@ -71,12 +72,12 @@ public class EncryptedPart {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String name;
 
     protected String prefix;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptedPart model) {
       this.name = model.name();
@@ -102,14 +103,20 @@ public class EncryptedPart {
     }
 
     public EncryptedPart build() {
-      if (Objects.isNull(this.name()))  {
-        throw new IllegalArgumentException("Missing value for required field `name`");
+      if (Objects.isNull(this.name())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `name`"
+        );
       }
-      if (Objects.isNull(this.prefix()))  {
-        throw new IllegalArgumentException("Missing value for required field `prefix`");
+      if (Objects.isNull(this.prefix())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `prefix`"
+        );
       }
       if (Objects.nonNull(this.prefix()) && this.prefix().length() < 1) {
-        throw new IllegalArgumentException("The size of `prefix` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `prefix` must be greater than or equal to 1"
+        );
       }
       return new EncryptedPart(this);
     }

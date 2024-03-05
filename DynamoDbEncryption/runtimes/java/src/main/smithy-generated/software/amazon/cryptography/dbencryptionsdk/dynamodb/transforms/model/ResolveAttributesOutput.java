@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ResolveAttributesOutput {
+
   /**
    * Full plaintext of all calculable virtual fields.
    */
@@ -69,12 +70,12 @@ public class ResolveAttributesOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Map<String, String> VirtualFields;
 
     protected Map<String, String> CompoundBeacons;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(ResolveAttributesOutput model) {
       this.VirtualFields = model.VirtualFields();
@@ -100,11 +101,15 @@ public class ResolveAttributesOutput {
     }
 
     public ResolveAttributesOutput build() {
-      if (Objects.isNull(this.VirtualFields()))  {
-        throw new IllegalArgumentException("Missing value for required field `VirtualFields`");
+      if (Objects.isNull(this.VirtualFields())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `VirtualFields`"
+        );
       }
-      if (Objects.isNull(this.CompoundBeacons()))  {
-        throw new IllegalArgumentException("Missing value for required field `CompoundBeacons`");
+      if (Objects.isNull(this.CompoundBeacons())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `CompoundBeacons`"
+        );
       }
       return new ResolveAttributesOutput(this);
     }

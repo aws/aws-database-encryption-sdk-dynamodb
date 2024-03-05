@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  * Outputs for encrypting a DynamoDB Item.
  */
 public class EncryptItemOutput {
+
   /**
    * The encrypted DynamoDB item.
    */
@@ -73,12 +74,12 @@ public class EncryptItemOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Map<String, AttributeValue> encryptedItem;
 
     protected ParsedHeader parsedHeader;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptItemOutput model) {
       this.encryptedItem = model.encryptedItem();
@@ -104,8 +105,10 @@ public class EncryptItemOutput {
     }
 
     public EncryptItemOutput build() {
-      if (Objects.isNull(this.encryptedItem()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedItem`");
+      if (Objects.isNull(this.encryptedItem())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedItem`"
+        );
       }
       return new EncryptItemOutput(this);
     }

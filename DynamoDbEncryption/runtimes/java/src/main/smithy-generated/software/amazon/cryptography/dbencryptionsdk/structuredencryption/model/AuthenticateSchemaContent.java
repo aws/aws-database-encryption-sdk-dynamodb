@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class AuthenticateSchemaContent {
+
   private final AuthenticateAction Action;
 
   private final Map<String, AuthenticateSchema> SchemaMap;
@@ -57,14 +58,14 @@ public class AuthenticateSchemaContent {
   }
 
   static class BuilderImpl implements Builder {
+
     protected AuthenticateAction Action;
 
     protected Map<String, AuthenticateSchema> SchemaMap;
 
     protected List<AuthenticateSchema> SchemaList;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(AuthenticateSchemaContent model) {
       this.Action = model.Action();
@@ -101,13 +102,15 @@ public class AuthenticateSchemaContent {
 
     public AuthenticateSchemaContent build() {
       if (!onlyOneNonNull()) {
-        throw new IllegalArgumentException("`AuthenticateSchemaContent` is a Union. A Union MUST have one and only one value set.");
+        throw new IllegalArgumentException(
+          "`AuthenticateSchemaContent` is a Union. A Union MUST have one and only one value set."
+        );
       }
       return new AuthenticateSchemaContent(this);
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.Action, this.SchemaMap, this.SchemaList};
+      Object[] allValues = { this.Action, this.SchemaMap, this.SchemaList };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

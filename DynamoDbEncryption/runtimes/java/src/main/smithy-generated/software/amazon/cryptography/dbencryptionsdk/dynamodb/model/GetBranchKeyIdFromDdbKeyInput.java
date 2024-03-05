@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  * Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
  */
 public class GetBranchKeyIdFromDdbKeyInput {
+
   /**
    * The partition and sort (if it exists) attributes on the item being read or written.
    */
@@ -50,10 +51,10 @@ public class GetBranchKeyIdFromDdbKeyInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Map<String, AttributeValue> ddbKey;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetBranchKeyIdFromDdbKeyInput model) {
       this.ddbKey = model.ddbKey();
@@ -69,8 +70,10 @@ public class GetBranchKeyIdFromDdbKeyInput {
     }
 
     public GetBranchKeyIdFromDdbKeyInput build() {
-      if (Objects.isNull(this.ddbKey()))  {
-        throw new IllegalArgumentException("Missing value for required field `ddbKey`");
+      if (Objects.isNull(this.ddbKey())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `ddbKey`"
+        );
       }
       return new GetBranchKeyIdFromDdbKeyInput(this);
     }

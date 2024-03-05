@@ -9,6 +9,7 @@ import java.util.Objects;
  * Both Shared and AsSet.
  */
 public class SharedSet {
+
   /**
    * Calculate beacon values as for this beacon.
    */
@@ -48,10 +49,10 @@ public class SharedSet {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String other;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(SharedSet model) {
       this.other = model.other();
@@ -67,8 +68,10 @@ public class SharedSet {
     }
 
     public SharedSet build() {
-      if (Objects.isNull(this.other()))  {
-        throw new IllegalArgumentException("Missing value for required field `other`");
+      if (Objects.isNull(this.other())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `other`"
+        );
       }
       return new SharedSet(this);
     }

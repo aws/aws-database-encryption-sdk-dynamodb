@@ -19,6 +19,7 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
  * The configuration for the client-side encryption of DynamoDB items.
  */
 public class DynamoDbItemEncryptorConfig {
+
   /**
    * The logical table name for this table. This is the name that is cryptographically bound with your data. This can be the same as the actual DynamoDB table name. It's purpose is to be distinct from the DynamoDB table name so that the data may still be authenticated if being read from different (but logically similar) tables, such as a backup table.
    */
@@ -80,7 +81,8 @@ public class DynamoDbItemEncryptorConfig {
     this.sortKeyName = builder.sortKeyName();
     this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
     this.allowedUnsignedAttributes = builder.allowedUnsignedAttributes();
-    this.allowedUnsignedAttributePrefix = builder.allowedUnsignedAttributePrefix();
+    this.allowedUnsignedAttributePrefix =
+      builder.allowedUnsignedAttributePrefix();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.keyring = builder.keyring();
     this.cmm = builder.cmm();
@@ -207,7 +209,9 @@ public class DynamoDbItemEncryptorConfig {
     /**
      * @param attributeActionsOnEncrypt A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
      */
-    Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
+    Builder attributeActionsOnEncrypt(
+      Map<String, CryptoAction> attributeActionsOnEncrypt
+    );
 
     /**
      * @return A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.
@@ -227,7 +231,9 @@ public class DynamoDbItemEncryptorConfig {
     /**
      * @param allowedUnsignedAttributePrefix A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
      */
-    Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix);
+    Builder allowedUnsignedAttributePrefix(
+      String allowedUnsignedAttributePrefix
+    );
 
     /**
      * @return A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.
@@ -288,6 +294,7 @@ public class DynamoDbItemEncryptorConfig {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String logicalTableName;
 
     protected String partitionKeyName;
@@ -310,8 +317,7 @@ public class DynamoDbItemEncryptorConfig {
 
     protected PlaintextOverride plaintextOverride;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DynamoDbItemEncryptorConfig model) {
       this.logicalTableName = model.logicalTableName();
@@ -319,7 +325,8 @@ public class DynamoDbItemEncryptorConfig {
       this.sortKeyName = model.sortKeyName();
       this.attributeActionsOnEncrypt = model.attributeActionsOnEncrypt();
       this.allowedUnsignedAttributes = model.allowedUnsignedAttributes();
-      this.allowedUnsignedAttributePrefix = model.allowedUnsignedAttributePrefix();
+      this.allowedUnsignedAttributePrefix =
+        model.allowedUnsignedAttributePrefix();
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.keyring = model.keyring();
       this.cmm = model.cmm();
@@ -354,7 +361,9 @@ public class DynamoDbItemEncryptorConfig {
       return this.sortKeyName;
     }
 
-    public Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt) {
+    public Builder attributeActionsOnEncrypt(
+      Map<String, CryptoAction> attributeActionsOnEncrypt
+    ) {
       this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
       return this;
     }
@@ -363,7 +372,9 @@ public class DynamoDbItemEncryptorConfig {
       return this.attributeActionsOnEncrypt;
     }
 
-    public Builder allowedUnsignedAttributes(List<String> allowedUnsignedAttributes) {
+    public Builder allowedUnsignedAttributes(
+      List<String> allowedUnsignedAttributes
+    ) {
       this.allowedUnsignedAttributes = allowedUnsignedAttributes;
       return this;
     }
@@ -372,7 +383,9 @@ public class DynamoDbItemEncryptorConfig {
       return this.allowedUnsignedAttributes;
     }
 
-    public Builder allowedUnsignedAttributePrefix(String allowedUnsignedAttributePrefix) {
+    public Builder allowedUnsignedAttributePrefix(
+      String allowedUnsignedAttributePrefix
+    ) {
       this.allowedUnsignedAttributePrefix = allowedUnsignedAttributePrefix;
       return this;
     }
@@ -427,29 +440,58 @@ public class DynamoDbItemEncryptorConfig {
     }
 
     public DynamoDbItemEncryptorConfig build() {
-      if (Objects.isNull(this.logicalTableName()))  {
-        throw new IllegalArgumentException("Missing value for required field `logicalTableName`");
+      if (Objects.isNull(this.logicalTableName())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `logicalTableName`"
+        );
       }
-      if (Objects.isNull(this.partitionKeyName()))  {
-        throw new IllegalArgumentException("Missing value for required field `partitionKeyName`");
+      if (Objects.isNull(this.partitionKeyName())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `partitionKeyName`"
+        );
       }
-      if (Objects.nonNull(this.partitionKeyName()) && this.partitionKeyName().length() < 1) {
-        throw new IllegalArgumentException("The size of `partitionKeyName` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.partitionKeyName()) &&
+        this.partitionKeyName().length() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `partitionKeyName` must be greater than or equal to 1"
+        );
       }
-      if (Objects.nonNull(this.partitionKeyName()) && this.partitionKeyName().length() > 255) {
-        throw new IllegalArgumentException("The size of `partitionKeyName` must be less than or equal to 255");
+      if (
+        Objects.nonNull(this.partitionKeyName()) &&
+        this.partitionKeyName().length() > 255
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `partitionKeyName` must be less than or equal to 255"
+        );
       }
-      if (Objects.nonNull(this.sortKeyName()) && this.sortKeyName().length() < 1) {
-        throw new IllegalArgumentException("The size of `sortKeyName` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.sortKeyName()) && this.sortKeyName().length() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `sortKeyName` must be greater than or equal to 1"
+        );
       }
-      if (Objects.nonNull(this.sortKeyName()) && this.sortKeyName().length() > 255) {
-        throw new IllegalArgumentException("The size of `sortKeyName` must be less than or equal to 255");
+      if (
+        Objects.nonNull(this.sortKeyName()) && this.sortKeyName().length() > 255
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `sortKeyName` must be less than or equal to 255"
+        );
       }
-      if (Objects.isNull(this.attributeActionsOnEncrypt()))  {
-        throw new IllegalArgumentException("Missing value for required field `attributeActionsOnEncrypt`");
+      if (Objects.isNull(this.attributeActionsOnEncrypt())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `attributeActionsOnEncrypt`"
+        );
       }
-      if (Objects.nonNull(this.allowedUnsignedAttributes()) && this.allowedUnsignedAttributes().size() < 1) {
-        throw new IllegalArgumentException("The size of `allowedUnsignedAttributes` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.allowedUnsignedAttributes()) &&
+        this.allowedUnsignedAttributes().size() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `allowedUnsignedAttributes` must be greater than or equal to 1"
+        );
       }
       return new DynamoDbItemEncryptorConfig(this);
     }

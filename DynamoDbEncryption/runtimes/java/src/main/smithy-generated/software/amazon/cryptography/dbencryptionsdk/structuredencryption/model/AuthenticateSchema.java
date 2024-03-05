@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class AuthenticateSchema {
+
   private final AuthenticateSchemaContent content;
 
   private final Map<String, AuthenticateAction> attributes;
@@ -45,12 +46,12 @@ public class AuthenticateSchema {
   }
 
   static class BuilderImpl implements Builder {
+
     protected AuthenticateSchemaContent content;
 
     protected Map<String, AuthenticateAction> attributes;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(AuthenticateSchema model) {
       this.content = model.content();
@@ -76,8 +77,10 @@ public class AuthenticateSchema {
     }
 
     public AuthenticateSchema build() {
-      if (Objects.isNull(this.content()))  {
-        throw new IllegalArgumentException("Missing value for required field `content`");
+      if (Objects.isNull(this.content())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `content`"
+        );
       }
       return new AuthenticateSchema(this);
     }

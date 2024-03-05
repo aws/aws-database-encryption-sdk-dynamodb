@@ -11,6 +11,7 @@ PROJECT_SERVICES := \
 	DynamoDbEncryption \
 	DynamoDbItemEncryptor \
 	DynamoDbEncryptionTransforms \
+	JsonEncryptor \
 	StructuredEncryption
 
 # Namespace for each local service
@@ -18,6 +19,7 @@ PROJECT_SERVICES := \
 SERVICE_NAMESPACE_StructuredEncryption=aws.cryptography.dbEncryptionSdk.structuredEncryption
 SERVICE_NAMESPACE_DynamoDbEncryption=aws.cryptography.dbEncryptionSdk.dynamoDb
 SERVICE_NAMESPACE_DynamoDbItemEncryptor=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor
+SERVICE_NAMESPACE_JsonEncryptor=aws.cryptography.dbEncryptionSdk.dynamoDb.json
 SERVICE_NAMESPACE_DynamoDbEncryptionTransforms=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms
 
 MAX_RESOURCE_COUNT=20000000
@@ -65,6 +67,13 @@ SERVICE_DEPS_DynamoDbItemEncryptor := \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/StructuredEncryption
+SERVICE_DEPS_JsonEncryptor := \
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
+	DynamoDbEncryption/dafny/StructuredEncryption
 SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 	submodules/MaterialProviders/AwsCryptographyPrimitives \
 	submodules/MaterialProviders/ComAmazonawsKms \
@@ -77,3 +86,12 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 
 format_net:
 	pushd runtimes/net && dotnet format DynamoDbEncryption.csproj && popd
+
+polymorph:
+	npm i --no-save prettier@3 prettier-plugin-java@2.5
+	make polymorph_code_gen CODEGEN_CLI_ROOT=../submodules/smithy-dafny/codegen/smithy-dafny-codegen-cli
+
+polydiff:
+	npm i --no-save prettier@3 prettier-plugin-java@2.5
+	make polymorph_code_gen CODEGEN_CLI_ROOT=../submodules/smithy-dafny/codegen/smithy-dafny-codegen-cli POLYMORPH_OPTIONS="--update-patch-files"
+

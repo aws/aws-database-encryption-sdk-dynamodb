@@ -369,6 +369,34 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     )
   }
 
+  function method {:opaque} GetEncryptedFields(
+    tableName: string,
+    signedFields: set<string>,
+    headerSerialized : seq<uint8>
+  ) : (ret : Result<set<GoodString>, Error>)
+  {
+    var header :- Header.PartialDeserialize(headerSerialized);
+    :- Need(ValidString(tableName), E("Bad Table Name"));
+    :- Need(forall k <- signedFields :: ValidString(k), E("Bad Attribute Name"));
+
+    reveal Maps.Injective();
+    Paths.SimpleCanonUnique(tableName);
+    var fieldMap := map k <- signedFields :: Paths.SimpleCanon(tableName, k) := k;
+    assert Maps.Injective(fieldMap);
+    assert forall k <- fieldMap :: fieldMap[k] in signedFields;
+
+    var signedFields_c := SortedSets.ComputeSetToOrderedSequence2(fieldMap.Keys, ByteLess);
+
+    if |header.legend| < |signedFields_c| then
+      Failure(E("Schema changed : something that was unsigned is now signed."))
+    else if |header.legend| > |signedFields_c| then
+      Failure(E("Schema changed : something that was signed is now unsigned."))
+    else
+      var encFields_c : seq<CanonicalPath> := FilterEncrypted(signedFields_c, header.legend);
+      var encFields : set<string> := set k <- encFields_c :: fieldMap[k];
+      Success(encFields)
+  }
+
   // construct the DecryptCanon
   function method {:opaque} {:vcs_split_on_every_assert} CanonizeForDecrypt(
     tableName: GoodString,

@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.mode
 import java.util.Objects;
 
 public class DynamoDbItemEncryptorException extends RuntimeException {
+
   protected DynamoDbItemEncryptorException(BuilderImpl builder) {
     super(messageFromBuilder(builder), builder.cause());
   }
@@ -67,12 +68,12 @@ public class DynamoDbItemEncryptorException extends RuntimeException {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String message;
 
     protected Throwable cause;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DynamoDbItemEncryptorException model) {
       this.message = model.message();
@@ -98,8 +99,10 @@ public class DynamoDbItemEncryptorException extends RuntimeException {
     }
 
     public DynamoDbItemEncryptorException build() {
-      if (Objects.isNull(this.message()))  {
-        throw new IllegalArgumentException("Missing value for required field `message`");
+      if (Objects.isNull(this.message())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `message`"
+        );
       }
       return new DynamoDbItemEncryptorException(this);
     }

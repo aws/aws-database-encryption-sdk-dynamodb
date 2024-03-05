@@ -64,15 +64,15 @@ module DynamoDbItemEncryptorTest {
   }
 
   function method {:opaque} GetAttrName(s : string) : DDB.AttributeName
+    requires DDB.IsValid_AttributeName(s)
   {
-    if DDB.IsValid_AttributeName(s) then
       s
-    else
-      "spoo"
   }
 
+  const Bar : DDB.AttributeName := "bar"
+
   const Actions1 : DDBE.AttributeActions := map[
-      "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+      Bar := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
       "encrypt" := CSE.ENCRYPT_AND_SIGN,
       "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
