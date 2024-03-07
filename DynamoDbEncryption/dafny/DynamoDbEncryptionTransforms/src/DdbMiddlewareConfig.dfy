@@ -6,21 +6,25 @@ module DdbMiddlewareConfig {
   import opened Wrappers
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import DynamoDbItemEncryptor
+  import ENC = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import SearchableEncryptionInfo
+  import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   
   datatype TableConfig = TableConfig(
     physicalTableName: ComAmazonawsDynamodbTypes.TableName,
     logicalTableName: string,
     partitionKeyName: string,
     sortKeyName: Option<string>,
-    itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient,
+    itemEncryptor: DynamoDbItemEncryptor.Types.IDynamoDbItemEncryptorClient,
     search : Option<SearchableEncryptionInfo.ValidSearchInfo>
   )
 
   predicate ValidTableConfig?(config: TableConfig) {
-    var encryptorConfig := config.itemEncryptor.config;
+    && config.itemEncryptor is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient
+    && var itemEncryptorClient := config.itemEncryptor as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    && var encryptorConfig := itemEncryptorClient.config;
     && config.logicalTableName == encryptorConfig.logicalTableName
     && config.partitionKeyName == encryptorConfig.partitionKeyName
     && config.sortKeyName == encryptorConfig.sortKeyName
@@ -29,6 +33,10 @@ module DdbMiddlewareConfig {
   }
 
   type ValidTableConfig = c: TableConfig | ValidTableConfig?(c) witness *
+
+  function method ItemEncryptorClientConfig(config: ValidTableConfig): ENC.Config {
+    (config.itemEncryptor as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient).config
+  }
 
   function OneSearchModifies(config : ValidTableConfig) : set<object>
   {

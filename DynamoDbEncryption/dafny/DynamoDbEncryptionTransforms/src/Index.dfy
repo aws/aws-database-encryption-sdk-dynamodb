@@ -108,7 +108,9 @@ module
       //# When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
       //# there MUST a one to one mapping between the two.
       ensures res.Success? ==>
-        && DdbMiddlewareConfig.ValidConfig?(res.value.config)
+        && res.value is DynamoDbEncryptionTransformsClient
+        && var client := res.value as DynamoDbEncryptionTransformsClient;
+        && DdbMiddlewareConfig.ValidConfig?(client.config)
   {
     var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
     assert ValidWholeSearchConfig(config);
