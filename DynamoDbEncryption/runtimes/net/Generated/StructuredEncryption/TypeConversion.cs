@@ -797,7 +797,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S13_TerminalValue(System.IO.MemoryStream value)
     {
+      if (value.ToArray().Length == 0 && value.Length > 0)
+      {
+        throw new System.ArgumentException("Fatal Error: MemoryStream instance not backed by an array!");
+      }
       return Dafny.Sequence<byte>.FromArray(value.ToArray());
+
     }
     public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S14_TerminalTypeId(Dafny.ISequence<byte> value)
     {
@@ -805,7 +810,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S14_TerminalTypeId(System.IO.MemoryStream value)
     {
+      if (value.ToArray().Length == 0 && value.Length > 0)
+      {
+        throw new System.ArgumentException("Fatal Error: MemoryStream instance not backed by an array!");
+      }
       return Dafny.Sequence<byte>.FromArray(value.ToArray());
+
     }
     public static string FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S24_StructuredDataAttributes__M3_key(Dafny.ISequence<char> value)
     {
@@ -904,19 +914,24 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static Dafny.ISequence<byte> ToDafny_N6_smithy__N3_api__S4_Blob(System.IO.MemoryStream value)
     {
+      if (value.ToArray().Length == 0 && value.Length > 0)
+      {
+        throw new System.ArgumentException("Fatal Error: MemoryStream instance not backed by an array!");
+      }
       return Dafny.Sequence<byte>.FromArray(value.ToArray());
+
     }
     public static System.Exception FromDafny_CommonError(software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IError value)
     {
       switch (value)
       {
-        case software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_AwsCryptographyPrimitives dafnyVal:
-          return AWS.Cryptography.Primitives.TypeConversion.FromDafny_CommonError(
-            dafnyVal._AwsCryptographyPrimitives
-          );
         case software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_AwsCryptographyMaterialProviders dafnyVal:
           return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyMaterialProviders
+          );
+        case software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_AwsCryptographyPrimitives dafnyVal:
+          return AWS.Cryptography.Primitives.TypeConversion.FromDafny_CommonError(
+            dafnyVal._AwsCryptographyPrimitives
           );
         case software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_StructuredEncryptionException dafnyVal:
           return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S29_StructuredEncryptionException(dafnyVal);
