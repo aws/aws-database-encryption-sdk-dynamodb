@@ -47,13 +47,15 @@ module
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
-      && res.value.config.logicalTableName == config.logicalTableName
-      && res.value.config.partitionKeyName == config.partitionKeyName
-      && res.value.config.sortKeyName == config.sortKeyName
-      && res.value.config.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
-      && res.value.config.allowedUnsignedAttributes == config.allowedUnsignedAttributes
-      && res.value.config.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
-      && res.value.config.algorithmSuiteId == config.algorithmSuiteId
+      && res.value is DynamoDbItemEncryptorClient
+      && var client := res.value as DynamoDbItemEncryptorClient;
+      && client.config.logicalTableName == config.logicalTableName
+      && client.config.partitionKeyName == config.partitionKeyName
+      && client.config.sortKeyName == config.sortKeyName
+      && client.config.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
+      && client.config.allowedUnsignedAttributes == config.allowedUnsignedAttributes
+      && client.config.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
+      && client.config.algorithmSuiteId == config.algorithmSuiteId
 
       //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-actions
       //= type=implication
@@ -71,7 +73,8 @@ module
         && res.Success?
         && config.plaintextOverride.None?
       ==>
-        res.value.config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
+        && var client := res.value as DynamoDbItemEncryptorClient;
+        && client.config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
   {
     :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
       message := "Cannot provide both a keyring and a CMM"

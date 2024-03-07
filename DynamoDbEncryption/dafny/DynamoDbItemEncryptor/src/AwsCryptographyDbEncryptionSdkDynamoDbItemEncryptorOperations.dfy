@@ -40,7 +40,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
     nameonly allowedUnsignedAttributePrefix: Option<string>,
     nameonly algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
-    nameonly structuredEncryption: StructuredEncryption.StructuredEncryptionClient,
+    nameonly structuredEncryption: StructuredEncryption.Types.IStructuredEncryptionClient,
     nameonly plaintextOverride: DDBE.PlaintextOverride,
     nameonly internalLegacyOverride: Option<InternalLegacyOverride.InternalLegacyOverride> := None
   )
