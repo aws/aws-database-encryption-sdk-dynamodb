@@ -28,7 +28,7 @@ module
   }
 
   method DynamoDbEncryption(config: DynamoDbEncryptionConfig)
-    returns (res: Result<DynamoDbEncryptionClient, Error>)
+    returns (res: Result<IDynamoDbEncryptionClient, Error>)
   {
     var internalConfig := Operations.Config();
     var client := new DynamoDbEncryptionClient(internalConfig);

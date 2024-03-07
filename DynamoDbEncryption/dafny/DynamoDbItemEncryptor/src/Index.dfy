@@ -45,7 +45,7 @@ module
   }
 
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
-    returns (res: Result<DynamoDbItemEncryptorClient, Error>)
+    returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
       && res.value.config.logicalTableName == config.logicalTableName
       && res.value.config.partitionKeyName == config.partitionKeyName
