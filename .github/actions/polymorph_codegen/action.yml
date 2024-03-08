@@ -59,9 +59,11 @@ runs:
   steps:
     - name: Update MPL submodule locally if requested
       if: inputs.update-and-regenerate-mpl == 'true'
+      working-directory: submodules/MaterialProviders
       shell: bash
       run: |
-        git submodule update --init --recursive --remote --merge submodules/MaterialProviders
+        git checkout main
+        git pull
 
     - name: Don't regenerate dependencies unless requested
       id: dependencies
