@@ -64,6 +64,7 @@ runs:
       run: |
         git checkout main
         git pull
+        git submodule update --init --recursive
 
     - name: Don't regenerate dependencies unless requested
       id: dependencies
