@@ -22,18 +22,27 @@ module
     ensures res.Success? ==> res.value is StructuredEncryptionClient
   {
     var maybePrimitives := Primitives.AtomicPrimitives();
-    var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
+    var primitivesX: AwsCryptographyPrimitivesTypes.IAwsCryptographicPrimitivesClient :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
+    assert primitivesX is Primitives.AtomicPrimitivesClient;
+    var primitives := primitivesX as Primitives.AtomicPrimitivesClient;
+    
     var maybeMatProv := MaterialProviders.MaterialProviders();
-    var matProv :- maybeMatProv.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var matProvX: AwsCryptographyMaterialProvidersTypes.IAwsCryptographicMaterialProvidersClient :- maybeMatProv.MapFailure(e => AwsCryptographyMaterialProviders(e));
+      assert matProvX is MaterialProviders.MaterialProvidersClient;
+    var matProv := matProvX as MaterialProviders.MaterialProvidersClient;
+
     var client := new StructuredEncryptionClient(Operations.Config(primitives := primitives, materialProviders := matProv));
     return Success(client);
   }
+
+  
 
   class StructuredEncryptionClient... {
 
     predicate ValidState()
     {
       && Operations.ValidInternalConfig?(config)
+      && History !in Operations.ModifiesInternalConfig(config)
       && Modifies == Operations.ModifiesInternalConfig(config) + {History}
     }
 

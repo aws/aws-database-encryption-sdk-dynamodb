@@ -183,8 +183,10 @@ module
           plaintextOverride := inputConfig.plaintextOverride
         );
         var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-        var itemEncryptor :- itemEncryptorRes
+        var itemEncryptorX: AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.IDynamoDbItemEncryptorClient :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(e));
+        assert itemEncryptorX is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+        var itemEncryptor := itemEncryptorX as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
 
         var internalConfig: DdbMiddlewareConfig.ValidTableConfig := DdbMiddlewareConfig.TableConfig(
           physicalTableName := tableName,

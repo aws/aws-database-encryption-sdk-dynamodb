@@ -32,6 +32,7 @@ module SearchConfigToInfo {
   import CB = CompoundBeacon
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MPT = AwsCryptographyMaterialProvidersTypes
+  import PT = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
 
   // convert configured SearchConfig to internal SearchInfo
@@ -96,7 +97,7 @@ module SearchConfigToInfo {
     outer : DynamoDbTableEncryptionConfig,
     keyStore : I.ValidStore,
     config : BeaconKeySource,
-    client: Primitives.AtomicPrimitivesClient
+    client: PT.IAwsCryptographicPrimitivesClient
   )
     returns (output : Result<I.KeySource, Error>)
     modifies client.Modifies
