@@ -135,8 +135,10 @@ module
 
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
-    var structuredEncryption :- structuredEncryptionRes
+    var structuredEncryptionX : CSE.IStructuredEncryptionClient :- structuredEncryptionRes
       .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
+    assert structuredEncryptionX is StructuredEncryption.StructuredEncryptionClient;
+    var structuredEncryption := structuredEncryptionX as StructuredEncryption.StructuredEncryptionClient;
 
     var cmm;
     if (config.cmm.Some?) {
