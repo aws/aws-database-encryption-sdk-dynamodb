@@ -7,8 +7,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
  * Attribute must be used as part of a Compound Beacon, never alone.
  */
 public class PartOnly {
-  protected PartOnly(BuilderImpl builder) {
-  }
+
+  protected PartOnly(BuilderImpl builder) {}
 
   public Builder toBuilder() {
     return new BuilderImpl(this);
@@ -23,11 +23,10 @@ public class PartOnly {
   }
 
   static class BuilderImpl implements Builder {
-    protected BuilderImpl() {
-    }
 
-    protected BuilderImpl(PartOnly model) {
-    }
+    protected BuilderImpl() {}
+
+    protected BuilderImpl(PartOnly model) {}
 
     public PartOnly build() {
       return new PartOnly(this);

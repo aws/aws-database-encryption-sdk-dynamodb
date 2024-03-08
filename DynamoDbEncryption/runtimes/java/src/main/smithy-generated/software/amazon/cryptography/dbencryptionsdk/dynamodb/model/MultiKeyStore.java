@@ -10,6 +10,7 @@ import software.amazon.cryptography.materialproviders.model.CacheType;
  * The configuration for using multiple Beacon Keys.
  */
 public class MultiKeyStore {
+
   /**
    * The name of the field that stores the Beacon Key. This may be a Virtual Field.
    */
@@ -95,14 +96,14 @@ public class MultiKeyStore {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String keyFieldName;
 
     protected Integer cacheTTL;
 
     protected CacheType cache;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(MultiKeyStore model) {
       this.keyFieldName = model.keyFieldName();
@@ -138,11 +139,15 @@ public class MultiKeyStore {
     }
 
     public MultiKeyStore build() {
-      if (Objects.isNull(this.keyFieldName()))  {
-        throw new IllegalArgumentException("Missing value for required field `keyFieldName`");
+      if (Objects.isNull(this.keyFieldName())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `keyFieldName`"
+        );
       }
-      if (Objects.isNull(this.cacheTTL()))  {
-        throw new IllegalArgumentException("Missing value for required field `cacheTTL`");
+      if (Objects.isNull(this.cacheTTL())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `cacheTTL`"
+        );
       }
       return new MultiKeyStore(this);
     }

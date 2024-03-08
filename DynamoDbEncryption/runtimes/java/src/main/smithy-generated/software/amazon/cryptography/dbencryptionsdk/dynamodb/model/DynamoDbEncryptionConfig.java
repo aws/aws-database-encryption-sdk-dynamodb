@@ -4,8 +4,8 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 public class DynamoDbEncryptionConfig {
-  protected DynamoDbEncryptionConfig(BuilderImpl builder) {
-  }
+
+  protected DynamoDbEncryptionConfig(BuilderImpl builder) {}
 
   public Builder toBuilder() {
     return new BuilderImpl(this);
@@ -20,11 +20,10 @@ public class DynamoDbEncryptionConfig {
   }
 
   static class BuilderImpl implements Builder {
-    protected BuilderImpl() {
-    }
 
-    protected BuilderImpl(DynamoDbEncryptionConfig model) {
-    }
+    protected BuilderImpl() {}
+
+    protected BuilderImpl(DynamoDbEncryptionConfig model) {}
 
     public DynamoDbEncryptionConfig build() {
       return new DynamoDbEncryptionConfig(this);

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class CryptoSchema {
+
   private final CryptoSchemaContent content;
 
   private final Map<String, AuthenticateAction> attributes;
@@ -45,12 +46,12 @@ public class CryptoSchema {
   }
 
   static class BuilderImpl implements Builder {
+
     protected CryptoSchemaContent content;
 
     protected Map<String, AuthenticateAction> attributes;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(CryptoSchema model) {
       this.content = model.content();
@@ -76,8 +77,10 @@ public class CryptoSchema {
     }
 
     public CryptoSchema build() {
-      if (Objects.isNull(this.content()))  {
-        throw new IllegalArgumentException("Missing value for required field `content`");
+      if (Objects.isNull(this.content())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `content`"
+        );
       }
       return new CryptoSchema(this);
     }

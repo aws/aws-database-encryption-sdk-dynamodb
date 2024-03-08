@@ -8,6 +8,7 @@ import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class ResolveAttributesInput {
+
   /**
    * Use the config for this Table.
    */
@@ -93,6 +94,7 @@ public class ResolveAttributesInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String TableName;
 
     protected Map<String, AttributeValue> Item;
@@ -101,8 +103,7 @@ public class ResolveAttributesInput {
 
     private boolean _VersionSet = false;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(ResolveAttributesInput model) {
       this.TableName = model.TableName();
@@ -140,20 +141,32 @@ public class ResolveAttributesInput {
     }
 
     public ResolveAttributesInput build() {
-      if (Objects.isNull(this.TableName()))  {
-        throw new IllegalArgumentException("Missing value for required field `TableName`");
+      if (Objects.isNull(this.TableName())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `TableName`"
+        );
       }
       if (Objects.nonNull(this.TableName()) && this.TableName().length() < 3) {
-        throw new IllegalArgumentException("The size of `TableName` must be greater than or equal to 3");
+        throw new IllegalArgumentException(
+          "The size of `TableName` must be greater than or equal to 3"
+        );
       }
-      if (Objects.nonNull(this.TableName()) && this.TableName().length() > 255) {
-        throw new IllegalArgumentException("The size of `TableName` must be less than or equal to 255");
+      if (
+        Objects.nonNull(this.TableName()) && this.TableName().length() > 255
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `TableName` must be less than or equal to 255"
+        );
       }
-      if (Objects.isNull(this.Item()))  {
-        throw new IllegalArgumentException("Missing value for required field `Item`");
+      if (Objects.isNull(this.Item())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `Item`"
+        );
       }
       if (this._VersionSet && this.Version() < 1) {
-        throw new IllegalArgumentException("`Version` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "`Version` must be greater than or equal to 1"
+        );
       }
       return new ResolveAttributesInput(this);
     }

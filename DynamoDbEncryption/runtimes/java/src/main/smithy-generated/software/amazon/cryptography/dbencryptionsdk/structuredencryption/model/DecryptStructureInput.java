@@ -9,6 +9,7 @@ import software.amazon.cryptography.materialproviders.CryptographicMaterialsMana
 import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
 
 public class DecryptStructureInput {
+
   private final String tableName;
 
   private final StructuredData encryptedStructure;
@@ -80,6 +81,7 @@ public class DecryptStructureInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String tableName;
 
     protected StructuredData encryptedStructure;
@@ -90,8 +92,7 @@ public class DecryptStructureInput {
 
     protected Map<String, String> encryptionContext;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptStructureInput model) {
       this.tableName = model.tableName();
@@ -147,17 +148,25 @@ public class DecryptStructureInput {
     }
 
     public DecryptStructureInput build() {
-      if (Objects.isNull(this.tableName()))  {
-        throw new IllegalArgumentException("Missing value for required field `tableName`");
+      if (Objects.isNull(this.tableName())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `tableName`"
+        );
       }
-      if (Objects.isNull(this.encryptedStructure()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedStructure`");
+      if (Objects.isNull(this.encryptedStructure())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedStructure`"
+        );
       }
-      if (Objects.isNull(this.authenticateSchema()))  {
-        throw new IllegalArgumentException("Missing value for required field `authenticateSchema`");
+      if (Objects.isNull(this.authenticateSchema())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `authenticateSchema`"
+        );
       }
-      if (Objects.isNull(this.cmm()))  {
-        throw new IllegalArgumentException("Missing value for required field `cmm`");
+      if (Objects.isNull(this.cmm())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `cmm`"
+        );
       }
       return new DecryptStructureInput(this);
     }
