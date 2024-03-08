@@ -61,7 +61,7 @@ runs:
       if: inputs.update-and-regenerate-mpl == 'true'
       shell: bash
       run: |
-        git submodule update --init --recursive --remote --merge mpl
+        git submodule update --init --recursive --remote --merge submodules/MaterialProviders
 
     - name: Don't regenerate dependencies unless requested
       id: dependencies
@@ -84,10 +84,10 @@ runs:
       # Annoyingly, prettier has to be installed in each library individually.
       # And this is only necessary or even possible if we've updated the mpl submodule.
       run: |
-        make -C mpl/AwsCryptographyPrimitives setup_prettier
-        make -C mpl/AwsCryptographicMaterialProviders setup_prettier
-        make -C mpl/ComAmazonawsKms setup_prettier
-        make -C mpl/ComAmazonawsDynamodb setup_prettier
+        make -C submodules/MaterialProviders/AwsCryptographyPrimitives setup_prettier
+        make -C submodules/MaterialProviders/AwsCryptographicMaterialProviders setup_prettier
+        make -C submodules/MaterialProviders/ComAmazonawsKms setup_prettier
+        make -C submodules/MaterialProviders/ComAmazonawsDynamodb setup_prettier
 
     - name: Regenerate Java code using smithy-dafny
       # npx seems to be unavailable on Windows GHA runners,
