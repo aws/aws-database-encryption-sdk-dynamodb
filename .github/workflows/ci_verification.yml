@@ -58,7 +58,7 @@ jobs:
         uses: ./.github/actions/polymorph_codegen
         with:
           dafny: ${{ env.DAFNY_VERSION }}
-          library: DynamoDbEncryption/dafny/${{ matrix.service }}
+          library: DynamoDbEncryption
           diff-generated-code: false
           update-and-regenerate-mpl: true
 
