@@ -125,7 +125,9 @@ module TestFixtures {
       legacyOverride := None(),
       plaintextOverride := None()
     );
-    encryptor :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+    var iencryptor: IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+    expect iencryptor is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    encryptor := iencryptor as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
   }
 
   method GetDynamoDbItemEncryptor()
@@ -211,7 +213,7 @@ module TestFixtures {
     ensures fresh(encryption.Modifies)
   {
     var keyring := GetKmsKeyring();
-    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+    var iencryption: IDynamoDbEncryptionTransformsClient :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
       DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
@@ -236,6 +238,8 @@ module TestFixtures {
         ]
       )
     );
+    expect iencryption is DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
+    encryption := iencryption as DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
     assume {:axiom} fresh(encryption.Modifies);
   }
 }
