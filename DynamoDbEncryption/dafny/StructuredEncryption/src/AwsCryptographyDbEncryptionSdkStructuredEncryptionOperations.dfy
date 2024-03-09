@@ -33,8 +33,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   import Maps
 
   datatype Config = Config(
-    primitives : Prim.IAwsCryptographicPrimitivesClient,
-    materialProviders : CMP.IAwsCryptographicMaterialProvidersClient
+    primitives : Primitives.AtomicPrimitivesClient,
+    materialProviders : MaterialProviders.MaterialProvidersClient
   )
 
   type InternalConfig = Config
