@@ -97,7 +97,7 @@ module SearchConfigToInfo {
     outer : DynamoDbTableEncryptionConfig,
     keyStore : I.ValidStore,
     config : BeaconKeySource,
-    client: PT.IAwsCryptographicPrimitivesClient
+    client: Primitives.AtomicPrimitivesClient
   )
     returns (output : Result<I.KeySource, Error>)
     modifies client.Modifies
@@ -179,7 +179,9 @@ module SearchConfigToInfo {
     :- Need(0 < |config.standardBeacons|, E("At least one standard beacon must be configured."));
 
     var maybePrimitives := Primitives.AtomicPrimitives();
-    var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
+    var primitivesX: PT.IAwsCryptographicPrimitivesClient :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
+    assert primitivesX is Primitives.AtomicPrimitivesClient;
+    var primitives := primitivesX as Primitives.AtomicPrimitivesClient;
     var source :- MakeKeySource(outer, config.keyStore, config.keySource, primitives);
     output := ConvertVersionWithSource(outer, config, source);
   }
