@@ -210,7 +210,10 @@ module BeaconTestFixtures {
     ensures version.keyStore == output.store
     ensures fresh(output.client.Modifies)
   {
-    var client :- expect Primitives.AtomicPrimitives();
+    var clientX: AwsCryptographyPrimitivesTypes.IAwsCryptographicPrimitivesClient :- expect Primitives.AtomicPrimitives();
+    assert clientX is Primitives.AtomicPrimitivesClient;
+    var client := clientX as Primitives.AtomicPrimitivesClient;
+
     var keyNameSet := set b <- version.standardBeacons :: b.name;
     var keyNames := SortedSets.ComputeSetToOrderedSequence2(keyNameSet, CharLess);
     var keys :- expect SI.GetHmacKeys(client, keyNames, keyNames, key);
