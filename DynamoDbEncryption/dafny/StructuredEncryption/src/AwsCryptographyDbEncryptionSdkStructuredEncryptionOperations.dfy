@@ -331,17 +331,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       LemmaInjectiveImpliesUniqueValues(fieldMap);
     }
 
-    Success(
-      EncryptCanonData(
-        encFields_c,
-        signedFields_c,
-        data_c,
-        CryptoSchema(
-          content := CryptoSchemaContent.SchemaMap(trimmedSchema),
-          attributes := None
-        )
+    var canon := EncryptCanonData(
+      encFields_c,
+      signedFields_c,
+      data_c,
+      CryptoSchema(
+        content := CryptoSchemaContent.SchemaMap(trimmedSchema),
+        attributes := None
       )
-    )
+    );
+    assert ValidEncryptCanon?(canon);
+    Success(canon)
   }
 
   // construct the DecryptCanon
