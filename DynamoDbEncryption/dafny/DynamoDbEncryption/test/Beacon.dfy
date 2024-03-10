@@ -743,4 +743,20 @@ module TestBaseBeacon {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
   }
+
+  method {:test} CheckBytesToHex()
+  {
+    var bytes := [1,2,3,4,5,6,7,0xb7];
+    // These could be asserted instead,
+    // but they get too expensive
+    // on more recent versions of Dafny.
+    expect BytesToHex(bytes, 1) == "1";
+    expect BytesToHex(bytes, 2) == "3";
+    expect BytesToHex(bytes, 3) == "7";
+    expect BytesToHex(bytes, 4) == "7";
+    expect BytesToHex(bytes, 5) == "17";
+    expect BytesToHex(bytes, 6) == "37";
+    expect BytesToHex(bytes, 7) == "37";
+    expect BytesToHex(bytes, 8) == "b7";
+  {}
 }
