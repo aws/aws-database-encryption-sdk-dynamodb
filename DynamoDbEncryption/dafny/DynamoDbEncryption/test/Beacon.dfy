@@ -758,5 +758,5 @@ module TestBaseBeacon {
     expect BytesToHex(bytes, 6) == "37";
     expect BytesToHex(bytes, 7) == "37";
     expect BytesToHex(bytes, 8) == "b7";
-  {}
+  }
 }
