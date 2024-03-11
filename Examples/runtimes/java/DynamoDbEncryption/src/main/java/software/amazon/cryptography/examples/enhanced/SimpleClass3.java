@@ -63,7 +63,6 @@ public class SimpleClass3 {
         return this.attribute7;
     }
 
-    @DynamoDbAttribute(value = ":attribute7")
     public void setAttribute7(String attribute7) {
         this.attribute7 = attribute7;
     }
