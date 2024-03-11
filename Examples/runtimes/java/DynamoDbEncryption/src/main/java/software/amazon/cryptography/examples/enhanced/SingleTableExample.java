@@ -160,7 +160,7 @@ public class SingleTableExample {
         item3.setSortKey(0);
         item3.setAttribute6("item3 encrypt and sign me!");
         item3.setAttribute2("item3 sign me!");
-        item3.setAttribute7("item3 ignore me!");
+        item3.setAttribute7("item3 sign and include me!");
 
         // Create enhanced request providing the table schema and the item types we want to write
         final TransactWriteItemsEnhancedRequest request = TransactWriteItemsEnhancedRequest.builder()

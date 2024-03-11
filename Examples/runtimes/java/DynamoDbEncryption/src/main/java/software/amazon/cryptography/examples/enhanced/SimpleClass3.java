@@ -57,7 +57,7 @@ public class SimpleClass3 {
         this.attribute2 = attribute2;
     }
 
-    @DynamoDbEncryptionDoNothing
+    @DynamoDbEncryptionSignAndIncludeInEncryptionContext
     public String getAttribute7() {
         return this.attribute7;
     }
