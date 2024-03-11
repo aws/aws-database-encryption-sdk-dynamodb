@@ -6,19 +6,21 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionDoNothing;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionSignOnly;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionSignOnly;
 
 /**
  * This class is used by the Enhanced Client Tests
  */
 
 @DynamoDbBean
-public class SimpleClass2 {
+public class SimpleClass4 {
 
     private String partitionKey;
     private int sortKey;
-    private String attribute4;
-    private String attribute5;
+    private String attribute1;
+    private String attribute2;
     private String attribute3;
+    private String attribute4;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = "partition_key")
@@ -40,21 +42,21 @@ public class SimpleClass2 {
         this.sortKey = sortKey;
     }
 
-    public String getAttribute4() {
-        return this.attribute4;
+    public String getAttribute1() {
+        return this.attribute1;
     }
 
-    public void setAttribute4(String attribute4) {
-        this.attribute4 = attribute4;
+    public void setAttribute1(String attribute1) {
+        this.attribute1 = attribute1;
     }
 
     @DynamoDbEncryptionSignOnly
-    public String getAttribute5() {
-        return this.attribute5;
+    public String getAttribute2() {
+        return this.attribute2;
     }
 
-    public void setAttribute5(String attribute5) {
-        this.attribute5 = attribute5;
+    public void setAttribute2(String attribute2) {
+        this.attribute2 = attribute2;
     }
 
     @DynamoDbEncryptionDoNothing
@@ -66,5 +68,15 @@ public class SimpleClass2 {
     public void setAttribute3(String attribute3) {
         this.attribute3 = attribute3;
     }
+
+    @DynamoDbEncryptionSignAndIncludeInEncryptionContext
+    public String getAttribute4() {
+        return this.attribute4;
+    }
+
+    public void setAttribute4(String attribute4) {
+        this.attribute4 = attribute4;
+    }
+
 }
 

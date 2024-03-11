@@ -53,14 +53,14 @@ public class EnhancedPutGetExample {
                 .build();
         final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
-        // 2. Create a Table Schema over your annotated class (See SimpleClass.java in this directory).
+        // 2. Create a Table Schema over your annotated class (See SimpleClass4.java in this directory).
         //    By default, all primary key attributes will be signed but not encrypted (SIGN_ONLY)
         //    and all non-primary key attributes will be encrypted and signed (ENCRYPT_AND_SIGN).
         //    If you want a particular non-primary key attribute to be signed but not encrypted,
         //    use the `DynamoDbEncryptionSignOnly` annotation.
         //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
         //    use the `DynamoDbEncryptionDoNothing` annotation.
-        final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+        final TableSchema<SimpleClass4> tableSchema = TableSchema.fromBean(SimpleClass4.class);
 
         // 3. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
@@ -132,17 +132,18 @@ public class EnhancedPutGetExample {
         final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(ddb)
                 .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
+        final DynamoDbTable<SimpleClass4> table = enhancedClient.table(ddbTableName, tableSchema);
 
         // 8. Put an item into your table using the DynamoDb Enhanced Client.
         //    The item will be encrypted client-side according to your
         //    configuration above before it is sent to DynamoDb.
-        final SimpleClass item = new SimpleClass();
+        final SimpleClass4 item = new SimpleClass4();
         item.setPartitionKey("EnhancedPutGetExample");
         item.setSortKey(0);
         item.setAttribute1("encrypt and sign me!");
         item.setAttribute2("sign me!");
         item.setAttribute3("ignore me!");
+        item.setAttribute4("sign and include me!");
 
         table.putItem(item);
 
@@ -153,15 +154,15 @@ public class EnhancedPutGetExample {
                 .partitionValue("EnhancedPutGetExample").sortValue(0)
                 .build();
 
-        final SimpleClass result = table.getItem(
+        final SimpleClass4 result = table.getItem(
                 (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key));
 
         // Demonstrate we get the original item back
         assert result.getAttribute1().equals("encrypt and sign me!");
 
         // retrieve the same record via a Query
-        PageIterable<SimpleClass> items = table.query(QueryConditional.keyEqualTo(k -> k.partitionValue("EnhancedPutGetExample")));
-        List<SimpleClass> itemList = new ArrayList<SimpleClass>();
+        PageIterable<SimpleClass4> items = table.query(QueryConditional.keyEqualTo(k -> k.partitionValue("EnhancedPutGetExample")));
+        List<SimpleClass4> itemList = new ArrayList<SimpleClass4>();
 
         items.stream().forEach(p -> p.items().forEach(itemList::add));
         assert itemList.size() == 1;
