@@ -22,7 +22,7 @@ use aws.polymorph#localService
 )
 service StructuredEncryption {
     version: "2022-07-08",
-    operations: [EncryptStructure, DecryptStructure],
+    operations: [EncryptStructure, DecryptStructure, EncryptStructureFlat, DecryptStructureFlat],
     errors: [StructuredEncryptionException]
 }
 
@@ -39,11 +39,27 @@ operation DecryptStructure {
     output: DecryptStructureOutput,
 }
 
-//= specification/structured-encryption/header.md#format-version
+operation EncryptStructureFlat {
+    input: EncryptStructureFlatInput,
+    output: EncryptStructureFlatOutput,
+}
+
+operation DecryptStructureFlat {
+    input: DecryptStructureFlatInput,
+    output: DecryptStructureFlatOutput,
+}
+
+
+//= specification/structured-encryption/decrypt-structure.md#parsed-header
 //= type=implication
-//# The Version MUST be `0x01`.
-@range(min:1, max:1)
-integer Version
+//# This structure MUST contain the following values,
+//# representing the deserialized form of the header of the input encrypted structure:
+//#   - [Algorithm Suite ID](./header.md#format-flavor): The Algorithm Suite ID associated with the Format Flavor on the header.
+//#   - [Crypto Schema](./header.md#encrypt-legend): The Crypto Schema for each signed Terminal,
+//#     calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
+//#   - [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
+//#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
+//#   - [Encryption Context](#encryption-context): The full Encryption Context used.
 
 structure ParsedHeader {
     @required
@@ -53,7 +69,9 @@ structure ParsedHeader {
     @required
     encryptedDataKeys: EncryptedDataKeyList,
     @required
-    storedEncryptionContext: EncryptionContext
+    storedEncryptionContext: EncryptionContext,
+    @required
+    encryptionContext: EncryptionContext
 }
 
 structure EncryptStructureInput {
@@ -67,7 +85,7 @@ structure EncryptStructureInput {
     @required
     tableName: String,
     @required
-    plaintextStructure: StructuredDataMap,
+    plaintextStructure: StructuredData,
     @required
     cryptoSchema: CryptoSchemaMap,
     @required
@@ -88,9 +106,14 @@ structure EncryptStructureInput {
     encryptionContext: EncryptionContext
 }
 
+//= specification/structured-encryption/encrypt-structure.md#output
+//= type=implication
+//# This operation MUST output the following:
+//# - [Encrypted Structured Data](#encrypted-structured-data)
+//# - [Parsed Header](./decrypt-structure.md#parsed-header)
 structure EncryptStructureOutput {
     @required
-    encryptedStructure: StructuredDataMap,
+    encryptedStructure: StructuredData,
     @required
     parsedHeader: ParsedHeader,
 }
@@ -106,7 +129,7 @@ structure DecryptStructureInput {
     @required
     tableName: String,
     @required
-    encryptedStructure: StructuredDataMap,
+    encryptedStructure: StructuredData,
     @required
     authenticateSchema: AuthenticateSchemaMap,
     @required
@@ -126,9 +149,55 @@ structure DecryptStructureOutput {
     //#   - [Structured Data](#structured-data)
     //#   - [Parsed Header](#parsed-header)
     @required
-    plaintextStructure: StructuredDataMap,
+    plaintextStructure: StructuredData,
     @required
     parsedHeader: ParsedHeader,
+}
+
+
+structure StructuredData {
+    // Each "node" in our structured data holds either
+    // a map of more data, a list of more data, or a terminal value
+    //= specification/structured-encryption/structures.md#structured-data
+    //= type=implication
+    //# A Structured Data MUST consist of:
+    // - a [Structured Data Content](#structured-data-content)
+    @required
+    content: StructuredDataContent,
+
+    // Each "node" in our structured data may additionally
+    // have a flat map to express something akin to XML attributes
+    //= specification/structured-encryption/structures.md#structured-data
+    //= type=implication
+    //# - an OPTIONAL map of [Attributes](#structured-data-attributes)
+    attributes: StructuredDataAttributes
+}
+
+//= specification/structured-encryption/structures.md#structured-data-content
+//= type=implication
+//# Structured Data Content is a union of one of three separate structures;
+//# Structured Data Content MUST be one of:
+// - [Terminal Data](#terminal-data)
+// - [Structured Data Map](#structured-data-map)
+// - [Structured Data List](#structured-data-list)
+union StructuredDataContent {
+    Terminal: StructuredDataTerminal,
+    DataList: StructuredDataList,
+    DataMap: StructuredDataMap
+}
+
+union StructuredKey {
+    key: String,
+    attribute: String,
+    KeyList: StructuredKeyList,
+    KeyMap: StructuredKeyMap
+}
+map StructuredKeyMap {
+    key: String,
+    value: StructuredKey
+}
+list StructuredKeyList {
+    member: StructuredKey
 }
 
 // Only handles bytes.
@@ -168,6 +237,22 @@ blob TerminalTypeId
 //# - This map MUST NOT allow duplicate key values
 map StructuredDataMap {
     key: String,
+    value: StructuredData
+}
+
+//= specification/structured-encryption/structures.md#structured-data-list
+//= type=implication
+//# A Structured Data List MUST consist of:
+// - A numerical-indexed array of [Structured Data](#structured-data).
+list StructuredDataList {
+    member: StructuredData
+}
+
+//= specification/structured-encryption/structures.md#structured-data-attributes
+//= type=implication
+//# Structured Data Attributes MUST be map of strings to [Terminal Data](#terminal-data).
+map StructuredDataAttributes {
+    key: String,
     value: StructuredDataTerminal
 }
 
@@ -175,6 +260,10 @@ map StructuredDataMap {
     {
         "name": "ENCRYPT_AND_SIGN",
         "value": "ENCRYPT_AND_SIGN",
+    },
+    {
+        "name": "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT",
+        "value": "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT",
     },
     {
         "name": "SIGN_ONLY",
@@ -188,7 +277,7 @@ map StructuredDataMap {
 string CryptoAction
 
 map CryptoSchemaMap {
-    key: String,
+    key: StructuredKey,
     value: CryptoAction
 }
 
@@ -205,8 +294,85 @@ map CryptoSchemaMap {
 string AuthenticateAction
 
 map AuthenticateSchemaMap {
-    key: String,
+    key: StructuredKey,
     value: AuthenticateAction
+}
+
+structure EncryptStructureFlatInput {
+    @required
+    plaintextStructure: StructuredDataFlat,
+    @required
+    cryptoSchema: CryptoSchemaMapFlat,
+    @required
+    cmm: CryptographicMaterialsManagerReference,
+    algorithmSuiteId: DBEAlgorithmSuiteId,
+    encryptionContext: EncryptionContext
+}
+
+structure EncryptStructureFlatOutput {
+    @required
+    encryptedStructure: StructuredDataFlat,
+    @required
+    parsedHeader: ParsedHeader,
+}
+
+structure DecryptStructureFlatInput {
+    @required
+    encryptedStructure: StructuredDataFlat,
+    @required
+    authenticateSchema: AuthenticateSchemaMap,
+    @required
+    cmm: CryptographicMaterialsManagerReference,
+    encryptionContext: EncryptionContext,
+}
+
+structure DecryptStructureFlatOutput {
+    @required
+    encryptedStructure: StructuredDataFlat,
+    @required
+    parsedHeader: ParsedHeader,
+}
+
+
+// all attributes in flat interface are signed
+@enum([
+    {
+        "name": "ENCRYPT",
+        "value": "ENCRYPT",
+    },
+    {
+        "name": "DO_NOT_ENCRYPT",
+        "value": "DO_NOT_ENCRYPT",
+    },
+])
+string AuthenticateActionFlat
+
+// all attributes in flat interface are signed
+// encryption context is the responsibility of the caller
+@enum([
+    {
+        "name": "ENCRYPT_AND_SIGN",
+        "value": "ENCRYPT_AND_SIGN",
+    },
+    {
+        "name": "SIGN_ONLY",
+        "value": "SIGN_ONLY",
+    }
+])
+string CryptoActionFlat
+
+
+map AuthenticateSchemaMapFlat {
+    key: Blob,
+    value: AuthenticateActionFlat
+}
+map CryptoSchemaMapFlat {
+    key: Blob,
+    value: CryptoActionFlat
+}
+map StructuredDataFlat {
+    key: Blob,
+    value: Blob
 }
 
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
