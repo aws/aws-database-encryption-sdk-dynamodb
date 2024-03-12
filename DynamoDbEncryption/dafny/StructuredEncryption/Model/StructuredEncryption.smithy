@@ -49,18 +49,6 @@ operation DecryptStructureFlat {
     output: DecryptStructureFlatOutput,
 }
 
-
-//= specification/structured-encryption/decrypt-structure.md#parsed-header
-//= type=implication
-//# This structure MUST contain the following values,
-//# representing the deserialized form of the header of the input encrypted structure:
-//#   - [Algorithm Suite ID](./header.md#format-flavor): The Algorithm Suite ID associated with the Format Flavor on the header.
-//#   - [Crypto Schema](./header.md#encrypt-legend): The Crypto Schema for each signed Terminal,
-//#     calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
-//#   - [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
-//#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
-//#   - [Encryption Context](#encryption-context): The full Encryption Context used.
-
 structure ParsedHeader {
     @required
     cryptoSchema: CryptoSchemaMap,
@@ -106,11 +94,6 @@ structure EncryptStructureInput {
     encryptionContext: EncryptionContext
 }
 
-//= specification/structured-encryption/encrypt-structure.md#output
-//= type=implication
-//# This operation MUST output the following:
-//# - [Encrypted Structured Data](#encrypted-structured-data)
-//# - [Parsed Header](./decrypt-structure.md#parsed-header)
 structure EncryptStructureOutput {
     @required
     encryptedStructure: StructuredData,
