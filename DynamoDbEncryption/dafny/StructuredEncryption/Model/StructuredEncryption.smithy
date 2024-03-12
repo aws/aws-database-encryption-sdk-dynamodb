@@ -22,7 +22,7 @@ use aws.polymorph#localService
 )
 service StructuredEncryption {
     version: "2022-07-08",
-    operations: [EncryptStructure, DecryptStructure, EncryptStructureFlat, DecryptStructureFlat],
+    operations: [EncryptStructure, DecryptStructure],
     errors: [StructuredEncryptionException]
 }
 
@@ -37,16 +37,6 @@ operation EncryptStructure {
 operation DecryptStructure {
     input: DecryptStructureInput,
     output: DecryptStructureOutput,
-}
-
-operation EncryptStructureFlat {
-    input: EncryptStructureFlatInput,
-    output: EncryptStructureFlatOutput,
-}
-
-operation DecryptStructureFlat {
-    input: DecryptStructureFlatInput,
-    output: DecryptStructureFlatOutput,
 }
 
 structure ParsedHeader {
@@ -73,7 +63,7 @@ structure EncryptStructureInput {
     @required
     tableName: String,
     @required
-    plaintextStructure: StructuredData,
+    plaintextStructure: StructuredDataMap,
     @required
     cryptoSchema: CryptoSchemaMap,
     @required
@@ -96,7 +86,7 @@ structure EncryptStructureInput {
 
 structure EncryptStructureOutput {
     @required
-    encryptedStructure: StructuredData,
+    encryptedStructure: StructuredDataMap,
     @required
     parsedHeader: ParsedHeader,
 }
@@ -112,7 +102,7 @@ structure DecryptStructureInput {
     @required
     tableName: String,
     @required
-    encryptedStructure: StructuredData,
+    encryptedStructure: StructuredDataMap,
     @required
     authenticateSchema: AuthenticateSchemaMap,
     @required
@@ -132,56 +122,24 @@ structure DecryptStructureOutput {
     //#   - [Structured Data](#structured-data)
     //#   - [Parsed Header](#parsed-header)
     @required
-    plaintextStructure: StructuredData,
+    plaintextStructure: StructuredDataMap,
     @required
     parsedHeader: ParsedHeader,
 }
 
 
-structure StructuredData {
-    // Each "node" in our structured data holds either
-    // a map of more data, a list of more data, or a terminal value
-    //= specification/structured-encryption/structures.md#structured-data
-    //= type=implication
-    //# A Structured Data MUST consist of:
-    // - a [Structured Data Content](#structured-data-content)
-    @required
-    content: StructuredDataContent,
-
-    // Each "node" in our structured data may additionally
-    // have a flat map to express something akin to XML attributes
-    //= specification/structured-encryption/structures.md#structured-data
-    //= type=implication
-    //# - an OPTIONAL map of [Attributes](#structured-data-attributes)
-    attributes: StructuredDataAttributes
+structure StructureMember {
+    key : String
 }
-
-//= specification/structured-encryption/structures.md#structured-data-content
-//= type=implication
-//# Structured Data Content is a union of one of three separate structures;
-//# Structured Data Content MUST be one of:
-// - [Terminal Data](#terminal-data)
-// - [Structured Data Map](#structured-data-map)
-// - [Structured Data List](#structured-data-list)
-union StructuredDataContent {
-    Terminal: StructuredDataTerminal,
-    DataList: StructuredDataList,
-    DataMap: StructuredDataMap
-}
+structure ListMember {key : Integer}
+structure Attribute {key : String}
 
 union StructuredKey {
-    key: String,
-    attribute: String,
-    KeyList: StructuredKeyList,
-    KeyMap: StructuredKeyMap
+    member: StructureMember,
+    attribute: Attribute,
+    list: ListMember
 }
-map StructuredKeyMap {
-    key: String,
-    value: StructuredKey
-}
-list StructuredKeyList {
-    member: StructuredKey
-}
+
 
 // Only handles bytes.
 // It is the responsibility of the caller to
@@ -219,23 +177,7 @@ blob TerminalTypeId
 //= type=implication
 //# - This map MUST NOT allow duplicate key values
 map StructuredDataMap {
-    key: String,
-    value: StructuredData
-}
-
-//= specification/structured-encryption/structures.md#structured-data-list
-//= type=implication
-//# A Structured Data List MUST consist of:
-// - A numerical-indexed array of [Structured Data](#structured-data).
-list StructuredDataList {
-    member: StructuredData
-}
-
-//= specification/structured-encryption/structures.md#structured-data-attributes
-//= type=implication
-//# Structured Data Attributes MUST be map of strings to [Terminal Data](#terminal-data).
-map StructuredDataAttributes {
-    key: String,
+    key: StructuredKey,
     value: StructuredDataTerminal
 }
 
@@ -279,83 +221,6 @@ string AuthenticateAction
 map AuthenticateSchemaMap {
     key: StructuredKey,
     value: AuthenticateAction
-}
-
-structure EncryptStructureFlatInput {
-    @required
-    plaintextStructure: StructuredDataFlat,
-    @required
-    cryptoSchema: CryptoSchemaMapFlat,
-    @required
-    cmm: CryptographicMaterialsManagerReference,
-    algorithmSuiteId: DBEAlgorithmSuiteId,
-    encryptionContext: EncryptionContext
-}
-
-structure EncryptStructureFlatOutput {
-    @required
-    encryptedStructure: StructuredDataFlat,
-    @required
-    parsedHeader: ParsedHeader,
-}
-
-structure DecryptStructureFlatInput {
-    @required
-    encryptedStructure: StructuredDataFlat,
-    @required
-    authenticateSchema: AuthenticateSchemaMap,
-    @required
-    cmm: CryptographicMaterialsManagerReference,
-    encryptionContext: EncryptionContext,
-}
-
-structure DecryptStructureFlatOutput {
-    @required
-    encryptedStructure: StructuredDataFlat,
-    @required
-    parsedHeader: ParsedHeader,
-}
-
-
-// all attributes in flat interface are signed
-@enum([
-    {
-        "name": "ENCRYPT",
-        "value": "ENCRYPT",
-    },
-    {
-        "name": "DO_NOT_ENCRYPT",
-        "value": "DO_NOT_ENCRYPT",
-    },
-])
-string AuthenticateActionFlat
-
-// all attributes in flat interface are signed
-// encryption context is the responsibility of the caller
-@enum([
-    {
-        "name": "ENCRYPT_AND_SIGN",
-        "value": "ENCRYPT_AND_SIGN",
-    },
-    {
-        "name": "SIGN_ONLY",
-        "value": "SIGN_ONLY",
-    }
-])
-string CryptoActionFlat
-
-
-map AuthenticateSchemaMapFlat {
-    key: Blob,
-    value: AuthenticateActionFlat
-}
-map CryptoSchemaMapFlat {
-    key: Blob,
-    value: CryptoActionFlat
-}
-map StructuredDataFlat {
-    key: Blob,
-    value: Blob
 }
 
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
