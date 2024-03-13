@@ -67,7 +67,6 @@ public class DynamoDbEnhancedClientEncryption {
     ) {
         Set<String> keyAttributes = new HashSet<>();
         tableMetadata.primaryKeys().stream()
-            .map(KeyAttributeMetadata::name)
             .forEach(keyAttributes::add);
         return keyAttributes;
     }
