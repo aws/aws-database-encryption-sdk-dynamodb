@@ -131,13 +131,15 @@ structure DecryptStructureOutput {
 structure StructureMember {
     key : String
 }
-structure ListMember {key : Integer}
-structure Attribute {key : String}
+// Not needed now, but easy to add later
+// structure ListMember {key : Integer}
+// structure Attribute {key : String}
 
 union StructuredKey {
     member: StructureMember,
-    attribute: Attribute,
-    list: ListMember
+    // Not needed now, but easy to add later
+    // attribute: Attribute,
+    // list: ListMember
 }
 
 
