@@ -29,6 +29,8 @@ using AWS.Cryptography.MaterialProviders;
    - "fruit" stores one type of fruit
    - "basket" stores a set of types of fruit
    - "dessert" stores one type of dessert
+   - "veggies" stores a set of types of vegetable
+   - "work_type" stores a unit inspection category
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
@@ -86,6 +88,59 @@ public class BeaconStylesSearchableEncryptionExample
                 {
                     Shared = new Shared { Other = "fruit" }
                 }
+            },
+
+            // The veggieBeacon allows searching on the encrypted veggies attribute
+            // veggies is used as a Set, and therefore needs a beacon style to reflect that.
+            new StandardBeacon
+            {
+                Name = "veggies",
+                Length = 30,
+                Style = new BeaconStyle
+                {
+                    AsSet = new AsSet()
+                }
+            },
+
+            // The work_typeBeacon allows searching on the encrypted work_type attribute
+            // We only use it as part of the compound work_unit beacon, 
+            // so we disable its use as a standalone beacon
+            new StandardBeacon
+            {
+                Name = "work_type",
+                Length = 30,
+                Style = new BeaconStyle
+                {
+                    PartOnly = new PartOnly()
+                }
+            }
+        };
+
+        // Here we build a compound beacon from work_id and work_type
+        // If we had tried to make a StandardBeacon from work_type, we would have seen an error
+        // because work_type is "PartOnly"
+        var encryptedPartList = new List<EncryptedPart>
+        {
+            new EncryptedPart {
+            Name = "work_type",
+            Prefix = "T-"
+            }
+        };
+
+        var signedPartList = new List<SignedPart> {
+            new SignedPart {
+                Name = "work_id",
+                Prefix = "I-"
+            }
+        };
+
+        var compoundBeaconList = new List<CompoundBeacon>
+        {
+            new CompoundBeacon  {
+                Name = "work_unit",
+                Split = ".",
+                Encrypted = encryptedPartList,
+                Signed = signedPartList
             }
         };
 
@@ -107,6 +162,7 @@ public class BeaconStylesSearchableEncryptionExample
             new BeaconVersion
             {
                 StandardBeacons = standardBeaconList,
+                CompoundBeacons = compoundBeaconList,
                 Version = 1, // MUST be 1
                 KeyStore = keyStore,
                 KeySource = new BeaconKeySource
@@ -138,9 +194,10 @@ public class BeaconStylesSearchableEncryptionExample
             ["inspection_date"] = CryptoAction.SIGN_ONLY, // Our sort attribute must be SIGN_ONLY
             ["dessert"] = CryptoAction.ENCRYPT_AND_SIGN, // Beaconized attributes must be encrypted
             ["fruit"] = CryptoAction.ENCRYPT_AND_SIGN, // Beaconized attributes must be encrypted
-            ["basket"] = CryptoAction.ENCRYPT_AND_SIGN // Beaconized attributes must be encrypted
+            ["basket"] = CryptoAction.ENCRYPT_AND_SIGN, // Beaconized attributes must be encrypted
+            ["veggies"] = CryptoAction.ENCRYPT_AND_SIGN, // Beaconized attributes must be encrypted
+            ["work_type"] = CryptoAction.ENCRYPT_AND_SIGN // Beaconized attributes must be encrypted
         };
-
 
         // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
         //    The beaconVersions are added to the search configuration.
@@ -171,7 +228,9 @@ public class BeaconStylesSearchableEncryptionExample
             ["inspection_date"] = new AttributeValue("2023-06-13"),
             ["dessert"] = new AttributeValue("cake"),
             ["fruit"] = new AttributeValue("banana"),
-            ["basket"] = new AttributeValue { SS = new List<String> { "banana", "apple", "pear" } }
+            ["basket"] = new AttributeValue { SS = new List<String> { "banana", "apple", "pear" } },
+            ["veggies"] = new AttributeValue { SS = new List<String> { "beans", "carrots", "celery" } },
+            ["work_type"] = new AttributeValue("small")
         };
 
         // 9. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
@@ -181,7 +240,9 @@ public class BeaconStylesSearchableEncryptionExample
             ["inspection_date"] = new AttributeValue("2023-06-13"),
             ["dessert"] = new AttributeValue("orange"),
             ["fruit"] = new AttributeValue("orange"),
-            ["basket"] = new AttributeValue { SS = new List<String> { "strawberry", "blueberry", "blackberry" } }
+            ["basket"] = new AttributeValue { SS = new List<String> { "strawberry", "blueberry", "blackberry" } },
+            ["veggies"] = new AttributeValue { SS = new List<String> { "beans", "carrots", "peas" } },
+            ["work_type"] = new AttributeValue("large")
         };
 
         // 10. Create a new AWS SDK DynamoDb client using the DynamoDb Config above
@@ -283,5 +344,44 @@ public class BeaconStylesSearchableEncryptionExample
         // Validate only 1 item was returned: item2
         Debug.Assert(scanResponse.Items.Count == 1);
         Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
+
+
+        // 16. Test the AsSet attribute 'veggies' :
+        // Select records where the veggies attribute holds a particular value
+        expressionAttributeValues[":value"] = new AttributeValue { S = "peas" };
+
+        scanRequest = new ScanRequest
+        {
+            TableName = ddbTableName,
+            FilterExpression = "contains(veggies, :value)",
+            ExpressionAttributeValues = expressionAttributeValues
+        };
+
+        scanResponse = await ddb.ScanAsync(scanRequest);
+        // Validate query was returned successfully
+        Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
+
+        // Validate only 1 item was returned: item1
+        Debug.Assert(scanResponse.Items.Count == 1);
+        Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
+
+        // 17. Test the compound beacon 'work_unit' :
+        expressionAttributeValues[":value"] = new AttributeValue { S = "I-1.T-small" };
+
+        scanRequest = new ScanRequest
+        {
+            TableName = ddbTableName,
+            FilterExpression = "work_unit = :value",
+            ExpressionAttributeValues = expressionAttributeValues
+        };
+
+        scanResponse = await ddb.ScanAsync(scanRequest);
+        // Validate query was returned successfully
+        Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
+
+        // Validate only 1 item was returned: item1
+        Debug.Assert(scanResponse.Items.Count == 1);
+        Debug.Assert(scanResponse.Items[0]["work_id"].S == item1["work_id"].S);
+
     }
 }

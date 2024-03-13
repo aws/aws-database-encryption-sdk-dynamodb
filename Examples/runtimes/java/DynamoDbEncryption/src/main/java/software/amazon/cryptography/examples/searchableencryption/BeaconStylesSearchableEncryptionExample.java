@@ -409,12 +409,12 @@ public class BeaconStylesSearchableEncryptionExample {
     assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item2);
 
-    // 1t. Test the compound beacon 'work_unit' :
+    // 17. Test the compound beacon 'work_unit' :
     expressionAttributeValues.put(":value", AttributeValue.builder().s("I-1.T-small").build());
 
     scanRequest = ScanRequest.builder()
         .tableName(ddbTableName)
-        .filterExpression("contains(work_unit, :value)")
+        .filterExpression("work_unit = :value")
         .expressionAttributeValues(expressionAttributeValues)
         .build();
 
