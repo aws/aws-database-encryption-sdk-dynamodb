@@ -20,6 +20,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySour
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconVersion;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CompoundBeacon;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconStyle;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.AsSet;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PartOnly;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SharedSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Shared;
 
@@ -29,6 +31,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTable
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SignedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
 import software.amazon.cryptography.keystore.KeyStore;
@@ -60,6 +63,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
    - "fruit" stores one type of fruit
    - "basket" stores a set of types of fruit
    - "dessert" stores one type of dessert
+   - "veggies" stores a set of types of vegetable
+   - "work_type" stores a unit inspection category
 
   The example requires the following ordered input command line parameters:
     1. DDB table name for table to put/query data from
@@ -117,6 +122,60 @@ public class BeaconStylesSearchableEncryptionExample {
         .build();
     standardBeaconList.add(dessertBeacon);
 
+    // The veggieBeacon allows searching on the encrypted veggies attribute
+    // veggies is used as a Set, and therefore needs a beacon style to reflect that.
+    StandardBeacon veggieBeacon = StandardBeacon.builder()
+        .name("veggies")
+        .length(30)
+        .style(
+            BeaconStyle.builder()
+                .asSet(AsSet.builder().build())
+            .build()
+        )
+        .build();
+    standardBeaconList.add(veggieBeacon);
+
+    // The work_typeBeacon allows searching on the encrypted work_type attribute
+    // We only use it as part of the compound work_unit beacon, 
+    // so we disable its use as a standalone beacon
+    StandardBeacon work_typeBeacon = StandardBeacon.builder()
+        .name("work_type")
+        .length(30)
+        .style(
+            BeaconStyle.builder()
+                .partOnly(PartOnly.builder().build())
+            .build()
+        )
+        .build();
+    standardBeaconList.add(work_typeBeacon);
+
+    // Here we build a compound beacon from work_id and work_type
+    // If we had tried to make a StandardBeacon from work_type, we would have seen an error
+    // because work_type is "PartOnly"
+    List<EncryptedPart> encryptedPartList = new ArrayList<>();
+    EncryptedPart work_typePart = EncryptedPart.builder()
+        .name("work_type")
+        .prefix("T-")
+        .build();
+    encryptedPartList.add(work_typePart);
+
+    List<SignedPart> signedPartList = new ArrayList<>();
+    SignedPart work_idPart = SignedPart.builder()
+        .name("work_id")
+        .prefix("I-")
+        .build();
+    signedPartList.add(work_idPart);
+
+    List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
+    CompoundBeacon work_unitBeacon = CompoundBeacon.builder()
+        .name("work_unit")
+        .split(".")
+        .encrypted(encryptedPartList)
+        .signed(signedPartList)
+        .build();
+    compoundBeaconList.add(work_unitBeacon);
+
+
     // 2. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
     KeyStore keyStore = KeyStore.builder()
@@ -135,6 +194,7 @@ public class BeaconStylesSearchableEncryptionExample {
     beaconVersions.add(
         BeaconVersion.builder()
             .standardBeacons(standardBeaconList)
+            .compoundBeacons(compoundBeaconList)
             .version(1) // MUST be 1
             .keyStore(keyStore)
             .keySource(BeaconKeySource.builder()
@@ -165,6 +225,8 @@ public class BeaconStylesSearchableEncryptionExample {
     attributeActionsOnEncrypt.put("dessert", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActionsOnEncrypt.put("fruit", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
     attributeActionsOnEncrypt.put("basket", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("veggies", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("work_type", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
     // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
@@ -199,6 +261,12 @@ public class BeaconStylesSearchableEncryptionExample {
     basket.add("banana");
     basket.add("pear");
     item1.put("basket", AttributeValue.builder().ss(basket).build());
+    ArrayList<String> veggies = new ArrayList<String>();
+    veggies.add("beans");
+    veggies.add("carrots");
+    veggies.add("celery");
+    item1.put("veggies", AttributeValue.builder().ss(veggies).build());
+    item1.put("work_type", AttributeValue.builder().s("small").build());
 
     // 9. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
     final HashMap<String, AttributeValue> item2 = new HashMap<>();
@@ -211,6 +279,12 @@ public class BeaconStylesSearchableEncryptionExample {
     basket.add("blueberry");
     basket.add("strawberry");
     item2.put("basket", AttributeValue.builder().ss(basket).build());
+    veggies = new ArrayList<String>();
+    veggies.add("beans");
+    veggies.add("carrots");
+    veggies.add("peas");
+    item2.put("veggies", AttributeValue.builder().ss(veggies).build());
+    item2.put("work_type", AttributeValue.builder().s("large").build());
 
     // 10. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
@@ -316,6 +390,42 @@ public class BeaconStylesSearchableEncryptionExample {
     // Validate only 1 item was returned: item2
     assert scanResponse.items().size() == 1;
     assert scanResponse.items().get(0).equals(item2);
+
+    // 16. Test the AsSet attribute 'veggies' :
+    // Select records where the veggies attribute holds a particular value
+    expressionAttributeValues.put(":value", AttributeValue.builder().s("peas").build());
+
+    scanRequest = ScanRequest.builder()
+        .tableName(ddbTableName)
+        .filterExpression("contains(veggies, :value)")
+        .expressionAttributeValues(expressionAttributeValues)
+        .build();
+
+    scanResponse = ddb.scan(scanRequest);
+    // Validate query was returned successfully
+    assert 200 == scanResponse.sdkHttpResponse().statusCode();
+
+    // Validate only 1 item was returned: item1
+    assert scanResponse.items().size() == 1;
+    assert scanResponse.items().get(0).equals(item2);
+
+    // 17. Test the compound beacon 'work_unit' :
+    expressionAttributeValues.put(":value", AttributeValue.builder().s("I-1.T-small").build());
+
+    scanRequest = ScanRequest.builder()
+        .tableName(ddbTableName)
+        .filterExpression("work_unit = :value")
+        .expressionAttributeValues(expressionAttributeValues)
+        .build();
+
+    scanResponse = ddb.scan(scanRequest);
+    // Validate query was returned successfully
+    assert 200 == scanResponse.sdkHttpResponse().statusCode();
+
+    // Validate only 1 item was returned: item1
+    assert scanResponse.items().size() == 1;
+    assert scanResponse.items().get(0).equals(item1);
+
 }
 
   public static void main(final String[] args) {
