@@ -504,9 +504,7 @@ module DynamoToStruct {
   // See "The Parent Trick" for details: <https://leino.science/papers/krml283.html>.
   function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
     requires forall kv <- m.Items :: kv.1 < parent
-    ensures MAX_MAP_SIZE < |m| ==> ret.Failure?
   {
-    :- Need(|m| <= MAX_MAP_SIZE, "Map exceeds limit of " + MAX_MAP_SIZE_STR + " entries.");
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
     //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
 
@@ -528,9 +526,7 @@ module DynamoToStruct {
   }
 
   function method ListAttrToBytes(l: ListAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
-    ensures MAX_LIST_LENGTH < |l| ==> ret.Failure?
   {
-    :- Need(|l| <= MAX_LIST_LENGTH, "List exceeds limit of " + MAX_LIST_LENGTH_STR + " entries.");
     var count :- U32ToBigEndian(|l|);
     var body :- CollectList(l, depth);
     Success(count + body)
@@ -880,7 +876,6 @@ module DynamoToStruct {
     resultList : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultList.val.L?
-    requires remainingCount <= MAX_LIST_LENGTH
     ensures ret.Success? ==> ret.value.val.L?
     requires |serialized| + resultList.len == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
@@ -913,7 +908,6 @@ module DynamoToStruct {
     resultMap : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultMap.val.M?
-    requires remainingCount <= MAX_MAP_SIZE
     ensures ret.Success? ==> ret.value.val.M?
     requires |serialized| + resultMap.len == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
@@ -1048,7 +1042,6 @@ module DynamoToStruct {
         Failure("List Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
-        :- Need(len <= MAX_MAP_SIZE, "Map exceeds limit of " + MAX_MAP_SIZE_STR + " entries.");
         var value := value[LENGTH_LEN..];
         DeserializeMap(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN + lengthBytes))
 
@@ -1057,7 +1050,6 @@ module DynamoToStruct {
         Failure("List Structured Data has less than 4 bytes")
       else
         var len :- BigEndianToU32(value);
-        :- Need(len <= MAX_LIST_LENGTH, "List exceeds limit of " + MAX_LIST_LENGTH_STR + " entries.");
         var value := value[LENGTH_LEN..];
         DeserializeList(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.L([]), LENGTH_LEN + lengthBytes))
 
