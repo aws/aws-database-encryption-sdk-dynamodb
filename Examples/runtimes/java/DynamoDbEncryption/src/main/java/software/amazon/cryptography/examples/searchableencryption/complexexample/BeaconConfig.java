@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.searchableencryption.complexexample;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,229 +66,166 @@ public class BeaconConfig {
     //    The BasicSearchableEncryptionExample gives a more thorough consideration of beacon length.
     //    For production applications, one should always exercise rigor when deciding beacon length, including
     //        examining population size and considering performance.
-    StandardBeacon employeeIDStandardBeacon = StandardBeacon.builder()
-        .name("EmployeeID")
-        .length(4)
-        .build();
-    StandardBeacon ticketNumberStandardBeacon = StandardBeacon.builder()
-        .name("TicketNumber")
-        .length(4)
-        .build();
-    StandardBeacon projectNameStandardBeacon = StandardBeacon.builder()
-        .name("ProjectName")
-        .length(4)
-        .build();
-    StandardBeacon employeeEmailStandardBeacon = StandardBeacon.builder()
-        .name("EmployeeEmail")
-        .length(4)
-        .build();
-    StandardBeacon creatorEmailStandardBeacon = StandardBeacon.builder()
-        .name("CreatorEmail")
-        .length(4)
-        .build();
-    StandardBeacon projectStatusStandardBeacon = StandardBeacon.builder()
-        .name("ProjectStatus")
-        .length(4)
-        .build();
-    StandardBeacon organizerEmailStandardBeacon = StandardBeacon.builder()
-        .name("OrganizerEmail")
-        .length(4)
-        .build();
-    StandardBeacon managerEmailStandardBeacon = StandardBeacon.builder()
-        .name("ManagerEmail")
-        .length(4)
-        .build();
-    StandardBeacon assigneeEmailStandardBeacon = StandardBeacon.builder()
-        .name("AssigneeEmail")
-        .length(4)
-        .build();
-    StandardBeacon cityStandardBeacon = StandardBeacon.builder()
-        .name("City")
-        .loc("Location.City")
-        .length(4)
-        .build();
-    StandardBeacon severityStandardBeacon = StandardBeacon.builder()
-        .name("Severity")
-        .length(4)
-        .build();
-    StandardBeacon buildingStandardBeacon = StandardBeacon.builder()
-        .name("Building")
-        .loc("Location.Building")
-        .length(4)
-        .build();
-    StandardBeacon floorStandardBeacon = StandardBeacon.builder()
-        .name("Floor")
-        .loc("Location.Floor")
-        .length(4)
-        .build();
-    StandardBeacon roomStandardBeacon = StandardBeacon.builder()
-        .name("Room")
-        .loc("Location.Room")
-        .length(4)
-        .build();
-    StandardBeacon deskStandardBeacon = StandardBeacon.builder()
-        .name("Desk")
-        .loc("Location.Desk")
-        .length(4)
-        .build();
-
-    List<StandardBeacon> standardBeaconList = new ArrayList<>();
-    standardBeaconList.add(employeeIDStandardBeacon);
-    standardBeaconList.add(ticketNumberStandardBeacon);
-    standardBeaconList.add(projectNameStandardBeacon);
-    standardBeaconList.add(employeeEmailStandardBeacon);
-    standardBeaconList.add(creatorEmailStandardBeacon);
-    standardBeaconList.add(projectStatusStandardBeacon);
-    standardBeaconList.add(organizerEmailStandardBeacon);
-    standardBeaconList.add(managerEmailStandardBeacon);
-    standardBeaconList.add(assigneeEmailStandardBeacon);
-    standardBeaconList.add(cityStandardBeacon);
-    standardBeaconList.add(severityStandardBeacon);
-    standardBeaconList.add(buildingStandardBeacon);
-    standardBeaconList.add(floorStandardBeacon);
-    standardBeaconList.add(roomStandardBeacon);
-    standardBeaconList.add(deskStandardBeacon);
+    List<StandardBeacon> standardBeaconList = Arrays.asList(
+        StandardBeacon.builder()
+            .name("EmployeeID")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("TicketNumber")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("ProjectName")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("EmployeeEmail")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("CreatorEmail")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("ProjectStatus")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("OrganizerEmail")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("ManagerEmail")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("AssigneeEmail")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("City")
+            .loc("Location.City")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("Severity")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("Building")
+            .loc("Location.Building")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("Floor")
+            .loc("Location.Floor")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("Room")
+            .loc("Location.Room")
+            .length(4)
+            .build(),
+        StandardBeacon.builder()
+            .name("Desk")
+            .loc("Location.Desk")
+            .length(4)
+            .build()
+    );
 
     // 3. Define encrypted parts
     //    Note that some of the prefixes are modified from the suggested prefixes in Demo.md.
     //    This is because all prefixes must be unique in a configuration.
     //    Encrypted parts are described in more detail in the CompoundBeaconSearcbaleEncryptionExample.
-    EncryptedPart employeeIDEncryptedPart = EncryptedPart.builder()
-        .name("EmployeeID")
-        .prefix("E-")
-        .build();
-    EncryptedPart ticketNumberEncryptedPart = EncryptedPart.builder()
-        .name("TicketNumber")
-        .prefix("T-")
-        .build();
-    EncryptedPart projectNameEncryptedPart = EncryptedPart.builder()
-        .name("ProjectName")
-        .prefix("P-")
-        .build();
-    EncryptedPart employeeEmailEncryptedPart = EncryptedPart.builder()
-        .name("EmployeeEmail")
-        .prefix("EE-")
-        .build();
-    EncryptedPart creatorEmailEncryptedPart = EncryptedPart.builder()
-        .name("CreatorEmail")
-        .prefix("CE-")
-        .build();
-    EncryptedPart projectStatusEncryptedPart = EncryptedPart.builder()
-        .name("ProjectStatus")
-        .prefix("PSts-")
-        .build();
-    EncryptedPart organizerEmailEncryptedPart = EncryptedPart.builder()
-        .name("OrganizerEmail")
-        .prefix("OE-")
-        .build();
-    EncryptedPart managerEmailEncryptedPart = EncryptedPart.builder()
-        .name("ManagerEmail")
-        .prefix("ME-")
-        .build();
-    EncryptedPart assigneeEmailEncryptedPart = EncryptedPart.builder()
-        .name("AssigneeEmail")
-        .prefix("AE-")
-        .build();
-    EncryptedPart cityEncryptedPart = EncryptedPart.builder()
-        .name("City")
-        .prefix("C-")
-        .build();
-    EncryptedPart severityEncryptedPart = EncryptedPart.builder()
-        .name("Severity")
-        .prefix("S-")
-        .build();
-    EncryptedPart buildingEncryptedPart = EncryptedPart.builder()
-        .name("Building")
-        .prefix("B-")
-        .build();
-    EncryptedPart floorEncryptedPart = EncryptedPart.builder()
-        .name("Floor")
-        .prefix("F-")
-        .build();
-    EncryptedPart roomEncryptedPart = EncryptedPart.builder()
-        .name("Room")
-        .prefix("R-")
-        .build();
-    EncryptedPart deskEncryptedPart = EncryptedPart.builder()
-        .name("Desk")
-        .prefix("D-")
-        .build();
+    List<EncryptedPart> encryptedPartList = Arrays.asList(
+        EncryptedPart.builder()
+            .name("EmployeeID")
+            .prefix("E-")
+            .build(),
+        EncryptedPart.builder()
+            .name("TicketNumber")
+            .prefix("T-")
+            .build(),
+        EncryptedPart.builder()
+            .name("ProjectName")
+            .prefix("P-")
+            .build(),
+        EncryptedPart.builder()
+            .name("EmployeeEmail")
+            .prefix("EE-")
+            .build(),
+        EncryptedPart.builder()
+            .name("CreatorEmail")
+            .prefix("CE-")
+            .build(),
+        EncryptedPart.builder()
+            .name("ProjectStatus")
+            .prefix("PSts-")
+            .build(),
+        EncryptedPart.builder()
+            .name("OrganizerEmail")
+            .prefix("OE-")
+            .build(),
+        EncryptedPart.builder()
+            .name("ManagerEmail")
+            .prefix("ME-")
+            .build(),
+        EncryptedPart.builder()
+            .name("AssigneeEmail")
+            .prefix("AE-")
+            .build(),
+        EncryptedPart.builder()
+            .name("City")
+            .prefix("C-")
+            .build(),
+        EncryptedPart.builder()
+            .name("Severity")
+            .prefix("S-")
+            .build(),
+        EncryptedPart.builder()
+            .name("Building")
+            .prefix("B-")
+            .build(),
+        EncryptedPart.builder()
+            .name("Floor")
+            .prefix("F-")
+            .build(),
+        EncryptedPart.builder()
+            .name("Room")
+            .prefix("R-")
+            .build(),
+        EncryptedPart.builder()
+            .name("Desk")
+            .prefix("D-")
+            .build()
+    );
 
     // 4. Define signed parts.
     //    These are unencrypted attributes we would like to use in beacon queries.
     //    In this example, all of these represent dates or times.
     //    Keeping these attributes unencrypted allows us to use them in comparison-based queries. If a signed
     //        part is the first part in a compound beacon, then that part can be used in comparison for sorting.
-    SignedPart ticketModTimeSignedPart = SignedPart.builder()
-        .name("TicketModTime")
-        .prefix("M-")
-        .build();
-    SignedPart meetingStartSignedPart = SignedPart.builder()
-        .name("MeetingStart")
-        .prefix("MS-")
-        .build();
-    SignedPart timeCardStartSignedPart = SignedPart.builder()
-        .name("TimeCardStart")
-        .prefix("TC-")
-        .build();
-    SignedPart projectStartSignedPart = SignedPart.builder()
-        .name("ProjectStart")
-        .prefix("PS-")
-        .build();
+    List<SignedPart> signedPartList = Arrays.asList(
+        SignedPart.builder()
+            .name("TicketModTime")
+            .prefix("M-")
+            .build(),
+        SignedPart.builder()
+            .name("MeetingStart")
+            .prefix("MS-")
+            .build(),
+        SignedPart.builder()
+            .name("TimeCardStart")
+            .prefix("TC-")
+            .build(),
+        SignedPart.builder()
+            .name("ProjectStart")
+            .prefix("PS-")
+            .build()
+    );
 
-    // 5. Create lists of encrypted and signed parts for each GSI key
-    List<EncryptedPart> pk0EncryptedPartList = new ArrayList<>();
-    pk0EncryptedPartList.add(employeeIDEncryptedPart);
-    pk0EncryptedPartList.add(ticketNumberEncryptedPart);
-    pk0EncryptedPartList.add(projectNameEncryptedPart);
-    pk0EncryptedPartList.add(buildingEncryptedPart);
-
-    List<EncryptedPart> sk0EncryptedPartList = new ArrayList<>();
-    sk0EncryptedPartList.add(employeeIDEncryptedPart);
-    sk0EncryptedPartList.add(floorEncryptedPart);
-    sk0EncryptedPartList.add(roomEncryptedPart);
-    sk0EncryptedPartList.add(projectNameEncryptedPart);
-    sk0EncryptedPartList.add(employeeEmailEncryptedPart);
-
-    List<SignedPart> sk0SignedPartList = new ArrayList<>();
-    sk0SignedPartList.add(timeCardStartSignedPart);
-    sk0SignedPartList.add(ticketModTimeSignedPart);
-    sk0SignedPartList.add(meetingStartSignedPart);
-
-    List<EncryptedPart> pk1EncryptedPartList = new ArrayList<>();
-    pk1EncryptedPartList.add(creatorEmailEncryptedPart);
-    pk1EncryptedPartList.add(projectStatusEncryptedPart);
-    pk1EncryptedPartList.add(organizerEmailEncryptedPart);
-    pk1EncryptedPartList.add(employeeEmailEncryptedPart);
-
-    List<EncryptedPart> sk1EncryptedPartList = new ArrayList<>();
-    sk1EncryptedPartList.add(floorEncryptedPart);
-    sk1EncryptedPartList.add(roomEncryptedPart);
-    sk1EncryptedPartList.add(employeeIDEncryptedPart);
-
-    List<SignedPart> sk1SignedPartList = new ArrayList<>();
-    sk1SignedPartList.add(timeCardStartSignedPart);
-    sk1SignedPartList.add(ticketModTimeSignedPart);
-    sk1SignedPartList.add(meetingStartSignedPart);
-    sk1SignedPartList.add(projectStartSignedPart);
-
-    List<EncryptedPart> pk2EncryptedPartList = new ArrayList<>();
-    pk2EncryptedPartList.add(managerEmailEncryptedPart);
-    pk2EncryptedPartList.add(assigneeEmailEncryptedPart);
-
-    List<EncryptedPart> pk3EncryptedPartList = new ArrayList<>();
-    pk3EncryptedPartList.add(cityEncryptedPart);
-    pk3EncryptedPartList.add(severityEncryptedPart);
-
-    List<EncryptedPart> sk3EncryptedPartList = new ArrayList<>();
-    sk3EncryptedPartList.add(buildingEncryptedPart);
-    sk3EncryptedPartList.add(floorEncryptedPart);
-    sk3EncryptedPartList.add(deskEncryptedPart);
-
-    List<SignedPart> sk3SignedPartList = new ArrayList<>();
-    sk3SignedPartList.add(ticketModTimeSignedPart);
-
-    // 6. Create constructor parts.
+    // 5. Create constructor parts.
     //    Constructor parts are used to assemble constructors (constructors described more in next step).
     //    For each attribute that will be used in a constructor, there must be a corresponding constructor part.
     //    A constructor part must receive:
@@ -374,7 +312,7 @@ public class BeaconConfig {
         .required(true)
         .build();
 
-    // 7. Define constructors
+    // 6. Define constructors
     //    Constructors define how encrypted and signed parts are assembled into compound beacons.
     //    The constructors below are based off of the "PK Constructors", "SK constructors", etc. sections in Demo.md.
 
@@ -382,34 +320,24 @@ public class BeaconConfig {
     // If an item has an attribute with name "EmployeeID", it will match this constructor.
     // If this is the first matching constructor in the constructor list (constructor list described more below),
     //     the compound beacon will use this constructor, and the compound beacon will be written as `E-X`.
-    List<ConstructorPart> employeeIdConstructorPartList = new ArrayList<>();
-    employeeIdConstructorPartList.add(employeeIdConstructorPart);
     Constructor employeeIdConstructor = Constructor.builder()
-        .parts(employeeIdConstructorPartList)
+        .parts(Arrays.asList(employeeIdConstructorPart))
         .build();
 
-    List<ConstructorPart> ticketNumberConstructorPartList = new ArrayList<>();
-    ticketNumberConstructorPartList.add(ticketNumberConstructorPart);
     Constructor ticketNumberConstructor = Constructor.builder()
-        .parts(ticketNumberConstructorPartList)
+        .parts(Arrays.asList(ticketNumberConstructorPart))
         .build();
 
-    List<ConstructorPart> projectNameConstructorPartList = new ArrayList<>();
-    projectNameConstructorPartList.add(projectNameConstructorPart);
     Constructor projectNameConstructor = Constructor.builder()
-        .parts(projectNameConstructorPartList)
+        .parts(Arrays.asList(projectNameConstructorPart))
         .build();
 
-    List<ConstructorPart> ticketModTimeConstructorPartList = new ArrayList();
-    ticketModTimeConstructorPartList.add(ticketModTimeConstructorPart);
     Constructor ticketModTimeConstructor = Constructor.builder()
-        .parts(ticketModTimeConstructorPartList)
+        .parts(Arrays.asList(ticketModTimeConstructorPart))
         .build();
 
-    List<ConstructorPart> buildingConstructorPartList = new ArrayList();
-    buildingConstructorPartList.add(buildingConstructorPart);
     Constructor buildingConstructor = Constructor.builder()
-        .parts(buildingConstructorPartList)
+        .parts(Arrays.asList(buildingConstructorPart))
         .build();
 
     // This constructor requires all of "MeetingStart", "Location.Floor", and "Location.Room" attributes.
@@ -419,90 +347,59 @@ public class BeaconConfig {
     // In a constructor with multiple constructor parts, the order the constructor parts are added to
     //     the constructor part list defines how the compound beacon is written.
     // We can rearrange the beacon parts by changing the order the constructors were added to the list.
-    List<ConstructorPart> meetingStartFloorRoomConstructorPartList = new ArrayList();
-    meetingStartFloorRoomConstructorPartList.add(meetingStartConstructorPart);
-    meetingStartFloorRoomConstructorPartList.add(floorConstructorPart);
-    meetingStartFloorRoomConstructorPartList.add(roomConstructorPart);
     Constructor meetingStartFloorRoomConstructor = Constructor.builder()
-        .parts(meetingStartFloorRoomConstructorPartList)
+        .parts(Arrays.asList(meetingStartConstructorPart, floorConstructorPart, roomConstructorPart))
         .build();
 
-    List<ConstructorPart> timeCardStartEmployeeEmailConstructorPartList = new ArrayList();
-    timeCardStartEmployeeEmailConstructorPartList.add(timeCardStartConstructorPart);
-    timeCardStartEmployeeEmailConstructorPartList.add(employeeEmailConstructorPart);
     Constructor timeCardStartEmployeeEmailConstructor = Constructor.builder()
-        .parts(timeCardStartEmployeeEmailConstructorPartList)
+        .parts(Arrays.asList(timeCardStartConstructorPart, employeeEmailConstructorPart))
         .build();
 
-    List<ConstructorPart> timeCardStartConstructorPartList = new ArrayList();
-    timeCardStartConstructorPartList.add(timeCardStartConstructorPart);
     Constructor timeCardStartConstructor = Constructor.builder()
-        .parts(timeCardStartConstructorPartList)
+        .parts(Arrays.asList(timeCardStartConstructorPart))
         .build();
 
-    List<ConstructorPart> creatorEmailConstructorPartList = new ArrayList();
-    creatorEmailConstructorPartList.add(creatorEmailConstructorPart);
     Constructor creatorEmailConstructor = Constructor.builder()
-        .parts(creatorEmailConstructorPartList)
+        .parts(Arrays.asList(creatorEmailConstructorPart))
         .build();
 
-    List<ConstructorPart> projectStatusConstructorPartList = new ArrayList();
-    projectStatusConstructorPartList.add(projectStatusConstructorPart);
     Constructor projectStatusConstructor = Constructor.builder()
-        .parts(projectStatusConstructorPartList)
+        .parts(Arrays.asList(projectStatusConstructorPart))
         .build();
 
-    List<ConstructorPart> employeeEmailConstructorPartList = new ArrayList();
-    employeeEmailConstructorPartList.add(employeeEmailConstructorPart);
     Constructor employeeEmailConstructor = Constructor.builder()
-        .parts(employeeEmailConstructorPartList)
+        .parts(Arrays.asList(employeeEmailConstructorPart))
         .build();
 
-    List<ConstructorPart> organizerEmailConstructorPartList = new ArrayList();
-    organizerEmailConstructorPartList.add(organizerEmailConstructorPart);
     Constructor organizerEmailConstructor = Constructor.builder()
-        .parts(organizerEmailConstructorPartList)
+        .parts(Arrays.asList(organizerEmailConstructorPart))
         .build();
 
-    List<ConstructorPart> projectStartConstructorPartList = new ArrayList();
-    projectStartConstructorPartList.add(projectStartConstructorPart);
     Constructor projectStartConstructor = Constructor.builder()
-        .parts(projectStartConstructorPartList)
+        .parts(Arrays.asList(projectStartConstructorPart))
         .build();
 
-    List<ConstructorPart> managerEmailConstructorPartList = new ArrayList();
-    managerEmailConstructorPartList.add(managerEmailConstructorPart);
     Constructor managerEmailConstructor = Constructor.builder()
-        .parts(managerEmailConstructorPartList)
+        .parts(Arrays.asList(managerEmailConstructorPart))
         .build();
 
-    List<ConstructorPart> assigneeEmailConstructorPartList = new ArrayList();
-    assigneeEmailConstructorPartList.add(assigneeEmailConstructorPart);
     Constructor assigneeEmailConstructor = Constructor.builder()
-        .parts(assigneeEmailConstructorPartList)
+        .parts(Arrays.asList(assigneeEmailConstructorPart))
         .build();
 
-    List<ConstructorPart> cityConstructorPartList = new ArrayList();
-    cityConstructorPartList.add(cityConstructorPart);
     Constructor cityConstructor = Constructor.builder()
-        .parts(cityConstructorPartList)
+        .parts(Arrays.asList(cityConstructorPart))
         .build();
 
-    List<ConstructorPart> severityConstructorPartList = new ArrayList();
-    severityConstructorPartList.add(severityConstructorPart);
     Constructor severityConstructor = Constructor.builder()
-        .parts(severityConstructorPartList)
+        .parts(Arrays.asList(severityConstructorPart))
         .build();
 
-    List<ConstructorPart> buildingFloorDeskConstructorPartList = new ArrayList();
-    buildingFloorDeskConstructorPartList.add(buildingConstructorPart);
-    buildingFloorDeskConstructorPartList.add(floorConstructorPart);
-    buildingFloorDeskConstructorPartList.add(deskConstructorPart);
     Constructor buildingFloorDeskConstructor = Constructor.builder()
-        .parts(buildingFloorDeskConstructorPartList)
+        .parts(Arrays.asList(buildingConstructorPart, floorConstructorPart, deskConstructorPart))
         .build();
 
-    // 5. Add constructors to the compound beacon constructor list in desired construction order.
+    // 7. Add constructors to the compound beacon constructor list in desired construction order.
     //    In a compound beacon with multiple constructors, the order the constructors are added to
     //        the constructor list determines their priority.
     //    The first constructor added to a constructor list will be the first constructor that is executed.
@@ -549,70 +446,55 @@ public class BeaconConfig {
     sk3ConstructorList.add(buildingFloorDeskConstructor);
     sk3ConstructorList.add(ticketModTimeConstructor);
 
-    // 9. Define compound beacons
+    // 8. Define compound beacons
     //    Compound beacon construction is defined in more detail in CompoundBeaconSearchableEncryptionExample.
     //    Note that the split character must be a character that is not used in any attribute value.
-    CompoundBeacon pk0CompoundBeacon = CompoundBeacon.builder()
-        .name("PK")
-        .split("~")
-        .encrypted(pk0EncryptedPartList)
-        .constructors(pk0ConstructorList)
-        .build();
-    CompoundBeacon sk0CompoundBeacon = CompoundBeacon.builder()
-        .name("SK")
-        .split("~")
-        .encrypted(sk0EncryptedPartList)
-        .signed(sk0SignedPartList)
-        .constructors(sk0ConstructorList)
-        .build();
-    CompoundBeacon pk1CompoundBeacon = CompoundBeacon.builder()
-        .name("PK1")
-        .split("~")
-        .encrypted(pk1EncryptedPartList)
-        .constructors(pk1ConstructorList)
-        .build();
-    CompoundBeacon sk1CompoundBeacon = CompoundBeacon.builder()
-        .name("SK1")
-        .split("~")
-        .encrypted(sk1EncryptedPartList)
-        .signed(sk1SignedPartList)
-        .constructors(sk1ConstructorList)
-        .build();
-    CompoundBeacon pk2CompoundBeacon = CompoundBeacon.builder()
-        .name("PK2")
-        .split("~")
-        .encrypted(pk2EncryptedPartList)
-        .constructors(pk2ConstructorList)
-        .build();
-    CompoundBeacon pk3CompoundBeacon = CompoundBeacon.builder()
-        .name("PK3")
-        .split("~")
-        .encrypted(pk3EncryptedPartList)
-        .constructors(pk3ConstructorList)
-        .build();
-    CompoundBeacon sk3CompoundBeacon = CompoundBeacon.builder()
-        .name("SK3")
-        .split("~")
-        .encrypted(sk3EncryptedPartList)
-        .signed(sk3SignedPartList)
-        .constructors(sk3ConstructorList)
-        .build();
+    List<CompoundBeacon> compoundBeaconList = Arrays.asList(
+        CompoundBeacon.builder()
+            .name("PK")
+            .split("~")
+            .constructors(pk0ConstructorList)
+            .build(),
+        CompoundBeacon.builder()
+            .name("SK")
+            .split("~")
+            .constructors(sk0ConstructorList)
+            .build(),
+        CompoundBeacon.builder()
+            .name("PK1")
+            .split("~")
+            .constructors(pk1ConstructorList)
+            .build(),
+        CompoundBeacon.builder()
+            .name("SK1")
+            .split("~")
+            .constructors(sk1ConstructorList)
+            .build(),
+        CompoundBeacon.builder()
+            .name("PK2")
+            .split("~")
+            .constructors(pk2ConstructorList)
+            .build(),
+        CompoundBeacon.builder()
+            .name("PK3")
+            .split("~")
+            .constructors(pk3ConstructorList)
+            .build(),
+        CompoundBeacon.builder()
+            .name("SK3")
+            .split("~")
+            .constructors(sk3ConstructorList)
+            .build()
+    );
 
-    List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
-    compoundBeaconList.add(pk0CompoundBeacon);
-    compoundBeaconList.add(sk0CompoundBeacon);
-    compoundBeaconList.add(pk1CompoundBeacon);
-    compoundBeaconList.add(sk1CompoundBeacon);
-    compoundBeaconList.add(pk2CompoundBeacon);
-    compoundBeaconList.add(pk3CompoundBeacon);
-    compoundBeaconList.add(sk3CompoundBeacon);
-
-    // 10. Create BeaconVersion.
+    // 9. Create BeaconVersion.
     List<BeaconVersion> beaconVersions = new ArrayList<>();
     beaconVersions.add(
         BeaconVersion.builder()
             .standardBeacons(standardBeaconList)
             .compoundBeacons(compoundBeaconList)
+            .encryptedParts(encryptedPartList)
+            .signedParts(signedPartList)
             .version(1) // MUST be 1
             .keyStore(keyStore)
             .keySource(BeaconKeySource.builder()
@@ -624,7 +506,7 @@ public class BeaconConfig {
             .build()
     );
 
-    // 11. Create a Hierarchical Keyring
+    // 10. Create a Hierarchical Keyring
     final MaterialProviders matProv = MaterialProviders.builder()
         .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
         .build();
@@ -635,7 +517,7 @@ public class BeaconConfig {
         .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
 
-    // 12. Define crypto actions
+    // 11. Define crypto actions
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     // Our partition key must be configured as SIGN_ONLY
     attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY);
@@ -670,7 +552,7 @@ public class BeaconConfig {
     attributeActionsOnEncrypt.put("ProjectStart", CryptoAction.SIGN_ONLY);
     attributeActionsOnEncrypt.put("Duration", CryptoAction.SIGN_ONLY);
 
-    // 13. Set up table config
+    // 12. Set up table config
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig.builder()
         .logicalTableName(ddbTableName)
@@ -684,14 +566,14 @@ public class BeaconConfig {
         .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 14. Create the DynamoDb Encryption Interceptor
+    // 13. Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor.builder()
         .config(DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build())
         .build();
 
-    // 15. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 14. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient.builder()
         .overrideConfiguration(
             ClientOverrideConfiguration.builder()
