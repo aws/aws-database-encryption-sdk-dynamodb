@@ -27,7 +27,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  )
  datatype DecryptItemOutput = | DecryptItemOutput (
  nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap ,
- nameonly parsedHeader: Option<ParsedHeader>
+ nameonly parsedHeader: Option<ParsedHeader> := Option.None
  )
  class IDynamoDbItemEncryptorClientCallHistory {
  ghost constructor() {
@@ -98,28 +98,30 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype DynamoDbItemEncryptorConfig = | DynamoDbItemEncryptorConfig (
  nameonly logicalTableName: string ,
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
- nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
+ nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> := Option.None ,
  nameonly attributeActionsOnEncrypt: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
- nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
- nameonly allowedUnsignedAttributePrefix: Option<string> ,
- nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
- nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
- nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly legacyOverride: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride> ,
- nameonly plaintextOverride: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>
+ nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> := Option.None ,
+ nameonly allowedUnsignedAttributePrefix: Option<string> := Option.None ,
+ nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
+ nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
+ nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
+ nameonly legacyOverride: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride> := Option.None ,
+ nameonly plaintextOverride: Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride> := Option.None
  )
  datatype EncryptItemInput = | EncryptItemInput (
  nameonly plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap
  )
  datatype EncryptItemOutput = | EncryptItemOutput (
  nameonly encryptedItem: ComAmazonawsDynamodbTypes.AttributeMap ,
- nameonly parsedHeader: Option<ParsedHeader>
+ nameonly parsedHeader: Option<ParsedHeader> := Option.None
  )
  datatype ParsedHeader = | ParsedHeader (
  nameonly attributeActionsOnEncrypt: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
  nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
  nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
- nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
+ nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
+ nameonly encryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
+ nameonly selectorContext: ComAmazonawsDynamodbTypes.Key
  )
  datatype Error =
  // Local Error structures are listed here
@@ -169,7 +171,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import Operations : AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
  function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
- returns (res: Result<DynamoDbItemEncryptorClient, Error>)
+ returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
  requires config.keyring.Some? ==>
  config.keyring.value.ValidState()
  requires config.cmm.Some? ==>
@@ -207,6 +209,13 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ensures config.legacyOverride.Some? ==>
  config.legacyOverride.value.encryptor.ValidState()
 
+ // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
+ function method CreateSuccessOfClient(client: IDynamoDbItemEncryptorClient): Result<IDynamoDbItemEncryptorClient, Error> {
+   Success(client)
+ } // Helper function for the benefit of native code to create a Failure(error) without referring to Dafny internals
+ function method CreateFailureOfError(error: Error): Result<IDynamoDbItemEncryptorClient, Error> {
+   Failure(error)
+ }
  class DynamoDbItemEncryptorClient extends IDynamoDbItemEncryptorClient
  {
  constructor(config: Operations.InternalConfig)

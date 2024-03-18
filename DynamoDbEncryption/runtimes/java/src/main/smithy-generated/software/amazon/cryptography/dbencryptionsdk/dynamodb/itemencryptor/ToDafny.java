@@ -147,7 +147,11 @@ public class ToDafny {
     encryptedDataKeys = software.amazon.cryptography.materialproviders.ToDafny.EncryptedDataKeyList(nativeValue.encryptedDataKeys());
     DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> storedEncryptionContext;
     storedEncryptionContext = software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(nativeValue.storedEncryptionContext());
-    return new ParsedHeader(attributeActionsOnEncrypt, algorithmSuiteId, encryptedDataKeys, storedEncryptionContext);
+    DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> encryptionContext;
+    encryptionContext = software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(nativeValue.encryptionContext());
+    DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> selectorContext;
+    selectorContext = software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.Key(nativeValue.selectorContext());
+    return new ParsedHeader(attributeActionsOnEncrypt, algorithmSuiteId, encryptedDataKeys, storedEncryptionContext, encryptionContext, selectorContext);
   }
 
   public static Error Error(DynamoDbItemEncryptorException nativeValue) {

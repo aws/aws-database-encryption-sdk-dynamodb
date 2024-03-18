@@ -209,6 +209,9 @@ transpile_dependencies:
 # Since they are defined per target
 # a single target can decide what parts it wants to build.
 
+# NOTE : below we say --dafny-version 4.1, evn though we're on dafny 4.2
+# This is because there's a bug in smithy-dafny that does the wrong thing with --dafny-version 4.1
+# In the future the dafny version should be retrieved from a central source so it's the same everywhere
 _polymorph:
 	@: $(if ${CODEGEN_CLI_ROOT},,$(error You must pass the path CODEGEN_CLI_ROOT: CODEGEN_CLI_ROOT=/[path]/[to]/smithy-dafny/codegen/smithy-dafny-codegen-cli));
 	cd $(CODEGEN_CLI_ROOT); \
@@ -216,6 +219,7 @@ _polymorph:
 	$(OUTPUT_DAFNY) \
 	$(OUTPUT_DOTNET) \
 	$(OUTPUT_JAVA) \
+	--dafny-version 4.1 \
 	--model $(if $(DIR_STRUCTURE_V2), $(LIBRARY_ROOT)/dafny/$(SERVICE)/Model, $(SMITHY_MODEL_ROOT)) \
 	--dependent-model $(PROJECT_ROOT)/$(SMITHY_DEPS) \
 	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $($(service_deps_var))) \

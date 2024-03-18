@@ -43,10 +43,10 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly keyStore: AwsCryptographyKeyStoreTypes.IKeyStoreClient ,
  nameonly keySource: BeaconKeySource ,
  nameonly standardBeacons: StandardBeaconList ,
- nameonly compoundBeacons: Option<CompoundBeaconList> ,
- nameonly virtualFields: Option<VirtualFieldList> ,
- nameonly encryptedParts: Option<EncryptedPartsList> ,
- nameonly signedParts: Option<SignedPartsList>
+ nameonly compoundBeacons: Option<CompoundBeaconList> := Option.None ,
+ nameonly virtualFields: Option<VirtualFieldList> := Option.None ,
+ nameonly encryptedParts: Option<EncryptedPartsList> := Option.None ,
+ nameonly signedParts: Option<SignedPartsList> := Option.None
  )
  type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
  predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
@@ -59,9 +59,9 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype CompoundBeacon = | CompoundBeacon (
  nameonly name: string ,
  nameonly split: Char ,
- nameonly encrypted: Option<EncryptedPartsList> ,
- nameonly signed: Option<SignedPartsList> ,
- nameonly constructors: Option<ConstructorList>
+ nameonly encrypted: Option<EncryptedPartsList> := Option.None ,
+ nameonly signed: Option<SignedPartsList> := Option.None ,
+ nameonly constructors: Option<ConstructorList> := Option.None
  )
  type CompoundBeaconList = x: seq<CompoundBeacon> | IsValid_CompoundBeaconList(x) witness *
  predicate method IsValid_CompoundBeaconList(x: seq<CompoundBeacon>) {
@@ -217,16 +217,16 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype DynamoDbTableEncryptionConfig = | DynamoDbTableEncryptionConfig (
  nameonly logicalTableName: string ,
  nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
- nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> ,
- nameonly search: Option<SearchConfig> ,
+ nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> := Option.None ,
+ nameonly search: Option<SearchConfig> := Option.None ,
  nameonly attributeActionsOnEncrypt: AttributeActions ,
- nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> ,
- nameonly allowedUnsignedAttributePrefix: Option<string> ,
- nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> ,
- nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
- nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly legacyOverride: Option<LegacyOverride> ,
- nameonly plaintextOverride: Option<PlaintextOverride>
+ nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> := Option.None ,
+ nameonly allowedUnsignedAttributePrefix: Option<string> := Option.None ,
+ nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
+ nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
+ nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
+ nameonly legacyOverride: Option<LegacyOverride> := Option.None ,
+ nameonly plaintextOverride: Option<PlaintextOverride> := Option.None
  )
  type DynamoDbTableEncryptionConfigList = map<ComAmazonawsDynamodbTypes.TableName, DynamoDbTableEncryptionConfig>
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
@@ -307,7 +307,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  nameonly policy: LegacyPolicy ,
  nameonly encryptor: ILegacyDynamoDbEncryptor ,
  nameonly attributeActionsOnEncrypt: AttributeActions ,
- nameonly defaultAttributeFlag: Option<AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
+ nameonly defaultAttributeFlag: Option<AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction> := Option.None
  )
  datatype LegacyPolicy =
 	| FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT
@@ -319,7 +319,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype MultiKeyStore = | MultiKeyStore (
  nameonly keyFieldName: string ,
  nameonly cacheTTL: int32 ,
- nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType>
+ nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType> := Option.None
  )
  datatype PartOnly = | PartOnly (
  
@@ -345,7 +345,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype SignedPart = | SignedPart (
  nameonly name: string ,
  nameonly prefix: Prefix ,
- nameonly loc: Option<TerminalLocation>
+ nameonly loc: Option<TerminalLocation> := Option.None
  )
  type SignedPartsList = x: seq<SignedPart> | IsValid_SignedPartsList(x) witness *
  predicate method IsValid_SignedPartsList(x: seq<SignedPart>) {
@@ -358,8 +358,8 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype StandardBeacon = | StandardBeacon (
  nameonly name: string ,
  nameonly length: BeaconBitLength ,
- nameonly loc: Option<TerminalLocation> ,
- nameonly style: Option<BeaconStyle>
+ nameonly loc: Option<TerminalLocation> := Option.None ,
+ nameonly style: Option<BeaconStyle> := Option.None
  )
  type StandardBeaconList = x: seq<StandardBeacon> | IsValid_StandardBeaconList(x) witness *
  predicate method IsValid_StandardBeaconList(x: seq<StandardBeacon>) {
@@ -386,7 +386,7 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
 }
  datatype VirtualPart = | VirtualPart (
  nameonly loc: TerminalLocation ,
- nameonly trans: Option<VirtualTransformList>
+ nameonly trans: Option<VirtualTransformList> := Option.None
  )
  type VirtualPartList = x: seq<VirtualPart> | IsValid_VirtualPartList(x) witness *
  predicate method IsValid_VirtualPartList(x: seq<VirtualPart>) {
@@ -453,13 +453,20 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  import Operations : AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations
  function method DefaultDynamoDbEncryptionConfig(): DynamoDbEncryptionConfig
  method DynamoDbEncryption(config: DynamoDbEncryptionConfig := DefaultDynamoDbEncryptionConfig())
- returns (res: Result<DynamoDbEncryptionClient, Error>)
+ returns (res: Result<IDynamoDbEncryptionClient, Error>)
  ensures res.Success? ==> 
  && fresh(res.value)
  && fresh(res.value.Modifies)
  && fresh(res.value.History)
  && res.value.ValidState()
 
+ // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
+ function method CreateSuccessOfClient(client: IDynamoDbEncryptionClient): Result<IDynamoDbEncryptionClient, Error> {
+   Success(client)
+ } // Helper function for the benefit of native code to create a Failure(error) without referring to Dafny internals
+ function method CreateFailureOfError(error: Error): Result<IDynamoDbEncryptionClient, Error> {
+   Failure(error)
+ }
  class DynamoDbEncryptionClient extends IDynamoDbEncryptionClient
  {
  constructor(config: Operations.InternalConfig)

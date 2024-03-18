@@ -17,6 +17,7 @@ module DynamoToStruct {
   import SortedSets
   import Seq
   import Norm = DynamoDbNormalizeNumber
+  import SE = StructuredEncryptionUtil
 
   type Error = AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error
 
@@ -36,7 +37,7 @@ module DynamoToStruct {
     //= type=implication
     //# - MUST contain a [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
     //# for each attribute on the DynamoDB Item, and no others.
-    ensures ret.Success? ==> ret.value.Keys == item.Keys;
+    ensures ret.Success? ==> ret.value.Keys == item.Keys
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
     //= type=implication
@@ -78,7 +79,7 @@ module DynamoToStruct {
     //= type=implication
     //# - MUST contain an Attribute for every [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
     //# on the Structured Data, and not other Attributes.
-    ensures ret.Success? ==> ret.value.Keys == s.Keys;
+    ensures ret.Success? ==> ret.value.Keys == s.Keys
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
     //= type=implication
@@ -125,11 +126,11 @@ module DynamoToStruct {
 
   // Prove round trip. A work in progress
   lemma RoundTripFromStructured(s : StructuredData)
-    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == BINARY ==>
+    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == SE.BINARY ==>
       && AttrToStructured(StructuredToAttr(s).value).Success?
-    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == BOOLEAN ==>
+    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == SE.BOOLEAN ==>
       && AttrToStructured(StructuredToAttr(s).value).Success?
-    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == NULL ==>
+    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == SE.NULL ==>
       && AttrToStructured(StructuredToAttr(s).value).Success?
 {
     reveal AttrToStructured();
@@ -194,62 +195,24 @@ module DynamoToStruct {
     Success(attrValueAndLength.val)
   }
 
-    const BOOL_LEN : nat := 1;   // number of bytes in an encoded boolean
-    const TYPEID_LEN : nat := 2;   // number of bytes in a TerminalTypeId
-    const LENGTH_LEN : nat := 4; // number of bytes in an encoded count or length
-    const PREFIX_LEN : nat := 6; // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
-
-
-    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#type-id
-    //= type=implication
-    //# Type ID indicates what type a DynamoDB Attribute Value MUST
-    //# be serialized and deserialized as.
-    //# | Attribute Value Data Type | Terminal Type ID |
-    //# | ------------------------- | ---------------- |
-    //# | Null (NULL)               | 0x0000           |
-    //# | String (S)                | 0x0001           |
-    //# | Number (N)                | 0x0002           |
-    //# | Binary (B)                | 0xFFFF           |
-    //# | Boolean (BOOL)            | 0x0004           |
-    //# | String Set (SS)           | 0x0101           |
-    //# | Number Set (NS)           | 0x0102           |
-    //# | Binary Set (BS)           | 0x01FF           |
-    //# | Map (M)                   | 0x0200           |
-    //# | List (L)                  | 0x0300           |
-    const TERM_T : uint8 := 0x00;
-    const SET_T  : uint8 := 0x01;
-    const MAP_T  : uint8 := 0x02;
-    const LIST_T : uint8 := 0x03;
-    const NULL_T : uint8 := 0x00;
-    const STRING_T  : uint8 := 0x01;
-    const NUMBER_T  : uint8 := 0x02;
-    const BINARY_T : uint8 := 0xFF;
-    const BOOLEAN_T : uint8 := 0x04;
-
-    const NULL       : TerminalTypeId := [TERM_T, NULL_T];
-    const STRING     : TerminalTypeId := [TERM_T, STRING_T];
-    const NUMBER     : TerminalTypeId := [TERM_T, NUMBER_T];
-    const BINARY     : TerminalTypeId := [0xFF, 0xFF];
-    const BOOLEAN    : TerminalTypeId := [TERM_T, BOOLEAN_T];
-    const STRING_SET : TerminalTypeId := [SET_T,  STRING_T];
-    const NUMBER_SET : TerminalTypeId := [SET_T,  NUMBER_T];
-    const BINARY_SET : TerminalTypeId := [SET_T,  BINARY_T];
-    const MAP        : TerminalTypeId := [MAP_T,  NULL_T];
-    const LIST       : TerminalTypeId := [LIST_T, NULL_T];
+    const BOOL_LEN : nat := 1   // number of bytes in an encoded boolean
+    const TYPEID_LEN : nat := 2   // number of bytes in a TerminalTypeId
+    const LENGTH_LEN : nat := 4 // number of bytes in an encoded count or length
+    const PREFIX_LEN : nat := 6 // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
 
   function method AttrToTypeId(a : AttributeValue) : TerminalTypeId
   {
     match a {
-      case S(s) => STRING
-      case N(n) => NUMBER
-      case B(b) => BINARY
-      case SS(ss) => STRING_SET
-      case NS(ns) => NUMBER_SET
-      case BS(bs) => BINARY_SET
-      case M(m) => MAP
-      case L(l) => LIST
-      case NULL(n) => NULL
-      case BOOL(b) => BOOLEAN
+      case S(s) => SE.STRING
+      case N(n) => SE.NUMBER
+      case B(b) => SE.BINARY
+      case SS(ss) => SE.STRING_SET
+      case NS(ns) => SE.NUMBER_SET
+      case BS(bs) => SE.BINARY_SET
+      case M(m) => SE.MAP
+      case L(l) => SE.LIST
+      case NULL(n) => SE.NULL
+      case BOOL(b) => SE.BOOLEAN
     }
   }
 
@@ -274,9 +237,9 @@ module DynamoToStruct {
       && (!a.BOOL ==> ret.Success? && |ret.value| == BOOL_LEN && ret.value[0] == 0)
     ensures a.BOOL? && prefix && depth <= MAX_STRUCTURE_DEPTH ==>
       && (a.BOOL  ==> (ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 1
-          && ret.value[0..TYPEID_LEN] == BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1]))
+          && ret.value[0..TYPEID_LEN] == SE.BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1]))
       && (!a.BOOL ==> (ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 0
-          && ret.value[0..TYPEID_LEN] == BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1]))
+          && ret.value[0..TYPEID_LEN] == SE.BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1]))
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#binary
     //= type=implication
@@ -285,7 +248,7 @@ module DynamoToStruct {
     ensures a.B? && !prefix && depth <= MAX_STRUCTURE_DEPTH ==> ret.Success? && ret.value == a.B
     ensures a.B? && prefix && ret.Success? && depth <= MAX_STRUCTURE_DEPTH ==>
       && ret.value[PREFIX_LEN..] == a.B
-      && ret.value[0..TYPEID_LEN] == BINARY
+      && ret.value[0..TYPEID_LEN] == SE.BINARY
       && U32ToBigEndian(|a.B|).Success?
       && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|a.B|).value
       && BigEndianToU32(ret.value[TYPEID_LEN..PREFIX_LEN]).value == |a.B|
@@ -294,7 +257,7 @@ module DynamoToStruct {
     //= type=implication
     //# Null MUST be serialized as a zero-length byte string.
     ensures a.NULL? && !prefix && depth <= MAX_STRUCTURE_DEPTH ==> ret.Success? && |ret.value| == 0
-    ensures a.NULL? &&  prefix && depth <= MAX_STRUCTURE_DEPTH ==> ret.Success? && |ret.value| == PREFIX_LEN && ret.value[0..TYPEID_LEN] == NULL && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,0]
+    ensures a.NULL? &&  prefix && depth <= MAX_STRUCTURE_DEPTH ==> ret.Success? && |ret.value| == PREFIX_LEN && ret.value[0..TYPEID_LEN] == SE.NULL && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,0]
   
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#string
     //= type=implication
@@ -304,7 +267,7 @@ module DynamoToStruct {
     ensures a.S? && ret.Success? && prefix ==> 
       && UTF8.Decode(ret.value[PREFIX_LEN..]).Success?
       && UTF8.Decode(ret.value[PREFIX_LEN..]).value == a.S
-      && ret.value[0..TYPEID_LEN] == STRING
+      && ret.value[0..TYPEID_LEN] == SE.STRING
       && UTF8.Encode(a.S).Success?
       && U32ToBigEndian(|UTF8.Encode(a.S).value|).Success?
       && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(a.S).value|).value
@@ -325,7 +288,7 @@ module DynamoToStruct {
       && var nn := Norm.NormalizeNumber(a.N).value;
       && UTF8.Decode(ret.value[PREFIX_LEN..]).Success?
       && UTF8.Decode(ret.value[PREFIX_LEN..]).value == nn
-      && ret.value[0..TYPEID_LEN] == NUMBER
+      && ret.value[0..TYPEID_LEN] == SE.NUMBER
       && UTF8.Encode(nn).Success?
       && U32ToBigEndian(|UTF8.Encode(nn).value|).Success?
       && ret.value[TYPEID_LEN..PREFIX_LEN] == U32ToBigEndian(|UTF8.Encode(nn).value|).value
@@ -363,7 +326,7 @@ module DynamoToStruct {
     ensures a.BS? && ret.Success? && prefix ==>
       && U32ToBigEndian(|a.BS|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
-      && ret.value[0..TYPEID_LEN] == BINARY_SET
+      && ret.value[0..TYPEID_LEN] == SE.BINARY_SET
       && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.BS|).value
       && (|a.BS| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
@@ -381,7 +344,7 @@ module DynamoToStruct {
     ensures a.SS? && ret.Success? && prefix ==>
       && U32ToBigEndian(|a.SS|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
-      && ret.value[0..TYPEID_LEN] == STRING_SET
+      && ret.value[0..TYPEID_LEN] == SE.STRING_SET
       && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.SS|).value
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
@@ -397,7 +360,7 @@ module DynamoToStruct {
     ensures a.NS? && ret.Success? && prefix ==>
       && U32ToBigEndian(|a.NS|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
-      && ret.value[0..TYPEID_LEN] == NUMBER_SET
+      && ret.value[0..TYPEID_LEN] == SE.NUMBER_SET
       && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.NS|).value
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list
@@ -427,7 +390,7 @@ module DynamoToStruct {
     ensures a.L? && ret.Success? && prefix ==>
       && U32ToBigEndian(|a.L|).Success?
       && |ret.value| >= PREFIX_LEN + LENGTH_LEN
-      && ret.value[0..TYPEID_LEN] == LIST
+      && ret.value[0..TYPEID_LEN] == SE.LIST
       && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
       && (|a.L| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
@@ -720,7 +683,7 @@ module DynamoToStruct {
     //# Map Key MUST be a [String Value](#string).
     ensures ret.Success? ==>
       && |ret.value| >= TYPEID_LEN
-      && ret.value[0..TYPEID_LEN] == STRING
+      && ret.value[0..TYPEID_LEN] == SE.STRING
       && UTF8.Encode(key).Success?
       && |ret.value| == TYPEID_LEN + LENGTH_LEN + |UTF8.Encode(key).value| + |value|
       && UTF8.Decode(ret.value[TYPEID_LEN+LENGTH_LEN..TYPEID_LEN+LENGTH_LEN+|UTF8.Encode(key).value|]).Success?
@@ -751,7 +714,7 @@ module DynamoToStruct {
       //# | Value Length | 4        |
       //# | Map Value    | Variable |
 
-      var serialized := STRING + len + name + value;
+      var serialized := SE.STRING + len + name + value;
       assert |serialized| == TYPEID_LEN + LENGTH_LEN + |name| + |value|;
       Success(serialized)
   }
@@ -958,7 +921,7 @@ module DynamoToStruct {
       // get typeId of key
       :- Need(6 <= |serialized|, "Out of bytes reading Map Key");
       var TerminalTypeId_key := serialized[0..2];
-      :- Need(TerminalTypeId_key == STRING, "Key of Map is not String");
+      :- Need(TerminalTypeId_key == SE.STRING, "Key of Map is not String");
       var serialized := serialized[2..];
 
       // get key
@@ -1019,7 +982,7 @@ module DynamoToStruct {
     if |value| < len then
       Failure("Structured Data has too few bytes")
 
-    else if typeId == NULL then
+    else if typeId == SE.NULL then
       if len != 0 then
         Failure("NULL type did not have length zero")
       else
@@ -1029,18 +992,18 @@ module DynamoToStruct {
         // and so round-trip identity is NOT preserved
         Success(AttrValueAndLength(AttributeValue.NULL(true), lengthBytes))
 
-    else if typeId == STRING then
+    else if typeId == SE.STRING then
       var str :- UTF8.Decode(value[..len]);
       Success(AttrValueAndLength(AttributeValue.S(str), len+lengthBytes))
 
-    else if typeId == NUMBER then
+    else if typeId == SE.NUMBER then
       var str :- UTF8.Decode(value[..len]);
       Success(AttrValueAndLength(AttributeValue.N(str), len+lengthBytes))
 
-    else if typeId == BINARY then
+    else if typeId == SE.BINARY then
       Success(AttrValueAndLength(AttributeValue.B(value[..len]), len+lengthBytes))
 
-    else if typeId == BOOLEAN then
+    else if typeId == SE.BOOLEAN then
       if len != BOOL_LEN then
         Failure("Boolean Structured Data has more than one byte")
       else if value[0] == 0x00 then
@@ -1050,7 +1013,7 @@ module DynamoToStruct {
       else
         Failure("Boolean Structured Data had inappropriate value")
 
-    else if typeId == STRING_SET then
+    else if typeId == SE.STRING_SET then
       if |value| < LENGTH_LEN then
         Failure("String Set Structured Data has less than LENGTH_LEN bytes")
       else
@@ -1058,7 +1021,7 @@ module DynamoToStruct {
         var value := value[LENGTH_LEN..];
         DeserializeStringSet(value, len, |value| + LENGTH_LEN + lengthBytes, AttrValueAndLength(AttributeValue.SS([]), LENGTH_LEN+lengthBytes))
 
-    else if typeId == NUMBER_SET then
+    else if typeId == SE.NUMBER_SET then
       if |value| < LENGTH_LEN then
         Failure("Number Set Structured Data has less than 4 bytes")
       else
@@ -1066,7 +1029,7 @@ module DynamoToStruct {
         var value := value[LENGTH_LEN..];
         DeserializeNumberSet(value, len, |value| + LENGTH_LEN + lengthBytes, AttrValueAndLength(AttributeValue.NS([]), LENGTH_LEN + lengthBytes))
 
-    else if typeId == BINARY_SET then
+    else if typeId == SE.BINARY_SET then
       if |value| < LENGTH_LEN then
         Failure("Binary Set Structured Data has less than LENGTH_LEN bytes")
       else
@@ -1074,7 +1037,7 @@ module DynamoToStruct {
         var value := value[LENGTH_LEN..];
         DeserializeBinarySet(value, len, |value| + LENGTH_LEN + lengthBytes, AttrValueAndLength(AttributeValue.BS([]), LENGTH_LEN + lengthBytes))
 
-    else if typeId == MAP then
+    else if typeId == SE.MAP then
       if |value| < LENGTH_LEN then
         Failure("List Structured Data has less than 4 bytes")
       else
@@ -1082,7 +1045,7 @@ module DynamoToStruct {
         var value := value[LENGTH_LEN..];
         DeserializeMap(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN + lengthBytes))
 
-    else if typeId == LIST then
+    else if typeId == SE.LIST then
       if |value| < LENGTH_LEN then
         Failure("List Structured Data has less than 4 bytes")
       else
@@ -1103,7 +1066,7 @@ module DynamoToStruct {
     set k <- m | m[k].Failure? :: m[k].error
   }
 
-  lemma OneBadResult<X,Y(==)>(m : map<X, Result<Y,string>>)
+  lemma OneBadResult<X,Y>(m : map<X, Result<Y,string>>)
     requires ! forall k <- m :: m[k].Success?
     ensures exists k <- m :: m[k].Failure?
     ensures |FlattenErrors(m)| > 0
@@ -1113,20 +1076,20 @@ module DynamoToStruct {
     assert exists k :: k in m && m[k].Failure? && (m[k].error in errors);
   }
 
-  lemma MapKeysMatchItems<X,Y(==)>(m : map<X,Y>)
+  lemma MapKeysMatchItems<X,Y>(m : map<X,Y>)
     ensures forall k :: k in m.Keys ==> (k, m[k]) in m.Items
   {}
 
   lemma OneBadKey<X,Y>(s : map<X,Y>, bad : set<X>, f : X -> bool)
     requires !forall k <- s.Keys :: f(k)
-    requires bad == set k <- s.Keys | !f(k) :: k;
+    requires bad == set k <- s.Keys | !f(k) :: k
     ensures exists k <- s.Keys :: !f(k)
     ensures |bad| > 0
   {
     assert exists v :: v in bad && !f(v) && (v in bad);
   }
 
-  lemma SimplifyMapValueSuccess<X,Y(==)>(m : map<X, Result<Y,string>>)
+  lemma SimplifyMapValueSuccess<X,Y>(m : map<X, Result<Y,string>>)
     ensures SimplifyMapValue(m).Success? <==> forall k <- m :: m[k].Success?
     ensures SimplifyMapValue(m).Success? ==> forall kv <- m.Items :: kv.1.Success?
     ensures SimplifyMapValue(m).Failure? <==> exists k : X | k in m.Keys :: m[k].Failure?

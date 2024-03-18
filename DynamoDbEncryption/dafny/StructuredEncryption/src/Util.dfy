@@ -12,6 +12,8 @@ module StructuredEncryptionUtil {
   import CMP = AwsCryptographyMaterialProvidersTypes
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import AlgorithmSuites
+  import SortedSets
+  import Base64
 
   // all attributes with this prefix reserved for the implementation
   const ReservedPrefix := "aws_dbe_"
@@ -19,7 +21,23 @@ module StructuredEncryptionUtil {
   const HeaderField := ReservedPrefix + "head"
   const FooterField := ReservedPrefix + "foot"
   const ReservedCryptoContextPrefixString := "aws-crypto-"
-  const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii("aws-crypto-")
+  const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii(ReservedCryptoContextPrefixString)
+
+  const ATTR_PREFIX := ReservedCryptoContextPrefixString + "attr."
+  const EC_ATTR_PREFIX : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(ATTR_PREFIX)
+  const LEGEND := ReservedCryptoContextPrefixString + "legend"
+  const LEGEND_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(LEGEND)
+  const LEGEND_STRING : char := 'S'
+  const LEGEND_NUMBER : char := 'N'
+  const LEGEND_LITERAL : char := 'L'
+  const LEGEND_BINARY : char := 'B'
+
+  const NULL_STR : string := "null"
+  const NULL_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(NULL_STR)
+  const TRUE_STR : string := "true"
+  const TRUE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(TRUE_STR)
+  const FALSE_STR : string := "false"
+  const FALSE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(FALSE_STR)
 
   //= specification/structured-encryption/encrypt-structure.md#header-field
   //= type=implication
@@ -59,11 +77,13 @@ module StructuredEncryptionUtil {
   const DoSign :=
     CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
   const EncryptAndSign :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.ENCRYPT_AND_SIGN), attributes := None);
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.ENCRYPT_AND_SIGN), attributes := None)
+  const ContextAndSign :=
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT), attributes := None)
   const SignOnly :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_ONLY), attributes := None);
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_ONLY), attributes := None)
   const DoNothing :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.DO_NOTHING), attributes := None);
+    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.DO_NOTHING), attributes := None)
 
   type Key = x : seq<uint8> | |x| == KeySize witness *
   type Nonce = x : seq<uint8> | |x| == NonceSize witness *
@@ -128,6 +148,7 @@ module StructuredEncryptionUtil {
   {
     forall k <- data :: data[k].content.Action?
   }
+  type FlatSchemaMap = x : CryptoSchemaMap | CryptoSchemaMapIsFlat(x)
 
   // Schema must contain only Actions
   function method AuthSchemaIsFlat(data : AuthenticateSchemaMap) : (ret : bool)
@@ -142,11 +163,12 @@ module StructuredEncryptionUtil {
   {
     forall k <- data :: data[k].content.Terminal?
   }
+  type FlatDataMap = x : StructuredDataMap | DataMapIsFlat(x)
 
   // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
   {
-    x.ENCRYPT_AND_SIGN? || x.SIGN_ONLY?
+    x.ENCRYPT_AND_SIGN? || x.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT? || x.SIGN_ONLY?
   }
 
   // wrap a value in a StructuredData
@@ -181,4 +203,90 @@ module StructuredEncryptionUtil {
   {
     x < y
   }
+
+  //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#type-id
+  //= type=implication
+  //# Type ID indicates what type a DynamoDB Attribute Value MUST
+  //# be serialized and deserialized as.
+  //# | Attribute Value Data Type | Terminal Type ID |
+  //# | ------------------------- | ---------------- |
+  //# | Null (NULL)               | 0x0000           |
+  //# | String (S)                | 0x0001           |
+  //# | Number (N)                | 0x0002           |
+  //# | Binary (B)                | 0xFFFF           |
+  //# | Boolean (BOOL)            | 0x0004           |
+  //# | String Set (SS)           | 0x0101           |
+  //# | Number Set (NS)           | 0x0102           |
+  //# | Binary Set (BS)           | 0x01FF           |
+  //# | Map (M)                   | 0x0200           |
+  //# | List (L)                  | 0x0300           |
+  const TERM_T : uint8 := 0x00
+  const SET_T  : uint8 := 0x01
+  const MAP_T  : uint8 := 0x02
+  const LIST_T : uint8 := 0x03
+  const NULL_T : uint8 := 0x00
+  const STRING_T  : uint8 := 0x01
+  const NUMBER_T  : uint8 := 0x02
+  const BINARY_T : uint8 := 0xFF
+  const BOOLEAN_T : uint8 := 0x04
+
+  const NULL       : TerminalTypeId := [TERM_T, NULL_T]
+  const STRING     : TerminalTypeId := [TERM_T, STRING_T]
+  const NUMBER     : TerminalTypeId := [TERM_T, NUMBER_T]
+  const BINARY     : TerminalTypeId := [0xFF, 0xFF]
+  const BOOLEAN    : TerminalTypeId := [TERM_T, BOOLEAN_T]
+  const STRING_SET : TerminalTypeId := [SET_T,  STRING_T]
+  const NUMBER_SET : TerminalTypeId := [SET_T,  NUMBER_T]
+  const BINARY_SET : TerminalTypeId := [SET_T,  BINARY_T]
+  const MAP        : TerminalTypeId := [MAP_T,  NULL_T]
+  const LIST       : TerminalTypeId := [LIST_T, NULL_T]
+
+  method EcAsString(ec : CMP.EncryptionContext) returns (output : map<string, string>)
+  {
+    var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(ec.Keys, ByteLess);
+    var ret : map<string, string> := map[];
+    for i := 0 to |keys| {
+      var key :- expect UTF8.Decode(keys[i]);
+      var value :- expect UTF8.Decode(ec[keys[i]]);
+      ret := ret[key := value];
+    }
+    return ret;
+  }
+
+  method PrintEncryptionContext(ec : CMP.EncryptionContext, name : string)
+  {
+    var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(ec.Keys, ByteLess);
+    print name, " := {\n";
+    for i := 0 to |keys| {
+      var key :- expect UTF8.Decode(keys[i]);
+      var value :- expect UTF8.Decode(ec[keys[i]]);
+      print "  ", key, " := ", value, "\n";
+    }
+    print "}\n";
+  }
+
+  function method EncodeTerminal(t : StructuredDataTerminal) : (ret : UTF8.ValidUTF8Bytes)
+    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-1
+    //= type=implication
+    //# The value MUST be the UTF8 Encoding of the
+    //# [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648),
+    //# of the concatenation of the bytes `typeID + serializedValue`
+    //# where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
+    //# and `serializedValue` is the attribute's value serialized according to
+    //# [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization).
+    ensures ret == UTF8.EncodeAscii(Base64.Encode(t.typeId + t.value))
+  {
+    UTF8.EncodeAscii(Base64.Encode(t.typeId + t.value))
+  }
+
+  function method DecodeTerminal(t : UTF8.ValidUTF8Bytes) : (ret : Result<StructuredDataTerminal, string>)
+  {
+    var utf8DecodedVal :- UTF8.Decode(t);
+    var base64DecodedVal :- Base64.Decode(utf8DecodedVal);
+    :- Need(|base64DecodedVal| >= 2, "Invalid serialization of DDB Attribute in encryption context.");
+    var typeId := base64DecodedVal[..2];
+    var serializedValue := base64DecodedVal[2..];
+    Success(StructuredDataTerminal(value := serializedValue, typeId := typeId))
+  }
+
 }

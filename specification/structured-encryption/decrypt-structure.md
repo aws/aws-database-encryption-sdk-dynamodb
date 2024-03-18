@@ -106,6 +106,7 @@ representing the deserialized form of the header of the input encrypted structur
   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
 - [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
 - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
+- [Encryption Context](#encryption-context): The full Encryption Context used.
 
 ## Behavior
 
@@ -155,16 +156,19 @@ in the [input Structured Data](#structured-data):
 
 ### Retrieve Decryption Materials
 
+This operation MUST [calculate the appropriate CMM and encryption context](#create-new-encryption-context-and-cmm).
+
 This operation MUST obtain a set of decryption materials by calling
 [Decrypt Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
-on the [input CMM](#cmm).
+on the [CMM](#cmm) calculated above.
 
 The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
 - Encryption Context: The [Encryption Context parsed from the header](./header.md#encryption-context).
 - Algorithm Suite ID: The algorithm suite [indicated by the Message Format Flavor](./header.md#format-flavor)
   parsed in the header.
+- Commitment Policy: DBE_COMMITMENT_POLICY
 - Encrypted Data Keys: The [Encrypted Data Keys parsed from the header](./header.md#encrypted-data-keys).
-- Reproduced Encryption Context: This is the [input](#input) encryption context.
+- Reproduced Encryption Context: This is the encryption context calculated above.
 
 The algorithm suite used in all further aspects of this operation MUST be
 the algorithm suite in the
@@ -174,6 +178,25 @@ Note that the algorithm suite in the retrieved decryption materials MAY be diffe
 If this algorithm suite is not a
 [supported suite for DBE](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum)
 this operation MUST yield an error.
+
+#### Create New Encryption Context and CMM
+
+If the version stored in the header is 1,
+then the input cmm and encryption context MUST be used unchanged.
+
+Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2) to the encryption context for every
+[SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+[Terminal Data](./structures.md#terminal-data)
+in the input record, plus the Legend.
+
+An error MUST be returned if any of the entries added to the encryption context in this step
+have the same key as any entry already in the encryption context.
+
+Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
+with the following inputs:
+- This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
+- The name of every entry added above.
+
 
 ### Verify Signatures
 

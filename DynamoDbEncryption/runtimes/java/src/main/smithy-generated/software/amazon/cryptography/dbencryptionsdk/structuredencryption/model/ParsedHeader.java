@@ -18,11 +18,14 @@ public class ParsedHeader {
 
   private final Map<String, String> storedEncryptionContext;
 
+  private final Map<String, String> encryptionContext;
+
   protected ParsedHeader(BuilderImpl builder) {
     this.cryptoSchema = builder.cryptoSchema();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.encryptedDataKeys = builder.encryptedDataKeys();
     this.storedEncryptionContext = builder.storedEncryptionContext();
+    this.encryptionContext = builder.encryptionContext();
   }
 
   public CryptoSchema cryptoSchema() {
@@ -39,6 +42,10 @@ public class ParsedHeader {
 
   public Map<String, String> storedEncryptionContext() {
     return this.storedEncryptionContext;
+  }
+
+  public Map<String, String> encryptionContext() {
+    return this.encryptionContext;
   }
 
   public Builder toBuilder() {
@@ -66,6 +73,10 @@ public class ParsedHeader {
 
     Map<String, String> storedEncryptionContext();
 
+    Builder encryptionContext(Map<String, String> encryptionContext);
+
+    Map<String, String> encryptionContext();
+
     ParsedHeader build();
   }
 
@@ -78,6 +89,8 @@ public class ParsedHeader {
 
     protected Map<String, String> storedEncryptionContext;
 
+    protected Map<String, String> encryptionContext;
+
     protected BuilderImpl() {
     }
 
@@ -86,6 +99,7 @@ public class ParsedHeader {
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.encryptedDataKeys = model.encryptedDataKeys();
       this.storedEncryptionContext = model.storedEncryptionContext();
+      this.encryptionContext = model.encryptionContext();
     }
 
     public Builder cryptoSchema(CryptoSchema cryptoSchema) {
@@ -124,6 +138,15 @@ public class ParsedHeader {
       return this.storedEncryptionContext;
     }
 
+    public Builder encryptionContext(Map<String, String> encryptionContext) {
+      this.encryptionContext = encryptionContext;
+      return this;
+    }
+
+    public Map<String, String> encryptionContext() {
+      return this.encryptionContext;
+    }
+
     public ParsedHeader build() {
       if (Objects.isNull(this.cryptoSchema()))  {
         throw new IllegalArgumentException("Missing value for required field `cryptoSchema`");
@@ -136,6 +159,9 @@ public class ParsedHeader {
       }
       if (Objects.isNull(this.storedEncryptionContext()))  {
         throw new IllegalArgumentException("Missing value for required field `storedEncryptionContext`");
+      }
+      if (Objects.isNull(this.encryptionContext()))  {
+        throw new IllegalArgumentException("Missing value for required field `encryptionContext`");
       }
       return new ParsedHeader(this);
     }

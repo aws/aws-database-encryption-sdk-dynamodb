@@ -11,7 +11,7 @@ module
 {
   import opened DdbMiddlewareConfig
   import opened StandardLibrary
-  import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+  import IE_Types = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import Operations = AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations
   import DynamoDbItemEncryptor
   import SearchConfigToInfo
@@ -102,13 +102,15 @@ module
   }
 
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
-    returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
+    returns (res: Result<IDynamoDbEncryptionTransformsClient, Error>)
       //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
       //= type=implication
       //# When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
       //# there MUST a one to one mapping between the two.
       ensures res.Success? ==>
-        && DdbMiddlewareConfig.ValidConfig?(res.value.config)
+        && res.value is DynamoDbEncryptionTransformsClient
+        && var config := (res.value as DynamoDbEncryptionTransformsClient).config;
+        && DdbMiddlewareConfig.ValidConfig?(config)
   {
     var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
     assert ValidWholeSearchConfig(config);
@@ -167,7 +169,7 @@ module
         //# `NAME` MUST be automatically configured with an attribute action of SIGN_ONLY.
         var newActions := AddSignedBeaconActions(signedBeacons, inputConfig.attributeActionsOnEncrypt);
 
-        var encryptorConfig := AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.DynamoDbItemEncryptorConfig(
+        var encryptorConfig := IE_Types.DynamoDbItemEncryptorConfig(
           logicalTableName := inputConfig.logicalTableName,
           partitionKeyName := inputConfig.partitionKeyName,
           sortKeyName := inputConfig.sortKeyName,
@@ -181,8 +183,15 @@ module
           plaintextOverride := inputConfig.plaintextOverride
         );
         var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-        var itemEncryptor :- itemEncryptorRes
+        var itemEncryptorX : IE_Types.IDynamoDbItemEncryptorClient :- itemEncryptorRes
           .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(e));
+        assert itemEncryptorX is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+        var itemEncryptor := itemEncryptorX as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+        assert itemEncryptor.ValidState();
+        var encConfig := itemEncryptor.config;
+        assert inputConfig.logicalTableName == encConfig.logicalTableName;
+        assert inputConfig.partitionKeyName == encConfig.partitionKeyName;
+        assert inputConfig.sortKeyName == encConfig.sortKeyName;
 
         var internalConfig: DdbMiddlewareConfig.ValidTableConfig := DdbMiddlewareConfig.TableConfig(
           physicalTableName := tableName,
@@ -192,7 +201,7 @@ module
           itemEncryptor := itemEncryptor,
           search := search
         );
-        
+
         internalConfigs := internalConfigs[tableName := internalConfig];
         allLogicalTableNames := allLogicalTableNames + {internalConfig.logicalTableName};
 

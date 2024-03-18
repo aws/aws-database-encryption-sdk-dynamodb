@@ -18,7 +18,8 @@ module
   }
 
   method StructuredEncryption(config: StructuredEncryptionConfig)
-    returns (res: Result<StructuredEncryptionClient, Error>)
+    returns (res: Result<IStructuredEncryptionClient, Error>)
+    ensures res.Success? ==> res.value is StructuredEncryptionClient
   {
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));

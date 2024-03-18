@@ -154,7 +154,9 @@ public class ToDafny {
     encryptedDataKeys = software.amazon.cryptography.materialproviders.ToDafny.EncryptedDataKeyList(nativeValue.encryptedDataKeys());
     DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> storedEncryptionContext;
     storedEncryptionContext = software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(nativeValue.storedEncryptionContext());
-    return new ParsedHeader(cryptoSchema, algorithmSuiteId, encryptedDataKeys, storedEncryptionContext);
+    DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> encryptionContext;
+    encryptionContext = software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(nativeValue.encryptionContext());
+    return new ParsedHeader(cryptoSchema, algorithmSuiteId, encryptedDataKeys, storedEncryptionContext, encryptionContext);
   }
 
   public static StructuredData StructuredData(
@@ -208,6 +210,9 @@ public class ToDafny {
     switch (nativeValue) {
       case ENCRYPT_AND_SIGN: {
         return CryptoAction.create_ENCRYPT__AND__SIGN();
+      }
+      case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT: {
+        return CryptoAction.create_SIGN__AND__INCLUDE__IN__ENCRYPTION__CONTEXT();
       }
       case SIGN_ONLY: {
         return CryptoAction.create_SIGN__ONLY();

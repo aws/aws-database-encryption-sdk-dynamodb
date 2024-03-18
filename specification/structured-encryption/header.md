@@ -38,7 +38,11 @@ The value of the header MUST be
 The message format version dictates the cryptographic algorithms supported
 as well as the specific serialized header and footer format.
 
-The Version MUST be `0x01`.
+The Version MUST be `0x01` or `0x02`.
+
+If any [Crypto Action](./structures.md#crypto-action) is configured as
+[SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
+the Version MUST be 0x02; otherwise, Version MUST be 0x01.
 
 ### Format Flavor
 
@@ -81,6 +85,10 @@ Each Crypto Action MUST be encoded as follows
   This indicates that this field MUST be attempted to be decrypted during decryption.
 - `0x73` (`s` in UTF-8, for "Sign Only") means that a particular field was not encrypted,
   but still included in the signature calculation.
+  This indicates that this field MUST NOT be attempted to be decrypted during decryption.
+- `0x63` (`c` in UTF-8, for "Context") means that a particular field was not encrypted,
+  but still included in the signature calculation,
+  as well as being included in the encryption context.
   This indicates that this field MUST NOT be attempted to be decrypted during decryption.
 - no entry if the attribute is not signed
 

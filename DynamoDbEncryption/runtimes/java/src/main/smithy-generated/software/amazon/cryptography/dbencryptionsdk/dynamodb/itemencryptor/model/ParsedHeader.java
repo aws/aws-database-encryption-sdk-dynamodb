@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.mode
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
@@ -34,11 +35,23 @@ public class ParsedHeader {
    */
   private final Map<String, String> storedEncryptionContext;
 
+  /**
+   * The full encryption context.
+   */
+  private final Map<String, String> encryptionContext;
+
+  /**
+   * The encryption context as presented to the branch key selector.
+   */
+  private final Map<String, AttributeValue> selectorContext;
+
   protected ParsedHeader(BuilderImpl builder) {
     this.attributeActionsOnEncrypt = builder.attributeActionsOnEncrypt();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.encryptedDataKeys = builder.encryptedDataKeys();
     this.storedEncryptionContext = builder.storedEncryptionContext();
+    this.encryptionContext = builder.encryptionContext();
+    this.selectorContext = builder.selectorContext();
   }
 
   /**
@@ -67,6 +80,20 @@ public class ParsedHeader {
    */
   public Map<String, String> storedEncryptionContext() {
     return this.storedEncryptionContext;
+  }
+
+  /**
+   * @return The full encryption context.
+   */
+  public Map<String, String> encryptionContext() {
+    return this.encryptionContext;
+  }
+
+  /**
+   * @return The encryption context as presented to the branch key selector.
+   */
+  public Map<String, AttributeValue> selectorContext() {
+    return this.selectorContext;
   }
 
   public Builder toBuilder() {
@@ -118,6 +145,26 @@ public class ParsedHeader {
      */
     Map<String, String> storedEncryptionContext();
 
+    /**
+     * @param encryptionContext The full encryption context.
+     */
+    Builder encryptionContext(Map<String, String> encryptionContext);
+
+    /**
+     * @return The full encryption context.
+     */
+    Map<String, String> encryptionContext();
+
+    /**
+     * @param selectorContext The encryption context as presented to the branch key selector.
+     */
+    Builder selectorContext(Map<String, AttributeValue> selectorContext);
+
+    /**
+     * @return The encryption context as presented to the branch key selector.
+     */
+    Map<String, AttributeValue> selectorContext();
+
     ParsedHeader build();
   }
 
@@ -130,6 +177,10 @@ public class ParsedHeader {
 
     protected Map<String, String> storedEncryptionContext;
 
+    protected Map<String, String> encryptionContext;
+
+    protected Map<String, AttributeValue> selectorContext;
+
     protected BuilderImpl() {
     }
 
@@ -138,6 +189,8 @@ public class ParsedHeader {
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.encryptedDataKeys = model.encryptedDataKeys();
       this.storedEncryptionContext = model.storedEncryptionContext();
+      this.encryptionContext = model.encryptionContext();
+      this.selectorContext = model.selectorContext();
     }
 
     public Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt) {
@@ -176,6 +229,24 @@ public class ParsedHeader {
       return this.storedEncryptionContext;
     }
 
+    public Builder encryptionContext(Map<String, String> encryptionContext) {
+      this.encryptionContext = encryptionContext;
+      return this;
+    }
+
+    public Map<String, String> encryptionContext() {
+      return this.encryptionContext;
+    }
+
+    public Builder selectorContext(Map<String, AttributeValue> selectorContext) {
+      this.selectorContext = selectorContext;
+      return this;
+    }
+
+    public Map<String, AttributeValue> selectorContext() {
+      return this.selectorContext;
+    }
+
     public ParsedHeader build() {
       if (Objects.isNull(this.attributeActionsOnEncrypt()))  {
         throw new IllegalArgumentException("Missing value for required field `attributeActionsOnEncrypt`");
@@ -188,6 +259,12 @@ public class ParsedHeader {
       }
       if (Objects.isNull(this.storedEncryptionContext()))  {
         throw new IllegalArgumentException("Missing value for required field `storedEncryptionContext`");
+      }
+      if (Objects.isNull(this.encryptionContext()))  {
+        throw new IllegalArgumentException("Missing value for required field `encryptionContext`");
+      }
+      if (Objects.isNull(this.selectorContext()))  {
+        throw new IllegalArgumentException("Missing value for required field `selectorContext`");
       }
       return new ParsedHeader(this);
     }

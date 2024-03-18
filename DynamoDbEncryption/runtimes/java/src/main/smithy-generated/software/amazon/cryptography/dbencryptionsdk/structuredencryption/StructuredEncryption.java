@@ -6,7 +6,6 @@ package software.amazon.cryptography.dbencryptionsdk.structuredencryption;
 import Wrappers_Compile.Result;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
-import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.StructuredEncryptionClient;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.__default;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.IStructuredEncryptionClient;
@@ -22,7 +21,7 @@ public class StructuredEncryption {
   protected StructuredEncryption(BuilderImpl builder) {
     StructuredEncryptionConfig input = builder.StructuredEncryptionConfig();
     software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig dafnyValue = ToDafny.StructuredEncryptionConfig(input);
-    Result<StructuredEncryptionClient, Error> result = __default.StructuredEncryption(dafnyValue);
+    Result<IStructuredEncryptionClient, Error> result = __default.StructuredEncryption(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
