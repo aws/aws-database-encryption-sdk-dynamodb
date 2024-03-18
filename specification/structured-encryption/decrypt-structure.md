@@ -189,6 +189,9 @@ Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encr
 [Terminal Data](./structures.md#terminal-data)
 in the input record, plus the Legend.
 
+An error MUST be returned if any of the entries added to the encryption context in this step
+have the same key as any entry already in the encryption context.
+
 Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
 - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.

@@ -161,6 +161,9 @@ Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encr
 [Terminal Data](./structures.md#terminal-data)
 in the input record, plus the Legend.
 
+An error MUST be returned if any of the entries added to the encryption context in this step
+have the same key as any entry already in the encryption context.
+
 The Legend MUST be named "aws-crypto-legend" and be a string with one character per attribute added above,
 with a one-to-one correspondence with the attributes sorted by their UTF8 encoding,
 each character designating the original type of the attribute,

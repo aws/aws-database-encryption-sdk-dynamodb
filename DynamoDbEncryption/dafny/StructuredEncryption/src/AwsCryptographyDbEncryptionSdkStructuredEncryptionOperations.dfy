@@ -643,6 +643,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
       var newEncryptionContext :- GetV2EncryptionContext(cryptoSchema, plainRecord);
       if |newEncryptionContext| != 0 {
+        //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+        //# An error MUST be returned if any of the entries added to the encryption context in this step
+        //# have the same key as any entry already in the encryption context.
+        :- Need(encryptionContext.Keys !! newEncryptionContext.Keys,
+                E("Internal Error - Structured Encryption encryption context overlaps with Item Encryptor encryption context."));
         encryptionContext := encryptionContext + newEncryptionContext;
         assert cmm.Modifies !! {config.materialProviders.History};
         //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
@@ -940,6 +945,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       //# in the input record, plus the Legend.
       var newEncryptionContext :- GetV2EncryptionContext2(canonData.contextFields, encRecord);
       if |newEncryptionContext| != 0 {
+        //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+        //# An error MUST be returned if any of the entries added to the encryption context in this step
+        //# have the same key as any entry already in the encryption context.
+        :- Need(encryptionContext.Keys !! newEncryptionContext.Keys,
+                E("Internal Error - Structured Encryption encryption context overlaps with Item Encryptor encryption context."));
         encryptionContext := encryptionContext + newEncryptionContext;
         assert cmm.Modifies !! {config.materialProviders.History};
 
