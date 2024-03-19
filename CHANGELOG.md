@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.0 2024-03-20
+
+### Features
+
+- A fourth Crypto Action will be made available : `SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT`, to join the existing `DO_NOTHING`, `SIGN_ONLY` and `ENCRYPT_AND_SIGN`. `SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT` behaves like `SIGN_ONLY`, but also includes the value in the encryption context, making it available to the branch key selector.
+- The Parsed Header, returned from EncryptItem and DecryptItem, now returns two more fields
+  - encryptionContext : the full encryption context used for encryption
+  - selectorContext : the encryption context as presented to the branch key selector
+- The Java Enhanced Client now supports Single Table Design. When using the DynamoDbEnhancedTableEncryptionConfig builder, one can now specify `schemaOnEncrypt` multiple times, once for each class being modeled in the table.
+
 ## 3.2.0 2024-01-16
 
 ### Features
@@ -15,7 +25,7 @@
 - New APIs : ResolveAttributes and GetVirtualFields to assist in development and debugging.
 
 ### Fix
- - String compare for client side filtering of Scan and Query results could somtimes produce the wrong result for certain characters.
+ - String compare for client side filtering of Scan and Query results could sometimes produce the wrong result for certain characters.
 
 
 ## 3.1.2 2023-11-13
