@@ -9,6 +9,7 @@
   - encryptionContext : the full encryption context used for encryption
   - selectorContext : the encryption context as presented to the branch key selector
 - The Java Enhanced Client now supports Single Table Design. When using the DynamoDbEnhancedTableEncryptionConfig builder, one can now specify `schemaOnEncrypt` multiple times, once for each class being modeled in the table.
+- There was a hard limit of 100 on the size of maps and lists in Items to be encrypted. This limit has been removed.
 
 ## 3.2.0 2024-01-16
 
