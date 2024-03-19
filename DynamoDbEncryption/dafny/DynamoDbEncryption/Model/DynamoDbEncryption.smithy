@@ -20,6 +20,7 @@ use aws.cryptography.keyStore#KeyStore
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#CryptoAction
 
 use com.amazonaws.dynamodb#DynamoDB_20120810
+use com.amazonaws.dynamodb#AttributeMap
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#Key
@@ -42,11 +43,46 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
   ]
 )
 service DynamoDbEncryption {
-    version: "2022-11-21",
-    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier ],
+    version: "2024-03-06",
+    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription],
     errors: [ DynamoDbEncryptionException ]
 }
 
+operation GetEncryptedDataKeyDescription {
+    input: GetEncryptedDataKeyDescriptionInput,
+    output: GetEncryptedDataKeyDescriptionOutput,
+}
+
+structure GetEncryptedDataKeyDescriptionInput {
+    @required
+    input: GetEncryptedDataKeyDescriptionUnion
+}
+
+union GetEncryptedDataKeyDescriptionUnion {
+  header: Blob,
+  plaintextItem: AttributeMap,
+}
+
+structure GetEncryptedDataKeyDescriptionOutput {
+    @required
+    EncryptedDataKeyDescriptionOutput: EncryptedDataKeyDescriptionList
+}
+
+list EncryptedDataKeyDescriptionList {
+  member: EncryptedDataKeyDescriptionOutput
+}
+
+structure EncryptedDataKeyDescriptionOutput {
+  @required
+  keyProviderId: String,
+
+  @required
+  keyProviderInfo: String,
+    
+  branchKeyId: String,
+
+  branchKeyVersion: String
+}
 // The top level DynamoDbEncryption local service takes in no config
 structure DynamoDbEncryptionConfig {
 }

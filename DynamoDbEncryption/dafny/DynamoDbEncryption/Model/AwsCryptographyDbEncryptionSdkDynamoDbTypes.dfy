@@ -91,8 +91,10 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  class IDynamoDbEncryptionClientCallHistory {
  ghost constructor() {
  CreateDynamoDbEncryptionBranchKeyIdSupplier := [];
+ GetEncryptedDataKeyDescription := [];
 }
  ghost var CreateDynamoDbEncryptionBranchKeyIdSupplier: seq<DafnyCallEvent<CreateDynamoDbEncryptionBranchKeyIdSupplierInput, Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>>>
+ ghost var GetEncryptedDataKeyDescription: seq<DafnyCallEvent<GetEncryptedDataKeyDescriptionInput, Result<GetEncryptedDataKeyDescriptionOutput, Error>>>
 }
  trait {:termination false} IDynamoDbEncryptionClient
  {
@@ -144,6 +146,21 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
  ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
  ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
+ 
+ predicate GetEncryptedDataKeyDescriptionEnsuresPublicly(input: GetEncryptedDataKeyDescriptionInput , output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
+ // The public method to be called by library consumers
+ method GetEncryptedDataKeyDescription ( input: GetEncryptedDataKeyDescriptionInput )
+ returns (output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`GetEncryptedDataKeyDescription
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
+ ensures History.GetEncryptedDataKeyDescription == old(History.GetEncryptedDataKeyDescription) + [DafnyCallEvent(input, output)]
  
 }
  datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
@@ -232,6 +249,13 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
  nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
  )
+ type EncryptedDataKeyDescriptionList = seq<EncryptedDataKeyDescriptionOutput>
+ datatype EncryptedDataKeyDescriptionOutput = | EncryptedDataKeyDescriptionOutput (
+ nameonly keyProviderId: string ,
+ nameonly keyProviderInfo: string ,
+ nameonly branchKeyId: Option<string> ,
+ nameonly branchKeyVersion: Option<string>
+ )
  datatype EncryptedPart = | EncryptedPart (
  nameonly name: string ,
  nameonly prefix: Prefix
@@ -246,6 +270,15 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  datatype GetBranchKeyIdFromDdbKeyOutput = | GetBranchKeyIdFromDdbKeyOutput (
  nameonly branchKeyId: string
  )
+ datatype GetEncryptedDataKeyDescriptionInput = | GetEncryptedDataKeyDescriptionInput (
+ nameonly input: GetEncryptedDataKeyDescriptionUnion
+ )
+ datatype GetEncryptedDataKeyDescriptionOutput = | GetEncryptedDataKeyDescriptionOutput (
+ nameonly EncryptedDataKeyDescriptionOutput: EncryptedDataKeyDescriptionList
+ )
+ datatype GetEncryptedDataKeyDescriptionUnion =
+ | header(header: seq<uint8>)
+ | plaintextItem(plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap)
  datatype GetPrefix = | GetPrefix (
  nameonly length: int32
  )
@@ -510,6 +543,26 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  History.CreateDynamoDbEncryptionBranchKeyIdSupplier := History.CreateDynamoDbEncryptionBranchKeyIdSupplier + [DafnyCallEvent(input, output)];
 }
  
+ predicate GetEncryptedDataKeyDescriptionEnsuresPublicly(input: GetEncryptedDataKeyDescriptionInput , output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
+ {Operations.GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method GetEncryptedDataKeyDescription ( input: GetEncryptedDataKeyDescriptionInput )
+ returns (output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`GetEncryptedDataKeyDescription
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
+ ensures History.GetEncryptedDataKeyDescription == old(History.GetEncryptedDataKeyDescription) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.GetEncryptedDataKeyDescription(config, input);
+ History.GetEncryptedDataKeyDescription := History.GetEncryptedDataKeyDescription + [DafnyCallEvent(input, output)];
+}
+ 
 }
 }
  abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
@@ -541,4 +594,20 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  && fresh(output.value.branchKeyIdSupplier)
  && fresh ( output.value.branchKeyIdSupplier.Modifies - ModifiesInternalConfig(config) - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
  ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
+
+
+ predicate GetEncryptedDataKeyDescriptionEnsuresPublicly(input: GetEncryptedDataKeyDescriptionInput , output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method GetEncryptedDataKeyDescription ( config: InternalConfig , input: GetEncryptedDataKeyDescriptionInput )
+ returns (output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
 }
