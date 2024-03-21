@@ -57,6 +57,44 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # Update the project.properties file so that we pick up the right runtimes etc.,
+    # in cases where inputs.dafny is different from the current value in that file.
+    - name: Generate smithy-dafny-project.properties file
+      env:
+        DAFNY_VERSION: ${{ inputs.dafny }}
+      shell: bash
+      run: |
+        make generate_properties_file
+
+    - name: Read smithy-dafny-project.properties file
+      id: read_smithy_dafny_property
+      uses: christian-draeger/read-properties@1.1.1
+      with:
+        path: "./smithy-dafny-project.properties"
+        properties: "dafnyVersion"
+
+    - name: Read project.properties file
+      id: read_property
+      uses: christian-draeger/read-properties@1.1.1
+      with:
+        path: "./smithy-dafny-project.properties"
+        properties: "projectJavaVersion mplDependencyJavaVersion smithyDafnyJavaConversionVersion"
+
+    - name: Update top-level project.properties file
+      uses: christian-draeger/write-properties@1.1.0
+      with:
+        path: "./project.properties"
+        property: |
+          'projectJavaVersion'
+          'mplDependencyJavaVersion'
+          'dafnyRuntimeJavaVersion'
+          'smithyDafnyJavaConversionVersion'
+        value: |
+          '${{ steps.read_property.outputs.projectJavaVersion }}'
+          '${{ steps.read_property.outputs.mplDependencyJavaVersion }}'
+          '${{ steps.read_smithy_dafny_property.outputs.dafnyVersion }}'
+          '${{ steps.read_property.outputs.smithyDafnyJavaConversionVersion }}'
+
     - name: Update MPL submodule locally if requested
       if: inputs.update-and-regenerate-mpl == 'true'
       working-directory: submodules/MaterialProviders
