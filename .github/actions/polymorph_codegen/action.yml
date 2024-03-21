@@ -57,6 +57,15 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Update MPL submodule locally if requested
+      if: inputs.update-and-regenerate-mpl == 'true'
+      working-directory: submodules/MaterialProviders
+      shell: bash
+      run: |
+        git checkout main
+        git pull
+        git submodule update --init --recursive
+
     # Update the project.properties file so that we pick up the right runtimes etc.,
     # in cases where inputs.dafny is different from the current value in that file.
     - name: Generate smithy-dafny-project.properties file
@@ -94,15 +103,6 @@ runs:
           '${{ steps.read_property.outputs.mplDependencyJavaVersion }}'
           '${{ steps.read_smithy_dafny_property.outputs.dafnyVersion }}'
           '${{ steps.read_property.outputs.smithyDafnyJavaConversionVersion }}'
-
-    - name: Update MPL submodule locally if requested
-      if: inputs.update-and-regenerate-mpl == 'true'
-      working-directory: submodules/MaterialProviders
-      shell: bash
-      run: |
-        git checkout main
-        git pull
-        git submodule update --init --recursive
 
     - name: Don't regenerate dependencies unless requested
       id: dependencies
