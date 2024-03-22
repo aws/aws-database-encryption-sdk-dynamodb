@@ -80,6 +80,7 @@ runs:
       run: |
         awk -F= '!a[$1]++' smithy-dafny-project.properties project.properties > merged.properties
         mv merged.properties project.properties
+        cat project.properties
 
     - name: Don't regenerate dependencies unless requested
       id: dependencies
