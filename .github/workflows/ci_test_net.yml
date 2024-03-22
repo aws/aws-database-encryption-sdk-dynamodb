@@ -99,6 +99,7 @@ jobs:
         run: |
           dotnet restore runtimes/net/tests
           dotnet build runtimes/net/tests
+          dotnet build runtimes/net /p:Configuration=Release -nowarn:CS0162,CS0168
           dotnet pack runtimes/net/DynamoDbEncryption.csproj --no-build /p:Configuration=Release --output build
           if [ "$RUNNER_OS" == "macOS" ]; then
             make test_net_mac_intel
