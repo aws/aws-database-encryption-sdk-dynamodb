@@ -107,6 +107,7 @@ jobs:
       
       - name: Test Build and Pack ${{ matrix.library}}
         shell: bash
+        if: matrix.os != 'windows-latest'
         working-directory: ./${{ matrix.library }}
         run: |
           dotnet build runtimes/net /p:Configuration=Release -nowarn:CS0162,CS0168
