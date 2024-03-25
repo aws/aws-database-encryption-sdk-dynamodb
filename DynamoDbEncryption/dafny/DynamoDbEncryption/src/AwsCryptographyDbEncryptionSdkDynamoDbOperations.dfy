@@ -65,7 +65,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     {
       case plaintextItem(plaintextItem) =>{
         :- Need(DynamoToStruct.ItemToStructured(plaintextItem).Success?, E("Failed to convert AttributeMap to StructuredDataMap."));
-        :- Need("aws_dbe_head" in DynamoToStruct.ItemToStructured(plaintextItem).Extract(), E("error"));
+        :- Need("aws_dbe_head" in DynamoToStruct.ItemToStructured(plaintextItem).Extract(), E("aws_dbe_head is not present in the attribute map."));
         header := DynamoToStruct.ItemToStructured(plaintextItem).Extract()["aws_dbe_head"].content.Terminal.value;
       }
       case header(headeritem) =>
@@ -86,13 +86,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     for i := 0 to |datakeys| {
       var singleDataKeyOutput : EncryptedDataKeyDescriptionOutput;
       
-      :- Need(UTF8.Decode(datakeys[i].keyProviderId).Success?, E("Failed to extract keyProviderId"));
-      :- Need(UTF8.Decode(datakeys[i].keyProviderInfo).Success?, E("Failed to extract keyProviderInfo"));
+      :- Need(UTF8.Decode(datakeys[i].keyProviderId).Success?, E("Failed to extract keyProviderId."));
+      :- Need(UTF8.Decode(datakeys[i].keyProviderInfo).Success?, E("Failed to extract keyProviderInfo."));
 
       var extractedKeyProviderId := UTF8.Decode(datakeys[i].keyProviderId).Extract();
       var extractedKeyProviderIdInfo := UTF8.Decode(datakeys[i].keyProviderInfo).Extract();
 
-      :- Need(|extractedKeyProviderId| > 7 && extractedKeyProviderId[0..7] == "aws-kms", E("Data encrypted with " + UTF8.Decode(datakeys[i].keyProviderId).Extract() + " not supported"));
+      :- Need(|extractedKeyProviderId| > 7 && extractedKeyProviderId[0..7] == "aws-kms", E("Data encrypted with " + UTF8.Decode(datakeys[i].keyProviderId).Extract() + " not supported."));
 
       if |extractedKeyProviderId| < 7 || extractedKeyProviderId[0..7] != "aws-kms" {
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
@@ -103,7 +103,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         );
       }
       if extractedKeyProviderId == "aws-kms-hierarchy" {
-        :- Need(EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).Success?, E("error"));
+        :- Need(EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).Success?, E("Failed to get provider wrapped material."));
         
         var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).Extract();
 
@@ -114,11 +114,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := 12 + 16;
         var EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + 16;
 
-        :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("error"));
-        :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("error"));
+        :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
+        :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
         var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
         
-        :- Need(UUID.FromByteArray(branchKeyVersionUuid).Success?, E("error"));
+        :- Need(UUID.FromByteArray(branchKeyVersionUuid).Success?, E("Failed to convert UUID from byte array."));
         var expectedBranchKeyVersion := UUID.FromByteArray(branchKeyVersionUuid).Extract();
 
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(

@@ -63,7 +63,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
         expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Some?;
         expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Extract() == UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo).Extract();
 
-        if actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderId == "aws-kms-hierarchy"{
+        if actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderId == "aws-kms-hierarchy" {
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyId.Some?;
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Some?;
 
@@ -103,7 +103,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
         expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Some?;
         expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Extract() == UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo).Extract();
         
-        if actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderId == "aws-kms-hierarchy"{
+        if actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderId == "aws-kms-hierarchy" {
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyId.Some?;
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Some?;
 
@@ -111,5 +111,4 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Extract() == expectedBranchKeyVersionUuid.Extract();
         }
     }
-
 }
