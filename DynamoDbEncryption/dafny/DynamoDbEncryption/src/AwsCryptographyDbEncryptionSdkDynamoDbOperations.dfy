@@ -108,7 +108,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).Extract();
 
         // The ciphertext structure in the hierarchy keyring contains Salt and IV before Version.
-        // The length of Salt is 16 and IV is 12 bytes.
+        // The length of Salt is 16 and IV is 12 bytes. The length of Version is 16 bytes.
         // https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-hierarchical-keyring.md#ciphertext
         
         var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := 12 + 16;
