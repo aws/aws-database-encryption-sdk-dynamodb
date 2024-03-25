@@ -252,9 +252,9 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  type EncryptedDataKeyDescriptionList = seq<EncryptedDataKeyDescriptionOutput>
  datatype EncryptedDataKeyDescriptionOutput = | EncryptedDataKeyDescriptionOutput (
  nameonly keyProviderId: string ,
- nameonly keyProviderInfo: string ,
- nameonly branchKeyId: Option<string> ,
- nameonly branchKeyVersion: Option<string>
+ nameonly keyProviderInfo: Option<string> := Option.None ,
+ nameonly branchKeyId: Option<string> := Option.None ,
+ nameonly branchKeyVersion: Option<string> := Option.None
  )
  datatype EncryptedPart = | EncryptedPart (
  nameonly name: string ,

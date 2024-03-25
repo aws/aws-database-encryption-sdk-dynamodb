@@ -76,7 +76,6 @@ structure EncryptedDataKeyDescriptionOutput {
   @required
   keyProviderId: String,
 
-  @required
   keyProviderInfo: String,
     
   branchKeyId: String,
