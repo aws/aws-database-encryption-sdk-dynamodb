@@ -40,8 +40,12 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
         expect EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Success?;
         var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Extract();
         
-        expect |providerWrappedMaterial| >= (28 + 16);
-        var expectedBranchKeyVersionUuid := UUID.FromByteArray(providerWrappedMaterial[28 .. (28 + 16)]);
+        // The ciphertext structure in the hierarchy keyring contains Salt and IV before Version.
+        // The length of Salt is 16 and IV is 12 bytes. The length of Version is 16 bytes.
+        // https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-hierarchical-keyring.md#ciphertext
+
+        expect |providerWrappedMaterial| >= (16 + 12 + 16);
+        var expectedBranchKeyVersionUuid := UUID.FromByteArray(providerWrappedMaterial[16 + 12 .. (16 + 12 + 16)]);
         var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
 
         var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
