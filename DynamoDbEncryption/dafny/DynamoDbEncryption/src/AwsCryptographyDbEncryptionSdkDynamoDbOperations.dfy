@@ -64,22 +64,20 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     match input.input
     {
       case plaintextItem(plaintextItem) =>{
-        :- Need(DynamoToStruct.ItemToStructured(plaintextItem).Success?, E("error"));
+        :- Need(DynamoToStruct.ItemToStructured(plaintextItem).Success?, E("Failed to convert AttributeMap to StructuredDataMap."));
         :- Need("aws_dbe_head" in DynamoToStruct.ItemToStructured(plaintextItem).Extract(), E("error"));
         header := DynamoToStruct.ItemToStructured(plaintextItem).Extract()["aws_dbe_head"].content.Terminal.value;
       }
       case header(headeritem) =>
         header := headeritem;
     }
-    :- Need(Header.PartialDeserialize(header).Success?, E("error"));
+    :- Need(Header.PartialDeserialize(header).Success?, E("Failed to deserialize header."));
     var deserializedHeader := Header.PartialDeserialize(header);
-
     var algorithmSuite;
     
     if deserializedHeader.Extract().flavor == 0{
       algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
-    }
-    else{
+    } else {
       algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
     }
 
@@ -88,9 +86,23 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     for i := 0 to |datakeys| {
       var singleDataKeyOutput : EncryptedDataKeyDescriptionOutput;
       
-      :- Need(UTF8.Decode(datakeys[i].keyProviderId).Success?, E("error"));
-      :- Need(UTF8.Decode(datakeys[i].keyProviderInfo).Success?, E("error"));
-      if UTF8.Decode(datakeys[i].keyProviderId).Extract() == "aws-kms-hierarchy" {
+      :- Need(UTF8.Decode(datakeys[i].keyProviderId).Success?, E("Failed to extract keyProviderId"));
+      :- Need(UTF8.Decode(datakeys[i].keyProviderInfo).Success?, E("Failed to extract keyProviderInfo"));
+
+      var extractedKeyProviderId := UTF8.Decode(datakeys[i].keyProviderId).Extract();
+      var extractedKeyProviderIdInfo := UTF8.Decode(datakeys[i].keyProviderInfo).Extract();
+
+      :- Need(|extractedKeyProviderId| > 7 && extractedKeyProviderId[0..7] == "aws-kms", E("Data encrypted with " + UTF8.Decode(datakeys[i].keyProviderId).Extract() + " not supported"));
+
+      if |extractedKeyProviderId| < 7 || extractedKeyProviderId[0..7] != "aws-kms" {
+        singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
+          keyProviderId := extractedKeyProviderId,
+          keyProviderInfo := None, 
+          branchKeyId := None,
+          branchKeyVersion := None
+        );
+      }
+      if extractedKeyProviderId == "aws-kms-hierarchy" {
         :- Need(EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).Success?, E("error"));
         
         var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).Extract();
@@ -105,19 +117,21 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("error"));
         :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("error"));
         var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
+        
         :- Need(UUID.FromByteArray(branchKeyVersionUuid).Success?, E("error"));
+        var expectedBranchKeyVersion := UUID.FromByteArray(branchKeyVersionUuid).Extract();
 
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
-          keyProviderId := UTF8.Decode(datakeys[i].keyProviderId).Extract(),
-          keyProviderInfo := UTF8.Decode(datakeys[i].keyProviderInfo).Extract(), 
-          branchKeyId := Some(UTF8.Decode(datakeys[i].keyProviderInfo).Extract()),
-          branchKeyVersion := Some(UUID.FromByteArray(branchKeyVersionUuid).Extract())
+          keyProviderId := extractedKeyProviderId,
+          keyProviderInfo := Some(extractedKeyProviderIdInfo), 
+          branchKeyId := Some(extractedKeyProviderIdInfo),
+          branchKeyVersion := Some(expectedBranchKeyVersion)
         );
       }
       else {
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
-          keyProviderId := UTF8.Decode(datakeys[i].keyProviderId).Extract(),
-          keyProviderInfo := UTF8.Decode(datakeys[i].keyProviderInfo).Extract(), 
+          keyProviderId := extractedKeyProviderId,
+          keyProviderInfo := Some(extractedKeyProviderIdInfo), 
           branchKeyId := None,
           branchKeyVersion := None
         );
