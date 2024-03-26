@@ -76,6 +76,7 @@ runs:
     # Update the project.properties file so that we pick up the right runtimes etc.,
     # in cases where inputs.dafny is different from the current value in that file.
     - name: Generate smithy-dafny-project.properties file
+      if: inputs.update-and-regenerate-mpl == 'true'
       env:
         DAFNY_VERSION: ${{ inputs.dafny }}
       shell: bash
@@ -83,6 +84,7 @@ runs:
         make generate_properties_file
 
     - name: Update top-level project.properties file
+      if: inputs.update-and-regenerate-mpl == 'true'
       shell: bash
       run: |
         awk -F= '!a[$1]++' smithy-dafny-project.properties project.properties > merged.properties
