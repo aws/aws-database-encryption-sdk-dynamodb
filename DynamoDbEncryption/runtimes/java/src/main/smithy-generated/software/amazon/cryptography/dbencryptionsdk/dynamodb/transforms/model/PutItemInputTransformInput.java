@@ -7,6 +7,7 @@ import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 public class PutItemInputTransformInput {
+
   private final PutItemRequest sdkInput;
 
   protected PutItemInputTransformInput(BuilderImpl builder) {
@@ -34,10 +35,10 @@ public class PutItemInputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected PutItemRequest sdkInput;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(PutItemInputTransformInput model) {
       this.sdkInput = model.sdkInput();
@@ -53,8 +54,10 @@ public class PutItemInputTransformInput {
     }
 
     public PutItemInputTransformInput build() {
-      if (Objects.isNull(this.sdkInput()))  {
-        throw new IllegalArgumentException("Missing value for required field `sdkInput`");
+      if (Objects.isNull(this.sdkInput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `sdkInput`"
+        );
       }
       return new PutItemInputTransformInput(this);
     }

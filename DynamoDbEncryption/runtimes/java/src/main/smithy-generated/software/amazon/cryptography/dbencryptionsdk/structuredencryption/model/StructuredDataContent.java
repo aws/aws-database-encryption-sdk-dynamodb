@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class StructuredDataContent {
+
   private final StructuredDataTerminal Terminal;
 
   private final List<StructuredData> DataList;
@@ -57,14 +58,14 @@ public class StructuredDataContent {
   }
 
   static class BuilderImpl implements Builder {
+
     protected StructuredDataTerminal Terminal;
 
     protected List<StructuredData> DataList;
 
     protected Map<String, StructuredData> DataMap;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(StructuredDataContent model) {
       this.Terminal = model.Terminal();
@@ -101,13 +102,15 @@ public class StructuredDataContent {
 
     public StructuredDataContent build() {
       if (!onlyOneNonNull()) {
-        throw new IllegalArgumentException("`StructuredDataContent` is a Union. A Union MUST have one and only one value set.");
+        throw new IllegalArgumentException(
+          "`StructuredDataContent` is a Union. A Union MUST have one and only one value set."
+        );
       }
       return new StructuredDataContent(this);
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.Terminal, this.DataList, this.DataMap};
+      Object[] allValues = { this.Terminal, this.DataList, this.DataMap };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

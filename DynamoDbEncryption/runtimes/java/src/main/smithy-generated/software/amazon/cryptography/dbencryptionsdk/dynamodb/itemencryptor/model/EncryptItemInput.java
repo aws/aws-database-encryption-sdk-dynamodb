@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  * Inputs for encrypting a DynamoDB Item.
  */
 public class EncryptItemInput {
+
   /**
    * The DynamoDB item to encrypt.
    */
@@ -50,10 +51,10 @@ public class EncryptItemInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Map<String, AttributeValue> plaintextItem;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptItemInput model) {
       this.plaintextItem = model.plaintextItem();
@@ -69,8 +70,10 @@ public class EncryptItemInput {
     }
 
     public EncryptItemInput build() {
-      if (Objects.isNull(this.plaintextItem()))  {
-        throw new IllegalArgumentException("Missing value for required field `plaintextItem`");
+      if (Objects.isNull(this.plaintextItem())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `plaintextItem`"
+        );
       }
       return new EncryptItemInput(this);
     }

@@ -9,6 +9,7 @@ import java.util.Objects;
  * The Virtual Part Transformation that splits a string and gets a range of segments of that split.
  */
 public class GetSegments {
+
   /**
    * The characters to split on.
    */
@@ -94,14 +95,14 @@ public class GetSegments {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String split;
 
     protected Integer low;
 
     protected Integer high;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetSegments model) {
       this.split = model.split();
@@ -137,20 +138,30 @@ public class GetSegments {
     }
 
     public GetSegments build() {
-      if (Objects.isNull(this.split()))  {
-        throw new IllegalArgumentException("Missing value for required field `split`");
+      if (Objects.isNull(this.split())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `split`"
+        );
       }
       if (Objects.nonNull(this.split()) && this.split().length() < 1) {
-        throw new IllegalArgumentException("The size of `split` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `split` must be greater than or equal to 1"
+        );
       }
       if (Objects.nonNull(this.split()) && this.split().length() > 1) {
-        throw new IllegalArgumentException("The size of `split` must be less than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `split` must be less than or equal to 1"
+        );
       }
-      if (Objects.isNull(this.low()))  {
-        throw new IllegalArgumentException("Missing value for required field `low`");
+      if (Objects.isNull(this.low())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `low`"
+        );
       }
-      if (Objects.isNull(this.high()))  {
-        throw new IllegalArgumentException("Missing value for required field `high`");
+      if (Objects.isNull(this.high())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `high`"
+        );
       }
       return new GetSegments(this);
     }

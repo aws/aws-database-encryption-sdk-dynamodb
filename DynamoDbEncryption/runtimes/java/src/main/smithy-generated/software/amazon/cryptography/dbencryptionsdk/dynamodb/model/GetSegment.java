@@ -9,6 +9,7 @@ import java.util.Objects;
  * The Virtual Part Transformation that splits a string and gets a particular segment of that split.
  */
 public class GetSegment {
+
   /**
    * The characters to split on.
    */
@@ -71,12 +72,12 @@ public class GetSegment {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String split;
 
     protected Integer index;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetSegment model) {
       this.split = model.split();
@@ -102,17 +103,25 @@ public class GetSegment {
     }
 
     public GetSegment build() {
-      if (Objects.isNull(this.split()))  {
-        throw new IllegalArgumentException("Missing value for required field `split`");
+      if (Objects.isNull(this.split())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `split`"
+        );
       }
       if (Objects.nonNull(this.split()) && this.split().length() < 1) {
-        throw new IllegalArgumentException("The size of `split` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `split` must be greater than or equal to 1"
+        );
       }
       if (Objects.nonNull(this.split()) && this.split().length() > 1) {
-        throw new IllegalArgumentException("The size of `split` must be less than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `split` must be less than or equal to 1"
+        );
       }
-      if (Objects.isNull(this.index()))  {
-        throw new IllegalArgumentException("Missing value for required field `index`");
+      if (Objects.isNull(this.index())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `index`"
+        );
       }
       return new GetSegment(this);
     }

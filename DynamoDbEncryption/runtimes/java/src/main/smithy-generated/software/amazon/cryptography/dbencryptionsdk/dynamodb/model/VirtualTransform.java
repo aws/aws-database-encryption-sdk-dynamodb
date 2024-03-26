@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 public class VirtualTransform {
+
   /**
    * The Virtual Part Transformation that converts ASCII characters to upper case.
    */
@@ -206,6 +207,7 @@ public class VirtualTransform {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Upper upper;
 
     protected Lower lower;
@@ -222,8 +224,7 @@ public class VirtualTransform {
 
     protected GetSegments segments;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(VirtualTransform model) {
       this.upper = model.upper();
@@ -310,13 +311,24 @@ public class VirtualTransform {
 
     public VirtualTransform build() {
       if (!onlyOneNonNull()) {
-        throw new IllegalArgumentException("`VirtualTransform` is a Union. A Union MUST have one and only one value set.");
+        throw new IllegalArgumentException(
+          "`VirtualTransform` is a Union. A Union MUST have one and only one value set."
+        );
       }
       return new VirtualTransform(this);
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.upper, this.lower, this.insert, this.prefix, this.suffix, this.substring, this.segment, this.segments};
+      Object[] allValues = {
+        this.upper,
+        this.lower,
+        this.insert,
+        this.prefix,
+        this.suffix,
+        this.substring,
+        this.segment,
+        this.segments,
+      };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

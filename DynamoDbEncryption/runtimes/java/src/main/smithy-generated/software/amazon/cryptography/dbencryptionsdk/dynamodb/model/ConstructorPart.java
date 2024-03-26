@@ -9,6 +9,7 @@ import java.util.Objects;
  * A part of a Compound Becaon Construction.
  */
 public class ConstructorPart {
+
   /**
    * The name of the Encrypted Part or Signed Part for which this constructor part gets a value.
    */
@@ -71,12 +72,12 @@ public class ConstructorPart {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String name;
 
     protected Boolean required;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(ConstructorPart model) {
       this.name = model.name();
@@ -102,11 +103,15 @@ public class ConstructorPart {
     }
 
     public ConstructorPart build() {
-      if (Objects.isNull(this.name()))  {
-        throw new IllegalArgumentException("Missing value for required field `name`");
+      if (Objects.isNull(this.name())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `name`"
+        );
       }
-      if (Objects.isNull(this.required()))  {
-        throw new IllegalArgumentException("Missing value for required field `required`");
+      if (Objects.isNull(this.required())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `required`"
+        );
       }
       return new ConstructorPart(this);
     }

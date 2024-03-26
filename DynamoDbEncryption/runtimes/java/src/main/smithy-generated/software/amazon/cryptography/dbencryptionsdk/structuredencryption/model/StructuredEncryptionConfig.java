@@ -4,8 +4,8 @@
 package software.amazon.cryptography.dbencryptionsdk.structuredencryption.model;
 
 public class StructuredEncryptionConfig {
-  protected StructuredEncryptionConfig(BuilderImpl builder) {
-  }
+
+  protected StructuredEncryptionConfig(BuilderImpl builder) {}
 
   public Builder toBuilder() {
     return new BuilderImpl(this);
@@ -20,11 +20,10 @@ public class StructuredEncryptionConfig {
   }
 
   static class BuilderImpl implements Builder {
-    protected BuilderImpl() {
-    }
 
-    protected BuilderImpl(StructuredEncryptionConfig model) {
-    }
+    protected BuilderImpl() {}
+
+    protected BuilderImpl(StructuredEncryptionConfig model) {}
 
     public StructuredEncryptionConfig build() {
       return new StructuredEncryptionConfig(this);

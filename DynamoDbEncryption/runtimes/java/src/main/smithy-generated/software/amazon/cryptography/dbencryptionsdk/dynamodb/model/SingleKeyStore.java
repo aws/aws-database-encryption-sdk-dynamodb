@@ -9,6 +9,7 @@ import java.util.Objects;
  * The configuration for using a single Beacon Key.
  */
 public class SingleKeyStore {
+
   /**
    * The Beacon Key ID.
    */
@@ -71,12 +72,12 @@ public class SingleKeyStore {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String keyId;
 
     protected Integer cacheTTL;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(SingleKeyStore model) {
       this.keyId = model.keyId();
@@ -102,11 +103,15 @@ public class SingleKeyStore {
     }
 
     public SingleKeyStore build() {
-      if (Objects.isNull(this.keyId()))  {
-        throw new IllegalArgumentException("Missing value for required field `keyId`");
+      if (Objects.isNull(this.keyId())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `keyId`"
+        );
       }
-      if (Objects.isNull(this.cacheTTL()))  {
-        throw new IllegalArgumentException("Missing value for required field `cacheTTL`");
+      if (Objects.isNull(this.cacheTTL())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `cacheTTL`"
+        );
       }
       return new SingleKeyStore(this);
     }

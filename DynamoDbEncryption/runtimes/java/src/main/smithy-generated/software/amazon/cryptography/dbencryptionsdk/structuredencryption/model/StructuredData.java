@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class StructuredData {
+
   private final StructuredDataContent content;
 
   private final Map<String, StructuredDataTerminal> attributes;
@@ -45,12 +46,12 @@ public class StructuredData {
   }
 
   static class BuilderImpl implements Builder {
+
     protected StructuredDataContent content;
 
     protected Map<String, StructuredDataTerminal> attributes;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(StructuredData model) {
       this.content = model.content();
@@ -76,8 +77,10 @@ public class StructuredData {
     }
 
     public StructuredData build() {
-      if (Objects.isNull(this.content()))  {
-        throw new IllegalArgumentException("Missing value for required field `content`");
+      if (Objects.isNull(this.content())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `content`"
+        );
       }
       return new StructuredData(this);
     }

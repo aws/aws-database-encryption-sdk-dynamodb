@@ -9,6 +9,7 @@ import java.util.Objects;
  * The Virtual Part Transformation that gets the prefix of a string.
  */
 public class GetPrefix {
+
   /**
    * If positive, the number of characters to return from the front. If negative, the absolute number of characters to exclude from the end. e.g. GetPrefix(-1) returns all but the last character.
    */
@@ -48,10 +49,10 @@ public class GetPrefix {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Integer length;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetPrefix model) {
       this.length = model.length();
@@ -67,8 +68,10 @@ public class GetPrefix {
     }
 
     public GetPrefix build() {
-      if (Objects.isNull(this.length()))  {
-        throw new IllegalArgumentException("Missing value for required field `length`");
+      if (Objects.isNull(this.length())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `length`"
+        );
       }
       return new GetPrefix(this);
     }

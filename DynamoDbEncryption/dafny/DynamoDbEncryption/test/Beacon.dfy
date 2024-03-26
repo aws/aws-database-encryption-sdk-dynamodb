@@ -17,9 +17,12 @@ module TestBaseBeacon {
   import SI = SearchableEncryptionInfo
   import DDB = ComAmazonawsDynamodbTypes
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import AwsCryptographyPrimitivesTypes
 
   method {:test} TestBeacon() {
-    var primitives :- expect Primitives.AtomicPrimitives();
+    var primitivesX: AwsCryptographyPrimitivesTypes.IAwsCryptographicPrimitivesClient :- expect Primitives.AtomicPrimitives();
+    assert primitivesX is Primitives.AtomicPrimitivesClient;
+    var primitives := primitivesX as Primitives.AtomicPrimitivesClient;
 
     var bb := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo");
     var b := StandardBeacon(bb, 8, TermLocMap("foo"), false, false, None);
@@ -738,5 +741,21 @@ module TestBaseBeacon {
     version := version.(compoundBeacons := Some([Mixed]), signedParts := Some([Year]), encryptedParts := Some([Name]));
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+  }
+
+  method {:test} CheckBytesToHex()
+  {
+    var bytes := [1,2,3,4,5,6,7,0xb7];
+    // These could be asserted instead,
+    // but they get too expensive
+    // on more recent versions of Dafny.
+    expect BytesToHex(bytes, 1) == "1";
+    expect BytesToHex(bytes, 2) == "3";
+    expect BytesToHex(bytes, 3) == "7";
+    expect BytesToHex(bytes, 4) == "7";
+    expect BytesToHex(bytes, 5) == "17";
+    expect BytesToHex(bytes, 6) == "37";
+    expect BytesToHex(bytes, 7) == "37";
+    expect BytesToHex(bytes, 8) == "b7";
   }
 }

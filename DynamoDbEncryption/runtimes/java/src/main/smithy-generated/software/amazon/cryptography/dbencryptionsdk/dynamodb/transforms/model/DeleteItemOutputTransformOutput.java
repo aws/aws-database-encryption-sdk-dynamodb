@@ -7,6 +7,7 @@ import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
 
 public class DeleteItemOutputTransformOutput {
+
   private final DeleteItemResponse transformedOutput;
 
   protected DeleteItemOutputTransformOutput(BuilderImpl builder) {
@@ -34,10 +35,10 @@ public class DeleteItemOutputTransformOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected DeleteItemResponse transformedOutput;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DeleteItemOutputTransformOutput model) {
       this.transformedOutput = model.transformedOutput();
@@ -53,8 +54,10 @@ public class DeleteItemOutputTransformOutput {
     }
 
     public DeleteItemOutputTransformOutput build() {
-      if (Objects.isNull(this.transformedOutput()))  {
-        throw new IllegalArgumentException("Missing value for required field `transformedOutput`");
+      if (Objects.isNull(this.transformedOutput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `transformedOutput`"
+        );
       }
       return new DeleteItemOutputTransformOutput(this);
     }

@@ -11,12 +11,15 @@ import software.amazon.cryptography.materialproviders.IBranchKeyIdSupplier;
  * Outputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
  */
 public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
+
   /**
    * The Branch Key Supplier for use with the Hierarchical Keyring.
    */
   private final IBranchKeyIdSupplier branchKeyIdSupplier;
 
-  protected CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(BuilderImpl builder) {
+  protected CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
+    BuilderImpl builder
+  ) {
     this.branchKeyIdSupplier = builder.branchKeyIdSupplier();
   }
 
@@ -50,16 +53,20 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected IBranchKeyIdSupplier branchKeyIdSupplier;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
-    protected BuilderImpl(CreateDynamoDbEncryptionBranchKeyIdSupplierOutput model) {
+    protected BuilderImpl(
+      CreateDynamoDbEncryptionBranchKeyIdSupplierOutput model
+    ) {
       this.branchKeyIdSupplier = model.branchKeyIdSupplier();
     }
 
-    public Builder branchKeyIdSupplier(IBranchKeyIdSupplier branchKeyIdSupplier) {
+    public Builder branchKeyIdSupplier(
+      IBranchKeyIdSupplier branchKeyIdSupplier
+    ) {
       this.branchKeyIdSupplier = BranchKeyIdSupplier.wrap(branchKeyIdSupplier);
       return this;
     }
@@ -69,8 +76,10 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
     }
 
     public CreateDynamoDbEncryptionBranchKeyIdSupplierOutput build() {
-      if (Objects.isNull(this.branchKeyIdSupplier()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKeyIdSupplier`");
+      if (Objects.isNull(this.branchKeyIdSupplier())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `branchKeyIdSupplier`"
+        );
       }
       return new CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(this);
     }

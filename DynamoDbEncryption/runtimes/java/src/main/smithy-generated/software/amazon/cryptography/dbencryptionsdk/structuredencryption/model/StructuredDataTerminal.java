@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 public class StructuredDataTerminal {
+
   private final ByteBuffer value;
 
   private final ByteBuffer typeId;
@@ -45,12 +46,12 @@ public class StructuredDataTerminal {
   }
 
   static class BuilderImpl implements Builder {
+
     protected ByteBuffer value;
 
     protected ByteBuffer typeId;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(StructuredDataTerminal model) {
       this.value = model.value();
@@ -76,17 +77,25 @@ public class StructuredDataTerminal {
     }
 
     public StructuredDataTerminal build() {
-      if (Objects.isNull(this.value()))  {
-        throw new IllegalArgumentException("Missing value for required field `value`");
+      if (Objects.isNull(this.value())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `value`"
+        );
       }
-      if (Objects.isNull(this.typeId()))  {
-        throw new IllegalArgumentException("Missing value for required field `typeId`");
+      if (Objects.isNull(this.typeId())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `typeId`"
+        );
       }
       if (Objects.nonNull(this.typeId()) && this.typeId().remaining() < 2) {
-        throw new IllegalArgumentException("The size of `typeId` must be greater than or equal to 2");
+        throw new IllegalArgumentException(
+          "The size of `typeId` must be greater than or equal to 2"
+        );
       }
       if (Objects.nonNull(this.typeId()) && this.typeId().remaining() > 2) {
-        throw new IllegalArgumentException("The size of `typeId` must be less than or equal to 2");
+        throw new IllegalArgumentException(
+          "The size of `typeId` must be less than or equal to 2"
+        );
       }
       return new StructuredDataTerminal(this);
     }

@@ -9,6 +9,7 @@ import java.util.Objects;
  * The configuration for a Standard Beacon.
  */
 public class StandardBeacon {
+
   /**
    * The name for this Standard Beacon.
    */
@@ -117,6 +118,7 @@ public class StandardBeacon {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String name;
 
     protected int length;
@@ -127,8 +129,7 @@ public class StandardBeacon {
 
     protected BeaconStyle style;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(StandardBeacon model) {
       this.name = model.name();
@@ -176,20 +177,30 @@ public class StandardBeacon {
     }
 
     public StandardBeacon build() {
-      if (Objects.isNull(this.name()))  {
-        throw new IllegalArgumentException("Missing value for required field `name`");
+      if (Objects.isNull(this.name())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `name`"
+        );
       }
       if (!this._lengthSet) {
-        throw new IllegalArgumentException("Missing value for required field `length`");
+        throw new IllegalArgumentException(
+          "Missing value for required field `length`"
+        );
       }
       if (this._lengthSet && this.length() < 1) {
-        throw new IllegalArgumentException("`length` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "`length` must be greater than or equal to 1"
+        );
       }
       if (this._lengthSet && this.length() > 63) {
-        throw new IllegalArgumentException("`length` must be less than or equal to 63.");
+        throw new IllegalArgumentException(
+          "`length` must be less than or equal to 63."
+        );
       }
       if (Objects.nonNull(this.loc()) && this.loc().length() < 1) {
-        throw new IllegalArgumentException("The size of `loc` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `loc` must be greater than or equal to 1"
+        );
       }
       return new StandardBeacon(this);
     }

@@ -8,6 +8,7 @@ import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsRequest;
 import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsResponse;
 
 public class TransactGetItemsOutputTransformInput {
+
   private final TransactGetItemsResponse sdkOutput;
 
   private final TransactGetItemsRequest originalInput;
@@ -46,12 +47,12 @@ public class TransactGetItemsOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected TransactGetItemsResponse sdkOutput;
 
     protected TransactGetItemsRequest originalInput;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(TransactGetItemsOutputTransformInput model) {
       this.sdkOutput = model.sdkOutput();
@@ -77,11 +78,15 @@ public class TransactGetItemsOutputTransformInput {
     }
 
     public TransactGetItemsOutputTransformInput build() {
-      if (Objects.isNull(this.sdkOutput()))  {
-        throw new IllegalArgumentException("Missing value for required field `sdkOutput`");
+      if (Objects.isNull(this.sdkOutput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `sdkOutput`"
+        );
       }
-      if (Objects.isNull(this.originalInput()))  {
-        throw new IllegalArgumentException("Missing value for required field `originalInput`");
+      if (Objects.isNull(this.originalInput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `originalInput`"
+        );
       }
       return new TransactGetItemsOutputTransformInput(this);
     }

@@ -9,6 +9,7 @@ import java.util.Objects;
  * The Virtual Part Transformation that gets a substring from a string.
  */
 public class GetSubstring {
+
   /**
    * The index to start the substring from, inclusive. Negative numbers count from the end. -1 is the last character of a string.
    */
@@ -71,12 +72,12 @@ public class GetSubstring {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Integer low;
 
     protected Integer high;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetSubstring model) {
       this.low = model.low();
@@ -102,11 +103,15 @@ public class GetSubstring {
     }
 
     public GetSubstring build() {
-      if (Objects.isNull(this.low()))  {
-        throw new IllegalArgumentException("Missing value for required field `low`");
+      if (Objects.isNull(this.low())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `low`"
+        );
       }
-      if (Objects.isNull(this.high()))  {
-        throw new IllegalArgumentException("Missing value for required field `high`");
+      if (Objects.isNull(this.high())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `high`"
+        );
       }
       return new GetSubstring(this);
     }

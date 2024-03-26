@@ -5,6 +5,6 @@ namespace DbEsdkTestVectors
         static void Main()
         {
             WrappedDDBEncryptionMain_Compile.__default.ASDF();
-	    }
+        }
     }
 }

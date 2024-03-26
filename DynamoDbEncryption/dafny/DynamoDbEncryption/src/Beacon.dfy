@@ -439,17 +439,4 @@ module BaseBeacon {
     else
       [HexChar(TruncateNibble(bytes[0] % 16, topBits))] + ToHexString(bytes[1..])
   }
-
-  lemma {:vcs_split_on_every_assert} CheckBytesToHex()
-    ensures
-      && var bytes := [1,2,3,4,5,6,7,0xb7];
-      && BytesToHex(bytes, 1) == "1"
-      && BytesToHex(bytes, 2) == "3"
-      && BytesToHex(bytes, 3) == "7"
-      && BytesToHex(bytes, 4) == "7"
-      && BytesToHex(bytes, 5) == "17"
-      && BytesToHex(bytes, 6) == "37"
-      && BytesToHex(bytes, 7) == "37"
-      && BytesToHex(bytes, 8) == "b7"
-  {}
 }

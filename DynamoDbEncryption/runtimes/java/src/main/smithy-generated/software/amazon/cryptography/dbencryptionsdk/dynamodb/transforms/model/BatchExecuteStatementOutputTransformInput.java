@@ -8,6 +8,7 @@ import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementReque
 import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementResponse;
 
 public class BatchExecuteStatementOutputTransformInput {
+
   private final BatchExecuteStatementResponse sdkOutput;
 
   private final BatchExecuteStatementRequest originalInput;
@@ -46,12 +47,12 @@ public class BatchExecuteStatementOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected BatchExecuteStatementResponse sdkOutput;
 
     protected BatchExecuteStatementRequest originalInput;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(BatchExecuteStatementOutputTransformInput model) {
       this.sdkOutput = model.sdkOutput();
@@ -77,11 +78,15 @@ public class BatchExecuteStatementOutputTransformInput {
     }
 
     public BatchExecuteStatementOutputTransformInput build() {
-      if (Objects.isNull(this.sdkOutput()))  {
-        throw new IllegalArgumentException("Missing value for required field `sdkOutput`");
+      if (Objects.isNull(this.sdkOutput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `sdkOutput`"
+        );
       }
-      if (Objects.isNull(this.originalInput()))  {
-        throw new IllegalArgumentException("Missing value for required field `originalInput`");
+      if (Objects.isNull(this.originalInput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `originalInput`"
+        );
       }
       return new BatchExecuteStatementOutputTransformInput(this);
     }
