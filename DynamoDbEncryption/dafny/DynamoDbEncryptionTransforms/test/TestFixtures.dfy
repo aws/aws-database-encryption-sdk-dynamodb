@@ -128,15 +128,9 @@ module TestFixtures {
       legacyOverride := None(),
       plaintextOverride := None()
     );
-<<<<<<< HEAD
-    var iencryptor: IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-    expect iencryptor is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-    encryptor := iencryptor as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-=======
     var encryptor2 : IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
     assert encryptor2 is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
     encryptor := encryptor2 as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
->>>>>>> 56f1cd14d84dd660a62eff7b3e346a621b731de4
   }
 
   method GetDynamoDbItemEncryptor()
