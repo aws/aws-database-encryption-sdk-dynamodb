@@ -86,8 +86,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
       }
 
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json");
       var _ :- expect WriteManifest.Write("encrypt.json");
       var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.2");
       var _ :- expect DecryptManifest.Decrypt("decrypt.json");

@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.searchableencryption;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,16 +18,19 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySource;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconStyle;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconVersion;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CompoundBeacon;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Constructor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.ConstructorPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PartOnly;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SingleKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.StandardBeacon;
+
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.DynamoDbEncryptionTransforms;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.ResolveAttributesOutput;
@@ -87,45 +91,65 @@ public class CompoundBeaconSearchableEncryptionExample {
     //    While we will not directly query against these beacons,
     //      you must create standard beacons on encrypted fields
     //      that we wish to use in compound beacons.
-    List<StandardBeacon> standardBeaconList = new ArrayList<>();
-    StandardBeacon last4Beacon = StandardBeacon.builder()
-        .name("inspector_id_last4")
-        .length(10)
-        .build();
-    standardBeaconList.add(last4Beacon);
-    StandardBeacon unitBeacon = StandardBeacon.builder()
-        .name("unit")
-        .length(30)
-        .build();
-    standardBeaconList.add(unitBeacon);
+    //    We mark them both as PartOnly to enforce the fact that
+    //      we will not directly query against these beacons.
+    List<StandardBeacon> standardBeaconList = Arrays.asList(
+        StandardBeacon.builder()
+            .name("inspector_id_last4")
+            .length(10)
+            .style(BeaconStyle.builder().partOnly(PartOnly.builder().build()).build())
+            .build(),
+        StandardBeacon.builder()
+            .name("unit")
+            .length(30)
+            .style(BeaconStyle.builder().partOnly(PartOnly.builder().build()).build())
+            .build()
+    );
 
     // 2. Define encrypted parts.
     //    Encrypted parts define the beacons that can be used to construct a compound beacon,
     //        and how the compound beacon prefixes those beacon values.
-    List<EncryptedPart> encryptedPartList = new ArrayList<>();
     // A encrypted part must receive:
     //  - name: Name of a standard beacon
     //  - prefix: Any string. This is plaintext that prefixes the beaconized value in the compound beacon.
     //            Prefixes must be unique across the configuration, and must not be a prefix of another prefix;
     //            i.e. for all configured prefixes, the first N characters of a prefix must not equal another prefix.
     // In practice, it is suggested to have a short value distinguishable from other parts served on the prefix.
-    // For this example, we will choose "L-" as the prefix for "Last 4 digits of inspector ID".
-    // With this prefix and the standard beacon's bit length definition (10), the beaconized
-    //     version of the inspector ID's last 4 digits will appear as
-    //     `L-000` to `L-3ff` inside a compound beacon.
-    EncryptedPart last4EncryptedPart = EncryptedPart.builder()
+
+    List<EncryptedPart> encryptedPartList = Arrays.asList(
+        // For this example, we will choose "L-" as the prefix for "Last 4 digits of inspector ID".
+        // With this prefix and the standard beacon's bit length definition (10), the beaconized
+        //     version of the inspector ID's last 4 digits will appear as
+        //     `L-000` to `L-3ff` inside a compound beacon.
+        EncryptedPart.builder()
+            .name("inspector_id_last4")
+            .prefix("L-")
+            .build(),
+
+        // For this example, we will choose "U-" as the prefix for "unit".
+        // With this prefix and the standard beacon's bit length definition (30), a unit beacon will appear
+        //     as `U-00000000` to `U-3fffffff` inside a compound beacon.
+        EncryptedPart.builder()
+            .name("unit")
+            .prefix("U-")
+            .build()
+    );
+
+    List<ConstructorPart> constructorParts = Arrays.asList(
+        ConstructorPart.builder()
         .name("inspector_id_last4")
-        .prefix("L-")
-        .build();
-    encryptedPartList.add(last4EncryptedPart);
-    // For this example, we will choose "U-" as the prefix for "unit".
-    // With this prefix and the standard beacon's bit length definition (30), a unit beacon will appear
-    //     as `U-00000000` to `U-3fffffff` inside a compound beacon.
-    EncryptedPart unitEncryptedPart = EncryptedPart.builder()
+        .required(true)
+        .build(),
+        ConstructorPart.builder()
+        // This name comes from the "EmployeeID" standard beacon.
         .name("unit")
-        .prefix("U-")
-        .build();
-    encryptedPartList.add(unitEncryptedPart);
+        .required(true)
+        .build()
+    );
+    List<Constructor> constructors = Arrays.asList(
+        Constructor.builder()
+        .parts(constructorParts)
+        .build());
 
     // 3. Define compound beacon.
     //    A compound beacon allows one to serve multiple beacons or attributes from a single index.
@@ -146,13 +170,13 @@ public class CompoundBeaconSearchableEncryptionExample {
     //     - signed: A list of signed parts, i.e. plaintext attributes. This would be provided if we
     //                     wanted to use plaintext values as part of constructing our compound beacon. We do not
     //                     provide this here; see the Complex example for an example.
-    List<CompoundBeacon> compoundBeaconList = new ArrayList<>();
-    CompoundBeacon last4UnitCompoundBeacon = CompoundBeacon.builder()
-        .name("last4UnitCompound")
-        .split(".")
-        .encrypted(encryptedPartList)
-        .build();
-    compoundBeaconList.add(last4UnitCompoundBeacon);
+    List<CompoundBeacon> compoundBeaconList = Arrays.asList(
+        CompoundBeacon.builder()
+            .name("last4UnitCompound")
+            .constructors(constructors)
+            .split(".")
+            .build()
+    );
 
     // 4. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
@@ -169,9 +193,9 @@ public class CompoundBeaconSearchableEncryptionExample {
     // 5. Create BeaconVersion.
     //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
     //    We must also continue to provide all of the standard beacons that compose a compound beacon list.
-    List<BeaconVersion> beaconVersions = new ArrayList<>();
-    beaconVersions.add(
+    List<BeaconVersion> beaconVersions = Arrays.asList(
         BeaconVersion.builder()
+            .encryptedParts(encryptedPartList)
             .standardBeacons(standardBeaconList)
             .compoundBeacons(compoundBeaconList)
             .version(1) // MUST be 1

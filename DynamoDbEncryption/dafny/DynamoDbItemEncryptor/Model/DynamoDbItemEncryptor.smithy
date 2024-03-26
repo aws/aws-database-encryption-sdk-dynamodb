@@ -10,18 +10,21 @@ use com.amazonaws.dynamodb#AttributeMap
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#KeySchemaAttributeName
+use com.amazonaws.dynamodb#Key
+
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+
 use aws.cryptography.materialProviders#KeyringReference
 use aws.cryptography.materialProviders#CryptographicMaterialsManagerReference
 use aws.cryptography.materialProviders#DBEAlgorithmSuiteId
 use aws.cryptography.materialProviders#EncryptedDataKeyList
 use aws.cryptography.materialProviders#EncryptionContext
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
+
 use aws.cryptography.dbEncryptionSdk.dynamoDb#AttributeActions
 use aws.cryptography.dbEncryptionSdk.dynamoDb#LegacyOverride
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#Version
 use aws.cryptography.dbEncryptionSdk.dynamoDb#PlaintextOverride
-
-use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
-use aws.cryptography.primitives#AwsCryptographicPrimitives
 use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
 
@@ -123,6 +126,9 @@ structure DynamoDbItemEncryptorConfig {
 //#     calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the structure,
 //#     converted into Attribute Actions.
 //#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
+//#   - [Stored Encryption Context](../structured-encryption/header.md#encryption-context): The Encryption Context stored in the header.
+//#   - [Encryption Context](../structured-encryption/decrypt-structure#encryption-context): The full Encryption Context used.
+//#   - Selector Context : the AttributeMap as passed to the [Branch Key Supplier](./ddb-encryption-branch-key-id-supplier.md)
 @javadoc("A parsed version of the header that was written with or read on an encrypted DynamoDB item.")
 structure ParsedHeader {
     @required
@@ -136,7 +142,13 @@ structure ParsedHeader {
     encryptedDataKeys: EncryptedDataKeyList,
     @required
     @javadoc("The portion of the encryption context that was stored in the header of this item.")
-    storedEncryptionContext: EncryptionContext
+    storedEncryptionContext: EncryptionContext,
+    @required
+    @javadoc("The full encryption context.")
+    encryptionContext: EncryptionContext,
+    @required
+    @javadoc("The encryption context as presented to the branch key selector.")
+    selectorContext: Key
 }
 
 //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#encryptitem

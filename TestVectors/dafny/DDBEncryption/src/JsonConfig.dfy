@@ -327,9 +327,10 @@ module {:options "-functionSyntax:4"} JsonConfig {
           legacyOverride := legacyOverride,
           plaintextOverride := plaintextOverride
         );
-    var enc: ENC.IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-    expect enc is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-    return Success(enc as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient);
+    var enc : ENC.IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+    assert enc is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    var encr := enc as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    return Success(encr);
   }
 
   method GetOneTableConfig(name : string, data : JSON) returns (output : Result<TableConfig, string>)
@@ -547,6 +548,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
     match data.str {
       case "ENCRYPT_AND_SIGN" => return Success(SE.ENCRYPT_AND_SIGN);
       case "SIGN_ONLY" => return Success(SE.SIGN_ONLY);
+      case "CONTEXT_AND_SIGN" => return Success(SE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT);
+      case "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT" => return Success(SE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT);
       case "DO_NOTHING" => return Success(SE.DO_NOTHING);
       case _ => return Failure(data.str + " is not a valid CryptoAction.");
     }

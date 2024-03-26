@@ -73,31 +73,34 @@ module TestFixtures {
     return s;
   }
 
-  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
 
   function method GetAttributeActions() : AttributeActions {
     map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY, "nothing" := CSE.DO_NOTHING]
+  }
+  function method GetV2AttributeActions() : AttributeActions {
+    map["bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, "nothing" := CSE.DO_NOTHING]
   }
 
   function method GetSignedAttributeActions() : AttributeActions {
     map["bar" := CSE.SIGN_ONLY, "encrypt" := CSE.ENCRYPT_AND_SIGN, "sign" := CSE.SIGN_ONLY]
   }
 
-  method GetEncryptorConfigFromActions(actions : AttributeActions) returns (output : DynamoDbItemEncryptorConfig) {
+  method GetEncryptorConfigFromActions(actions : AttributeActions, sortKeyName : Option<DDB.KeySchemaAttributeName> := None) returns (output : DynamoDbItemEncryptorConfig) {
     var keyring := GetKmsKeyring();
     var logicalTableName := GetTableName("foo");
     output := DynamoDbItemEncryptorConfig(
       logicalTableName := logicalTableName,
       partitionKeyName := "bar",
-      sortKeyName := None(),
+      sortKeyName := sortKeyName,
       attributeActionsOnEncrypt := actions,
       allowedUnsignedAttributes := Some(["nothing"]),
-      allowedUnsignedAttributePrefix := None(),
+      allowedUnsignedAttributePrefix := None,
       keyring := Some(keyring),
-      cmm := None(),
-      algorithmSuiteId := None(),
-      plaintextOverride := None(),
-      legacyOverride := None()
+      cmm := None,
+      algorithmSuiteId := None,
+      plaintextOverride := None,
+      legacyOverride := None
     );
   }
 
@@ -125,9 +128,15 @@ module TestFixtures {
       legacyOverride := None(),
       plaintextOverride := None()
     );
+<<<<<<< HEAD
     var iencryptor: IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
     expect iencryptor is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
     encryptor := iencryptor as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+=======
+    var encryptor2 : IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+    assert encryptor2 is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    encryptor := encryptor2 as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+>>>>>>> 56f1cd14d84dd660a62eff7b3e346a621b731de4
   }
 
   method GetDynamoDbItemEncryptor()
@@ -213,7 +222,7 @@ module TestFixtures {
     ensures fresh(encryption.Modifies)
   {
     var keyring := GetKmsKeyring();
-    var iencryption: IDynamoDbEncryptionTransformsClient :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+    var encryption2 : IDynamoDbEncryptionTransformsClient :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
       DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
@@ -238,8 +247,8 @@ module TestFixtures {
         ]
       )
     );
-    expect iencryption is DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
-    encryption := iencryption as DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
+    assert encryption2 is DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
+    encryption := encryption2 as DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
     assume {:axiom} fresh(encryption.Modifies);
   }
 }

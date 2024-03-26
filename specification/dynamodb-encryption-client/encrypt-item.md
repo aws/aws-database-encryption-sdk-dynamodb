@@ -45,6 +45,11 @@ has a [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-ke
 this item MUST include an Attribute with that name.
 Otherwise this operation MUST yield an error.
 
+If the [DynamoDB Item Encryptor](./ddb-item-encryptor.md)
+has any attribute configured as
+[SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign)
+then this item MUST include an Attribute with that name.
+
 ## Output
 
 This operation MUST output the following:
@@ -131,6 +136,30 @@ into the [Encrypted DynamoDB Item](#encrypted-dynamodb-item).
 
 ### DynamoDB Item Base Context
 
+If the [Configuration Version](./ddb-table-encryption-config.md#configuration-version) is 2,
+then the base context MUST be the [version 2](#dynamodb-item-base-context-version-2) context;
+otherwise, the base context MUST be the [version 1](#dynamodb-item-base-context-version-1) context.
+
+### DynamoDB Item Base Context Version 1
+
+A DynamoDB Item Base Context is a map of string key-values pairs
+that contains information related to a particular DynamoDB Item.
+
+The DynamoDB Item Base Context MUST contain:
+  - the key "aws-crypto-table-name" with a value equal to the configured
+  [logical table name](./ddb-table-encryption-config.md#logical-table-name).
+  - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
+  - the [value](#base-context-value-version-1) of the Partition Key.
+
+If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
+  - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+  - the [value](#base-context-value-version-1) of the Sort Key.
+
+If this item does not have a sort key attribute,
+the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
+
+### DynamoDB Item Base Context Version 2
+
 A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 
@@ -138,16 +167,15 @@ The DynamoDB Item Base Context MUST contain:
   - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
     this item is stored in (or will be stored in).
   - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
-  - the [value](#base-context-value) of the Partition Key.
 
 If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
   - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-  - the [value](#base-context-value) of the Sort Key.
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
 
-#### Base Context Value
+
+#### Base Context Value Version 1
 
 The key MUST be the following concatenation,
 where `attributeName` is the name of the attribute:
@@ -159,3 +187,15 @@ of the concatenation of the bytes `typeID + serializedValue`
 where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
 and `serializedValue` is the attribute's value serialized according to
 [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization).
+
+#### Base Context Value Version 2
+
+The key MUST be the following concatenation,
+where `attributeName` is the name of the attribute:
+"aws-crypto-attr." + `attributeName`.
+
+The value MUST be :
+- If the type is Number or String, the unaltered (already utf8) bytes of the value
+- If the type if Null, the string "null"
+- If the type is Boolean, then the string "true" for true and the string "false" for false.
+- Else, the value as defined in [Base Context Value Version 1](#base-context-value-version-1)

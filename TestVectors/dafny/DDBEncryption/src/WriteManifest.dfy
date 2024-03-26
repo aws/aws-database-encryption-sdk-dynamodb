@@ -35,6 +35,31 @@ module {:options "-functionSyntax:4"} WriteManifest {
           ""Junk"": ""ENCRYPT_AND_SIGN""
         }
       }"
+  const BasicV2Config := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""Stuff"": ""ENCRYPT_AND_SIGN"",
+          ""Junk"": ""ENCRYPT_AND_SIGN""
+        }
+      }"
+  const LongerV2Config1 := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""Stuff"": ""ENCRYPT_AND_SIGN"",
+          ""Junk"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""Thing2"": ""ENCRYPT_AND_SIGN"",
+          ""Thing3"": ""ENCRYPT_AND_SIGN""
+        }
+      }"
+  const LongerV2Config2 := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""Stuff"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""Junk"": ""ENCRYPT_AND_SIGN"",
+          ""Thing2"": ""ENCRYPT_AND_SIGN"",
+          ""Thing3"": ""ENCRYPT_AND_SIGN""
+        }
+      }"
   const MixedConfig := @"{
         ""attributeActionsOnEncrypt"": {
           ""RecNum"": ""SIGN_ONLY"",
@@ -135,7 +160,10 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var test8 := MakeTest("8", "positive-encrypt", "Change Sig to NoSig", BasicConfigSig, BasicRecord, Some(BasicConfigNoSig));
     var test9 := MakeTest("9", "positive-encrypt", "Change NoSig to Sig", BasicConfigNoSig, BasicRecord, Some(BasicConfigSig));
     var test10 := MakeTest("10", "positive-encrypt", "Complex encrypt", MixedConfig, ComplexRecord);
-    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10];
+    var test11 := MakeTest("11", "positive-encrypt", "Basic encrypt V2", BasicV2Config, BasicRecord);
+    var test12 := MakeTest("12", "positive-encrypt", "Basic encrypt V2 switching1", LongerV2Config1, BasicRecord, Some(LongerV2Config2));
+    var test13 := MakeTest("13", "positive-encrypt", "Basic encrypt V2 switching2", LongerV2Config2, BasicRecord, Some(LongerV2Config1));
+    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13];
     var final := Object(result + [("tests", Object(tests))]);
 
     var jsonBytes :- expect API.Serialize(final);

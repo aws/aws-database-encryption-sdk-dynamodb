@@ -16,10 +16,6 @@ module DynamoDbEncryptionUtil {
 
   const MAX_STRUCTURE_DEPTH := 32
   const MAX_STRUCTURE_DEPTH_STR := "32"
-  const MAX_LIST_LENGTH := 100
-  const MAX_LIST_LENGTH_STR := "100"
-  const MAX_MAP_SIZE := 100
-  const MAX_MAP_SIZE_STR := "100"
 
   type HmacKeyMap = map<string, Bytes>
 
@@ -49,9 +45,6 @@ module DynamoDbEncryptionUtil {
     else
       DontUseKeyId
   }
-
-  const DDBEC_ATTR_PREFIX := "aws-crypto-attr."
-  const DDBEC_EC_ATTR_PREFIX: UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(DDBEC_ATTR_PREFIX)
 
   // string to Error
   function method E(s : string) : Error {

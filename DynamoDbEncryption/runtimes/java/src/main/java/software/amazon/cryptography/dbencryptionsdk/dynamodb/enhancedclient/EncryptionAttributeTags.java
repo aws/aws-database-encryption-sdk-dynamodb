@@ -10,6 +10,10 @@ public final class EncryptionAttributeTags {
         return new SignOnlyTag();
     }
 
+    public static StaticAttributeTag attributeTagFor(DynamoDbEncryptionSignAndIncludeInEncryptionContext annotation) {
+        return new SignAndIncludeInEncryptionContextTag();
+    }
+
     public static StaticAttributeTag attributeTagFor(DynamoDbEncryptionDoNothing annotation) {
         return new DoNothingTag();
     }

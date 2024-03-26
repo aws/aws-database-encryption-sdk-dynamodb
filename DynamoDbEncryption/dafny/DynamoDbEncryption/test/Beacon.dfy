@@ -356,7 +356,6 @@ module TestBaseBeacon {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv := C.ConvertVersionWithSource(newConfig, version, src);
     expect bv.Failure?;
-    print "\n", bv.error, "\n";
     expect bv.error == E("Beacon shareBeacon is shared to itself.");
   }
 

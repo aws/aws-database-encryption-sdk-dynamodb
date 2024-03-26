@@ -12,6 +12,7 @@ module DynamoToStructTest {
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StandardLibrary.UInt
   import opened DynamoDbEncryptionUtil
+  import SE = StructuredEncryptionUtil
 
   method DoFail(data : seq<uint8>, typeId : TerminalTypeId)
   {
@@ -35,41 +36,41 @@ module DynamoToStructTest {
   }
 
   method {:test} TestZeroBytes() {
-    DoSucceed([], DynamoToStruct.NULL, 1);
-    DoSucceed([], STRING, 2);
-    DoSucceed([], NUMBER, 3);
-    DoSucceed([], BINARY, 4);
-    DoFail([], BOOLEAN);
-    DoFail([], STRING_SET);
-    DoFail([], NUMBER_SET);
-    DoFail([], BINARY_SET);
-    DoFail([], MAP);
-    DoFail([], LIST);
+    DoSucceed([], SE.NULL, 1);
+    DoSucceed([], SE.STRING, 2);
+    DoSucceed([], SE.NUMBER, 3);
+    DoSucceed([], SE.BINARY, 4);
+    DoFail([], SE.BOOLEAN);
+    DoFail([], SE.STRING_SET);
+    DoFail([], SE.NUMBER_SET);
+    DoFail([], SE.BINARY_SET);
+    DoFail([], SE.MAP);
+    DoFail([], SE.LIST);
   }
 
-  const k := 'k' as uint8;
-  const e := 'e' as uint8;
-  const y := 'y' as uint8;
-  const A := 'A' as uint8;
-  const B := 'B' as uint8;
-  const C := 'C' as uint8;
-  const D := 'D' as uint8;
+  const k := 'k' as uint8
+  const e := 'e' as uint8
+  const y := 'y' as uint8
+  const A := 'A' as uint8
+  const B := 'B' as uint8
+  const C := 'C' as uint8
+  const D := 'D' as uint8
 
   method {:test} TestBadType() {
-    DoSucceed([0,0,0,1, 0,0, 0,0,0,0], LIST, 5);
-    DoFail   ([0,0,0,1, 3,1, 0,0,0,0], LIST);
+    DoSucceed([0,0,0,1, 0,0, 0,0,0,0], SE.LIST, 5);
+    DoFail   ([0,0,0,1, 3,1, 0,0,0,0], SE.LIST);
   }
 
   method {:test} TestBadLengthList() {
-    DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1], LIST);
-    DoSucceed([0,0,0,1, 0xff,0xff, 0,0,0,2, 1,2], LIST, 6);
-    DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1,2,3], LIST);
+    DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1], SE.LIST);
+    DoSucceed([0,0,0,1, 0xff,0xff, 0,0,0,2, 1,2], SE.LIST, 6);
+    DoFail   ([0,0,0,1, 0,3, 0,0,0,2, 1,2,3], SE.LIST);
   }
 
   method {:test} TestBadLengthMap() {
-    DoFail([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4], MAP);
-    DoSucceed([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], MAP, 7);
-    DoFail([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5,6], MAP);
+    DoFail([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4], SE.MAP);
+    DoSucceed([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], SE.MAP, 7);
+    DoFail([0,0,0,1, 0,1, 0,0,0,4, k,e,y,A, 0,3, 0,0,0,5, 1,2,3,4,5,6], SE.MAP);
   }
 
   method {:test} TestBadDupKeys() {
@@ -80,17 +81,17 @@ module DynamoToStructTest {
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
     //= type=test
     //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
-    DoSucceed([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,B, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], MAP, 8);
-    DoFail   ([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], MAP);
+    DoSucceed([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,B, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], SE.MAP, 8);
+    DoFail   ([0,0,0,2, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,1, 0,0,0,4, k,e,y,A, 0xff,0xff, 0,0,0,5, 1,2,3,4,5], SE.MAP);
 
-    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], BINARY_SET, 9);
-    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], BINARY_SET);
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], SE.BINARY_SET, 9);
+    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], SE.BINARY_SET);
 
-    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], NUMBER_SET, 10);
-    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], NUMBER_SET);
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], SE.NUMBER_SET, 10);
+    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], SE.NUMBER_SET);
 
-    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], STRING_SET, 11);
-    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], STRING_SET);
+    DoSucceed([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 52,53,54], SE.STRING_SET, 11);
+    DoFail   ([0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,3, 49,50,51], SE.STRING_SET);
   }
 
   // Split because verification timed out
