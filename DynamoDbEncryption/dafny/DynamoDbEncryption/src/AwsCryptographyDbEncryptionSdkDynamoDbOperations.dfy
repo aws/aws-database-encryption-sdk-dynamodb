@@ -92,8 +92,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
       var extractedKeyProviderId := UTF8.Decode(datakeys[i].keyProviderId).Extract();
       var extractedKeyProviderIdInfo := UTF8.Decode(datakeys[i].keyProviderInfo).Extract();
 
-      :- Need(|extractedKeyProviderId| > 7 && extractedKeyProviderId[0..7] == "aws-kms", E("Data encrypted with " + UTF8.Decode(datakeys[i].keyProviderId).Extract() + " not supported."));
-
       if |extractedKeyProviderId| < 7 || extractedKeyProviderId[0..7] != "aws-kms" {
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
           keyProviderId := extractedKeyProviderId,
