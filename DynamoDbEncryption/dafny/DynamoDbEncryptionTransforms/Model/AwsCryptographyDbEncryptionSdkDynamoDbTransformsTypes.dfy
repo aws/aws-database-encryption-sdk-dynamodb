@@ -741,7 +741,6 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig
  method DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig := DefaultDynamoDbTablesEncryptionConfig())
  returns (res: Result<IDynamoDbEncryptionTransformsClient, Error>)
-// BEGIN MANUAL EDIT
  requires var tmps0 := set t0 | t0 in config.tableEncryptionConfigs.Values;
  forall tmp0 :: tmp0 in tmps0 ==>
  tmp0.keyring.Some? ==>
@@ -838,25 +837,24 @@ include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
  ) )
  && fresh(res.value.History)
  && res.value.ValidState()
- ensures var tmps23 := set t23 | t23 in config.tableEncryptionConfigs.Values;
- forall tmp23 :: tmp23 in tmps23 ==>
- tmp23.keyring.Some? ==>
- tmp23.keyring.value.ValidState()
- ensures var tmps24 := set t24 | t24 in config.tableEncryptionConfigs.Values;
- forall tmp24 :: tmp24 in tmps24 ==>
- tmp24.cmm.Some? ==>
- tmp24.cmm.value.ValidState()
- ensures var tmps25 := set t25 | t25 in config.tableEncryptionConfigs.Values;
- forall tmp25 :: tmp25 in tmps25 ==>
- tmp25.legacyOverride.Some? ==>
- tmp25.legacyOverride.value.encryptor.ValidState()
- ensures var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
- forall tmp26 :: tmp26 in tmps26 ==>
- tmp26.search.Some? ==>
- var tmps27 := set t27 | t27 in tmp26.search.value.versions;
- forall tmp27 :: tmp27 in tmps27 ==>
- tmp27.keyStore.ValidState()
-// END MANUAL EDIT
+ ensures var tmps15 := set t15 | t15 in config.tableEncryptionConfigs.Values;
+ forall tmp15 :: tmp15 in tmps15 ==>
+ tmp15.keyring.Some? ==>
+ tmp15.keyring.value.ValidState()
+ ensures var tmps16 := set t16 | t16 in config.tableEncryptionConfigs.Values;
+ forall tmp16 :: tmp16 in tmps16 ==>
+ tmp16.cmm.Some? ==>
+ tmp16.cmm.value.ValidState()
+ ensures var tmps17 := set t17 | t17 in config.tableEncryptionConfigs.Values;
+ forall tmp17 :: tmp17 in tmps17 ==>
+ tmp17.legacyOverride.Some? ==>
+ tmp17.legacyOverride.value.encryptor.ValidState()
+ ensures var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values;
+ forall tmp18 :: tmp18 in tmps18 ==>
+ tmp18.search.Some? ==>
+ var tmps19 := set t19 | t19 in tmp18.search.value.versions;
+ forall tmp19 :: tmp19 in tmps19 ==>
+ tmp19.keyStore.ValidState()
 
  // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
  function method CreateSuccessOfClient(client: IDynamoDbEncryptionTransformsClient): Result<IDynamoDbEncryptionTransformsClient, Error> {
