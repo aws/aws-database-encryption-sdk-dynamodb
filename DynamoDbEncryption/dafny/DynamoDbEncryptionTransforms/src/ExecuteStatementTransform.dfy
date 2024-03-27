@@ -4,7 +4,7 @@
 include "DynamoDbMiddlewareSupport.dfy"
 include "DdbStatement.dfy"
 
-module ExecuteStatementTransform { 
+module ExecuteStatementTransform {
   import opened DdbMiddlewareConfig
   import opened DynamoDbMiddlewareSupport
   import opened Wrappers
@@ -28,7 +28,7 @@ module ExecuteStatementTransform {
     //# with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
     //# equal to table named in the request.
     ensures var statement := DdbStatement.TableFromStatement(input.sdkInput.Statement);
-      statement.Failure? || statement.value in config.tableEncryptionConfigs ==> output.Failure?
+            statement.Failure? || statement.value in config.tableEncryptionConfigs ==> output.Failure?
 
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#validate-before-executestatement
     //= type=implication
@@ -36,8 +36,8 @@ module ExecuteStatementTransform {
     //# there MUST NOT be any modification
     //# to the ExecuteStatement request.
     ensures var statement :=  DdbStatement.TableFromStatement(input.sdkInput.Statement);
-      (statement.Success? && statement.value !in config.tableEncryptionConfigs)
-        ==> (output.Success? && output.value.transformedInput == input.sdkInput)
+            (statement.Success? && statement.value !in config.tableEncryptionConfigs)
+            ==> (output.Success? && output.value.transformedInput == input.sdkInput)
   {
     var tableName :- MapString(DdbStatement.TableFromStatement(input.sdkInput.Statement));
     if tableName in config.tableEncryptionConfigs {

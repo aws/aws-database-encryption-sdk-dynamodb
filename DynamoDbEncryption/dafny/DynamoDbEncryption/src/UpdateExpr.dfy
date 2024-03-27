@@ -95,14 +95,14 @@ module DynamoDbUpdateExpr {
     else if '0'  <= ch <= '9' then
       true
     else if ch in ['[' ,']' ,'.'] then
-        true
+      true
     else
-        false
+      false
   }
 
   // length of the prefix of s that is an attribute name
   function method  {:tailrecursion} AttrLen(s : string): (res : nat)
-  ensures res <= |s|
+    ensures res <= |s|
   {
     if 0 == |s| then
       0

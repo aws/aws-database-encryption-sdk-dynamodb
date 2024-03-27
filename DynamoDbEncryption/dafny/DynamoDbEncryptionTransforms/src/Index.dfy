@@ -35,15 +35,15 @@ module
 
   function TheModifies(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig) : set<object>
   {
-  var tmps11 := set t11 | t11 in config.tableEncryptionConfigs.Values
-    && t11.search.Some? 
-    :: set t12 | t12 in t11.search.value.versions :: t12.keyStore;
-  var tmps11FlattenedModifiesSet: set<set<object>> := set t0
-  , t1 | t0 in tmps11 && t1 in t0 :: t1.Modifies;
-  (set tmp13ModifyEntry, tmp13Modifies | 
-  tmp13Modifies in tmps11FlattenedModifiesSet 
-  && tmp13ModifyEntry in tmp13Modifies 
-  :: tmp13ModifyEntry)
+    var tmps11 := set t11 | t11 in config.tableEncryptionConfigs.Values
+                            && t11.search.Some?
+                    :: set t12 | t12 in t11.search.value.versions :: t12.keyStore;
+    var tmps11FlattenedModifiesSet: set<set<object>> := set t0
+                                                          , t1 | t0 in tmps11 && t1 in t0 :: t1.Modifies;
+    (set tmp13ModifyEntry, tmp13Modifies |
+       tmp13Modifies in tmps11FlattenedModifiesSet
+       && tmp13ModifyEntry in tmp13Modifies
+       :: tmp13ModifyEntry)
   }
 
   function SearchModifies(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig, tableName : string)
@@ -85,9 +85,9 @@ module
     ensures 0 == |internalConfigs| ==> CorrectlyTransferedStructure?(internalConfigs, config)
   {
     forall tableName <- internalConfigs
-    ::
-      && tableName in config.tableEncryptionConfigs
-      && ConfigsMatch(tableName, internalConfigs[tableName], config.tableEncryptionConfigs[tableName])
+      ::
+        && tableName in config.tableEncryptionConfigs
+        && ConfigsMatch(tableName, internalConfigs[tableName], config.tableEncryptionConfigs[tableName])
   }
   predicate {:opaque} ConfigsMatch(
     tableName: string,
@@ -103,14 +103,14 @@ module
 
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<IDynamoDbEncryptionTransformsClient, Error>)
-      //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
-      //= type=implication
-      //# When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
-      //# there MUST a one to one mapping between the two.
-      ensures res.Success? ==>
-        && res.value is DynamoDbEncryptionTransformsClient
-        && var config := (res.value as DynamoDbEncryptionTransformsClient).config;
-        && DdbMiddlewareConfig.ValidConfig?(config)
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
+    //= type=implication
+    //# When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
+    //# there MUST a one to one mapping between the two.
+    ensures res.Success? ==>
+              && res.value is DynamoDbEncryptionTransformsClient
+              && var config := (res.value as DynamoDbEncryptionTransformsClient).config;
+              && DdbMiddlewareConfig.ValidConfig?(config)
   {
     var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
     assert ValidWholeSearchConfig(config);
@@ -123,107 +123,107 @@ module
     ghost var inputConfigsModifies: set<object> := set
       tableConfig <- config.tableEncryptionConfigs.Values,
       o <- (
-            (if tableConfig.keyring.Some? then tableConfig.keyring.value.Modifies else {})
-          + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
-          + (if tableConfig.legacyOverride.Some? then tableConfig.legacyOverride.value.encryptor.Modifies else {})
-      )
+             (if tableConfig.keyring.Some? then tableConfig.keyring.value.Modifies else {})
+             + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
+             + (if tableConfig.legacyOverride.Some? then tableConfig.legacyOverride.value.encryptor.Modifies else {})
+           )
       :: o;
 
     var allLogicalTableNames := {};
 
     while m'.Keys != {}
-        invariant m'.Keys <= config.tableEncryptionConfigs.Keys
-        invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
-        invariant forall internalConfig <- internalConfigs.Values :: internalConfig.logicalTableName in allLogicalTableNames
+      invariant m'.Keys <= config.tableEncryptionConfigs.Keys
+      invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
+      invariant forall internalConfig <- internalConfigs.Values :: internalConfig.logicalTableName in allLogicalTableNames
 
-        invariant CorrectlyTransferedStructure?(internalConfigs, config)
-        invariant AllTableConfigsValid?(internalConfigs)
-        invariant ValidConfig?(Config(internalConfigs))
+      invariant CorrectlyTransferedStructure?(internalConfigs, config)
+      invariant AllTableConfigsValid?(internalConfigs)
+      invariant ValidConfig?(Config(internalConfigs))
 
-        decreases m'.Keys
-        modifies inputConfigsModifies
+      decreases m'.Keys
+      modifies inputConfigsModifies
     {
-        var tableName: string :| tableName in m';
-        var inputConfig := config.tableEncryptionConfigs[tableName];
-        :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table maped to multipule physical tables: " + inputConfig.logicalTableName));
+      var tableName: string :| tableName in m';
+      var inputConfig := config.tableEncryptionConfigs[tableName];
+      :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table maped to multipule physical tables: " + inputConfig.logicalTableName));
 
-        assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
-        SearchInModifies(config, tableName);
-        var searchR := SearchConfigToInfo.Convert(inputConfig);
-        var search :- searchR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
-        assert search.None? || search.value.ValidState();
+      assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
+      SearchInModifies(config, tableName);
+      var searchR := SearchConfigToInfo.Convert(inputConfig);
+      var search :- searchR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
+      assert search.None? || search.value.ValidState();
 
-        // Add Signed Beacons to attributeActionsOnEncrypt
-        var signedBeacons := if search.None? then [] else search.value.curr().ListSignedBeacons();
-        //= specification/searchable-encryption/beacons.md#signed-beacons
-        //# Initialization MUST fail if `NAME` is explicitly configured with an
-        //# [attribute actions](../dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions) or
-        //# [unauthenticated attributes](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes),
-        //# or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix).
-        var badBeacons := Seq.Filter(s => IsConfigured(inputConfig, s), signedBeacons);
-        if 0 < |badBeacons| {
-          return Failure(E("Signed beacons cannot be configured with CryptoActions or as unauthenticated : " + Join(badBeacons, ", ")));
-        }
-        :- Need(forall k <- signedBeacons :: DDB.IsValid_AttributeName(k), E("Beacon configured with bad name"));
-        //= specification/searchable-encryption/beacons.md#signed-beacons
-        //# `NAME` MUST be automatically configured with an attribute action of SIGN_ONLY.
-        var newActions := AddSignedBeaconActions(signedBeacons, inputConfig.attributeActionsOnEncrypt);
+      // Add Signed Beacons to attributeActionsOnEncrypt
+      var signedBeacons := if search.None? then [] else search.value.curr().ListSignedBeacons();
+      //= specification/searchable-encryption/beacons.md#signed-beacons
+      //# Initialization MUST fail if `NAME` is explicitly configured with an
+      //# [attribute actions](../dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions) or
+      //# [unauthenticated attributes](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes),
+      //# or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix).
+      var badBeacons := Seq.Filter(s => IsConfigured(inputConfig, s), signedBeacons);
+      if 0 < |badBeacons| {
+        return Failure(E("Signed beacons cannot be configured with CryptoActions or as unauthenticated : " + Join(badBeacons, ", ")));
+      }
+      :- Need(forall k <- signedBeacons :: DDB.IsValid_AttributeName(k), E("Beacon configured with bad name"));
+      //= specification/searchable-encryption/beacons.md#signed-beacons
+      //# `NAME` MUST be automatically configured with an attribute action of SIGN_ONLY.
+      var newActions := AddSignedBeaconActions(signedBeacons, inputConfig.attributeActionsOnEncrypt);
 
-        var encryptorConfig := IE_Types.DynamoDbItemEncryptorConfig(
-          logicalTableName := inputConfig.logicalTableName,
-          partitionKeyName := inputConfig.partitionKeyName,
-          sortKeyName := inputConfig.sortKeyName,
-          attributeActionsOnEncrypt := newActions,
-          allowedUnsignedAttributes := inputConfig.allowedUnsignedAttributes,
-          allowedUnsignedAttributePrefix := inputConfig.allowedUnsignedAttributePrefix,
-          algorithmSuiteId := inputConfig.algorithmSuiteId,
-          keyring := inputConfig.keyring,
-          cmm := inputConfig.cmm,
-          legacyOverride := inputConfig.legacyOverride,
-          plaintextOverride := inputConfig.plaintextOverride
-        );
-        var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-        var itemEncryptorX : IE_Types.IDynamoDbItemEncryptorClient :- itemEncryptorRes
-          .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(e));
-        assert itemEncryptorX is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-        var itemEncryptor := itemEncryptorX as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-        assert itemEncryptor.ValidState();
-        var encConfig := itemEncryptor.config;
-        assert inputConfig.logicalTableName == encConfig.logicalTableName;
-        assert inputConfig.partitionKeyName == encConfig.partitionKeyName;
-        assert inputConfig.sortKeyName == encConfig.sortKeyName;
+      var encryptorConfig := IE_Types.DynamoDbItemEncryptorConfig(
+        logicalTableName := inputConfig.logicalTableName,
+        partitionKeyName := inputConfig.partitionKeyName,
+        sortKeyName := inputConfig.sortKeyName,
+        attributeActionsOnEncrypt := newActions,
+        allowedUnsignedAttributes := inputConfig.allowedUnsignedAttributes,
+        allowedUnsignedAttributePrefix := inputConfig.allowedUnsignedAttributePrefix,
+        algorithmSuiteId := inputConfig.algorithmSuiteId,
+        keyring := inputConfig.keyring,
+        cmm := inputConfig.cmm,
+        legacyOverride := inputConfig.legacyOverride,
+        plaintextOverride := inputConfig.plaintextOverride
+      );
+      var itemEncryptorRes := DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+      var itemEncryptorX : IE_Types.IDynamoDbItemEncryptorClient :- itemEncryptorRes
+      .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(e));
+      assert itemEncryptorX is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+      var itemEncryptor := itemEncryptorX as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+      assert itemEncryptor.ValidState();
+      var encConfig := itemEncryptor.config;
+      assert inputConfig.logicalTableName == encConfig.logicalTableName;
+      assert inputConfig.partitionKeyName == encConfig.partitionKeyName;
+      assert inputConfig.sortKeyName == encConfig.sortKeyName;
 
-        var internalConfig: DdbMiddlewareConfig.ValidTableConfig := DdbMiddlewareConfig.TableConfig(
-          physicalTableName := tableName,
-          logicalTableName := inputConfig.logicalTableName,
-          partitionKeyName := inputConfig.partitionKeyName,
-          sortKeyName := inputConfig.sortKeyName,
-          itemEncryptor := itemEncryptor,
-          search := search
-        );
+      var internalConfig: DdbMiddlewareConfig.ValidTableConfig := DdbMiddlewareConfig.TableConfig(
+        physicalTableName := tableName,
+        logicalTableName := inputConfig.logicalTableName,
+        partitionKeyName := inputConfig.partitionKeyName,
+        sortKeyName := inputConfig.sortKeyName,
+        itemEncryptor := itemEncryptor,
+        search := search
+      );
 
-        internalConfigs := internalConfigs[tableName := internalConfig];
-        allLogicalTableNames := allLogicalTableNames + {internalConfig.logicalTableName};
+      internalConfigs := internalConfigs[tableName := internalConfig];
+      allLogicalTableNames := allLogicalTableNames + {internalConfig.logicalTableName};
 
-        assert AllTableConfigsValid?(internalConfigs) by {
-          reveal AllTableConfigsValid?();
-          assert AllTableConfigsValid?(internalConfigs - {tableName});
-          assert ValidTableConfig?(internalConfig);
-        }
-        assert ValidConfig?(Config(internalConfigs)) by {
-          assert ValidConfig?(Config(internalConfigs - {tableName}));
-          assert internalConfig.physicalTableName == tableName;
-        }
+      assert AllTableConfigsValid?(internalConfigs) by {
+        reveal AllTableConfigsValid?();
+        assert AllTableConfigsValid?(internalConfigs - {tableName});
+        assert ValidTableConfig?(internalConfig);
+      }
+      assert ValidConfig?(Config(internalConfigs)) by {
+        assert ValidConfig?(Config(internalConfigs - {tableName}));
+        assert internalConfig.physicalTableName == tableName;
+      }
 
-        assert CorrectlyTransferedStructure?(internalConfigs, config) by {
-          reveal CorrectlyTransferedStructure?();
-          reveal ConfigsMatch();
-          assert CorrectlyTransferedStructure?(internalConfigs - {tableName}, config);
-          assert ConfigsMatch(tableName, internalConfig, inputConfig);
-        }
+      assert CorrectlyTransferedStructure?(internalConfigs, config) by {
+        reveal CorrectlyTransferedStructure?();
+        reveal ConfigsMatch();
+        assert CorrectlyTransferedStructure?(internalConfigs - {tableName}, config);
+        assert ConfigsMatch(tableName, internalConfig, inputConfig);
+      }
 
-        // Pop 'tableName' off the map, so that we may continue iterating
-        m' := map k' | k' in m' && k' != tableName :: m'[k'];
+      // Pop 'tableName' off the map, so that we may continue iterating
+      m' := map k' | k' in m' && k' != tableName :: m'[k'];
     }
     assert SearchValidState(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs));
 
@@ -234,43 +234,43 @@ module
     // I'm really sorry, but I can't get the freshness to verify
     // and my time box has run out of time.
     assume {:axiom} fresh(
-      client.Modifies
+        client.Modifies
         - ( var tmps14 := set t14 | t14 in config.tableEncryptionConfigs.Values
-          && t14.keyring.Some? 
-          :: t14.keyring.value;
-        var tmps14FlattenedModifiesSet: set<set<object>> := set t0
-        | t0 in tmps14 :: t0.Modifies;
-        (set tmp15ModifyEntry, tmp15Modifies | 
-        tmp15Modifies in tmps14FlattenedModifiesSet 
-        && tmp15ModifyEntry in tmp15Modifies 
-        :: tmp15ModifyEntry)
+                                    && t14.keyring.Some?
+                            :: t14.keyring.value;
+            var tmps14FlattenedModifiesSet: set<set<object>> := set t0
+                                                                  | t0 in tmps14 :: t0.Modifies;
+            (set tmp15ModifyEntry, tmp15Modifies |
+               tmp15Modifies in tmps14FlattenedModifiesSet
+               && tmp15ModifyEntry in tmp15Modifies
+               :: tmp15ModifyEntry)
         ) - ( var tmps16 := set t16 | t16 in config.tableEncryptionConfigs.Values
-          && t16.cmm.Some? 
-          :: t16.cmm.value;
-        var tmps16FlattenedModifiesSet: set<set<object>> := set t0
-        | t0 in tmps16 :: t0.Modifies;
-        (set tmp17ModifyEntry, tmp17Modifies | 
-        tmp17Modifies in tmps16FlattenedModifiesSet 
-        && tmp17ModifyEntry in tmp17Modifies 
-        :: tmp17ModifyEntry)
+                                      && t16.cmm.Some?
+                              :: t16.cmm.value;
+              var tmps16FlattenedModifiesSet: set<set<object>> := set t0
+                                                                    | t0 in tmps16 :: t0.Modifies;
+              (set tmp17ModifyEntry, tmp17Modifies |
+                 tmp17Modifies in tmps16FlattenedModifiesSet
+                 && tmp17ModifyEntry in tmp17Modifies
+                 :: tmp17ModifyEntry)
         ) - ( var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values
-          && t18.legacyOverride.Some? 
-          :: t18.legacyOverride.value.encryptor;
-        var tmps18FlattenedModifiesSet: set<set<object>> := set t0
-        | t0 in tmps18 :: t0.Modifies;
-        (set tmp19ModifyEntry, tmp19Modifies | 
-        tmp19Modifies in tmps18FlattenedModifiesSet 
-        && tmp19ModifyEntry in tmp19Modifies 
-        :: tmp19ModifyEntry)
+                                      && t18.legacyOverride.Some?
+                              :: t18.legacyOverride.value.encryptor;
+              var tmps18FlattenedModifiesSet: set<set<object>> := set t0
+                                                                    | t0 in tmps18 :: t0.Modifies;
+              (set tmp19ModifyEntry, tmp19Modifies |
+                 tmp19Modifies in tmps18FlattenedModifiesSet
+                 && tmp19ModifyEntry in tmp19Modifies
+                 :: tmp19ModifyEntry)
         ) - ( var tmps20 := set t20 | t20 in config.tableEncryptionConfigs.Values
-          && t20.search.Some? 
-          :: set t21 | t21 in t20.search.value.versions :: t21.keyStore;
-        var tmps20FlattenedModifiesSet: set<set<object>> := set t0
-        , t1 | t0 in tmps20 && t1 in t0 :: t1.Modifies;
-        (set tmp22ModifyEntry, tmp22Modifies | 
-        tmp22Modifies in tmps20FlattenedModifiesSet 
-        && tmp22ModifyEntry in tmp22Modifies 
-        :: tmp22ModifyEntry)
+                                      && t20.search.Some?
+                              :: set t21 | t21 in t20.search.value.versions :: t21.keyStore;
+              var tmps20FlattenedModifiesSet: set<set<object>> := set t0
+                                                                    , t1 | t0 in tmps20 && t1 in t0 :: t1.Modifies;
+              (set tmp22ModifyEntry, tmp22Modifies |
+                 tmp22Modifies in tmps20FlattenedModifiesSet
+                 && tmp22ModifyEntry in tmp22Modifies
+                 :: tmp22ModifyEntry)
         ) );
 
     return Success(client);

@@ -34,33 +34,33 @@ module GetItemTransform {
     ensures output.Success? && input.originalInput.TableName !in config.tableEncryptionConfigs ==> output.value.transformedOutput == input.sdkOutput
     ensures output.Success? && NoMap(input.sdkOutput.Item) ==> NoMap(output.value.transformedOutput.Item)
     ensures output.Success? && input.originalInput.TableName in config.tableEncryptionConfigs && !NoMap(input.sdkOutput.Item) ==>
-      var tableConfig := config.tableEncryptionConfigs[input.originalInput.TableName];
-      var oldHistory := old(tableConfig.itemEncryptor.History.DecryptItem);
-      var newHistory := tableConfig.itemEncryptor.History.DecryptItem;
+              var tableConfig := config.tableEncryptionConfigs[input.originalInput.TableName];
+              var oldHistory := old(tableConfig.itemEncryptor.History.DecryptItem);
+              var newHistory := tableConfig.itemEncryptor.History.DecryptItem;
 
-      && |newHistory| == |oldHistory|+1
-      && Seq.Last(newHistory).output.Success?
+              && |newHistory| == |oldHistory|+1
+              && Seq.Last(newHistory).output.Success?
 
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
-      //= type=implication
-      //# The [Item Encryptor](./ddb-item-encryptor.md) MUST perform
-      //# [Decrypt Item](./decrypt-item.md) where the input
-      //# [DynamoDB Item](./decrypt-item.md#dynamodb-item)
-      //# is the `Item` field in the original response
-      && Seq.Last(newHistory).input.encryptedItem == input.sdkOutput.Item.value
+              //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
+              //= type=implication
+              //# The [Item Encryptor](./ddb-item-encryptor.md) MUST perform
+              //# [Decrypt Item](./decrypt-item.md) where the input
+              //# [DynamoDB Item](./decrypt-item.md#dynamodb-item)
+              //# is the `Item` field in the original response
+              && Seq.Last(newHistory).input.encryptedItem == input.sdkOutput.Item.value
 
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
-      //= type=implication
-      //# Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
-      && RemoveBeacons(tableConfig, Seq.Last(newHistory).output.value.plaintextItem).Success?
-      && var item := RemoveBeacons(tableConfig, Seq.Last(newHistory).output.value.plaintextItem).value;
+              //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
+              //= type=implication
+              //# Beacons MUST be [removed](ddb-support.md#removebeacons) from the result.
+              && RemoveBeacons(tableConfig, Seq.Last(newHistory).output.value.plaintextItem).Success?
+              && var item := RemoveBeacons(tableConfig, Seq.Last(newHistory).output.value.plaintextItem).value;
 
-      //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
-      //= type=implication
-      //# The GetItem response's `Item` field MUST be
-      //# replaced by the encrypted DynamoDb Item outputted above.
-      && output.value.transformedOutput.Item.Some?
-      && (item == output.value.transformedOutput.Item.value)
+              //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-getitem
+              //= type=implication
+              //# The GetItem response's `Item` field MUST be
+              //# replaced by the encrypted DynamoDb Item outputted above.
+              && output.value.transformedOutput.Item.Some?
+              && (item == output.value.transformedOutput.Item.value)
 
     requires ValidConfig?(config)
     ensures ValidConfig?(config)

@@ -103,7 +103,7 @@ module DdbStatement {
   // states that the target of the select is either "Table" or "Table.Index"
   // In either case, we want just the Table
   function method {:opaque} TableFromSelectStatement(s : string)
-  : Option<DDB.TableName>
+    : Option<DDB.TableName>
   {
     var name :- TableFromSelectStatementInner(s);
     if '.' in name then
@@ -115,7 +115,7 @@ module DdbStatement {
 
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.update.html
   function method {:opaque} TableFromUpdateStatement(s : string)
-  : Option<DDB.TableName>
+    : Option<DDB.TableName>
   {
     var s := StripLeadingWhitespace(s);
     var len := FindTokenLen(s);
@@ -127,7 +127,7 @@ module DdbStatement {
 
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.delete.html
   function method {:opaque} TableFromDeleteStatement(s : string)
-  : Option<DDB.TableName>
+    : Option<DDB.TableName>
   {
     var s := StripLeadingWhitespace(s);
     var len := FindTokenLen(s);
@@ -144,7 +144,7 @@ module DdbStatement {
 
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.insert.html
   function method {:opaque} TableFromInsertStatement(s : string)
-  : Option<DDB.TableName>
+    : Option<DDB.TableName>
   {
     var s := StripLeadingWhitespace(s);
     var len := FindTokenLen(s);

@@ -14,27 +14,27 @@ module PathsTests {
     assert(ValidString("example_table"));
     var name := Selector.Map("name");
     var pathToTest := TerminalLocation([name]);
-    expect pathToTest.canonicalPath(tableName) == 
-         UTF8.EncodeAscii("example_table")
-      + [0,0,0,0,0,0,0,1] // depth
-      + ['$' as uint8] // map
-      + [0,0,0,0,0,0,0,4] // length
-      + UTF8.EncodeAscii("name");
+    expect pathToTest.canonicalPath(tableName) ==
+           UTF8.EncodeAscii("example_table")
+           + [0,0,0,0,0,0,0,1] // depth
+           + ['$' as uint8] // map
+           + [0,0,0,0,0,0,0,4] // length
+           + UTF8.EncodeAscii("name");
 
     var history := Selector.Map("status-history");
     var index := Selector.List(0);
     var timestamp := Selector.Map("timestamp");
     var pathToTest2 := TerminalLocation([history, index, timestamp]);
-    expect pathToTest2.canonicalPath(tableName) == 
-        UTF8.EncodeAscii("example_table")
-      + [0,0,0,0,0,0,0,3] // depth
-      + ['$' as uint8] // map
-      + [0,0,0,0,0,0,0,14] // length of "status-history"
-      + UTF8.EncodeAscii("status-history")
-      + ['#' as uint8] // array
-      + [0,0,0,0,0,0,0,0] // index
-      + ['$' as uint8] // map
-      + [0,0,0,0,0,0,0,9] // length of "timestamp"
-      + UTF8.EncodeAscii("timestamp");
+    expect pathToTest2.canonicalPath(tableName) ==
+           UTF8.EncodeAscii("example_table")
+           + [0,0,0,0,0,0,0,3] // depth
+           + ['$' as uint8] // map
+           + [0,0,0,0,0,0,0,14] // length of "status-history"
+           + UTF8.EncodeAscii("status-history")
+           + ['#' as uint8] // array
+           + [0,0,0,0,0,0,0,0] // index
+           + ['$' as uint8] // map
+           + [0,0,0,0,0,0,0,9] // length of "timestamp"
+           + UTF8.EncodeAscii("timestamp");
   }
 }

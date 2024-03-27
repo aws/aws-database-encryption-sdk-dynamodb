@@ -60,7 +60,6 @@ verify:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:csv \
@@ -77,7 +76,6 @@ verify_single:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:text \
@@ -93,7 +91,6 @@ verify_service:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-verificationLogger:csv \
@@ -101,10 +98,22 @@ verify_service:
 		-trace \
 		`find ./dafny/$(SERVICE) -name '*.dfy'` \
 
+format_dafny:
+	dafny format \
+		--function-syntax 3 \
+		--unicode-char false \
+		`find . -name '*.dfy'`
+
+format_dafny-check:
+	dafny format \
+		--check \
+		--function-syntax 3 \
+		--unicode-char false \
+		`find . -name '*.dfy'`
+
 format:
 	dafny format \
 		--function-syntax 3 \
-		--quantifier-syntax 3 \
 		--unicode-char false \
 		`find . -name '*.dfy'`
 
@@ -112,7 +121,6 @@ format-check:
 	dafny format \
 		--check \
 		--function-syntax 3 \
-		--quantifier-syntax 3 \
 		--unicode-char false \
 		`find . -name '*.dfy'`
 
@@ -160,7 +168,6 @@ transpile_implementation:
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
 		$(COMPILE_SUFFIX_OPTION) \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-useRuntimeLib \
@@ -183,7 +190,6 @@ transpile_test:
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
 		$(COMPILE_SUFFIX_OPTION) \
-		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
 		-useRuntimeLib \
