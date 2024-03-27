@@ -7,12 +7,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
 {
   public class ParsedHeader
   {
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoSchema _cryptoSchema;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> _cryptoSchema;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
     private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys;
     private System.Collections.Generic.Dictionary<string, string> _storedEncryptionContext;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoSchema CryptoSchema
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> CryptoSchema
     {
       get { return this._cryptoSchema; }
       set { this._cryptoSchema = value; }

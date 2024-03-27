@@ -496,12 +496,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   function method GetCryptoSchemaAction(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-    : (ret : Result<CSE.CryptoSchema, string>)
+    : (ret : Result<CSE.CryptoAction, string>)
     ensures (attr !in config.attributeActionsOnEncrypt && InSignatureScope(config, attr)) ==> ret.Failure?
   {
-    var action :- GetCryptoSchemaActionInner(config, attr);
-    var newElement := CSE.CryptoSchemaContent.Action(action);
-    Success(CSE.CryptoSchema(content := newElement, attributes := None))
+    GetCryptoSchemaActionInner(config, attr)
   }
 
   // return proper Authenticate Action by name
@@ -533,7 +531,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   function method ConfigToCryptoSchema(
     config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
-    : (ret : Result<CSE.CryptoSchema, DDBE.Error>)
+    : (ret : Result<CSE.CryptoSchemaMap, DDBE.Error>)
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -548,7 +546,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
     //# - The Crypto Schema MUST NOT contain more Crypto Actions than those specified by the previous point.
-    ensures ret.Success? ==> ret.value.content.SchemaMap? && item.Keys == ret.value.content.SchemaMap.Keys
+    ensures ret.Success? ==> item.Keys == ret.value.Keys
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //= type=implication
@@ -558,10 +556,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# equals the Crypto Action indexed by that attribute name in the configured Attribute Actions.
     ensures ret.Success? ==> forall k <-item.Keys ::
                 && GetCryptoSchemaAction(config, k).Success?
-                && ret.value.content.SchemaMap[k] == GetCryptoSchemaAction(config, k).value
+                && ret.value[k] == GetCryptoSchemaAction(config, k).value
                 && (k in config.attributeActionsOnEncrypt ==>
-                      ret.value.content.SchemaMap[k].content ==
-                      CSE.CryptoSchemaContent.Action(config.attributeActionsOnEncrypt[k]))
+                      ret.value[k] == config.attributeActionsOnEncrypt[k])
   {
     var schema := map k <- item :: k := GetCryptoSchemaAction(config, k);
     DynamoToStruct.MapKeysMatchItems(item);
@@ -571,10 +568,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     assert actionMapRes.Failure? <==> exists k <- item.Keys :: schema[k].Failure?;
     assert actionMapRes.Failure? <==> exists k <- item.Keys :: GetCryptoSchemaAction(config, k).Failure?;
 
-    var actionMap :- DynamoToStruct.MapError(actionMapRes);
-    var schemaContent := CSE.CryptoSchemaContent.SchemaMap(actionMap);
-    var finalSchema := CSE.CryptoSchema(content := schemaContent, attributes := None);
-    Success(finalSchema)
+    DynamoToStruct.MapError(actionMapRes)
   }
 
   // get AuthenticateSchema for this item
@@ -629,20 +623,18 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     && SE.FooterField !in ddbItem
   }
 
-  function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchema)
+  function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchemaMap)
     : (ret: Result<map<ComAmazonawsDynamodbTypes.AttributeName, CSE.CryptoAction>, Error>)
-    requires schema.content.SchemaMap?
-    requires forall k <- schema.content.SchemaMap :: schema.content.SchemaMap[k].content.Action?
-    requires forall v <- schema.content.SchemaMap.Values :: SE.IsAuthAttr(v.content.Action)
+    requires forall k <- schema :: SE.IsAuthAttr(schema[k])
     ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
     ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
   {
     // We can formally verify these properties, but it is too resource intensive
-    :- Need(forall k <- schema.content.SchemaMap :: InSignatureScope(config, k),
+    :- Need(forall k <- schema :: InSignatureScope(config, k),
             DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: mismatch with signature scope"));
-    :- Need(forall k <- schema.content.SchemaMap :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
+    :- Need(forall k <- schema :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
             DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: Invalid attribute names"));
-    Success(map k <- schema.content.SchemaMap :: k := schema.content.SchemaMap[k].content.Action)
+    Success(map k <- schema :: k := schema[k])
   }
 
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
@@ -776,11 +768,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
         && output.value.parsedHeader.Some?
         && var structuredEncParsed := Seq.Last(config.structuredEncryption.History.EncryptStructure).output.value.parsedHeader;
-        && structuredEncParsed.cryptoSchema.content.SchemaMap?
-        && var parsedHeaderMap := structuredEncParsed.cryptoSchema.content.SchemaMap;
+        && var parsedHeaderMap := structuredEncParsed.cryptoSchema;
         && (forall k <- parsedHeaderMap ::
-              && parsedHeaderMap[k].content.Action?
-              && SE.IsAuthAttr(parsedHeaderMap[k].content.Action))
+              && SE.IsAuthAttr(parsedHeaderMap[k]))
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
         && ConvertContextForSelector(structuredEncParsed.encryptionContext).Success?
@@ -998,10 +988,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         //# data that was serialized into the header included in the output DynamoDb Item.
         && output.value.parsedHeader.Some?
         && var structuredEncParsed := Seq.Last(config.structuredEncryption.History.DecryptStructure).output.value.parsedHeader;
-        && structuredEncParsed.cryptoSchema.content.SchemaMap?
-        && (forall k <- structuredEncParsed.cryptoSchema.content.SchemaMap ::
-              && structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action?
-              && SE.IsAuthAttr(structuredEncParsed.cryptoSchema.content.SchemaMap[k].content.Action))
+        && (forall k <- structuredEncParsed.cryptoSchema ::
+              && SE.IsAuthAttr(structuredEncParsed.cryptoSchema[k]))
         && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
         && maybeCryptoSchema.Success?
         && ConvertContextForSelector(structuredEncParsed.encryptionContext).Success?

@@ -11,8 +11,8 @@ module StructuredDataTestFixtures {
   import MaterialProviders
   import AwsCryptographyMaterialProvidersTypes
 
-  const TEST_TYPE_ID : seq<uint8> := [0xFF, 0xFF];
-  const TEST_BLOB_VALUE : seq<uint8> := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68];
+  const TEST_TYPE_ID : seq<uint8> := [0xFF, 0xFF]
+  const TEST_BLOB_VALUE : seq<uint8> := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68]
 
   const TEST_STRUCTURED_DATA := StructuredData(
                                   content := StructuredDataContent.DataMap(
@@ -47,52 +47,20 @@ module StructuredDataTestFixtures {
                                     ]
                                   ),
                                   attributes := None()
-                                );
+                                )
 
-  const TEST_CRYPTO_SCHEMA := CryptoSchema(
-                                content := CryptoSchemaContent.SchemaMap(
-                                  SchemaMap := map[
-                                    "foo" := CryptoSchema(
-                                      content := CryptoSchemaContent.Action(
-                                        Action := CryptoAction.ENCRYPT_AND_SIGN
-                                      ),
-                                      attributes := None()
-                                    ),
-                                    "bar" := CryptoSchema(
-                                      content := CryptoSchemaContent.Action(
-                                        Action := CryptoAction.SIGN_ONLY
-                                      ),
-                                      attributes := None()
-                                    ),
-                                    "fizzbuzz" := CryptoSchema(
-                                      content := CryptoSchemaContent.Action(
-                                        Action := CryptoAction.DO_NOTHING
-                                      ),
-                                      attributes := None()
-                                    )
-                                  ]
-                                ),
-                                attributes := None()
-                              );
-  const TEST_CRYPTO_SCHEMA_AUTH_ONLY := CryptoSchema(
-                                          content := CryptoSchemaContent.SchemaMap(
-                                            SchemaMap := map[
-                                              "foo" := CryptoSchema(
-                                                content := CryptoSchemaContent.Action(
-                                                  Action := CryptoAction.ENCRYPT_AND_SIGN
-                                                ),
-                                                attributes := None()
-                                              ),
-                                              "bar" := CryptoSchema(
-                                                content := CryptoSchemaContent.Action(
-                                                  Action := CryptoAction.SIGN_ONLY
-                                                ),
-                                                attributes := None()
-                                              )
-                                            ]
-                                          ),
-                                          attributes := None()
-                                        );
+  const TEST_CRYPTO_SCHEMA : CryptoSchemaMap :=
+    map[
+      "foo" := CryptoAction.ENCRYPT_AND_SIGN,
+      "bar" := CryptoAction.SIGN_ONLY,
+      "fizzbuzz" := CryptoAction.DO_NOTHING
+    ]
+  const TEST_CRYPTO_SCHEMA_AUTH_ONLY : CryptoSchemaMap :=
+    map[
+      "foo" := CryptoAction.ENCRYPT_AND_SIGN,
+      "bar" := CryptoAction.SIGN_ONLY
+    ]
+
   const TEST_AUTHENTICATE_SCHEMA := AuthenticateSchema(
                                       content := AuthenticateSchemaContent.SchemaMap(
                                         SchemaMap := map[
@@ -117,14 +85,14 @@ module StructuredDataTestFixtures {
                                         ]
                                       ),
                                       attributes := None()
-                                    );
-  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+                                    )
+  const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
 
   method GetDefaultCMMWithKMSKeyring()
     returns (cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager)
-    ensures cmm.ValidState();
-    ensures fresh(cmm);
-    ensures fresh(cmm.Modifies);
+    ensures cmm.ValidState()
+    ensures fresh(cmm)
+    ensures fresh(cmm.Modifies)
   {
     var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
     var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMultiKeyringInput(

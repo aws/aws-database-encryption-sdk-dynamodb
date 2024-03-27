@@ -76,14 +76,6 @@ module StructuredEncryptionUtil {
     CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN), attributes := None)
   const DoSign :=
     CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
-  const EncryptAndSign :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.ENCRYPT_AND_SIGN), attributes := None)
-  const ContextAndSign :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT), attributes := None)
-  const SignOnly :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_ONLY), attributes := None)
-  const DoNothing :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.DO_NOTHING), attributes := None)
 
   type Key = x : seq<uint8> | |x| == KeySize witness *
   type Nonce = x : seq<uint8> | |x| == NonceSize witness *
@@ -95,14 +87,13 @@ module StructuredEncryptionUtil {
   type GoodString = x : string | ValidString(x)
 
   type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
-  type CryptoSchemaActionType = x : CryptoSchema | x.content.Action? witness *
   type AuthSchemaActionType = x : AuthenticateSchema | x.content.Action? witness *
 
   type StructuredDataXXX = x : map<GoodString, StructuredData> | forall k <- x :: x[k].content.Terminal?
   type StructuredDataPlain = map<GoodString, StructuredDataTerminalType>
   type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminalType>
-  type CryptoSchemaPlain = map<GoodString, CryptoSchemaActionType>
-  type CryptoSchemaCanon = map<CanonicalPath, CryptoSchemaActionType>
+  type CryptoSchemaPlain = map<GoodString, CSE.CryptoAction>
+  type CryptoSchemaCanon = map<CanonicalPath, CSE.CryptoAction>
   type AuthSchemaPlain = map<GoodString, AuthSchemaActionType>
   type AuthSchemaCanon = map<CanonicalPath, AuthSchemaActionType>
   type CanonMap = map<CanonicalPath, GoodString>
@@ -141,14 +132,6 @@ module StructuredEncryptionUtil {
   {
     ConstantTimeCompare(a, b) == 0
   }
-
-  // Is the CryptoSchemaMap flat, i.e., does it contain only Actions?
-  function method CryptoSchemaMapIsFlat(data : CryptoSchemaMap) : (ret : bool)
-    ensures ret ==> (forall v <- data.Values :: v.content.Action?)
-  {
-    forall k <- data :: data[k].content.Action?
-  }
-  type FlatSchemaMap = x : CryptoSchemaMap | CryptoSchemaMapIsFlat(x)
 
   // Schema must contain only Actions
   function method AuthSchemaIsFlat(data : AuthenticateSchemaMap) : (ret : bool)
