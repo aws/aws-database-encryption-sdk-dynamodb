@@ -2,12 +2,10 @@
 name: Library format check
 
 on:
-  workflow_call:
-    inputs:
-      dafny:
-        description: "The Dafny version to run"
-        required: true
-        type: string
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   format_projects:
@@ -41,7 +39,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
-          dafny-version: ${{ inputs.dafny }}
+          dafny-version: ${{ '4.2.0' }}
 
       - name: Check format of ${{ matrix.library }} Dafny code
         working-directory: ./${{ matrix.library }}
