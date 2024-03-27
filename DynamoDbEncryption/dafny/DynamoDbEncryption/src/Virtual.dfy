@@ -285,9 +285,9 @@ module DdbVirtualFields {
       //# GetSegments MUST return the range of parts from low (inclusive) to high (exclusive),
       //# joined on the `split` character.
       && (lo < hi ==> ret == Join(parts[lo..hi], [split]))
-      //= specification/searchable-encryption/virtual.md#getsegments-transform-initialization
-      //= type=implication
-      //# If high is less than or equal to low, an empty string MUST be returned.
+         //= specification/searchable-encryption/virtual.md#getsegments-transform-initialization
+         //= type=implication
+         //# If high is less than or equal to low, an empty string MUST be returned.
       && (lo >= hi ==> ret == "")
   {
     var parts := Split(s, split);

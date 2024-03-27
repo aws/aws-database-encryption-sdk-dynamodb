@@ -1280,18 +1280,18 @@ module DynamoDBFilterExpr {
     else if |b| == 0 then
       false
     else
-      if a[0] == b[0] then
-        UnicodeLess(a[1..], b[1..]) // correct independent of surrogate status
+    if a[0] == b[0] then
+      UnicodeLess(a[1..], b[1..]) // correct independent of surrogate status
+    else
+      var aIsHighSurrogate := IsHighSurrogate(a[0]);
+      var bIsHighSurrogate := IsHighSurrogate(b[0]);
+      if aIsHighSurrogate == bIsHighSurrogate then
+        a[0] < b[0]
       else
-        var aIsHighSurrogate := IsHighSurrogate(a[0]);
-        var bIsHighSurrogate := IsHighSurrogate(b[0]);
-        if aIsHighSurrogate == bIsHighSurrogate then
-          a[0] < b[0]
-        else
-          bIsHighSurrogate
-          // we know aIsHighSurrogate != bIsHighSurrogate and a[0] != b[0]
-          // so if bIsHighSurrogate then a is less
-          // and if aIsHighSurrogate then a is greater
+        bIsHighSurrogate
+        // we know aIsHighSurrogate != bIsHighSurrogate and a[0] != b[0]
+        // so if bIsHighSurrogate then a is less
+        // and if aIsHighSurrogate then a is greater
   }
 
   predicate method UnicodeLessOrEqual(a : string, b : string)

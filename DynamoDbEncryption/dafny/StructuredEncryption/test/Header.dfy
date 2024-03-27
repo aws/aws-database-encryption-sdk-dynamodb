@@ -27,9 +27,9 @@ module TestHeader {
       legend := [0x65, 0x73],
       encContext := map[EncodeAscii("abc") := EncodeAscii("def")],
       dataKeys := [CMP.EncryptedDataKey(
-        keyProviderId := EncodeAscii("provID") ,
-        keyProviderInfo := [1,2,3,4,5],
-        ciphertext := [6,7,8,9])]
+                     keyProviderId := EncodeAscii("provID") ,
+                     keyProviderInfo := [1,2,3,4,5],
+                     ciphertext := [6,7,8,9])]
     );
     var ser := head.serialize() + head.msgID; // msgID as fake commitment
     var orig :- expect PartialDeserialize(ser);
@@ -45,9 +45,9 @@ module TestHeader {
       legend := [0x65, 0x73],
       encContext := map[EncodeAscii("abc") := EncodeAscii("def")],
       dataKeys := [CMP.EncryptedDataKey(
-        keyProviderId := EncodeAscii("provID") ,
-        keyProviderInfo := [1,2,3,4,5],
-        ciphertext := [6,7,8,9])]
+                     keyProviderId := EncodeAscii("provID") ,
+                     keyProviderInfo := [1,2,3,4,5],
+                     ciphertext := [6,7,8,9])]
     );
     var key : Bytes := head.msgID;
     var alg := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
@@ -77,12 +77,12 @@ module TestHeader {
     var cont : CMPEncryptionContext := map[EncodeAscii("abc") := EncodeAscii("def"), EncodeAscii("cba") := EncodeAscii("fed")];
     var serCont := SerializeContext(cont);
     expect serCont == [
-      0,2, // two items
-      0,3,a,b,c,
-      0,3,d,e,f,
-      0,3,c,b,a,
-      0,3,f,e,d
-    ];
+                        0,2, // two items
+                        0,3,a,b,c,
+                        0,3,d,e,f,
+                        0,3,c,b,a,
+                        0,3,f,e,d
+                      ];
     var newCont := GetContext(serCont);
     expect newCont.Success?;
     expect newCont.value.0 == cont;

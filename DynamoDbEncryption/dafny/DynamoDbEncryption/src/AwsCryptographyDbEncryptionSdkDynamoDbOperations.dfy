@@ -13,7 +13,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
   { {} }
 
   datatype Config = Config(
-  )
+                    )
 
   type InternalConfig = Config
 
@@ -25,12 +25,12 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput
   ) returns (output: Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>) {
     var supplier := new DynamoDbEncryptionBranchKeyIdSupplier.DynamoDbEncryptionBranchKeyIdSupplier(
-        input.ddbKeyBranchKeyIdSupplier
+      input.ddbKeyBranchKeyIdSupplier
     );
     return Success(
         CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
           branchKeyIdSupplier := supplier
         )
-    );
+      );
   }
 }

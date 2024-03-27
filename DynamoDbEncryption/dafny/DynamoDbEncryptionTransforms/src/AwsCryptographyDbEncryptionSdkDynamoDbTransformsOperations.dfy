@@ -134,7 +134,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
   method TransactWriteItemsInputTransform(config: InternalConfig, input: TransactWriteItemsInputTransformInput)
     returns (output: Result<TransactWriteItemsInputTransformOutput, Error>)
   {
-      output := TransactWriteItemsTransform.Input(config, input);
+    output := TransactWriteItemsTransform.Input(config, input);
   }
 
   predicate TransactWriteItemsOutputTransformEnsuresPublicly(input: TransactWriteItemsOutputTransformInput, output: Result<TransactWriteItemsOutputTransformOutput, Error>)

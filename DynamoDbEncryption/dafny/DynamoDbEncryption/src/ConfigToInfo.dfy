@@ -266,9 +266,9 @@ module SearchConfigToInfo {
     && var name := loc[0].key;
     && name in outer.attributeActionsOnEncrypt
     && (
-      || outer.attributeActionsOnEncrypt[name] == SE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
-      || outer.attributeActionsOnEncrypt[name] == SE.SIGN_ONLY
-      )
+         || outer.attributeActionsOnEncrypt[name] == SE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+         || outer.attributeActionsOnEncrypt[name] == SE.SIGN_ONLY
+       )
   }
 
   // is this terminal location encrypted

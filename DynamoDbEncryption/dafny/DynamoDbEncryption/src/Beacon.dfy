@@ -179,11 +179,11 @@ module BaseBeacon {
       //# of the input string, the HMAC key from the [key materials](./search-config.md#get-beacon-key-materials)
       //# associated with this beacon, and the beacon length associated with this beacon.
       ensures res.Success? ==>
-        && keyName() in keys
-        && UTF8.Encode(val).Success?
-        && var str := UTF8.Encode(val).value;
-        && hash(str, keys[keyName()]).Success?
-        && res.value == hash(str, keys[keyName()]).value
+                && keyName() in keys
+                && UTF8.Encode(val).Success?
+                && var str := UTF8.Encode(val).value;
+                && hash(str, keys[keyName()]).Success?
+                && res.value == hash(str, keys[keyName()]).value
     {
       :- Need(keyName() in keys, E("Internal Error, no key for " + keyName()));
       var str := UTF8.Encode(val);
@@ -230,64 +230,64 @@ module BaseBeacon {
     function method {:opaque} getHashSet(item : DDB.AttributeMap, key : Bytes) : (ret : Result<Option<DDB.AttributeValue>, Error>)
       requires asSet
       ensures ret.Success? ==>
-        //= specification/searchable-encryption/beacons.md#value-for-a-set-standard-beacon
-        //= type=implication
-        //# * The returned
-        //# [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
-        //# MUST be type "SS" StringSet.
-        && (ret.value.Some? ==> ret.value.value.SS?)
-        //= specification/searchable-encryption/beacons.md#value-for-a-set-standard-beacon
-        //= type=implication
-        //# * The resulting set MUST NOT contain duplicates.
-        && (ret.value.Some? ==> HasNoDuplicates(ret.value.value.SS))
-        //= specification/searchable-encryption/beacons.md#asset-initialization
-        //= type=implication
-        //# * Writing an item MUST fail if the item contains this beacon's attribute,
-        //# and that attribute is not of type Set.
-        && var value := TermLoc.TermToAttr(loc, item, None);
-        && (value.Some? && !(value.value.SS? || value.value.NS? || value.value.BS?) ==> ret.Failure?)
+                //= specification/searchable-encryption/beacons.md#value-for-a-set-standard-beacon
+                //= type=implication
+                //# * The returned
+                //# [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
+                //# MUST be type "SS" StringSet.
+                && (ret.value.Some? ==> ret.value.value.SS?)
+                   //= specification/searchable-encryption/beacons.md#value-for-a-set-standard-beacon
+                   //= type=implication
+                   //# * The resulting set MUST NOT contain duplicates.
+                && (ret.value.Some? ==> HasNoDuplicates(ret.value.value.SS))
+                   //= specification/searchable-encryption/beacons.md#asset-initialization
+                   //= type=implication
+                   //# * Writing an item MUST fail if the item contains this beacon's attribute,
+                   //# and that attribute is not of type Set.
+                && var value := TermLoc.TermToAttr(loc, item, None);
+                && (value.Some? && !(value.value.SS? || value.value.NS? || value.value.BS?) ==> ret.Failure?)
     {
-        var value := TermLoc.TermToAttr(loc, item, None);
-        if value.None? then
-          Success(None)
-        else
-          //= specification/searchable-encryption/beacons.md#asset-initialization
-          //# * The Standard Beacon MUST be stored in the item as a Set,
-          //# comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
-          var setValue :- ValueToSet(value.value, key);
-          Success(Some(setValue))
+      var value := TermLoc.TermToAttr(loc, item, None);
+      if value.None? then
+        Success(None)
+      else
+        //= specification/searchable-encryption/beacons.md#asset-initialization
+        //# * The Standard Beacon MUST be stored in the item as a Set,
+        //# comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
+        var setValue :- ValueToSet(value.value, key);
+        Success(Some(setValue))
     }
     function method {:opaque} getHashNonSet(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : (ret : Result<Option<DDB.AttributeValue>, Error>)
-    requires !asSet
-    ensures ret.Success? ==>
-      //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
-      //= type=implication
-      //# * The returned
-      //# [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
-      //# MUST be type "S" String.
-      && (ret.value.Some? ==> ret.value.value.S?)
-      && VirtToBytes(loc, item, vf).Success?
-      && var bytes := VirtToBytes(loc, item, vf).value;
-      //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
-      //= type=implication
-      //# * This operation MUST return no value if the associated field does not exist in the record
-      && (bytes.None? ==> ret.value.None?)
-      //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
-      //= type=implication
-      //# * This operation MUST convert the attribute value of the associated field to
-      //# a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
-      && (bytes.Some? ==> ret.value.Some? && hash(bytes.value, key).Success? && ret.value.value == DDB.AttributeValue.S(hash(bytes.value, key).value))
-      //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
-      //= type=implication
-      //# * This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
-      && (bytes.Some? ==> ret.value.Some? && base.hash(bytes.value, key, length).Success? && ret.value.value == DDB.AttributeValue.S(base.hash(bytes.value, key, length).value))
+      requires !asSet
+      ensures ret.Success? ==>
+                //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
+                //= type=implication
+                //# * The returned
+                //# [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
+                //# MUST be type "S" String.
+                && (ret.value.Some? ==> ret.value.value.S?)
+                && VirtToBytes(loc, item, vf).Success?
+                && var bytes := VirtToBytes(loc, item, vf).value;
+                //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
+                //= type=implication
+                //# * This operation MUST return no value if the associated field does not exist in the record
+                && (bytes.None? ==> ret.value.None?)
+                   //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
+                   //= type=implication
+                   //# * This operation MUST convert the attribute value of the associated field to
+                   //# a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
+                && (bytes.Some? ==> ret.value.Some? && hash(bytes.value, key).Success? && ret.value.value == DDB.AttributeValue.S(hash(bytes.value, key).value))
+                   //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
+                   //= type=implication
+                   //# * This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
+                && (bytes.Some? ==> ret.value.Some? && base.hash(bytes.value, key, length).Success? && ret.value.value == DDB.AttributeValue.S(base.hash(bytes.value, key, length).value))
     {
-        var bytes :- VirtToBytes(loc, item, vf);
-        if bytes.None? then
-          Success(None)
-        else
-          var res :- hash(bytes.value, key);
-          Success(Some(DDB.AttributeValue.S(res)))
+      var bytes :- VirtToBytes(loc, item, vf);
+      if bytes.None? then
+        Success(None)
+      else
+        var res :- hash(bytes.value, key);
+        Success(Some(DDB.AttributeValue.S(res)))
     }
 
     function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap) : Result<Option<DDB.AttributeValue>, Error>
