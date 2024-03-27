@@ -31,10 +31,8 @@ jobs:
           git config --global core.longpaths true
 
       - uses: actions/checkout@v4
-      # The specification submodule is private so we don't have access, but we don't need
-      # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
-      # - run: git submodule update --init libraries
-      # - run: git submodule update --init smithy-dafny
+        with:
+          submodules: recursive
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
