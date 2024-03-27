@@ -104,10 +104,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
         var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsHDataKey]);
         var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
 
-        expect EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Success?;
-        var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Extract();
-        expect |providerWrappedMaterial| >= (16 + 12 + 16);
-        var expectedBranchKeyVersionUuid := UUID.FromByteArray(providerWrappedMaterial[16 + 12 .. (16 + 12 + 16)]);
+        var expectedBranchKeyVersion := getBranchKeyVersion(expectedHead);
         var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
 
         var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
@@ -117,7 +114,6 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
         var actualDataKeyDescription := ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
 
-        expect expectedBranchKeyVersionUuid.Success?;
         expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderId).Success?;
         expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo).Success?;
         expect actualDataKeyDescription.Success?;
@@ -134,7 +130,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Some?;
 
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyId.Extract() == UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo).Extract();
-            expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Extract() == expectedBranchKeyVersionUuid.Extract();
+            expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Extract() == expectedBranchKeyVersion;
         }
     }
 
@@ -223,16 +219,10 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
         var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsHDataKey]);
         var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
 
-        expect EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Success?;
-        var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Extract();
-        
-        expect |providerWrappedMaterial| >= (28 + 16);
-
-        var expectedBranchKeyVersionUuid := UUID.FromByteArray(providerWrappedMaterial[28 .. (28 + 16)]);
+        var expectedBranchKeyVersion := getBranchKeyVersion(expectedHead);
         var attr := map["aws_dbe_head" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
         var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
         
-
         var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
             Types.GetEncryptedDataKeyDescriptionInput(
                 input := Types.plaintextItem(plaintextItem := attr)
@@ -240,7 +230,6 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
         var actualDataKeyDescription := ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
         
-        expect expectedBranchKeyVersionUuid.Success?;
         expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderId).Success?;
         expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo).Success?;
         expect actualDataKeyDescription.Success?;
@@ -257,7 +246,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Some?;
 
             expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyId.Extract() == UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo).Extract();
-            expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Extract() == expectedBranchKeyVersionUuid.Extract();
+            expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Extract() == expectedBranchKeyVersion;
         }
     }
 
@@ -315,5 +304,20 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
         expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Some?;
         expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Extract() == UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo).Extract();
+    }
+
+    method getBranchKeyVersion (expectedHead : PartialHeader)
+        returns (expectedBranchKeyVersion : string)
+    {
+        expect EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Success?;
+        var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Extract();
+        
+        expect |providerWrappedMaterial| >= (28 + 16);
+
+        var expectedBranchKeyVersionResult := UUID.FromByteArray(providerWrappedMaterial[28 .. (28 + 16)]);
+
+        expect expectedBranchKeyVersionResult.Success?;
+
+        expectedBranchKeyVersion := expectedBranchKeyVersionResult.Extract();
     }
 }
