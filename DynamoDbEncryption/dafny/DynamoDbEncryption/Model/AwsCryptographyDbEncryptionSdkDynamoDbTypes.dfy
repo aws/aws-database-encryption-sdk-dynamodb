@@ -152,7 +152,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
       ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
       ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
 
-<<<<<<< HEAD
     predicate GetEncryptedDataKeyDescriptionEnsuresPublicly(input: GetEncryptedDataKeyDescriptionInput , output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
     // The public method to be called by library consumers
     method GetEncryptedDataKeyDescription ( input: GetEncryptedDataKeyDescriptionInput )
@@ -168,8 +167,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
       ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
       ensures History.GetEncryptedDataKeyDescription == old(History.GetEncryptedDataKeyDescription) + [DafnyCallEvent(input, output)]
 
-=======
->>>>>>> dfc0dbd84f3ab23bd12be6abf8600f472576173e
   }
   datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
 
@@ -257,7 +254,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
     nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
   )
-<<<<<<< HEAD
   type EncryptedDataKeyDescriptionList = seq<EncryptedDataKeyDescriptionOutput>
   datatype EncryptedDataKeyDescriptionOutput = | EncryptedDataKeyDescriptionOutput (
     nameonly keyProviderId: string ,
@@ -265,8 +261,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly branchKeyId: Option<string> := Option.None ,
     nameonly branchKeyVersion: Option<string> := Option.None
   )
-=======
->>>>>>> dfc0dbd84f3ab23bd12be6abf8600f472576173e
   datatype EncryptedPart = | EncryptedPart (
     nameonly name: string ,
     nameonly prefix: Prefix
@@ -281,7 +275,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype GetBranchKeyIdFromDdbKeyOutput = | GetBranchKeyIdFromDdbKeyOutput (
     nameonly branchKeyId: string
   )
-<<<<<<< HEAD
   datatype GetEncryptedDataKeyDescriptionInput = | GetEncryptedDataKeyDescriptionInput (
     nameonly input: GetEncryptedDataKeyDescriptionUnion
   )
@@ -291,8 +284,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype GetEncryptedDataKeyDescriptionUnion =
     | header(header: seq<uint8>)
     | plaintextItem(plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap)
-=======
->>>>>>> dfc0dbd84f3ab23bd12be6abf8600f472576173e
   datatype GetPrefix = | GetPrefix (
     nameonly length: int32
   )
@@ -557,7 +548,6 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
       History.CreateDynamoDbEncryptionBranchKeyIdSupplier := History.CreateDynamoDbEncryptionBranchKeyIdSupplier + [DafnyCallEvent(input, output)];
     }
 
-<<<<<<< HEAD
     predicate GetEncryptedDataKeyDescriptionEnsuresPublicly(input: GetEncryptedDataKeyDescriptionInput , output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
     {Operations.GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)}
     // The public method to be called by library consumers
@@ -578,8 +568,6 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
       History.GetEncryptedDataKeyDescription := History.GetEncryptedDataKeyDescription + [DafnyCallEvent(input, output)];
     }
 
-=======
->>>>>>> dfc0dbd84f3ab23bd12be6abf8600f472576173e
   }
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
@@ -611,7 +599,6 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
              && fresh(output.value.branchKeyIdSupplier)
              && fresh ( output.value.branchKeyIdSupplier.Modifies - ModifiesInternalConfig(config) - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
     ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
-<<<<<<< HEAD
 
 
   predicate GetEncryptedDataKeyDescriptionEnsuresPublicly(input: GetEncryptedDataKeyDescriptionInput , output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
@@ -628,6 +615,4 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
     ensures
       && ValidInternalConfig?(config)
     ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
-=======
->>>>>>> dfc0dbd84f3ab23bd12be6abf8600f472576173e
 }
