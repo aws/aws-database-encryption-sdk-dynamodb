@@ -58,7 +58,7 @@ integer Version
 
 structure ParsedHeader {
     @required
-    cryptoSchema: CryptoSchema,
+    cryptoSchema: CryptoSchemaMap,
     @required
     algorithmSuiteId: DBEAlgorithmSuiteId,
     @required
@@ -82,7 +82,7 @@ structure EncryptStructureInput {
     @required
     plaintextStructure: StructuredData,
     @required
-    cryptoSchema: CryptoSchema,
+    cryptoSchema: CryptoSchemaMap,
     @required
     cmm: CryptographicMaterialsManagerReference,
 
@@ -126,7 +126,7 @@ structure DecryptStructureInput {
     @required
     encryptedStructure: StructuredData,
     @required
-    authenticateSchema: AuthenticateSchema,
+    authenticateSchema: AuthenticateSchemaMap,
     @required
     cmm: CryptographicMaterialsManagerReference,
 
@@ -237,20 +237,6 @@ map StructuredDataAttributes {
     value: StructuredDataTerminal
 }
 
-// This mimics the same structure as StructuredData above,
-// only it's "leaves" are AuthenticateAction instead of Terminal.
-structure CryptoSchema {
-    @required
-    content: CryptoSchemaContent,
-    attributes: CryptoSchemaAttributes
-}
-
-union CryptoSchemaContent {
-    Action: CryptoAction,
-    SchemaMap: CryptoSchemaMap,
-    SchemaList: CryptoSchemaList
-}
-
 @enum([
     {
         "name": "ENCRYPT_AND_SIGN",
@@ -273,30 +259,7 @@ string CryptoAction
 
 map CryptoSchemaMap {
     key: String,
-    value: CryptoSchema
-}
-
-list CryptoSchemaList {
-    member: CryptoSchema
-}
-
-map CryptoSchemaAttributes {
-    key: String,
-    value: AuthenticateAction
-}
-
-// This mimics the same structure as StructuredData above,
-// only it's "leaves" are AuthenticateAction instead of Terminal.
-structure AuthenticateSchema {
-    @required
-    content: AuthenticateSchemaContent,
-    attributes: AuthenticateSchemaAttributes
-}
-
-union AuthenticateSchemaContent {
-    Action: AuthenticateAction,
-    SchemaMap: AuthenticateSchemaMap,
-    SchemaList: AuthenticateSchemaList
+    value: CryptoAction
 }
 
 @enum([
@@ -312,15 +275,6 @@ union AuthenticateSchemaContent {
 string AuthenticateAction
 
 map AuthenticateSchemaMap {
-    key: String,
-    value: AuthenticateSchema
-}
-
-list AuthenticateSchemaList {
-    member: AuthenticateSchema
-}
-
-map AuthenticateSchemaAttributes {
     key: String,
     value: AuthenticateAction
 }

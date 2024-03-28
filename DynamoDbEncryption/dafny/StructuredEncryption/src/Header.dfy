@@ -57,14 +57,12 @@ module StructuredEncryptionHeader {
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
   predicate method IsVersion2Schema(data : CryptoSchemaMap)
-    requires CryptoSchemaMapIsFlat(data)
   {
-    exists x <- data :: data[x].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+    exists x <- data :: data[x] == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   }
   function method VersionFromSchema(data : CryptoSchemaMap) : (ret : Version)
-    requires CryptoSchemaMapIsFlat(data)
-    ensures (exists x <- data :: data[x].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 2)
-    ensures !(exists x <- data :: data[x].content.Action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 1)
+    ensures (exists x <- data :: data[x] == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 2)
+    ensures !(exists x <- data :: data[x] == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 1)
   {
     if IsVersion2Schema(data) then
       2
@@ -218,7 +216,7 @@ module StructuredEncryptionHeader {
   // config to PartialHeader
   function method Create(
     tableName : string,
-    schema : CryptoSchema,
+    schema : CryptoSchemaMap,
     msgID : MessageID,
     mat : CMP.EncryptionMaterials
   )
@@ -229,18 +227,13 @@ module StructuredEncryptionHeader {
     //# If any [Crypto Action](./structures.md#crypto-action) is configured as
     //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
     //# the Version MUST be 0x02; otherwise, Version MUST be 0x01.
-    ensures ret.Success? ==>
-              && schema.content.SchemaMap?
-              && CryptoSchemaMapIsFlat(schema.content.SchemaMap)
-              && ret.value.version == VersionFromSchema(schema.content.SchemaMap)
+    ensures ret.Success? ==> ret.value.version == VersionFromSchema(schema)
   {
     :- Need(ValidString(tableName), E("Invalid table name."));
     :- Need(ValidEncryptionContext(mat.encryptionContext), E("Invalid Encryption Context"));
     :- Need(0 < |mat.encryptedDataKeys|, E("There must be at least one data key"));
     :- Need(|mat.encryptedDataKeys| < UINT8_LIMIT, E("Too many data keys."));
     :- Need(forall x | x in mat.encryptedDataKeys :: ValidEncryptedDataKey(x), E("Invalid Data Key"));
-    :- Need(schema.content.SchemaMap?, E("Schema must be a Map"));
-    :- Need(CryptoSchemaMapIsFlat(schema.content.SchemaMap), E("Schema must be flat."));
     :- Need(|mat.algorithmSuite.binaryId| == 2, E("Invalid Algorithm Suite Binary ID"));
     :- Need(mat.algorithmSuite.binaryId[0] == DbeAlgorithmFamily, E("Algorithm Suite not suitable for structured encryption."));
     :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algorithm Suite has unexpected flavor."));
@@ -255,7 +248,7 @@ module StructuredEncryptionHeader {
     // It is difficult for dafny to prove ValidEncryptionContext here, so perform a runtime check instead
     :- Need(ValidEncryptionContext(storedEC), E("Invalid Encryption Context"));
     Success(PartialHeader(
-              version := VersionFromSchema(schema.content.SchemaMap),
+              version := VersionFromSchema(schema),
               flavor := mat.algorithmSuite.binaryId[1],
               msgID := msgID,
               legend := legend,
@@ -370,29 +363,28 @@ module StructuredEncryptionHeader {
   }
 
   // Create a Legend from the Schema
-  function method MakeLegend(tableName : GoodString, schema : CryptoSchema)
+  function method MakeLegend(tableName : GoodString, schema : CryptoSchemaMap)
     : (ret : Result<Legend, Error>)
-    requires schema.content.SchemaMap?
-    requires CryptoSchemaMapIsFlat(schema.content.SchemaMap)
     ensures ret.Success? ==>
               //= specification/structured-encryption/header.md#encrypt-legend-bytes
               //= type=implication
               //# The length of this serialized value (in bytes) MUST equal the number of authenticated fields indicated
               //# by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
-              && |ret.value| == CountAuthAttrs(schema.content.SchemaMap)
+              && |ret.value| == CountAuthAttrs(schema)
   {
-    var data := schema.content.SchemaMap;
+    var data := schema;
     :- Need(forall k <- data :: ValidString(k), E("bad attribute name"));
 
-    var authSchema: map<GoodString, CryptoSchema> := (
-                                                       var rawSchema := RestrictAuthAttrs(data);
-                                                       // Ensure we get the expected number of auth attributes
-                                                       LemmaRestrictAuthAttrsIdempotent(data);
-                                                       assert CountAuthAttrs(data) == |rawSchema|;
-                                                       // Can't use `k as GoodString` for some reason; instead assert validity and let inference handle the rest
-                                                       assert forall k <- rawSchema :: ValidString(k);
-                                                       rawSchema
-                                                     );
+    var authSchema: map<GoodString, CryptoAction> :=
+      (
+        var rawSchema := RestrictAuthAttrs(data);
+        // Ensure we get the expected number of auth attributes
+        LemmaRestrictAuthAttrsIdempotent(data);
+        assert CountAuthAttrs(data) == |rawSchema|;
+        // Can't use `k as GoodString` for some reason; instead assert validity and let inference handle the rest
+        assert forall k <- rawSchema :: ValidString(k);
+        rawSchema
+      );
     assert CountAuthAttrs(data) == |authSchema|;
 
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
@@ -421,13 +413,12 @@ module StructuredEncryptionHeader {
   // Create a Legend for the given attrs of the Schema
   function method {:tailrecursion} MakeLegend2(
     attrs : seq<Bytes>,
-    data : map<Bytes, CryptoSchema>,
+    data : map<Bytes, CryptoAction>,
     serialized : Legend := EmptyLegend
   )
     : (ret : Result<Legend, Error>)
     requires forall k <- attrs :: k in data
-    requires forall k <- data.Keys :: data[k].content.Action?
-    requires forall k <- data.Keys :: IsAuthAttr(data[k].content.Action)
+    requires forall k <- data.Keys :: IsAuthAttr(data[k])
     requires |attrs| + |serialized| == |data|
     ensures ret.Success? ==> |ret.value| == |data|
   {
@@ -435,8 +426,7 @@ module StructuredEncryptionHeader {
       Success(serialized)
     else
       :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
-      :- Need(data[attrs[0]].content.Action?, E("Schema must be flat"));
-      var legendChar := GetActionLegend(data[attrs[0]].content.Action);
+      var legendChar := GetActionLegend(data[attrs[0]]);
       MakeLegend2(attrs[1..], data, serialized + [legendChar])
   }
 
@@ -473,7 +463,6 @@ module StructuredEncryptionHeader {
   // How many elements of Schema are included in the signature?
   function CountAuthAttrs(data : CryptoSchemaMap)
     : nat
-    requires forall x <- data.Values :: x.content.Action?
   {
     |RestrictAuthAttrs(data)|
   }
@@ -483,20 +472,18 @@ module StructuredEncryptionHeader {
    */
   function method RestrictAuthAttrs(data: CryptoSchemaMap)
     : (authData: CryptoSchemaMap)
-    requires forall x <- data.Values :: x.content.Action?
     ensures authData.Keys <= data.Keys
-    ensures forall k <- data :: IsAuthAttr(data[k].content.Action) <==> k in authData
+    ensures forall k <- data :: IsAuthAttr(data[k]) <==> k in authData
     ensures forall k <- authData :: authData[k] == data[k]
-    ensures forall k <- authData :: IsAuthAttr(authData[k].content.Action)
+    ensures forall k <- authData :: IsAuthAttr(authData[k])
   {
-    map k <- data | IsAuthAttr(data[k].content.Action) :: k := data[k]
+    map k <- data | IsAuthAttr(data[k]) :: k := data[k]
   }
 
   /*
    * Lemma: RestrictAuthAttrs is idempotent.
    */
   lemma LemmaRestrictAuthAttrsIdempotent(data: CryptoSchemaMap)
-    requires forall x <- data.Values :: x.content.Action?
     ensures var authData := RestrictAuthAttrs(data); authData == RestrictAuthAttrs(authData)
   {}
 

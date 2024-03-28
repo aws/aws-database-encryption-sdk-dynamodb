@@ -10,7 +10,7 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
 
 public class ParsedHeader {
-  private final CryptoSchema cryptoSchema;
+  private final Map<String, CryptoAction> cryptoSchema;
 
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -28,7 +28,7 @@ public class ParsedHeader {
     this.encryptionContext = builder.encryptionContext();
   }
 
-  public CryptoSchema cryptoSchema() {
+  public Map<String, CryptoAction> cryptoSchema() {
     return this.cryptoSchema;
   }
 
@@ -57,9 +57,9 @@ public class ParsedHeader {
   }
 
   public interface Builder {
-    Builder cryptoSchema(CryptoSchema cryptoSchema);
+    Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema);
 
-    CryptoSchema cryptoSchema();
+    Map<String, CryptoAction> cryptoSchema();
 
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
@@ -81,7 +81,7 @@ public class ParsedHeader {
   }
 
   static class BuilderImpl implements Builder {
-    protected CryptoSchema cryptoSchema;
+    protected Map<String, CryptoAction> cryptoSchema;
 
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
@@ -102,12 +102,12 @@ public class ParsedHeader {
       this.encryptionContext = model.encryptionContext();
     }
 
-    public Builder cryptoSchema(CryptoSchema cryptoSchema) {
+    public Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema) {
       this.cryptoSchema = cryptoSchema;
       return this;
     }
 
-    public CryptoSchema cryptoSchema() {
+    public Map<String, CryptoAction> cryptoSchema() {
       return this.cryptoSchema;
     }
 

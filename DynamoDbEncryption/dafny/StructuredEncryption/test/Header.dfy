@@ -67,12 +67,12 @@ module TestHeader {
     expect badResult.error == E("Key commitment mismatch.");
   }
 
-  const a : uint8 := 'a' as uint8;
-  const b : uint8 := 'b' as uint8;
-  const c : uint8 := 'c' as uint8;
-  const d : uint8 := 'd' as uint8;
-  const e : uint8 := 'e' as uint8;
-  const f : uint8 := 'f' as uint8;
+  const a : uint8 := 'a' as uint8
+  const b : uint8 := 'b' as uint8
+  const c : uint8 := 'c' as uint8
+  const d : uint8 := 'd' as uint8
+  const e : uint8 := 'e' as uint8
+  const f : uint8 := 'f' as uint8
   method {:test} TestDuplicateContext() {
     var cont : CMPEncryptionContext := map[EncodeAscii("abc") := EncodeAscii("def"), EncodeAscii("cba") := EncodeAscii("fed")];
     var serCont := SerializeContext(cont);
@@ -120,26 +120,17 @@ module TestHeader {
     expect newBadCont == Failure(E("Context keys out of order."));
   }
 
-  function method MakeSchema(action: CryptoAction) : CryptoSchema
-  {
-    CryptoSchema (
-      content := CryptoSchemaContent.Action(action),
-      attributes := None
-    )
-  }
-
   method {:test} TestSchemaOrderAlpha() {
     var schemaMap : CryptoSchemaMap := map[
-      "abc" := MakeSchema(ENCRYPT_AND_SIGN),
-      "def" := MakeSchema(SIGN_ONLY),
-      "ghi" := MakeSchema(DO_NOTHING),
-      "jkl" := MakeSchema(ENCRYPT_AND_SIGN),
-      "mno" := MakeSchema(SIGN_ONLY),
-      "pqr" := MakeSchema(DO_NOTHING)
+      "abc" := ENCRYPT_AND_SIGN,
+      "def" := SIGN_ONLY,
+      "ghi" := DO_NOTHING,
+      "jkl" := ENCRYPT_AND_SIGN,
+      "mno" := SIGN_ONLY,
+      "pqr" := DO_NOTHING
     ];
-    var schema := CryptoSchema(content := CryptoSchemaContent.SchemaMap(schemaMap), attributes := None);
     var tableName : GoodString := "name";
-    var legend :- expect MakeLegend(tableName, schema);
+    var legend :- expect MakeLegend(tableName, schemaMap);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:
@@ -152,16 +143,15 @@ module TestHeader {
 
   method {:test} {:vcs_split_on_every_assert} TestSchemaOrderLength() {
     var schemaMap : CryptoSchemaMap := map[
-      "aa" := MakeSchema(ENCRYPT_AND_SIGN),
-      "zz" := MakeSchema(SIGN_ONLY),
-      "aaa" := MakeSchema(DO_NOTHING),
-      "zzz" := MakeSchema(ENCRYPT_AND_SIGN),
-      "aaaa" := MakeSchema(SIGN_ONLY),
-      "zzzz" := MakeSchema(DO_NOTHING)
+      "aa" := ENCRYPT_AND_SIGN,
+      "zz" := SIGN_ONLY,
+      "aaa" := DO_NOTHING,
+      "zzz" := ENCRYPT_AND_SIGN,
+      "aaaa" := SIGN_ONLY,
+      "zzzz" := DO_NOTHING
     ];
-    var schema := CryptoSchema(content := CryptoSchemaContent.SchemaMap(schemaMap), attributes := None);
     var tableName : GoodString := "name";
-    var legend :- expect MakeLegend(tableName, schema);
+    var legend :- expect MakeLegend(tableName, schemaMap);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:

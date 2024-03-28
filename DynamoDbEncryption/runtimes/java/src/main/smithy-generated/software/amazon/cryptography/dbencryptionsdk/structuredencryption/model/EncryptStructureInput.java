@@ -14,7 +14,7 @@ public class EncryptStructureInput {
 
   private final StructuredData plaintextStructure;
 
-  private final CryptoSchema cryptoSchema;
+  private final Map<String, CryptoAction> cryptoSchema;
 
   private final ICryptographicMaterialsManager cmm;
 
@@ -39,7 +39,7 @@ public class EncryptStructureInput {
     return this.plaintextStructure;
   }
 
-  public CryptoSchema cryptoSchema() {
+  public Map<String, CryptoAction> cryptoSchema() {
     return this.cryptoSchema;
   }
 
@@ -72,9 +72,9 @@ public class EncryptStructureInput {
 
     StructuredData plaintextStructure();
 
-    Builder cryptoSchema(CryptoSchema cryptoSchema);
+    Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema);
 
-    CryptoSchema cryptoSchema();
+    Map<String, CryptoAction> cryptoSchema();
 
     Builder cmm(ICryptographicMaterialsManager cmm);
 
@@ -96,7 +96,7 @@ public class EncryptStructureInput {
 
     protected StructuredData plaintextStructure;
 
-    protected CryptoSchema cryptoSchema;
+    protected Map<String, CryptoAction> cryptoSchema;
 
     protected ICryptographicMaterialsManager cmm;
 
@@ -134,12 +134,12 @@ public class EncryptStructureInput {
       return this.plaintextStructure;
     }
 
-    public Builder cryptoSchema(CryptoSchema cryptoSchema) {
+    public Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema) {
       this.cryptoSchema = cryptoSchema;
       return this;
     }
 
-    public CryptoSchema cryptoSchema() {
+    public Map<String, CryptoAction> cryptoSchema() {
       return this.cryptoSchema;
     }
 

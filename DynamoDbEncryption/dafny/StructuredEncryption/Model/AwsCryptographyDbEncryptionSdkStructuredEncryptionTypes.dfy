@@ -19,37 +19,17 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
   datatype AuthenticateAction =
     | SIGN
     | DO_NOT_SIGN
-  datatype AuthenticateSchema = | AuthenticateSchema (
-    nameonly content: AuthenticateSchemaContent ,
-    nameonly attributes: Option<AuthenticateSchemaAttributes> := Option.None
-  )
-  type AuthenticateSchemaAttributes = map<string, AuthenticateAction>
-  datatype AuthenticateSchemaContent =
-    | Action(Action: AuthenticateAction)
-    | SchemaMap(SchemaMap: AuthenticateSchemaMap)
-    | SchemaList(SchemaList: AuthenticateSchemaList)
-  type AuthenticateSchemaList = seq<AuthenticateSchema>
-  type AuthenticateSchemaMap = map<string, AuthenticateSchema>
+  type AuthenticateSchemaMap = map<string, AuthenticateAction>
   datatype CryptoAction =
     | ENCRYPT_AND_SIGN
     | SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
     | SIGN_ONLY
     | DO_NOTHING
-  datatype CryptoSchema = | CryptoSchema (
-    nameonly content: CryptoSchemaContent ,
-    nameonly attributes: Option<CryptoSchemaAttributes> := Option.None
-  )
-  type CryptoSchemaAttributes = map<string, AuthenticateAction>
-  datatype CryptoSchemaContent =
-    | Action(Action: CryptoAction)
-    | SchemaMap(SchemaMap: CryptoSchemaMap)
-    | SchemaList(SchemaList: CryptoSchemaList)
-  type CryptoSchemaList = seq<CryptoSchema>
-  type CryptoSchemaMap = map<string, CryptoSchema>
+  type CryptoSchemaMap = map<string, CryptoAction>
   datatype DecryptStructureInput = | DecryptStructureInput (
     nameonly tableName: string ,
     nameonly encryptedStructure: StructuredData ,
-    nameonly authenticateSchema: AuthenticateSchema ,
+    nameonly authenticateSchema: AuthenticateSchemaMap ,
     nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
     nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
   )
@@ -60,7 +40,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
   datatype EncryptStructureInput = | EncryptStructureInput (
     nameonly tableName: string ,
     nameonly plaintextStructure: StructuredData ,
-    nameonly cryptoSchema: CryptoSchema ,
+    nameonly cryptoSchema: CryptoSchemaMap ,
     nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
     nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
     nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
@@ -70,7 +50,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
     nameonly parsedHeader: ParsedHeader
   )
   datatype ParsedHeader = | ParsedHeader (
-    nameonly cryptoSchema: CryptoSchema ,
+    nameonly cryptoSchema: CryptoSchemaMap ,
     nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
     nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
     nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
