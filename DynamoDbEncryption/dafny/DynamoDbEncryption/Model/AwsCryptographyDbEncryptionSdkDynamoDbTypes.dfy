@@ -91,15 +91,10 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   class IDynamoDbEncryptionClientCallHistory {
     ghost constructor() {
       CreateDynamoDbEncryptionBranchKeyIdSupplier := [];
-<<<<<<< HEAD
       GetEncryptedDataKeyDescription := [];
     }
     ghost var CreateDynamoDbEncryptionBranchKeyIdSupplier: seq<DafnyCallEvent<CreateDynamoDbEncryptionBranchKeyIdSupplierInput, Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>>>
     ghost var GetEncryptedDataKeyDescription: seq<DafnyCallEvent<GetEncryptedDataKeyDescriptionInput, Result<GetEncryptedDataKeyDescriptionOutput, Error>>>
-=======
-    }
-    ghost var CreateDynamoDbEncryptionBranchKeyIdSupplier: seq<DafnyCallEvent<CreateDynamoDbEncryptionBranchKeyIdSupplierInput, Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>>>
->>>>>>> dfc0dbd84f3ab23bd12be6abf8600f472576173e
   }
   trait {:termination false} IDynamoDbEncryptionClient
   {
