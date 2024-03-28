@@ -14,40 +14,21 @@ module StructuredDataTestFixtures {
   const TEST_TYPE_ID : seq<uint8> := [0xFF, 0xFF]
   const TEST_BLOB_VALUE : seq<uint8> := [0x21, 0x64, 0x6c, 0x72, 0x6f, 0x77, 0x20, 0x2c, 0x6f, 0x6c, 0x6c, 0x65, 0x68]
 
-  const TEST_STRUCTURED_DATA := StructuredData(
-                                  content := StructuredDataContent.DataMap(
-                                    DataMap := map[
-                                      "foo" := StructuredData(
-                                        content := StructuredDataContent.Terminal(
-                                          Terminal := StructuredDataTerminal(
-                                            value := TEST_BLOB_VALUE,
-                                            typeId := TEST_TYPE_ID
-                                          )
-                                        ),
-                                        attributes := None()
-                                      ),
-                                      "bar" := StructuredData(
-                                        content := StructuredDataContent.Terminal(
-                                          Terminal := StructuredDataTerminal(
-                                            value := TEST_BLOB_VALUE,
-                                            typeId := TEST_TYPE_ID
-                                          )
-                                        ),
-                                        attributes := None()
-                                      ),
-                                      "fizzbuzz" := StructuredData(
-                                        content := StructuredDataContent.Terminal(
-                                          Terminal := StructuredDataTerminal(
-                                            value := TEST_BLOB_VALUE,
-                                            typeId := TEST_TYPE_ID
-                                          )
-                                        ),
-                                        attributes := None()
-                                      )
-                                    ]
-                                  ),
-                                  attributes := None()
-                                )
+  const TEST_STRUCTURED_DATA : StructuredDataMap :=
+    map[
+      "foo" := StructuredDataTerminal(
+        value := TEST_BLOB_VALUE,
+        typeId := TEST_TYPE_ID
+      ),
+      "bar" := StructuredDataTerminal(
+        value := TEST_BLOB_VALUE,
+        typeId := TEST_TYPE_ID
+      ),
+      "fizzbuzz" := StructuredDataTerminal(
+        value := TEST_BLOB_VALUE,
+        typeId := TEST_TYPE_ID
+      )
+    ]
 
   const TEST_CRYPTO_SCHEMA : CryptoSchemaMap :=
     map[

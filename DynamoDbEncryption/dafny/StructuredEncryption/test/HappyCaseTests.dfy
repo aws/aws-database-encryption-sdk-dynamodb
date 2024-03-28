@@ -39,14 +39,12 @@ module HappyCaseTests {
       print encryptRes;
     }
     expect encryptRes.Success?;
-    var newData := encryptRes.value.encryptedStructure.content;
-    var testData := StructuredDataTestFixtures.TEST_STRUCTURED_DATA.content;
-    expect newData.DataMap?;
-    expect testData.DataMap?;
-    expect newData.DataMap.Keys == testData.DataMap.Keys + {HeaderField, FooterField};
-    expect newData.DataMap["foo"] != testData.DataMap["foo"];
-    expect newData.DataMap["bar"] == testData.DataMap["bar"];
-    expect newData.DataMap["fizzbuzz"] == testData.DataMap["fizzbuzz"];
+    var newData := encryptRes.value.encryptedStructure;
+    var testData := StructuredDataTestFixtures.TEST_STRUCTURED_DATA;
+    expect newData.Keys == testData.Keys + {HeaderField, FooterField};
+    expect newData["foo"] != testData["foo"];
+    expect newData["bar"] == testData["bar"];
+    expect newData["fizzbuzz"] == testData["fizzbuzz"];
 
     var decryptRes := structuredEncryption.DecryptStructure(
       DecryptStructureInput(
@@ -62,9 +60,9 @@ module HappyCaseTests {
       print "\n\n",decryptRes,"\n\n";
     }
     expect decryptRes.Success?;
-    var newResult := decryptRes.value.plaintextStructure.content;
-    var testResult := StructuredDataTestFixtures.TEST_STRUCTURED_DATA.content;
-    expect newResult.DataMap == testResult.DataMap;
+    var newResult := decryptRes.value.plaintextStructure;
+    var testResult := StructuredDataTestFixtures.TEST_STRUCTURED_DATA;
+    expect newResult == testResult;
 
     //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
     //= type=test

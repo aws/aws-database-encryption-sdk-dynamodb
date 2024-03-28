@@ -81,11 +81,8 @@ module StructuredEncryptionUtil {
   type CanonicalPath = seq<uint8>
   type GoodString = x : string | ValidString(x)
 
-  type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
-
-  type StructuredDataXXX = x : map<GoodString, StructuredData> | forall k <- x :: x[k].content.Terminal?
-  type StructuredDataPlain = map<GoodString, StructuredDataTerminalType>
-  type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminalType>
+  type StructuredDataPlain = map<GoodString, StructuredDataTerminal>
+  type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminal>
   type CryptoSchemaPlain = map<GoodString, CSE.CryptoAction>
   type CryptoSchemaCanon = map<CanonicalPath, CSE.CryptoAction>
   type AuthSchemaPlain = map<GoodString, AuthenticateAction>
@@ -127,14 +124,6 @@ module StructuredEncryptionUtil {
     ConstantTimeCompare(a, b) == 0
   }
 
-  // Map must contain only Terminals
-  function method DataMapIsFlat(data : StructuredDataMap) : (ret : bool)
-    ensures ret ==> (forall v <- data.Values :: v.content.Terminal?)
-  {
-    forall k <- data :: data[k].content.Terminal?
-  }
-  type FlatDataMap = x : StructuredDataMap | DataMapIsFlat(x)
-
   // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
   {
@@ -143,25 +132,16 @@ module StructuredEncryptionUtil {
 
   // wrap a value in a StructuredData
   function method ValueToData(value : Bytes, typeId : Bytes)
-    : StructuredData
+    : StructuredDataTerminal
     requires IsValid_TerminalTypeId(typeId)
   {
-    StructuredData(
-      content := StructuredDataContent.Terminal(
-        Terminal := StructuredDataTerminal(
-          typeId := typeId,
-          value := value
-        )
-      ),
-      attributes := None
-    )
+    StructuredDataTerminal(typeId := typeId, value := value)
   }
 
   // extract a value from a StructuredData
-  function method GetValue(data : StructuredData) : Bytes
-    requires data.content.Terminal?
+  function method GetValue(data : StructuredDataTerminal) : Bytes
   {
-    data.content.Terminal.value
+    data.value
   }
 
   predicate method ByteLess(x : uint8, y : uint8)

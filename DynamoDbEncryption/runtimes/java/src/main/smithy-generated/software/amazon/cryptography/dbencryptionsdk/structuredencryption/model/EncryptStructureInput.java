@@ -12,7 +12,7 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 public class EncryptStructureInput {
   private final String tableName;
 
-  private final StructuredData plaintextStructure;
+  private final Map<String, StructuredDataTerminal> plaintextStructure;
 
   private final Map<String, CryptoAction> cryptoSchema;
 
@@ -35,7 +35,7 @@ public class EncryptStructureInput {
     return this.tableName;
   }
 
-  public StructuredData plaintextStructure() {
+  public Map<String, StructuredDataTerminal> plaintextStructure() {
     return this.plaintextStructure;
   }
 
@@ -68,9 +68,9 @@ public class EncryptStructureInput {
 
     String tableName();
 
-    Builder plaintextStructure(StructuredData plaintextStructure);
+    Builder plaintextStructure(Map<String, StructuredDataTerminal> plaintextStructure);
 
-    StructuredData plaintextStructure();
+    Map<String, StructuredDataTerminal> plaintextStructure();
 
     Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema);
 
@@ -94,7 +94,7 @@ public class EncryptStructureInput {
   static class BuilderImpl implements Builder {
     protected String tableName;
 
-    protected StructuredData plaintextStructure;
+    protected Map<String, StructuredDataTerminal> plaintextStructure;
 
     protected Map<String, CryptoAction> cryptoSchema;
 
@@ -125,12 +125,12 @@ public class EncryptStructureInput {
       return this.tableName;
     }
 
-    public Builder plaintextStructure(StructuredData plaintextStructure) {
+    public Builder plaintextStructure(Map<String, StructuredDataTerminal> plaintextStructure) {
       this.plaintextStructure = plaintextStructure;
       return this;
     }
 
-    public StructuredData plaintextStructure() {
+    public Map<String, StructuredDataTerminal> plaintextStructure() {
       return this.plaintextStructure;
     }
 

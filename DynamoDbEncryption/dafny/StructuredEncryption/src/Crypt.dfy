@@ -255,14 +255,14 @@ module StructuredEncryptionCrypt {
   {
     // It is very inefficient to manually build Dafny maps in methods, so use
     // a MutableMap to build the key value pairs then convert back to a Dafny map.
-    var mutMap : MutableMap<CanonicalPath, StructuredDataTerminalType> := new MutableMap();
+    var mutMap : MutableMap<CanonicalPath, StructuredDataTerminal> := new MutableMap();
     for i := 0 to |fieldNames| {
       var data;
       var fieldName := fieldNames[i];
       if mode == DoEncrypt {
-        data :- EncryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
+        data :- EncryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName]);
       } else {
-        data :- DecryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
+        data :- DecryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName]);
       }
       mutMap.Put(fieldName, data);
     }
@@ -280,7 +280,7 @@ module StructuredEncryptionCrypt {
     path : CanonicalPath,
     data : StructuredDataTerminal
   )
-    returns (ret : Result<StructuredData, Error>)
+    returns (ret : Result<StructuredDataTerminal, Error>)
     requires offset as nat * 3 < UINT32_LIMIT
 
     ensures ret.Success? ==>
@@ -288,8 +288,7 @@ module StructuredEncryptionCrypt {
               //= type=implication
               //# The output encrypted Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
               //# equal `0xFFFF`.
-              && ret.value.content.Terminal?
-              && ret.value.content.Terminal.typeId == BYTES_TYPE_ID
+              && ret.value.typeId == BYTES_TYPE_ID
 
               //= specification/structured-encryption/encrypt-structure.md#terminal-data-encryption
               //= type=implication
@@ -303,8 +302,8 @@ module StructuredEncryptionCrypt {
                  //= specification/structured-encryption/encrypt-structure.md#terminal-type-id
                  //= type=implication
                  //# Terminal Type Id MUST equal the input Terminal Data's Terminal Type Id.
-              && |ret.value.content.Terminal.value| >= 2
-              && ret.value.content.Terminal.value[..2] == data.typeId
+              && |ret.value.value| >= 2
+              && ret.value.value[..2] == data.typeId
               && var history := client.History.AESEncrypt;
               && 0 < |history|
               && var encryptInput := Seq.Last(history).input;
@@ -368,16 +367,15 @@ module StructuredEncryptionCrypt {
     path : CanonicalPath,
     data : StructuredDataTerminal
   )
-    returns (ret : Result<StructuredData, Error>)
+    returns (ret : Result<StructuredDataTerminal, Error>)
     requires offset as nat * 3 < UINT32_LIMIT
     ensures ret.Success? ==>
-              && ret.value.content.Terminal?
               && |data.value| >= (AuthTagSize+2)
                  //= specification/structured-encryption/decrypt-structure.md#terminal-data-decryption
                  //= type=implication
                  //# The output Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
                  //# equal to the deserialized Terminal Type Id.
-              && ret.value.content.Terminal.typeId == data.value[0..TYPEID_LEN]
+              && ret.value.typeId == data.value[0..TYPEID_LEN]
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()

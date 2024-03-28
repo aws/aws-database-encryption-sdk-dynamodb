@@ -8,7 +8,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
   public class DecryptStructureInput
   {
     private string _tableName;
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData _encryptedStructure;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> _encryptedStructure;
     private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction> _authenticateSchema;
     private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
@@ -21,7 +21,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     {
       return this._tableName != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData EncryptedStructure
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> EncryptedStructure
     {
       get { return this._encryptedStructure; }
       set { this._encryptedStructure = value; }

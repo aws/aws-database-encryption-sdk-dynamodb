@@ -80,7 +80,7 @@ structure EncryptStructureInput {
     @required
     tableName: String,
     @required
-    plaintextStructure: StructuredData,
+    plaintextStructure: StructuredDataMap,
     @required
     cryptoSchema: CryptoSchemaMap,
     @required
@@ -108,7 +108,7 @@ structure EncryptStructureInput {
 //# - [Parsed Header](./decrypt-structure.md#parsed-header)
 structure EncryptStructureOutput {
     @required
-    encryptedStructure: StructuredData,
+    encryptedStructure: StructuredDataMap,
     @required
     parsedHeader: ParsedHeader,
 }
@@ -124,7 +124,7 @@ structure DecryptStructureInput {
     @required
     tableName: String,
     @required
-    encryptedStructure: StructuredData,
+    encryptedStructure: StructuredDataMap,
     @required
     authenticateSchema: AuthenticateSchemaMap,
     @required
@@ -144,41 +144,9 @@ structure DecryptStructureOutput {
     //#   - [Structured Data](#structured-data)
     //#   - [Parsed Header](#parsed-header)
     @required
-    plaintextStructure: StructuredData,
+    plaintextStructure: StructuredDataMap,
     @required
     parsedHeader: ParsedHeader,
-}
-
-
-structure StructuredData {
-    // Each "node" in our structured data holds either
-    // a map of more data, a list of more data, or a terminal value
-    //= specification/structured-encryption/structures.md#structured-data
-    //= type=implication
-    //# A Structured Data MUST consist of:
-    // - a [Structured Data Content](#structured-data-content)
-    @required
-    content: StructuredDataContent,
-
-    // Each "node" in our structured data may additionally
-    // have a flat map to express something akin to XML attributes
-    //= specification/structured-encryption/structures.md#structured-data
-    //= type=implication
-    //# - an OPTIONAL map of [Attributes](#structured-data-attributes)
-    attributes: StructuredDataAttributes
-}
-
-//= specification/structured-encryption/structures.md#structured-data-content
-//= type=implication
-//# Structured Data Content is a union of one of three separate structures;
-//# Structured Data Content MUST be one of:
-// - [Terminal Data](#terminal-data)
-// - [Structured Data Map](#structured-data-map)
-// - [Structured Data List](#structured-data-list)
-union StructuredDataContent {
-    Terminal: StructuredDataTerminal,
-    DataList: StructuredDataList,
-    DataMap: StructuredDataMap
 }
 
 // Only handles bytes.
@@ -217,22 +185,6 @@ blob TerminalTypeId
 //= type=implication
 //# - This map MUST NOT allow duplicate key values
 map StructuredDataMap {
-    key: String,
-    value: StructuredData
-}
-
-//= specification/structured-encryption/structures.md#structured-data-list
-//= type=implication
-//# A Structured Data List MUST consist of:
-// - A numerical-indexed array of [Structured Data](#structured-data).
-list StructuredDataList {
-    member: StructuredData
-}
-
-//= specification/structured-encryption/structures.md#structured-data-attributes
-//= type=implication
-//# Structured Data Attributes MUST be map of strings to [Terminal Data](#terminal-data).
-map StructuredDataAttributes {
     key: String,
     value: StructuredDataTerminal
 }

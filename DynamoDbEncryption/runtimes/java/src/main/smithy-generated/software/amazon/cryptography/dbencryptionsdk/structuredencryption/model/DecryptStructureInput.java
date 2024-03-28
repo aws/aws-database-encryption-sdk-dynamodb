@@ -11,7 +11,7 @@ import software.amazon.cryptography.materialproviders.ICryptographicMaterialsMan
 public class DecryptStructureInput {
   private final String tableName;
 
-  private final StructuredData encryptedStructure;
+  private final Map<String, StructuredDataTerminal> encryptedStructure;
 
   private final Map<String, AuthenticateAction> authenticateSchema;
 
@@ -31,7 +31,7 @@ public class DecryptStructureInput {
     return this.tableName;
   }
 
-  public StructuredData encryptedStructure() {
+  public Map<String, StructuredDataTerminal> encryptedStructure() {
     return this.encryptedStructure;
   }
 
@@ -60,9 +60,9 @@ public class DecryptStructureInput {
 
     String tableName();
 
-    Builder encryptedStructure(StructuredData encryptedStructure);
+    Builder encryptedStructure(Map<String, StructuredDataTerminal> encryptedStructure);
 
-    StructuredData encryptedStructure();
+    Map<String, StructuredDataTerminal> encryptedStructure();
 
     Builder authenticateSchema(Map<String, AuthenticateAction> authenticateSchema);
 
@@ -82,7 +82,7 @@ public class DecryptStructureInput {
   static class BuilderImpl implements Builder {
     protected String tableName;
 
-    protected StructuredData encryptedStructure;
+    protected Map<String, StructuredDataTerminal> encryptedStructure;
 
     protected Map<String, AuthenticateAction> authenticateSchema;
 
@@ -110,12 +110,12 @@ public class DecryptStructureInput {
       return this.tableName;
     }
 
-    public Builder encryptedStructure(StructuredData encryptedStructure) {
+    public Builder encryptedStructure(Map<String, StructuredDataTerminal> encryptedStructure) {
       this.encryptedStructure = encryptedStructure;
       return this;
     }
 
-    public StructuredData encryptedStructure() {
+    public Map<String, StructuredDataTerminal> encryptedStructure() {
       return this.encryptedStructure;
     }
 

@@ -58,16 +58,15 @@ module StructuredEncryptionFooter {
     }
 
     function method makeTerminal()
-      : (ret : StructuredData)
-      ensures ret.content.Terminal?
+      : (ret : StructuredDataTerminal)
       //= specification/structured-encryption/encrypt-structure.md#footer-field
       //= type=implication
       //# The Footer Field TypeID MUST be 0xFFFF
-      ensures ret.content.Terminal.typeId == BYTES_TYPE_ID
+      ensures ret.typeId == BYTES_TYPE_ID
       //= specification/structured-encryption/encrypt-structure.md#footer-field
       //= type=implication
       //# The Footer Field Value MUST be the serialized [footer](footer.md).
-      ensures ret.content.Terminal.value == serialize()
+      ensures ret.value == serialize()
     {
       ValueToData(serialize(), BYTES_TYPE_ID)
     }
@@ -87,8 +86,6 @@ module StructuredEncryptionFooter {
       requires Header.ValidEncryptionContext(mat.encryptionContext)
       requires forall k <- signedFields :: k in allData
       requires forall k <- encFields :: k in allData
-      requires forall k <- encData :: encData[k].content.Terminal?
-      requires forall k <- allData :: allData[k].content.Terminal?
       //= specification/structured-encryption/decrypt-structure.md#verify-signatures
       //= type=implication
       //# The number of [HMACs in the footer](./footer.md#hmacs)
@@ -221,14 +218,13 @@ module StructuredEncryptionFooter {
   }
 
   // Given a key value pair, return the canonical value for use in the footer checksum calculations
-  function method GetCanonicalItem(fieldName : CanonicalPath, value : StructuredData, isEncrypted : bool)
+  function method GetCanonicalItem(fieldName : CanonicalPath, value : StructuredDataTerminal, isEncrypted : bool)
     : (ret : Result<Bytes, Error>)
-    requires value.content.Terminal?
   {
     if isEncrypted then
-      GetCanonicalEncryptedField(fieldName, value.content.Terminal)
+      GetCanonicalEncryptedField(fieldName, value)
     else
-      GetCanonicalPlaintextField(fieldName, value.content.Terminal)
+      GetCanonicalPlaintextField(fieldName, value)
   }
 
   function method CanonContent (
@@ -240,8 +236,6 @@ module StructuredEncryptionFooter {
   ) : Result<Bytes, Error>
     requires forall k <- fields :: k in allData
     requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
   {
     if |fields| == 0 then
       Success(canonized)
@@ -261,8 +255,6 @@ module StructuredEncryptionFooter {
   ) : (ret : Result<Bytes, Error>)
     requires forall k <- signedFields :: k in allData
     requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
 
     ensures ret.Success? ==>
               //= specification/structured-encryption/footer.md#canonical-record
@@ -302,8 +294,6 @@ module StructuredEncryptionFooter {
   ) returns (ret : Result<Bytes, Error>)
     requires forall k <- signedFields :: k in allData
     requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
     ensures ret.Success? ==>
               |ret.value| == 48
     //= specification/structured-encryption/footer.md#hash-calculation
@@ -330,8 +320,6 @@ module StructuredEncryptionFooter {
     requires Header.ValidEncryptionContext(mat.encryptionContext)
     requires forall k <- signedFields :: k in allData
     requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
 
     ensures (ret.Success? && mat.algorithmSuite.signature.ECDSA?) ==>
               //= specification/structured-encryption/footer.md#signature

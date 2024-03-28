@@ -55,17 +55,14 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     input: EncryptStructureInput,
     output: Result<EncryptStructureOutput, Error>) {
     // Input and output types must be the same, and this constraint is useful to Dafny users
-    && (output.Success? && input.plaintextStructure.content.DataMap? ==> output.value.encryptedStructure.content.DataMap?)
-    && (output.Success? && input.plaintextStructure.content.DataList? ==> output.value.encryptedStructure.content.DataList?)
-    && (output.Success? && input.plaintextStructure.content.Terminal? ==> output.value.encryptedStructure.content.Terminal?)
-       // Ensure the CryptoSchema in the ParsedHeader matches the input crypto Schema, minus any DO_NOTHING terminals
+    // Ensure the CryptoSchema in the ParsedHeader matches the input crypto Schema, minus any DO_NOTHING terminals
     && (output.Success? ==>
           // For now we only support encrypting flat maps
           && var headerSchema := output.value.parsedHeader.cryptoSchema;
           && var inputSchema := input.cryptoSchema;
           && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
           && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
-       )
+    )
   }
 
   // given a list of fields, return only those that should be encrypted, according to the legend
@@ -103,9 +100,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     if field !in data then
       Fail(E("The field name " + field + " is required."))
-    else if !data[field].content.Terminal? then
-      Fail(E(field + " must be a Terminal."))
-    else if data[field].content.Terminal.typeId != BYTES_TYPE_ID then
+    else if data[field].typeId != BYTES_TYPE_ID then
       Fail(E(field + " must be a binary Terminal."))
     else
       Pass
@@ -119,7 +114,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     if |fields| == 0 then
       0
     else
-      |data[fields[0]].content.Terminal.value| + SumValueSize(fields[1..], data)
+      |data[fields[0]].value| + SumValueSize(fields[1..], data)
   }
 
   function method {:opaque} GetAlgorithmSuiteId(alg : Option<CMP.DBEAlgorithmSuiteId>)
@@ -416,6 +411,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                                                              else
                                                                SIGN_ONLY;
 
+      assert forall k :: k in data.Keys && authSchema[k].SIGN? ==> Paths.SimpleCanon(tableName, k) in data_c.Keys;
+
       var c := DecryptCanonData(
                  encFields_c,
                  signedFields_c,
@@ -436,7 +433,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       Success(c)
   }
 
-  method GetV2EncryptionContext(schema : CryptoSchemaMap, record : FlatDataMap)
+  method GetV2EncryptionContext(schema : CryptoSchemaMap, record : StructuredDataMap)
     returns (output : Result<CMP.EncryptionContext, Error>)
     requires (forall x <- schema :: x in record)
   {
@@ -450,7 +447,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     output := GetV2EncryptionContext2(contextFields, record);
   }
 
-  method {:vcs_split_on_every_assert} GetV2EncryptionContext2(fields : seq<string>, record : FlatDataMap)
+  method {:vcs_split_on_every_assert} GetV2EncryptionContext2(fields : seq<string>, record : StructuredDataMap)
     returns (output : Result<CMP.EncryptionContext, Error>)
     requires forall k <- fields :: k in record
   {
@@ -495,7 +492,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       }
       var fieldUtf8 := keys[i];
       var fieldStr := fieldMap[fieldUtf8];
-      var attr : StructuredDataTerminal := record[fieldStr].content.Terminal;
+      var attr : StructuredDataTerminal := record[fieldStr];
       var attrStr : ValidUTF8Bytes;
       var legendChar : char;
       if attr.typeId == NULL {
@@ -536,15 +533,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     ensures output.Success? ==>
               //= specification/structured-encryption/encrypt-structure.md#structured-data
               //= type=implication
-              //# This Structured Data MUST be a [Structured Data Map](./structures.md#structured-data-map).
-              && input.plaintextStructure.content.DataMap?
-
-              //= specification/structured-encryption/encrypt-structure.md#structured-data
-              //= type=implication
               //# This Structured Data MUST NOT already contain data located at the [header index](./header.md#header-index)
               //# or the [footer index](./footer.md#footer-index).
-              && var plainRecord := input.plaintextStructure.content.DataMap;
-              && DataMapIsFlat(plainRecord)
+              && var plainRecord := input.plaintextStructure;
               && HeaderField !in plainRecord
               && FooterField !in plainRecord
 
@@ -567,15 +558,14 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
               //= type=implication
               //# - The [Header Field](#header-field) MUST exist in the Encrypted Structured Data
-              && HeaderField in output.value.encryptedStructure.content.DataMap
+              && HeaderField in output.value.encryptedStructure
 
               //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
               //= type=implication
               //# - The [Footer Field](#footer-field) MUST exist in the Encrypted Structured Data
-              && FooterField in output.value.encryptedStructure.content.DataMap
+              && FooterField in output.value.encryptedStructure
 
   {
-    :- Need(input.plaintextStructure.content.DataMap?, E("Input structure must be a DataMap"));
     :- Need(
       || input.encryptionContext.None?
       || !exists k <- input.encryptionContext.value :: ReservedCryptoContextPrefixUTF8 <= input.encryptionContext.value[k],
@@ -585,8 +575,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(exists k <- input.cryptoSchema :: IsAuthAttr(input.cryptoSchema[k]),
             E("At least one field in the Crypto Schema must be ENCRYPT_AND_SIGN, SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT or SIGN_ONLY."));
 
-    :- Need(DataMapIsFlat(input.plaintextStructure.content.DataMap), E("Input DataMap must be flat."));
-    var plainRecord : FlatDataMap := input.plaintextStructure.content.DataMap;
+    var plainRecord : StructuredDataMap := input.plaintextStructure;
     :- Need(HeaderField !in plainRecord, E("The field name " + HeaderField + " is reserved."));
     :- Need(FooterField !in plainRecord, E("The field name " + FooterField + " is reserved."));
     :- Need(plainRecord.Keys == input.cryptoSchema.Keys, E("Schema must exactly match record"));
@@ -665,7 +654,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(|canonData.encFields_c| < (UINT32_LIMIT / 3), E("Too many encrypted fields"));
     var encryptedItems :- Crypt.Encrypt(config.primitives, alg, key, head, canonData.encFields_c, canonData.data_c);
 
-    var result : map<string, StructuredData> := map k <- plainRecord | true
+    var result : StructuredDataMap := map k <- plainRecord | true
       :: k :=
       var c := Paths.SimpleCanon(input.tableName, k);
       if c in encryptedItems then
@@ -717,11 +706,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     );
 
     var encryptOutput := EncryptStructureOutput(
-      encryptedStructure := StructuredData(
-        content := StructuredDataContent.DataMap(
-          DataMap := result
-        ),
-        attributes := None),
+      encryptedStructure := result,
       parsedHeader := parsedHeader
     );
 
@@ -731,11 +716,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   predicate DecryptStructureEnsuresPublicly(
     input: DecryptStructureInput,
     output: Result<DecryptStructureOutput, Error>) {
-    // Input and output types must be the same, and this constraint is useful to Dafny users
-    && (output.Success? && input.encryptedStructure.content.DataMap? ==> output.value.plaintextStructure.content.DataMap?)
-    && (output.Success? && input.encryptedStructure.content.DataList? ==> output.value.plaintextStructure.content.DataList?)
-    && (output.Success? && input.encryptedStructure.content.Terminal? ==> output.value.plaintextStructure.content.Terminal?)
-       // Ensure the CryptoSchema in the ParsedHeader is consistent with the input authenticateSchema
+    // Ensure the CryptoSchema in the ParsedHeader is consistent with the input authenticateSchema
     && (output.Success? ==>
           // For now we only support decrypting flat maps
           && var cryptoMap := output.value.parsedHeader.cryptoSchema;
@@ -803,9 +784,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# This operation MUST output a [Structured Data](#structured-data) with the following specifics:
     returns (output: Result<DecryptStructureOutput, Error>)
     ensures output.Success? ==>
-              && input.encryptedStructure.content.DataMap?
-              && DataMapIsFlat(input.encryptedStructure.content.DataMap)
-              && var encRecord := input.encryptedStructure.content.DataMap;
+              && var encRecord := input.encryptedStructure;
 
               //= specification/structured-encryption/decrypt-structure.md#parse-the-header
               //= type=implication
@@ -834,7 +813,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# and MUST NOT describe Authenticate Actions for locations within the input Structured Data that either
               //# do not exist, or contain non-Terminal Data structures;
               //# otherwise, this operation operation MUST yield an error.
-              && input.authenticateSchema.Keys + ReservedAuthMap.Keys == input.encryptedStructure.content.DataMap.Keys
+              && input.authenticateSchema.Keys + ReservedAuthMap.Keys == input.encryptedStructure.Keys
 
               //= specification/structured-encryption/decrypt-structure.md#authenticate-schema
               //= type=implication
@@ -842,7 +821,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# otherwise, this operation MUST yield an error.
               && (exists x :: (x in input.authenticateSchema && input.authenticateSchema[x] == SIGN))
 
-              && var headerSerialized := encRecord[HeaderField].content.Terminal.value;
+              && var headerSerialized := encRecord[HeaderField].value;
               //= specification/structured-encryption/decrypt-structure.md#parse-the-header
               //= type=implication
               //# This operation MUST deserialize the header bytes
@@ -854,24 +833,22 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //= type=implication
               //# - [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
               //# or "aws_dbe_foot".
-              && HeaderField !in output.value.plaintextStructure.content.DataMap
-              && FooterField !in output.value.plaintextStructure.content.DataMap
+              && HeaderField !in output.value.plaintextStructure
+              && FooterField !in output.value.plaintextStructure
   {
     :- Need(forall k <- input.authenticateSchema :: ValidString(k), E("Schema has bad field name."));
     :- Need(forall k <- input.authenticateSchema | k in ReservedAuthMap ::
               input.authenticateSchema[k] == ReservedAuthMap[k], E("Reserved fields in Schema must be DO_NOT_SIGN."));
     var authSchema : AuthSchemaPlain := input.authenticateSchema + ReservedAuthMap;
 
-    :- Need(input.encryptedStructure.content.DataMap?, E("Input structure must be a DataMap"));
-    :- Need(DataMapIsFlat(input.encryptedStructure.content.DataMap), E("Input DataMap must be flat."));
-    :- Need(authSchema.Keys == input.encryptedStructure.content.DataMap.Keys, E("Authenticate schema must match encrypted structure exactly."));
-    var encRecord : StructuredDataPlain := input.encryptedStructure.content.DataMap;
+    :- Need(authSchema.Keys == input.encryptedStructure.Keys, E("Authenticate schema must match encrypted structure exactly."));
+    var encRecord : StructuredDataPlain := input.encryptedStructure;
     :- NeedBinary(encRecord, HeaderField);
     :- NeedBinary(encRecord, FooterField);
     :- Need(exists x :: (x in input.authenticateSchema && input.authenticateSchema[x] == SIGN), E("At least one Authenticate Action must be SIGN"));
 
-    var headerSerialized := encRecord[HeaderField].content.Terminal.value;
-    var footerSerialized := encRecord[FooterField].content.Terminal.value;
+    var headerSerialized := encRecord[HeaderField].value;
+    var footerSerialized := encRecord[FooterField].value;
     //= specification/structured-encryption/decrypt-structure.md#parse-the-header
     //# This operation MUST deserialize the header bytes
     //# according to the [header format](./header.md).
@@ -993,7 +970,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                              canonData.signedFields_c, canonData.encFields_c, map[], canonData.data_c, headerSerialized);
     var decryptedItems :- Crypt.Decrypt(config.primitives, postCMMAlg, key, head, canonData.encFields_c, canonData.data_c);
 
-    var result : map<string, StructuredData> := map k <- encRecord | true
+    var result : StructuredDataMap := map k <- encRecord | true
       :: k :=
       var c := Paths.SimpleCanon(input.tableName, k);
       if c in decryptedItems then
@@ -1033,15 +1010,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     );
 
     var decryptOutput := DecryptStructureOutput(
-      plaintextStructure := StructuredData(
-        content := StructuredDataContent.DataMap(
-          DataMap := smallResult
-        ),
-        attributes := None),
+      plaintextStructure := smallResult,
       parsedHeader := parsedHeader
     );
 
-    assert forall k <- decryptOutput.plaintextStructure.content.DataMap :: k in encRecord;
+    assert forall k <- decryptOutput.plaintextStructure :: k in encRecord;
 
     output := Success(decryptOutput);
   }

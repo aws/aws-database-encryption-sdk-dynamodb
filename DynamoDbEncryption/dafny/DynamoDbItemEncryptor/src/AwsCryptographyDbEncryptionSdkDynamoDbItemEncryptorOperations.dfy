@@ -200,7 +200,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
               && EncodeName(config.partitionKeyName).Success?
               && var partitionKeyName : ValidUTF8Bytes := EncodeName(config.partitionKeyName).value;
-              && var partitionKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.partitionKeyName].content.Terminal);
+              && var partitionKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.partitionKeyName]);
               && partitionKeyName in ret.value
               && ret.value[partitionKeyName] == partitionKeyValue
 
@@ -219,7 +219,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               && EncodeName(config.sortKeyName.value).Success?
               && var sortKeyName : ValidUTF8Bytes := EncodeName(config.sortKeyName.value).value;
               && sortKeyName in ret.value
-              && var sortKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.sortKeyName.value].content.Terminal);
+              && var sortKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.sortKeyName.value]);
               && ret.value[sortKeyName] == sortKeyValue
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-1
@@ -234,7 +234,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var logicalTableName : ValidUTF8Bytes :- DDBEncode(config.logicalTableName);
     var partitionName : ValidUTF8Bytes :- DDBEncode(config.partitionKeyName);
     var partitionKeyName : ValidUTF8Bytes :- EncodeName(config.partitionKeyName);
-    var partitionKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.partitionKeyName].content.Terminal);
+    var partitionKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.partitionKeyName]);
     if (config.sortKeyName.None?) then
       :- Need(|{TABLE_NAME, PARTITION_NAME, SORT_NAME, partitionKeyName}| == 4, E("Internal Error"));
       var ec : CMP.EncryptionContext :=
@@ -255,7 +255,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       :- Need(config.sortKeyName.value in item, DDBError("Sort key " + config.sortKeyName.value + " not found in Item to be encrypted or decrypted"));
       var sortName :- DDBEncode(config.sortKeyName.value);
       var sortKeyName : ValidUTF8Bytes :- EncodeName(config.sortKeyName.value);
-      var sortKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.sortKeyName.value].content.Terminal);
+      var sortKeyValue : ValidUTF8Bytes := SE.EncodeTerminal(item[config.sortKeyName.value]);
       :- Need(|{TABLE_NAME, PARTITION_NAME, partitionKeyName, SORT_NAME, sortKeyName}| == 5, E("Internal Error"));
       var ec : CMP.EncryptionContext :=
         map[
@@ -745,9 +745,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && DynamoToStruct.ItemToStructured(input.plaintextItem).Success?
         && var plaintextStructure := DynamoToStruct.ItemToStructured(input.plaintextItem).value;
         && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.plaintextStructure
-           == CSE.StructuredData(
-                content := CSE.StructuredDataContent.DataMap(plaintextStructure),
-                attributes := None)
+           == plaintextStructure
 
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //= type=implication
@@ -830,11 +828,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var context :- MakeEncryptionContext(config, plaintextStructure);
     var cryptoSchema :- ConfigToCryptoSchema(config, input.plaintextItem)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
-    var wrappedStruct := CSE.StructuredData(
-      content := CSE.StructuredDataContent.DataMap(plaintextStructure),
-      attributes := None);
-
-    assert {:split_here} true;
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //# This operation MUST create a
@@ -855,7 +848,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var encryptRes := config.structuredEncryption.EncryptStructure(
       CSE.EncryptStructureInput(
         tableName := config.logicalTableName,
-        plaintextStructure:=wrappedStruct,
+        plaintextStructure:=plaintextStructure,
         cryptoSchema:=cryptoSchema,
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //# - The CMM MUST be the CMM created above.
@@ -877,7 +870,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var encryptVal :- encryptRes.MapFailure(
       e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     var encryptedData := encryptVal.encryptedStructure;
-    var ddbKey :- DynamoToStruct.StructuredToItem(encryptedData.content.DataMap)
+    var ddbKey :- DynamoToStruct.StructuredToItem(encryptedData)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
     var parsedActions :- ConvertCryptoSchemaToAttributeActions(config, encryptVal.parsedHeader.cryptoSchema);
@@ -954,9 +947,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && DynamoToStruct.ItemToStructured(input.encryptedItem).Success?
         && var plaintextStructure := DynamoToStruct.ItemToStructured(input.encryptedItem).value;
         && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptedStructure
-           == CSE.StructuredData(
-                content := CSE.StructuredDataContent.DataMap(plaintextStructure),
-                attributes := None)
+           == plaintextStructure
 
         //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
         //= type=implication
@@ -1058,9 +1049,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
     var context :- MakeEncryptionContext(config, encryptedStructure);
     var authenticateSchema := ConfigToAuthenticateSchema(config, input.encryptedItem);
-    var wrappedStruct := CSE.StructuredData(
-      content := CSE.StructuredDataContent.DataMap(encryptedStructure),
-      attributes := None);
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# This operation MUST create a
@@ -1081,7 +1069,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var decryptRes := config.structuredEncryption.DecryptStructure(
       CSE.DecryptStructureInput(
         tableName := config.logicalTableName,
-        encryptedStructure := wrappedStruct,
+        encryptedStructure := encryptedStructure,
         authenticateSchema := authenticateSchema,
         //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
         //# - CMM MUST be the CMM constructed above.
@@ -1093,7 +1081,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var decryptVal :- decryptRes.MapFailure(
       e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     var decryptedData := decryptVal.plaintextStructure;
-    var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData.content.DataMap)
+    var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
     var schemaToConvert := decryptVal.parsedHeader.cryptoSchema;

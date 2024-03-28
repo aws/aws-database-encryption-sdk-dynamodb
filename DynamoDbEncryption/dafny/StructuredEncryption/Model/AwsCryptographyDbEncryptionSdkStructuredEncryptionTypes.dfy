@@ -28,25 +28,25 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
   type CryptoSchemaMap = map<string, CryptoAction>
   datatype DecryptStructureInput = | DecryptStructureInput (
     nameonly tableName: string ,
-    nameonly encryptedStructure: StructuredData ,
+    nameonly encryptedStructure: StructuredDataMap ,
     nameonly authenticateSchema: AuthenticateSchemaMap ,
     nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
     nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
   )
   datatype DecryptStructureOutput = | DecryptStructureOutput (
-    nameonly plaintextStructure: StructuredData ,
+    nameonly plaintextStructure: StructuredDataMap ,
     nameonly parsedHeader: ParsedHeader
   )
   datatype EncryptStructureInput = | EncryptStructureInput (
     nameonly tableName: string ,
-    nameonly plaintextStructure: StructuredData ,
+    nameonly plaintextStructure: StructuredDataMap ,
     nameonly cryptoSchema: CryptoSchemaMap ,
     nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
     nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
     nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
   )
   datatype EncryptStructureOutput = | EncryptStructureOutput (
-    nameonly encryptedStructure: StructuredData ,
+    nameonly encryptedStructure: StructuredDataMap ,
     nameonly parsedHeader: ParsedHeader
   )
   datatype ParsedHeader = | ParsedHeader (
@@ -56,17 +56,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
     nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
     nameonly encryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
   )
-  datatype StructuredData = | StructuredData (
-    nameonly content: StructuredDataContent ,
-    nameonly attributes: Option<StructuredDataAttributes> := Option.None
-  )
-  type StructuredDataAttributes = map<string, StructuredDataTerminal>
-  datatype StructuredDataContent =
-    | Terminal(Terminal: StructuredDataTerminal)
-    | DataList(DataList: StructuredDataList)
-    | DataMap(DataMap: StructuredDataMap)
-  type StructuredDataList = seq<StructuredData>
-  type StructuredDataMap = map<string, StructuredData>
+  type StructuredDataMap = map<string, StructuredDataTerminal>
   datatype StructuredDataTerminal = | StructuredDataTerminal (
     nameonly value: TerminalValue ,
     nameonly typeId: TerminalTypeId

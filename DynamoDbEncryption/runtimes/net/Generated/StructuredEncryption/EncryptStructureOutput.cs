@@ -7,9 +7,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
 {
   public class EncryptStructureOutput
   {
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData _encryptedStructure;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> _encryptedStructure;
     private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ParsedHeader _parsedHeader;
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData EncryptedStructure
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> EncryptedStructure
     {
       get { return this._encryptedStructure; }
       set { this._encryptedStructure = value; }
