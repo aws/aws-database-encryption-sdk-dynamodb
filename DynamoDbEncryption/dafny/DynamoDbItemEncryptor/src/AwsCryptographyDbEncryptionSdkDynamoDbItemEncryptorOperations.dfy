@@ -836,7 +836,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# - This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
     //# - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context)
 
-    var contextKeys : seq<CMP.Utf8Bytes> := SortedSets.ComputeSetToOrderedSequence2(context.Keys, ByteLess);
+    var contextKeysX : seq<seq<uint8>> := SortedSets.ComputeSetToOrderedSequence2(context.Keys, ByteLess);
+    assert forall k <- contextKeysX :: ValidUTF8Seq(k) by {
+      assert forall k <- contextKeysX :: k in context.Keys;
+      assert forall k <- context.Keys :: ValidUTF8Seq(k);
+    }
+
+    var contextKeys : seq<CMP.Utf8Bytes> := contextKeysX;
     var reqCMMR := config.cmpClient.CreateRequiredEncryptionContextCMM(
       CMP.CreateRequiredEncryptionContextCMMInput(
         underlyingCMM := Some(config.cmm),
