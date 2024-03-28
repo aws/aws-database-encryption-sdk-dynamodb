@@ -234,7 +234,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     data_c : StructuredDataCanon,       // all signed fields with canonized paths
                                         // i.e. the Intermediate Encrypted Structured Data, but unencrypted
     cryptoSchema : CryptoSchemaMap         // the crypto schema for this structure,
-                                        // with all extraneous DO_NOTHING actions removed
+    // with all extraneous DO_NOTHING actions removed
   )
 
   predicate ValidEncryptCanon?(c: EncryptCanonData) {
@@ -258,7 +258,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     data_c : StructuredDataCanon,       // All signed fields with canonized paths
                                         // i.e. the Intermediate Encrypted Structured Data, properly encrypted
     cryptoSchema : CryptoSchemaMap,        // The crypto schema calculated from the crypto legend.
-                                        // This value is returned as part of the Parsed Header.
+    // This value is returned as part of the Parsed Header.
     contextFields : seq<string>         // These fields have action SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   )
 
@@ -367,11 +367,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     ensures ret.Success? ==>
               && |ret.value.signedFields_c| == |legend|
     ensures ret.Success? ==>
-              && (forall k :: k in data.Keys && authSchema[k].content.Action.SIGN? ==> Paths.SimpleCanon(tableName, k) in ret.value.data_c.Keys)
+              && (forall k :: k in data.Keys && authSchema[k].SIGN? ==> Paths.SimpleCanon(tableName, k) in ret.value.data_c.Keys)
     ensures ret.Success? ==>
               && (forall v :: v in ret.value.data_c.Values ==> v in data.Values)
     ensures ret.Success? ==>
-              && AuthSchemaIsFlat(authSchema)
               && ValidParsedCryptoSchema(ret.value.cryptoSchema, authSchema, tableName)
     ensures ret.Success? ==> forall k <- ret.value.contextFields :: k in data
   {
@@ -384,8 +383,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
     reveal Maps.Injective();
     Paths.SimpleCanonUnique(tableName);
-    var fieldMap := map k <- data | authSchema[k].content.Action == SIGN ::
-                      Paths.SimpleCanon(tableName, k) := k;
+    var fieldMap := map k <- data | authSchema[k] == SIGN :: Paths.SimpleCanon(tableName, k) := k;
     assert Maps.Injective(fieldMap);
     assert forall k <- fieldMap :: fieldMap[k] in data;
 
@@ -411,12 +409,12 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       assert forall k <- contextFields :: k in data;
 
       var cryptoSchema : CryptoSchemaMap := map k <- fieldMap ::
-                         fieldMap[k] := if Paths.SimpleCanon(tableName, fieldMap[k]) in encFields_c then
-                                          ENCRYPT_AND_SIGN
-                                        else if fieldMap[k] in contextFields then
-                                          SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
-                                        else
-                                          SIGN_ONLY;
+                                              fieldMap[k] := if Paths.SimpleCanon(tableName, fieldMap[k]) in encFields_c then
+                                                               ENCRYPT_AND_SIGN
+                                                             else if fieldMap[k] in contextFields then
+                                                               SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+                                                             else
+                                                               SIGN_ONLY;
 
       var c := DecryptCanonData(
                  encFields_c,
@@ -741,28 +739,25 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     && (output.Success? ==>
           // For now we only support decrypting flat maps
           && var cryptoMap := output.value.parsedHeader.cryptoSchema;
-          && input.authenticateSchema.content.SchemaMap?
-          && var authMap := input.authenticateSchema.content.SchemaMap;
-          && AuthSchemaIsFlat(authMap)
+          && var authMap := input.authenticateSchema;
           && ValidString(input.tableName)
           && ValidParsedCryptoSchema(cryptoMap, authMap + ReservedAuthMap, input.tableName))
   }
 
   predicate ValidParsedCryptoSchema(cryptoSchema: CryptoSchemaMap, authSchema: AuthenticateSchemaMap, tableName: GoodString)
-    requires AuthSchemaIsFlat(authSchema)
   {
     // Every field in the crypto map exists in the auth map as SIGN
-    && (forall k <- cryptoSchema.Keys :: k in authSchema && authSchema[k].content.Action.SIGN?)
+    && (forall k <- cryptoSchema.Keys :: k in authSchema && authSchema[k].SIGN?)
        // The crypto map is not missing any SIGN fields from the auth map
-    && (forall kv <- authSchema.Items | kv.1.content.Action.SIGN? :: kv.0 in cryptoSchema.Keys)
+    && (forall kv <- authSchema.Items | kv.1.SIGN? :: kv.0 in cryptoSchema.Keys)
        // Every field in the crypto map is ENCRYPT_AND_SIGN, SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT or SIGN_ONLY
     && (forall v <- cryptoSchema.Values :: IsAuthAttr(v))
   }
 
-  const ReservedAuthMap : AuthSchemaPlain := map[
-                                               HeaderField := DoNotSign, // The header field is authenticated in the footer via a separate mechanism
-                                               FooterField := DoNotSign
-                                             ]
+  const ReservedAuthMap : AuthenticateSchemaMap := map[
+                                                     HeaderField := CSE.DO_NOT_SIGN, // The header field is authenticated in the footer via a separate mechanism
+                                                     FooterField := CSE.DO_NOT_SIGN
+                                                   ]
 
   function method SafeDecode(data : CMP.Utf8Bytes) : string
   {
@@ -839,15 +834,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# and MUST NOT describe Authenticate Actions for locations within the input Structured Data that either
               //# do not exist, or contain non-Terminal Data structures;
               //# otherwise, this operation operation MUST yield an error.
-              && input.authenticateSchema.content.SchemaMap?
-              && input.authenticateSchema.content.SchemaMap.Keys + ReservedAuthMap.Keys == input.encryptedStructure.content.DataMap.Keys
+              && input.authenticateSchema.Keys + ReservedAuthMap.Keys == input.encryptedStructure.content.DataMap.Keys
 
               //= specification/structured-encryption/decrypt-structure.md#authenticate-schema
               //= type=implication
               //# The Authenticate Schema MUST include at least one [SIGN Authenticate Action](./structures.md#sign);
               //# otherwise, this operation MUST yield an error.
-              && AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap)
-              && (exists x :: (x in input.authenticateSchema.content.SchemaMap && input.authenticateSchema.content.SchemaMap[x].content.Action == SIGN))
+              && (exists x :: (x in input.authenticateSchema && input.authenticateSchema[x] == SIGN))
 
               && var headerSerialized := encRecord[HeaderField].content.Terminal.value;
               //= specification/structured-encryption/decrypt-structure.md#parse-the-header
@@ -864,12 +857,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               && HeaderField !in output.value.plaintextStructure.content.DataMap
               && FooterField !in output.value.plaintextStructure.content.DataMap
   {
-    :- Need(input.authenticateSchema.content.SchemaMap?, E("Authenticate Schema must be a SchemaMap"));
-    :- Need(AuthSchemaIsFlat(input.authenticateSchema.content.SchemaMap), E("Schema must be flat."));
-    :- Need(forall k <- input.authenticateSchema.content.SchemaMap :: ValidString(k), E("Schema has bad field name."));
-    :- Need(forall k <- input.authenticateSchema.content.SchemaMap | k in ReservedAuthMap ::
-              input.authenticateSchema.content.SchemaMap[k] == ReservedAuthMap[k], E("Reserved fields in Schema must be DO_NOT_SIGN."));
-    var authSchema : AuthSchemaPlain := input.authenticateSchema.content.SchemaMap + ReservedAuthMap;
+    :- Need(forall k <- input.authenticateSchema :: ValidString(k), E("Schema has bad field name."));
+    :- Need(forall k <- input.authenticateSchema | k in ReservedAuthMap ::
+              input.authenticateSchema[k] == ReservedAuthMap[k], E("Reserved fields in Schema must be DO_NOT_SIGN."));
+    var authSchema : AuthSchemaPlain := input.authenticateSchema + ReservedAuthMap;
 
     :- Need(input.encryptedStructure.content.DataMap?, E("Input structure must be a DataMap"));
     :- Need(DataMapIsFlat(input.encryptedStructure.content.DataMap), E("Input DataMap must be flat."));
@@ -877,7 +868,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var encRecord : StructuredDataPlain := input.encryptedStructure.content.DataMap;
     :- NeedBinary(encRecord, HeaderField);
     :- NeedBinary(encRecord, FooterField);
-    :- Need(exists x :: (x in input.authenticateSchema.content.SchemaMap && input.authenticateSchema.content.SchemaMap[x].content.Action == SIGN), E("At least one Authenticate Action must be SIGN"));
+    :- Need(exists x :: (x in input.authenticateSchema && input.authenticateSchema[x] == SIGN), E("At least one Authenticate Action must be SIGN"));
 
     var headerSerialized := encRecord[HeaderField].content.Terminal.value;
     var footerSerialized := encRecord[FooterField].content.Terminal.value;

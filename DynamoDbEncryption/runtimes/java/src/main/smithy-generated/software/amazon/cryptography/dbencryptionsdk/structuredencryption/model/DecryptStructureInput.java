@@ -13,7 +13,7 @@ public class DecryptStructureInput {
 
   private final StructuredData encryptedStructure;
 
-  private final AuthenticateSchema authenticateSchema;
+  private final Map<String, AuthenticateAction> authenticateSchema;
 
   private final ICryptographicMaterialsManager cmm;
 
@@ -35,7 +35,7 @@ public class DecryptStructureInput {
     return this.encryptedStructure;
   }
 
-  public AuthenticateSchema authenticateSchema() {
+  public Map<String, AuthenticateAction> authenticateSchema() {
     return this.authenticateSchema;
   }
 
@@ -64,9 +64,9 @@ public class DecryptStructureInput {
 
     StructuredData encryptedStructure();
 
-    Builder authenticateSchema(AuthenticateSchema authenticateSchema);
+    Builder authenticateSchema(Map<String, AuthenticateAction> authenticateSchema);
 
-    AuthenticateSchema authenticateSchema();
+    Map<String, AuthenticateAction> authenticateSchema();
 
     Builder cmm(ICryptographicMaterialsManager cmm);
 
@@ -84,7 +84,7 @@ public class DecryptStructureInput {
 
     protected StructuredData encryptedStructure;
 
-    protected AuthenticateSchema authenticateSchema;
+    protected Map<String, AuthenticateAction> authenticateSchema;
 
     protected ICryptographicMaterialsManager cmm;
 
@@ -119,12 +119,12 @@ public class DecryptStructureInput {
       return this.encryptedStructure;
     }
 
-    public Builder authenticateSchema(AuthenticateSchema authenticateSchema) {
+    public Builder authenticateSchema(Map<String, AuthenticateAction> authenticateSchema) {
       this.authenticateSchema = authenticateSchema;
       return this;
     }
 
-    public AuthenticateSchema authenticateSchema() {
+    public Map<String, AuthenticateAction> authenticateSchema() {
       return this.authenticateSchema;
     }
 

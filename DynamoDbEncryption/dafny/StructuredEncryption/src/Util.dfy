@@ -72,11 +72,6 @@ module StructuredEncryptionUtil {
     ensures alg.encrypt.AES_GCM.ivLength as int == NonceSize
   {}
 
-  const DoNotSign :=
-    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN), attributes := None)
-  const DoSign :=
-    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
-
   type Key = x : seq<uint8> | |x| == KeySize witness *
   type Nonce = x : seq<uint8> | |x| == NonceSize witness *
   type AuthTag = x : seq<uint8> | |x| == AuthTagSize witness *
@@ -87,15 +82,14 @@ module StructuredEncryptionUtil {
   type GoodString = x : string | ValidString(x)
 
   type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
-  type AuthSchemaActionType = x : AuthenticateSchema | x.content.Action? witness *
 
   type StructuredDataXXX = x : map<GoodString, StructuredData> | forall k <- x :: x[k].content.Terminal?
   type StructuredDataPlain = map<GoodString, StructuredDataTerminalType>
   type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminalType>
   type CryptoSchemaPlain = map<GoodString, CSE.CryptoAction>
   type CryptoSchemaCanon = map<CanonicalPath, CSE.CryptoAction>
-  type AuthSchemaPlain = map<GoodString, AuthSchemaActionType>
-  type AuthSchemaCanon = map<CanonicalPath, AuthSchemaActionType>
+  type AuthSchemaPlain = map<GoodString, AuthenticateAction>
+  type AuthSchemaCanon = map<CanonicalPath, AuthenticateAction>
   type CanonMap = map<CanonicalPath, GoodString>
 
   // Within the context of the StructuredEncryptionClient, certain things must be true of any Algorithm Suite
@@ -131,13 +125,6 @@ module StructuredEncryptionUtil {
     requires |a| == |b|
   {
     ConstantTimeCompare(a, b) == 0
-  }
-
-  // Schema must contain only Actions
-  function method AuthSchemaIsFlat(data : AuthenticateSchemaMap) : (ret : bool)
-    ensures ret ==> (forall v <- data.Values :: v.content.Action?)
-  {
-    forall k <- data :: data[k].content.Action?
   }
 
   // Map must contain only Terminals

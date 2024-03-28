@@ -49,11 +49,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   type InternalConfig = Config
   type ValidConfig = x : Config | ValidInternalConfig?(x) witness *
 
-  const DoNotSign :=
-    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN), attributes := None)
-  const DoSign :=
-    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
-
   // Is the attribute name an allowed unauthenticated name?
   predicate method AllowedUnsigned(
     unauthenticatedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList>,
@@ -506,7 +501,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   function method GetAuthenticateSchemaAction(
     config : InternalConfig,
     attr : ComAmazonawsDynamodbTypes.AttributeName)
-    : (ret : CSE.AuthenticateSchema)
+    : (ret : CSE.AuthenticateAction)
     requires ValidInternalConfig?(config)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
@@ -519,12 +514,12 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
     //= type=implication
     //# Otherwise, Attributes MUST be considered as within the signature scope.
-    ensures (ret == DoNotSign) <==> !InSignatureScope(config, attr)
+    ensures (ret == CSE.DO_NOT_SIGN) <==> !InSignatureScope(config, attr)
   {
     if InSignatureScope(config, attr) then
-      DoSign
+      CSE.SIGN
     else
-      DoNotSign
+      CSE.DO_NOT_SIGN
   }
 
   // get CryptoSchema for this item
@@ -575,14 +570,14 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   function method ConfigToAuthenticateSchema(
     config : InternalConfig,
     item : ComAmazonawsDynamodbTypes.AttributeMap)
-    : (ret : CSE.AuthenticateSchema)
+    : (ret : CSE.AuthenticateSchemaMap)
     requires ValidInternalConfig?(config)
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
     //# - The number of Authenticate Actions in the Authenticate Schema
     //# MUST EQUAL the number of Attributes on the [input DynamoDB Item](#dynamodb-item).
-    ensures ret.content.SchemaMap? && item.Keys == ret.content.SchemaMap.Keys
+    ensures item.Keys == ret.Keys
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
@@ -591,10 +586,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# there MUST exist a [DO_NOT_SIGN Authenticate Action](../structured-encryption/structures.md#do_not_sign)
     //# in the Authenticate Schema,
     //# string indexed at the top level by that attribute name.
-    ensures forall k <-item.Keys ::
-              !InSignatureScope(config, k) ==>
-                ret.content.SchemaMap[k].content ==
-                CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN)
+    ensures forall k <-item.Keys :: !InSignatureScope(config, k) ==> ret[k] == CSE.DO_NOT_SIGN
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
@@ -603,15 +595,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# there MUST exist a [SIGN Authenticate Action](../structured-encryption/structures.md#sign)
     //# in the Authenticate Schema,
     //# string indexed at the top level by that attribute name.
-    ensures forall k <-item.Keys ::
-              && InSignatureScope(config, k) ==>
-                ret.content.SchemaMap[k].content ==
-                CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN)
+    ensures forall k <-item.Keys :: InSignatureScope(config, k) ==> ret[k] == CSE.SIGN
   {
-    var authMap := map k <- item | true :: k := GetAuthenticateSchemaAction(config, k);
-    var schemaContent := CSE.AuthenticateSchemaContent.SchemaMap(authMap);
-    var finalSchema := CSE.AuthenticateSchema(content := schemaContent, attributes := None);
-    finalSchema
+    map k <- item | true :: k := GetAuthenticateSchemaAction(config, k)
+                         // var authMap := map k <- item | true :: k := GetAuthenticateSchemaAction(config, k);
+                         // var schemaContent := CSE.AuthenticateSchemaContent.SchemaMap(authMap);
+                         // var finalSchema := CSE.AuthenticateSchema(content := schemaContent, attributes := None);
+                         // finalSchema
   }
 
   //= specification/dynamodb-encryption-client/decrypt-item.md#determining-plaintext-items
@@ -853,11 +843,12 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# - This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
     //# - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context)
 
+    var contextKeys : seq<CMP.Utf8Bytes> := SortedSets.ComputeSetToOrderedSequence2(context.Keys, ByteLess);
     var reqCMMR := config.cmpClient.CreateRequiredEncryptionContextCMM(
       CMP.CreateRequiredEncryptionContextCMMInput(
         underlyingCMM := Some(config.cmm),
         keyring := None,
-        requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(context.Keys, ByteLess)
+        requiredEncryptionContextKeys := contextKeys
       )
     );
     var reqCMM :- reqCMMR.MapFailure(e => AwsCryptographyMaterialProviders(e));

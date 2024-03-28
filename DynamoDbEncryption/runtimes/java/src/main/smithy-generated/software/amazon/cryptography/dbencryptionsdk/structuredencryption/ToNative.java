@@ -17,8 +17,6 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.interna
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_StructuredEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.IStructuredEncryptionClient;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.AuthenticateAction;
-import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.AuthenticateSchema;
-import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.AuthenticateSchemaContent;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.DecryptStructureInput;
@@ -78,22 +76,12 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static AuthenticateSchema AuthenticateSchema(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchema dafnyValue) {
-    AuthenticateSchema.Builder nativeBuilder = AuthenticateSchema.builder();
-    nativeBuilder.content(ToNative.AuthenticateSchemaContent(dafnyValue.dtor_content()));
-    if (dafnyValue.dtor_attributes().is_Some()) {
-      nativeBuilder.attributes(ToNative.AuthenticateSchemaAttributes(dafnyValue.dtor_attributes().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static DecryptStructureInput DecryptStructureInput(
       software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureInput dafnyValue) {
     DecryptStructureInput.Builder nativeBuilder = DecryptStructureInput.builder();
     nativeBuilder.tableName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableName()));
     nativeBuilder.encryptedStructure(ToNative.StructuredData(dafnyValue.dtor_encryptedStructure()));
-    nativeBuilder.authenticateSchema(ToNative.AuthenticateSchema(dafnyValue.dtor_authenticateSchema()));
+    nativeBuilder.authenticateSchema(ToNative.AuthenticateSchemaMap(dafnyValue.dtor_authenticateSchema()));
     nativeBuilder.cmm(software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm()));
     if (dafnyValue.dtor_encryptionContext().is_Some()) {
       nativeBuilder.encryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext().dtor_value()));
@@ -196,21 +184,6 @@ public class ToNative {
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction matches the input : " + dafnyValue);
   }
 
-  public static AuthenticateSchemaContent AuthenticateSchemaContent(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchemaContent dafnyValue) {
-    AuthenticateSchemaContent.Builder nativeBuilder = AuthenticateSchemaContent.builder();
-    if (dafnyValue.is_Action()) {
-      nativeBuilder.Action(ToNative.AuthenticateAction(dafnyValue.dtor_Action()));
-    }
-    if (dafnyValue.is_SchemaMap()) {
-      nativeBuilder.SchemaMap(ToNative.AuthenticateSchemaMap(dafnyValue.dtor_SchemaMap()));
-    }
-    if (dafnyValue.is_SchemaList()) {
-      nativeBuilder.SchemaList(ToNative.AuthenticateSchemaList(dafnyValue.dtor_SchemaList()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static StructuredDataContent StructuredDataContent(
       software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredDataContent dafnyValue) {
     StructuredDataContent.Builder nativeBuilder = StructuredDataContent.builder();
@@ -226,13 +199,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static List<AuthenticateSchema> AuthenticateSchemaList(
-      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchema> dafnyValue) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::AuthenticateSchema);
-  }
-
   public static List<StructuredData> StructuredDataList(
       DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredData> dafnyValue) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
@@ -240,20 +206,12 @@ public class ToNative {
         software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::StructuredData);
   }
 
-  public static Map<String, AuthenticateAction> AuthenticateSchemaAttributes(
+  public static Map<String, AuthenticateAction> AuthenticateSchemaMap(
       DafnyMap<? extends DafnySequence<? extends Character>, ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateAction> dafnyValue) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
         dafnyValue, 
         software.amazon.smithy.dafny.conversion.ToNative.Simple::String, 
         software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::AuthenticateAction);
-  }
-
-  public static Map<String, AuthenticateSchema> AuthenticateSchemaMap(
-      DafnyMap<? extends DafnySequence<? extends Character>, ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchema> dafnyValue) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
-        dafnyValue, 
-        software.amazon.smithy.dafny.conversion.ToNative.Simple::String, 
-        software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::AuthenticateSchema);
   }
 
   public static Map<String, CryptoAction> CryptoSchemaMap(

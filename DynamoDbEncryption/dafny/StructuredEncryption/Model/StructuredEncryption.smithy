@@ -126,7 +126,7 @@ structure DecryptStructureInput {
     @required
     encryptedStructure: StructuredData,
     @required
-    authenticateSchema: AuthenticateSchema,
+    authenticateSchema: AuthenticateSchemaMap,
     @required
     cmm: CryptographicMaterialsManagerReference,
 
@@ -262,20 +262,6 @@ map CryptoSchemaMap {
     value: CryptoAction
 }
 
-// This mimics the same structure as StructuredData above,
-// only it's "leaves" are AuthenticateAction instead of Terminal.
-structure AuthenticateSchema {
-    @required
-    content: AuthenticateSchemaContent,
-    attributes: AuthenticateSchemaAttributes
-}
-
-union AuthenticateSchemaContent {
-    Action: AuthenticateAction,
-    SchemaMap: AuthenticateSchemaMap,
-    SchemaList: AuthenticateSchemaList
-}
-
 @enum([
     {
         "name": "SIGN",
@@ -289,15 +275,6 @@ union AuthenticateSchemaContent {
 string AuthenticateAction
 
 map AuthenticateSchemaMap {
-    key: String,
-    value: AuthenticateSchema
-}
-
-list AuthenticateSchemaList {
-    member: AuthenticateSchema
-}
-
-map AuthenticateSchemaAttributes {
     key: String,
     value: AuthenticateAction
 }

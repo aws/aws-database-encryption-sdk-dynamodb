@@ -61,31 +61,13 @@ module StructuredDataTestFixtures {
       "bar" := CryptoAction.SIGN_ONLY
     ]
 
-  const TEST_AUTHENTICATE_SCHEMA := AuthenticateSchema(
-                                      content := AuthenticateSchemaContent.SchemaMap(
-                                        SchemaMap := map[
-                                          "foo" := AuthenticateSchema(
-                                            content := AuthenticateSchemaContent.Action(
-                                              Action := AuthenticateAction.SIGN
-                                            ),
-                                            attributes := None()
-                                          ),
-                                          "bar" := AuthenticateSchema(
-                                            content := AuthenticateSchemaContent.Action(
-                                              Action := AuthenticateAction.SIGN
-                                            ),
-                                            attributes := None()
-                                          ),
-                                          "fizzbuzz" := AuthenticateSchema(
-                                            content := AuthenticateSchemaContent.Action(
-                                              Action := AuthenticateAction.DO_NOT_SIGN
-                                            ),
-                                            attributes := None()
-                                          )
-                                        ]
-                                      ),
-                                      attributes := None()
-                                    )
+  const TEST_AUTHENTICATE_SCHEMA : AuthenticateSchemaMap :=
+    map[
+      "foo" := SIGN,
+      "bar" := SIGN,
+      "fizzbuzz" := DO_NOT_SIGN
+    ]
+
   const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
 
   method GetDefaultCMMWithKMSKeyring()
