@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
+using Amazon.Runtime;
 
 public class GetEncryptedDataKeyDescriptionExample
 {
@@ -62,7 +63,7 @@ public class GetEncryptedDataKeyDescriptionExample
         var encryptedDataKeyDescriptions = output.EncryptedDataKeyDescriptionOutput;
 
         Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderId == "aws-kms");
-        Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderId == kmsKeyId);        
+        Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderInfo == kmsKeyId);        
     }
 }
 
