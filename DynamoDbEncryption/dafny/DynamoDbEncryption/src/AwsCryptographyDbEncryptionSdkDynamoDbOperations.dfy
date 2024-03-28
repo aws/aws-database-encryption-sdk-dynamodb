@@ -20,7 +20,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
   { {} }
 
   datatype Config = Config(
-                    )
+                                      )
 
   type InternalConfig = Config
 

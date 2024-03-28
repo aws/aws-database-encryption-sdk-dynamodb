@@ -11,7 +11,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
 
   class DynamoDbEncryptionBranchKeyIdSupplier
     extends MPL.IBranchKeyIdSupplier
-    {
+  {
     const ddbKeyBranchKeyIdSupplier: IDynamoDbKeyBranchKeyIdSupplier
 
     predicate ValidState()

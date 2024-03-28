@@ -147,7 +147,7 @@ module TestDynamoDBFilterExpr {
     expect exprString == "aws_dbe_b_std2 = :A AND #Field_4 = :B";
   }
 
-    method {:test} TestNoBeaconFail() {
+  method {:test} TestNoBeaconFail() {
     var context := ExprContext (
       None,
       Some("std2 = :A AND #Field4 = :B"),
@@ -302,7 +302,7 @@ module TestDynamoDBFilterExpr {
     expect_equal(newItems, [item1]);
   }
 
-   method {:test} TestFilterFailNumeric() {
+  method {:test} TestFilterFailNumeric() {
     var item1  : DDB.AttributeMap := map[
       "one" := DN("800")
     ];
@@ -315,9 +315,9 @@ module TestDynamoDBFilterExpr {
     var newItems := FilterResults(bv, [item1], None, Some("one < :two"), None, Some(values));
     expect newItems.Failure?;
     expect newItems.error == E("Number needs digits either before or after the decimal point. when parsing 'foo'.");
-   }
+  }
 
-   method {:test} TestFilterCompareNumeric() {
+  method {:test} TestFilterCompareNumeric() {
     var item1  : DDB.AttributeMap := map[
       "one" := DN("800")
     ];

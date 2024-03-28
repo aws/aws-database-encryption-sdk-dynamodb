@@ -72,26 +72,26 @@ module DynamoDbItemEncryptorTest {
   }
 
   const Actions1 : DDBE.AttributeActions := map[
-      "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "encrypt" := CSE.ENCRYPT_AND_SIGN,
-      "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign2" := CSE.SIGN_ONLY,
-      "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      "nothing" := CSE.DO_NOTHING
-    ]
+                                              "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+                                              "sortKey" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+                                              "encrypt" := CSE.ENCRYPT_AND_SIGN,
+                                              "sign" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+                                              "sign2" := CSE.SIGN_ONLY,
+                                              "sign3" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+                                              "sign4" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+                                              "nothing" := CSE.DO_NOTHING
+                                            ]
 
-    const Actions2 : DDBE.AttributeActions := map[
-      GetAttrName("bar") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      GetAttrName("sortKey") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      GetAttrName("encrypt") := CSE.ENCRYPT_AND_SIGN,
-      GetAttrName("sign") := CSE.SIGN_ONLY,
-      GetAttrName("sign2") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
-      GetAttrName("sign3") := CSE.SIGN_ONLY,
-      GetAttrName("sign4") := CSE.SIGN_ONLY,
-      GetAttrName("nothing") := CSE.DO_NOTHING
-    ]
+  const Actions2 : DDBE.AttributeActions := map[
+                                              GetAttrName("bar") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+                                              GetAttrName("sortKey") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+                                              GetAttrName("encrypt") := CSE.ENCRYPT_AND_SIGN,
+                                              GetAttrName("sign") := CSE.SIGN_ONLY,
+                                              GetAttrName("sign2") := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+                                              GetAttrName("sign3") := CSE.SIGN_ONLY,
+                                              GetAttrName("sign4") := CSE.SIGN_ONLY,
+                                              GetAttrName("nothing") := CSE.DO_NOTHING
+                                            ]
 
   method {:test} TestV2RoundTripComplexSwitch() {
     var config := TestFixtures.GetEncryptorConfigFromActions(Actions1, Some("sortKey"));

@@ -134,7 +134,7 @@ module TestFixtures {
   }
 
   method GetDynamoDbItemEncryptor()
-      returns (encryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient)
+    returns (encryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient)
     ensures encryptor.ValidState()
     ensures fresh(encryptor)
     ensures fresh(encryptor.Modifies)
@@ -177,7 +177,7 @@ module TestFixtures {
   }
 
   method GetKmsKeyring()
-      returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
+    returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
     ensures keyring.ValidState()
     ensures fresh(keyring)
     ensures fresh(keyring.Modifies)
@@ -193,7 +193,7 @@ module TestFixtures {
   }
 
   method GetStaticKeyring()
-      returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
+    returns (keyring: AwsCryptographyMaterialProvidersTypes.IKeyring)
     ensures keyring.ValidState()
     ensures fresh(keyring)
     ensures fresh(keyring.Modifies)
@@ -210,7 +210,7 @@ module TestFixtures {
   }
 
   method GetDynamoDbEncryptionTransforms()
-      returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+    returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
     ensures encryption.ValidState()
     ensures fresh(encryption)
     ensures fresh(encryption.Modifies)
@@ -228,7 +228,7 @@ module TestFixtures {
               "sign" := CSE.SIGN_ONLY,
               "encrypt" := CSE.ENCRYPT_AND_SIGN,
               "plain" := CSE.DO_NOTHING
-              ],
+            ],
             allowedUnsignedAttributes := Some(["plain"]),
             allowedUnsignedAttributePrefix := None(),
             algorithmSuiteId := None(),

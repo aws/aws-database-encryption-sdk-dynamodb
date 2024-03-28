@@ -38,10 +38,10 @@ module TermLoc {
   type Bytes = seq<uint8>
   type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
 
-    //= specification/searchable-encryption/virtual.md#terminal-location
-    //= type=implication
-    //# A Terminal Location specification MUST be a list of one more [Segments](#segments),
-    //# the first one of which must be a string index.
+  //= specification/searchable-encryption/virtual.md#terminal-location
+  //= type=implication
+  //# A Terminal Location specification MUST be a list of one more [Segments](#segments),
+  //# the first one of which must be a string index.
   type TermLoc = x : seq<Selector> | ValidTermLoc(x) witness *
   predicate method ValidTermLoc(s : seq<Selector>)
   {
@@ -92,7 +92,7 @@ module TermLoc {
       Success(None)
     else
       var res :- AttrValueToString(part.value);
-      Success(Some(res))    
+      Success(Some(res))
   }
 
   // return the string value for the given terminal in the given item
@@ -175,11 +175,11 @@ module TermLoc {
   // that is, '[' or '.'
   function method  {:opaque} FindStartOfNext(s : string)
     : (index : Option<nat>)
-    ensures index.Some? ==> 
-      && index.value < |s|
-      && (s[index.value] == '.' || s[index.value] == '[')
-      && '.' !in s[..index.value]
-      && '[' !in s[..index.value]
+    ensures index.Some? ==>
+              && index.value < |s|
+              && (s[index.value] == '.' || s[index.value] == '[')
+              && '.' !in s[..index.value]
+              && '[' !in s[..index.value]
     ensures index.None? ==> '.' !in s && '[' !in s
   {
     var dot := FindIndexMatching(s, '.', 0);
@@ -221,18 +221,18 @@ module TermLoc {
     //# - A literal "[" followed by a decimal integer followed by a literal "]",
     //# indicating an index into a  Structured Data List.
     ensures ret.Success? ==>
-      && (s[0] == '.' ==> ret.value.Map?)
-      && (s[0] == '[' ==> ret.value.List?)
+              && (s[0] == '.' ==> ret.value.Map?)
+              && (s[0] == '[' ==> ret.value.List?)
   {
     if s[0] == '.' then
       Success(Map(s[1..]))
     else
-      if s[|s|-1] != ']' then
-        Failure(E("List index must end with ]"))
-      else
-        var num :- GetNumber(s[1..|s|-1]);
-        :- Need(num < UINT64_LIMIT, E("Array selector exceeds maximum."));
-        Success(List(num as uint64))
+    if s[|s|-1] != ']' then
+      Failure(E("List index must end with ]"))
+    else
+      var num :- GetNumber(s[1..|s|-1]);
+      :- Need(num < UINT64_LIMIT, E("Array selector exceeds maximum."));
+      Success(List(num as uint64))
   }
 
   // convert string to SelectorList

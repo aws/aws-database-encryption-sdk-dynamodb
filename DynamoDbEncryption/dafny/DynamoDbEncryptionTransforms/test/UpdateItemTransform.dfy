@@ -37,7 +37,7 @@ module UpdateItemTransformTest {
     expect_equal("UpdateItemInput", transformed.value.transformedInput, input);
   }
 
-    method {:test} TestUpdateItemInputUpdateExpressionSigned() {
+  method {:test} TestUpdateItemInputUpdateExpressionSigned() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var tableName := GetTableName("foo");
     var input := DDB.UpdateItemInput(
@@ -64,7 +64,7 @@ module UpdateItemTransformTest {
   }
 
 
-    method {:test} TestUpdateItemInputUpdateExpressionEncrypted() {
+  method {:test} TestUpdateItemInputUpdateExpressionEncrypted() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var tableName := GetTableName("foo");
     var input := DDB.UpdateItemInput(
@@ -91,7 +91,7 @@ module UpdateItemTransformTest {
   }
 
 
-    method {:test} TestUpdateItemInputUpdateExpressionPlain() {
+  method {:test} TestUpdateItemInputUpdateExpressionPlain() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var tableName := GetTableName("no_such_table");
     var input := DDB.UpdateItemInput(

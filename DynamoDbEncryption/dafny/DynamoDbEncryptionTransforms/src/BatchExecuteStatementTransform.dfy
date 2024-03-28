@@ -42,13 +42,13 @@ module BatchExecuteStatementTransform {
     ensures output.Success? ==> output.value.transformedInput == input.sdkInput
   {
     for i := 0 to |input.sdkInput.Statements|
-    /*
-      invariant forall x : nat | 0 <= x < i ::
-        var statement := DdbStatement.TableFromStatement(input.sdkInput.Statements[x].Statement);
-        && statement.Success?
-        && statement.value
-          !in config.tableEncryptionConfigs;
-          */
+      /*
+        invariant forall x : nat | 0 <= x < i ::
+          var statement := DdbStatement.TableFromStatement(input.sdkInput.Statements[x].Statement);
+          && statement.Success?
+          && statement.value
+            !in config.tableEncryptionConfigs;
+            */
     {
       var statement := input.sdkInput.Statements[i].Statement;
       var tableName :- MapString(DdbStatement.TableFromStatement(statement));

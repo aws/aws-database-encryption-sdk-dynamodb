@@ -24,21 +24,21 @@ module AttributeResolver {
        || config.tableEncryptionConfigs[input.TableName].search.None?
     {
       return Success(
-        ResolveAttributesOutput(
+          ResolveAttributesOutput(
             VirtualFields := map[],
             CompoundBeacons := map[]
-        )
-      );
+          )
+        );
     } else {
       var tableConfig := config.tableEncryptionConfigs[input.TableName];
       var vf :- GetVirtualFields(tableConfig.search.value, input.Item, input.Version);
       var cb :- GetCompoundBeacons(tableConfig.search.value, input.Item, input.Version);
       return Success(
-        ResolveAttributesOutput(
+          ResolveAttributesOutput(
             VirtualFields := vf,
             CompoundBeacons := cb
-        )
-      );
+          )
+        );
     }
   }
 

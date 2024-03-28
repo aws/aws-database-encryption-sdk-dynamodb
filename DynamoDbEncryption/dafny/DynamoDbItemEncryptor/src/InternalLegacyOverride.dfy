@@ -23,5 +23,5 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencry
     predicate method {:extern} IsLegacyInput(input: Types.DecryptItemInput)
 
   }
-  
+
 }

@@ -36,18 +36,18 @@ module StructuredEncryptionPaths {
     function method canonicalPath(table : GoodString)
       : (ret : CanonicalPath)
       ensures ret ==
-          //= specification/structured-encryption/header.md#canonical-path
-          //= type=implication
-          //# The canonical path MUST start with the UTF8 encoded table name.
-          UTF8.Encode(table).value
-          //= specification/structured-encryption/header.md#canonical-path
-          //= type=implication
-          //# This MUST be followed by the depth of the Terminal within Structured Data.
-        + UInt64ToSeq(|parts| as uint64)
-          //= specification/structured-encryption/header.md#canonical-path
-          //= type=implication
-          //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
-        + MakeCanonicalPath(parts)
+              //= specification/structured-encryption/header.md#canonical-path
+              //= type=implication
+              //# The canonical path MUST start with the UTF8 encoded table name.
+              UTF8.Encode(table).value
+              //= specification/structured-encryption/header.md#canonical-path
+              //= type=implication
+              //# This MUST be followed by the depth of the Terminal within Structured Data.
+              + UInt64ToSeq(|parts| as uint64)
+              //= specification/structured-encryption/header.md#canonical-path
+              //= type=implication
+              //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
+              + MakeCanonicalPath(parts)
     {
       var tableName := UTF8.Encode(table).value;
       var depth := UInt64ToSeq(|parts| as uint64);
@@ -76,7 +76,7 @@ module StructuredEncryptionPaths {
   {
     TerminalLocation([Map(attr)])
   }
-  
+
   function method {:opaque} SimpleCanon(table : GoodString, attr : GoodString)
     : CanonicalPath
   {
@@ -107,7 +107,7 @@ module StructuredEncryptionPaths {
 
   // get the Canonical Path for these Selectors
   function method {:tailrecursion} MakeCanonicalPath(src : SelectorList)
-   : CanonicalPath
+    : CanonicalPath
   {
     if |src| == 0 then
       []
@@ -115,9 +115,9 @@ module StructuredEncryptionPaths {
       CanonicalPart(src[0]) + MakeCanonicalPath(src[1..])
   }
 
-// End code, begin lemmas. 
-// The only useful one is SimpleCanonUnique
-// The others are here to prove that
+  // End code, begin lemmas.
+  // The only useful one is SimpleCanonUnique
+  // The others are here to prove that
 
   lemma CanonicalPartMapUnique(x : Selector, y : Selector)
     requires x.Map?
