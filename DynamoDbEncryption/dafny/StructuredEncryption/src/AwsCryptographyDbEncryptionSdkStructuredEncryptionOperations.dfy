@@ -411,6 +411,15 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
                                                              else
                                                                SIGN_ONLY;
 
+      assert ValidParsedCryptoSchema(cryptoSchema, authSchema, tableName) by {
+        assert forall k <- cryptoSchema.Keys :: k in authSchema && authSchema[k].SIGN?;
+        assert forall k <- fieldMap :: authSchema[fieldMap[k]].SIGN?;
+        assert forall k <- fieldMap :: fieldMap[k] in cryptoSchema;
+        assert forall k <- authSchema | authSchema[k].SIGN? :: fieldMap[Paths.SimpleCanon(tableName, k)] in cryptoSchema;
+        assert forall k <- authSchema | authSchema[k].SIGN? :: k in cryptoSchema;
+        assert forall k <- authSchema | authSchema[k].SIGN? :: k in cryptoSchema.Keys;
+        assert forall v <- cryptoSchema.Values :: IsAuthAttr(v);
+      }
       assert forall k :: k in data.Keys && authSchema[k].SIGN? ==> Paths.SimpleCanon(tableName, k) in data_c.Keys;
 
       var c := DecryptCanonData(
@@ -730,7 +739,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     // Every field in the crypto map exists in the auth map as SIGN
     && (forall k <- cryptoSchema.Keys :: k in authSchema && authSchema[k].SIGN?)
        // The crypto map is not missing any SIGN fields from the auth map
-    && (forall kv <- authSchema.Items | kv.1.SIGN? :: kv.0 in cryptoSchema.Keys)
+    && (forall k <- authSchema | authSchema[k].SIGN? :: k in cryptoSchema.Keys)
        // Every field in the crypto map is ENCRYPT_AND_SIGN, SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT or SIGN_ONLY
     && (forall v <- cryptoSchema.Values :: IsAuthAttr(v))
   }
