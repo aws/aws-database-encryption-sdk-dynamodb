@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Amazon.DynamoDBv2.Model;
+using Amazon.DynamoDBv2;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
 
 public class GetEncryptedDataKeyDescriptionExample
@@ -12,6 +13,8 @@ public class GetEncryptedDataKeyDescriptionExample
     {
         var kmsKeyId = TestUtils.TEST_KMS_KEY_ID;
         var ddbTableName = TestUtils.TEST_DDB_TABLE_NAME;
+
+        var region = Amazon.RegionEndpoint.GetBySystemName("us-east-1");
 
         var ddbEnc = new DynamoDbEncryption(new DynamoDbEncryptionConfig());
 
@@ -22,7 +25,7 @@ public class GetEncryptedDataKeyDescriptionExample
             ["partition_key"] = new AttributeValue("BasicPutGetExample"),
             ["sort_key"] = new AttributeValue { N = "0" },
         };
-
+        
         // 4. Create the DynamoDb Encryption configuration for the table we will be writing to.
         Dictionary<String, DynamoDbTableEncryptionConfig> tableConfigs =
             new Dictionary<String, DynamoDbTableEncryptionConfig>();
@@ -33,10 +36,9 @@ public class GetEncryptedDataKeyDescriptionExample
             SortKeyName = "sort_key",
         };
         tableConfigs.Add(ddbTableName, config);
-
+        
         // 5. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
-        var ddb = new Client.DynamoDbClient(
-            new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs });
+        var ddb = new AmazonDynamoDBClient();
 
         GetItemRequest getRequest = new GetItemRequest
         {
@@ -62,7 +64,7 @@ public class GetEncryptedDataKeyDescriptionExample
         var encryptedDataKeyDescriptions = output.EncryptedDataKeyDescriptionOutput;
 
         Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderId == "aws-kms");
-        Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderId == kmsKeyId);
+        Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderId == kmsKeyId);        
     }
 }
 
