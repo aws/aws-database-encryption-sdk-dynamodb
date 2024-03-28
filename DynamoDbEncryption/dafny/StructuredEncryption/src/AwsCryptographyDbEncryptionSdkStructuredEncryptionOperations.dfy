@@ -341,14 +341,14 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert forall k :: k in data_c ==> k in signedFields_c;
     assert |data_c| == |trimmedSchema|;
 
-    Success(
-      EncryptCanonData(
-        encFields_c,
-        signedFields_c,
-        data_c,
-        trimmedSchema
-      )
-    )
+    var canon := EncryptCanonData(
+                   encFields_c,
+                   signedFields_c,
+                   data_c,
+                   trimmedSchema
+                 );
+    assert ValidEncryptCanon?(canon);
+    Success(canon)
   }
 
   // construct the DecryptCanon
@@ -429,7 +429,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
       assert exists tableName ::
           (forall k :: k in c.cryptoSchema ==> Paths.SimpleCanon(tableName, k) in c.data_c);
-
+      assert ValidDecryptCanon?(c);
       Success(c)
   }
 
