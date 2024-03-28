@@ -14,8 +14,6 @@ public class GetEncryptedDataKeyDescriptionExample
         var kmsKeyId = TestUtils.TEST_KMS_KEY_ID;
         var ddbTableName = TestUtils.TEST_DDB_TABLE_NAME;
 
-        var region = Amazon.RegionEndpoint.GetBySystemName("us-east-1");
-
         var ddbEnc = new DynamoDbEncryption(new DynamoDbEncryptionConfig());
 
         string header_column = "aws_dbe_head";
