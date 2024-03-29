@@ -27,9 +27,6 @@ module DynamoToStruct {
   // which provide conversion between an AttributeMap and a StructuredDataMap
 
   // Convert AttributeMap to StructuredDataMap
-  //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
-  //= type=implication
-  //# - MUST be a [Structured Data Map](../structured-encryption/structures.md#structured-data-map).
   function method {:opaque} ItemToStructured(item : AttributeMap) : (ret : Result<TerminalDataMap, Error>)
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
@@ -59,9 +56,6 @@ module DynamoToStruct {
   }
 
   // Convert StructuredDataMap to AttributeMap
-  //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
-  //= type=implication
-  //# - MUST be a [Structured Data Map](../structured-encryption/structures.md#structured-data-map).
   function method {:opaque} StructuredToItem(s : StructuredDataMap) : (ret : Result<AttributeMap, Error>)
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
     //= type=implication

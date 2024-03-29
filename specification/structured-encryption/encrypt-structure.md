@@ -51,7 +51,6 @@ For example the name of the table to hold the encrypted record.
 
 The [Structured Data](./structures.md#structured-data) to be encrypted.
 
-This Structured Data MUST be a [Structured Data Map](./structures.md#structured-data-map).
 This Structured Data MUST NOT already contain data located at the [header index](./header.md#header-index)
 or the [footer index](./footer.md#footer-index).
 

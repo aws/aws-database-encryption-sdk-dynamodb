@@ -147,40 +147,18 @@ No encryption or decryption is performed on the Terminal Data.
 
 [The Encryption Context as defined by the Material Providers Library specification.](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/master/framework/structures.md#encryption-context)
 
-### Structured Data Content
+### Structured Data
 
-Structured Data Content is a recursively defined structure that is intended to support
+Structured Data is intended to support
 the expression of most [JSON](https://datatracker.ietf.org/doc/html/rfc7159) and [XML](https://www.w3.org/TR/xml/) data.
 
-Structured Data Content is a union of one of three separate structures;
-Structured Data Content MUST be one of:
-- [Terminal Data](#terminal-data)
-- [Structured Data Map](#structured-data-map)
-- [Structured Data List](#structured-data-list)
-
-#### Structured Data
-
-A Structured Data MUST consist of:
-- a [Structured Data Content](#structured-data-content)
-- an OPTIONAL map of [Attributes](#structured-data-attributes)
+Structured Data is expressed as a [Structured Data Map](#structured-data-map)
 
 #### Structured Data Map
 
 A Structured Data Map MUST consist of:
-- A map strings to [Structured Data](#structured-data)
+- A map strings to [Terminal Data](#terminal-data)
   - This map MUST NOT allow duplicate key values 
-
-#### Structured Data List
-
-A Structured Data List MUST consist of:
-
-- A numerical-indexed array of [Structured Data](#structured-data).
-  - The max length of this list MUST be 2^64 - 1
-
-### Structured Data Attributes
-
-Structured Data Attributes MUST be map of strings to [Terminal Data](#terminal-data).
-This data is intended to be an equivalent to XML-like attributes.
 
 ### Terminal Data
 
