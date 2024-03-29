@@ -308,6 +308,70 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Extract() == UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo).Extract();
   }
 
+  method {:test} TestHeaderMultiDataKeyCase()
+  {
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
+    var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
+
+    var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
+
+    var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
+      Types.GetEncryptedDataKeyDescriptionInput(
+        input := Types.header(header := serializedHeader)
+      );
+
+    var actualDataKeyDescription := ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
+
+    expect actualDataKeyDescription.Success?;
+    expect |actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput| == |expectedHead.dataKeys|;
+    expect |actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput| > 0;
+
+    var i := 0;
+    while (i < |expectedHead.dataKeys|) {
+      expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderId).Success?;
+      expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderInfo).Success?;
+      expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Some?;
+
+      expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[i].keyProviderId == UTF8.Decode(expectedHead.dataKeys[i].keyProviderId).Extract();
+      expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Extract() == UTF8.Decode(expectedHead.dataKeys[i].keyProviderInfo).Extract();
+
+      i := i + 1;
+    }
+  }
+
+  method {:test} TestDDBItemInputMultiDataKeyCase()
+  {
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
+    var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
+
+    var attr := map["aws_dbe_head" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
+    var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
+
+
+    var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
+      Types.GetEncryptedDataKeyDescriptionInput(
+        input := Types.plaintextItem(plaintextItem := attr)
+      );
+
+    var actualDataKeyDescription := ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
+
+    expect actualDataKeyDescription.Success?;
+    expect |actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput| == |expectedHead.dataKeys|;
+    expect |actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput| > 0;
+
+    var i := 0;
+    while (i < |expectedHead.dataKeys|) {
+      expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderId).Success?;
+      expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderInfo).Success?;
+      expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Some?;
+
+      expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[i].keyProviderId == UTF8.Decode(expectedHead.dataKeys[i].keyProviderId).Extract();
+      expect actualDataKeyDescription.Extract().EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Extract() == UTF8.Decode(expectedHead.dataKeys[i].keyProviderInfo).Extract();
+
+      i := i + 1;
+    }
+  }
+
   method getBranchKeyVersion (expectedHead : PartialHeader)
     returns (expectedBranchKeyVersion : string)
   {
