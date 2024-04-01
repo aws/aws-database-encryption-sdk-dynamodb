@@ -231,7 +231,7 @@ _polymorph:
 	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $($(service_deps_var))) \
 	--namespace $($(namespace_var)) \
 	$(AWS_SDK_CMD) \
-	$(OUTPUT_LOCAL_SERVICE_$(SERVICE)) \
+	$(OUTPUT_LOCAL_SERVICE) \
 	";
 
 # Generates all target runtime code for all namespaces in this project.
