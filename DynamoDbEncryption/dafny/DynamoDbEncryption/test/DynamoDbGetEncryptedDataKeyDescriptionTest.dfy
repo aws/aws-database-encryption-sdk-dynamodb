@@ -47,7 +47,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
                                   keyProviderInfo := EncodeAscii("keyproviderInfo"),
                                   ciphertext := [1, 2, 3, 4, 5])
   const algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
-  
+
   method CreatePartialHeader(version : Version, flavor : Flavor, msgID : MessageID, legend : Legend, encContext : CMPEncryptionContext, dataKeyList : CMPEncryptedDataKeyList)
     returns (result: PartialHeader)
     ensures result.version == version
@@ -223,7 +223,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
       Types.GetEncryptedDataKeyDescriptionInput(
         input := Types.plaintextItem(plaintextItem := attr)
-      ); 
+      );
     var actualDataKeyDescription := ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
 
     expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderId).Success?;
