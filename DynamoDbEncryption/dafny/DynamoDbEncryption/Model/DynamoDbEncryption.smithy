@@ -43,7 +43,7 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
   ]
 )
 service DynamoDbEncryption {
-    version: "2024-03-06",
+    version: "2024-04-02",
     operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription],
     errors: [ DynamoDbEncryptionException ]
 }
