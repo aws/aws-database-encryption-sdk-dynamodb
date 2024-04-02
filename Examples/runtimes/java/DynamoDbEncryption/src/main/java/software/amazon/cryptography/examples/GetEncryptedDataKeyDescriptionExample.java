@@ -20,62 +20,58 @@ public class GetEncryptedDataKeyDescriptionExample{
                 String tableName, String partitionKey, String partitionKeyVal, String sortKeyName, String sortKeyValue, 
                 String expectedKeyProviderId, String expectedKeyProviderInfo, String expectedBranchKeyId, String expectedBranchKeyVersion
         ) {
-        DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
-                .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
-                .build();
 
-        String header_column = "aws_dbe_head";
-
+        // 1. Create a new AWS SDK DynamoDb client. This client will be used to get item from the DynamoDB table
         DynamoDbClient ddb = DynamoDbClient.builder()
-                .region(Region.US_WEST_2)
-                .build();
+                .build(); 
 
+        // 2. Get item from the DynamoDB table. This item will be used to Get Encrypted DataKey Description
         HashMap<String, AttributeValue> keyToGet = new HashMap<>();
         keyToGet.put(partitionKey, AttributeValue.builder()
                 .s(partitionKeyVal)
                 .build());
-
         keyToGet.put(sortKeyName, AttributeValue.builder()
                 .n(sortKeyValue)
                 .build());
-
-        // ddbEnc.GetHeader(ddbEnc.GetHeaderInput.builder().build());
         GetItemRequest request = GetItemRequest.builder()
         .tableName(tableName)
         .key(keyToGet)
         .build();
-
         Map<String, AttributeValue> returnedItem = ddb.getItem(request).item();
-
         if (returnedItem.isEmpty())
                 System.out.format("No item found with the key %s!\n", partitionKey);
 
-        ByteBuffer header = returnedItem.get(header_column).b().asByteBuffer();
-
+        // 3. Prepare the input for GetEncryptedDataKeyDescription method.
+        // This input can be a DynamoDB item or a header. For now, we are giving input as a DynamoDB item
+        // but users can also extract the header from the column "aws_dbe_head" in the DynamoDB table  
+        // and use it for GetEncryptedDataKeyDescription method.
+        DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
+                .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
+                .build();
         GetEncryptedDataKeyDescriptionUnion InputUnion = GetEncryptedDataKeyDescriptionUnion.builder()
         .plaintextItem(returnedItem)
         .build();
-
-        // GetEncryptedDataKeyDescriptionUnion InputUnion = GetEncryptedDataKeyDescriptionUnion.builder()
-        // .header(header)
-        // .build();
-        
-        // Create input 
         software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput input = GetEncryptedDataKeyDescriptionInput.builder()
         .input(InputUnion)
         .build();
-        
-        // Call GetHeader method
         GetEncryptedDataKeyDescriptionOutput output = ddbEnc.GetEncryptedDataKeyDescription(input);
+        
+        // In the following code, we are giving input as header instead of a complete DynamoDB item
+        // This code is provided solely to demo how the alternative approach works. So, it is commented.
 
+        // String header_column = "aws_dbe_head";
+        // ByteBuffer header = returnedItem.get(header_column).b().asByteBuffer();
+        // GetEncryptedDataKeyDescriptionUnion InputUnion = GetEncryptedDataKeyDescriptionUnion.builder()
+        // .header(header)
+        // .build();
+
+        // Assert everything
         assert output.EncryptedDataKeyDescriptionOutput().get(0).keyProviderId().equals(expectedKeyProviderId);
-
         if(expectedKeyProviderId.startsWith("aws-kms")) {
                 assert output.EncryptedDataKeyDescriptionOutput().get(0).keyProviderInfo().equals(expectedKeyProviderInfo);
         } else {
                 assert output.EncryptedDataKeyDescriptionOutput().get(0).keyProviderInfo() == expectedKeyProviderInfo; 
         }
-
         if(output.EncryptedDataKeyDescriptionOutput().get(0).keyProviderId().equals("aws-kms-hierarchy")) {
                 assert output.EncryptedDataKeyDescriptionOutput().get(0).branchKeyId().equals(expectedBranchKeyId);
                 assert output.EncryptedDataKeyDescriptionOutput().get(0).branchKeyVersion().equals(expectedBranchKeyVersion);
