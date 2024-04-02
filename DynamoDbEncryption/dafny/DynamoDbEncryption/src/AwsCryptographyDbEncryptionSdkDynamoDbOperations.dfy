@@ -9,9 +9,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
   import UUID
   import AlgorithmSuites
   import DynamoToStruct
-  import opened DynamoDbEncryptionUtil
-
   import Header = StructuredEncryptionHeader
+  import opened DynamoDbEncryptionUtil
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {true}
@@ -91,7 +90,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
 
       var extractedKeyProviderId := UTF8.Decode(datakeys[i].keyProviderId).Extract();
       var extractedKeyProviderIdInfo := UTF8.Decode(datakeys[i].keyProviderInfo).Extract();
-
       if |extractedKeyProviderId| < 7 || extractedKeyProviderId[0..7] != "aws-kms" {
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
           keyProviderId := extractedKeyProviderId,
@@ -111,14 +109,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
 
         var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := 12 + 16;
         var EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + 16;
-
         :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
         :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
         var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
-
         :- Need(UUID.FromByteArray(branchKeyVersionUuid).Success?, E("Failed to convert UUID from byte array."));
         var expectedBranchKeyVersion := UUID.FromByteArray(branchKeyVersionUuid).Extract();
-
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
           keyProviderId := extractedKeyProviderId,
           keyProviderInfo := Some(extractedKeyProviderIdInfo),
