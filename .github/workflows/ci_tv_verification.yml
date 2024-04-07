@@ -1,0 +1,64 @@
+# This workflow performs verification checks
+name: test vector verification
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    # Manual trigger for this workflow, either the normal version
+    # or the nightly build that uses the latest Dafny prerelease
+    # (accordingly to the "nightly" parameter).
+    inputs:
+      nightly:
+        description: 'Run the nightly build'
+        required: false
+        type: boolean
+  schedule:
+    # Nightly build against Dafny's nightly prereleases,
+    # for early warning of verification issues or regressions.
+    # Timing chosen to be adequately after Dafny's own nightly build,
+    # but this might need to be tweaked:
+    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
+    - cron: "30 16 * * *"
+
+jobs:
+  verification:
+    # Don't run the nightly build on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    strategy:
+      matrix:
+        # Break up verification between namespaces over multiple
+        # actions to take advantage of parallelization
+        service: [
+          DynamoDbEncryption
+        ]
+        os: [
+          macos-latest,
+        ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.7.0
+        with:
+          # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
+          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.2.0' }}
+
+      - name: Verify ${{ matrix.library }} Dafny code
+        shell: bash
+        working-directory: ./TestVectors
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make verify_service CORES=$CORES SERVICE=${{ matrix.service }}
+
+      - name: Check solver resource use
+        shell: bash
+        working-directory: ./TestVectors
+        run: |
+          make dafny-reportgenerator
