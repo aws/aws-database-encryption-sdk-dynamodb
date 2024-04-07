@@ -32,7 +32,7 @@ jobs:
         # Break up verification between namespaces over multiple
         # actions to take advantage of parallelization
         service: [
-          DynamoDbEncryption
+          DDBEncryption
         ]
         os: [
           macos-latest,
