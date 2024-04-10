@@ -289,8 +289,6 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
         input := Types.plaintextItem(plaintextItem := attr)
       );
     var actualDataKeyDescription :- expect ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
-    var expectedkeyProviderId :- expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderId);
-    var expectedkeyProviderInfo :- expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo);
 
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| == |expectedHead.dataKeys|;
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| > 0;
