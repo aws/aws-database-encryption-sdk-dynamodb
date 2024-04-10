@@ -85,42 +85,43 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
           branchKeyVersion := None
         );
       }
-
-      :- Need(deserializedHeader.flavor == 0 || deserializedHeader.flavor == 1, E("Invalid format flavor."));
-      var algorithmSuite;
-      //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
-      //= type=implication
-      //# - This operation MUST extract the Format Flavor from the deserialize header.
-      if deserializedHeader.flavor == 0{
-        algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
-      } else {
-        algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
-      }
-
-      var extractedKeyProviderIdInfo :- UTF8.Decode(datakeys[i].keyProviderInfo).MapFailure(e => E(e));
-
-      if extractedKeyProviderId == "aws-kms-hierarchy" {
-        var providerWrappedMaterial :- EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).MapFailure(e => AwsCryptographyMaterialProviders(e));
-        var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := SALT_LENGTH + IV_LENGTH;
-        var EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + VERSION_LENGTH;
-        :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
-        :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
-        var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
-        var expectedBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E(e));
-        singleDataKeyOutput := EncryptedDataKeyDescription(
-          keyProviderId := extractedKeyProviderId,
-          keyProviderInfo := Some(extractedKeyProviderIdInfo),
-          branchKeyId := Some(extractedKeyProviderIdInfo),
-          branchKeyVersion := Some(expectedBranchKeyVersion)
-        );
-      }
       else {
-        singleDataKeyOutput := EncryptedDataKeyDescription(
-          keyProviderId := extractedKeyProviderId,
-          keyProviderInfo := Some(extractedKeyProviderIdInfo),
-          branchKeyId := None,
-          branchKeyVersion := None
-        );
+        :- Need(deserializedHeader.flavor == 0 || deserializedHeader.flavor == 1, E("Invalid format flavor."));
+        var algorithmSuite;
+        //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
+        //= type=implication
+        //# - This operation MUST extract the Format Flavor from the deserialize header.
+        if deserializedHeader.flavor == 0{
+          algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
+        } else {
+          algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
+        }
+
+        var extractedKeyProviderIdInfo :- UTF8.Decode(datakeys[i].keyProviderInfo).MapFailure(e => E(e));
+
+        if extractedKeyProviderId == "aws-kms-hierarchy" {
+          var providerWrappedMaterial :- EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).MapFailure(e => AwsCryptographyMaterialProviders(e));
+          var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := SALT_LENGTH + IV_LENGTH;
+          var EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + VERSION_LENGTH;
+          :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
+          :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
+          var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
+          var expectedBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E(e));
+          singleDataKeyOutput := EncryptedDataKeyDescription(
+            keyProviderId := extractedKeyProviderId,
+            keyProviderInfo := Some(extractedKeyProviderIdInfo),
+            branchKeyId := Some(extractedKeyProviderIdInfo),
+            branchKeyVersion := Some(expectedBranchKeyVersion)
+          );
+        }
+        else {
+          singleDataKeyOutput := EncryptedDataKeyDescription(
+            keyProviderId := extractedKeyProviderId,
+            keyProviderInfo := Some(extractedKeyProviderIdInfo),
+            branchKeyId := None,
+            branchKeyVersion := None
+          );
+        }
       }
       list := list + [singleDataKeyOutput];
     }
