@@ -262,7 +262,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
         input := Types.header(header := serializedHeader)
       );
     var actualDataKeyDescription :- expect ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
-    
+
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| == |expectedHead.dataKeys|;
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| > 0;
 
@@ -270,7 +270,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     while (i < |expectedHead.dataKeys|) {
       var expectedkeyProviderId :- expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderId);
       var expectedkeyProviderInfo :- expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderInfo);
-      
+
       expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Some?;
       expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderId == expectedkeyProviderId;
       expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Extract() == expectedkeyProviderInfo;
