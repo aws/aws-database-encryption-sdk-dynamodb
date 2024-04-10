@@ -308,11 +308,9 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
   method getBranchKeyVersion (expectedHead : PartialHeader)
     returns (expectedBranchKeyVersion : string)
   {
-    expect EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Success?;
-    var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite).Extract();
+    var providerWrappedMaterial :- expect EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite);
     expect |providerWrappedMaterial| >= (28 + 16);
-    var expectedBranchKeyVersionResult := UUID.FromByteArray(providerWrappedMaterial[28 .. (28 + 16)]);
-    expect expectedBranchKeyVersionResult.Success?;
-    expectedBranchKeyVersion := expectedBranchKeyVersionResult.Extract();
+    var expectedBranchKeyVersionResult :- expect UUID.FromByteArray(providerWrappedMaterial[28 .. (28 + 16)]);
+    expectedBranchKeyVersion := expectedBranchKeyVersionResult;
   }
 }
