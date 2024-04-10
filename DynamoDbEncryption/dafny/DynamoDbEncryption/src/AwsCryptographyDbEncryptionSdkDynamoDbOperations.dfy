@@ -85,8 +85,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
       }
 
-      :- Need(UTF8.Decode(datakeys[i].keyProviderInfo).Success?, E("Failed to extract keyProviderInfo."));
-      var extractedKeyProviderIdInfo := UTF8.Decode(datakeys[i].keyProviderInfo).MapFailure(e => E("Failed to deserialize header."));
+      var extractedKeyProviderIdInfo :- UTF8.Decode(datakeys[i].keyProviderInfo).MapFailure(e => E(e));
 
       if extractedKeyProviderId == "aws-kms-hierarchy" {
         var providerWrappedMaterial :- EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).MapFailure(e => E("Failed to get provider wrapped material" ));
@@ -99,18 +98,18 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
         :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
         var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
-        var expectedBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E("Failed to convert UUID from byte array."));
+        var expectedBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E(e));
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
           keyProviderId := extractedKeyProviderId,
-          keyProviderInfo := Some(extractedKeyProviderIdInfo.value),
-          branchKeyId := Some(extractedKeyProviderIdInfo.value),
+          keyProviderInfo := Some(extractedKeyProviderIdInfo),
+          branchKeyId := Some(extractedKeyProviderIdInfo),
           branchKeyVersion := Some(expectedBranchKeyVersion)
         );
       }
       else {
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
           keyProviderId := extractedKeyProviderId,
-          keyProviderInfo := Some(extractedKeyProviderIdInfo.value),
+          keyProviderInfo := Some(extractedKeyProviderIdInfo),
           branchKeyId := None,
           branchKeyVersion := None
         );
