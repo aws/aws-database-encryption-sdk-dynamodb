@@ -12,6 +12,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
   import Header = StructuredEncryptionHeader
   import opened DynamoDbEncryptionUtil
 
+  const SALT_LENGTH := 16
+  const IV_LENGTH := 12
+  const VERSION_LENGTH := 16
+
   predicate ValidInternalConfig?(config: InternalConfig)
   {true}
 
@@ -91,8 +95,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         // The ciphertext structure in the hierarchy keyring contains Salt and IV before Version.
         // The length of Salt is 16 and IV is 12 bytes. The length of Version is 16 bytes.
         // https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-hierarchical-keyring.md#ciphertext
-        var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := 12 + 16;
-        var EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + 16;
+        var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := SALT_LENGTH + IV_LENGTH;
+        var EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + VERSION_LENGTH;
         :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
         :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
         var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];

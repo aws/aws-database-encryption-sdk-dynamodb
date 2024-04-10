@@ -263,7 +263,6 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
       );
     var actualDataKeyDescription :- expect ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
     
-
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| == |expectedHead.dataKeys|;
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| > 0;
 
