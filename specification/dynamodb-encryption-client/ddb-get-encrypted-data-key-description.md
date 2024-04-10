@@ -17,7 +17,7 @@ This operation MUST take in either of the following:
 
 ### Output
 
-This operation MUST return a list of following:
+This operation MUST return the following:
 
 - [keyProviderId](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-id)
 - [keyProviderInfo](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-information) (only for AWS Cryptographic Materials Provider Keyring)
@@ -26,9 +26,8 @@ This operation MUST return a list of following:
 
 ### Behavior
 
-This operation should behave in following ways:
-
 - The operation MUST NEVER DECRYPT the Data Keys.
+- The operation MUST NOT access the network in any way.
 - If the input is a encrypted DynamoDB item, it MUST attempt to extract "aws_dbe_head" attribute from the DynamoDB item to get binary header. 
 - This operation MUST deserialize the header bytes according to the header format.
 - This operation MUST extract the Format Flavor from the deserialize header. Format Flavor is used to identify the algorithm suite. 
