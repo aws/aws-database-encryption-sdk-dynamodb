@@ -8,7 +8,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
   import EdkWrapping
   import UUID
   import AlgorithmSuites
-  import DynamoToStruct
   import Header = StructuredEncryptionHeader
   import opened DynamoDbEncryptionUtil
 
@@ -60,7 +59,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
       case header(headerItem) =>
         header := headerItem;
     }
-    var deserializedHeader :- Header.PartialDeserialize(header).MapFailure(e => E("Failed to deserialize header."));
+    var deserializedHeader :- Header.PartialDeserialize(header).MapFailure(e => AwsCryptographyDbEncryptionSdkStructuredEncryption(e));
     var datakeys := deserializedHeader.dataKeys;
     var list : EncryptedDataKeyDescriptionList := [];
     for i := 0 to |datakeys| {
@@ -88,7 +87,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
       var extractedKeyProviderIdInfo :- UTF8.Decode(datakeys[i].keyProviderInfo).MapFailure(e => E(e));
 
       if extractedKeyProviderId == "aws-kms-hierarchy" {
-        var providerWrappedMaterial :- EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).MapFailure(e => E("Failed to get provider wrapped material" ));
+        var providerWrappedMaterial :- EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).MapFailure(e => AwsCryptographyMaterialProviders(e));
 
         // The ciphertext structure in the hierarchy keyring contains Salt and IV before Version.
         // The length of Salt is 16 and IV is 12 bytes. The length of Version is 16 bytes.
