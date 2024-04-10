@@ -53,10 +53,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     var header;
     match input.input
     {
-      case plaintextItem(plaintextItem) =>{
-        :- Need(DynamoToStruct.ItemToStructured(plaintextItem).Success?, E("Failed to convert AttributeMap to StructuredDataMap."));
-        :- Need("aws_dbe_head" in DynamoToStruct.ItemToStructured(plaintextItem).Extract(), E("aws_dbe_head is not present in the attribute map."));
-        header := DynamoToStruct.ItemToStructured(plaintextItem).Extract()["aws_dbe_head"].content.Terminal.value;
+      case plaintextItem(plainTextItem) =>{
+        :- Need("aws_dbe_head" in plainTextItem && plainTextItem["aws_dbe_head"].B?, E("Header not found in the DynamoDB item."));
+        header := plainTextItem["aws_dbe_head"].B;
       }
       case header(headerItem) =>
         header := headerItem;
