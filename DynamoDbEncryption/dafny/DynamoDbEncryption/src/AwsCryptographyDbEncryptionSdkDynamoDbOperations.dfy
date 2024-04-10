@@ -52,6 +52,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     var header;
     match input.input
     {
+      //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
+      //= type=implication
+      //# - If the input is a encrypted DynamoDB item, it MUST attempt to extract "aws_dbe_head" attribute from the DynamoDB item to get binary header.
       case plaintextItem(plainTextItem) =>{
         :- Need("aws_dbe_head" in plainTextItem && plainTextItem["aws_dbe_head"].B?, E("Header not found in the DynamoDB item."));
         header := plainTextItem["aws_dbe_head"].B;
@@ -59,9 +62,18 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
       case header(headerItem) =>
         header := headerItem;
     }
+    //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
+    //= type=implication
+    //# - This operation MUST deserialize the header bytes according to the header format.
     var deserializedHeader :- Header.PartialDeserialize(header).MapFailure(e => AwsCryptographyDbEncryptionSdkStructuredEncryption(e));
+    //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
+    //= type=implication
+    //# - This operation MUST extract the dataKeys from the deserialize header.
     var datakeys := deserializedHeader.dataKeys;
     var list : EncryptedDataKeyDescriptionList := [];
+    //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
+    //= type=implication
+    //# - For every Data Key in Data Keys, the operation MUST attempt to extract a description of the Data Key.
     for i := 0 to |datakeys| {
       var singleDataKeyOutput : EncryptedDataKeyDescription;
       var extractedKeyProviderId :- UTF8.Decode(datakeys[i].keyProviderId).MapFailure(e => E(e));
@@ -74,10 +86,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         );
       }
 
-      // Format flavor is either 0 or 1
-      // https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#format-flavor
       :- Need(deserializedHeader.flavor == 0 || deserializedHeader.flavor == 1, E("Invalid format flavor."));
       var algorithmSuite;
+      //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
+      //= type=implication
+      //# - This operation MUST extract the Format Flavor from the deserialize header.
       if deserializedHeader.flavor == 0{
         algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
       } else {
@@ -88,10 +101,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
 
       if extractedKeyProviderId == "aws-kms-hierarchy" {
         var providerWrappedMaterial :- EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).MapFailure(e => AwsCryptographyMaterialProviders(e));
-
-        // The ciphertext structure in the hierarchy keyring contains Salt and IV before Version.
-        // The length of Salt is 16 and IV is 12 bytes. The length of Version is 16 bytes.
-        // https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-hierarchical-keyring.md#ciphertext
         var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := SALT_LENGTH + IV_LENGTH;
         var EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + VERSION_LENGTH;
         :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));

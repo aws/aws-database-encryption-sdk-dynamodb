@@ -59,6 +59,7 @@ structure GetEncryptedDataKeyDescriptionInput {
 }
 
 //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#input
+//= type=implication
 //# This operation MUST take in either of the following:
 //# - A binary [header](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md)
 //# - A [encrypted DynamoDB item](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/ff9f08a355a20c81540e4ca652e09aaeffe90c4b/specification/dynamodb-encryption-client/encrypt-item.md#encrypted-dynamodb-item)
@@ -76,6 +77,14 @@ structure GetEncryptedDataKeyDescriptionOutput {
 list EncryptedDataKeyDescriptionList {
   member: EncryptedDataKeyDescription
 }
+
+//= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#output
+//= type=implication
+//# This operation MUST return the following:
+//# - [keyProviderId](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-id)
+//#- [keyProviderInfo](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-information) (only for AWS Cryptographic Materials Provider Keyring)
+//#- [branchKeyId](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-information) (only for hierarchy keyring)
+//#- [branchKeyVersion](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-information) (only for hierarchy keyring)
 
 structure EncryptedDataKeyDescription {
   @required
