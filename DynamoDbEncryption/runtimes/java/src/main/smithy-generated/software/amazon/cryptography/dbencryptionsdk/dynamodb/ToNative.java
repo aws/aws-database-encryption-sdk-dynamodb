@@ -30,7 +30,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncry
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedDataKeyDescriptionOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedDataKeyDescription;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyOutput;
@@ -235,9 +235,9 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static EncryptedDataKeyDescriptionOutput EncryptedDataKeyDescriptionOutput(
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.EncryptedDataKeyDescriptionOutput dafnyValue) {
-    EncryptedDataKeyDescriptionOutput.Builder nativeBuilder = EncryptedDataKeyDescriptionOutput.builder();
+  public static EncryptedDataKeyDescription EncryptedDataKeyDescription(
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.EncryptedDataKeyDescription dafnyValue) {
+    EncryptedDataKeyDescription.Builder nativeBuilder = EncryptedDataKeyDescription.builder();
     nativeBuilder.keyProviderId(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyProviderId()));
     if (dafnyValue.dtor_keyProviderInfo().is_Some()) {
       nativeBuilder.keyProviderInfo(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyProviderInfo().dtor_value()));
@@ -575,11 +575,11 @@ public class ToNative {
         software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::ConstructorPart);
   }
 
-  public static List<EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionList(
-      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.EncryptedDataKeyDescriptionOutput> dafnyValue) {
+  public static List<EncryptedDataKeyDescription> EncryptedDataKeyDescriptionList(
+      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.EncryptedDataKeyDescription> dafnyValue) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
-        software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::EncryptedDataKeyDescriptionOutput);
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::EncryptedDataKeyDescription);
   }
 
   public static List<EncryptedPart> EncryptedPartsList(

@@ -249,13 +249,13 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
     nameonly tableEncryptionConfigs: DynamoDbTableEncryptionConfigList
   )
-  type EncryptedDataKeyDescriptionList = seq<EncryptedDataKeyDescriptionOutput>
-  datatype EncryptedDataKeyDescriptionOutput = | EncryptedDataKeyDescriptionOutput (
+  datatype EncryptedDataKeyDescription = | EncryptedDataKeyDescription (
     nameonly keyProviderId: string ,
     nameonly keyProviderInfo: Option<string> := Option.None ,
     nameonly branchKeyId: Option<string> := Option.None ,
     nameonly branchKeyVersion: Option<string> := Option.None
   )
+  type EncryptedDataKeyDescriptionList = seq<EncryptedDataKeyDescription>
   datatype EncryptedPart = | EncryptedPart (
     nameonly name: string ,
     nameonly prefix: Prefix

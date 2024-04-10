@@ -63,10 +63,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     var datakeys := deserializedHeader.dataKeys;
     var list : EncryptedDataKeyDescriptionList := [];
     for i := 0 to |datakeys| {
-      var singleDataKeyOutput : EncryptedDataKeyDescriptionOutput;
+      var singleDataKeyOutput : EncryptedDataKeyDescription;
       var extractedKeyProviderId :- UTF8.Decode(datakeys[i].keyProviderId).MapFailure(e => E(e));
       if !("aws-kms" < extractedKeyProviderId) {
-        singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
+        singleDataKeyOutput := EncryptedDataKeyDescription(
           keyProviderId := extractedKeyProviderId,
           keyProviderInfo := None,
           branchKeyId := None,
@@ -98,7 +98,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
         var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
         var expectedBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E(e));
-        singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
+        singleDataKeyOutput := EncryptedDataKeyDescription(
           keyProviderId := extractedKeyProviderId,
           keyProviderInfo := Some(extractedKeyProviderIdInfo),
           branchKeyId := Some(extractedKeyProviderIdInfo),
@@ -106,7 +106,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         );
       }
       else {
-        singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
+        singleDataKeyOutput := EncryptedDataKeyDescription(
           keyProviderId := extractedKeyProviderId,
           keyProviderInfo := Some(extractedKeyProviderIdInfo),
           branchKeyId := None,

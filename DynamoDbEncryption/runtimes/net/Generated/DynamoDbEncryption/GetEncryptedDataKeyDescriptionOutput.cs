@@ -7,8 +7,8 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
 {
   public class GetEncryptedDataKeyDescriptionOutput
   {
-    private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedDataKeyDescriptionOutput> _encryptedDataKeyDescriptionOutput;
-    public System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionOutput
+    private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedDataKeyDescription> _encryptedDataKeyDescriptionOutput;
+    public System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedDataKeyDescription> EncryptedDataKeyDescriptionOutput
     {
       get { return this._encryptedDataKeyDescriptionOutput; }
       set { this._encryptedDataKeyDescriptionOutput = value; }

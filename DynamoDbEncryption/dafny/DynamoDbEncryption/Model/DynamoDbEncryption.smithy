@@ -58,6 +58,11 @@ structure GetEncryptedDataKeyDescriptionInput {
     input: GetEncryptedDataKeyDescriptionUnion
 }
 
+//= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#input
+//# This operation MUST take in either of the following:
+//# - A binary [header](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md)
+//# - A [encrypted DynamoDB item](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/ff9f08a355a20c81540e4ca652e09aaeffe90c4b/specification/dynamodb-encryption-client/encrypt-item.md#encrypted-dynamodb-item)
+
 union GetEncryptedDataKeyDescriptionUnion {
   header: Blob,
   plaintextItem: AttributeMap,
@@ -69,10 +74,10 @@ structure GetEncryptedDataKeyDescriptionOutput {
 }
 
 list EncryptedDataKeyDescriptionList {
-  member: EncryptedDataKeyDescriptionOutput
+  member: EncryptedDataKeyDescription
 }
 
-structure EncryptedDataKeyDescriptionOutput {
+structure EncryptedDataKeyDescription {
   @required
   keyProviderId: String,
 

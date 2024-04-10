@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class GetEncryptedDataKeyDescriptionOutput {
-  private final List<EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionOutput;
+  private final List<EncryptedDataKeyDescription> EncryptedDataKeyDescriptionOutput;
 
   protected GetEncryptedDataKeyDescriptionOutput(BuilderImpl builder) {
     this.EncryptedDataKeyDescriptionOutput = builder.EncryptedDataKeyDescriptionOutput();
   }
 
-  public List<EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionOutput() {
+  public List<EncryptedDataKeyDescription> EncryptedDataKeyDescriptionOutput() {
     return this.EncryptedDataKeyDescriptionOutput;
   }
 
@@ -27,15 +27,15 @@ public class GetEncryptedDataKeyDescriptionOutput {
 
   public interface Builder {
     Builder EncryptedDataKeyDescriptionOutput(
-        List<EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionOutput);
+        List<EncryptedDataKeyDescription> EncryptedDataKeyDescriptionOutput);
 
-    List<EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionOutput();
+    List<EncryptedDataKeyDescription> EncryptedDataKeyDescriptionOutput();
 
     GetEncryptedDataKeyDescriptionOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected List<EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionOutput;
+    protected List<EncryptedDataKeyDescription> EncryptedDataKeyDescriptionOutput;
 
     protected BuilderImpl() {
     }
@@ -45,12 +45,12 @@ public class GetEncryptedDataKeyDescriptionOutput {
     }
 
     public Builder EncryptedDataKeyDescriptionOutput(
-        List<EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionOutput) {
+        List<EncryptedDataKeyDescription> EncryptedDataKeyDescriptionOutput) {
       this.EncryptedDataKeyDescriptionOutput = EncryptedDataKeyDescriptionOutput;
       return this;
     }
 
-    public List<EncryptedDataKeyDescriptionOutput> EncryptedDataKeyDescriptionOutput() {
+    public List<EncryptedDataKeyDescription> EncryptedDataKeyDescriptionOutput() {
       return this.EncryptedDataKeyDescriptionOutput;
     }
 

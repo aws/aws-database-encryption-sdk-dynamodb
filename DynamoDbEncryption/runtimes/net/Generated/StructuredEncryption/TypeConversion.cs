@@ -921,13 +921,13 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     {
       switch (value)
       {
-        case software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_AwsCryptographyMaterialProviders dafnyVal:
-          return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
-            dafnyVal._AwsCryptographyMaterialProviders
-          );
         case software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_AwsCryptographyPrimitives dafnyVal:
           return AWS.Cryptography.Primitives.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyPrimitives
+          );
+        case software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_AwsCryptographyMaterialProviders dafnyVal:
+          return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
+            dafnyVal._AwsCryptographyMaterialProviders
           );
         case software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_StructuredEncryptionException dafnyVal:
           return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S29_StructuredEncryptionException(dafnyVal);
