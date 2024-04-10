@@ -273,7 +273,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
       expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Some?;
       expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderId == expectedkeyProviderId;
-      expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Extract() == expectedkeyProviderInfo;
+      expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.value == expectedkeyProviderInfo;
       i := i + 1;
     }
   }
@@ -300,7 +300,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
       expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Some?;
       expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderId == expectedkeyProviderId;
-      expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.Extract() == expectedkeyProviderInfo;
+      expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[i].keyProviderInfo.value == expectedkeyProviderInfo;
       i := i + 1;
     }
   }
