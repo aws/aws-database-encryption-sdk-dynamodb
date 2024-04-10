@@ -45,19 +45,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
   method GetEncryptedDataKeyDescription(config: InternalConfig, input: GetEncryptedDataKeyDescriptionInput)
     returns (output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
     ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
-    ensures output.Success? ==> (
-                match input.input {
-                  case plaintextItem(item) =>
-                    DynamoToStruct.ItemToStructured(item).Success?
-                    && var extracted := DynamoToStruct.ItemToStructured(item).Extract();
-                    && var keys := extracted.Keys;
-                    && "aws_dbe_head" in DynamoToStruct.ItemToStructured(item).Extract()
-                    && var header := DynamoToStruct.ItemToStructured(item).Extract()["aws_dbe_head"].content.Terminal.value;
-                    && Header.PartialDeserialize(header).Success?
-                  case header(header) =>
-                    Header.PartialDeserialize(header).Success?
-                }
-              )
   {
     var header;
     match input.input
@@ -67,20 +54,16 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         :- Need("aws_dbe_head" in DynamoToStruct.ItemToStructured(plaintextItem).Extract(), E("aws_dbe_head is not present in the attribute map."));
         header := DynamoToStruct.ItemToStructured(plaintextItem).Extract()["aws_dbe_head"].content.Terminal.value;
       }
-      case header(headeritem) =>
-        header := headeritem;
+      case header(headerItem) =>
+        header := headerItem;
     }
-    :- Need(Header.PartialDeserialize(header).Success?, E("Failed to deserialize header."));
-    var deserializedHeader := Header.PartialDeserialize(header);
-    var datakeys := deserializedHeader.Extract().dataKeys;
+    var deserializedHeader :- Header.PartialDeserialize(header).MapFailure(e => E("Failed to deserialize header."));
+    var datakeys := deserializedHeader.dataKeys;
     var list : EncryptedDataKeyDescriptionList := [];
     for i := 0 to |datakeys| {
       var singleDataKeyOutput : EncryptedDataKeyDescriptionOutput;
-
-      :- Need(UTF8.Decode(datakeys[i].keyProviderId).Success?, E("Failed to extract keyProviderId."));
-      var extractedKeyProviderId := UTF8.Decode(datakeys[i].keyProviderId).Extract();
-
-      if |extractedKeyProviderId| < 7 || extractedKeyProviderId[0..7] != "aws-kms" {
+      var extractedKeyProviderId :- UTF8.Decode(datakeys[i].keyProviderId).MapFailure(e => E(e));
+      if !("aws-kms" < extractedKeyProviderId) {
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
           keyProviderId := extractedKeyProviderId,
           keyProviderInfo := None,
@@ -91,20 +74,19 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
 
       // Format flavor is either 0 or 1
       // https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#format-flavor
-      :- Need(deserializedHeader.Extract().flavor == 0 || deserializedHeader.Extract().flavor == 1, E("Invalid format flavor."));
+      :- Need(deserializedHeader.flavor == 0 || deserializedHeader.flavor == 1, E("Invalid format flavor."));
       var algorithmSuite;
-      if deserializedHeader.Extract().flavor == 0{
+      if deserializedHeader.flavor == 0{
         algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
       } else {
         algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
       }
 
       :- Need(UTF8.Decode(datakeys[i].keyProviderInfo).Success?, E("Failed to extract keyProviderInfo."));
-      var extractedKeyProviderIdInfo := UTF8.Decode(datakeys[i].keyProviderInfo).Extract();
+      var extractedKeyProviderIdInfo := UTF8.Decode(datakeys[i].keyProviderInfo).MapFailure(e => E("Failed to deserialize header."));
 
       if extractedKeyProviderId == "aws-kms-hierarchy" {
-        :- Need(EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).Success?, E("Failed to get provider wrapped material."));
-        var providerWrappedMaterial := EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).Extract();
+        var providerWrappedMaterial :- EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).MapFailure(e => E("Failed to get provider wrapped material" ));
 
         // The ciphertext structure in the hierarchy keyring contains Salt and IV before Version.
         // The length of Salt is 16 and IV is 12 bytes. The length of Version is 16 bytes.
@@ -114,19 +96,18 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
         :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
         var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
-        :- Need(UUID.FromByteArray(branchKeyVersionUuid).Success?, E("Failed to convert UUID from byte array."));
-        var expectedBranchKeyVersion := UUID.FromByteArray(branchKeyVersionUuid).Extract();
+        var expectedBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E("Failed to convert UUID from byte array."));
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
           keyProviderId := extractedKeyProviderId,
-          keyProviderInfo := Some(extractedKeyProviderIdInfo),
-          branchKeyId := Some(extractedKeyProviderIdInfo),
+          keyProviderInfo := Some(extractedKeyProviderIdInfo.value),
+          branchKeyId := Some(extractedKeyProviderIdInfo.value),
           branchKeyVersion := Some(expectedBranchKeyVersion)
         );
       }
       else {
         singleDataKeyOutput := EncryptedDataKeyDescriptionOutput(
           keyProviderId := extractedKeyProviderId,
-          keyProviderInfo := Some(extractedKeyProviderIdInfo),
+          keyProviderInfo := Some(extractedKeyProviderIdInfo.value),
           branchKeyId := None,
           branchKeyVersion := None
         );
