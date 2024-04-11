@@ -55,22 +55,22 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     output: Result<EncryptStructureOutput, Error>) {
     // Ensure the CryptoSchema in the ParsedHeader matches the input crypto Schema, minus any DO_NOTHING terminals
     output.Success? ==>
-          // For now we only support encrypting flat maps
-          && var headerSchema := output.value.cryptoSchema;
-          && var inputSchema := input.cryptoSchema;
-          // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
-          && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
+      // For now we only support encrypting flat maps
+      && var headerSchema := output.value.cryptoSchema;
+      && var inputSchema := input.cryptoSchema;
+      // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
+      && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
   }
 
   predicate DecryptStructureEnsuresPublicly(
     input: DecryptStructureInput,
     output: Result<DecryptStructureOutput, Error>) {
     output.Success? ==>
-          // For now we only support encrypting flat maps
-          && var headerSchema := output.value.cryptoSchema;
-          // && var inputSchema := input.cryptoSchema;
-          // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
-          && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
+      // For now we only support encrypting flat maps
+      && var headerSchema := output.value.cryptoSchema;
+      // && var inputSchema := input.cryptoSchema;
+      // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
+      && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
   }
 
   predicate DecryptPathStructureEnsuresPublicly(
@@ -540,10 +540,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   method {:vcs_split_on_every_assert} EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
     ensures output.Success? ==>
-          && var headerSchema := output.value.cryptoSchema;
-          && var inputSchema := input.cryptoSchema;
-          // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
-          && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
+              && var headerSchema := output.value.cryptoSchema;
+              && var inputSchema := input.cryptoSchema;
+              // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
+              && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
   {
     var cryptoMap :- BuildCryptoMap(input.plaintextStructure, input.cryptoSchema);
     var pathInput := EncryptPathStructureInput(
