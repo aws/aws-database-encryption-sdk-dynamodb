@@ -7,20 +7,10 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
 {
   public class ParsedHeader
   {
-    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> _cryptoSchema;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
     private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys;
     private System.Collections.Generic.Dictionary<string, string> _storedEncryptionContext;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> CryptoSchema
-    {
-      get { return this._cryptoSchema; }
-      set { this._cryptoSchema = value; }
-    }
-    public bool IsSetCryptoSchema()
-    {
-      return this._cryptoSchema != null;
-    }
     public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId AlgorithmSuiteId
     {
       get { return this._algorithmSuiteId; }
@@ -59,7 +49,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public void Validate()
     {
-      if (!IsSetCryptoSchema()) throw new System.ArgumentException("Missing value for required property 'CryptoSchema'");
       if (!IsSetAlgorithmSuiteId()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuiteId'");
       if (!IsSetEncryptedDataKeys()) throw new System.ArgumentException("Missing value for required property 'EncryptedDataKeys'");
       if (!IsSetStoredEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'StoredEncryptionContext'");

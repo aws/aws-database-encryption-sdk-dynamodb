@@ -27,18 +27,19 @@ module StructuredEncryptionCrypt {
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Result<Bytes, Error>)
     requires |HKDFOutput| == KeySize
-    requires offset as nat * 3 < UINT32_LIMIT
     ensures ret.Success? ==>
               //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The `FieldKey` for a given key and offset MUST be the first 44 bytes
               //# of the aes256ctr_stream
               //# of the `FieldRootKey` and the `FieldKeyNonce` of three times the given offset.
+              && offset as nat * 3 < UINT32_LIMIT
               && |ret.value| == KeySize+NonceSize
               && |ret.value| == 44
               && AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).Success?
               && ret.value == AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).value
   {
+    :- Need(offset as nat * 3 < UINT32_LIMIT, E("Too many encrypted fields."));
     var keyR := AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32);
     keyR.MapFailure(e => AwsCryptographyPrimitives(e))
   }
@@ -132,18 +133,15 @@ module StructuredEncryptionCrypt {
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    fieldNames : seq<CanonicalPath>,
-    data : StructuredDataCanon)
-    returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- fieldNames :: k in data
-    requires |fieldNames| < (UINT32_LIMIT / 3)
+    data : CanonCryptoList)
+    returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    ret := Crypt(DoEncrypt, client, alg, key, head, fieldNames, data);
+    ret := Crypt(DoEncrypt, client, alg, key, head, data);
   }
 
   // Decrypt a StructuredDataMap
@@ -152,18 +150,15 @@ module StructuredEncryptionCrypt {
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    fieldNames : seq<CanonicalPath>,
-    data : StructuredDataCanon)
-    returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- fieldNames :: k in data
-    requires |fieldNames| < (UINT32_LIMIT / 3)
+    data : CanonCryptoList)
+    returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
   {
-    ret := Crypt(DoDecrypt, client, alg, key, head, fieldNames, data);
+    ret := Crypt(DoDecrypt, client, alg, key, head, data);
   }
 
   // Encrypt or Decrypt a StructuredDataMap
@@ -173,11 +168,8 @@ module StructuredEncryptionCrypt {
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    fieldNames : seq<CanonicalPath>,
-    data : StructuredDataCanon)
-    returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- fieldNames :: k in data
-    requires |fieldNames| < (UINT32_LIMIT / 3)
+    data : CanonCryptoList)
+    returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
 
     ensures ret.Success? ==>
@@ -231,7 +223,7 @@ module StructuredEncryptionCrypt {
     //# The calculated Field Root MUST have length equal to the
     //# [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
     assert |fieldRootKey| == AlgorithmSuites.GetEncryptKeyLength(alg) as int;
-    var result := CryptList(mode, client, alg, fieldRootKey, fieldNames, data);
+    var result := CryptList(mode, client, alg, fieldRootKey, data);
     return result;
   }
 
@@ -241,34 +233,34 @@ module StructuredEncryptionCrypt {
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
     fieldRootKey : Key,
-    fieldNames : seq<CanonicalPath>,
-    input : StructuredDataCanon
+    input : CanonCryptoList
   )
-    returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- fieldNames :: k in input
-    requires (|fieldNames| as nat) * 3 < UINT32_LIMIT
-    decreases |fieldNames|
+    returns (ret : Result<CanonCryptoList, Error>)
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
     ensures client.ValidState()
   {
-    // It is very inefficient to manually build Dafny maps in methods, so use
-    // a MutableMap to build the key value pairs then convert back to a Dafny map.
-    var mutMap : MutableMap<CanonicalPath, StructuredDataTerminal> := new MutableMap();
-    for i := 0 to |fieldNames| {
-      var data;
-      var fieldName := fieldNames[i];
-      if mode == DoEncrypt {
-        data :- EncryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName]);
+    var result : CanonCryptoList := [];
+    var pos : uint32 := 0;
+    :- Need(|input| < UINT32_LIMIT, E("Too many fields."));
+    for i := 0 to |input|
+      invariant pos <= (i as uint32)
+    {
+      if input[i].action == ENCRYPT_AND_SIGN {
+        var data;
+        if mode == DoEncrypt {
+          data :- EncryptTerminal(client, alg, fieldRootKey, pos, input[i].key, input[i].data);
+        } else {
+          data :- DecryptTerminal(client, alg, fieldRootKey, pos, input[i].key, input[i].data);
+        }
+        pos := pos + 1;
+        result := result + [input[i].(data := data)];
       } else {
-        data :- DecryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName]);
+        result := result + [input[i]];
       }
-      mutMap.Put(fieldName, data);
     }
-    var mutMapItems := mutMap.content(); // Have to initialize this separately, otherwise the map comprehension will do something very inefficient
-    var output : StructuredDataCanon := map k <- mutMapItems :: k := mutMap.Select(k);
-    return Success(output);
+    return Success(result);
   }
 
   // Encrypt a single Terminal
@@ -281,7 +273,6 @@ module StructuredEncryptionCrypt {
     data : StructuredDataTerminal
   )
     returns (ret : Result<StructuredDataTerminal, Error>)
-    requires offset as nat * 3 < UINT32_LIMIT
 
     ensures ret.Success? ==>
               //= specification/structured-encryption/encrypt-structure.md#terminal-data-encryption
@@ -368,7 +359,6 @@ module StructuredEncryptionCrypt {
     data : StructuredDataTerminal
   )
     returns (ret : Result<StructuredDataTerminal, Error>)
-    requires offset as nat * 3 < UINT32_LIMIT
     ensures ret.Success? ==>
               && |data.value| >= (AuthTagSize+2)
                  //= specification/structured-encryption/decrypt-structure.md#terminal-data-decryption

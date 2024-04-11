@@ -22,7 +22,7 @@ use aws.polymorph#localService
 )
 service StructuredEncryption {
     version: "2022-07-08",
-    operations: [EncryptStructure, DecryptStructure],
+    operations: [EncryptStructure, DecryptStructure, EncryptPathStructure, DecryptPathStructure],
     errors: [StructuredEncryptionException]
 }
 
@@ -37,6 +37,16 @@ operation EncryptStructure {
 operation DecryptStructure {
     input: DecryptStructureInput,
     output: DecryptStructureOutput,
+}
+
+operation EncryptPathStructure {
+    input: EncryptPathStructureInput,
+    output: EncryptPathStructureOutput,
+}
+
+operation DecryptPathStructure {
+    input: DecryptPathStructureInput,
+    output: DecryptPathStructureOutput,
 }
 
 //= specification/structured-encryption/header.md#format-version
@@ -57,8 +67,6 @@ integer Version
 //#   - [Encryption Context](#encryption-context): The full Encryption Context used.
 
 structure ParsedHeader {
-    @required
-    cryptoSchema: CryptoSchemaMap,
     @required
     algorithmSuiteId: DBEAlgorithmSuiteId,
     @required
@@ -101,6 +109,18 @@ structure EncryptStructureInput {
     encryptionContext: EncryptionContext
 }
 
+structure EncryptPathStructureInput {
+    @required
+    tableName: String,
+    @required
+    plaintextStructure: CryptoList,
+    @required
+    cmm: CryptographicMaterialsManagerReference,
+    algorithmSuiteId: DBEAlgorithmSuiteId,
+    encryptionContext: EncryptionContext
+}
+
+
 //= specification/structured-encryption/encrypt-structure.md#output
 //= type=implication
 //# This operation MUST output the following:
@@ -109,6 +129,15 @@ structure EncryptStructureInput {
 structure EncryptStructureOutput {
     @required
     encryptedStructure: StructuredDataMap,
+    @required
+    cryptoSchema: CryptoSchemaMap,
+    @required
+    parsedHeader: ParsedHeader,
+}
+
+structure EncryptPathStructureOutput {
+    @required
+    encryptedStructure: CryptoList,
     @required
     parsedHeader: ParsedHeader,
 }
@@ -136,6 +165,15 @@ structure DecryptStructureInput {
     //- [Encryption Context](#encryption-context)
     encryptionContext: EncryptionContext,
 }
+structure DecryptPathStructureInput {
+    @required
+    tableName: String,
+    @required
+    encryptedStructure: AuthList,
+    @required
+    cmm: CryptographicMaterialsManagerReference,
+    encryptionContext: EncryptionContext,
+}
 
 structure DecryptStructureOutput {
     //= specification/structured-encryption/decrypt-structure.md#output
@@ -145,6 +183,14 @@ structure DecryptStructureOutput {
     //#   - [Parsed Header](#parsed-header)
     @required
     plaintextStructure: StructuredDataMap,
+    @required
+    cryptoSchema: CryptoSchemaMap,
+    @required
+    parsedHeader: ParsedHeader,
+}
+structure DecryptPathStructureOutput {
+    @required
+    plaintextStructure: CryptoList,
     @required
     parsedHeader: ParsedHeader,
 }
@@ -229,6 +275,48 @@ string AuthenticateAction
 map AuthenticateSchemaMap {
     key: String,
     value: AuthenticateAction
+}
+
+structure StructureSegment {@required key : String}
+// Not needed now, but easy to add later
+// @range(min:0)
+// integer Position
+// structure ListSegment {@required key : Position}
+// structure AttributeSegment {@required key : String}
+union PathSegment {
+    member: StructureSegment,
+    // Not needed now, but easy to add later
+    // list: ListSegment,
+    // attribute: AttributeSegment,
+}
+list Path {
+    member: PathSegment
+}
+
+structure CryptoItem {
+    @required
+    key : Path,
+    @required
+    data: StructuredDataTerminal,
+    @required
+    action: CryptoAction,
+}
+
+list CryptoList {
+    member: CryptoItem,
+}
+
+structure AuthItem {
+    @required
+    key : Path,
+    @required
+    data: StructuredDataTerminal,
+    @required
+    action: AuthenticateAction,
+}
+
+list AuthList {
+    member: AuthItem,
 }
 
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)

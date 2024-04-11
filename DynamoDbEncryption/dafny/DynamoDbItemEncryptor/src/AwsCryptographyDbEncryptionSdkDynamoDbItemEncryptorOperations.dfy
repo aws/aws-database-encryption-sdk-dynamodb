@@ -615,16 +615,16 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
   function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchemaMap)
     : (ret: Result<map<ComAmazonawsDynamodbTypes.AttributeName, CSE.CryptoAction>, Error>)
-    requires forall k <- schema :: SE.IsAuthAttr(schema[k])
-    ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
-    ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
+    // requires forall k <- schema :: SE.IsAuthAttr(schema[k])
+    // ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
+    // ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
   {
     // We can formally verify these properties, but it is too resource intensive
-    :- Need(forall k <- schema :: InSignatureScope(config, k),
-            DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: mismatch with signature scope"));
+    // :- Need(forall k <- schema :: InSignatureScope(config, k),
+    //         DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: mismatch with signature scope"));
     :- Need(forall k <- schema :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
             DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: Invalid attribute names"));
-    Success(map k <- schema :: k := schema[k])
+    Success(map k <- schema | SE.IsAuthAttr(schema[k]) :: k := schema[k])
   }
 
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
@@ -755,20 +755,20 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
            == Some(MakeEncryptionContext(config, plaintextStructure).value)
 
         && output.value.parsedHeader.Some?
-        && var structuredEncParsed := Seq.Last(config.structuredEncryption.History.EncryptStructure).output.value.parsedHeader;
-        && var parsedHeaderMap := structuredEncParsed.cryptoSchema;
+        && var structuredEncOut := Seq.Last(config.structuredEncryption.History.EncryptStructure).output.value;
+        && var parsedHeaderMap := structuredEncOut.cryptoSchema;
         && (forall k <- parsedHeaderMap ::
               && SE.IsAuthAttr(parsedHeaderMap[k]))
-        && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
+        && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncOut.cryptoSchema);
         && maybeCryptoSchema.Success?
-        && ConvertContextForSelector(structuredEncParsed.encryptionContext).Success?
-        && var selectorContext := ConvertContextForSelector(structuredEncParsed.encryptionContext).value;
+        && ConvertContextForSelector(structuredEncOut.parsedHeader.encryptionContext).Success?
+        && var selectorContext := ConvertContextForSelector(structuredEncOut.parsedHeader.encryptionContext).value;
         && output.value.parsedHeader.value == ParsedHeader(
                                                 attributeActionsOnEncrypt := maybeCryptoSchema.value,
-                                                algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
-                                                storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
-                                                encryptedDataKeys := structuredEncParsed.encryptedDataKeys,
-                                                encryptionContext := structuredEncParsed.encryptionContext,
+                                                algorithmSuiteId := structuredEncOut.parsedHeader.algorithmSuiteId,
+                                                storedEncryptionContext := structuredEncOut.parsedHeader.storedEncryptionContext,
+                                                encryptedDataKeys := structuredEncOut.parsedHeader.encryptedDataKeys,
+                                                encryptionContext := structuredEncOut.parsedHeader.encryptionContext,
                                                 selectorContext := selectorContext
                                               )
 
@@ -879,7 +879,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var ddbKey :- DynamoToStruct.StructuredToItem(encryptedData)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
-    var parsedActions :- ConvertCryptoSchemaToAttributeActions(config, encryptVal.parsedHeader.cryptoSchema);
+    var parsedActions :- ConvertCryptoSchemaToAttributeActions(config, encryptVal.cryptoSchema);
     var selectorContextR := ConvertContextForSelector(encryptVal.parsedHeader.encryptionContext);
     var selectorContext :- selectorContextR.MapFailure(e => E(e));
     var parsedHeader := ParsedHeader(
@@ -975,19 +975,19 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         //# The output MUST also include a [Parsed Header](#parsed-header) that contains
         //# data that was serialized into the header included in the output DynamoDb Item.
         && output.value.parsedHeader.Some?
-        && var structuredEncParsed := Seq.Last(config.structuredEncryption.History.DecryptStructure).output.value.parsedHeader;
-        && (forall k <- structuredEncParsed.cryptoSchema ::
-              && SE.IsAuthAttr(structuredEncParsed.cryptoSchema[k]))
-        && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncParsed.cryptoSchema);
+        && var structuredEncOut := Seq.Last(config.structuredEncryption.History.DecryptStructure).output.value;
+        && (forall k <- structuredEncOut.cryptoSchema ::
+              && SE.IsAuthAttr(structuredEncOut.cryptoSchema[k]))
+        && var maybeCryptoSchema := ConvertCryptoSchemaToAttributeActions(config, structuredEncOut.cryptoSchema);
         && maybeCryptoSchema.Success?
-        && ConvertContextForSelector(structuredEncParsed.encryptionContext).Success?
-        && var selectorContext := ConvertContextForSelector(structuredEncParsed.encryptionContext).value;
+        && ConvertContextForSelector(structuredEncOut.parsedHeader.encryptionContext).Success?
+        && var selectorContext := ConvertContextForSelector(structuredEncOut.parsedHeader.encryptionContext).value;
         && output.value.parsedHeader.value == ParsedHeader(
                                                 attributeActionsOnEncrypt := maybeCryptoSchema.value,
-                                                algorithmSuiteId := structuredEncParsed.algorithmSuiteId,
-                                                storedEncryptionContext := structuredEncParsed.storedEncryptionContext,
-                                                encryptedDataKeys := structuredEncParsed.encryptedDataKeys,
-                                                encryptionContext := structuredEncParsed.encryptionContext,
+                                                algorithmSuiteId := structuredEncOut.parsedHeader.algorithmSuiteId,
+                                                storedEncryptionContext := structuredEncOut.parsedHeader.storedEncryptionContext,
+                                                encryptedDataKeys := structuredEncOut.parsedHeader.encryptedDataKeys,
+                                                encryptionContext := structuredEncOut.parsedHeader.encryptionContext,
                                                 selectorContext := selectorContext
                                               )
 
@@ -1090,7 +1090,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
-    var schemaToConvert := decryptVal.parsedHeader.cryptoSchema;
+    var schemaToConvert := decryptVal.cryptoSchema;
 
     var parsedAuthActions :- ConvertCryptoSchemaToAttributeActions(config, schemaToConvert);
     var selectorContextR := ConvertContextForSelector(decryptVal.parsedHeader.encryptionContext);

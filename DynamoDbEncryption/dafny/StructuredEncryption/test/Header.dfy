@@ -9,6 +9,7 @@ module TestHeader {
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
 
+  import OPS = AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations
   import StructuredEncryption
   import AwsCryptographyMaterialProvidersTypes
   import CMP = AwsCryptographyMaterialProvidersTypes
@@ -120,17 +121,23 @@ module TestHeader {
     expect newBadCont == Failure(E("Context keys out of order."));
   }
 
+  function method MakeCrypto(s : string, a : CryptoAction) : CryptoItem
+  {
+    CryptoItem(key := StringToUniPath(s), data := StructuredDataTerminal(value := [], typeId := [1,2]), action := a)
+  }
+
   method {:test} TestSchemaOrderAlpha() {
-    var schemaMap : CryptoSchemaMap := map[
-      "abc" := ENCRYPT_AND_SIGN,
-      "def" := SIGN_ONLY,
-      "ghi" := DO_NOTHING,
-      "jkl" := ENCRYPT_AND_SIGN,
-      "mno" := SIGN_ONLY,
-      "pqr" := DO_NOTHING
+    var schemaMap : CryptoList := [
+      MakeCrypto("abc", ENCRYPT_AND_SIGN),
+      MakeCrypto("def", SIGN_ONLY),
+      MakeCrypto("ghi", DO_NOTHING),
+      MakeCrypto("jkl", ENCRYPT_AND_SIGN),
+      MakeCrypto("mno", SIGN_ONLY),
+      MakeCrypto("pqr", DO_NOTHING)
     ];
     var tableName : GoodString := "name";
-    var legend :- expect MakeLegend(tableName, schemaMap);
+    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var legend :- expect MakeLegend(canonSchema);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:
@@ -142,16 +149,17 @@ module TestHeader {
   }
 
   method {:test} {:vcs_split_on_every_assert} TestSchemaOrderLength() {
-    var schemaMap : CryptoSchemaMap := map[
-      "aa" := ENCRYPT_AND_SIGN,
-      "zz" := SIGN_ONLY,
-      "aaa" := DO_NOTHING,
-      "zzz" := ENCRYPT_AND_SIGN,
-      "aaaa" := SIGN_ONLY,
-      "zzzz" := DO_NOTHING
+    var schemaMap : CryptoList := [
+      MakeCrypto("aa", ENCRYPT_AND_SIGN),
+      MakeCrypto("zz", SIGN_ONLY),
+      MakeCrypto("aaa", DO_NOTHING),
+      MakeCrypto("zzz", ENCRYPT_AND_SIGN),
+      MakeCrypto("aaaa", SIGN_ONLY),
+      MakeCrypto("zzzz", DO_NOTHING)
     ];
     var tableName : GoodString := "name";
-    var legend :- expect MakeLegend(tableName, schemaMap);
+    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var legend :- expect MakeLegend(canonSchema);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:
@@ -161,5 +169,28 @@ module TestHeader {
     // that field should be encrypted.
     expect legend == [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND, ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND];
   }
+
+    method {:test} {:vcs_split_on_every_assert} TestSchemaOrderLength2() {
+    var schemaMap : CryptoList := [
+      MakeCrypto("aa", ENCRYPT_AND_SIGN),
+      MakeCrypto("zzz", ENCRYPT_AND_SIGN),
+      MakeCrypto("zzzz", DO_NOTHING),
+      MakeCrypto("aaa", DO_NOTHING),
+      MakeCrypto("zz", SIGN_ONLY),
+      MakeCrypto("aaaa", SIGN_ONLY)
+    ];
+    var tableName : GoodString := "name";
+    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var legend :- expect MakeLegend(canonSchema);
+    //= specification/structured-encryption/header.md#encrypt-legend-bytes
+    //= type=test
+    //# The Encrypt Legend Bytes MUST be serialized as follows:
+    // 1. Order every authenticated attribute in the item by the [Canonical Path](#canonical-path)
+    // 2. For each authenticated terminal, in order,
+    // append one of the byte values specified above to indicate whether
+    // that field should be encrypted.
+    expect legend == [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND, ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND];
+  }
+
 
 }

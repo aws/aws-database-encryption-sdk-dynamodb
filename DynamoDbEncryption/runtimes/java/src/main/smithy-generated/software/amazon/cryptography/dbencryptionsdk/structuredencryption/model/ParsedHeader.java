@@ -10,8 +10,6 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
 
 public class ParsedHeader {
-  private final Map<String, CryptoAction> cryptoSchema;
-
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
   private final List<EncryptedDataKey> encryptedDataKeys;
@@ -21,15 +19,10 @@ public class ParsedHeader {
   private final Map<String, String> encryptionContext;
 
   protected ParsedHeader(BuilderImpl builder) {
-    this.cryptoSchema = builder.cryptoSchema();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.encryptedDataKeys = builder.encryptedDataKeys();
     this.storedEncryptionContext = builder.storedEncryptionContext();
     this.encryptionContext = builder.encryptionContext();
-  }
-
-  public Map<String, CryptoAction> cryptoSchema() {
-    return this.cryptoSchema;
   }
 
   public DBEAlgorithmSuiteId algorithmSuiteId() {
@@ -57,10 +50,6 @@ public class ParsedHeader {
   }
 
   public interface Builder {
-    Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema);
-
-    Map<String, CryptoAction> cryptoSchema();
-
     Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId);
 
     DBEAlgorithmSuiteId algorithmSuiteId();
@@ -81,8 +70,6 @@ public class ParsedHeader {
   }
 
   static class BuilderImpl implements Builder {
-    protected Map<String, CryptoAction> cryptoSchema;
-
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
     protected List<EncryptedDataKey> encryptedDataKeys;
@@ -95,20 +82,10 @@ public class ParsedHeader {
     }
 
     protected BuilderImpl(ParsedHeader model) {
-      this.cryptoSchema = model.cryptoSchema();
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.encryptedDataKeys = model.encryptedDataKeys();
       this.storedEncryptionContext = model.storedEncryptionContext();
       this.encryptionContext = model.encryptionContext();
-    }
-
-    public Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema) {
-      this.cryptoSchema = cryptoSchema;
-      return this;
-    }
-
-    public Map<String, CryptoAction> cryptoSchema() {
-      return this.cryptoSchema;
     }
 
     public Builder algorithmSuiteId(DBEAlgorithmSuiteId algorithmSuiteId) {
@@ -148,9 +125,6 @@ public class ParsedHeader {
     }
 
     public ParsedHeader build() {
-      if (Objects.isNull(this.cryptoSchema()))  {
-        throw new IllegalArgumentException("Missing value for required field `cryptoSchema`");
-      }
       if (Objects.isNull(this.algorithmSuiteId()))  {
         throw new IllegalArgumentException("Missing value for required field `algorithmSuiteId`");
       }

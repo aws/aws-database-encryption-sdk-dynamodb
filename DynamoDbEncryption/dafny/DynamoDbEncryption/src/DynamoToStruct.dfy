@@ -56,7 +56,7 @@ module DynamoToStruct {
   }
 
   // Convert StructuredDataMap to AttributeMap
-  function method {:opaque} StructuredToItem(s : StructuredDataMap) : (ret : Result<AttributeMap, Error>)
+  function method {:opaque} StructuredToItem(s : TerminalDataMap) : (ret : Result<AttributeMap, Error>)
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
     //= type=implication
     //# - MUST contain an Attribute for every [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)

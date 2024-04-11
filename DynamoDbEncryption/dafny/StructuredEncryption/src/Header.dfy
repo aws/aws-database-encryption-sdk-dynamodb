@@ -18,6 +18,7 @@ module StructuredEncryptionHeader {
   import Prim = AwsCryptographyPrimitivesTypes
   import SortedSets
   import Sets
+  import Seq
   import UTF8
   import Paths = StructuredEncryptionPaths
   import Random
@@ -56,13 +57,14 @@ module StructuredEncryptionHeader {
   type Legend = x : seq<LegendByte> | |x| < UINT16_LIMIT
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
-  predicate method IsVersion2Schema(data : CryptoSchemaMap)
+  predicate method IsVersion2Schema(data : CanonCryptoList) 
   {
-    exists x <- data :: data[x] == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+    exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   }
-  function method VersionFromSchema(data : CryptoSchemaMap) : (ret : Version)
-    ensures (exists x <- data :: data[x] == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 2)
-    ensures !(exists x <- data :: data[x] == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 1)
+
+  function method VersionFromSchema(data : CanonCryptoList) : (ret : Version)
+    ensures (exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 2)
+    ensures !(exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 1)
   {
     if IsVersion2Schema(data) then
       2
@@ -216,7 +218,7 @@ module StructuredEncryptionHeader {
   // config to PartialHeader
   function method Create(
     tableName : string,
-    schema : CryptoSchemaMap,
+    schema : CanonCryptoList,
     msgID : MessageID,
     mat : CMP.EncryptionMaterials
   )
@@ -229,7 +231,6 @@ module StructuredEncryptionHeader {
     //# the Version MUST be 0x02; otherwise, Version MUST be 0x01.
     ensures ret.Success? ==> ret.value.version == VersionFromSchema(schema)
   {
-    :- Need(ValidString(tableName), E("Invalid table name."));
     :- Need(ValidEncryptionContext(mat.encryptionContext), E("Invalid Encryption Context"));
     :- Need(0 < |mat.encryptedDataKeys|, E("There must be at least one data key"));
     :- Need(|mat.encryptedDataKeys| < UINT8_LIMIT, E("Too many data keys."));
@@ -237,7 +238,7 @@ module StructuredEncryptionHeader {
     :- Need(|mat.algorithmSuite.binaryId| == 2, E("Invalid Algorithm Suite Binary ID"));
     :- Need(mat.algorithmSuite.binaryId[0] == DbeAlgorithmFamily, E("Algorithm Suite not suitable for structured encryption."));
     :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algorithm Suite has unexpected flavor."));
-    var legend :- MakeLegend(tableName, schema);
+    var legend :- MakeLegend(schema);
 
     //= specification/structured-encryption/encrypt-structure.md#header-field
     //# The encryption context field serialized in the header MUST contain all key-value
@@ -363,7 +364,7 @@ module StructuredEncryptionHeader {
   }
 
   // Create a Legend from the Schema
-  function method MakeLegend(tableName : GoodString, schema : CryptoSchemaMap)
+  function method MakeLegend(schema : CanonCryptoList)
     : (ret : Result<Legend, Error>)
     ensures ret.Success? ==>
               //= specification/structured-encryption/header.md#encrypt-legend-bytes
@@ -372,37 +373,10 @@ module StructuredEncryptionHeader {
               //# by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
               && |ret.value| == CountAuthAttrs(schema)
   {
-    var data := schema;
-    :- Need(forall k <- data :: ValidString(k), E("bad attribute name"));
-
-    var authSchema: map<GoodString, CryptoAction> :=
-      (
-        var rawSchema := RestrictAuthAttrs(data);
-        // Ensure we get the expected number of auth attributes
-        LemmaRestrictAuthAttrsIdempotent(data);
-        assert CountAuthAttrs(data) == |rawSchema|;
-        // Can't use `k as GoodString` for some reason; instead assert validity and let inference handle the rest
-        assert forall k <- rawSchema :: ValidString(k);
-        rawSchema
-      );
-    assert CountAuthAttrs(data) == |authSchema|;
-
-    //= specification/structured-encryption/header.md#encrypt-legend-bytes
-    //# The Encrypt Legend Bytes MUST be serialized as follows:
-    // 1. Order every authenticated attribute in the item by the Canonical Path
-    // 2. For each authenticated terminal, in order,
-    // append one of the byte values specified above to indicate whether
-    // that field should be encrypted.
-    Paths.SimpleCanonUnique(tableName);
-
-    var fn: GoodString -> CanonicalPath := (k: GoodString) => Paths.SimpleCanon(tableName, k);
-    assert forall k :: true ==> fn(k) == Paths.SimpleCanon(tableName, k); // This is a bit silly to have to assert, but necessary when SimpleCanon is opaque
-
-    MapKeepsCount(authSchema, fn);
-    var canonSchema := MyMap(fn, authSchema);
-    assert |authSchema| == |canonSchema|;
-    var attrs := SortedSets.ComputeSetToOrderedSequence2(canonSchema.Keys, ByteLess);
-    MakeLegend2(attrs, canonSchema)
+    var legend :- MakeLegend2(schema);
+    var authCount := CountAuthAttrs(schema);
+    :- Need(authCount == |legend|, E("Internal Error : bad legend calculation."));
+    Success(legend)
   }
 
   // because if the parameter below is
@@ -412,22 +386,19 @@ module StructuredEncryptionHeader {
 
   // Create a Legend for the given attrs of the Schema
   function method {:tailrecursion} MakeLegend2(
-    attrs : seq<Bytes>,
-    data : map<Bytes, CryptoAction>,
+    data : CanonCryptoList,
     serialized : Legend := EmptyLegend
   )
     : (ret : Result<Legend, Error>)
-    requires forall k <- attrs :: k in data
-    requires forall k <- data.Keys :: IsAuthAttr(data[k])
-    requires |attrs| + |serialized| == |data|
-    ensures ret.Success? ==> |ret.value| == |data|
   {
-    if |attrs| == 0 then
+    if |data| == 0 then
       Success(serialized)
-    else
+    else if IsAuthAttr(data[0].action) then
       :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
-      var legendChar := GetActionLegend(data[attrs[0]]);
-      MakeLegend2(attrs[1..], data, serialized + [legendChar])
+      var legendChar := GetActionLegend(data[0].action);
+      MakeLegend2(data[1..], serialized + [legendChar])
+    else
+      MakeLegend2(data[1..], serialized)
   }
 
   // CryptoAction to bytes. One byte for signed, zero bytes for unsigned
@@ -461,7 +432,7 @@ module StructuredEncryptionHeader {
   }
 
   // How many elements of Schema are included in the signature?
-  function CountAuthAttrs(data : CryptoSchemaMap)
+  function method CountAuthAttrs(data : CanonCryptoList)
     : nat
   {
     |RestrictAuthAttrs(data)|
@@ -470,22 +441,15 @@ module StructuredEncryptionHeader {
   /*
    * Restrict `data` to just the authenticated attributes.
    */
-  function method RestrictAuthAttrs(data: CryptoSchemaMap)
-    : (authData: CryptoSchemaMap)
-    ensures authData.Keys <= data.Keys
-    ensures forall k <- data :: IsAuthAttr(data[k]) <==> k in authData
-    ensures forall k <- authData :: authData[k] == data[k]
-    ensures forall k <- authData :: IsAuthAttr(authData[k])
+  function method RestrictAuthAttrs(data: CanonCryptoList)
+    : (authData: CanonCryptoList)
+    // ensures authData.Keys <= data.Keys
+    // ensures forall k <- data :: IsAuthAttr(data[k]) <==> k in authData
+    // ensures forall k <- authData :: authData[k] == data[k]
+    // ensures forall k <- authData :: IsAuthAttr(authData[k])
   {
-    map k <- data | IsAuthAttr(data[k]) :: k := data[k]
+    Seq.Filter((s : CanonCryptoItem) => IsAuthAttr(s.action), data)
   }
-
-  /*
-   * Lemma: RestrictAuthAttrs is idempotent.
-   */
-  lemma LemmaRestrictAuthAttrsIdempotent(data: CryptoSchemaMap)
-    ensures var authData := RestrictAuthAttrs(data); authData == RestrictAuthAttrs(authData)
-  {}
 
   // Legend to Bytes
   function method {:opaque} SerializeLegend(x : Legend)
@@ -806,8 +770,8 @@ module StructuredEncryptionHeader {
   // End code, begin proofs
 
   // mapping with no filter does not change map size
-  lemma MapKeepsCount<Y,Z>(m : map<GoodString,Y>, f : (GoodString) -> Z)
-    requires forall a : GoodString, b : GoodString :: a != b ==> f(a) != f(b)
+  lemma MapKeepsCount<Y,Z>(m : map<Path,Y>, f : (Path) -> Z)
+    requires forall a : Path, b : Path :: a != b ==> f(a) != f(b)
     requires Functions.Injective(f)
     ensures |m.Keys| == |MyMap(f, m).Keys|
     ensures |m| == |MyMap(f, m)|

@@ -8,6 +8,7 @@ module StructuredEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
@@ -20,6 +21,8 @@ module StructuredEncryptionUtil {
 
   const HeaderField := ReservedPrefix + "head"
   const FooterField := ReservedPrefix + "foot"
+  const HeaderPath : Path := [member(StructureSegment(key := HeaderField))]
+  const FooterPath : Path := [member(StructureSegment(key := FooterField))]
   const ReservedCryptoContextPrefixString := "aws-crypto-"
   const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii(ReservedCryptoContextPrefixString)
 
@@ -38,6 +41,21 @@ module StructuredEncryptionUtil {
   const TRUE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(TRUE_STR)
   const FALSE_STR : string := "false"
   const FALSE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(FALSE_STR)
+
+  datatype CanonCryptoItem = CanonCryptoItem (
+    key : CanonicalPath,
+    origKey : Path,
+    data : StructuredDataTerminal,
+    action : CryptoAction
+  )
+  datatype CanonAuthItem = CanonAuthItem (
+    key : CanonicalPath,
+    origKey : Path,
+    data : StructuredDataTerminal,
+    action : AuthenticateAction
+  )
+  type CanonCryptoList = seq<CanonCryptoItem>
+  type CanonAuthList = seq<CanonAuthItem>
 
   //= specification/structured-encryption/encrypt-structure.md#header-field
   //= type=implication
@@ -79,26 +97,27 @@ module StructuredEncryptionUtil {
 
   type Bytes = seq<uint8>
   type CanonicalPath = seq<uint8>
-  type GoodString = x : string | ValidString(x)
 
-  type StructuredDataPlain = map<GoodString, StructuredDataTerminal>
-  type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminal>
-  type CryptoSchemaPlain = map<GoodString, CSE.CryptoAction>
-  type CryptoSchemaCanon = map<CanonicalPath, CSE.CryptoAction>
-  type AuthSchemaPlain = map<GoodString, AuthenticateAction>
-  type AuthSchemaCanon = map<CanonicalPath, AuthenticateAction>
-  type CanonMap = map<CanonicalPath, GoodString>
+  type GoodString = x : string | ValidString(x)
+  predicate method ValidString(x : string)
+  {
+    && |x| <  UINT64_LIMIT
+    && UTF8.Encode(x).Success?
+  }
+
+  // type StructuredDataPlain = map<GoodPath, StructuredDataTerminal>
+  // type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminal>
+  // type CryptoSchemaPlain = map<GoodPath, CSE.CryptoAction>
+  // type CryptoSchemaCanon = map<CanonicalPath, CSE.CryptoAction>
+  // type AuthSchemaPlain = map<GoodPath, AuthenticateAction>
+  // type AuthSchemaCanon = map<CanonicalPath, AuthenticateAction>
+  // type CanonMap = map<CanonicalPath, GoodPath>
+
 
   // Within the context of the StructuredEncryptionClient, certain things must be true of any Algorithm Suite
   predicate method ValidSuite(alg : CMP.AlgorithmSuiteInfo)
   {
     alg.id.DBE? && AlgorithmSuites.DBEAlgorithmSuite?(alg)
-  }
-
-  predicate method ValidString(x : string)
-  {
-    && |x| <  UINT64_LIMIT
-    && UTF8.Encode(x).Success?
   }
 
   // string to Error
