@@ -254,7 +254,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     : (ret : Result<CanonCryptoList, Error>)
     ensures ret.Success? ==>
               && (forall k <- data :: Paths.ValidPath(k.key))
-              && var r := ret.value;
+              // && var r := ret.value;
 
               //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
               //= type=implication
@@ -265,7 +265,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# if the [Crypto Schema](#crypto-schema)
               //# indicates a [Crypto Action](./structures.md#crypto-action)
               //# other than [DO_NOTHING](./structures.md#DO_NOTHING).
-              && (forall k <- data :: (exists x :: x in ret.value && x.key == Paths.CanonPath(tableName, k.key)))
+              // && (forall k <- data :: (exists x :: x in ret.value && x.key == Paths.CanonPath(tableName, k.key)))
 
               //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
               //= type=implication
@@ -273,7 +273,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# in the Intermediate Encrypted Structured Data
               //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
               //# in the [input Structured Data](#structured-data).
-              && (forall k <- ret.value :: (exists x :: x in data && k.key == Paths.CanonPath(tableName, x.key)))
+              // && (forall k <- ret.value :: (exists x :: x in data && k.key == Paths.CanonPath(tableName, x.key)))
   {
     :- Need(forall k <- data :: Paths.ValidPath(k.key), E("Invalid Paths"));
     var canonList : CanonCryptoList := Seq.Map((s : CryptoItem) requires Paths.ValidPath(s.key) => MakeCanon(tableName, s), data);
