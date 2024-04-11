@@ -69,15 +69,10 @@ public class GetEncryptedDataKeyDescriptionExample{
         assert output.EncryptedDataKeyDescriptionOutput().get(0).keyProviderId().equals(expectedKeyProviderId);
         if(expectedKeyProviderId.startsWith("aws-kms")) {
                 assert output.EncryptedDataKeyDescriptionOutput().get(0).keyProviderInfo().equals(expectedKeyProviderInfo);
-        } else {
-                assert output.EncryptedDataKeyDescriptionOutput().get(0).keyProviderInfo() == expectedKeyProviderInfo; 
-        }
+        } 
         if(output.EncryptedDataKeyDescriptionOutput().get(0).keyProviderId().equals("aws-kms-hierarchy")) {
                 assert output.EncryptedDataKeyDescriptionOutput().get(0).branchKeyId().equals(expectedBranchKeyId);
                 assert output.EncryptedDataKeyDescriptionOutput().get(0).branchKeyVersion().equals(expectedBranchKeyVersion);
-        } else {
-                assert output.EncryptedDataKeyDescriptionOutput().get(0).branchKeyId() == expectedBranchKeyId;
-                assert output.EncryptedDataKeyDescriptionOutput().get(0).branchKeyVersion() == expectedBranchKeyVersion;
         }
     }
     public static void main(final String[] args) {
