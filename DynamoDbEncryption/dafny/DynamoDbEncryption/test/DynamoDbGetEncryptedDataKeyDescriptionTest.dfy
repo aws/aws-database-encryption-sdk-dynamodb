@@ -261,6 +261,9 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| > 0;
 
     var i := 0;
+    //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
+    //= type=test
+    //# - For every Data Key in Data Keys, the operation MUST attempt to extract a description of the Data Key.
     while (i < |expectedHead.dataKeys|) {
       var expectedkeyProviderId :- expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderId);
       var expectedkeyProviderInfo :- expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderInfo);
@@ -287,6 +290,9 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| == |expectedHead.dataKeys|;
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| > 0;
 
+    //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
+    //= type=test
+    //# - For every Data Key in Data Keys, the operation MUST attempt to extract a description of the Data Key.
     var i := 0;
     while (i < |expectedHead.dataKeys|) {
       var expectedkeyProviderId :- expect UTF8.Decode(expectedHead.dataKeys[i].keyProviderId);

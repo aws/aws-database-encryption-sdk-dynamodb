@@ -53,7 +53,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     match input.input
     {
       //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
-      //= type=implication
       //# - If the input is a encrypted DynamoDB item, it MUST attempt to extract "aws_dbe_head" attribute from the DynamoDB item to get binary header.
       case plaintextItem(plainTextItem) =>{
         :- Need("aws_dbe_head" in plainTextItem && plainTextItem["aws_dbe_head"].B?, E("Header not found in the DynamoDB item."));
@@ -63,16 +62,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         header := headerItem;
     }
     //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
-    //= type=implication
     //# - This operation MUST deserialize the header bytes according to the header format.
     var deserializedHeader :- Header.PartialDeserialize(header).MapFailure(e => AwsCryptographyDbEncryptionSdkStructuredEncryption(e));
     //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
-    //= type=implication
     //# - This operation MUST extract the dataKeys from the deserialize header.
     var datakeys := deserializedHeader.dataKeys;
     var list : EncryptedDataKeyDescriptionList := [];
     //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
-    //= type=implication
     //# - For every Data Key in Data Keys, the operation MUST attempt to extract a description of the Data Key.
     for i := 0 to |datakeys| {
       var extractedKeyProviderId :- UTF8.Decode(datakeys[i].keyProviderId).MapFailure(e => E(e));
@@ -82,7 +78,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         :- Need(deserializedHeader.flavor == 0 || deserializedHeader.flavor == 1, E("Invalid format flavor."));
         var algorithmSuite;
         //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
-        //= type=implication
         //# - This operation MUST extract the Format Flavor from the deserialize header.
         if deserializedHeader.flavor == 0{
           algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
