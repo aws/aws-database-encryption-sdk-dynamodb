@@ -1,14 +1,17 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 include "Util.dfy"
 
 module SortCanon {
   export provides
-    AuthSort,
-    CryptoSort,
-    AuthBelow,
-    CryptoBelow,
-    StructuredEncryptionUtil,
-    Relations
+      AuthSort,
+      CryptoSort,
+      AuthBelow,
+      CryptoBelow,
+      StructuredEncryptionUtil,
+      Relations
 
   import opened Wrappers
   import opened StandardLibrary

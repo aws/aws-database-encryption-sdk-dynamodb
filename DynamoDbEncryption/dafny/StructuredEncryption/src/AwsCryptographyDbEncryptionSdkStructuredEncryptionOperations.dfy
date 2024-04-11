@@ -384,7 +384,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       // invariant forall k <- fieldMap :: fieldMap[k] in record
     {
       var utf8Value :- UTF8.Encode(ATTR_PREFIX + Paths.PathToString(fields[i].key)).MapFailure(e =>E(e));
-      // TODO - check for duplicates
+      // To Be Done - check for duplicates
       fieldMap := fieldMap[utf8Value := fields[i].key];
     }
     var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(fieldMap.Keys, ByteLess);
@@ -853,7 +853,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- NeedBinary(encRecord, FooterPath);
     :- Need(exists x :: (x in encRecord && x.action == SIGN), E("At least one Authenticate Action must be SIGN"));
 
-    // TODO - no longer need NeedBinary
+    // To Be Done - no longer need NeedBinary
     var headerSerialized :- GetBinary(encRecord, HeaderPath);
     var footerSerialized :- GetBinary(encRecord, FooterPath);
     //= specification/structured-encryption/decrypt-structure.md#parse-the-header
@@ -919,7 +919,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //   and the key-value pairs in the [Encryption Context parsed from the header](./header.md#encryption-context).
     // - Algorithm Suite ID: The algorithm suite [indicated by the Message Format Flavor](./header.md#format-flavor)
     //   parsed in the header.
-    // - Encrypted Data Keys: The [Encrypted Data Keys parsed from the header](./header.md#encrypted-data-keys).  
+    // - Encrypted Data Keys: The [Encrypted Data Keys parsed from the header](./header.md#encrypted-data-keys).
 
     var matR := cmm.DecryptMaterials(
       CMP.DecryptMaterialsInput (

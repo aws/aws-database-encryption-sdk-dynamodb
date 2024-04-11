@@ -57,7 +57,7 @@ module StructuredEncryptionHeader {
   type Legend = x : seq<LegendByte> | |x| < UINT16_LIMIT
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
-  predicate method IsVersion2Schema(data : CanonCryptoList) 
+  predicate method IsVersion2Schema(data : CanonCryptoList)
   {
     exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   }
