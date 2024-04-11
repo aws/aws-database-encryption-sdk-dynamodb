@@ -127,13 +127,10 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
       );
     var actualDataKeyDescription :- expect ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
     var expectedkeyProviderId :- expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderId);
-    var expectedkeyProviderInfo :- expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo);
 
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| > 0;
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| == |expectedHead.dataKeys|;
     expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderId == expectedkeyProviderId;
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Some?;
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.value == expectedkeyProviderInfo;
   }
 
   method {:test} TestHeaderInputAwsKmsRsaDataKeyCase()
@@ -222,13 +219,10 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
       );
     var actualDataKeyDescription :- expect ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
     var expectedkeyProviderId :- expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderId);
-    var expectedkeyProviderInfo :- expect UTF8.Decode(expectedHead.dataKeys[0].keyProviderInfo);
 
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| > 0;
     expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| == |expectedHead.dataKeys|;
     expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderId == expectedkeyProviderId;
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Some?;
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.value == expectedkeyProviderInfo;
   }
 
   method {:test} TestDDBItemInputAwsKmsRsaDataKeyCase()

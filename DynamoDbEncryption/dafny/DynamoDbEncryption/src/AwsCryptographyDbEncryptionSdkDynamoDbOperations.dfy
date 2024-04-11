@@ -75,17 +75,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     //= type=implication
     //# - For every Data Key in Data Keys, the operation MUST attempt to extract a description of the Data Key.
     for i := 0 to |datakeys| {
-      var singleDataKeyOutput : EncryptedDataKeyDescription;
       var extractedKeyProviderId :- UTF8.Decode(datakeys[i].keyProviderId).MapFailure(e => E(e));
-      if !("aws-kms" < extractedKeyProviderId) {
-        singleDataKeyOutput := EncryptedDataKeyDescription(
-          keyProviderId := extractedKeyProviderId,
-          keyProviderInfo := None,
-          branchKeyId := None,
-          branchKeyVersion := None
-        );
-      }
-      else {
+      var extractedKeyProviderIdInfo:= Option.None;
+      var expectedBranchKeyVersion := Option.None;
+      if ("aws-kms" <= extractedKeyProviderId) {
         :- Need(deserializedHeader.flavor == 0 || deserializedHeader.flavor == 1, E("Invalid format flavor."));
         var algorithmSuite;
         //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
@@ -96,9 +89,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         } else {
           algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
         }
-
-        var extractedKeyProviderIdInfo :- UTF8.Decode(datakeys[i].keyProviderInfo).MapFailure(e => E(e));
-
+        var maybeKeyProviderIdInfo :- UTF8.Decode(datakeys[i].keyProviderInfo).MapFailure(e => E(e));
+        extractedKeyProviderIdInfo := Some(maybeKeyProviderIdInfo);
         if extractedKeyProviderId == "aws-kms-hierarchy" {
           var providerWrappedMaterial :- EdkWrapping.GetProviderWrappedMaterial(datakeys[i].ciphertext, algorithmSuite).MapFailure(e => AwsCryptographyMaterialProviders(e));
           var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := SALT_LENGTH + IV_LENGTH;
@@ -106,23 +98,16 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
           :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
           :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
           var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
-          var expectedBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E(e));
-          singleDataKeyOutput := EncryptedDataKeyDescription(
-            keyProviderId := extractedKeyProviderId,
-            keyProviderInfo := Some(extractedKeyProviderIdInfo),
-            branchKeyId := Some(extractedKeyProviderIdInfo),
-            branchKeyVersion := Some(expectedBranchKeyVersion)
-          );
-        }
-        else {
-          singleDataKeyOutput := EncryptedDataKeyDescription(
-            keyProviderId := extractedKeyProviderId,
-            keyProviderInfo := Some(extractedKeyProviderIdInfo),
-            branchKeyId := None,
-            branchKeyVersion := None
-          );
+          var maybeBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E(e));
+          expectedBranchKeyVersion := Some(maybeBranchKeyVersion);
         }
       }
+      var singleDataKeyOutput := EncryptedDataKeyDescription(
+        keyProviderId := extractedKeyProviderId,
+        keyProviderInfo := extractedKeyProviderIdInfo,
+        branchKeyId := extractedKeyProviderIdInfo,
+        branchKeyVersion := expectedBranchKeyVersion
+      );
       list := list + [singleDataKeyOutput];
     }
 
