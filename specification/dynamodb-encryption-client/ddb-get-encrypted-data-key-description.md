@@ -5,7 +5,7 @@
 
 ## Overview
 
-Currently, Keyring's Encrypted Data Key serialization includes metadata like key provider id, key provider info, branch Key id (only Hierarchy Keyring), and the version of the branch Key (only Hierarchy Keyring). Encrypted Data Key Description operation provides a way for the customers to get these meta data. This operation will provide them with an insight of the keys the data is encrypted with. 
+Keyring's Encrypted Data Key serialization includes metadata like key provider id, key provider info, branch Key id (only Hierarchy Keyring), and the version of the branch Key (only Hierarchy Keyring). Encrypted Data Key Description operation provides a way for the customers to get these meta data. This operation will provide them with an insight of the keys the data is encrypted with. 
 
 ## Operation
 
