@@ -615,7 +615,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
   function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchemaMap)
     : (ret: Result<map<ComAmazonawsDynamodbTypes.AttributeName, CSE.CryptoAction>, Error>)
-    // requires forall k <- schema :: SE.IsAuthAttr(schema[k])
+    requires forall k <- schema :: SE.IsAuthAttr(schema[k])
     // ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
     // ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
   {
@@ -624,7 +624,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //         DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: mismatch with signature scope"));
     :- Need(forall k <- schema :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
             DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: Invalid attribute names"));
-    Success(map k <- schema | SE.IsAuthAttr(schema[k]) :: k := schema[k])
+    // Success(map k <- schema :: k := schema[k])
+    Success(schema)
   }
 
   predicate EncryptItemEnsuresPublicly(input: EncryptItemInput, output: Result<EncryptItemOutput, Error>)
@@ -876,6 +877,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var encryptVal :- encryptRes.MapFailure(
       e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     var encryptedData := encryptVal.encryptedStructure;
+    :- Need(forall k <- encryptedData :: DDB.IsValid_AttributeName(k), E(""));
     var ddbKey :- DynamoToStruct.StructuredToItem(encryptedData)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
@@ -1087,6 +1089,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var decryptVal :- decryptRes.MapFailure(
       e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     var decryptedData := decryptVal.plaintextStructure;
+    :- Need(forall k <- decryptedData :: DDB.IsValid_AttributeName(k), E(""));
     var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 

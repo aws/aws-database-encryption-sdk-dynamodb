@@ -54,20 +54,23 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     input: EncryptStructureInput,
     output: Result<EncryptStructureOutput, Error>) {
     // Ensure the CryptoSchema in the ParsedHeader matches the input crypto Schema, minus any DO_NOTHING terminals
-    // && (output.Success? ==>
-    //       // For now we only support encrypting flat maps
-    //       && var headerSchema := output.value.parsedHeader.cryptoSchema;
-    //       && var inputSchema := input.cryptoSchema;
-    //       && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
-    //       && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
-    // )
-    true
+    output.Success? ==>
+          // For now we only support encrypting flat maps
+          && var headerSchema := output.value.cryptoSchema;
+          && var inputSchema := input.cryptoSchema;
+          // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
+          && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
   }
 
   predicate DecryptStructureEnsuresPublicly(
     input: DecryptStructureInput,
     output: Result<DecryptStructureOutput, Error>) {
-    true
+    output.Success? ==>
+          // For now we only support encrypting flat maps
+          && var headerSchema := output.value.cryptoSchema;
+          // && var inputSchema := input.cryptoSchema;
+          // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
+          && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
   }
 
   predicate DecryptPathStructureEnsuresPublicly(
@@ -517,20 +520,30 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   function method UnBuildCryptoMap(list : CryptoList, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
     (res : Result<(StructuredDataMap, CryptoSchemaMap), Error>)
     requires dataSoFar.Keys == actionsSoFar.Keys
+    requires (forall v :: v in actionsSoFar.Values ==> IsAuthAttr(v))
     ensures res.Success? ==>
-              res.value.0.Keys == res.value.1.Keys
+              && res.value.0.Keys == res.value.1.Keys
+              && (forall v :: v in res.value.1.Values ==> IsAuthAttr(v))
   {
     if |list| == 0 then
       Success((dataSoFar, actionsSoFar))
     else
       var key :- Paths.UniPathToString(list[0].key);
       :- Need(key !in dataSoFar, E("Duplicate Key " + key));
-      UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar[key := list[0].action])
+      if IsAuthAttr(list[0].action) then
+        UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar[key := list[0].action])
+      else
+        UnBuildCryptoMap(list[1..], dataSoFar, actionsSoFar)
   }
 
 
   method {:vcs_split_on_every_assert} EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
+    ensures output.Success? ==>
+          && var headerSchema := output.value.cryptoSchema;
+          && var inputSchema := input.cryptoSchema;
+          // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
+          && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
   {
     var cryptoMap :- BuildCryptoMap(input.plaintextStructure, input.cryptoSchema);
     var pathInput := EncryptPathStructureInput(
