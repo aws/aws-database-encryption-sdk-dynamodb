@@ -79,7 +79,7 @@ module HappyCaseTests {
     //#   - [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
     //#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
     var parsedHeader := decryptRes.value.parsedHeader;
-    expect decryptRes.value.cryptoSchema == StructuredDataTestFixtures.TEST_CRYPTO_SCHEMA;
+    expect decryptRes.value.cryptoSchema == StructuredDataTestFixtures.TEST_CRYPTO_SCHEMA_AUTH_ONLY;
     expect parsedHeader.algorithmSuiteId == algSuiteId;
     expect encContext.Keys <= parsedHeader.storedEncryptionContext.Keys;
     expect forall k <- encContext.Keys :: parsedHeader.storedEncryptionContext[k] == encContext[k];

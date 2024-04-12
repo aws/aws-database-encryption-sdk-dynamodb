@@ -543,10 +543,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
   function method UnBuildCryptoMap(list : CryptoList, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
     (res : Result<(StructuredDataMap, CryptoSchemaMap), Error>)
-    requires dataSoFar.Keys == actionsSoFar.Keys
+    requires forall k <- actionsSoFar :: k in dataSoFar
     requires (forall v :: v in actionsSoFar.Values ==> IsAuthAttr(v))
     ensures res.Success? ==>
-              && res.value.0.Keys == res.value.1.Keys
+              && (forall k <- res.value.1 :: k in res.value.0)
               && (forall v :: v in res.value.1.Values ==> IsAuthAttr(v))
   {
     if |list| == 0 then
@@ -557,7 +557,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       if IsAuthAttr(list[0].action) then
         UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar[key := list[0].action])
       else
-        UnBuildCryptoMap(list[1..], dataSoFar, actionsSoFar)
+        UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar)
   }
 
 
