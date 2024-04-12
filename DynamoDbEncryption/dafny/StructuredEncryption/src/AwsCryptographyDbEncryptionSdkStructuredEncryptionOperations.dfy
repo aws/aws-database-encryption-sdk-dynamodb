@@ -240,14 +240,22 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     return Success(mat);
   }
 
-  function method MakeCanon(tableName : GoodString, data : CryptoItem) : CanonCryptoItem
+  function method {:opaque} MakeCanon(tableName : GoodString, data : CryptoItem) : (result : CanonCryptoItem)
     requires Paths.ValidPath(data.key)
+    ensures result.key == Paths.CanonPath(tableName, data.key)
+    ensures result.origKey == data.key
+    ensures result.data == data.data
+    ensures result.action == data.action
   {
     CanonCryptoItem(Paths.CanonPath(tableName, data.key), data.key, data.data, data.action)
   }
 
-  function method MakeCanonAuth(tableName : GoodString, data : AuthItem) : CanonAuthItem
+  function method {:opaque} MakeCanonAuth(tableName : GoodString, data : AuthItem) : (result : CanonAuthItem)
     requires Paths.ValidPath(data.key)
+    ensures result.key == Paths.CanonPath(tableName, data.key)
+    ensures result.origKey == data.key
+    ensures result.data == data.data
+    ensures result.action == data.action
   {
     CanonAuthItem(Paths.CanonPath(tableName, data.key), data.key, data.data, data.action)
   }
@@ -257,37 +265,53 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     : (ret : Result<CanonCryptoList, Error>)
     ensures ret.Success? ==>
               && (forall k <- data :: Paths.ValidPath(k.key))
-    // && var r := ret.value;
 
-    //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
-    //= type=implication
-    //# For every [input Terminal Data](./structures.md#terminal-data)
-    //# in the [input Structured Data](#structured-data),
-    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
-    //# in Intermediate Encrypted Structured Data,
-    //# if the [Crypto Schema](#crypto-schema)
-    //# indicates a [Crypto Action](./structures.md#crypto-action)
-    //# other than [DO_NOTHING](./structures.md#DO_NOTHING).
-    // && (forall k <- data :: (exists x :: x in ret.value && x.key == Paths.CanonPath(tableName, k.key)))
+              //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
+              //= type=implication
+              //# For every [input Terminal Data](./structures.md#terminal-data)
+              //# in the [input Structured Data](#structured-data),
+              //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
+              //# in Intermediate Encrypted Structured Data,
+              //# if the [Crypto Schema](#crypto-schema)
+              //# indicates a [Crypto Action](./structures.md#crypto-action)
+              //# other than [DO_NOTHING](./structures.md#DO_NOTHING).
+              && (forall k <- data :: (exists x :: x in ret.value && x.key == Paths.CanonPath(tableName, k.key)))
 
-    //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
-    //= type=implication
-    //# For every [Terminal Data](./structures.md#terminal-data)
-    //# in the Intermediate Encrypted Structured Data
-    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
-    //# in the [input Structured Data](#structured-data).
-    // && (forall k <- ret.value :: (exists x :: x in data && k.key == Paths.CanonPath(tableName, x.key)))
+              //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
+              //= type=implication
+              //# For every [Terminal Data](./structures.md#terminal-data)
+              //# in the Intermediate Encrypted Structured Data
+              //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path)
+              //# in the [input Structured Data](#structured-data).
+              && (forall k <- ret.value :: (exists x :: x in data && k.key == Paths.CanonPath(tableName, x.key)))
   {
     :- Need(forall k <- data :: Paths.ValidPath(k.key), E("Invalid Paths"));
     var canonList : CanonCryptoList := Seq.Map((s : CryptoItem) requires Paths.ValidPath(s.key) => MakeCanon(tableName, s), data);
-    assert forall k <- canonList :: (exists x :: x in data && k.key == Paths.CanonPath(tableName, x.key));
-    // assert forall i {:trigger canonList[i]} :: 0 <= i < |data| ==> canonList[i] == MakeCanon(tableName, data[i]);
-    // assert forall i :: 0 <= i < |canonList| ==> canonList[i] in canonList;
-    // assert forall x <- canonList :: exists i | 0 <= i < |canonList| :: x == canonList[i];
-    // assert forall i | 0 <= i < |canonList| :: exists x <- canonList :: x == canonList[i];
-    // assert forall i {:trigger canonList[i]} | 0 <= i < |canonList| :: exists x <- canonList :: x == canonList[i];
-    assume {:axiom} forall k <- data :: (exists x :: x in canonList && x.key == Paths.CanonPath(tableName, k.key));
+
+    assert |canonList| == |data|;
+    assert forall i | 0 <= i < |data| :: canonList[i] == MakeCanon(tableName, data[i]);
+    assert forall i :: 0 <= i < |canonList| ==> canonList[i] in canonList;
+    assert forall i | 0 <= i < |canonList| :: canonList[i] in canonList;
+    assert forall x <- canonList :: exists i | 0 <= i < |canonList| :: x == canonList[i];
+
+    assert forall k <- canonList :: (exists x :: x in data && k == MakeCanon(tableName, x));
+    assert forall k <- data :: (exists x :: x in canonList && x == MakeCanon(tableName, k));
+
     var canonSorted := SortCanon.CryptoSort(canonList);
+
+    assert forall k <- canonSorted :: k in multiset(canonList);
+    assert forall k <- canonList :: k in multiset(canonList);
+    assert forall k <- canonSorted :: k in multiset(canonSorted);
+    assert forall k <- canonList :: k in multiset(canonSorted);
+    assert forall k <- canonSorted :: k in canonList;
+    assert forall k <- canonList :: k in canonSorted;
+    assert forall k <- canonSorted :: (exists x :: x in data && k == MakeCanon(tableName, x)) by {
+      assert forall k <- canonList :: (exists x :: x in data && k == MakeCanon(tableName, x));
+    }
+    assert forall k <- data :: (exists x :: x in canonSorted && x == MakeCanon(tableName, k)) by {
+      assert forall k <- data :: (exists x :: x in canonList && x == MakeCanon(tableName, k));
+    }
+
     Success(canonSorted)
   }
 
