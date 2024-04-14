@@ -651,11 +651,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         //# with the following inputs:
         //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
         //# - The name of every entry added above.
+        var contextKeysX := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess);
+        assert forall k <- contextKeysX :: ValidUTF8Seq(k) by {
+          assert forall k <- newEncryptionContext.Keys :: ValidUTF8Seq(k);
+          assert forall k <- contextKeysX :: k in newEncryptionContext.Keys;
+        }
+        var contextKeys :  seq<UTF8.ValidUTF8Bytes> := contextKeysX;
         var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
           CMP.CreateRequiredEncryptionContextCMMInput(
             underlyingCMM := Some(input.cmm),
             keyring := None,
-            requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess)
+            requiredEncryptionContextKeys := contextKeys
           )
         );
         cmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
