@@ -315,10 +315,10 @@ module DynamoToStructTest {
 
     var listValue := AttributeValue.L([nValue]);
     var encodedListData := StructuredDataTerminal(value := [
-        0,0,0,1, // 1 member in list
-        0,2, 0,0,0,1, 49 // 1st member is N("1")
-      ],
-      typeId := [3,0]);
+                                                    0,0,0,1, // 1 member in list
+                                                    0,2, 0,0,0,1, 49 // 1st member is N("1")
+                                                  ],
+                                                  typeId := [3,0]);
     var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
     var listStruct := AttrToStructured(listValue);
     expect listStruct.Success?;
@@ -397,15 +397,15 @@ module DynamoToStructTest {
     var stringSetValue := AttributeValue.SS(["&","｡","𐀂"]);
     // Note that string values are UTF-8 encoded, but sorted by UTF-16 encoding.
     var encodedStringSetData := StructuredDataTerminal(value := [
-        0,0,0,3, // 3 entries in set
-        0,0,0,1, // 1st entry is 1 byte
-        0x26, // "&" in UTF-8 encoding
-        0,0,0,4, // 2nd entry is 4 bytes
-        0xF0,0x90,0x80,0x82, // "𐀂" in UTF-8 encoding
-        0,0,0,3, // 3rd entry is 3 bytes
-        0xEF,0xBD,0xA1 // "｡" in UTF-8 encoding
-      ],
-      typeId := [1,1]
+                                                         0,0,0,3, // 3 entries in set
+                                                         0,0,0,1, // 1st entry is 1 byte
+                                                         0x26, // "&" in UTF-8 encoding
+                                                         0,0,0,4, // 2nd entry is 4 bytes
+                                                         0xF0,0x90,0x80,0x82, // "𐀂" in UTF-8 encoding
+                                                         0,0,0,3, // 3rd entry is 3 bytes
+                                                         0xEF,0xBD,0xA1 // "｡" in UTF-8 encoding
+                                                       ],
+                                                       typeId := [1,1]
     );
     var encodedStringSetValue := StructuredData(content := Terminal(encodedStringSetData), attributes := None);
     var stringSetStruct := AttrToStructured(stringSetValue);
@@ -444,15 +444,15 @@ module DynamoToStructTest {
 
     var listValue := AttributeValue.L([nSetValue, sSetValue, bSetValue]);
     var encodedListData := StructuredDataTerminal(value := [
-        0,0,0,3, // 3 members in list
-        1,2, 0,0,0,20, // 1st member is a NS and is 20 bytes long
-        0,0,0,3, 0,0,0,1, 49, 0,0,0,2, 49,48, 0,0,0,1, 50, // NS
-        1,1, 0,0,0,24, // 2nd member is a SS and is 24 bytes long
-        0,0,0,3, 0,0,0,1, 0x26, 0,0,0,4, 0xF0,0x90,0x80,0x82, 0,0,0,3, 0xEF,0xBD,0xA1, // SS
-        1,0xFF, 0,0,0,20, // 3rd member is a BS and is 20 bytes long
-        0,0,0,3, 0,0,0,1, 1, 0,0,0,2, 1,0, 0,0,0,1, 2 // BS
-      ],
-      typeId := [3,0]);
+                                                    0,0,0,3, // 3 members in list
+                                                    1,2, 0,0,0,20, // 1st member is a NS and is 20 bytes long
+                                                    0,0,0,3, 0,0,0,1, 49, 0,0,0,2, 49,48, 0,0,0,1, 50, // NS
+                                                    1,1, 0,0,0,24, // 2nd member is a SS and is 24 bytes long
+                                                    0,0,0,3, 0,0,0,1, 0x26, 0,0,0,4, 0xF0,0x90,0x80,0x82, 0,0,0,3, 0xEF,0xBD,0xA1, // SS
+                                                    1,0xFF, 0,0,0,20, // 3rd member is a BS and is 20 bytes long
+                                                    0,0,0,3, 0,0,0,1, 1, 0,0,0,2, 1,0, 0,0,0,1, 2 // BS
+                                                  ],
+                                                  typeId := [3,0]);
     var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
     var listStruct := AttrToStructured(listValue);
     expect listStruct.Success?;

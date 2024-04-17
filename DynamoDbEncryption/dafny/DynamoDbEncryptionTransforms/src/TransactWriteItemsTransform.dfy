@@ -32,12 +32,12 @@ module TransactWriteItemsTransform {
     //# To protect against a possible fifth field being added to the TransactWriteItem structure in the future,
     //# the client MUST fail if none of the `Update`, `ConditionCheck`, `Delete` and `Put` fields are set.
     ensures output.Success? ==>
-      forall item <- input.sdkInput.TransactItems :: IsValid(item)
+              forall item <- input.sdkInput.TransactItems :: IsValid(item)
   {
     :- Need(forall item <- input.sdkInput.TransactItems :: IsValid(item), E("Each item in TransactWriteItems must specify at least one supported operation"));
     var result : seq<DDB.TransactWriteItem> := [];
     for x := 0 to |input.sdkInput.TransactItems|
-     // invariant |result| == x
+      // invariant |result| == x
     {
       var item := input.sdkInput.TransactItems[x];
 
@@ -46,33 +46,33 @@ module TransactWriteItemsTransform {
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The ConditionExpression of the `ConditionCheck` MUST be [valid](ddb-support.md#testconditionexpression).
         var _ :- TestConditionExpression(tableConfig,
-          Some(item.ConditionCheck.value.ConditionExpression),
-          item.ConditionCheck.value.ExpressionAttributeNames,
-          item.ConditionCheck.value.ExpressionAttributeValues);
+                                         Some(item.ConditionCheck.value.ConditionExpression),
+                                         item.ConditionCheck.value.ExpressionAttributeNames,
+                                         item.ConditionCheck.value.ExpressionAttributeValues);
       }
       if item.Delete.Some? && item.Delete.value.TableName in config.tableEncryptionConfigs {
         var tableConfig := config.tableEncryptionConfigs[item.Delete.value.TableName];
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The ConditionExpression of the `Delete` MUST be [valid](ddb-support.md#testconditionexpression).
         var _ :- TestConditionExpression(tableConfig,
-          item.Delete.value.ConditionExpression,
-          item.Delete.value.ExpressionAttributeNames,
-          item.Delete.value.ExpressionAttributeValues);
+                                         item.Delete.value.ConditionExpression,
+                                         item.Delete.value.ExpressionAttributeNames,
+                                         item.Delete.value.ExpressionAttributeValues);
       }
       if item.Update.Some? && item.Update.value.TableName in config.tableEncryptionConfigs {
         var tableConfig := config.tableEncryptionConfigs[item.Update.value.TableName];
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The UpdateExpression of the `Update` MUST be [valid](ddb-support.md#testupdateexpression).
         var _ :- TestUpdateExpression(tableConfig,
-          Some(item.Update.value.UpdateExpression),
-          item.Update.value.ExpressionAttributeNames,
-          item.Update.value.ExpressionAttributeValues);
+                                      Some(item.Update.value.UpdateExpression),
+                                      item.Update.value.ExpressionAttributeNames,
+                                      item.Update.value.ExpressionAttributeValues);
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The ConditionExpression of the `Update` MUST be [valid](ddb-support.md#testconditionexpression).
         var _ :- TestConditionExpression(tableConfig,
-          item.Update.value.ConditionExpression,
-          item.Update.value.ExpressionAttributeNames,
-          item.Update.value.ExpressionAttributeValues);
+                                         item.Update.value.ConditionExpression,
+                                         item.Update.value.ExpressionAttributeNames,
+                                         item.Update.value.ExpressionAttributeValues);
       }
 
       if item.Put.Some? && item.Put.value.TableName in config.tableEncryptionConfigs {
@@ -85,9 +85,9 @@ module TransactWriteItemsTransform {
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The ConditionExpression `Put` MUST be [valid](ddb-support.md#testconditionexpression).
         var _ :- TestConditionExpression(tableConfig,
-          item.Put.value.ConditionExpression,
-          item.Put.value.ExpressionAttributeNames,
-          item.Put.value.ExpressionAttributeValues);
+                                         item.Put.value.ConditionExpression,
+                                         item.Put.value.ExpressionAttributeNames,
+                                         item.Put.value.ExpressionAttributeValues);
 
         var beaconItem :- AddSignedBeacons(tableConfig, item.Put.value.Item);
 

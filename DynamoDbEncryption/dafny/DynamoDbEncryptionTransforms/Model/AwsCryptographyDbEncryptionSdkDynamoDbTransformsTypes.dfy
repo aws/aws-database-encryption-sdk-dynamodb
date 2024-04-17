@@ -741,6 +741,7 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
   function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig
   method DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig := DefaultDynamoDbTablesEncryptionConfig())
     returns (res: Result<IDynamoDbEncryptionTransformsClient, Error>)
+    // BEGIN MANUAL EDIT
     requires var tmps0 := set t0 | t0 in config.tableEncryptionConfigs.Values;
              forall tmp0 :: tmp0 in tmps0 ==>
                               tmp0.keyring.Some? ==>
@@ -759,62 +760,103 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                 var tmps4 := set t4 | t4 in tmp3.search.value.versions;
                                 forall tmp4 :: tmp4 in tmps4 ==>
                                                  tmp4.keyStore.ValidState()
-    modifies set tmps5 <- set t5 <- config.tableEncryptionConfigs.Values | true
-                                                                           && t5.keyring.Some?
-                            :: t5.keyring.value,
-               obj <- tmps5.Modifies | obj in tmps5.Modifies :: obj
-    modifies set tmps6 <- set t6 <- config.tableEncryptionConfigs.Values | true
-                                                                           && t6.cmm.Some?
-                            :: t6.cmm.value,
-               obj <- tmps6.Modifies | obj in tmps6.Modifies :: obj
-    modifies set tmps7 <- set t7 <- config.tableEncryptionConfigs.Values | true
-                                                                           && t7.legacyOverride.Some?
-                            :: t7.legacyOverride.value.encryptor,
-               obj <- tmps7.Modifies | obj in tmps7.Modifies :: obj
-    modifies set tmps8 <- set t8 <- config.tableEncryptionConfigs.Values | true
-                                                                           && t8.search.Some?
-                            , t9 <- t8.search.value.versions :: t9.keyStore,
-               obj <- tmps8.Modifies | obj in tmps8.Modifies :: obj
+    modifies var tmps5 := set t5 | t5 in config.tableEncryptionConfigs.Values
+                                   && t5.keyring.Some?
+                            :: t5.keyring.value;
+             var tmps5FlattenedModifiesSet: set<set<object>> := set t0
+                                                                  | t0 in tmps5 :: t0.Modifies;
+             (set tmp6ModifyEntry, tmp6Modifies |
+                tmp6Modifies in tmps5FlattenedModifiesSet
+                && tmp6ModifyEntry in tmp6Modifies
+                :: tmp6ModifyEntry)
+    modifies var tmps7 := set t7 | t7 in config.tableEncryptionConfigs.Values
+                                   && t7.cmm.Some?
+                            :: t7.cmm.value;
+             var tmps7FlattenedModifiesSet: set<set<object>> := set t0
+                                                                  | t0 in tmps7 :: t0.Modifies;
+             (set tmp8ModifyEntry, tmp8Modifies |
+                tmp8Modifies in tmps7FlattenedModifiesSet
+                && tmp8ModifyEntry in tmp8Modifies
+                :: tmp8ModifyEntry)
+    modifies var tmps9 := set t9 | t9 in config.tableEncryptionConfigs.Values
+                                   && t9.legacyOverride.Some?
+                            :: t9.legacyOverride.value.encryptor;
+             var tmps9FlattenedModifiesSet: set<set<object>> := set t0
+                                                                  | t0 in tmps9 :: t0.Modifies;
+             (set tmp10ModifyEntry, tmp10Modifies |
+                tmp10Modifies in tmps9FlattenedModifiesSet
+                && tmp10ModifyEntry in tmp10Modifies
+                :: tmp10ModifyEntry)
+    modifies var tmps11 := set t11 | t11 in config.tableEncryptionConfigs.Values
+                                     && t11.search.Some?
+                             :: set t12 | t12 in t11.search.value.versions :: t12.keyStore;
+             var tmps11FlattenedModifiesSet: set<set<object>> := set t0
+                                                                   , t1 | t0 in tmps11 && t1 in t0 :: t1.Modifies;
+             (set tmp13ModifyEntry, tmp13Modifies |
+                tmp13Modifies in tmps11FlattenedModifiesSet
+                && tmp13ModifyEntry in tmp13Modifies
+                :: tmp13ModifyEntry)
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies
-                       - ( set tmps10 <- set t10 <- config.tableEncryptionConfigs.Values | true
-                                                                                           && t10.keyring.Some?
-                                           :: t10.keyring.value,
-                             obj <- tmps10.Modifies | obj in tmps10.Modifies :: obj
-                       ) - ( set tmps11 <- set t11 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t11.cmm.Some?
-                                             :: t11.cmm.value,
-                               obj <- tmps11.Modifies | obj in tmps11.Modifies :: obj
-                       ) - ( set tmps12 <- set t12 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t12.legacyOverride.Some?
-                                             :: t12.legacyOverride.value.encryptor,
-                               obj <- tmps12.Modifies | obj in tmps12.Modifies :: obj
-                       ) - ( set tmps13 <- set t13 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t13.search.Some?
-                                             , t14 <- t13.search.value.versions :: t14.keyStore,
-                               obj <- tmps13.Modifies | obj in tmps13.Modifies :: obj
+                       - ( var tmps14 := set t14 | t14 in config.tableEncryptionConfigs.Values
+                                                   && t14.keyring.Some?
+                                           :: t14.keyring.value;
+                           var tmps14FlattenedModifiesSet: set<set<object>> := set t0
+                                                                                 | t0 in tmps14 :: t0.Modifies;
+                           (set tmp15ModifyEntry, tmp15Modifies |
+                              tmp15Modifies in tmps14FlattenedModifiesSet
+                              && tmp15ModifyEntry in tmp15Modifies
+                              :: tmp15ModifyEntry)
+                       ) - ( var tmps16 := set t16 | t16 in config.tableEncryptionConfigs.Values
+                                                     && t16.cmm.Some?
+                                             :: t16.cmm.value;
+                             var tmps16FlattenedModifiesSet: set<set<object>> := set t0
+                                                                                   | t0 in tmps16 :: t0.Modifies;
+                             (set tmp17ModifyEntry, tmp17Modifies |
+                                tmp17Modifies in tmps16FlattenedModifiesSet
+                                && tmp17ModifyEntry in tmp17Modifies
+                                :: tmp17ModifyEntry)
+                       ) - ( var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values
+                                                     && t18.legacyOverride.Some?
+                                             :: t18.legacyOverride.value.encryptor;
+                             var tmps18FlattenedModifiesSet: set<set<object>> := set t0
+                                                                                   | t0 in tmps18 :: t0.Modifies;
+                             (set tmp19ModifyEntry, tmp19Modifies |
+                                tmp19Modifies in tmps18FlattenedModifiesSet
+                                && tmp19ModifyEntry in tmp19Modifies
+                                :: tmp19ModifyEntry)
+                       ) - ( var tmps20 := set t20 | t20 in config.tableEncryptionConfigs.Values
+                                                     && t20.search.Some?
+                                             :: set t21 | t21 in t20.search.value.versions :: t21.keyStore;
+                             var tmps20FlattenedModifiesSet: set<set<object>> := set t0
+                                                                                   , t1 | t0 in tmps20 && t1 in t0 :: t1.Modifies;
+                             (set tmp22ModifyEntry, tmp22Modifies |
+                                tmp22Modifies in tmps20FlattenedModifiesSet
+                                && tmp22ModifyEntry in tmp22Modifies
+                                :: tmp22ModifyEntry)
                        ) )
               && fresh(res.value.History)
               && res.value.ValidState()
-    ensures var tmps15 := set t15 | t15 in config.tableEncryptionConfigs.Values;
-            forall tmp15 :: tmp15 in tmps15 ==>
-                              tmp15.keyring.Some? ==>
-                                tmp15.keyring.value.ValidState()
-    ensures var tmps16 := set t16 | t16 in config.tableEncryptionConfigs.Values;
-            forall tmp16 :: tmp16 in tmps16 ==>
-                              tmp16.cmm.Some? ==>
-                                tmp16.cmm.value.ValidState()
-    ensures var tmps17 := set t17 | t17 in config.tableEncryptionConfigs.Values;
-            forall tmp17 :: tmp17 in tmps17 ==>
-                              tmp17.legacyOverride.Some? ==>
-                                tmp17.legacyOverride.value.encryptor.ValidState()
-    ensures var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values;
-            forall tmp18 :: tmp18 in tmps18 ==>
-                              tmp18.search.Some? ==>
-                                var tmps19 := set t19 | t19 in tmp18.search.value.versions;
-                                forall tmp19 :: tmp19 in tmps19 ==>
-                                                  tmp19.keyStore.ValidState()
+    ensures var tmps23 := set t23 | t23 in config.tableEncryptionConfigs.Values;
+            forall tmp23 :: tmp23 in tmps23 ==>
+                              tmp23.keyring.Some? ==>
+                                tmp23.keyring.value.ValidState()
+    ensures var tmps24 := set t24 | t24 in config.tableEncryptionConfigs.Values;
+            forall tmp24 :: tmp24 in tmps24 ==>
+                              tmp24.cmm.Some? ==>
+                                tmp24.cmm.value.ValidState()
+    ensures var tmps25 := set t25 | t25 in config.tableEncryptionConfigs.Values;
+            forall tmp25 :: tmp25 in tmps25 ==>
+                              tmp25.legacyOverride.Some? ==>
+                                tmp25.legacyOverride.value.encryptor.ValidState()
+    ensures var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
+            forall tmp26 :: tmp26 in tmps26 ==>
+                              tmp26.search.Some? ==>
+                                var tmps27 := set t27 | t27 in tmp26.search.value.versions;
+                                forall tmp27 :: tmp27 in tmps27 ==>
+                                                  tmp27.keyStore.ValidState()
+  // END MANUAL EDIT
 
   // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IDynamoDbEncryptionTransformsClient): Result<IDynamoDbEncryptionTransformsClient, Error> {

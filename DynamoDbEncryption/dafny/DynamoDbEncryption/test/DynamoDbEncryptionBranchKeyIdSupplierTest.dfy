@@ -15,7 +15,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import SE = StructuredEncryptionUtil
   import Base64
-  import KeyStore 
+  import KeyStore
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
 
   const TEST_DBE_ALG_SUITE_ID := MPL.AlgorithmSuiteId.DBE(MPL.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
@@ -44,7 +44,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   const EC_PARTITION_NAME := UTF8.EncodeAscii("aws-crypto-partition-name")
   const RESERVED_PREFIX := "aws-crypto-attr."
 
-  method {:test} TestHappyCase() 
+  method {:test} TestHappyCase()
   {
     var ddbKeyToBranchKeyId: Types.IDynamoDbKeyBranchKeyIdSupplier := new TestBranchKeyIdSupplier();
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -81,7 +81,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     );
 
     var keyAttrName := UTF8.EncodeAscii(RESERVED_PREFIX + BRANCH_KEY);
-    
+
     // Test Encryption Context with Case A
     var materials :- expect mpl.InitializeEncryptionMaterials(
       MPL.InitializeEncryptionMaterialsInput(
@@ -96,13 +96,13 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     var caseA :- expect UTF8.Encode(Base64.Encode(CASE_A_BYTES));
     var contextCaseA := materials.encryptionContext[keyAttrName := caseA];
     var materialsA := materials.(encryptionContext := contextCaseA);
-    TestRoundtrip(hierarchyKeyring, materialsA, TEST_DBE_ALG_SUITE_ID, BRANCH_KEY_ID_A); 
+    TestRoundtrip(hierarchyKeyring, materialsA, TEST_DBE_ALG_SUITE_ID, BRANCH_KEY_ID_A);
 
     // Test Encryption Context with Case B
     var caseB :- expect UTF8.Encode(Base64.Encode(CASE_B_BYTES));
     var contextCaseB := materials.encryptionContext[keyAttrName := caseB];
     var materialsB := materials.(encryptionContext := contextCaseB);
-    TestRoundtrip(hierarchyKeyring, materialsB, TEST_DBE_ALG_SUITE_ID, BRANCH_KEY_ID_B); 
+    TestRoundtrip(hierarchyKeyring, materialsB, TEST_DBE_ALG_SUITE_ID, BRANCH_KEY_ID_B);
   }
 
   method TestRoundtrip(
@@ -118,14 +118,14 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     var encryptionMaterialsOut :- expect hierarchyKeyring.OnEncrypt(
       MPL.OnEncryptInput(materials:=encryptionMaterialsIn)
     );
-    
+
     var mpl :- expect MaterialProviders.MaterialProviders();
     var _ :- expect mpl.EncryptionMaterialsHasPlaintextDataKey(encryptionMaterialsOut.materials);
 
     expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
 
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
-    
+
     // Verify the edk was created with the expected branch key
     var expectedBranchKeyIdUTF8 :- expect UTF8.Encode(expectedBranchKeyId);
     expect edk.keyProviderInfo == expectedBranchKeyIdUTF8;
@@ -145,7 +145,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     );
 
     expect encryptionMaterialsOut.materials.plaintextDataKey
-    == decryptionMaterialsOut.materials.plaintextDataKey;
+        == decryptionMaterialsOut.materials.plaintextDataKey;
   }
 
   // returns "branchKeyIdA" when item contains "branchKey":"caseA"
@@ -170,7 +170,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     {true}
 
     method GetBranchKeyIdFromDdbKey'(input: Types.GetBranchKeyIdFromDdbKeyInput)
-        returns (output: Result<Types.GetBranchKeyIdFromDdbKeyOutput, Types.Error>)
+      returns (output: Result<Types.GetBranchKeyIdFromDdbKeyOutput, Types.Error>)
       requires ValidState()
       modifies Modifies - {History}
       decreases Modifies - {History}

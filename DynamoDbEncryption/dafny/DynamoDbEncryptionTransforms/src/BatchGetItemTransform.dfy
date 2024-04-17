@@ -27,8 +27,8 @@ module BatchGetItemTransform {
 
     ensures output.Success? ==> SameOption(input.sdkOutput.Responses, output.value.transformedOutput.Responses)
     ensures output.Success? && input.sdkOutput.Responses.Some? ==>
-      && output.value.transformedOutput.Responses.Some?
-      // true but expensive -- input.sdkOutput.Responses.value.Keys == output.value.transformedOutput.Responses.value.Keys
+              && output.value.transformedOutput.Responses.Some?
+    // true but expensive -- input.sdkOutput.Responses.value.Keys == output.value.transformedOutput.Responses.value.Keys
   {
     if NoMap(input.sdkOutput.Responses) {
       return Success(BatchGetItemOutputTransformOutput(transformedOutput := input.sdkOutput));

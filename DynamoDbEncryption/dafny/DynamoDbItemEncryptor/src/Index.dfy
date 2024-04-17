@@ -47,55 +47,55 @@ module
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
     returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
-      && res.value is DynamoDbItemEncryptorClient
-      && var rconfig := (res.value as DynamoDbItemEncryptorClient).config;
-      && rconfig.logicalTableName == config.logicalTableName
-      && rconfig.partitionKeyName == config.partitionKeyName
-      && rconfig.sortKeyName == config.sortKeyName
-      && rconfig.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
-      && rconfig.allowedUnsignedAttributes == config.allowedUnsignedAttributes
-      && rconfig.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
-      && rconfig.algorithmSuiteId == config.algorithmSuiteId
+              && res.value is DynamoDbItemEncryptorClient
+              && var rconfig := (res.value as DynamoDbItemEncryptorClient).config;
+              && rconfig.logicalTableName == config.logicalTableName
+              && rconfig.partitionKeyName == config.partitionKeyName
+              && rconfig.sortKeyName == config.sortKeyName
+              && rconfig.attributeActionsOnEncrypt == config.attributeActionsOnEncrypt
+              && rconfig.allowedUnsignedAttributes == config.allowedUnsignedAttributes
+              && rconfig.allowedUnsignedAttributePrefix == config.allowedUnsignedAttributePrefix
+              && rconfig.algorithmSuiteId == config.algorithmSuiteId
 
-      //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-actions
-      //= type=implication
-      //# The [Key Action](#key-action)
-      //# MUST be configured to the partition attribute and, if present, sort attribute.
-      && rconfig.version == Operations.VersionFromActions(config.attributeActionsOnEncrypt)
-      && config.partitionKeyName in config.attributeActionsOnEncrypt
-      && config.attributeActionsOnEncrypt[config.partitionKeyName] == Operations.KeyActionFromVersion(rconfig.version)
-      && (config.sortKeyName.Some? ==>
-          && config.sortKeyName.value in config.attributeActionsOnEncrypt
-          && config.attributeActionsOnEncrypt[config.sortKeyName.value] == Operations.KeyActionFromVersion(rconfig.version))
+              //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#attribute-actions
+              //= type=implication
+              //# The [Key Action](#key-action)
+              //# MUST be configured to the partition attribute and, if present, sort attribute.
+              && rconfig.version == Operations.VersionFromActions(config.attributeActionsOnEncrypt)
+              && config.partitionKeyName in config.attributeActionsOnEncrypt
+              && config.attributeActionsOnEncrypt[config.partitionKeyName] == Operations.KeyActionFromVersion(rconfig.version)
+              && (config.sortKeyName.Some? ==>
+                    && config.sortKeyName.value in config.attributeActionsOnEncrypt
+                    && config.attributeActionsOnEncrypt[config.sortKeyName.value] == Operations.KeyActionFromVersion(rconfig.version))
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#plaintext-policy
     //# If not specified, encryption and decryption MUST behave according to `FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ`.
     ensures
-        && res.Success?
-        && config.plaintextOverride.None?
+      && res.Success?
+      && config.plaintextOverride.None?
       ==>
         && var config := (res.value as DynamoDbItemEncryptorClient).config;
         && config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
   {
     :- Need(config.keyring.None? || config.cmm.None?, DynamoDbItemEncryptorException(
-      message := "Cannot provide both a keyring and a CMM"
-    ));
+              message := "Cannot provide both a keyring and a CMM"
+            ));
     :- Need(config.keyring.Some? || config.cmm.Some?, DynamoDbItemEncryptorException(
-      message := "Must provide either a keyring or a CMM"
-    ));
+              message := "Must provide either a keyring or a CMM"
+            ));
     var version := Operations.VersionFromActions(config.attributeActionsOnEncrypt);
     var keyAction := Operations.KeyActionFromVersion(version);
     var keyActionStr := Operations.KeyActionStringFromVersion(version);
     :- Need(
-        && config.partitionKeyName in config.attributeActionsOnEncrypt
-        && config.attributeActionsOnEncrypt[config.partitionKeyName] == keyAction,
+      && config.partitionKeyName in config.attributeActionsOnEncrypt
+      && config.attributeActionsOnEncrypt[config.partitionKeyName] == keyAction,
       DynamoDbItemEncryptorException(
         message := "Partition key attribute action MUST be " + keyActionStr
       ));
     :- Need(
       (config.sortKeyName.Some? ==>
-        && config.sortKeyName.value in config.attributeActionsOnEncrypt
-        && config.attributeActionsOnEncrypt[config.sortKeyName.value] == keyAction),
+         && config.sortKeyName.value in config.attributeActionsOnEncrypt
+         && config.attributeActionsOnEncrypt[config.sortKeyName.value] == keyAction),
       DynamoDbItemEncryptorException(
         message := "Sort key attribute action MUST be " + keyActionStr
       ));
@@ -104,30 +104,30 @@ module
     var attributeNames : seq<DDB.AttributeName> := SortedSets.ComputeSetToOrderedSequence2(config.attributeActionsOnEncrypt.Keys, CharLess);
     for i := 0 to |attributeNames|
       invariant forall j | 0 <= j < i ::
-      && UnreservedPrefix(attributeNames[j])
-      && (Operations.ForwardCompatibleAttributeAction(
-               attributeNames[j],
-               config.attributeActionsOnEncrypt[attributeNames[j]],
-               config.allowedUnsignedAttributes,
-               config.allowedUnsignedAttributePrefix))
+          && UnreservedPrefix(attributeNames[j])
+          && (Operations.ForwardCompatibleAttributeAction(
+                attributeNames[j],
+                config.attributeActionsOnEncrypt[attributeNames[j]],
+                config.allowedUnsignedAttributes,
+                config.allowedUnsignedAttributePrefix))
     {
       var attributeName := attributeNames[i];
       var action := config.attributeActionsOnEncrypt[attributeName];
       if !(Operations.ForwardCompatibleAttributeAction(
-          attributeName,
-          action,
-          config.allowedUnsignedAttributes,
-          config.allowedUnsignedAttributePrefix
-        ))
+             attributeName,
+             action,
+             config.allowedUnsignedAttributes,
+             config.allowedUnsignedAttributePrefix
+           ))
       {
         return Failure(DynamoDbItemEncryptorException(
-          message := Operations.ExplainNotForwardCompatible(attributeName, action, config.allowedUnsignedAttributes, config.allowedUnsignedAttributePrefix)
-        ));
+                         message := Operations.ExplainNotForwardCompatible(attributeName, action, config.allowedUnsignedAttributes, config.allowedUnsignedAttributePrefix)
+                       ));
       }
       if !UnreservedPrefix(attributeName) {
         return Failure(DynamoDbItemEncryptorException(
-          message := "Attribute: " + attributeName + " is reserved, and may not be configured."
-        ));
+                         message := "Attribute: " + attributeName + " is reserved, and may not be configured."
+                       ));
       }
       assert UnreservedPrefix(attributeName);
       assert UnreservedPrefix(attributeNames[i]);
@@ -140,7 +140,7 @@ module
     // Create the structured encryption client
     var structuredEncryptionRes := StructuredEncryption.StructuredEncryption();
     var structuredEncryptionX : CSE.IStructuredEncryptionClient :- structuredEncryptionRes
-      .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
+    .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     assert structuredEncryptionX is StructuredEncryption.StructuredEncryptionClient;
     var structuredEncryption := structuredEncryptionX as StructuredEncryption.StructuredEncryptionClient;
 
@@ -181,14 +181,14 @@ module
     // ));
     if !(internalLegacyOverride.None? || config.plaintextOverride.None?) {
       return Failure(DynamoDbItemEncryptorException(
-        message := "Cannot configure both a plaintext policy and a legacy config."
-      ));
+                       message := "Cannot configure both a plaintext policy and a legacy config."
+                     ));
     }
 
     var plaintextOverride := if config.plaintextOverride.Some? then
       config.plaintextOverride.value
     else
-      DDBE.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ;      
+      DDBE.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ;
 
     var internalConfig := Operations.Config(
       version := version,
@@ -217,9 +217,9 @@ module
     var client := new DynamoDbItemEncryptorClient(internalConfig);
 
     assert fresh(client.Modifies
-      - ( if config.keyring.Some? then config.keyring.value.Modifies else {})
-      - ( if config.cmm.Some? then config.cmm.value.Modifies else {} )
-      - ( if config.legacyOverride.Some? then config.legacyOverride.value.encryptor.Modifies else {}));
+                 - ( if config.keyring.Some? then config.keyring.value.Modifies else {})
+                 - ( if config.cmm.Some? then config.cmm.value.Modifies else {} )
+                 - ( if config.legacyOverride.Some? then config.legacyOverride.value.encryptor.Modifies else {}));
 
     return Success(client);
   }

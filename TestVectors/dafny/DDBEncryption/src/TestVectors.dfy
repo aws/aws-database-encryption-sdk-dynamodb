@@ -569,7 +569,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         var res := client.Query(GetQueryInput(failingQueries[i], usedNames, usedValues));
         expect res.Failure?;
       }
-      var results := new DDB.ItemList[|queries|];
+      var results := new DDB.ItemList[|queries|](i => []);
       for i := 0 to |queries| {
         results[i] := FullSearch(client, queries[i]);
       }

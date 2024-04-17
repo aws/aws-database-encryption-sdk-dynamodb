@@ -33,8 +33,8 @@ module ExecuteStatementTransformTest {
 
   method {:test} TestExecuteStatementInputEncrypted() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
-      var statement := GetStatement("update \"foo\"");
-      var bad_input := DDB.ExecuteStatementInput(
+    var statement := GetStatement("update \"foo\"");
+    var bad_input := DDB.ExecuteStatementInput(
       Statement := statement,
       Parameters := None(),
       ConsistentRead := None(),
@@ -61,8 +61,8 @@ module ExecuteStatementTransformTest {
       ConsumedCapacity := None(),
       LastEvaluatedKey := None()
     );
-      var statement := GetStatement("foo");
-      var input := DDB.ExecuteStatementInput(
+    var statement := GetStatement("foo");
+    var input := DDB.ExecuteStatementInput(
       Statement := statement,
       Parameters := None(),
       ConsistentRead := None(),

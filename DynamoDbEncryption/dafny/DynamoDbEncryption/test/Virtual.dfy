@@ -102,7 +102,7 @@ module TestDdbVirtualFields {
     expect DoTransform(pn5, "1.23.456.7890") == "";
     expect DoTransform(pn6, "1.23.456.7890") == "";
   }
-    method {:test} TestSegments() {
+  method {:test} TestSegments() {
     var p00 : VirtualTransform := segments(GetSegments(split := ".", low := 0, high := 0));
     var p12 : VirtualTransform := segments(GetSegments(split := ".", low := 1, high := 2));
     var pn32 : VirtualTransform := segments(GetSegments(split := ".", low := -3, high := 2));

@@ -109,7 +109,7 @@ module DdbStatementTest {
     ExpectEqual(TableFromStatement("UPDATE \"Music\" SET AwardsWon=1 SET AwardDetail={'Grammys':[2020, 2018]}  WHERE Artist='Acme Band' AND SongTitle='PartiQL Rocks"), Success("Music"));
 
     ExpectEqual(TableFromStatement(
-@"UPDATE ""Music""
+                  @"UPDATE ""Music""
 SET AwardsWon=1
 SET AwardDetail={'Grammys':[2020, 2018]}
 WHERE Artist='Acme Band' AND SongTitle='PartiQL Rocks'
@@ -119,15 +119,15 @@ RETURNING ALL OLD *"), Success("Music"));
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.select.html
   method {:test} TestSelectFromDocs() {
     ExpectEqual(TableFromStatement(
-@"SELECT OrderID, Total
+                  @"SELECT OrderID, Total
 FROM ""Orders""
 WHERE OrderID IN [1, 2, 3] ORDER BY OrderID DESC"), Success("Orders"));
     ExpectEqual(TableFromStatement(
-@"SELECT Devices.FireStick.DateWatched[0]
+                  @"SELECT Devices.FireStick.DateWatched[0]
 FROM WatchList
 WHERE CustomerID= 'C1' AND MovieID= 'M1'"), Success("WatchList"));
     ExpectEqual(TableFromStatement(
-@"SELECT *
+                  @"SELECT *
 FROM ""Orders""
 WHERE OrderID IN [100, 300, 234]"), Success("Orders"));
   }
@@ -135,14 +135,14 @@ WHERE OrderID IN [100, 300, 234]"), Success("Orders"));
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.delete.html
   method {:test} TestDeleteFromDocs() {
     ExpectEqual(TableFromStatement(
-@"DELETE FROM ""Music"" WHERE ""Artist"" = 'Acme Band' AND ""SongTitle"" = 'PartiQL Rocks' RETURNING ALL OLD *
+                  @"DELETE FROM ""Music"" WHERE ""Artist"" = 'Acme Band' AND ""SongTitle"" = 'PartiQL Rocks' RETURNING ALL OLD *
 "), Success("Music"));
   }
 
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-functions.exists.html
   method {:test} TestExistsFromDocs() {
     ExpectEqual(TableFromStatement(
-@"EXISTS(
+                  @"EXISTS(
     SELECT * FROM ""Music""
     WHERE ""Artist"" = 'Acme Band' AND ""SongTitle"" = 'PartiQL Rocks')
 "), Success("Music"));
@@ -151,9 +151,9 @@ WHERE OrderID IN [100, 300, 234]"), Success("Orders"));
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.insert.html
   method {:test} TestInsertFromDocs() {
     ExpectEqual(TableFromStatement(
-@"INSERT INTO ""Music"" value {'Artist' : 'Acme Band','SongTitle' : 'PartiQL Rocks'}
+                  @"INSERT INTO ""Music"" value {'Artist' : 'Acme Band','SongTitle' : 'PartiQL Rocks'}
 "), Success("Music"));    ExpectEqual(TableFromStatement(
-@"INSERT INTO ""Mu s ic"" value {'Artist' : 'Acme Band','SongTitle' : 'PartiQL Rocks'}
+                                                                                                                                               @"INSERT INTO ""Mu s ic"" value {'Artist' : 'Acme Band','SongTitle' : 'PartiQL Rocks'}
 "), Success("Mu s ic"));
   }
 

@@ -455,7 +455,7 @@ module SearchableEncryptionInfo {
       else
         cmp.GetBeaconValue(value, keys, forEquality)
     }
-    
+
     predicate ValidState()
     {
       if Standard? then

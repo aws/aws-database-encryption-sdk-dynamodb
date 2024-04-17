@@ -195,14 +195,14 @@ module CompoundBeacon {
       else
         Join(beaconParts, "")
     }
-  
+
     function method CListToString(p : ConstructorList) : string
     {
       var beaconParts := Seq.Map((s : Constructor) => CPartsToString(s.parts), p);
       Join(beaconParts, ", ")
     }
-  
-    // Can this constructor produce this list of parts? 
+
+    // Can this constructor produce this list of parts?
     // e.g. if the constructor has A_.B_ then
     // these are ok : A_foo, B_foo, A_foo.B_foo
     // these are bad : B_foo.A_foo, A_foo.A_foo
@@ -222,7 +222,7 @@ module CompoundBeacon {
         false
     }
 
-    // Fail unless one of these constructor can make a beacon composed of this sequence of parts 
+    // Fail unless one of these constructor can make a beacon composed of this sequence of parts
     predicate method {:tailrecursion} IsValidPartOrder(candidates : seq<Constructor>, inParts : seq<BeaconPart>)
     {
       if |candidates| == 0 then
@@ -233,7 +233,7 @@ module CompoundBeacon {
         IsValidPartOrder(candidates[1..], inParts)
     }
 
-    // Fail unless it is possible to construct a beacon composed of this sequence of parts 
+    // Fail unless it is possible to construct a beacon composed of this sequence of parts
     function method ValidatePartOrder(inParts : seq<BeaconPart>, orig : string) : Result<bool, Error>
     {
       if IsValidPartOrder(construct, inParts) then
@@ -273,7 +273,7 @@ module CompoundBeacon {
           SkipSignedPieces(pieces[1..])
     }
 
-    // predicate : are these pieces compatible with a less than operation 
+    // predicate : are these pieces compatible with a less than operation
     function method IsLessThanComparable(pieces : seq<string>) : Result<bool, Error>
     {
       var rest :- SkipSignedPieces(pieces);
@@ -292,7 +292,7 @@ module CompoundBeacon {
       Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
     }
 
-    // calculate value for a single piece of a compound beacon query string 
+    // calculate value for a single piece of a compound beacon query string
     function method FindAndCalcPart(value : string, keys : MaybeKeyMap) : Result<string, Error>
       requires !keys.DontUseKeys?
     {
