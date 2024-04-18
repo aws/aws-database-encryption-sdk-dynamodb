@@ -16,7 +16,8 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
   const testVersion : Version := 1
-  const testFlavor : Flavor := 1
+  const testFlavor0 : Flavor := 0
+  const testFlavor1 : Flavor := 1
   const testMsgID : MessageID := [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]
   const testLegend : Legend := [0x65, 0x73]
   const testEncContext : CMPEncryptionContext := map[EncodeAscii("abc") := EncodeAscii("def")]
@@ -46,7 +47,6 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
                                   keyProviderId := EncodeAscii("aws-kms-rsa") ,
                                   keyProviderInfo := EncodeAscii("keyproviderInfo"),
                                   ciphertext := [1, 2, 3, 4, 5])
-  const algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
 
   method CreatePartialHeader(version : Version, flavor : Flavor, msgID : MessageID, legend : Legend, encContext : CMPEncryptionContext, dataKeyList : CMPEncryptedDataKeyList)
     returns (result: PartialHeader)
@@ -69,7 +69,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestHeaderInputAwsKmsDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
     var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
@@ -89,7 +89,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestHeaderInputAwsKmsHDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsHDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsHDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var expectedBranchKeyVersion := getBranchKeyVersion(expectedHead);
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -118,7 +118,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestHeaderInputRawRsaDataKeyDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testRawRsaDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testRawRsaDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
     var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
@@ -135,7 +135,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestHeaderInputAwsKmsRsaDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsRsaDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsRsaDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
     var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
@@ -156,7 +156,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestDDBItemInputAwsKmsDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var attr := map["aws_dbe_head" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -179,7 +179,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestDDBItemInputAwsKmsHDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsHDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor0, testMsgID, testLegend, testEncContext, [testAwsKmsHDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var expectedBranchKeyVersion := getBranchKeyVersion(expectedHead);
     var attr := map["aws_dbe_head" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
@@ -209,7 +209,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestDDBItemInputRawRsaDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testRawRsaDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testRawRsaDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var attr := map["aws_dbe_head" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -227,7 +227,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestDDBItemInputAwsKmsRsaDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsRsaDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsRsaDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var attr := map["aws_dbe_head" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -248,7 +248,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestHeaderMultiDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
     var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
@@ -277,7 +277,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestDDBItemInputMultiDataKeyCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var attr := map["aws_dbe_head" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -307,7 +307,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestNoHeaderFailureCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var attr := map["wrong_header_attribute" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -325,6 +325,12 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
   method getBranchKeyVersion (expectedHead : PartialHeader)
     returns (expectedBranchKeyVersion : string)
   {
+    var algorithmSuite : AlgorithmSuites.AlgorithmSuite;
+    if expectedHead.flavor == 0{
+      algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
+    } else {
+      algorithmSuite := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
+    }
     var providerWrappedMaterial :- expect EdkWrapping.GetProviderWrappedMaterial(expectedHead.dataKeys[0].ciphertext, algorithmSuite);
     expect |providerWrappedMaterial| >= (28 + 16);
     var expectedBranchKeyVersionResult :- expect UUID.FromByteArray(providerWrappedMaterial[28 .. (28 + 16)]);
