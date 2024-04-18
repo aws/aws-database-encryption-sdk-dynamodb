@@ -45,7 +45,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     nameonly plaintextOverride: DDBE.PlaintextOverride,
     nameonly internalLegacyOverride: Option<InternalLegacyOverride.InternalLegacyOverride> := None
   )
- 
+
   type InternalConfig = Config
   type ValidConfig = x : Config | ValidInternalConfig?(x) witness *
 

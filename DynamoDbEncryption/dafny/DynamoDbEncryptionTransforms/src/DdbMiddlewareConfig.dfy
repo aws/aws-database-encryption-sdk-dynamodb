@@ -9,7 +9,7 @@ module DdbMiddlewareConfig {
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import SearchableEncryptionInfo
-  
+
   datatype TableConfig = TableConfig(
     physicalTableName: ComAmazonawsDynamodbTypes.TableName,
     logicalTableName: string,

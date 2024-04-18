@@ -23,7 +23,7 @@ module
   {
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
-    
+
     var maybeMatProv := MaterialProviders.MaterialProviders();
     var matProv :- maybeMatProv.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
@@ -31,7 +31,7 @@ module
     return Success(client);
   }
 
-  
+
 
   class StructuredEncryptionClient... {
 

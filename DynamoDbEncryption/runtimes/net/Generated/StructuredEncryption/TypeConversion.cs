@@ -41,7 +41,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IAuthenticateSchemaContent ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S25_AuthenticateSchemaContent(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateSchemaContent value)
     {
-      if (value.IsSetAction())
+      value.Validate(); if (value.IsSetAction())
       {
         return software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchemaContent.create_Action(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S25_AuthenticateSchemaContent__M6_Action(value.Action));
       }
@@ -93,7 +93,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._ICryptoSchemaContent ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S19_CryptoSchemaContent(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoSchemaContent value)
     {
-      if (value.IsSetAction())
+      value.Validate(); if (value.IsSetAction())
       {
         return software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoSchemaContent.create_Action(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S19_CryptoSchemaContent__M6_Action(value.Action));
       }
@@ -117,6 +117,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IDecryptStructureInput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_DecryptStructureInput(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.DecryptStructureInput value)
     {
+      value.Validate();
       System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.IsSetEncryptionContext() ? value.EncryptionContext : (System.Collections.Generic.Dictionary<string, string>)null;
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureInput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_DecryptStructureInput__M9_tableName(value.TableName), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_DecryptStructureInput__M18_encryptedStructure(value.EncryptedStructure), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_DecryptStructureInput__M18_authenticateSchema(value.AuthenticateSchema), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_DecryptStructureInput__M3_cmm(value.Cmm), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_DecryptStructureInput__M17_encryptionContext(var_encryptionContext));
     }
@@ -127,6 +128,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IDecryptStructureOutput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_DecryptStructureOutput(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.DecryptStructureOutput value)
     {
+      value.Validate();
 
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureOutput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_DecryptStructureOutput__M18_plaintextStructure(value.PlaintextStructure), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_DecryptStructureOutput__M12_parsedHeader(value.ParsedHeader));
     }
@@ -141,6 +143,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IEncryptStructureInput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_EncryptStructureInput(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.EncryptStructureInput value)
     {
+      value.Validate();
       AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId var_algorithmSuiteId = value.IsSetAlgorithmSuiteId() ? value.AlgorithmSuiteId : (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId)null;
       System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.IsSetEncryptionContext() ? value.EncryptionContext : (System.Collections.Generic.Dictionary<string, string>)null;
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureInput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_EncryptStructureInput__M9_tableName(value.TableName), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_EncryptStructureInput__M18_plaintextStructure(value.PlaintextStructure), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_EncryptStructureInput__M12_cryptoSchema(value.CryptoSchema), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_EncryptStructureInput__M3_cmm(value.Cmm), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_EncryptStructureInput__M16_algorithmSuiteId(var_algorithmSuiteId), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_EncryptStructureInput__M17_encryptionContext(var_encryptionContext));
@@ -152,6 +155,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IEncryptStructureOutput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_EncryptStructureOutput(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.EncryptStructureOutput value)
     {
+      value.Validate();
 
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureOutput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_EncryptStructureOutput__M18_encryptedStructure(value.EncryptedStructure), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_EncryptStructureOutput__M12_parsedHeader(value.ParsedHeader));
     }
@@ -177,7 +181,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IStructuredDataContent ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_StructuredDataContent(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataContent value)
     {
-      if (value.IsSetTerminal())
+      value.Validate(); if (value.IsSetTerminal())
       {
         return software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredDataContent.create_Terminal(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S21_StructuredDataContent__M8_Terminal(value.Terminal));
       }
@@ -197,6 +201,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IStructuredEncryptionConfig ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S26_StructuredEncryptionConfig(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredEncryptionConfig value)
     {
+      value.Validate();
 
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig();
     }
@@ -464,6 +469,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IStructuredData ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S14_StructuredData(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData value)
     {
+      value.Validate();
       System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal>)null;
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredData(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S14_StructuredData__M7_content(value.Content), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S14_StructuredData__M10_attributes(var_attributes));
     }
@@ -474,6 +480,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IAuthenticateSchema ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S18_AuthenticateSchema(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateSchema value)
     {
+      value.Validate();
       System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction>)null;
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchema(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S18_AuthenticateSchema__M7_content(value.Content), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S18_AuthenticateSchema__M10_attributes(var_attributes));
     }
@@ -509,6 +516,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IParsedHeader ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_ParsedHeader(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ParsedHeader value)
     {
+      value.Validate();
 
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ParsedHeader(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_ParsedHeader__M12_cryptoSchema(value.CryptoSchema), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_ParsedHeader__M16_algorithmSuiteId(value.AlgorithmSuiteId), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_ParsedHeader__M17_encryptedDataKeys(value.EncryptedDataKeys), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_ParsedHeader__M23_storedEncryptionContext(value.StoredEncryptionContext), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_ParsedHeader__M17_encryptionContext(value.EncryptionContext));
     }
@@ -519,6 +527,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._ICryptoSchema ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_CryptoSchema(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoSchema value)
     {
+      value.Validate();
       System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction> var_attributes = value.IsSetAttributes() ? value.Attributes : (System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction>)null;
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoSchema(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_CryptoSchema__M7_content(value.Content), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S12_CryptoSchema__M10_attributes(var_attributes));
     }
@@ -541,6 +550,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IStructuredDataTerminal ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_StructuredDataTerminal(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal value)
     {
+      value.Validate();
 
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredDataTerminal(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_StructuredDataTerminal__M5_value(value.Value), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S22_StructuredDataTerminal__M6_typeId(value.TypeId));
     }
@@ -892,6 +902,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     }
     public static software.amazon.cryptography.materialproviders.internaldafny.types._IEncryptedDataKey ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey(AWS.Cryptography.MaterialProviders.EncryptedDataKey value)
     {
+      value.Validate();
 
       return new software.amazon.cryptography.materialproviders.internaldafny.types.EncryptedDataKey(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey__M13_keyProviderId(value.KeyProviderId), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey__M15_keyProviderInfo(value.KeyProviderInfo), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey__M10_ciphertext(value.Ciphertext));
     }
