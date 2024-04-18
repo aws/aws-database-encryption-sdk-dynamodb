@@ -305,6 +305,23 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     }
   }
 
+  method {:test} TestNoHeaderFailureCase()
+  {
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
+    var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
+    var attr := map["wrong_header_attribute" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
+    var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
+    var inputVariable: Types.GetEncryptedDataKeyDescriptionInput :=
+      Types.GetEncryptedDataKeyDescriptionInput(
+        input := Types.plaintextItem(plaintextItem := attr)
+      );
+    var actualDataKeyDescription := ddbEncResources.GetEncryptedDataKeyDescription(inputVariable);
+
+    expect actualDataKeyDescription.IsFailure();
+    expect actualDataKeyDescription.error.DynamoDbEncryptionException?;
+    expect actualDataKeyDescription.error.message == "Header not found in the DynamoDB item.";
+  }
+
   method getBranchKeyVersion (expectedHead : PartialHeader)
     returns (expectedBranchKeyVersion : string)
   {
