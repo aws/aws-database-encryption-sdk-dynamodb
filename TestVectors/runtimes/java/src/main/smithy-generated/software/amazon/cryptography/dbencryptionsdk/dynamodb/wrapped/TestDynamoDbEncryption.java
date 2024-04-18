@@ -33,9 +33,9 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
   > CreateDynamoDbEncryptionBranchKeyIdSupplier(
     CreateDynamoDbEncryptionBranchKeyIdSupplierInput dafnyInput
   ) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput nativeInput =
-      ToNative.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(dafnyInput);
     try {
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput nativeInput =
+        ToNative.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(dafnyInput);
       software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput nativeOutput =
         this._impl.CreateDynamoDbEncryptionBranchKeyIdSupplier(nativeInput);
       CreateDynamoDbEncryptionBranchKeyIdSupplierOutput dafnyOutput =

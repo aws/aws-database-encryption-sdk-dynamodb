@@ -93,7 +93,38 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
       if (!IsSetKeyStore()) throw new System.ArgumentException("Missing value for required property 'KeyStore'");
       if (!IsSetKeySource()) throw new System.ArgumentException("Missing value for required property 'KeySource'");
       if (!IsSetStandardBeacons()) throw new System.ArgumentException("Missing value for required property 'StandardBeacons'");
-
+      if (IsSetCompoundBeacons())
+      {
+        if (CompoundBeacons.Count < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member CompoundBeacons of structure BeaconVersion has List type CompoundBeaconList which has a minimum length of 1 but was given a value with length {0}.", CompoundBeacons.Count));
+        }
+      }
+      if (IsSetVirtualFields())
+      {
+        if (VirtualFields.Count < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member VirtualFields of structure BeaconVersion has List type VirtualFieldList which has a minimum length of 1 but was given a value with length {0}.", VirtualFields.Count));
+        }
+      }
+      if (IsSetEncryptedParts())
+      {
+        if (EncryptedParts.Count < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member EncryptedParts of structure BeaconVersion has List type EncryptedPartsList which has a minimum length of 1 but was given a value with length {0}.", EncryptedParts.Count));
+        }
+      }
+      if (IsSetSignedParts())
+      {
+        if (SignedParts.Count < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member SignedParts of structure BeaconVersion has List type SignedPartsList which has a minimum length of 1 but was given a value with length {0}.", SignedParts.Count));
+        }
+      }
     }
   }
 }

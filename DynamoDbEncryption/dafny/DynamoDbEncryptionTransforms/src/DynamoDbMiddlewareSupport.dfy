@@ -49,8 +49,7 @@ module DynamoDbMiddlewareSupport {
     attr : string
   )
   {
-    var itemEncryptorClient := config.itemEncryptor as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-    BS.IsSigned(itemEncryptorClient.config.attributeActionsOnEncrypt, attr)
+    BS.IsSigned(config.itemEncryptor.config.attributeActionsOnEncrypt, attr)
   }
 
   // TestConditionExpression fails if a condition expression is not suitable for the
@@ -64,7 +63,7 @@ module DynamoDbMiddlewareSupport {
   )
     : Result<bool, Error>
   {
-    BS.TestConditionExpression(ItemEncryptorClientConfig(config).attributeActionsOnEncrypt, expr, attrNames, attrValues)
+    BS.TestConditionExpression(config.itemEncryptor.config.attributeActionsOnEncrypt, expr, attrNames, attrValues)
     .MapFailure(e => E(e))
   }
 
@@ -79,7 +78,7 @@ module DynamoDbMiddlewareSupport {
   )
     : Result<bool, Error>
   {
-    BS.TestUpdateExpression(ItemEncryptorClientConfig(config).attributeActionsOnEncrypt, expr, attrNames, attrValues)
+    BS.TestUpdateExpression(config.itemEncryptor.config.attributeActionsOnEncrypt, expr, attrNames, attrValues)
     .MapFailure(e => E(e))
   }
 
@@ -87,7 +86,7 @@ module DynamoDbMiddlewareSupport {
   // returning a replacement AttributeMap.
   method AddSignedBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
     returns (output : Result<DDB.AttributeMap, Error>)
-    requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(ItemEncryptorClientConfig(config))
+    requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
@@ -100,7 +99,7 @@ module DynamoDbMiddlewareSupport {
   // returning just the new items.
   method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Util.MaybeKeyId)
     returns (output : Result<DDB.AttributeMap, Error>)
-    requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(ItemEncryptorClientConfig(config))
+    requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
@@ -185,7 +184,7 @@ module DynamoDbMiddlewareSupport {
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.QueryInputForBeacons(config.search, ItemEncryptorClientConfig(config).attributeActionsOnEncrypt, req);
+    var ret := BS.QueryInputForBeacons(config.search, config.itemEncryptor.config.attributeActionsOnEncrypt, req);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
@@ -209,7 +208,7 @@ module DynamoDbMiddlewareSupport {
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.ScanInputForBeacons(config.search, ItemEncryptorClientConfig(config).attributeActionsOnEncrypt, req);
+    var ret := BS.ScanInputForBeacons(config.search, config.itemEncryptor.config.attributeActionsOnEncrypt, req);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 

@@ -96,9 +96,9 @@ public final class DynamoDbKeyBranchKeyIdSupplier
     > GetBranchKeyIdFromDdbKey(
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyInput dafnyInput
     ) {
-      GetBranchKeyIdFromDdbKeyInput nativeInput =
-        ToNative.GetBranchKeyIdFromDdbKeyInput(dafnyInput);
       try {
+        GetBranchKeyIdFromDdbKeyInput nativeInput =
+          ToNative.GetBranchKeyIdFromDdbKeyInput(dafnyInput);
         GetBranchKeyIdFromDdbKeyOutput nativeOutput =
           this._impl.GetBranchKeyIdFromDdbKey(nativeInput);
         software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput dafnyOutput =

@@ -32,7 +32,6 @@ module SearchConfigToInfo {
   import CB = CompoundBeacon
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MPT = AwsCryptographyMaterialProvidersTypes
-  import PT = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
 
   // convert configured SearchConfig to internal SearchInfo
@@ -180,9 +179,7 @@ module SearchConfigToInfo {
     :- Need(0 < |config.standardBeacons|, E("At least one standard beacon must be configured."));
 
     var maybePrimitives := Primitives.AtomicPrimitives();
-    var primitivesX: PT.IAwsCryptographicPrimitivesClient :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
-    assert primitivesX is Primitives.AtomicPrimitivesClient;
-    var primitives := primitivesX as Primitives.AtomicPrimitivesClient;
+    var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
     var source :- MakeKeySource(outer, config.keyStore, config.keySource, primitives);
     output := ConvertVersionWithSource(outer, config, source);
   }

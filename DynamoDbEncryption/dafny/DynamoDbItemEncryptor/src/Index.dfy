@@ -167,9 +167,7 @@ module
 
     var maybeCmpClient := MaterialProviders.MaterialProviders();
     var internalLegacyOverride :- InternalLegacyOverride.InternalLegacyOverride.Build(config);
-    var cmpClientX: AwsCryptographyMaterialProvidersTypes.IAwsCryptographicMaterialProvidersClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
-    assert cmpClientX is MaterialProviders.MaterialProvidersClient;
-    var cmpClient := cmpClientX as MaterialProviders.MaterialProvidersClient;
+    var cmpClient :- maybeCmpClient.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
     //# A [Legacy Config](#legacy-config)

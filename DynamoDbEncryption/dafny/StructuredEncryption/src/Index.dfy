@@ -18,18 +18,14 @@ module
   }
 
   method StructuredEncryption(config: StructuredEncryptionConfig)
-    returns (res: Result<IStructuredEncryptionClient, Error>)
+    returns (res: Result<StructuredEncryptionClient, Error>)
     ensures res.Success? ==> res.value is StructuredEncryptionClient
   {
     var maybePrimitives := Primitives.AtomicPrimitives();
-    var primitivesX: AwsCryptographyPrimitivesTypes.IAwsCryptographicPrimitivesClient :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
-    assert primitivesX is Primitives.AtomicPrimitivesClient;
-    var primitives := primitivesX as Primitives.AtomicPrimitivesClient;
+    var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
     
     var maybeMatProv := MaterialProviders.MaterialProviders();
-    var matProvX: AwsCryptographyMaterialProvidersTypes.IAwsCryptographicMaterialProvidersClient :- maybeMatProv.MapFailure(e => AwsCryptographyMaterialProviders(e));
-      assert matProvX is MaterialProviders.MaterialProvidersClient;
-    var matProv := matProvX as MaterialProviders.MaterialProvidersClient;
+    var matProv :- maybeMatProv.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     var client := new StructuredEncryptionClient(Operations.Config(primitives := primitives, materialProviders := matProv));
     return Success(client);

@@ -17,12 +17,9 @@ module TestBaseBeacon {
   import SI = SearchableEncryptionInfo
   import DDB = ComAmazonawsDynamodbTypes
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
-  import AwsCryptographyPrimitivesTypes
 
   method {:test} TestBeacon() {
-    var primitivesX: AwsCryptographyPrimitivesTypes.IAwsCryptographicPrimitivesClient :- expect Primitives.AtomicPrimitives();
-    assert primitivesX is Primitives.AtomicPrimitivesClient;
-    var primitives := primitivesX as Primitives.AtomicPrimitivesClient;
+    var primitives :- expect Primitives.AtomicPrimitives();
 
     var bb := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo");
     var b := StandardBeacon(bb, 8, TermLocMap("foo"), false, false, None);
