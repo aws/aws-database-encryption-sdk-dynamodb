@@ -102,7 +102,7 @@ module
   }
 
   method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
-    returns (res: Result<IDynamoDbEncryptionTransformsClient, Error>)
+    returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
     //= type=implication
     //# When mapping [DynamoDB Table Names](#dynamodb-table-name) to [logical table name](#logical-table-name)
