@@ -30,7 +30,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     public void Validate()
     {
       if (!IsSetLoc()) throw new System.ArgumentException("Missing value for required property 'Loc'");
-
+      if (IsSetTrans())
+      {
+        if (Trans.Count < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member Trans of structure VirtualPart has List type VirtualTransformList which has a minimum length of 1 but was given a value with length {0}.", Trans.Count));
+        }
+      }
     }
   }
 }

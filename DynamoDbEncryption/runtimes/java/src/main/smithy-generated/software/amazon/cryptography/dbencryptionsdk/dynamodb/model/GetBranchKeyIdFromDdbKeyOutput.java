@@ -9,6 +9,7 @@ import java.util.Objects;
  * Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
  */
 public class GetBranchKeyIdFromDdbKeyOutput {
+
   /**
    * The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
    */
@@ -48,10 +49,10 @@ public class GetBranchKeyIdFromDdbKeyOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String branchKeyId;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetBranchKeyIdFromDdbKeyOutput model) {
       this.branchKeyId = model.branchKeyId();
@@ -67,8 +68,10 @@ public class GetBranchKeyIdFromDdbKeyOutput {
     }
 
     public GetBranchKeyIdFromDdbKeyOutput build() {
-      if (Objects.isNull(this.branchKeyId()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKeyId`");
+      if (Objects.isNull(this.branchKeyId())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `branchKeyId`"
+        );
       }
       return new GetBranchKeyIdFromDdbKeyOutput(this);
     }

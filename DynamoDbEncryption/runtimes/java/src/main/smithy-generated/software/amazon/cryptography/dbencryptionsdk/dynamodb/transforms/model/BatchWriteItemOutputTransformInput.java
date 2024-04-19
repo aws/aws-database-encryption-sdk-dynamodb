@@ -8,6 +8,7 @@ import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
 
 public class BatchWriteItemOutputTransformInput {
+
   private final BatchWriteItemResponse sdkOutput;
 
   private final BatchWriteItemRequest originalInput;
@@ -46,12 +47,12 @@ public class BatchWriteItemOutputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected BatchWriteItemResponse sdkOutput;
 
     protected BatchWriteItemRequest originalInput;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(BatchWriteItemOutputTransformInput model) {
       this.sdkOutput = model.sdkOutput();
@@ -77,11 +78,15 @@ public class BatchWriteItemOutputTransformInput {
     }
 
     public BatchWriteItemOutputTransformInput build() {
-      if (Objects.isNull(this.sdkOutput()))  {
-        throw new IllegalArgumentException("Missing value for required field `sdkOutput`");
+      if (Objects.isNull(this.sdkOutput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `sdkOutput`"
+        );
       }
-      if (Objects.isNull(this.originalInput()))  {
-        throw new IllegalArgumentException("Missing value for required field `originalInput`");
+      if (Objects.isNull(this.originalInput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `originalInput`"
+        );
       }
       return new BatchWriteItemOutputTransformInput(this);
     }

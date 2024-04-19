@@ -10,6 +10,7 @@ import java.util.Objects;
  * The configuration for a Compound Beacon.
  */
 public class CompoundBeacon {
+
   /**
    * The name of the Compound Beacon.
    */
@@ -141,6 +142,7 @@ public class CompoundBeacon {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String name;
 
     protected String split;
@@ -151,8 +153,7 @@ public class CompoundBeacon {
 
     protected List<Constructor> constructors;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(CompoundBeacon model) {
       this.name = model.name();
@@ -208,26 +209,42 @@ public class CompoundBeacon {
     }
 
     public CompoundBeacon build() {
-      if (Objects.isNull(this.name()))  {
-        throw new IllegalArgumentException("Missing value for required field `name`");
+      if (Objects.isNull(this.name())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `name`"
+        );
       }
-      if (Objects.isNull(this.split()))  {
-        throw new IllegalArgumentException("Missing value for required field `split`");
+      if (Objects.isNull(this.split())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `split`"
+        );
       }
       if (Objects.nonNull(this.split()) && this.split().length() < 1) {
-        throw new IllegalArgumentException("The size of `split` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `split` must be greater than or equal to 1"
+        );
       }
       if (Objects.nonNull(this.split()) && this.split().length() > 1) {
-        throw new IllegalArgumentException("The size of `split` must be less than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `split` must be less than or equal to 1"
+        );
       }
       if (Objects.nonNull(this.encrypted()) && this.encrypted().size() < 1) {
-        throw new IllegalArgumentException("The size of `encrypted` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `encrypted` must be greater than or equal to 1"
+        );
       }
       if (Objects.nonNull(this.signed()) && this.signed().size() < 1) {
-        throw new IllegalArgumentException("The size of `signed` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `signed` must be greater than or equal to 1"
+        );
       }
-      if (Objects.nonNull(this.constructors()) && this.constructors().size() < 1) {
-        throw new IllegalArgumentException("The size of `constructors` must be greater than or equal to 1");
+      if (
+        Objects.nonNull(this.constructors()) && this.constructors().size() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "The size of `constructors` must be greater than or equal to 1"
+        );
       }
       return new CompoundBeacon(this);
     }

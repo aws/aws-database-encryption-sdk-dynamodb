@@ -211,6 +211,7 @@ module BeaconTestFixtures {
     ensures fresh(output.client.Modifies)
   {
     var client :- expect Primitives.AtomicPrimitives();
+
     var keyNameSet := set b <- version.standardBeacons :: b.name;
     var keyNames := SortedSets.ComputeSetToOrderedSequence2(keyNameSet, CharLess);
     var keys :- expect SI.GetHmacKeys(client, keyNames, keyNames, key);

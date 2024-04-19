@@ -356,17 +356,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var newSchema := CryptoSchemaContent.SchemaMap(trimmedSchema);
     assert |data_c| == |newSchema.SchemaMap|;
 
-    Success(
-      EncryptCanonData(
-        encFields_c,
-        signedFields_c,
-        data_c,
-        CryptoSchema(
-          content := newSchema,
-          attributes := None
-        )
-      )
-    )
+    var canon := EncryptCanonData(
+                   encFields_c,
+                   signedFields_c,
+                   data_c,
+                   CryptoSchema(
+                     content := newSchema,
+                     attributes := None
+                   )
+                 );
+    assert ValidEncryptCanon?(canon);
+    Success(canon)
   }
 
   // construct the DecryptCanon

@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  * Inputs for decrypting a DynamoDB Item.
  */
 public class DecryptItemInput {
+
   /**
    * The encrypted DynamoDB item to decrypt.
    */
@@ -50,10 +51,10 @@ public class DecryptItemInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Map<String, AttributeValue> encryptedItem;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptItemInput model) {
       this.encryptedItem = model.encryptedItem();
@@ -69,8 +70,10 @@ public class DecryptItemInput {
     }
 
     public DecryptItemInput build() {
-      if (Objects.isNull(this.encryptedItem()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedItem`");
+      if (Objects.isNull(this.encryptedItem())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedItem`"
+        );
       }
       return new DecryptItemInput(this);
     }
