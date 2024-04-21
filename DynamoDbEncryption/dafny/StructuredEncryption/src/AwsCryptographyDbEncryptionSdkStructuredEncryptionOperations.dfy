@@ -571,20 +571,12 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       BuildAuthMap2(keys[1..], plaintextStructure, authSchema, acc + [item])
   }
 
-  const HEADER_AUTH : AuthenticateSchemaMap :=
-    map[
-      HeaderField := DO_NOT_SIGN,
-      FooterField := DO_NOT_SIGN
-    ]
   function method BuildAuthMap(plaintextStructure: StructuredDataMap, authSchema: AuthenticateSchemaMap) :
     Result<AuthList, Error>
-    requires HeaderField !in authSchema
-    requires FooterField !in authSchema
+    requires plaintextStructure.Keys == authSchema.Keys
   {
-    var fullAuthSchema := authSchema + HEADER_AUTH;
-    :- Need(plaintextStructure.Keys == fullAuthSchema.Keys, E("Auth Keys don't match."));
     var keys := SortedSets.ComputeSetToOrderedSequence2(plaintextStructure.Keys, CharLess);
-    BuildAuthMap2(keys, plaintextStructure, fullAuthSchema)
+    BuildAuthMap2(keys, plaintextStructure, authSchema)
   }
 
   function method UnBuildCryptoMap(list : CryptoList, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
@@ -853,8 +845,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   method {:vcs_split_on_every_assert} DecryptStructure (config: InternalConfig, input: DecryptStructureInput)
     returns (output: Result<DecryptStructureOutput, Error>)
   {
-    :- Need(HeaderField !in input.authenticateSchema, E("DecryptStructure authenticateSchema must not include " + HeaderField + "."));
-    :- Need(FooterField !in input.authenticateSchema, E("DecryptStructure authenticateSchema must not include " + FooterField + "."));
+    :- Need(input.encryptedStructure.Keys == input.authenticateSchema.Keys, E("DecryptStructure requires encryptedStructure and authenticateSchema have the same keys."));
     var cryptoMap :- BuildAuthMap(input.encryptedStructure, input.authenticateSchema);
     var pathInput := DecryptPathStructureInput(
       tableName := input.tableName,

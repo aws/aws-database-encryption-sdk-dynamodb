@@ -46,7 +46,9 @@ module StructuredDataTestFixtures {
     map[
       "foo" := SIGN,
       "bar" := SIGN,
-      "fizzbuzz" := DO_NOT_SIGN
+      "fizzbuzz" := DO_NOT_SIGN,
+      "aws_dbe_head" := DO_NOT_SIGN,
+      "aws_dbe_foot" := DO_NOT_SIGN
     ]
 
   const PUBLIC_US_WEST_2_KMS_TEST_KEY := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
