@@ -99,9 +99,9 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-<<<<<<< HEAD
   public static AuthItem AuthItem(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthItem dafnyValue) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthItem dafnyValue
+  ) {
     AuthItem.Builder nativeBuilder = AuthItem.builder();
     nativeBuilder.key(ToNative.Path(dafnyValue.dtor_key()));
     nativeBuilder.data(ToNative.StructuredDataTerminal(dafnyValue.dtor_data()));
@@ -110,7 +110,8 @@ public class ToNative {
   }
 
   public static CryptoItem CryptoItem(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoItem dafnyValue) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoItem dafnyValue
+  ) {
     CryptoItem.Builder nativeBuilder = CryptoItem.builder();
     nativeBuilder.key(ToNative.Path(dafnyValue.dtor_key()));
     nativeBuilder.data(ToNative.StructuredDataTerminal(dafnyValue.dtor_data()));
@@ -119,66 +120,48 @@ public class ToNative {
   }
 
   public static DecryptPathStructureInput DecryptPathStructureInput(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptPathStructureInput dafnyValue) {
-    DecryptPathStructureInput.Builder nativeBuilder = DecryptPathStructureInput.builder();
-    nativeBuilder.tableName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableName()));
-    nativeBuilder.encryptedStructure(ToNative.AuthList(dafnyValue.dtor_encryptedStructure()));
-    nativeBuilder.cmm(software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm()));
-    if (dafnyValue.dtor_encryptionContext().is_Some()) {
-      nativeBuilder.encryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext().dtor_value()));
-=======
-  public static AuthenticateSchema AuthenticateSchema(
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchema dafnyValue
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptPathStructureInput dafnyValue
   ) {
-    AuthenticateSchema.Builder nativeBuilder = AuthenticateSchema.builder();
-    nativeBuilder.content(
-      ToNative.AuthenticateSchemaContent(dafnyValue.dtor_content())
+    DecryptPathStructureInput.Builder nativeBuilder =
+      DecryptPathStructureInput.builder();
+    nativeBuilder.tableName(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_tableName()
+      )
     );
-    if (dafnyValue.dtor_attributes().is_Some()) {
-      nativeBuilder.attributes(
-        ToNative.AuthenticateSchemaAttributes(
-          dafnyValue.dtor_attributes().dtor_value()
+    nativeBuilder.encryptedStructure(
+      ToNative.AuthList(dafnyValue.dtor_encryptedStructure())
+    );
+    nativeBuilder.cmm(
+      software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(
+        dafnyValue.dtor_cmm()
+      )
+    );
+    if (dafnyValue.dtor_encryptionContext().is_Some()) {
+      nativeBuilder.encryptionContext(
+        software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(
+          dafnyValue.dtor_encryptionContext().dtor_value()
         )
       );
->>>>>>> main
     }
     return nativeBuilder.build();
   }
 
-<<<<<<< HEAD
   public static DecryptPathStructureOutput DecryptPathStructureOutput(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptPathStructureOutput dafnyValue) {
-    DecryptPathStructureOutput.Builder nativeBuilder = DecryptPathStructureOutput.builder();
-    nativeBuilder.plaintextStructure(ToNative.CryptoList(dafnyValue.dtor_plaintextStructure()));
-    nativeBuilder.parsedHeader(ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader()));
-=======
-  public static CryptoSchema CryptoSchema(
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoSchema dafnyValue
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptPathStructureOutput dafnyValue
   ) {
-    CryptoSchema.Builder nativeBuilder = CryptoSchema.builder();
-    nativeBuilder.content(
-      ToNative.CryptoSchemaContent(dafnyValue.dtor_content())
+    DecryptPathStructureOutput.Builder nativeBuilder =
+      DecryptPathStructureOutput.builder();
+    nativeBuilder.plaintextStructure(
+      ToNative.CryptoList(dafnyValue.dtor_plaintextStructure())
     );
-    if (dafnyValue.dtor_attributes().is_Some()) {
-      nativeBuilder.attributes(
-        ToNative.CryptoSchemaAttributes(
-          dafnyValue.dtor_attributes().dtor_value()
-        )
-      );
-    }
->>>>>>> main
+    nativeBuilder.parsedHeader(
+      ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader())
+    );
     return nativeBuilder.build();
   }
 
   public static DecryptStructureInput DecryptStructureInput(
-<<<<<<< HEAD
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureInput dafnyValue) {
-    DecryptStructureInput.Builder nativeBuilder = DecryptStructureInput.builder();
-    nativeBuilder.tableName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableName()));
-    nativeBuilder.encryptedStructure(ToNative.StructuredDataMap(dafnyValue.dtor_encryptedStructure()));
-    nativeBuilder.authenticateSchema(ToNative.AuthenticateSchemaMap(dafnyValue.dtor_authenticateSchema()));
-    nativeBuilder.cmm(software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm()));
-=======
     software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureInput dafnyValue
   ) {
     DecryptStructureInput.Builder nativeBuilder =
@@ -189,17 +172,16 @@ public class ToNative {
       )
     );
     nativeBuilder.encryptedStructure(
-      ToNative.StructuredData(dafnyValue.dtor_encryptedStructure())
+      ToNative.StructuredDataMap(dafnyValue.dtor_encryptedStructure())
     );
     nativeBuilder.authenticateSchema(
-      ToNative.AuthenticateSchema(dafnyValue.dtor_authenticateSchema())
+      ToNative.AuthenticateSchemaMap(dafnyValue.dtor_authenticateSchema())
     );
     nativeBuilder.cmm(
       software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(
         dafnyValue.dtor_cmm()
       )
     );
->>>>>>> main
     if (dafnyValue.dtor_encryptionContext().is_Some()) {
       nativeBuilder.encryptionContext(
         software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(
@@ -211,59 +193,72 @@ public class ToNative {
   }
 
   public static DecryptStructureOutput DecryptStructureOutput(
-<<<<<<< HEAD
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureOutput dafnyValue) {
-    DecryptStructureOutput.Builder nativeBuilder = DecryptStructureOutput.builder();
-    nativeBuilder.plaintextStructure(ToNative.StructuredDataMap(dafnyValue.dtor_plaintextStructure()));
-    nativeBuilder.cryptoSchema(ToNative.CryptoSchemaMap(dafnyValue.dtor_cryptoSchema()));
-    nativeBuilder.parsedHeader(ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader()));
-    return nativeBuilder.build();
-  }
-
-  public static EncryptPathStructureInput EncryptPathStructureInput(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptPathStructureInput dafnyValue) {
-    EncryptPathStructureInput.Builder nativeBuilder = EncryptPathStructureInput.builder();
-    nativeBuilder.tableName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableName()));
-    nativeBuilder.plaintextStructure(ToNative.CryptoList(dafnyValue.dtor_plaintextStructure()));
-    nativeBuilder.cmm(software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm()));
-    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
-      nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId().dtor_value()));
-    }
-    if (dafnyValue.dtor_encryptionContext().is_Some()) {
-      nativeBuilder.encryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static EncryptPathStructureOutput EncryptPathStructureOutput(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptPathStructureOutput dafnyValue) {
-    EncryptPathStructureOutput.Builder nativeBuilder = EncryptPathStructureOutput.builder();
-    nativeBuilder.encryptedStructure(ToNative.CryptoList(dafnyValue.dtor_encryptedStructure()));
-    nativeBuilder.parsedHeader(ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader()));
-=======
     software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureOutput dafnyValue
   ) {
     DecryptStructureOutput.Builder nativeBuilder =
       DecryptStructureOutput.builder();
     nativeBuilder.plaintextStructure(
-      ToNative.StructuredData(dafnyValue.dtor_plaintextStructure())
+      ToNative.StructuredDataMap(dafnyValue.dtor_plaintextStructure())
+    );
+    nativeBuilder.cryptoSchema(
+      ToNative.CryptoSchemaMap(dafnyValue.dtor_cryptoSchema())
     );
     nativeBuilder.parsedHeader(
       ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader())
     );
->>>>>>> main
+    return nativeBuilder.build();
+  }
+
+  public static EncryptPathStructureInput EncryptPathStructureInput(
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptPathStructureInput dafnyValue
+  ) {
+    EncryptPathStructureInput.Builder nativeBuilder =
+      EncryptPathStructureInput.builder();
+    nativeBuilder.tableName(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_tableName()
+      )
+    );
+    nativeBuilder.plaintextStructure(
+      ToNative.CryptoList(dafnyValue.dtor_plaintextStructure())
+    );
+    nativeBuilder.cmm(
+      software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(
+        dafnyValue.dtor_cmm()
+      )
+    );
+    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
+      nativeBuilder.algorithmSuiteId(
+        software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(
+          dafnyValue.dtor_algorithmSuiteId().dtor_value()
+        )
+      );
+    }
+    if (dafnyValue.dtor_encryptionContext().is_Some()) {
+      nativeBuilder.encryptionContext(
+        software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(
+          dafnyValue.dtor_encryptionContext().dtor_value()
+        )
+      );
+    }
+    return nativeBuilder.build();
+  }
+
+  public static EncryptPathStructureOutput EncryptPathStructureOutput(
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptPathStructureOutput dafnyValue
+  ) {
+    EncryptPathStructureOutput.Builder nativeBuilder =
+      EncryptPathStructureOutput.builder();
+    nativeBuilder.encryptedStructure(
+      ToNative.CryptoList(dafnyValue.dtor_encryptedStructure())
+    );
+    nativeBuilder.parsedHeader(
+      ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader())
+    );
     return nativeBuilder.build();
   }
 
   public static EncryptStructureInput EncryptStructureInput(
-<<<<<<< HEAD
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureInput dafnyValue) {
-    EncryptStructureInput.Builder nativeBuilder = EncryptStructureInput.builder();
-    nativeBuilder.tableName(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_tableName()));
-    nativeBuilder.plaintextStructure(ToNative.StructuredDataMap(dafnyValue.dtor_plaintextStructure()));
-    nativeBuilder.cryptoSchema(ToNative.CryptoSchemaMap(dafnyValue.dtor_cryptoSchema()));
-    nativeBuilder.cmm(software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(dafnyValue.dtor_cmm()));
-=======
     software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureInput dafnyValue
   ) {
     EncryptStructureInput.Builder nativeBuilder =
@@ -274,17 +269,16 @@ public class ToNative {
       )
     );
     nativeBuilder.plaintextStructure(
-      ToNative.StructuredData(dafnyValue.dtor_plaintextStructure())
+      ToNative.StructuredDataMap(dafnyValue.dtor_plaintextStructure())
     );
     nativeBuilder.cryptoSchema(
-      ToNative.CryptoSchema(dafnyValue.dtor_cryptoSchema())
+      ToNative.CryptoSchemaMap(dafnyValue.dtor_cryptoSchema())
     );
     nativeBuilder.cmm(
       software.amazon.cryptography.materialproviders.ToNative.CryptographicMaterialsManager(
         dafnyValue.dtor_cmm()
       )
     );
->>>>>>> main
     if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
       nativeBuilder.algorithmSuiteId(
         software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(
@@ -303,24 +297,19 @@ public class ToNative {
   }
 
   public static EncryptStructureOutput EncryptStructureOutput(
-<<<<<<< HEAD
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureOutput dafnyValue) {
-    EncryptStructureOutput.Builder nativeBuilder = EncryptStructureOutput.builder();
-    nativeBuilder.encryptedStructure(ToNative.StructuredDataMap(dafnyValue.dtor_encryptedStructure()));
-    nativeBuilder.cryptoSchema(ToNative.CryptoSchemaMap(dafnyValue.dtor_cryptoSchema()));
-    nativeBuilder.parsedHeader(ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader()));
-=======
     software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureOutput dafnyValue
   ) {
     EncryptStructureOutput.Builder nativeBuilder =
       EncryptStructureOutput.builder();
     nativeBuilder.encryptedStructure(
-      ToNative.StructuredData(dafnyValue.dtor_encryptedStructure())
+      ToNative.StructuredDataMap(dafnyValue.dtor_encryptedStructure())
+    );
+    nativeBuilder.cryptoSchema(
+      ToNative.CryptoSchemaMap(dafnyValue.dtor_cryptoSchema())
     );
     nativeBuilder.parsedHeader(
       ToNative.ParsedHeader(dafnyValue.dtor_parsedHeader())
     );
->>>>>>> main
     return nativeBuilder.build();
   }
 
@@ -328,18 +317,6 @@ public class ToNative {
     software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ParsedHeader dafnyValue
   ) {
     ParsedHeader.Builder nativeBuilder = ParsedHeader.builder();
-<<<<<<< HEAD
-    nativeBuilder.algorithmSuiteId(software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
-    nativeBuilder.encryptedDataKeys(software.amazon.cryptography.materialproviders.ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
-    nativeBuilder.storedEncryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_storedEncryptionContext()));
-    nativeBuilder.encryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
-    return nativeBuilder.build();
-  }
-
-=======
-    nativeBuilder.cryptoSchema(
-      ToNative.CryptoSchema(dafnyValue.dtor_cryptoSchema())
-    );
     nativeBuilder.algorithmSuiteId(
       software.amazon.cryptography.materialproviders.ToNative.DBEAlgorithmSuiteId(
         dafnyValue.dtor_algorithmSuiteId()
@@ -363,24 +340,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static StructuredData StructuredData(
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredData dafnyValue
-  ) {
-    StructuredData.Builder nativeBuilder = StructuredData.builder();
-    nativeBuilder.content(
-      ToNative.StructuredDataContent(dafnyValue.dtor_content())
-    );
-    if (dafnyValue.dtor_attributes().is_Some()) {
-      nativeBuilder.attributes(
-        ToNative.StructuredDataAttributes(
-          dafnyValue.dtor_attributes().dtor_value()
-        )
-      );
-    }
-    return nativeBuilder.build();
-  }
-
->>>>>>> main
   public static StructuredDataTerminal StructuredDataTerminal(
     software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredDataTerminal dafnyValue
   ) {
@@ -408,9 +367,14 @@ public class ToNative {
   }
 
   public static StructureSegment StructureSegment(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructureSegment dafnyValue) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructureSegment dafnyValue
+  ) {
     StructureSegment.Builder nativeBuilder = StructureSegment.builder();
-    nativeBuilder.key(software.amazon.smithy.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_key()));
+    nativeBuilder.key(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_key()
+      )
+    );
     return nativeBuilder.build();
   }
 
@@ -450,145 +414,55 @@ public class ToNative {
     );
   }
 
-<<<<<<< HEAD
   public static PathSegment PathSegment(
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.PathSegment dafnyValue) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.PathSegment dafnyValue
+  ) {
     PathSegment.Builder nativeBuilder = PathSegment.builder();
     if (dafnyValue.is_member()) {
       nativeBuilder.member(ToNative.StructureSegment(dafnyValue.dtor_member()));
-=======
-  public static AuthenticateSchemaContent AuthenticateSchemaContent(
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchemaContent dafnyValue
-  ) {
-    AuthenticateSchemaContent.Builder nativeBuilder =
-      AuthenticateSchemaContent.builder();
-    if (dafnyValue.is_Action()) {
-      nativeBuilder.Action(
-        ToNative.AuthenticateAction(dafnyValue.dtor_Action())
-      );
-    }
-    if (dafnyValue.is_SchemaMap()) {
-      nativeBuilder.SchemaMap(
-        ToNative.AuthenticateSchemaMap(dafnyValue.dtor_SchemaMap())
-      );
-    }
-    if (dafnyValue.is_SchemaList()) {
-      nativeBuilder.SchemaList(
-        ToNative.AuthenticateSchemaList(dafnyValue.dtor_SchemaList())
-      );
->>>>>>> main
     }
     return nativeBuilder.build();
   }
 
-<<<<<<< HEAD
   public static List<AuthItem> AuthList(
-      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthItem> dafnyValue) {
+    DafnySequence<
+      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthItem
+    > dafnyValue
+  ) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::AuthItem);
+      dafnyValue,
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::AuthItem
+    );
   }
 
   public static List<CryptoItem> CryptoList(
-      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoItem> dafnyValue) {
+    DafnySequence<
+      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoItem
+    > dafnyValue
+  ) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::CryptoItem);
+      dafnyValue,
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::CryptoItem
+    );
   }
 
   public static List<PathSegment> Path(
-      DafnySequence<? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.PathSegment> dafnyValue) {
+    DafnySequence<
+      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.PathSegment
+    > dafnyValue
+  ) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::PathSegment);
+      dafnyValue,
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::PathSegment
+    );
   }
 
   public static Map<String, AuthenticateAction> AuthenticateSchemaMap(
-      DafnyMap<? extends DafnySequence<? extends Character>, ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateAction> dafnyValue) {
-=======
-  public static CryptoSchemaContent CryptoSchemaContent(
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoSchemaContent dafnyValue
-  ) {
-    CryptoSchemaContent.Builder nativeBuilder = CryptoSchemaContent.builder();
-    if (dafnyValue.is_Action()) {
-      nativeBuilder.Action(ToNative.CryptoAction(dafnyValue.dtor_Action()));
-    }
-    if (dafnyValue.is_SchemaMap()) {
-      nativeBuilder.SchemaMap(
-        ToNative.CryptoSchemaMap(dafnyValue.dtor_SchemaMap())
-      );
-    }
-    if (dafnyValue.is_SchemaList()) {
-      nativeBuilder.SchemaList(
-        ToNative.CryptoSchemaList(dafnyValue.dtor_SchemaList())
-      );
-    }
-    return nativeBuilder.build();
-  }
-
-  public static StructuredDataContent StructuredDataContent(
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredDataContent dafnyValue
-  ) {
-    StructuredDataContent.Builder nativeBuilder =
-      StructuredDataContent.builder();
-    if (dafnyValue.is_Terminal()) {
-      nativeBuilder.Terminal(
-        ToNative.StructuredDataTerminal(dafnyValue.dtor_Terminal())
-      );
-    }
-    if (dafnyValue.is_DataList()) {
-      nativeBuilder.DataList(
-        ToNative.StructuredDataList(dafnyValue.dtor_DataList())
-      );
-    }
-    if (dafnyValue.is_DataMap()) {
-      nativeBuilder.DataMap(
-        ToNative.StructuredDataMap(dafnyValue.dtor_DataMap())
-      );
-    }
-    return nativeBuilder.build();
-  }
-
-  public static List<AuthenticateSchema> AuthenticateSchemaList(
-    DafnySequence<
-      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchema
-    > dafnyValue
-  ) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
-      dafnyValue,
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::AuthenticateSchema
-    );
-  }
-
-  public static List<CryptoSchema> CryptoSchemaList(
-    DafnySequence<
-      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoSchema
-    > dafnyValue
-  ) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
-      dafnyValue,
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::CryptoSchema
-    );
-  }
-
-  public static List<StructuredData> StructuredDataList(
-    DafnySequence<
-      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredData
-    > dafnyValue
-  ) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToList(
-      dafnyValue,
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::StructuredData
-    );
-  }
-
-  public static Map<String, AuthenticateAction> AuthenticateSchemaAttributes(
     DafnyMap<
       ? extends DafnySequence<? extends Character>,
       ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateAction
     > dafnyValue
   ) {
->>>>>>> main
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
       dafnyValue,
       software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
@@ -596,64 +470,25 @@ public class ToNative {
     );
   }
 
-<<<<<<< HEAD
   public static Map<String, CryptoAction> CryptoSchemaMap(
-      DafnyMap<? extends DafnySequence<? extends Character>, ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction> dafnyValue) {
+    DafnyMap<
+      ? extends DafnySequence<? extends Character>,
+      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction
+    > dafnyValue
+  ) {
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
-        dafnyValue, 
-        software.amazon.smithy.dafny.conversion.ToNative.Simple::String, 
-        software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::CryptoAction);
+      dafnyValue,
+      software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::CryptoAction
+    );
   }
 
   public static Map<String, StructuredDataTerminal> StructuredDataMap(
-      DafnyMap<? extends DafnySequence<? extends Character>, ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredDataTerminal> dafnyValue) {
-=======
-  public static Map<String, AuthenticateSchema> AuthenticateSchemaMap(
-    DafnyMap<
-      ? extends DafnySequence<? extends Character>,
-      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateSchema
-    > dafnyValue
-  ) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
-      dafnyValue,
-      software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::AuthenticateSchema
-    );
-  }
-
-  public static Map<String, AuthenticateAction> CryptoSchemaAttributes(
-    DafnyMap<
-      ? extends DafnySequence<? extends Character>,
-      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.AuthenticateAction
-    > dafnyValue
-  ) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
-      dafnyValue,
-      software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::AuthenticateAction
-    );
-  }
-
-  public static Map<String, CryptoSchema> CryptoSchemaMap(
-    DafnyMap<
-      ? extends DafnySequence<? extends Character>,
-      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoSchema
-    > dafnyValue
-  ) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
-      dafnyValue,
-      software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::CryptoSchema
-    );
-  }
-
-  public static Map<String, StructuredDataTerminal> StructuredDataAttributes(
     DafnyMap<
       ? extends DafnySequence<? extends Character>,
       ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredDataTerminal
     > dafnyValue
   ) {
->>>>>>> main
     return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
       dafnyValue,
       software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
@@ -661,26 +496,9 @@ public class ToNative {
     );
   }
 
-<<<<<<< HEAD
-  public static StructuredEncryption StructuredEncryption(IStructuredEncryptionClient dafnyValue) {
-=======
-  public static Map<String, StructuredData> StructuredDataMap(
-    DafnyMap<
-      ? extends DafnySequence<? extends Character>,
-      ? extends software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredData
-    > dafnyValue
-  ) {
-    return software.amazon.smithy.dafny.conversion.ToNative.Aggregate.GenericToMap(
-      dafnyValue,
-      software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
-      software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative::StructuredData
-    );
-  }
-
   public static StructuredEncryption StructuredEncryption(
     IStructuredEncryptionClient dafnyValue
   ) {
->>>>>>> main
     return new StructuredEncryption(dafnyValue);
   }
 }

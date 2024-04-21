@@ -10,12 +10,7 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
 
 public class ParsedHeader {
-<<<<<<< HEAD
-=======
 
-  private final CryptoSchema cryptoSchema;
-
->>>>>>> main
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
   private final List<EncryptedDataKey> encryptedDataKeys;
@@ -78,12 +73,7 @@ public class ParsedHeader {
   }
 
   static class BuilderImpl implements Builder {
-<<<<<<< HEAD
-=======
 
-    protected CryptoSchema cryptoSchema;
-
->>>>>>> main
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
     protected List<EncryptedDataKey> encryptedDataKeys;
@@ -140,20 +130,10 @@ public class ParsedHeader {
     }
 
     public ParsedHeader build() {
-<<<<<<< HEAD
-      if (Objects.isNull(this.algorithmSuiteId()))  {
-        throw new IllegalArgumentException("Missing value for required field `algorithmSuiteId`");
-=======
-      if (Objects.isNull(this.cryptoSchema())) {
-        throw new IllegalArgumentException(
-          "Missing value for required field `cryptoSchema`"
-        );
-      }
       if (Objects.isNull(this.algorithmSuiteId())) {
         throw new IllegalArgumentException(
           "Missing value for required field `algorithmSuiteId`"
         );
->>>>>>> main
       }
       if (Objects.isNull(this.encryptedDataKeys())) {
         throw new IllegalArgumentException(

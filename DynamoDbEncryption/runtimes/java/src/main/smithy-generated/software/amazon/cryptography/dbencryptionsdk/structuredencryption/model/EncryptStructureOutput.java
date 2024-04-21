@@ -7,14 +7,10 @@ import java.util.Map;
 import java.util.Objects;
 
 public class EncryptStructureOutput {
-<<<<<<< HEAD
+
   private final Map<String, StructuredDataTerminal> encryptedStructure;
 
   private final Map<String, CryptoAction> cryptoSchema;
-=======
-
-  private final StructuredData encryptedStructure;
->>>>>>> main
 
   private final ParsedHeader parsedHeader;
 
@@ -45,7 +41,9 @@ public class EncryptStructureOutput {
   }
 
   public interface Builder {
-    Builder encryptedStructure(Map<String, StructuredDataTerminal> encryptedStructure);
+    Builder encryptedStructure(
+      Map<String, StructuredDataTerminal> encryptedStructure
+    );
 
     Map<String, StructuredDataTerminal> encryptedStructure();
 
@@ -61,14 +59,10 @@ public class EncryptStructureOutput {
   }
 
   static class BuilderImpl implements Builder {
-<<<<<<< HEAD
+
     protected Map<String, StructuredDataTerminal> encryptedStructure;
 
     protected Map<String, CryptoAction> cryptoSchema;
-=======
-
-    protected StructuredData encryptedStructure;
->>>>>>> main
 
     protected ParsedHeader parsedHeader;
 
@@ -80,7 +74,9 @@ public class EncryptStructureOutput {
       this.parsedHeader = model.parsedHeader();
     }
 
-    public Builder encryptedStructure(Map<String, StructuredDataTerminal> encryptedStructure) {
+    public Builder encryptedStructure(
+      Map<String, StructuredDataTerminal> encryptedStructure
+    ) {
       this.encryptedStructure = encryptedStructure;
       return this;
     }
@@ -113,18 +109,15 @@ public class EncryptStructureOutput {
           "Missing value for required field `encryptedStructure`"
         );
       }
-<<<<<<< HEAD
-      if (Objects.isNull(this.cryptoSchema()))  {
-        throw new IllegalArgumentException("Missing value for required field `cryptoSchema`");
+      if (Objects.isNull(this.cryptoSchema())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `cryptoSchema`"
+        );
       }
-      if (Objects.isNull(this.parsedHeader()))  {
-        throw new IllegalArgumentException("Missing value for required field `parsedHeader`");
-=======
       if (Objects.isNull(this.parsedHeader())) {
         throw new IllegalArgumentException(
           "Missing value for required field `parsedHeader`"
         );
->>>>>>> main
       }
       return new EncryptStructureOutput(this);
     }
