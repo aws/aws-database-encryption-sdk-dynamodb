@@ -1060,7 +1060,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert !exists x :: x in smallResult && x.key == HeaderPath;
     assert !exists x :: x in smallResult && x.key == FooterPath;
     assume {:axiom} forall k <- input.encryptedStructure | k.key !in HeaderPaths ::
-      (exists x :: x in smallResult && x.key == k.key);
+        (exists x :: x in smallResult && x.key == k.key);
 
     //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
     //= type=implication
