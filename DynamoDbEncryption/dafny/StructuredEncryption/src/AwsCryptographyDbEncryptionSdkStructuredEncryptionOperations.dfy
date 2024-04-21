@@ -312,8 +312,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   function method {:tailrecursion} {:opaque} ResolveLegend(
     fields : CanonAuthList,
     legend : Header.Legend,
-    ghost origFields : CanonAuthList := fields,
-    acc : CanonCryptoList := []
+    ghost origFields : CanonAuthList,
+    acc : CanonCryptoList
   )
     : (ret : Result<CanonCryptoList, Error>)
     requires |fields| + |acc| == |origFields|
@@ -363,7 +363,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert forall k <- canonSorted :: Paths.ValidPath(k.origKey);
     assert forall k <- canonSorted :: k.key == Paths.CanonPath(tableName, k.origKey);
 
-    var canonResolved :- ResolveLegend(canonSorted, legend);
+    var acc : CanonCryptoList := [];
+    assert |canonSorted| + |acc| == |canonSorted|;
+    assert forall i | 0 <= i < |acc| :: Same(canonSorted[i], acc[i]);
+    assert forall i | |acc| <= i < |canonSorted| :: canonSorted[i] == canonSorted[i-|acc|];
+    var canonResolved :- ResolveLegend(canonSorted, legend, canonSorted, acc);
 
     assert |canonResolved| == |data|;
     assert forall k <- data :: (exists x :: x in canonResolved && k.key == x.origKey);
@@ -944,6 +948,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         encryptionContext := encryptionContext + newEncryptionContext;
         assert cmm.Modifies !! {config.materialProviders.History};
 
+        var contextKeysX := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess);
+        assert forall k <- contextKeysX :: ValidUTF8Seq(k) by {
+          assert forall k <- newEncryptionContext.Keys :: ValidUTF8Seq(k);
+          assert forall k <- contextKeysX :: k in newEncryptionContext.Keys;
+        }
+        var contextKeys :  seq<UTF8.ValidUTF8Bytes> := contextKeysX;
+
         //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
         //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
         //# with the following inputs:
@@ -953,7 +964,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
           CMP.CreateRequiredEncryptionContextCMMInput(
             underlyingCMM := Some(input.cmm),
             keyring := None,
-            requiredEncryptionContextKeys := SortedSets.ComputeSetToOrderedSequence2(newEncryptionContext.Keys, ByteLess)
+            requiredEncryptionContextKeys := contextKeys
           )
         );
         cmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
@@ -1049,7 +1060,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert !exists x :: x in smallResult && x.key == HeaderPath;
     assert !exists x :: x in smallResult && x.key == FooterPath;
     assume {:axiom} forall k <- input.encryptedStructure | k.key !in HeaderPaths ::
-        (exists x :: x in smallResult && x.key == k.key);
+      (exists x :: x in smallResult && x.key == k.key);
 
     //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
     //= type=implication
