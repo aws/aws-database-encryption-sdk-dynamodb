@@ -127,6 +127,15 @@ module StructuredEncryptionCrypt {
 
   datatype EncryptionSelector = DoEncrypt | DoDecrypt
 
+  predicate Updated(oldVal : CanonCryptoItem, newVal : CanonCryptoItem)
+  {
+    && oldVal.key == newVal.key
+    && oldVal.origKey == newVal.origKey
+    && oldVal.action == newVal.action
+    && (oldVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
+    && (oldVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
+  }
+
   // Encrypt a StructuredDataMap
   method Encrypt(
     client: Primitives.AtomicPrimitivesClient,
@@ -140,6 +149,9 @@ module StructuredEncryptionCrypt {
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+    ensures ret.Success? ==>
+      && |ret.value| == |data|
+      && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
   {
     ret := Crypt(DoEncrypt, client, alg, key, head, data);
   }
@@ -157,6 +169,9 @@ module StructuredEncryptionCrypt {
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+    ensures ret.Success? ==>
+      && |ret.value| == |data|
+      && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
   {
     ret := Crypt(DoDecrypt, client, alg, key, head, data);
   }
@@ -203,6 +218,9 @@ module StructuredEncryptionCrypt {
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+    ensures ret.Success? ==>
+      && |ret.value| == |data|
+      && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
   {
     //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
     //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
@@ -233,32 +251,41 @@ module StructuredEncryptionCrypt {
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
     fieldRootKey : Key,
-    input : CanonCryptoList
+    data : CanonCryptoList
   )
     returns (ret : Result<CanonCryptoList, Error>)
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
     ensures client.ValidState()
+    ensures ret.Success? ==>
+      && |ret.value| == |data|
+      && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
   {
     var result : CanonCryptoList := [];
     var pos : uint32 := 0;
-    :- Need(|input| < UINT32_LIMIT, E("Too many fields."));
-    for i := 0 to |input|
+    :- Need(|data| < UINT32_LIMIT, E("Too many fields."));
+    for i := 0 to |data|
       invariant pos <= (i as uint32)
+      invariant |result| == i
+      invariant forall x | 0 <= x < |result| :: Updated(data[x], result[x])
     {
-      if input[i].action == ENCRYPT_AND_SIGN {
-        var data;
+      if data[i].action == ENCRYPT_AND_SIGN {
+        var newTerminal;
         if mode == DoEncrypt {
-          data :- EncryptTerminal(client, alg, fieldRootKey, pos, input[i].key, input[i].data);
+          newTerminal :- EncryptTerminal(client, alg, fieldRootKey, pos, data[i].key, data[i].data);
         } else {
-          data :- DecryptTerminal(client, alg, fieldRootKey, pos, input[i].key, input[i].data);
+          newTerminal :- DecryptTerminal(client, alg, fieldRootKey, pos, data[i].key, data[i].data);
         }
         pos := pos + 1;
-        result := result + [input[i].(data := data)];
+        var newItem := data[i].(data := newTerminal);
+        result := result + [newItem];
+        assert Updated(data[i], result[i]);
       } else {
-        result := result + [input[i]];
+        result := result + [data[i]];
+        assert Updated(data[i], result[i]);
       }
+      assert Updated(data[i], result[i]);
     }
     return Success(result);
   }
@@ -274,6 +301,8 @@ module StructuredEncryptionCrypt {
   )
     returns (ret : Result<StructuredDataTerminal, Error>)
 
+    ensures ret.Success? ==>
+      ret.value != data
     ensures ret.Success? ==>
               //= specification/structured-encryption/encrypt-structure.md#terminal-data-encryption
               //= type=implication
@@ -366,6 +395,7 @@ module StructuredEncryptionCrypt {
                  //# The output Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
                  //# equal to the deserialized Terminal Type Id.
               && ret.value.typeId == data.value[0..TYPEID_LEN]
+              && ret.value != data
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
