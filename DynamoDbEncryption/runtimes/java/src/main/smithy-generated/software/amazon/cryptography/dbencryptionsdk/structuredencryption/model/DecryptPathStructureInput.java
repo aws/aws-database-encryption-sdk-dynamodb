@@ -10,6 +10,7 @@ import software.amazon.cryptography.materialproviders.CryptographicMaterialsMana
 import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
 
 public class DecryptPathStructureInput {
+
   private final String tableName;
 
   private final List<AuthItem> encryptedStructure;
@@ -70,6 +71,7 @@ public class DecryptPathStructureInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String tableName;
 
     protected List<AuthItem> encryptedStructure;
@@ -78,8 +80,7 @@ public class DecryptPathStructureInput {
 
     protected Map<String, String> encryptionContext;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptPathStructureInput model) {
       this.tableName = model.tableName();
@@ -125,14 +126,20 @@ public class DecryptPathStructureInput {
     }
 
     public DecryptPathStructureInput build() {
-      if (Objects.isNull(this.tableName()))  {
-        throw new IllegalArgumentException("Missing value for required field `tableName`");
+      if (Objects.isNull(this.tableName())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `tableName`"
+        );
       }
-      if (Objects.isNull(this.encryptedStructure()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedStructure`");
+      if (Objects.isNull(this.encryptedStructure())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedStructure`"
+        );
       }
-      if (Objects.isNull(this.cmm()))  {
-        throw new IllegalArgumentException("Missing value for required field `cmm`");
+      if (Objects.isNull(this.cmm())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `cmm`"
+        );
       }
       return new DecryptPathStructureInput(this);
     }

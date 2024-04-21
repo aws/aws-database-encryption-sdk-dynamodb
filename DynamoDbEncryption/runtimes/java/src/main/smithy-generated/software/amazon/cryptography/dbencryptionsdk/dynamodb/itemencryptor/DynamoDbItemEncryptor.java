@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor;
 import Wrappers_Compile.Result;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.DynamoDbItemEncryptorClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.__default;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.IDynamoDbItemEncryptorClient;
@@ -16,12 +17,15 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput;
 
 public class DynamoDbItemEncryptor {
+
   private final IDynamoDbItemEncryptorClient _impl;
 
   protected DynamoDbItemEncryptor(BuilderImpl builder) {
     DynamoDbItemEncryptorConfig input = builder.DynamoDbItemEncryptorConfig();
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig dafnyValue = ToDafny.DynamoDbItemEncryptorConfig(input);
-    Result<IDynamoDbItemEncryptorClient, Error> result = __default.DynamoDbItemEncryptor(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig dafnyValue =
+      ToDafny.DynamoDbItemEncryptorConfig(input);
+    Result<DynamoDbItemEncryptorClient, Error> result =
+      __default.DynamoDbItemEncryptor(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -43,8 +47,12 @@ public class DynamoDbItemEncryptor {
    * @return Outputs for decrypting a DynamoDB Item.
    */
   public DecryptItemOutput DecryptItem(DecryptItemInput input) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput dafnyValue = ToDafny.DecryptItemInput(input);
-    Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput, Error> result = this._impl.DecryptItem(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput dafnyValue =
+      ToDafny.DecryptItemInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput,
+      Error
+    > result = this._impl.DecryptItem(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -58,8 +66,12 @@ public class DynamoDbItemEncryptor {
    * @return Outputs for encrypting a DynamoDB Item.
    */
   public EncryptItemOutput EncryptItem(EncryptItemInput input) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemInput dafnyValue = ToDafny.EncryptItemInput(input);
-    Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemOutput, Error> result = this._impl.EncryptItem(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemInput dafnyValue =
+      ToDafny.EncryptItemInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemOutput,
+      Error
+    > result = this._impl.EncryptItem(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -74,7 +86,9 @@ public class DynamoDbItemEncryptor {
     /**
      * @param DynamoDbItemEncryptorConfig The configuration for the client-side encryption of DynamoDB items.
      */
-    Builder DynamoDbItemEncryptorConfig(DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig);
+    Builder DynamoDbItemEncryptorConfig(
+      DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig
+    );
 
     /**
      * @return The configuration for the client-side encryption of DynamoDB items.
@@ -85,13 +99,14 @@ public class DynamoDbItemEncryptor {
   }
 
   static class BuilderImpl implements Builder {
+
     protected DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     public Builder DynamoDbItemEncryptorConfig(
-        DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig) {
+      DynamoDbItemEncryptorConfig DynamoDbItemEncryptorConfig
+    ) {
       this.DynamoDbItemEncryptorConfig = DynamoDbItemEncryptorConfig;
       return this;
     }
@@ -101,8 +116,10 @@ public class DynamoDbItemEncryptor {
     }
 
     public DynamoDbItemEncryptor build() {
-      if (Objects.isNull(this.DynamoDbItemEncryptorConfig()))  {
-        throw new IllegalArgumentException("Missing value for required field `DynamoDbItemEncryptorConfig`");
+      if (Objects.isNull(this.DynamoDbItemEncryptorConfig())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `DynamoDbItemEncryptorConfig`"
+        );
       }
       return new DynamoDbItemEncryptor(this);
     }

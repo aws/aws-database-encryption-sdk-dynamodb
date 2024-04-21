@@ -10,10 +10,14 @@ import java.util.Objects;
  * The configuration for client-side encryption with multiple DynamoDB table.
  */
 public class DynamoDbTablesEncryptionConfig {
+
   /**
    * A map of DynamoDB table name to its configuration for client-side encryption.
    */
-  private final Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs;
+  private final Map<
+    String,
+    DynamoDbTableEncryptionConfig
+  > tableEncryptionConfigs;
 
   protected DynamoDbTablesEncryptionConfig(BuilderImpl builder) {
     this.tableEncryptionConfigs = builder.tableEncryptionConfigs();
@@ -39,7 +43,8 @@ public class DynamoDbTablesEncryptionConfig {
      * @param tableEncryptionConfigs A map of DynamoDB table name to its configuration for client-side encryption.
      */
     Builder tableEncryptionConfigs(
-        Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs);
+      Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs
+    );
 
     /**
      * @return A map of DynamoDB table name to its configuration for client-side encryption.
@@ -50,17 +55,18 @@ public class DynamoDbTablesEncryptionConfig {
   }
 
   static class BuilderImpl implements Builder {
+
     protected Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DynamoDbTablesEncryptionConfig model) {
       this.tableEncryptionConfigs = model.tableEncryptionConfigs();
     }
 
     public Builder tableEncryptionConfigs(
-        Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs) {
+      Map<String, DynamoDbTableEncryptionConfig> tableEncryptionConfigs
+    ) {
       this.tableEncryptionConfigs = tableEncryptionConfigs;
       return this;
     }
@@ -70,8 +76,10 @@ public class DynamoDbTablesEncryptionConfig {
     }
 
     public DynamoDbTablesEncryptionConfig build() {
-      if (Objects.isNull(this.tableEncryptionConfigs()))  {
-        throw new IllegalArgumentException("Missing value for required field `tableEncryptionConfigs`");
+      if (Objects.isNull(this.tableEncryptionConfigs())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `tableEncryptionConfigs`"
+        );
       }
       return new DynamoDbTablesEncryptionConfig(this);
     }

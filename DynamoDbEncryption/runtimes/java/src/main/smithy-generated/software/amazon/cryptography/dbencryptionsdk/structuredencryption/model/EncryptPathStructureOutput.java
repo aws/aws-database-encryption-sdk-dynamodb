@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class EncryptPathStructureOutput {
+
   private final List<CryptoItem> encryptedStructure;
 
   private final ParsedHeader parsedHeader;
@@ -45,12 +46,12 @@ public class EncryptPathStructureOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected List<CryptoItem> encryptedStructure;
 
     protected ParsedHeader parsedHeader;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptPathStructureOutput model) {
       this.encryptedStructure = model.encryptedStructure();
@@ -76,11 +77,15 @@ public class EncryptPathStructureOutput {
     }
 
     public EncryptPathStructureOutput build() {
-      if (Objects.isNull(this.encryptedStructure()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedStructure`");
+      if (Objects.isNull(this.encryptedStructure())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedStructure`"
+        );
       }
-      if (Objects.isNull(this.parsedHeader()))  {
-        throw new IllegalArgumentException("Missing value for required field `parsedHeader`");
+      if (Objects.isNull(this.parsedHeader())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `parsedHeader`"
+        );
       }
       return new EncryptPathStructureOutput(this);
     }

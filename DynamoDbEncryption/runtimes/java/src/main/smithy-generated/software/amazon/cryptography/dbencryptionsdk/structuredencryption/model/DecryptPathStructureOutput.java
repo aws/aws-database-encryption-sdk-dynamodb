@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class DecryptPathStructureOutput {
+
   private final List<CryptoItem> plaintextStructure;
 
   private final ParsedHeader parsedHeader;
@@ -45,12 +46,12 @@ public class DecryptPathStructureOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected List<CryptoItem> plaintextStructure;
 
     protected ParsedHeader parsedHeader;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptPathStructureOutput model) {
       this.plaintextStructure = model.plaintextStructure();
@@ -76,11 +77,15 @@ public class DecryptPathStructureOutput {
     }
 
     public DecryptPathStructureOutput build() {
-      if (Objects.isNull(this.plaintextStructure()))  {
-        throw new IllegalArgumentException("Missing value for required field `plaintextStructure`");
+      if (Objects.isNull(this.plaintextStructure())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `plaintextStructure`"
+        );
       }
-      if (Objects.isNull(this.parsedHeader()))  {
-        throw new IllegalArgumentException("Missing value for required field `parsedHeader`");
+      if (Objects.isNull(this.parsedHeader())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `parsedHeader`"
+        );
       }
       return new DecryptPathStructureOutput(this);
     }

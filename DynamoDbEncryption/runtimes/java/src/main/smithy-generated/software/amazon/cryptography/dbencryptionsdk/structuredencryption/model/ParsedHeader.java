@@ -10,6 +10,12 @@ import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.EncryptedDataKey;
 
 public class ParsedHeader {
+<<<<<<< HEAD
+=======
+
+  private final CryptoSchema cryptoSchema;
+
+>>>>>>> main
   private final DBEAlgorithmSuiteId algorithmSuiteId;
 
   private final List<EncryptedDataKey> encryptedDataKeys;
@@ -58,7 +64,9 @@ public class ParsedHeader {
 
     List<EncryptedDataKey> encryptedDataKeys();
 
-    Builder storedEncryptionContext(Map<String, String> storedEncryptionContext);
+    Builder storedEncryptionContext(
+      Map<String, String> storedEncryptionContext
+    );
 
     Map<String, String> storedEncryptionContext();
 
@@ -70,6 +78,12 @@ public class ParsedHeader {
   }
 
   static class BuilderImpl implements Builder {
+<<<<<<< HEAD
+=======
+
+    protected CryptoSchema cryptoSchema;
+
+>>>>>>> main
     protected DBEAlgorithmSuiteId algorithmSuiteId;
 
     protected List<EncryptedDataKey> encryptedDataKeys;
@@ -78,8 +92,7 @@ public class ParsedHeader {
 
     protected Map<String, String> encryptionContext;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(ParsedHeader model) {
       this.algorithmSuiteId = model.algorithmSuiteId();
@@ -106,7 +119,9 @@ public class ParsedHeader {
       return this.encryptedDataKeys;
     }
 
-    public Builder storedEncryptionContext(Map<String, String> storedEncryptionContext) {
+    public Builder storedEncryptionContext(
+      Map<String, String> storedEncryptionContext
+    ) {
       this.storedEncryptionContext = storedEncryptionContext;
       return this;
     }
@@ -125,17 +140,35 @@ public class ParsedHeader {
     }
 
     public ParsedHeader build() {
+<<<<<<< HEAD
       if (Objects.isNull(this.algorithmSuiteId()))  {
         throw new IllegalArgumentException("Missing value for required field `algorithmSuiteId`");
+=======
+      if (Objects.isNull(this.cryptoSchema())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `cryptoSchema`"
+        );
       }
-      if (Objects.isNull(this.encryptedDataKeys()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptedDataKeys`");
+      if (Objects.isNull(this.algorithmSuiteId())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `algorithmSuiteId`"
+        );
+>>>>>>> main
       }
-      if (Objects.isNull(this.storedEncryptionContext()))  {
-        throw new IllegalArgumentException("Missing value for required field `storedEncryptionContext`");
+      if (Objects.isNull(this.encryptedDataKeys())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptedDataKeys`"
+        );
       }
-      if (Objects.isNull(this.encryptionContext()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptionContext`");
+      if (Objects.isNull(this.storedEncryptionContext())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `storedEncryptionContext`"
+        );
+      }
+      if (Objects.isNull(this.encryptionContext())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptionContext`"
+        );
       }
       return new ParsedHeader(this);
     }

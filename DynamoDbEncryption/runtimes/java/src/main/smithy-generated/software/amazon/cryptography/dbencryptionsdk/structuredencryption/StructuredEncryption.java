@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.structuredencryption;
 import Wrappers_Compile.Result;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.StructuredEncryptionClient;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.__default;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.IStructuredEncryptionClient;
@@ -20,12 +21,15 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.E
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredEncryptionConfig;
 
 public class StructuredEncryption {
+
   private final IStructuredEncryptionClient _impl;
 
   protected StructuredEncryption(BuilderImpl builder) {
     StructuredEncryptionConfig input = builder.StructuredEncryptionConfig();
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig dafnyValue = ToDafny.StructuredEncryptionConfig(input);
-    Result<IStructuredEncryptionClient, Error> result = __default.StructuredEncryption(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig dafnyValue =
+      ToDafny.StructuredEncryptionConfig(input);
+    Result<StructuredEncryptionClient, Error> result =
+      __default.StructuredEncryption(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -40,9 +44,15 @@ public class StructuredEncryption {
     return new BuilderImpl();
   }
 
-  public DecryptPathStructureOutput DecryptPathStructure(DecryptPathStructureInput input) {
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptPathStructureInput dafnyValue = ToDafny.DecryptPathStructureInput(input);
-    Result<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptPathStructureOutput, Error> result = this._impl.DecryptPathStructure(dafnyValue);
+  public DecryptPathStructureOutput DecryptPathStructure(
+    DecryptPathStructureInput input
+  ) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptPathStructureInput dafnyValue =
+      ToDafny.DecryptPathStructureInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptPathStructureOutput,
+      Error
+    > result = this._impl.DecryptPathStructure(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -50,17 +60,27 @@ public class StructuredEncryption {
   }
 
   public DecryptStructureOutput DecryptStructure(DecryptStructureInput input) {
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureInput dafnyValue = ToDafny.DecryptStructureInput(input);
-    Result<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureOutput, Error> result = this._impl.DecryptStructure(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureInput dafnyValue =
+      ToDafny.DecryptStructureInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.DecryptStructureOutput,
+      Error
+    > result = this._impl.DecryptStructure(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.DecryptStructureOutput(result.dtor_value());
   }
 
-  public EncryptPathStructureOutput EncryptPathStructure(EncryptPathStructureInput input) {
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptPathStructureInput dafnyValue = ToDafny.EncryptPathStructureInput(input);
-    Result<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptPathStructureOutput, Error> result = this._impl.EncryptPathStructure(dafnyValue);
+  public EncryptPathStructureOutput EncryptPathStructure(
+    EncryptPathStructureInput input
+  ) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptPathStructureInput dafnyValue =
+      ToDafny.EncryptPathStructureInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptPathStructureOutput,
+      Error
+    > result = this._impl.EncryptPathStructure(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -68,8 +88,12 @@ public class StructuredEncryption {
   }
 
   public EncryptStructureOutput EncryptStructure(EncryptStructureInput input) {
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureInput dafnyValue = ToDafny.EncryptStructureInput(input);
-    Result<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureOutput, Error> result = this._impl.EncryptStructure(dafnyValue);
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureInput dafnyValue =
+      ToDafny.EncryptStructureInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.EncryptStructureOutput,
+      Error
+    > result = this._impl.EncryptStructure(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -81,7 +105,9 @@ public class StructuredEncryption {
   }
 
   public interface Builder {
-    Builder StructuredEncryptionConfig(StructuredEncryptionConfig StructuredEncryptionConfig);
+    Builder StructuredEncryptionConfig(
+      StructuredEncryptionConfig StructuredEncryptionConfig
+    );
 
     StructuredEncryptionConfig StructuredEncryptionConfig();
 
@@ -89,13 +115,14 @@ public class StructuredEncryption {
   }
 
   static class BuilderImpl implements Builder {
+
     protected StructuredEncryptionConfig StructuredEncryptionConfig;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     public Builder StructuredEncryptionConfig(
-        StructuredEncryptionConfig StructuredEncryptionConfig) {
+      StructuredEncryptionConfig StructuredEncryptionConfig
+    ) {
       this.StructuredEncryptionConfig = StructuredEncryptionConfig;
       return this;
     }
@@ -105,8 +132,10 @@ public class StructuredEncryption {
     }
 
     public StructuredEncryption build() {
-      if (Objects.isNull(this.StructuredEncryptionConfig()))  {
-        throw new IllegalArgumentException("Missing value for required field `StructuredEncryptionConfig`");
+      if (Objects.isNull(this.StructuredEncryptionConfig())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `StructuredEncryptionConfig`"
+        );
       }
       return new StructuredEncryption(this);
     }

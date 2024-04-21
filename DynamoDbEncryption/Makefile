@@ -77,7 +77,3 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 
 format_net:
 	pushd runtimes/net && dotnet format DynamoDbEncryption.csproj && popd
-
-polymorph:
-	make polymorph_code_gen CODEGEN_CLI_ROOT=../submodules/smithy-dafny/codegen/smithy-dafny-codegen-cli
-	make format_net

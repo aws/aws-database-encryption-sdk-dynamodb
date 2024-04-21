@@ -740,7 +740,7 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
   import Operations : AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations
   function method DefaultDynamoDbTablesEncryptionConfig(): AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig
   method DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig := DefaultDynamoDbTablesEncryptionConfig())
-    returns (res: Result<IDynamoDbEncryptionTransformsClient, Error>)
+    returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
     requires var tmps0 := set t0 | t0 in config.tableEncryptionConfigs.Values;
              forall tmp0 :: tmp0 in tmps0 ==>
                               tmp0.keyring.Some? ==>
@@ -759,39 +759,39 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                 var tmps4 := set t4 | t4 in tmp3.search.value.versions;
                                 forall tmp4 :: tmp4 in tmps4 ==>
                                                  tmp4.keyStore.ValidState()
-    modifies set tmps5 <- set t5 <- config.tableEncryptionConfigs.Values
-                              | t5.keyring.Some?
+    modifies set tmps5 <- set t5 <- config.tableEncryptionConfigs.Values | true
+                                                                           && t5.keyring.Some?
                             :: t5.keyring.value,
                obj <- tmps5.Modifies | obj in tmps5.Modifies :: obj
-    modifies set tmps6 <- set t6 <- config.tableEncryptionConfigs.Values
-                              | t6.cmm.Some?
+    modifies set tmps6 <- set t6 <- config.tableEncryptionConfigs.Values | true
+                                                                           && t6.cmm.Some?
                             :: t6.cmm.value,
                obj <- tmps6.Modifies | obj in tmps6.Modifies :: obj
-    modifies set tmps7 <- set t7 <- config.tableEncryptionConfigs.Values
-                              | t7.legacyOverride.Some?
+    modifies set tmps7 <- set t7 <- config.tableEncryptionConfigs.Values | true
+                                                                           && t7.legacyOverride.Some?
                             :: t7.legacyOverride.value.encryptor,
                obj <- tmps7.Modifies | obj in tmps7.Modifies :: obj
-    modifies set tmps8 <- set t8 <- config.tableEncryptionConfigs.Values
-                              | t8.search.Some?
+    modifies set tmps8 <- set t8 <- config.tableEncryptionConfigs.Values | true
+                                                                           && t8.search.Some?
                             , t9 <- t8.search.value.versions :: t9.keyStore,
                obj <- tmps8.Modifies | obj in tmps8.Modifies :: obj
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies
-                       - ( set tmps10 <- set t10 <- config.tableEncryptionConfigs.Values
-                                             | t10.keyring.Some?
+                       - ( set tmps10 <- set t10 <- config.tableEncryptionConfigs.Values | true
+                                                                                           && t10.keyring.Some?
                                            :: t10.keyring.value,
                              obj <- tmps10.Modifies | obj in tmps10.Modifies :: obj
-                       ) - ( set tmps11 <- set t11 <- config.tableEncryptionConfigs.Values
-                                               | t11.cmm.Some?
+                       ) - ( set tmps11 <- set t11 <- config.tableEncryptionConfigs.Values | true
+                                                                                             && t11.cmm.Some?
                                              :: t11.cmm.value,
                                obj <- tmps11.Modifies | obj in tmps11.Modifies :: obj
-                       ) - ( set tmps12 <- set t12 <- config.tableEncryptionConfigs.Values
-                                               | t12.legacyOverride.Some?
+                       ) - ( set tmps12 <- set t12 <- config.tableEncryptionConfigs.Values | true
+                                                                                             && t12.legacyOverride.Some?
                                              :: t12.legacyOverride.value.encryptor,
                                obj <- tmps12.Modifies | obj in tmps12.Modifies :: obj
-                       ) - ( set tmps13 <- set t13 <- config.tableEncryptionConfigs.Values
-                                               | t13.search.Some?
+                       ) - ( set tmps13 <- set t13 <- config.tableEncryptionConfigs.Values | true
+                                                                                             && t13.search.Some?
                                              , t14 <- t13.search.value.versions :: t14.keyStore,
                                obj <- tmps13.Modifies | obj in tmps13.Modifies :: obj
                        ) )
@@ -816,10 +816,10 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                 forall tmp19 :: tmp19 in tmps19 ==>
                                                   tmp19.keyStore.ValidState()
 
-  // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
+  // Helper functions for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IDynamoDbEncryptionTransformsClient): Result<IDynamoDbEncryptionTransformsClient, Error> {
     Success(client)
-  } // Helper function for the benefit of native code to create a Failure(error) without referring to Dafny internals
+  }
   function method CreateFailureOfError(error: Error): Result<IDynamoDbEncryptionTransformsClient, Error> {
     Failure(error)
   }

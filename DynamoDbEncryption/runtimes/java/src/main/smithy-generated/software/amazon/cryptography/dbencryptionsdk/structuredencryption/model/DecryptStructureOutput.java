@@ -7,9 +7,14 @@ import java.util.Map;
 import java.util.Objects;
 
 public class DecryptStructureOutput {
+<<<<<<< HEAD
   private final Map<String, StructuredDataTerminal> plaintextStructure;
 
   private final Map<String, CryptoAction> cryptoSchema;
+=======
+
+  private final StructuredData plaintextStructure;
+>>>>>>> main
 
   private final ParsedHeader parsedHeader;
 
@@ -56,14 +61,18 @@ public class DecryptStructureOutput {
   }
 
   static class BuilderImpl implements Builder {
+<<<<<<< HEAD
     protected Map<String, StructuredDataTerminal> plaintextStructure;
 
     protected Map<String, CryptoAction> cryptoSchema;
+=======
+
+    protected StructuredData plaintextStructure;
+>>>>>>> main
 
     protected ParsedHeader parsedHeader;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptStructureOutput model) {
       this.plaintextStructure = model.plaintextStructure();
@@ -99,14 +108,23 @@ public class DecryptStructureOutput {
     }
 
     public DecryptStructureOutput build() {
-      if (Objects.isNull(this.plaintextStructure()))  {
-        throw new IllegalArgumentException("Missing value for required field `plaintextStructure`");
+      if (Objects.isNull(this.plaintextStructure())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `plaintextStructure`"
+        );
       }
+<<<<<<< HEAD
       if (Objects.isNull(this.cryptoSchema()))  {
         throw new IllegalArgumentException("Missing value for required field `cryptoSchema`");
       }
       if (Objects.isNull(this.parsedHeader()))  {
         throw new IllegalArgumentException("Missing value for required field `parsedHeader`");
+=======
+      if (Objects.isNull(this.parsedHeader())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `parsedHeader`"
+        );
+>>>>>>> main
       }
       return new DecryptStructureOutput(this);
     }

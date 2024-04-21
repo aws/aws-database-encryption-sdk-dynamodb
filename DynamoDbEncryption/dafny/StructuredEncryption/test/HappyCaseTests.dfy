@@ -60,9 +60,16 @@ module HappyCaseTests {
       print "\n\n",decryptRes,"\n\n";
     }
     expect decryptRes.Success?;
+<<<<<<< HEAD
     var newResult := decryptRes.value.plaintextStructure;
     var testResult := StructuredDataTestFixtures.TEST_STRUCTURED_DATA;
     expect newResult == testResult;
+=======
+    var newResult := decryptRes.value.plaintextStructure.content;
+    var testResult := StructuredDataTestFixtures.TEST_STRUCTURED_DATA.content;
+    expect newResult.DataMap?;
+    expect newResult.DataMap == testResult.DataMap;
+>>>>>>> main
 
     //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
     //= type=test

@@ -453,17 +453,17 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
   import Operations : AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations
   function method DefaultDynamoDbEncryptionConfig(): DynamoDbEncryptionConfig
   method DynamoDbEncryption(config: DynamoDbEncryptionConfig := DefaultDynamoDbEncryptionConfig())
-    returns (res: Result<IDynamoDbEncryptionClient, Error>)
+    returns (res: Result<DynamoDbEncryptionClient, Error>)
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies)
               && fresh(res.value.History)
               && res.value.ValidState()
 
-  // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
+  // Helper functions for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IDynamoDbEncryptionClient): Result<IDynamoDbEncryptionClient, Error> {
     Success(client)
-  } // Helper function for the benefit of native code to create a Failure(error) without referring to Dafny internals
+  }
   function method CreateFailureOfError(error: Error): Result<IDynamoDbEncryptionClient, Error> {
     Failure(error)
   }

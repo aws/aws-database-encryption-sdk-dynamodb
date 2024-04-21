@@ -9,6 +9,7 @@ import java.util.Objects;
  * This beacon should calculate values like another beacon, so they can be compared.
  */
 public class Shared {
+
   /**
    * Calculate beacon values as for this beacon.
    */
@@ -48,10 +49,10 @@ public class Shared {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String other;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(Shared model) {
       this.other = model.other();
@@ -67,8 +68,10 @@ public class Shared {
     }
 
     public Shared build() {
-      if (Objects.isNull(this.other()))  {
-        throw new IllegalArgumentException("Missing value for required field `other`");
+      if (Objects.isNull(this.other())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `other`"
+        );
       }
       return new Shared(this);
     }

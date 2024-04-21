@@ -7,8 +7,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
  * The Virtual Part Transformation that converts ASCII characters to lower case.
  */
 public class Lower {
-  protected Lower(BuilderImpl builder) {
-  }
+
+  protected Lower(BuilderImpl builder) {}
 
   public Builder toBuilder() {
     return new BuilderImpl(this);
@@ -23,11 +23,10 @@ public class Lower {
   }
 
   static class BuilderImpl implements Builder {
-    protected BuilderImpl() {
-    }
 
-    protected BuilderImpl(Lower model) {
-    }
+    protected BuilderImpl() {}
+
+    protected BuilderImpl(Lower model) {}
 
     public Lower build() {
       return new Lower(this);

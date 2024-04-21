@@ -11,12 +11,15 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.IDynamoDbKeyBranchK
  * Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
  */
 public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
+
   /**
    * An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
    */
   private final IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
 
-  protected CreateDynamoDbEncryptionBranchKeyIdSupplierInput(BuilderImpl builder) {
+  protected CreateDynamoDbEncryptionBranchKeyIdSupplierInput(
+    BuilderImpl builder
+  ) {
     this.ddbKeyBranchKeyIdSupplier = builder.ddbKeyBranchKeyIdSupplier();
   }
 
@@ -39,7 +42,9 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
     /**
      * @param ddbKeyBranchKeyIdSupplier An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
      */
-    Builder ddbKeyBranchKeyIdSupplier(IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier);
+    Builder ddbKeyBranchKeyIdSupplier(
+      IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier
+    );
 
     /**
      * @return An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
@@ -50,18 +55,22 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
-    protected BuilderImpl(CreateDynamoDbEncryptionBranchKeyIdSupplierInput model) {
+    protected BuilderImpl(
+      CreateDynamoDbEncryptionBranchKeyIdSupplierInput model
+    ) {
       this.ddbKeyBranchKeyIdSupplier = model.ddbKeyBranchKeyIdSupplier();
     }
 
     public Builder ddbKeyBranchKeyIdSupplier(
-        IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier) {
-      this.ddbKeyBranchKeyIdSupplier = DynamoDbKeyBranchKeyIdSupplier.wrap(ddbKeyBranchKeyIdSupplier);
+      IDynamoDbKeyBranchKeyIdSupplier ddbKeyBranchKeyIdSupplier
+    ) {
+      this.ddbKeyBranchKeyIdSupplier =
+        DynamoDbKeyBranchKeyIdSupplier.wrap(ddbKeyBranchKeyIdSupplier);
       return this;
     }
 
@@ -70,8 +79,10 @@ public class CreateDynamoDbEncryptionBranchKeyIdSupplierInput {
     }
 
     public CreateDynamoDbEncryptionBranchKeyIdSupplierInput build() {
-      if (Objects.isNull(this.ddbKeyBranchKeyIdSupplier()))  {
-        throw new IllegalArgumentException("Missing value for required field `ddbKeyBranchKeyIdSupplier`");
+      if (Objects.isNull(this.ddbKeyBranchKeyIdSupplier())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `ddbKeyBranchKeyIdSupplier`"
+        );
       }
       return new CreateDynamoDbEncryptionBranchKeyIdSupplierInput(this);
     }

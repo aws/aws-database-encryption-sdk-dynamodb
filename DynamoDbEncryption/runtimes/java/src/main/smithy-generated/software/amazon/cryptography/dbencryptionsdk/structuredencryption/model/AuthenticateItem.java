@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class AuthenticateItem {
+
   private final List<PathSegment> key;
 
   private final StructuredDataTerminal data;
@@ -56,14 +57,14 @@ public class AuthenticateItem {
   }
 
   static class BuilderImpl implements Builder {
+
     protected List<PathSegment> key;
 
     protected StructuredDataTerminal data;
 
     protected AuthenticateAction action;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(AuthenticateItem model) {
       this.key = model.key();
@@ -99,14 +100,20 @@ public class AuthenticateItem {
     }
 
     public AuthenticateItem build() {
-      if (Objects.isNull(this.key()))  {
-        throw new IllegalArgumentException("Missing value for required field `key`");
+      if (Objects.isNull(this.key())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `key`"
+        );
       }
-      if (Objects.isNull(this.data()))  {
-        throw new IllegalArgumentException("Missing value for required field `data`");
+      if (Objects.isNull(this.data())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `data`"
+        );
       }
-      if (Objects.isNull(this.action()))  {
-        throw new IllegalArgumentException("Missing value for required field `action`");
+      if (Objects.isNull(this.action())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `action`"
+        );
       }
       return new AuthenticateItem(this);
     }

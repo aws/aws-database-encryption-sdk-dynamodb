@@ -171,7 +171,7 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorServi
   import Operations : AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
   method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
-    returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
+    returns (res: Result<DynamoDbItemEncryptorClient, Error>)
     requires config.keyring.Some? ==>
                config.keyring.value.ValidState()
     requires config.cmm.Some? ==>
@@ -209,10 +209,10 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorServi
     ensures config.legacyOverride.Some? ==>
               config.legacyOverride.value.encryptor.ValidState()
 
-  // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
+  // Helper functions for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IDynamoDbItemEncryptorClient): Result<IDynamoDbItemEncryptorClient, Error> {
     Success(client)
-  } // Helper function for the benefit of native code to create a Failure(error) without referring to Dafny internals
+  }
   function method CreateFailureOfError(error: Error): Result<IDynamoDbItemEncryptorClient, Error> {
     Failure(error)
   }

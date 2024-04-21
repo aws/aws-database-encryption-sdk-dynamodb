@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 public class BeaconKeySource {
+
   /**
    * The configuration for using a single Beacon Key.
    */
@@ -68,12 +69,12 @@ public class BeaconKeySource {
   }
 
   static class BuilderImpl implements Builder {
+
     protected SingleKeyStore single;
 
     protected MultiKeyStore multi;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(BeaconKeySource model) {
       this.single = model.single();
@@ -100,13 +101,15 @@ public class BeaconKeySource {
 
     public BeaconKeySource build() {
       if (!onlyOneNonNull()) {
-        throw new IllegalArgumentException("`BeaconKeySource` is a Union. A Union MUST have one and only one value set.");
+        throw new IllegalArgumentException(
+          "`BeaconKeySource` is a Union. A Union MUST have one and only one value set."
+        );
       }
       return new BeaconKeySource(this);
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.single, this.multi};
+      Object[] allValues = { this.single, this.multi };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {
