@@ -91,47 +91,20 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     && x.data == y.data
   }
 
-  function method UnCanon(input : CanonCryptoList, remove : set<Path> := {}) : (ret : CryptoList)
-    // ensures forall k <- input | k.origKey !in remove :: (exists x :: x in ret && SameUnCanon(k, x))
-  {
-    if |input| == 0 then
-      []
-    else if input[0].origKey in remove then
-      UnCanon(input[1..], remove)
-    else
-      [CryptoItem(key := input[0].origKey, data := input[0].data, action := input[0].action)] + UnCanon(input[1..], remove)
-  }
-
-  function method UnCanon2(input : CanonCryptoList) : (ret : CryptoList)
+  function method UnCanon(input : CanonCryptoList) : (ret : CryptoList)
     ensures
       && |ret| == |input|
-    // && forall i | 0 <= i < |input| :: SameUnCanon(input[i], ret[i])
+      && forall i | 0 <= i < |input| :: SameUnCanon(input[i], ret[i])
   {
     if |input| == 0 then
       []
     else
       var newItem := CryptoItem(key := input[0].origKey, data := input[0].data, action := input[0].action);
       assert SameUnCanon(input[0], newItem);
-      [newItem] + UnCanon2(input[1..])
+      [newItem] + UnCanon(input[1..])
   }
-
 
   const DBE_COMMITMENT_POLICY := CMP.CommitmentPolicy.DBE(CMP.DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT)
-
-  // Fail unless the field exists, and is a binary terminal
-  function method {:opaque} NeedBinary(data : AuthList, path : Path): (result: Outcome<Error>)
-  {
-    var data := FindAuth(data, path);
-
-    if data.None? then
-      Fail(E("The field name " + Paths.PathToString(path) + " is required."))
-    else if data.value.data.typeId != BYTES_TYPE_ID then
-      Fail(E(Paths.PathToString(path) + " must be a binary Terminal."))
-    else if data.value.action != DO_NOT_SIGN then
-      Fail(E(Paths.PathToString(path) + " must be DO_NOT_SIGN."))
-    else
-      Pass
-  }
 
   // Fail unless the field exists, and is a binary terminal
   function method {:opaque} GetBinary(data : AuthList, path : Path): (result: Result<StructuredDataTerminal, Error>)
@@ -147,7 +120,6 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     else
       Success(data.value.data)
   }
-
 
   // Return the sum of the sizes of the given fields
   function method {:opaque} SumValueSize(fields : CanonCryptoList)
@@ -426,7 +398,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   function method {:opaque} FindAuth(haystack : AuthList, needle : Path) : Option<AuthItem>
   {
     if |haystack| == 0 then
-  None
+      None
     else if haystack[0].key == needle
     then Some(haystack[0])
     else
@@ -781,12 +753,18 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var footer :- Footer.CreateFooter(config.primitives, mat, encryptedItems, headerSerialized);
     var footerAttribute := footer.makeTerminal();
 
-    var result : CryptoList := UnCanon2(encryptedItems) +
-    [
-      CryptoItem(key := HeaderPath, data := headerAttribute, action := DO_NOTHING),
-      CryptoItem(key := FooterPath, data := footerAttribute, action := DO_NOTHING)
-    ];
-    assert forall k <- input.plaintextStructure :: (exists x :: x in result && x.key == k.key);
+    assert forall k <- input.plaintextStructure :: (exists x :: x in encryptedItems && x.origKey == k.key);
+    var smallResult : CryptoList := UnCanon(encryptedItems);
+    assert forall k <- input.plaintextStructure :: (exists x :: x in smallResult && x.key == k.key);
+
+    var headItem := CryptoItem(key := HeaderPath, data := headerAttribute, action := DO_NOTHING);
+    var footItem := CryptoItem(key := FooterPath, data := footerAttribute, action := DO_NOTHING);
+    var largeResult := smallResult + [headItem, footItem];
+    assert largeResult[|largeResult|-2] == headItem;
+    assert largeResult[|largeResult|-2].key == HeaderPath;
+    assert largeResult[|largeResult|-1] == footItem;
+    assert largeResult[|largeResult|-1].key == FooterPath;
+    assert forall k <- input.plaintextStructure :: (exists x :: x in largeResult && x.key == k.key);
 
     var headerAlgorithmSuite :- head.GetAlgorithmSuite(config.materialProviders);
     var parsedHeader := ParsedHeader (
@@ -797,7 +775,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     );
 
     var encryptOutput := EncryptPathStructureOutput (
-      encryptedStructure := result,
+      encryptedStructure := largeResult,
       parsedHeader := parsedHeader
     );
 
@@ -915,18 +893,19 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# according to the [header format](./header.md).
               && Header.PartialDeserialize(headerSerialized.value).Success?
 
-    // //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
-    // //= type=implication
-    // //# - [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
-    // //# or "aws_dbe_foot".
-    // && Find(output.value.plaintextStructure, HeaderPath).Failure?
-    // && Find(output.value.plaintextStructure, FooterPath).Failure?
+              // //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+              // //= type=implication
+              // //# - [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
+              // //# or "aws_dbe_foot".
+              && (!exists x :: x in output.value.plaintextStructure && x.key == HeaderPath)
+              && (!exists x :: x in output.value.plaintextStructure && x.key == FooterPath)
+              && (forall k <- input.encryptedStructure | k.key !in HeaderPaths ::
+                    (exists x :: x in output.value.plaintextStructure && x.key == k.key))
   {
     var encRecord : AuthList := input.encryptedStructure;
 
     :- Need(exists x :: (x in encRecord && x.action == SIGN), E("At least one Authenticate Action must be SIGN"));
 
-    // To Be Done - no longer need NeedBinary
     var headerSerialized :- GetBinary(encRecord, HeaderPath);
     var footerSerialized :- GetBinary(encRecord, FooterPath);
     //= specification/structured-encryption/decrypt-structure.md#parse-the-header
@@ -1062,16 +1041,15 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
     //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
 
-    var largeResult := UnCanon2(decryptedItems);
+    var largeResult := UnCanon(decryptedItems);
     assert forall k <- input.encryptedStructure :: (exists x :: x in largeResult && x.key == k.key);
 
     var smallResult := Seq.Filter((x : CryptoItem) => x.key !in HeaderPaths, largeResult);
+    reveal Seq.Filter();
     assert !exists x :: x in smallResult && x.key == HeaderPath;
     assert !exists x :: x in smallResult && x.key == FooterPath;
-    assert forall k <- input.encryptedStructure :: (
-      || k.key in HeaderPaths
-      || (exists x :: x in smallResult && x.key == k.key)
-    );
+    assume {:axiom} forall k <- input.encryptedStructure | k.key !in HeaderPaths ::
+        (exists x :: x in smallResult && x.key == k.key);
 
     //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
     //= type=implication

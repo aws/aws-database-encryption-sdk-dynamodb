@@ -150,8 +150,8 @@ module StructuredEncryptionCrypt {
     requires client.ValidState()
     ensures client.ValidState()
     ensures ret.Success? ==>
-      && |ret.value| == |data|
-      && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
+              && |ret.value| == |data|
+              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
   {
     ret := Crypt(DoEncrypt, client, alg, key, head, data);
   }
@@ -170,8 +170,8 @@ module StructuredEncryptionCrypt {
     requires client.ValidState()
     ensures client.ValidState()
     ensures ret.Success? ==>
-      && |ret.value| == |data|
-      && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
+              && |ret.value| == |data|
+              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
   {
     ret := Crypt(DoDecrypt, client, alg, key, head, data);
   }
@@ -219,8 +219,8 @@ module StructuredEncryptionCrypt {
     requires client.ValidState()
     ensures client.ValidState()
     ensures ret.Success? ==>
-      && |ret.value| == |data|
-      && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
+              && |ret.value| == |data|
+              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
   {
     //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
     //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
@@ -259,8 +259,8 @@ module StructuredEncryptionCrypt {
     requires client.ValidState()
     ensures client.ValidState()
     ensures ret.Success? ==>
-      && |ret.value| == |data|
-      && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
+              && |ret.value| == |data|
+              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
   {
     var result : CanonCryptoList := [];
     var pos : uint32 := 0;
@@ -302,7 +302,7 @@ module StructuredEncryptionCrypt {
     returns (ret : Result<StructuredDataTerminal, Error>)
 
     ensures ret.Success? ==>
-      ret.value != data
+              ret.value != data
     ensures ret.Success? ==>
               //= specification/structured-encryption/encrypt-structure.md#terminal-data-encryption
               //= type=implication
