@@ -19,12 +19,15 @@
 // each one has files that need to be updated.
 // We model all the files and the runtimes here in this structure
 const Runtimes = {
+  java: {
+    "project.properties": {
+      dependencies: [],
+    },
+  },
   net: {
     "DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj": {
       dependencies: [],
-      assemblyInfo: [
-        "DynamoDbEncryption/runtimes/net/AssemblyInfo.cs"
-      ]
+      assemblyInfo: "DynamoDbEncryption/runtimes/net/AssemblyInfo.cs",
     }
   },
 };
@@ -100,6 +103,15 @@ module.exports = {
       "semantic-release-replace-plugin",
       {
         replacements: [
+          // Update the version for all Gradle Java projects
+          // Does not update the dependencies
+          {
+            files: Object.keys(Runtimes.java),
+            from: "projectJavaVersion=.*",
+            to: 'projectJavaVersion=${nextRelease.version}',
+            results: Object.keys(Runtimes.java).map(CheckResults),
+            countMatches: true,
+          },
           // Update the version for all DotNet projects
           // Does not update the dependencies
           {
