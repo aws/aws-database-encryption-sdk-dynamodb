@@ -89,6 +89,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     && x.origKey == y.key
     && x.data == y.data
+    && x.action == y.action
   }
 
   function method UnCanon(input : CanonCryptoList) : (ret : CryptoList)
@@ -810,21 +811,61 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     // this assert can be an implication, because it is explicitly ensuring an intermediate state.
     assert forall i | 0 <= i < |encryptedItems| :: encryptedItems[i].key == canonData[i].key;
 
+    assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN ==> encryptedItems[x].data.typeId == BYTES_TYPE_ID);
+    assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN || encryptedItems[x].data == canonData[x].data);
+
+    assume {:axiom} forall k <- input.plaintextStructure ::
+        (exists x ::
+           && x in encryptedItems
+           && x.origKey == k.key
+           && (
+                || k.action == ENCRYPT_AND_SIGN
+                || x.data == k.data
+              ));
+
     var footer :- Footer.CreateFooter(config.primitives, mat, encryptedItems, headerSerialized);
     var footerAttribute := footer.makeTerminal();
 
     assert forall k <- input.plaintextStructure :: (exists x :: x in encryptedItems && x.origKey == k.key);
     var smallResult : CryptoList := UnCanon(encryptedItems);
     assert forall k <- input.plaintextStructure :: (exists x :: x in smallResult && x.key == k.key);
+    assert forall x | 0 <= x < |smallResult| :: (smallResult[x].action == ENCRYPT_AND_SIGN ==> smallResult[x].data.typeId == BYTES_TYPE_ID) by {
+      assert |smallResult| == |encryptedItems|;
+      assert forall x | 0 <= x < |smallResult| :: SameUnCanon(encryptedItems[x], smallResult[x]);
+      assert forall x | 0 <= x < |smallResult| :: (smallResult[x].action == encryptedItems[x].action && smallResult[x].data == encryptedItems[x].data);
+      assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN || encryptedItems[x].data == canonData[x].data);
+    }
 
     var headItem := CryptoItem(key := HeaderPath, data := headerAttribute, action := DO_NOTHING);
     var footItem := CryptoItem(key := FooterPath, data := footerAttribute, action := DO_NOTHING);
     var largeResult := smallResult + [headItem, footItem];
+    assert |largeResult| == |smallResult| + 2;
     assert largeResult[|largeResult|-2] == headItem;
     assert largeResult[|largeResult|-2].key == HeaderPath;
     assert largeResult[|largeResult|-1] == footItem;
     assert largeResult[|largeResult|-1].key == FooterPath;
     assert forall k <- input.plaintextStructure :: (exists x :: x in largeResult && x.key == k.key);
+    assert forall x | 0 <= x < |largeResult| :: (largeResult[x].action == ENCRYPT_AND_SIGN ==> largeResult[x].data.typeId == BYTES_TYPE_ID) by {
+      assert forall x | 0 <= x < |smallResult| :: (smallResult[x].action == ENCRYPT_AND_SIGN ==> smallResult[x].data.typeId == BYTES_TYPE_ID);
+      assert forall x | 0 <= x < |smallResult| :: smallResult[x] == largeResult[x];
+      assert forall x | 0 <= x < |smallResult| :: (largeResult[x].action == ENCRYPT_AND_SIGN ==> largeResult[x].data.typeId == BYTES_TYPE_ID);
+      assert largeResult[|smallResult|] == headItem;
+      assert largeResult[|smallResult|].key == HeaderPath;
+      assert largeResult[|smallResult|+1] == footItem;
+      assert largeResult[|smallResult|+1].key == FooterPath;
+      assert largeResult[|smallResult|].action == DO_NOTHING;
+      assert largeResult[|smallResult|+1].action == DO_NOTHING;
+      assert forall x | |smallResult| <= x < |largeResult| :: largeResult[x].action == DO_NOTHING;
+    }
+
+    assert forall k <- input.plaintextStructure ::
+        (exists x ::
+           && x in largeResult
+           && x.key == k.key
+           && (
+                || k.action == ENCRYPT_AND_SIGN
+                || x.data == k.data
+              ));
 
     var headerAlgorithmSuite :- head.GetAlgorithmSuite(config.materialProviders);
     var parsedHeader := ParsedHeader (
@@ -838,6 +879,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       encryptedStructure := largeResult,
       parsedHeader := parsedHeader
     );
+    assert encryptOutput.encryptedStructure[|encryptOutput.encryptedStructure|-1].key == FooterPath;
 
     return Success(encryptOutput);
   }
