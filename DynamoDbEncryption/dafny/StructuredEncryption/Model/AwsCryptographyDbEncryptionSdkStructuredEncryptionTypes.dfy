@@ -225,10 +225,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
     ( 2 <= |x| <= 2 )
   }
   type TerminalValue = seq<uint8>
-  type Version = x: int32 | IsValid_Version(x) witness *
-  predicate method IsValid_Version(x: int32) {
-    ( 1 <= x <= 1 )
-  }
   datatype Error =
       // Local Error structures are listed here
     | StructuredEncryptionException (
