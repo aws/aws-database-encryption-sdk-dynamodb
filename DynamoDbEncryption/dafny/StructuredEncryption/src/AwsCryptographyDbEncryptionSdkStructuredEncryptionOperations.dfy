@@ -651,13 +651,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         //# Otherwise, this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
         //# and [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
         && (forall k <- input.plaintextStructure ::
-          (exists x ::
-            && x in output.value.encryptedStructure
-            && x.key == k.key
-            && (
-              || k.action == ENCRYPT_AND_SIGN
-              || x.data == k.data
-            )))
+              (exists x ::
+                 && x in output.value.encryptedStructure
+                 && x.key == k.key
+                 && (
+                      || k.action == ENCRYPT_AND_SIGN
+                      || x.data == k.data
+                    )))
 
         //= specification/structured-encryption/encrypt-path-structure.md#crypto-list
         //= type=implication
@@ -1123,7 +1123,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert !exists x :: x in smallResult && x.key == HeaderPath;
     assert !exists x :: x in smallResult && x.key == FooterPath;
     assume {:axiom} forall k <- input.encryptedStructure | k.key !in HeaderPaths ::
-      (exists x :: x in smallResult && x.key == k.key);
+        (exists x :: x in smallResult && x.key == k.key);
 
     //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
     //= type=implication
