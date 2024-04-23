@@ -59,11 +59,11 @@ module StructuredEncryptionFooter {
 
     function method makeTerminal()
       : (ret : StructuredDataTerminal)
-      //= specification/structured-encryption/encrypt-structure.md#footer-field
+      //= specification/structured-encryption/encrypt-path-structure.md#footer-field
       //= type=implication
       //# The Footer Field TypeID MUST be 0xFFFF
       ensures ret.typeId == BYTES_TYPE_ID
-      //= specification/structured-encryption/encrypt-structure.md#footer-field
+      //= specification/structured-encryption/encrypt-path-structure.md#footer-field
       //= type=implication
       //# The Footer Field Value MUST be the serialized [footer](footer.md).
       ensures ret.value == serialize()
@@ -81,7 +81,7 @@ module StructuredEncryptionFooter {
       requires Materials.DecryptionMaterialsWithPlaintextDataKey(mat)
       requires ValidSuite(mat.algorithmSuite)
       requires Header.ValidEncryptionContext(mat.encryptionContext)
-      //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+      //= specification/structured-encryption/decrypt-path-structure.md#verify-signatures
       //= type=implication
       //# The number of [HMACs in the footer](./footer.md#hmacs)
       //# MUST be the number of [Encrypted Data Keys in the header](./header.md#encrypted-data-keys).

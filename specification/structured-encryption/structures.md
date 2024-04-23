@@ -44,6 +44,13 @@ Structures defined in this document:
 - [Structured Data](#structured-data)
 - [Structured Data Attributes](#structured-data-attributes)
 - [Terminal Data](#terminal-data)
+- [Path Segment](#path-segment)
+- [Path](#path)
+- [Crypto Item](#crypto-item)
+- [Crypto List](#crypto-list)
+- [Auth Item](#auth-item)
+- [Auth List](#auth-list)
+
 
 ### Authenticate Action
 
@@ -183,3 +190,39 @@ and how those types should be serialized and deserialized.
 Terminal Value MUST be a sequence of bytes, and MAY be empty (zero-length).
 
 If these bytes are to be deserialized, these bytes MUST be interpreted as the type indicated in this Terminal Data's [Terminal Type ID](#terminal-type-id).D
+
+### Path Segment
+
+A path segment MUST be a string, designating the name of a member of a structure.
+
+In the future, a path segment might also refer to an index into a list, or to an attribute name.
+
+### Path
+
+A path is a sequence of [path segments](#path-segment) that refer to a location within a structure.
+
+### Crypto Item
+
+A crypto item MUST consist of
+ - a [Path](#path)
+ - a [Crypto Action](#crypto-action)
+ - a [Terminal Data](#terminal-data)
+
+and indicates that this data exists at this location, and should be handled with this action.
+
+### Crypto List
+
+A crypto list MUST be a sequence of [crypto item](#crypto-item)
+
+### Auth Item
+
+An auth item MUST consist of
+ - a [Path](#path)
+ - an [Authenticate Action](#authenticate-action)
+ - a [Terminal Data](#terminal-data)
+
+and indicates that this data exists at this location, and should be handled with this action.
+
+### Auth List
+
+An auth list MUST be a sequence of [auth item](#auth-item)

@@ -28,7 +28,7 @@ module StructuredEncryptionCrypt {
     : (ret : Result<Bytes, Error>)
     requires |HKDFOutput| == KeySize
     ensures ret.Success? ==>
-              //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The `FieldKey` for a given key and offset MUST be the first 44 bytes
               //# of the aes256ctr_stream
@@ -47,7 +47,7 @@ module StructuredEncryptionCrypt {
   function method FieldKeyNonce(offset : uint32)
     : (ret : Bytes)
     ensures |ret| == 16 // NOT NonceSize
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //= type=implication
     //# The `FieldKeyNonce` for a given offset MUST be 16 bytes comprised of
     //# | Field         | Length   | Interpretation |
@@ -151,7 +151,8 @@ module StructuredEncryptionCrypt {
     ensures client.ValidState()
     ensures ret.Success? ==>
               && |ret.value| == |data|
-              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
+              && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i]))
+              && (forall x | 0 <= x < |ret.value| :: (ret.value[x].action == ENCRYPT_AND_SIGN ==> ret.value[x].data.typeId == BYTES_TYPE_ID))
   {
     ret := Crypt(DoEncrypt, client, alg, key, head, data);
   }
@@ -188,19 +189,19 @@ module StructuredEncryptionCrypt {
     requires ValidSuite(alg)
 
     ensures ret.Success? ==>
-              //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The HKDF algorithm used to calculate the Field Root Key MUST be the
               //# [Encryption Key KDF](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
               //# indicated by the algorithm suite, using a provided plaintext data key, no salt,
               //# and an info as calculated [above](#calculate-info)
 
-              //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
               //# and the Message ID generated for this Encrypted Structured Data.
 
-              //= specification/structured-encryption/encrypt-structure.md#calculate-info
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-info
               //= type=implication
               //# The `info` used for the HKDF function MUST be
               //# | Field                | Length   |
@@ -220,9 +221,10 @@ module StructuredEncryptionCrypt {
     ensures client.ValidState()
     ensures ret.Success? ==>
               && |ret.value| == |data|
-              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
+              && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i]))
+              && ((mode == DoEncrypt) ==> forall x | 0 <= x < |ret.value| :: (ret.value[x].action == ENCRYPT_AND_SIGN ==> ret.value[x].data.typeId == BYTES_TYPE_ID))
   {
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
     //# and the Message ID generated for this Encrypted Structured Data.
     var fieldRootKeyR := client.Hkdf(
@@ -236,7 +238,7 @@ module StructuredEncryptionCrypt {
     );
 
     var fieldRootKey :- fieldRootKeyR.MapFailure(e => AwsCryptographyPrimitives(e));
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //= type=implication
     //# The calculated Field Root MUST have length equal to the
     //# [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
@@ -260,7 +262,8 @@ module StructuredEncryptionCrypt {
     ensures client.ValidState()
     ensures ret.Success? ==>
               && |ret.value| == |data|
-              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i])
+              && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i]))
+              && ((mode == DoEncrypt) ==> forall x | 0 <= x < |ret.value| :: (ret.value[x].action == ENCRYPT_AND_SIGN ==> ret.value[x].data.typeId == BYTES_TYPE_ID))
   {
     var result : CanonCryptoList := [];
     var pos : uint32 := 0;
@@ -269,11 +272,13 @@ module StructuredEncryptionCrypt {
       invariant pos <= (i as uint32)
       invariant |result| == i
       invariant forall x | 0 <= x < |result| :: Updated(data[x], result[x])
+      invariant (mode == DoEncrypt) ==> forall x | 0 <= x < |result| :: (result[x].action == ENCRYPT_AND_SIGN ==> result[x].data.typeId == BYTES_TYPE_ID)
     {
       if data[i].action == ENCRYPT_AND_SIGN {
         var newTerminal;
         if mode == DoEncrypt {
           newTerminal :- EncryptTerminal(client, alg, fieldRootKey, pos, data[i].key, data[i].data);
+          assert newTerminal.typeId == BYTES_TYPE_ID;
         } else {
           newTerminal :- DecryptTerminal(client, alg, fieldRootKey, pos, data[i].key, data[i].data);
         }
@@ -304,13 +309,13 @@ module StructuredEncryptionCrypt {
     ensures ret.Success? ==>
               ret.value != data
     ensures ret.Success? ==>
-              //= specification/structured-encryption/encrypt-structure.md#terminal-data-encryption
+              //= specification/structured-encryption/encrypt-path-structure.md#terminal-data-encryption
               //= type=implication
               //# The output encrypted Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
               //# equal `0xFFFF`.
               && ret.value.typeId == BYTES_TYPE_ID
 
-              //= specification/structured-encryption/encrypt-structure.md#terminal-data-encryption
+              //= specification/structured-encryption/encrypt-path-structure.md#terminal-data-encryption
               //= type=implication
               //# The output encrypted Terminal Data MUST have a [Terminal Value](./structures.md#terminal-value)
               //# with the following serialization:
@@ -319,7 +324,7 @@ module StructuredEncryptionCrypt {
                  // | Terminal Type Id           | 2        |
                  // | Encrypted Terminal Value   | Variable |
 
-                 //= specification/structured-encryption/encrypt-structure.md#terminal-type-id
+                 //= specification/structured-encryption/encrypt-path-structure.md#terminal-type-id
                  //= type=implication
                  //# Terminal Type Id MUST equal the input Terminal Data's Terminal Type Id.
               && |ret.value.value| >= 2
@@ -330,12 +335,12 @@ module StructuredEncryptionCrypt {
               && encryptInput.encAlg == alg.encrypt.AES_GCM
               && FieldKey(fieldRootKey, offset).Success?
               && var fieldKey := FieldKey(fieldRootKey, offset).value;
-              //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
               && KeySize == 32
               && encryptInput.key == fieldKey[0..KeySize]
-                 //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+                 //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
                  //= type=implication
                  //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
               && NonceSize == 12
@@ -347,15 +352,15 @@ module StructuredEncryptionCrypt {
     ensures client.ValidState()
   {
     var fieldKey :- FieldKey(fieldRootKey, offset);
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
     var cipherkey : Key := fieldKey[0..KeySize];
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
     var nonce : Nonce := fieldKey[KeySize..];
     var value := data.value;
 
-    //= specification/structured-encryption/encrypt-structure.md#encrypted-terminal-value
+    //= specification/structured-encryption/encrypt-path-structure.md#encrypted-terminal-value
     //# The Encrypted Terminal Value MUST be derived according to the following encryption:
     // - The encryption algorithm used is the
     //   [encryption algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
@@ -390,7 +395,7 @@ module StructuredEncryptionCrypt {
     returns (ret : Result<StructuredDataTerminal, Error>)
     ensures ret.Success? ==>
               && |data.value| >= (AuthTagSize+2)
-                 //= specification/structured-encryption/decrypt-structure.md#terminal-data-decryption
+                 //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
                  //= type=implication
                  //# The output Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
                  //# equal to the deserialized Terminal Type Id.
@@ -408,14 +413,14 @@ module StructuredEncryptionCrypt {
 
     :- Need((AuthTagSize+2) <= |value|, E("cipherTxt too short."));
 
-    //= specification/structured-encryption/decrypt-structure.md#terminal-data-decryption
+    //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
     //# The input [Terminal Value](./structures.md#terminal-value) MUST be deserialized as follows:
     // | Field                      | Length   |
     // | -------------------------- | -------- |
     // | Terminal Type Id           | 2        |
     // | Encrypted Terminal Value   | Variable |
 
-    //= specification/structured-encryption/decrypt-structure.md#terminal-data-decryption
+    //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
     //# The output Terminal Data MUST have a [Terminal Value](./structures.md#terminal-type-id)
     //# equal to the following decryption:
     // - The decryption algorithm used is the

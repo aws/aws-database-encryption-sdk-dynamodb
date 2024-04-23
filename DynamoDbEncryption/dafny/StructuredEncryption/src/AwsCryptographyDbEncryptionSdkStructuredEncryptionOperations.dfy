@@ -135,7 +135,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
   function method {:opaque} GetAlgorithmSuiteId(alg : Option<CMP.DBEAlgorithmSuiteId>)
     : (ret : CMP.AlgorithmSuiteId)
-    //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+    //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
     //= type=implication
     //# - Algorithm Suite: If provided, this is the [input algorithm suite](#algorithm-suite);
     //# otherwise, this field MUST be the algorithm suite corresponding to the enum
@@ -164,31 +164,31 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               && Materials.EncryptionMaterialsHasPlaintextDataKey(mat)
               && ValidSuite(mat.algorithmSuite)
 
-              //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+              //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
               //= type=implication
               //# This operation MUST obtain a set of encryption materials by calling
               //# [Get Encryption Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials)
               //# on the [CMM](#cmm) calculated above.
 
-              //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+              //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
               //= type=implication
               //# This operation MUST call Get Encryption Materials on the CMM as follows.
               && (|cmm.History.GetEncryptionMaterials| == |old(cmm.History.GetEncryptionMaterials)| + 1)
               && Seq.Last(cmm.History.GetEncryptionMaterials).output.Success?
               && var getEncIn := Seq.Last(cmm.History.GetEncryptionMaterials).input;
-              //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+              //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
               //= type=implication
               //# - Encryption Context: This MUST be the encryption context calculated above.
               && (|| (encryptionContext.None? && getEncIn.encryptionContext == map[])
                   || (encryptionContext.Some? && getEncIn.encryptionContext == encryptionContext.value))
 
-              //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+              //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
               //= type=implication
               //# - Commitment Policy: This MUST be
               //# [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
               && getEncIn.commitmentPolicy == DBE_COMMITMENT_POLICY
 
-              //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+              //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
               //= type=implication
               //# - Max Plaintext Length: This field MUST be the result of the calculation `encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize`
               // - `encryptedTerminalDataNum` is the number of [Terminal Data](./structures.md#terminal-data)
@@ -224,7 +224,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var mat := matOutput.encryptionMaterials;
     :- Need(Materials.EncryptionMaterialsHasPlaintextDataKey(mat), E("Encryption material has no key"));
     var alg := mat.algorithmSuite;
-    //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+    //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
     //# If this algorithm suite is not a
     //# [supported suite for Database Encryption (DBE)](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum),
     //# this operation MUST yield an error.
@@ -381,7 +381,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     returns (output : Result<CMP.EncryptionContext, Error>)
   {
     var contextAttrs : CryptoList := Seq.Filter((s : CryptoItem) => s.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, schema);
-    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
     //# Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2) to the encryption context for every
     //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
     //# [Terminal Data](./structures.md#terminal-data)
@@ -445,7 +445,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# - If the type is Boolean, then the string "true" for true and the string "false" for false.
     //# - Else, the value as defined in [Base Context Value Version 1](#base-context-value-version-1)
 
-    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
     //# The Legend MUST be named "aws-crypto-legend" and be a string with one character per attribute added above,
     //# with a one-to-one correspondence with the attributes sorted by their UTF8 encoding,
     //# each character designating the original type of the attribute,
@@ -522,8 +522,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
   function method BuildCryptoMap(plaintextStructure: StructuredDataMap, cryptoSchema: CryptoSchemaMap) :
     Result<CryptoList, Error>
+    requires plaintextStructure.Keys == cryptoSchema.Keys
   {
-    :- Need(plaintextStructure.Keys == cryptoSchema.Keys, E("Crypto Keys don't match."));
     var keys := SortedSets.ComputeSetToOrderedSequence2(plaintextStructure.Keys, CharLess);
     BuildCryptoMap2(keys, plaintextStructure, cryptoSchema)
   }
@@ -583,7 +583,18 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
               && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
   {
+    //= specification/structured-encryption/encrypt-structure.md#behavior
+    //= type=implication
+    //# The input [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+    //# MUST refer to the same set of locations.
+    :- Need(input.plaintextStructure.Keys == input.cryptoSchema.Keys, E("Crypto Keys don't match."));
+
+    //= specification/structured-encryption/encrypt-structure.md#behavior
+    //= type=implication
+    //# The input [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+    //# MUST be combined into a single [Crypto List](#crypto-list).
     var cryptoMap :- BuildCryptoMap(input.plaintextStructure, input.cryptoSchema);
+
     var pathInput := EncryptPathStructureInput(
       tableName := input.tableName,
       plaintextStructure := cryptoMap,
@@ -591,7 +602,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       algorithmSuiteId := input.algorithmSuiteId,
       encryptionContext := input.encryptionContext
     );
+
+    //= specification/structured-encryption/encrypt-structure.md#behavior
+    //= type=implication
+    //# Encrypt Structure MUST then behave as [Encrypt Path Structure](#encrypt-path-structure)
     var pathOutput :- EncryptPathStructure(config, pathInput);
+
+    //= specification/structured-encryption/encrypt-structure.md#behavior
+    //= type=implication
+    //# The output [Crypto List](#crypto-list) produced by [Encrypt Path Structure](#decrypt-path-structure)
+    //# MUST be split into [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+    //# maps.
     var parts :- UnBuildCryptoMap(pathOutput.encryptedStructure);
     var plainOutput := EncryptStructureOutput(
       encryptedStructure := parts.0,
@@ -607,28 +628,68 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     returns (output: Result<EncryptPathStructureOutput, Error>)
     ensures
       output.Success? ==>
-        && (forall k <- input.plaintextStructure :: (exists x :: x in output.value.encryptedStructure && x.key == k.key))
-
-        //= specification/structured-encryption/encrypt-structure.md#structured-data
+        //= specification/structured-encryption/encrypt-path-structure.md#crypto-list
         //= type=implication
-        //# This Structured Data MUST NOT already contain data located at the [header index](./header.md#header-index)
+        //# The Crypto List MUST include at least one [Crypto Action](./structures.md#crypto-action)
+        //# that is not [DO_NOTHING](./structures.md#do_nothing).
+        && (exists k <- input.plaintextStructure :: IsAuthAttr(k.action))
+
+        //= specification/structured-encryption/encrypt-path-structure.md#crypto-list
+        //= type=implication
+        //# This Crypto List MUST NOT already contain data located at the [header index](./header.md#header-index)
         //# or the [footer index](./footer.md#footer-index).
         && (!exists x | x in input.plaintextStructure :: x.key in HeaderPaths)
 
+        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+        //= type=implication
+        //# - for every entry in the input [Crypto List](#crypto-list)
+        //# an entry MUST exist with the same [path](./structures.md#path) in the final Encrypted Structured Data.
+        && (forall k <- input.plaintextStructure :: (exists x :: x in output.value.encryptedStructure && x.key == k.key))
+
+        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+        //= type=implication
+        //# Otherwise, this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+        //# and [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
+        && (forall k <- input.plaintextStructure ::
+          (exists x ::
+            && x in output.value.encryptedStructure
+            && x.key == k.key
+            && (
+              || k.action == ENCRYPT_AND_SIGN
+              || x.data == k.data
+            )))
+
+        //= specification/structured-encryption/encrypt-path-structure.md#crypto-list
+        //= type=implication
+        //# The [paths](./structures.md#path) in the input [Crypto List](./structures.md#crypto-list) MUST be unique.
         && var pathSet := set x | x in input.plaintextStructure :: x.key;
         && |pathSet| == |input.plaintextStructure|
 
-        //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
         //= type=implication
-        //# - The [Header Field](#header-field) MUST exist in the Encrypted Structured Data
+        //# - There MUST be no other entries in the final Encrypted Structured Data.
         && |output.value.encryptedStructure| == 2 + |input.plaintextStructure|
+
+        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+        //= type=implication
+        //# - The [Header Field](#header-field) MUST exist in the final Encrypted Structured Data
         && output.value.encryptedStructure[|output.value.encryptedStructure|-2].key == HeaderPath
 
-        //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
+        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
         //= type=implication
-        //# - The [Footer Field](#footer-field) MUST exist in the Encrypted Structured Data
+        //# - The [Footer Field](#footer-field) MUST exist in the final Encrypted Structured Data
         && output.value.encryptedStructure[|output.value.encryptedStructure|-1].key == FooterPath
 
+        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+        //= type=implication
+        //# If the [Crypto Schema](#crypto-schema)
+        //# indicates a [Crypto Action](./structures.md#crypto-action)
+        //# of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign),
+        //# the Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+        //# equal to 0xffff and the value MUST be
+        //# the [encryption](#terminal-data-encryption)
+        //# of the input's Terminal Data.
+        && (forall x | 0 <= x < |output.value.encryptedStructure| :: (output.value.encryptedStructure[x].action == ENCRYPT_AND_SIGN ==> output.value.encryptedStructure[x].data.typeId == BYTES_TYPE_ID))
   {
     :- Need(
       || input.encryptionContext.None?
@@ -647,14 +708,26 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
     var plaintextStructure : CryptoList := input.plaintextStructure;
     var canonData :- CanonizeForEncrypt(input.tableName, plaintextStructure);
+
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-intermediate-encrypted-structured-data
+    //= type=implication
+    //# For every entry
+    //# in the input [Crypto List](#crypto-list)
+    //# there MUST be an entry with the same [canonical path](./header.md#canonical-path)
+    //# in Intermediate Encrypted Structured Data.
     assert forall k <- input.plaintextStructure :: (exists x :: x in canonData && x.origKey == k.key);
 
-    //= specification/structured-encryption/encrypt-structure.md#retrieve-encryption-materials
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-intermediate-encrypted-structured-data
+    //= type=implication
+    //# There MUST be no other entries in the Intermediate Encrypted Structured Data.
+    assert |input.plaintextStructure| == |canonData|;
+
+    //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
     //# This operation MUST [calculate the appropriate CMM and encryption context](#create-new-encryption-context-and-cmm).
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
     var cmm := input.cmm;
 
-    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
     //# If no [Crypto Action](./structures.md#crypto-action) is configured to be
     //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
     //# then the input cmm and encryption context MUST be used unchanged.
@@ -662,14 +735,14 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
       var newEncryptionContext :- GetV2EncryptionContext(plaintextStructure);
       if |newEncryptionContext| != 0 {
-        //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+        //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
         //# An error MUST be returned if any of the entries added to the encryption context in this step
         //# have the same key as any entry already in the encryption context.
         :- Need(encryptionContext.Keys !! newEncryptionContext.Keys,
                 E("Internal Error - Structured Encryption encryption context overlaps with Item Encryptor encryption context."));
         encryptionContext := encryptionContext + newEncryptionContext;
         assert cmm.Modifies !! {config.materialProviders.History};
-        //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+        //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
         //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
         //# with the following inputs:
         //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
@@ -705,7 +778,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //= specification/structured-encryption/header.md#message-id
     //# Implementations MUST generate a fresh 256-bit random MessageID, from a cryptographically secure source, for each record encrypted.
 
-    //= specification/structured-encryption/encrypt-structure.md#calculate-intermediate-encrypted-structured-data
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-intermediate-encrypted-structured-data
     //# The process used to generate this identifier MUST use a good source of randomness
     //# to make the chance of duplicate identifiers negligible.
     var randBytes := Random.GenerateBytes(MSGID_LEN as int32);
@@ -717,10 +790,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var commitKey :- Crypt.GetCommitKey(config.primitives, alg, key, head.msgID);
     var headerSerialized :- Header.Serialize(config.primitives, alg, commitKey, head);
 
-    //= specification/structured-encryption/encrypt-structure.md#header-field
+    //= specification/structured-encryption/encrypt-path-structure.md#header-field
     //# The Header Field TypeID MUST be 0xFFFF
 
-    //= specification/structured-encryption/encrypt-structure.md#header-field
+    //= specification/structured-encryption/encrypt-path-structure.md#header-field
     //# The Header Field Value MUST be the full serialized [header](header.md) with commitment.
     var headerAttribute := ValueToData(headerSerialized, BYTES_TYPE_ID);
 
@@ -731,26 +804,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var encryptedItems : CanonCryptoList :- Crypt.Encrypt(config.primitives, alg, key, head, canonData);
     assert forall k <- input.plaintextStructure :: (exists x :: x in encryptedItems && x.origKey == k.key);
 
-    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
-    //= type=implication
-    //# The Encrypted Structured Data created by this operation MUST be a Structured Data such that:
-
-    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
-    //= type=implication
-    //# - for every [Terminal Data](./structures.md#terminal-data) in the
-    //# [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data),
-    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the final Encrypted Structured Data.
     // this assert can be an implication, because it is explicitly ensuring an intermediate state.
     assert forall i | 0 <= i < |canonData| :: canonData[i].key == encryptedItems[i].key;
 
-    //= specification/structured-encryption/encrypt-structure.md#encrypted-structured-data-1
-    //= type=implication
-    //# - for every [Terminal Data](./structures.md#terminal-data) in the final Encrypted Structured Data
-    //# if the [Crypto Schema](#crypto-schema)
-    //# indicates a [Crypto Action](./structures.md#crypto-action)
-    //# other than [DO_NOTHING](./structures.md#DO_NOTHING),
-    //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the
-    //# [Intermediate Structured Data](#calculate-intermediate-encrypted-structured-data).
     // this assert can be an implication, because it is explicitly ensuring an intermediate state.
     assert forall i | 0 <= i < |encryptedItems| :: encryptedItems[i].key == canonData[i].key;
 
@@ -827,15 +883,35 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   method {:vcs_split_on_every_assert} DecryptStructure (config: InternalConfig, input: DecryptStructureInput)
     returns (output: Result<DecryptStructureOutput, Error>)
   {
+    //= specification/structured-encryption/decrypt-structure.md#behavior
+    //= type=implication
+    //# The input [Structured Data](#structured-data) and [Authenticate Schema](#authenticate-schema)
+    //# MUST refer to the same set of locations.
     :- Need(input.encryptedStructure.Keys == input.authenticateSchema.Keys, E("DecryptStructure requires encryptedStructure and authenticateSchema have the same keys."));
+
+    //= specification/structured-encryption/decrypt-structure.md#behavior
+    //= type=implication
+    //# The input [Structured Data](#structured-data) and [Authenticate Schema](#authenticate-schema)
+    //# MUST be combined into a single [Auth List](#auth-list).
     var cryptoMap :- BuildAuthMap(input.encryptedStructure, input.authenticateSchema);
+
     var pathInput := DecryptPathStructureInput(
       tableName := input.tableName,
       encryptedStructure := cryptoMap,
       cmm := input.cmm,
       encryptionContext := input.encryptionContext
     );
+
+    //= specification/structured-encryption/decrypt-structure.md#behavior
+    //= type=implication
+    //# Decrypt Structure MUST then behave as [Decrypt Path Structure](#decrypt-path-structure)
     var pathOutput :- DecryptPathStructure(config, pathInput);
+
+    //= specification/structured-encryption/decrypt-structure.md#behavior
+    //= type=implication
+    //# The output [Crypto List](#crypto-list) produced by [Decrypt Path Structure](#decrypt-path-structure)
+    //# MUST be split into [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+    //# maps.
     var parts :- UnBuildCryptoMap(pathOutput.plaintextStructure);
     var plainOutput := DecryptStructureOutput(
       plaintextStructure := parts.0,
@@ -846,7 +922,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   }
 
   method {:vcs_split_on_every_assert} DecryptPathStructure (config: InternalConfig, input: DecryptPathStructureInput)
-    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
     //= type=implication
     //# This operation MUST output a [Structured Data](#structured-data) with the following specifics:
     returns (output: Result<DecryptPathStructureOutput, Error>)
@@ -854,50 +930,37 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     ensures output.Success? ==>
               && var encRecord : AuthList := input.encryptedStructure;
 
-              //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+              //= specification/structured-encryption/decrypt-path-structure.md#parse-the-header
               //= type=implication
               //# Given the [input Structured Data](#structured-data),
               //# this operation MUST access the [Terminal Data](./structures.md#terminal-data)
               //# at the "aws_dbe_head"
 
-              //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+              //= specification/structured-encryption/decrypt-path-structure.md#parse-the-header
               //= type=implication
               //# The [Terminal Type Id](./structures.md#terminal-type-id) on this Terminal Data MUST be `0xFFFF`.
               && GetBinary(encRecord, HeaderPath).Success?
               && var headerSerialized := GetBinary(encRecord, HeaderPath).value;
 
-              //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+              //= specification/structured-encryption/decrypt-path-structure.md#verify-signatures
               //= type=implication
               //# A footer field MUST exist with the name `aws_dbe_foot`
 
-              //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+              //= specification/structured-encryption/decrypt-path-structure.md#verify-signatures
               //= type=implication
               //# The footer field TypeID MUST be 0xFFFF
               && GetBinary(encRecord, FooterPath).Success?
               && var footerSerialized := GetBinary(encRecord, FooterPath).value;
 
-              //= specification/structured-encryption/decrypt-structure.md#authenticate-schema
-              //= type=implication
-              //# The Authenticate Schema MUST explicitly configure a [Authenticate Action](./structures.md#authenticate-action) for every
-              //# [Terminal Data](./structures.md#terminal-data) that exists on the [input Structured Data](#structured-data),
-              //# and MUST NOT describe Authenticate Actions for locations within the input Structured Data that either
-              //# do not exist, or contain non-Terminal Data structures;
-              //# otherwise, this operation operation MUST yield an error.
-              // && authenticateSchema.Keys + ReservedAuthMap.Keys == encRecord.Keys
-
-              //= specification/structured-encryption/decrypt-structure.md#authenticate-schema
-              //= type=implication
-              //# The Authenticate Schema MUST include at least one [SIGN Authenticate Action](./structures.md#sign);
-              //# otherwise, this operation MUST yield an error.
               && (exists x :: (x in encRecord && x.action == SIGN))
 
-              //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+              //= specification/structured-encryption/decrypt-path-structure.md#parse-the-header
               //= type=implication
               //# This operation MUST deserialize the header bytes
               //# according to the [header format](./header.md).
               && Header.PartialDeserialize(headerSerialized.value).Success?
 
-              // //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+              // //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
               // //= type=implication
               // //# - [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
               // //# or "aws_dbe_foot".
@@ -912,7 +975,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
     var headerSerialized :- GetBinary(encRecord, HeaderPath);
     var footerSerialized :- GetBinary(encRecord, FooterPath);
-    //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+    //= specification/structured-encryption/decrypt-path-structure.md#parse-the-header
     //# This operation MUST deserialize the header bytes
     //# according to the [header format](./header.md).
     var head :- Header.PartialDeserialize(headerSerialized.value);
@@ -924,23 +987,23 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
     assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
 
-    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //= specification/structured-encryption/decrypt-path-structure.md#retrieve-decryption-materials
     //# This operation MUST [calculate the appropriate CMM and encryption context](#create-new-encryption-context-and-cmm).
     var encryptionContext := input.encryptionContext.UnwrapOr(map[]);
     var cmm := input.cmm;
 
-    //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+    //= specification/structured-encryption/decrypt-path-structure.md#create-new-encryption-context-and-cmm
     //# If the version stored in the header is 1,
     //# then the input cmm and encryption context MUST be used unchanged.
     if head.version == 2 {
-      //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+      //= specification/structured-encryption/decrypt-path-structure.md#create-new-encryption-context-and-cmm
       //# Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2) to the encryption context for every
       //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
       //# [Terminal Data](./structures.md#terminal-data)
       //# in the input record, plus the Legend.
       var newEncryptionContext :- GetV2EncryptionContext(UnCanon(canonData));
       if |newEncryptionContext| != 0 {
-        //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+        //= specification/structured-encryption/decrypt-path-structure.md#create-new-encryption-context-and-cmm
         //# An error MUST be returned if any of the entries added to the encryption context in this step
         //# have the same key as any entry already in the encryption context.
         :- Need(encryptionContext.Keys !! newEncryptionContext.Keys,
@@ -955,7 +1018,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         }
         var contextKeys :  seq<UTF8.ValidUTF8Bytes> := contextKeysX;
 
-        //= specification/structured-encryption/decrypt-structure.md#create-new-encryption-context-and-cmm
+        //= specification/structured-encryption/decrypt-path-structure.md#create-new-encryption-context-and-cmm
         //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
         //# with the following inputs:
         //# - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
@@ -971,12 +1034,12 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       }
     }
 
-    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //= specification/structured-encryption/decrypt-path-structure.md#retrieve-decryption-materials
     //# This operation MUST obtain a set of decryption materials by calling
     //# [Decrypt Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials)
     //# on the [CMM](#cmm) calculated above.
 
-    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //= specification/structured-encryption/decrypt-path-structure.md#retrieve-decryption-materials
     //# The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
     // - Encryption Context: The encryption context containing exactly the union of
     //   key-value pairs in the [input Encryption Context](#encryption-context)
@@ -1000,16 +1063,16 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(Header.ValidEncryptionContext(mat.encryptionContext), E("Bad encryption context"));
     :- Need(Materials.DecryptionMaterialsWithPlaintextDataKey(mat), E("Encryption material has no key"));
 
-    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //= specification/structured-encryption/decrypt-path-structure.md#retrieve-decryption-materials
     //# The algorithm suite used in all further aspects of this operation MUST be
     //# the algorithm suite in the
     //# [decryption materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#decryption-materials)
     //# returned from the Decrypt Materials call.
 
-    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //= specification/structured-encryption/decrypt-path-structure.md#retrieve-decryption-materials
     //# Note that the algorithm suite in the retrieved decryption materials MAY be different from the input algorithm suite.
 
-    //= specification/structured-encryption/decrypt-structure.md#retrieve-decryption-materials
+    //= specification/structured-encryption/decrypt-path-structure.md#retrieve-decryption-materials
     //# If this algorithm suite is not a
     //# [supported suite for DBE](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum)
     //# this operation MUST yield an error.
@@ -1017,38 +1080,38 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var postCMMAlg := mat.algorithmSuite;
     var key : Key := mat.plaintextDataKey.value;
     var commitKey :- Crypt.GetCommitKey(config.primitives, postCMMAlg, key, head.msgID);
-    //= specification/structured-encryption/decrypt-structure.md#parse-the-header
+    //= specification/structured-encryption/decrypt-path-structure.md#parse-the-header
     //# The header field value MUST be [verified](header.md#commitment-verification)
     var ok :- head.verifyCommitment(config.primitives, postCMMAlg, commitKey, headerSerialized.value);
 
-    //= specification/structured-encryption/decrypt-structure.md#calculate-signed-and-encrypted-field-lists
+    //= specification/structured-encryption/decrypt-path-structure.md#calculate-signed-and-encrypted-field-lists
     //= type=implication
     //# Decryption MUST fail if the length of this list does not equal the
     //# length of the header's [Encrypt Legend](header.md.#encrypt-legend).
     // this assert can be an implication, because it is explicitly ensuring an intermediate state.
     // assert |head.legend| == |canonData.signedFields_c|;
 
-    //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+    //= specification/structured-encryption/decrypt-path-structure.md#verify-signatures
     //# This operation MUST deserialize the bytes in [Terminal Value](./structures.md#terminal-value)
     //# according to the [footer format](./footer.md).
     var footer :- Footer.DeserializeFooter(footerSerialized.value, postCMMAlg.signature.ECDSA?);
 
-    //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+    //= specification/structured-encryption/decrypt-path-structure.md#verify-signatures
     //# The footer field value MUST be [verified](footer.md#footer-verification).
 
-    //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+    //= specification/structured-encryption/decrypt-path-structure.md#verify-signatures
     //# Decryption MUST fail immediately if verification fails.
     var _ :- footer.validate(config.primitives, mat, head.dataKeys, canonData, headerSerialized.value);
     var decryptedItems : CanonCryptoList :- Crypt.Decrypt(config.primitives, postCMMAlg, key, head, canonData);
 
-    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
     //# - For every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
     //# (aside from the header and footer),
     //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the output Structured Data.
     // at this point both result and encRecord have header and footer
     assert forall k <- input.encryptedStructure :: (exists x :: x in decryptedItems && x.origKey == k.key);
 
-    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
     //# - for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
     //# a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
 
@@ -1060,9 +1123,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert !exists x :: x in smallResult && x.key == HeaderPath;
     assert !exists x :: x in smallResult && x.key == FooterPath;
     assume {:axiom} forall k <- input.encryptedStructure | k.key !in HeaderPaths ::
-        (exists x :: x in smallResult && x.key == k.key);
+      (exists x :: x in smallResult && x.key == k.key);
 
-    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
     //= type=implication
     //# The output MUST also include a [Parsed Header](#parsed-header) that contains
     //# data that was serialized into the header included in the output Structured Data.

@@ -247,7 +247,7 @@ module DynamoDbItemEncryptorTest {
     expect parsedHeader.value.attributeActionsOnEncrypt == actions - {"nothing", "sign2"};
     // Expect the verification key in the context
     // only one item in the stored context shows that the CMM was properly constructed
-    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
     //= type=test
     //# Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
     //# with the following inputs:
@@ -273,14 +273,14 @@ module DynamoDbItemEncryptorTest {
     //# - If the type is Boolean, then the string "true" for true and the string "false" for false.
     //# - Else, the value as defined in [Base Context Value Version 1](#base-context-value-version-1)
 
-    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
     //= type=test
     //# Otherwise, this operation MUST add an [entry](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2) to the encryption context for every
     //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
     //# [Terminal Data](./structures.md#terminal-data)
     //# in the input record, plus the Legend.
 
-    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
     //= type=test
     //# The Legend MUST be named "aws-crypto-legend" and be a string with one character per attribute added above,
     //# with a one-to-one correspondence with the attributes sorted by their UTF8 encoding,
@@ -449,7 +449,7 @@ module DynamoDbItemEncryptorTest {
     expect PublicKeyUtf8 in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
 
-    //= specification/structured-encryption/encrypt-structure.md#create-new-encryption-context-and-cmm
+    //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
     //= type=test
     //# If no [Crypto Action](./structures.md#crypto-action) is configured to be
     //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)

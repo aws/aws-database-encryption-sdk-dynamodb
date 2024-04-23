@@ -57,11 +57,11 @@ module StructuredEncryptionUtil {
   type CanonCryptoList = seq<CanonCryptoItem>
   type CanonAuthList = seq<CanonAuthItem>
 
-  //= specification/structured-encryption/encrypt-structure.md#header-field
+  //= specification/structured-encryption/encrypt-path-structure.md#header-field
   //= type=implication
   //# The Header Field name MUST be `aws_dbe_head`
 
-  //= specification/structured-encryption/encrypt-structure.md#footer-field
+  //= specification/structured-encryption/encrypt-path-structure.md#footer-field
   //= type=implication
   //# The Footer Field name MUST be `aws_dbe_foot`
   lemma CheckNames()

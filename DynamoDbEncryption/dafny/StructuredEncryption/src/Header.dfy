@@ -240,7 +240,7 @@ module StructuredEncryptionHeader {
     :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algorithm Suite has unexpected flavor."));
     var legend :- MakeLegend(schema);
 
-    //= specification/structured-encryption/encrypt-structure.md#header-field
+    //= specification/structured-encryption/encrypt-path-structure.md#header-field
     //# The encryption context field serialized in the header MUST contain all key-value
     //# pairs of the encryption context in the [encryption materials](#retrieve-encryption-materials)
     //# that are not included in the

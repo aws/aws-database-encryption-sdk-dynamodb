@@ -49,19 +49,11 @@ operation DecryptPathStructure {
     output: DecryptPathStructureOutput,
 }
 
-//= specification/structured-encryption/header.md#format-version
-//= type=implication
-//# The Version MUST be `0x01`.
-@range(min:1, max:1)
-integer Version
-
-//= specification/structured-encryption/decrypt-structure.md#parsed-header
+//= specification/structured-encryption/decrypt-path-structure.md#parsed-header
 //= type=implication
 //# This structure MUST contain the following values,
 //# representing the deserialized form of the header of the input encrypted structure:
 //#   - [Algorithm Suite ID](./header.md#format-flavor): The Algorithm Suite ID associated with the Format Flavor on the header.
-//#   - [Crypto Schema](./header.md#encrypt-legend): The Crypto Schema for each signed Terminal,
-//#     calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
 //#   - [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
 //#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
 //#   - [Encryption Context](#encryption-context): The full Encryption Context used.
@@ -100,7 +92,7 @@ structure EncryptStructureInput {
     // - [Algorithm Suite](#algorithm-suite)
     // - [Encryption Context](#encryption-context)
 
-    //= specification/structured-encryption/encrypt-structure.md#algorithm-suite
+    //= specification/structured-encryption/encrypt-path-structure.md#algorithm-suite
     //= type=implication
     //# This algorithm suite MUST be a
     //# [supported suite for Database Encryption (DBE)](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum);
@@ -109,6 +101,18 @@ structure EncryptStructureInput {
     encryptionContext: EncryptionContext
 }
 
+//= specification/structured-encryption/encrypt-path-structure.md#input
+//= type=implication
+//# The following inputs to this behavior are REQUIRED:
+//# - [Table Name](#table-name)
+//# - [Crypto List](#crypto-list)
+//# - [Cryptographic Materials Manager (CMM)](#cmm)
+
+//= specification/structured-encryption/encrypt-path-structure.md#input
+//= type=implication
+//# The following inputs to this behavior MUST be OPTIONAL:
+//# - [Algorithm Suite](#algorithm-suite)
+//# - [Encryption Context](#encryption-context)
 structure EncryptPathStructureInput {
     @required
     tableName: String,
@@ -120,11 +124,11 @@ structure EncryptPathStructureInput {
     encryptionContext: EncryptionContext
 }
 
-
 //= specification/structured-encryption/encrypt-structure.md#output
 //= type=implication
 //# This operation MUST output the following:
 //# - [Encrypted Structured Data](#encrypted-structured-data)
+//# - [Crypto Schema](./header.md#encrypt-legend): The Crypto Schema for each signed Terminal
 //# - [Parsed Header](./decrypt-structure.md#parsed-header)
 structure EncryptStructureOutput {
     @required
@@ -135,6 +139,11 @@ structure EncryptStructureOutput {
     parsedHeader: ParsedHeader,
 }
 
+//= specification/structured-encryption/encrypt-path-structure.md#output
+//= type=implication
+//# This operation MUST output the following:
+//# - [Encrypted Crypto List](#encrypted-crypto-list)
+//# - [Parsed Header](./decrypt-structure.md#parsed-header)
 structure EncryptPathStructureOutput {
     @required
     encryptedStructure: CryptoList,
@@ -142,14 +151,19 @@ structure EncryptPathStructureOutput {
     parsedHeader: ParsedHeader,
 }
 
+//= specification/structured-encryption/decrypt-structure.md#input
+//= type=implication
+//# The following inputs to this behavior are REQUIRED:
+// - [Table Name](#table-name)
+// - [Authenticate Schema](#authenticate-schema)
+// - [Cryptographic Materials Manager (CMM)](#cmm)
+// - [Encrypted Structured Data](#encrypted-structured-data)
+
+//= specification/structured-encryption/decrypt-structure.md#input
+//= type=implication
+//# The following inputs to this behavior MUST be OPTIONAL:
+//- [Encryption Context](#encryption-context)
 structure DecryptStructureInput {
-    //= specification/structured-encryption/decrypt-structure.md#input
-    //= type=implication
-    //# The following inputs to this behavior are REQUIRED:
-    // - [Table Name](#table-name)
-    // - [Authenticate Schema](#authenticate-schema)
-    // - [Cryptographic Materials Manager (CMM)](#cmm)
-    // - [Encrypted Structured Data](#encrypted-structured-data)
     @required
     tableName: String,
     @required
@@ -159,12 +173,20 @@ structure DecryptStructureInput {
     @required
     cmm: CryptographicMaterialsManagerReference,
 
-    //= specification/structured-encryption/decrypt-structure.md#input
-    //= type=implication
-    //# The following inputs to this behavior MUST be OPTIONAL:
-    //- [Encryption Context](#encryption-context)
     encryptionContext: EncryptionContext,
 }
+
+//= specification/structured-encryption/decrypt-path-structure.md#input
+//= type=implication
+//# The following inputs to this behavior are REQUIRED:
+//# - [Table Name](#table-name)
+//# - [Cryptographic Materials Manager (CMM)](#cmm)
+//# - [Auth List](#auth-list)
+
+//= specification/structured-encryption/decrypt-path-structure.md#input
+//= type=implication
+//# The following inputs to this behavior MUST be OPTIONAL:
+//# - [Encryption Context](#encryption-context)
 structure DecryptPathStructureInput {
     @required
     tableName: String,
@@ -175,12 +197,14 @@ structure DecryptPathStructureInput {
     encryptionContext: EncryptionContext,
 }
 
+//= specification/structured-encryption/decrypt-structure.md#output
+//= type=implication
+//# This operation MUST output the following:
+//# - [Structured Data](#structured-data)
+//# - [Crypto Schema](./structures.md#crypto-schema): The Crypto Schema for each signed Terminal,
+//#   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
+//# - [Parsed Header](#parsed-header)
 structure DecryptStructureOutput {
-    //= specification/structured-encryption/decrypt-structure.md#output
-    //= type=implication
-    //# This operation MUST output the following:
-    //#   - [Structured Data](#structured-data)
-    //#   - [Parsed Header](#parsed-header)
     @required
     plaintextStructure: StructuredDataMap,
     @required
@@ -188,6 +212,13 @@ structure DecryptStructureOutput {
     @required
     parsedHeader: ParsedHeader,
 }
+
+//= specification/structured-encryption/decrypt-path-structure.md#output
+//= type=implication
+//# This operation MUST output the following:
+//# - [Crypto List](./structures.md#crypto-list): Decrypted Terminals and the Crypto Schema for each Terminal,
+//#   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
+//# - [Parsed Header](#parsed-header)
 structure DecryptPathStructureOutput {
     @required
     plaintextStructure: CryptoList,
