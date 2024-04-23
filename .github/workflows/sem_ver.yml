@@ -49,8 +49,5 @@ jobs:
       # Test to see if we can setup semantic release
       - name: Test Semantic Release Installation
         uses: actions/checkout@v4
-        with:
-          ref: main
-        working-directory: ./
       - run: |
           make setup_semantic_release
