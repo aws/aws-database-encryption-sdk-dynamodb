@@ -51,3 +51,12 @@ generate_properties_file:
 	--namespace aws.polymorph \
 	--properties-file $(PROJECT_ROOT)/smithy-dafny-project.properties \
 	";
+
+setup_semantic_release:
+	npm i --no-save semantic-release @semantic-release/changelog semantic-release-replace-plugin conventional-changelog-conventionalcommits @semantic-release/git
+
+run_semantic_release:
+	npx semantic-release --no-ci
+
+dry_run_semantic_release:
+	npx semantic-release --dry-run
