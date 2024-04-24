@@ -817,11 +817,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN || encryptedItems[x].data == canonData[x].data);
 
     assume {:axiom} forall k <- input.plaintextStructure ::
-      (exists x ::
-         && x in encryptedItems
-         && x.origKey == k.key
-         && Crypt.Updated5(k, x, Crypt.DoEncrypt)
-      );
+        (exists x ::
+           && x in encryptedItems
+           && x.origKey == k.key
+           && Crypt.Updated5(k, x, Crypt.DoEncrypt)
+        );
 
     var footer :- Footer.CreateFooter(config.primitives, mat, encryptedItems, headerSerialized);
     var footerAttribute := footer.makeTerminal();
