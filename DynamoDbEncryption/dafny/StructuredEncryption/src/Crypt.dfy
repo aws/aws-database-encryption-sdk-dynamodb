@@ -166,6 +166,15 @@ module StructuredEncryptionCrypt {
     && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
   }
 
+  predicate Updated5(oldVal : CryptoItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
+  {
+    && oldVal.key == newVal.origKey
+    && oldVal.action == newVal.action
+    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
+    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
+    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
+    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+  }
 
   // Encrypt a StructuredDataMap
   method Encrypt(
