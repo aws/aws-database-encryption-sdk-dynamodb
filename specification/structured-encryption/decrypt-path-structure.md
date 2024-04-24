@@ -51,7 +51,7 @@ For example the name of the table to hold the encrypted record.
 The [Auth List](./structures.md#auth-list) to be decrypted.
 
 This Auth List MUST contain data located at the [header index](./header.md#header-index)
-or the [footer index](./footer.md#footer-index).
+and the [footer index](./footer.md#footer-index).
 
 The Auth List describes how each [Terminal Data](./structures.md#terminal-data) should be treated during decryption.
 
@@ -61,10 +61,6 @@ otherwise, this operation MUST yield an error.
 ### CMM
 
 A CMM that implements the [CMM interface](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md).
-
-### Encrypted Structured Data
-
-The [Structured Data](./structures.md#structured-data) to be decrypted.
 
 ### Encryption Context
 
@@ -208,46 +204,26 @@ MUST be the number of [Encrypted Data Keys in the header](./header.md#encrypted-
 
 ### Calculate Cipherkey and Nonce
 
-The Cipherkey and Nonce must be calculated for [encryption](encrypt-structure.md#calculate-cipherkey-and-nonce).
-
-### Calculate Signed and Encrypted Field Lists
-
-The `signed field list` MUST be all fields for which 
-the [Authenticate Schema](#authenticate-schema)
-indicates an [Authenticate Action](./structures.md#authenticate-action)
-of [SIGN](./structures.md#SIGN) for that field,
-sorted by the [Canonical Path](header.md.#canonical-path).
-
-Decryption MUST fail if the length of this list does not equal the 
-length of the header's [Encrypt Legend](header.md.#encrypt-legend).
-
-The `encrypted field list` MUST be all fields in the `signed field list`
-for which the corresponding byte in the [Encrypt Legend](header.md.#encrypt-legend)
-is `0x65` indicating [Encrypt and Sign](header.md.#encrypt-legend-bytes),
-sorted by the field's [canonical path](./header.md#canonical-path).
+The Cipherkey and Nonce must be calculated as for [encryption](encrypt-structure.md#calculate-cipherkey-and-nonce).
 
 ### Construct Decrypted Structured Data
 
-This operation MUST output a [Structured Data](#structured-data) with the following specifics:
-- [Terminal Data](./structures.md#terminal-data) MUST NOT exist at the "aws_dbe_head"
-  or "aws_dbe_foot".
-- For every [input Terminal Data](./structures.md#terminal-data) in the [input Structured Data](#structured-data)
-  (aside from the header and footer),
-  a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the output Structured Data.
-  Put plainly, the output Structured Data does not drop any Terminal Data during decryption,
-  other than the header and footer.
+In the output a [Crypto List](./structures.md#crypto-list):
+- An entry MUST NOT exist with the key "aws_dbe_head" or "aws_dbe_foot".
+- For every entry in the [input Auth List](#auth-list), other than the header and footer,
+  an entry MUST exist with the same key in the output Crypto List.
+- The output Crypto List MUST NOT have any additional entries.
+  Put plainly, the output does not add or drop any entries during decryption, other than the header and footer.
 
- - For each Terminal Data in the output Structured Data,
-if the field name is not in the [Encrypted Field Lists](#calculate-signed-and-encrypted-field-lists)
-this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
-[Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's,
-otherwise this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+For each entry in the output Crypto List:
+
+If the action is [ENCRYPT_AND_SIGN](./structures.md#encryptandsign)
+this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
 equal to the first two bytes of the input Terminal Data's value,
 and a value equal to the [decryption](#terminal-data-decryption) of the input Terminal Data's value.
 
-- for every [Terminal Data](./structures.md#terminal-data) in the output Structured Data,
-  a Terminal Data MUST exist with the same [canonical path](./header.md#canonical-path) in the [input Structured Data](#structured-data).
-  Put plainly, the output Structured Data does not add any extra Structured Data during decryption.
+Otherwise, this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
+[Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data.
 
 The output MUST also include a [Parsed Header](#parsed-header) that contains
 data that was serialized into the header included in the output Structured Data.
