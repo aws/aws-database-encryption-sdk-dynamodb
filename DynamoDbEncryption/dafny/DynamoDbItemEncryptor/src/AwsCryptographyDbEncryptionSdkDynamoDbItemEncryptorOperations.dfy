@@ -1120,7 +1120,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
-    :- Need(SE.HeaderField in input.encryptedItem, E("header field not in item."));
+    :- Need(SE.HeaderField in input.encryptedItem, E("Header field, "aws_dbe_head", not in item."));
     var header := input.encryptedItem[SE.HeaderField];
     :- Need(header.B?, E("Header field not binary"));
     assert header.B?;
