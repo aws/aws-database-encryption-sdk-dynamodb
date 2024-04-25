@@ -132,7 +132,6 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   method Encrypt(inFile : string, outFile : string, lang : string, version : string) returns (output : Result<bool, string>)
   {
     print "Encrypt : ", inFile, "\n";
-
     var configBv :- expect FileIO.ReadBytesFromFile(inFile);
     var configBytes := BvToBytes(configBv);
     var json :- expect API.Deserialize(configBytes);
