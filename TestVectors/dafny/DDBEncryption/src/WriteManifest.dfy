@@ -98,13 +98,23 @@ module {:options "-functionSyntax:4"} WriteManifest {
         },
         ""allowedUnsignedAttributes"" : [""Stuff"", ""Junk""]
       }"
-    
+
   method TextToJson(x: string) returns (output : JSON)
   {
     var str :- expect UTF8.Encode(x);
     var json :- expect API.Deserialize(str);
     return json;
   }
+
+  const QUOTE : string := "\""
+
+  const ConfigRecord :=
+    "{\"RecNum\": 1,"
+    +  QUOTE + Attr1 + QUOTE + ": \"aaa\","
+    +  QUOTE + Attr2 + QUOTE + ": {\"M\" : {\"A\":\"B\", \"C\":\"D\"}},"
+    +  QUOTE + Attr3 + QUOTE + ":  {\"L\" : [{\"M\" : {\"A\":\"B\", \"C\":\"D\"}}, {\"NS\":[\"00.0011\", \"0000\", \"2000.000\", \"10.01\"]}, {\"SS\":[\"00.0011\", \"0000\", \"2000.000\", \"10.01\"]}]},"
+    +  QUOTE + Attr4 + QUOTE + ": {\"SS\":[\"00.0011\", \"0000\", \"2000.000\", \"10.01\"]},"
+    +  QUOTE + Attr5 + QUOTE + ": {\"NS\":[\"00.0011\", \"0000\", \"2000.000\", \"10.01\"]}}"
 
   const BasicRecord := @"{
           ""RecNum"": 1,
@@ -122,11 +132,11 @@ module {:options "-functionSyntax:4"} WriteManifest {
         }"
 
   method MakeTest(
-    name : string, 
-    typ : string, 
-    desc : string, 
-    configJson : string, 
-    recordJson : string, 
+    name : string,
+    typ : string,
+    desc : string,
+    configJson : string,
+    recordJson : string,
     decryptConfigJson : Option<string> :=  None) returns (output : (string, JSON))
   {
     var config := TextToJson(configJson);
@@ -145,8 +155,164 @@ module {:options "-functionSyntax:4"} WriteManifest {
     return(name, Object(result));
   }
 
+  type CryptoAction = x : int | 0 <= x < 4
+  type CryptoActions = x : seq<CryptoAction> | |x| == 6 witness [0,0,0,0,0,0]
+  const CryptoActionStr : seq<string> := ["0", "1", "2", "3"]
+  const MyActionNames : seq<string> := ["ENCRYPT_AND_SIGN", "SIGN_ONLY", "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT", "DO_NOTHING"]
+  const Encrypt : CryptoAction := 0
+  const SignOnly : CryptoAction := 1
+  const SignInclude : CryptoAction := 2
+  const DoNothing : CryptoAction := 3
+
+  const A : string := "A"
+  const B : string := "퀀" // Ud000"
+  const C : string := "﹌" // Ufe4c"
+  const D : string := "𐀁" // U10001
+  const E : string := "𐀂" // U10002 - same high surrogate as D
+  const F : string := "𠀂" // U20002 - different high surrogate as D
+
+  lemma CheckLengths()
+    ensures |A| == 1
+    ensures |B| == 1
+    ensures |C| == 1
+    ensures |D| == 2
+    ensures |E| == 2
+    ensures |F| == 2
+  {}
+
+  // Let's make attribute names with complex characters.
+  // It shouldn't matter, but let's make sure
+  const Attr1 : string  := F+D
+  const Attr2 : string  := A+B+C+D
+  const Attr3 : string  := E+D
+  const Attr4 : string  := C+D
+  const Attr5 : string  := D+C+B+A
+  const MyAttrNames : seq<string> := ["RecNum", Attr1, Attr2, Attr3, Attr4, Attr5]
+
+
+  method MakeConfig(actions : CryptoActions) returns (output : JSON)
+    ensures output.Object?
+  {
+    var configActions : seq<(string, JSON)> := [];
+    var notSigned : seq<JSON> := [];
+    for i := 0 to 6 {
+      var myAction : CryptoAction := actions[i];
+      configActions := configActions + [(MyAttrNames[i], String(MyActionNames[myAction]))];
+      if myAction == DoNothing {
+        notSigned := notSigned + [String(MyAttrNames[i])];
+      }
+    }
+    var result : seq<(string, JSON)> := [
+      ("attributeActionsOnEncrypt", Object(configActions)),
+      ("allowedUnsignedAttributes", Array(notSigned))
+    ];
+
+    return Object(result);
+  }
+
+  method MakeConfigTest(
+    name : string,
+    config : JSON,
+    record : JSON,
+    decryptConfigJson : Option<JSON> :=  None) returns (output : (string, JSON))
+  {
+    var result : seq<(string, JSON)> :=
+      [
+        ("type", String("positive-encrypt")),
+        ("description", String("config test")),
+        ("config", config),
+        ("record", record)
+      ];
+    if decryptConfigJson.Some? {
+      var decryptConfig := decryptConfigJson.value;
+      result := result + [("decryptConfig", decryptConfig)];
+    }
+    return(name, Object(result));
+  }
+
+  function Increment(x : CryptoActions) : CryptoActions
+  {
+    if x[5] < 3 then
+      [x[0], x[1], x[2], x[3], x[4], x[5]+1]
+    else if x[4] < 3 then
+      [x[0], x[1], x[2], x[3], x[4]+1, 0]
+    else if x[3] < 3 then
+      [x[0], x[1], x[2], x[3]+1, 0, 0]
+    else if x[2] < 3 then
+      [x[0], x[1], x[2]+1, 0, 0, 0]
+    else if x[1] < 3 then
+      [x[0], x[1]+1, 0, 0, 0, 0]
+    else if x[0] < 3 then
+      [x[0]+1, 0, 0, 0, 0, 0]
+    else
+      [0, 0, 0, 0, 0, 0]
+  }
+
+  predicate IsConsistent(actions : CryptoActions)
+  {
+    if actions[0] in [DoNothing, Encrypt] then
+      false
+    else if actions[0] == SignOnly && (exists x | x in actions :: x == SignInclude) then
+      false
+    else
+      true
+  }
+
+  predicate IsConsistentWith(oldActions : CryptoActions, newActions : CryptoActions)
+  {
+    if !IsConsistent(oldActions) || !IsConsistent(newActions) then
+      false
+    else
+      !exists i | 0 <= i < 6 :: (oldActions[i] == DoNothing) != (newActions[i] == DoNothing)
+  }
+
+  // make a test for every valid combination of Crypto Actions
+  method MakeConfigTests() returns (output : seq<(string, JSON)>)
+  {
+    var actions : CryptoActions := [0,0,0,0,0,0];
+    var result : seq<(string, JSON)> := [];
+    var record := TextToJson(ConfigRecord);
+    var actionWrittenOuter := 0;
+    var actionWrittenInner := 0;
+    for i := 0 to 4096 {
+      actions := Increment(actions);
+      if IsConsistent(actions) {
+        var name := "ConfigTest_";
+        for j := 0 to 6 {
+          name := name + CryptoActionStr[actions[j]];
+        }
+        var config := MakeConfig(actions);
+        var theTest := MakeConfigTest(name, config, record);
+        result := result + [theTest];
+        actionWrittenOuter := actionWrittenOuter + 1;
+
+        // for a subset of these,
+        // make a test to decrypt with every possible valid combination of Crypto Actions
+        if (actionWrittenOuter % 100) == 0 {
+          var otherActions : CryptoActions := [0,0,0,0,0,0];
+          for j := 0 to 4096 {
+            otherActions := Increment(otherActions);
+            if IsConsistentWith(actions, otherActions) {
+              var newConfig := MakeConfig(otherActions);
+              var newName := name + "_";
+              for k := 0 to 6 {
+                newName := newName + CryptoActionStr[otherActions[k]];
+              }
+              var newTest := MakeConfigTest(newName, config, record, Some(newConfig));
+              result := result + [newTest];
+              actionWrittenInner := actionWrittenInner + 1;
+            }
+          }
+        }
+      }
+    }
+    print "MakeConfigTests : ", actionWrittenOuter, " outer and ", actionWrittenInner, " inner for ", |result|, " total.\n";
+    return result;
+  }
+
   method Write(fileName : string) returns (output : Result<bool, string>)
   {
+    print "Write : ", fileName, "\n";
     var result : seq<(string, JSON)> :=
       [Manifest(), ("keys", String("file://keys.json"))];
 
@@ -163,7 +329,8 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var test11 := MakeTest("11", "positive-encrypt", "Basic encrypt V2", BasicV2Config, BasicRecord);
     var test12 := MakeTest("12", "positive-encrypt", "Basic encrypt V2 switching1", LongerV2Config1, BasicRecord, Some(LongerV2Config2));
     var test13 := MakeTest("13", "positive-encrypt", "Basic encrypt V2 switching2", LongerV2Config2, BasicRecord, Some(LongerV2Config1));
-    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13];
+    var configTests := MakeConfigTests();
+    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13] + configTests;
     var final := Object(result + [("tests", Object(tests))]);
 
     var jsonBytes :- expect API.Serialize(final);

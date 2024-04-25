@@ -105,7 +105,7 @@ This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
 - This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
-- The keys from the [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
+- The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context).
 
 Given the converted [Structured Data](../structured-encryption/structures.md#structured-data),
 this operation MUST delegate decryption of this data to
@@ -135,6 +135,20 @@ into the [output DynamoDB Item](#encrypted-dynamodb-item).
 
 The output MUST also include a [Parsed Header](#parsed-header) that contains
 data that was serialized into the header included in the output DynamoDb Item.
+
+### DynamoDB Item Base Context
+
+The item to be encrypted MUST have an attribute named `aws_dbe_head`.
+
+The attribute named `aws_dbe_head` MUST be of type `B` Binary.
+
+The first byte of that value is the Version Number.
+
+If the Version Number is 2, then the base context MUST be the [version 2](./encrypt-item.md#dynamodb-item-base-context-version-2) context.
+
+If the Version Number is 1, the base context MUST be the [version 1](./encrypt-item.md#dynamodb-item-base-context-version-1) context.
+
+If the Version Number is not 1 or 2, the operation MUST return an error.
 
 ### Signature Scope
 
