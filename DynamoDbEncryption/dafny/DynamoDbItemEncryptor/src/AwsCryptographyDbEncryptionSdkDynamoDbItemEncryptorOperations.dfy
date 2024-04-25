@@ -1122,7 +1122,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
     :- Need(SE.HeaderField in input.encryptedItem, E("Header field, "aws_dbe_head", not in item."));
     var header := input.encryptedItem[SE.HeaderField];
-    :- Need(header.B?, E("Header field not binary"));
+    :- Need(header.B?, E("Header field, "aws_dbe_head", not binary"));
     assert header.B?;
     :- Need(0 < |header.B|, E("Unexpected empty header field."));
     var context :- MakeEncryptionContextForDecrypt(config, header.B, encryptedStructure);
