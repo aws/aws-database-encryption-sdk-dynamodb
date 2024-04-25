@@ -274,6 +274,7 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var record := TextToJson(ConfigRecord);
     var actionWrittenOuter := 0;
     var actionWrittenInner := 0;
+    // 4096 == 4 ^ 6 == size of all possible values of `actions`
     for i := 0 to 4096 {
       actions := Increment(actions);
       if IsConsistent(actions) {
