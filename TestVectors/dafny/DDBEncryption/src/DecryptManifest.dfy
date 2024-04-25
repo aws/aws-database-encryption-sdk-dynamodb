@@ -53,7 +53,6 @@ module {:options "-functionSyntax:4"} DecryptManifest {
   method OneTest(name : string, value : JSON) returns (output : Result<bool, string>)
   {
     :- Need(value.Object?, "Test must be an object");
-    print "Decrypting ", name, "\n";
 
     var types : Option<string> := None;
     var description : Option<string> := None;
@@ -99,6 +98,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
 
   method Decrypt(inFile : string) returns (output : Result<bool, string>)
   {
+    print "Decrypt : ", inFile, "\n";
     var configBv :- expect FileIO.ReadBytesFromFile(inFile);
     var configBytes := BvToBytes(configBv);
     var json :- expect API.Deserialize(configBytes);

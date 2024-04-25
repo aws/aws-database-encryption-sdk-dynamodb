@@ -160,7 +160,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     DDBEncode(SE.ATTR_PREFIX + k)
   }
 
-  function method MakeEncryptionContext(
+  function method MakeEncryptionContextForEncrypt(
     config : InternalConfig,
     item : DynamoToStruct.TerminalDataMap)
     : (ret : Result<CMP.EncryptionContext, Error>)
@@ -177,6 +177,36 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       MakeEncryptionContextV2(config, item)
     else
       MakeEncryptionContextV1(config, item)
+  }
+
+  function method MakeEncryptionContextForDecrypt(
+    config : InternalConfig,
+    header : seq<uint8>,
+    item : DynamoToStruct.TerminalDataMap)
+    : (ret : Result<CMP.EncryptionContext, Error>)
+    requires 0 < |header|
+    ensures ret.Success? ==>
+              //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item-base-context
+              //= type=implication
+              //# If the Version Number is 2, then the base context MUST be the [version 2](./encrypt-item.md#dynamodb-item-base-context-version-2) context.
+              && (header[0] == 2 ==> ret == MakeEncryptionContextV2(config, item))
+                 //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item-base-context
+                 //= type=implication
+                 //# If the Version Number is 1, the base context MUST be the [version 1](./encrypt-item.md#dynamodb-item-base-context-version-1) context.
+              && (header[0] == 1 ==> ret == MakeEncryptionContextV1(config, item))
+              && ((header[0] == 1) || (header[0] == 2))
+
+    //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item-base-context
+    //= type=implication
+    //# If the Version Number is not 1 or 2, the operation MUST return an error.
+    ensures ((header[0] != 1) && (header[0] != 2)) ==> ret.Failure?
+  {
+    if header[0] == 2 then
+      MakeEncryptionContextV2(config, item)
+    else if header[0] == 1 then
+      MakeEncryptionContextV1(config, item)
+    else
+      Failure(E("Header attribute has unexpected version number"))
   }
 
   function method {:opaque} {:vcs_split_on_every_assert} MakeEncryptionContextV1(
@@ -770,9 +800,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //= type=implication
         //# - Encryption Context MUST be this input Item's [DynamoDB Item Base Context](#dynamodb-item-base-context).
-        && MakeEncryptionContext(config, plaintextStructure).Success?
+        && MakeEncryptionContextForEncrypt(config, plaintextStructure).Success?
         && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.encryptionContext
-           == Some(MakeEncryptionContext(config, plaintextStructure).value)
+           == Some(MakeEncryptionContextForEncrypt(config, plaintextStructure).value)
 
         && output.value.parsedHeader.Some?
         && var structuredEncParsed := Seq.Last(config.structuredEncryption.History.EncryptStructure).output.value.parsedHeader;
@@ -847,7 +877,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
-    var context :- MakeEncryptionContext(config, plaintextStructure);
+    var context :- MakeEncryptionContextForEncrypt(config, plaintextStructure);
     var cryptoSchema :- ConfigToCryptoSchema(config, input.plaintextItem)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
     var wrappedStruct := CSE.StructuredData(
@@ -977,12 +1007,25 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
                 content := CSE.StructuredDataContent.DataMap(plaintextStructure),
                 attributes := None)
 
+        //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item-base-context
+        //= type=implication
+        //# The item to be encrypted MUST have an attribute named `aws_dbe_head`.
+        && SE.HeaderField in input.encryptedItem
+        && var header := input.encryptedItem[SE.HeaderField];
+
+        //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item-base-context
+        //= type=implication
+        //# The attribute named `aws_dbe_head` MUST be of type `B` Binary.
+        && header.B?
+        && 0 < |header.B|
+
         //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
         //= type=implication
         //# - Encryption Context MUST be the input Item's [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
-        && MakeEncryptionContext(config, plaintextStructure).Success?
+        && MakeEncryptionContextForDecrypt(config, header.B, plaintextStructure).Success?
+
         && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptionContext
-           == Some(MakeEncryptionContext(config, plaintextStructure).value)
+           == Some(MakeEncryptionContextForDecrypt(config, header.B, plaintextStructure).value)
 
         //= specification/dynamodb-encryption-client/decrypt-item.md#output
         //= type=implication
@@ -1077,7 +1120,12 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
-    var context :- MakeEncryptionContext(config, encryptedStructure);
+    :- Need(SE.HeaderField in input.encryptedItem, E("Header field, \"aws_dbe_head\", not in item."));
+    var header := input.encryptedItem[SE.HeaderField];
+    :- Need(header.B?, E("Header field, \"aws_dbe_head\", not binary"));
+    assert header.B?;
+    :- Need(0 < |header.B|, E("Unexpected empty header field."));
+    var context :- MakeEncryptionContextForDecrypt(config, header.B, encryptedStructure);
     var authenticateSchema := ConfigToAuthenticateSchema(config, input.encryptedItem);
     var wrappedStruct := CSE.StructuredData(
       content := CSE.StructuredDataContent.DataMap(encryptedStructure),
@@ -1088,7 +1136,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
     //# with the following inputs:
     //# - This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
-    //# - The keys from the [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
+    //# - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context).
 
     var reqCMMR := config.cmpClient.CreateRequiredEncryptionContextCMM(
       CMP.CreateRequiredEncryptionContextCMMInput(
