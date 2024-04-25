@@ -82,7 +82,6 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   method OneTest(name : string, value : JSON) returns (output : Result<Option<(string, JSON)>, string>)
   {
     :- Need(value.Object?, "Test must be an object");
-    print "Examining ", name, "\n";
 
     var types : Option<string> := None;
     var description : Option<string> := None;
@@ -132,6 +131,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
 
   method Encrypt(inFile : string, outFile : string, lang : string, version : string) returns (output : Result<bool, string>)
   {
+    print "Encrypt : ", inFile, "\n";
     var configBv :- expect FileIO.ReadBytesFromFile(inFile);
     var configBytes := BvToBytes(configBv);
     var json :- expect API.Deserialize(configBytes);
