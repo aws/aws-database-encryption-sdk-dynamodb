@@ -248,6 +248,9 @@ module {:options "-functionSyntax:4"} WriteManifest {
       [0, 0, 0, 0, 0, 0]
   }
 
+  // To be consistent :
+  // 1) The primary key (actions[0]) must be sign_only or sign_and_include
+  // 2) If anything is sign_and_include, then The primary key must be sign_and_include
   predicate IsConsistent(actions : CryptoActions)
   {
     if actions[0] in [DoNothing, Encrypt] then
@@ -258,6 +261,9 @@ module {:options "-functionSyntax:4"} WriteManifest {
       true
   }
 
+  // For a new config to be consistent with an old config:
+  // 1) both configs must be individually consistent
+  // 2) they must agree on which fields are do_nothing
   predicate IsConsistentWith(oldActions : CryptoActions, newActions : CryptoActions)
   {
     if !IsConsistent(oldActions) || !IsConsistent(newActions) then
@@ -267,6 +273,8 @@ module {:options "-functionSyntax:4"} WriteManifest {
   }
 
   // make a test for every valid combination of Crypto Actions
+  // 'actions' holds the crypto actions for each of six attributes
+  // the loop iterates through all possible combinations of attributes by incrementing this list
   method MakeConfigTests() returns (output : seq<(string, JSON)>)
   {
     var actions : CryptoActions := [0,0,0,0,0,0];
@@ -289,6 +297,9 @@ module {:options "-functionSyntax:4"} WriteManifest {
 
         // for a subset of these,
         // make a test to decrypt with every possible valid combination of Crypto Actions
+        // testing all of them would take too much time and space,
+        // so we select a sample to produce about 2000 more tests
+        // every 100th seems as good as any other method to get a representative sample
         if (actionWrittenOuter % 100) == 0 {
           var otherActions : CryptoActions := [0,0,0,0,0,0];
           // 4096 == 4 ^ 6 == size of all possible values of `otherActions`
