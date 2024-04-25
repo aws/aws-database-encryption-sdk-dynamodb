@@ -291,6 +291,7 @@ module {:options "-functionSyntax:4"} WriteManifest {
         // make a test to decrypt with every possible valid combination of Crypto Actions
         if (actionWrittenOuter % 100) == 0 {
           var otherActions : CryptoActions := [0,0,0,0,0,0];
+          // 4096 == 4 ^ 6 == size of all possible values of `otherActions`
           for j := 0 to 4096 {
             otherActions := Increment(otherActions);
             if IsConsistentWith(actions, otherActions) {
