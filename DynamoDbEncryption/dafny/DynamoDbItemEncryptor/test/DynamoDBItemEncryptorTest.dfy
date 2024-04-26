@@ -139,8 +139,8 @@ module DynamoDbItemEncryptorTest {
       print "\n", decryptRes.error, "\n";
     }
     expect decryptRes.Success?;
-    if decryptRes.value.plaintextItem != inputItem {
-      print "\nInput Item :\n", inputItem, "\n";
+    if decryptRes.value.plaintextItem != expectedOutputItem {
+      print "\nexpectedOutputItem :\n", expectedOutputItem, "\n";
       print "\nOutput Item :\n", decryptRes.value.plaintextItem, "\n";
     }
     expect decryptRes.value.plaintextItem == expectedOutputItem;
@@ -404,6 +404,148 @@ module DynamoDbItemEncryptorTest {
                                                    "aws_dbe_table_name" := DDB.AttributeValue.S("foo"),
                                                    "aws_dbe_partition_name" := DDB.AttributeValue.S("bar")
                                                  ];
+  }
+
+  method {:test} TestV2RoundTripSpecial() {
+    var actions : DDBE.AttributeActions :=
+      map [
+        "bar" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "a.b" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        ".a" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "a." := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        ".a." := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "a[2]" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "a#b" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$a" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$a.b" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$[a]" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$['a']" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$[\"a\"]" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "(a)" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$['" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$'a'" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$\"a\"" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$(a)" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+        "$(a" := CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+
+      ];
+    var config := TestFixtures.GetEncryptorConfigFromActions(actions);
+    var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config);
+
+    var inputItem := map[
+      "bar" := DDBS("key"),
+      "a.b" := DDBS("aaa"),
+      ".a" := DDBS("bbb"),
+      "a." := DDBS("ccc"),
+      ".a." := DDBS("ddd"),
+      "a[2]" := DDBS("eee"),
+      "a#b" := DDBS("fff"),
+      "$" := DDBS("ggg"),
+      "$a" := DDBS("hhh"),
+      "$a.b" := DDBS("iii"),
+      "$[a]" := DDBS("jjj"),
+      "$['a']" := DDBS("kkk"),
+      "$[\"a\"]" := DDBS("lll"),
+      "(a)" := DDBS("mmm"),
+      "$['" := DDBS("nnn"),
+      "$'a'" := DDBS("ooo"),
+      "$\"a\"" := DDBS("ppp"),
+      "$(a)" := DDBS("qqq"),
+      "$(a" := DDBS("rrr")
+    ];
+
+    var encryptRes := encryptor.EncryptItem(
+      Types.EncryptItemInput(
+        plaintextItem:=inputItem
+      )
+    );
+
+    if encryptRes.Failure? {
+      print "\n\n", encryptRes, "\n\n";
+    }
+    expect encryptRes.Success?;
+    expect encryptRes.value.encryptedItem.Keys == inputItem.Keys + {SE.HeaderField, SE.FooterField};
+    var smallEncrypted := encryptRes.value.encryptedItem - {SE.HeaderField, SE.FooterField};
+    expect smallEncrypted == inputItem;
+
+    var decryptRes := encryptor.DecryptItem(
+      Types.DecryptItemInput(
+        encryptedItem:=encryptRes.value.encryptedItem
+      )
+    );
+
+    if decryptRes.Failure? {
+      print "\n", decryptRes.error, "\n";
+    }
+    expect decryptRes.Success?;
+    if decryptRes.value.plaintextItem != inputItem {
+      print "\nInput Item :\n", inputItem, "\n";
+      print "\nOutput Item :\n", decryptRes.value.plaintextItem, "\n";
+    }
+    expect decryptRes.value.plaintextItem == inputItem;
+
+    var parsedHeader := decryptRes.value.parsedHeader;
+    expect parsedHeader.Some?;
+    expect parsedHeader.value.algorithmSuiteId == AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384.id.DBE;
+    expect parsedHeader.value.attributeActionsOnEncrypt == actions - {"nothing"};
+    // Expect the verification key in the context
+    expect |parsedHeader.value.storedEncryptionContext| == 1;
+    expect PublicKeyUtf8 in parsedHeader.value.storedEncryptionContext.Keys;
+    expect |parsedHeader.value.encryptedDataKeys| == 1;
+
+    var strEC := SE.EcAsString(parsedHeader.value.encryptionContext);
+    expect "aws-crypto-public-key" in strEC.Keys;
+    strEC := strEC - {"aws-crypto-public-key"};
+    expect strEC ==
+           map[
+             "aws-crypto-legend" := "SSSSSSSSSSSSSSSSSSS",
+             "aws-crypto-attr.bar" := "key",
+             "aws-crypto-attr.a.b" := "aaa",
+             "aws-crypto-attr..a" := "bbb",
+             "aws-crypto-attr.a." := "ccc",
+             "aws-crypto-attr..a." := "ddd",
+             "aws-crypto-attr.a[2]" := "eee",
+             "aws-crypto-attr.a#b" := "fff",
+             "aws-crypto-attr.$" := "ggg",
+             "aws-crypto-attr.$a" := "hhh",
+             "aws-crypto-attr.$a.b" := "iii",
+             "aws-crypto-attr.$[a]" := "jjj",
+             "aws-crypto-attr.$['a']" := "kkk",
+             "aws-crypto-attr.$[\"a\"]" := "lll",
+             "aws-crypto-attr.(a)" := "mmm",
+             "aws-crypto-attr.$['" := "nnn",
+             "aws-crypto-attr.$'a'" := "ooo",
+             "aws-crypto-attr.$\"a\"" := "ppp",
+             "aws-crypto-attr.$(a)" := "qqq",
+             "aws-crypto-attr.$(a" := "rrr",
+             "aws-crypto-partition-name" := "bar",
+             "aws-crypto-table-name" := "foo"
+           ];
+    expect parsedHeader.value.selectorContext ==
+           map[
+             "bar" := DDBS("key"),
+             "a.b" := DDBS("aaa"),
+             ".a" := DDBS("bbb"),
+             "a." := DDBS("ccc"),
+             ".a." := DDBS("ddd"),
+             "a[2]" := DDBS("eee"),
+             "a#b" := DDBS("fff"),
+             "$" := DDBS("ggg"),
+             "$a" := DDBS("hhh"),
+             "$a.b" := DDBS("iii"),
+             "$[a]" := DDBS("jjj"),
+             "$['a']" := DDBS("kkk"),
+             "$[\"a\"]" := DDBS("lll"),
+             "(a)" := DDBS("mmm"),
+             "$['" := DDBS("nnn"),
+             "$'a'" := DDBS("ooo"),
+             "$\"a\"" := DDBS("ppp"),
+             "$(a)" := DDBS("qqq"),
+             "$(a" := DDBS("rrr"),
+             "aws_dbe_table_name" := DDB.AttributeValue.S("foo"),
+             "aws_dbe_partition_name" := DDB.AttributeValue.S("bar")
+           ];
   }
 
   method {:test} TestRoundTrip() {
