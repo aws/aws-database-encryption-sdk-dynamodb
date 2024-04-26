@@ -39,7 +39,7 @@ jobs:
           StructuredEncryption
         ]
         os: [
-          macos-latest,
+          macos-12,
         ]
     runs-on: ${{ matrix.os }}
     steps:
