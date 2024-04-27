@@ -51,5 +51,8 @@ and create a Key with these values, using names with the "aws-crypto-attr." remo
 ## DynamoDbKeyBranchKeyIdSupplier
 
 The DynamoDb Key Branch Key Id Supplier is an interface containing the `GetBranchKeyIdFromDdbKey` operation.
-This operation MUST take in a DDB `Key` structure (and attribute map containing the partition and sort attributes) as input.
+This operation MUST take in a DDB `Key` structure
+(an attribute map containing the partition and sort attributes,
+along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT)
+as input.
 This operation MUST return a branch key id (string) as output.

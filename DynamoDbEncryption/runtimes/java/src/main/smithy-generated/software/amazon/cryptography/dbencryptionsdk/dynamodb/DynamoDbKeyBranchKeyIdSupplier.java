@@ -55,7 +55,7 @@ public final class DynamoDbKeyBranchKeyIdSupplier
   }
 
   /**
-   * Get the Branch Key that should be used for wrapping and unwrapping data keys based on the primary key of the item being read or written.
+   * Get the Branch Key that should be used for wrapping and unwrapping data keys based on the primary key of the item being read or written, along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
    *
    * @param input Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
    * @return Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.

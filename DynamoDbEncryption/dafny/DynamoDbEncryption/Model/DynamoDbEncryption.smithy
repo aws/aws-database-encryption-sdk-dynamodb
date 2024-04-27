@@ -756,7 +756,7 @@ resource DynamoDbKeyBranchKeyIdSupplier{
 @reference(resource: DynamoDbKeyBranchKeyIdSupplier)
 structure DynamoDbKeyBranchKeyIdSupplierReference {}
 
-@javadoc("Get the Branch Key that should be used for wrapping and unwrapping data keys based on the primary key of the item being read or written.")
+@javadoc("Get the Branch Key that should be used for wrapping and unwrapping data keys based on the primary key of the item being read or written, along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.")
 operation GetBranchKeyIdFromDdbKey {
   input: GetBranchKeyIdFromDdbKeyInput,
   output: GetBranchKeyIdFromDdbKeyOutput
@@ -764,11 +764,14 @@ operation GetBranchKeyIdFromDdbKey {
 
 //= specification/dynamodb-encryption-client/ddb-encryption-branch-key-id-supplier.md#dynamodbkeybranchkeyidsupplier
 //= type=implication
-//# This operation MUST take in a DDB `Key` structure (and attribute map containing the partition and sort attributes) as input.
+//# This operation MUST take in a DDB `Key` structure
+//# (an attribute map containing the partition and sort attributes,
+//# along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT)
+//# as input.
 @javadoc("Inputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.")
 structure GetBranchKeyIdFromDdbKeyInput {
   @required
-  @javadoc("The partition and sort (if it exists) attributes on the item being read or written.")
+  @javadoc("The partition and sort (if it exists) attributes on the item being read or written, along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.")
   ddbKey: Key
 }
 
