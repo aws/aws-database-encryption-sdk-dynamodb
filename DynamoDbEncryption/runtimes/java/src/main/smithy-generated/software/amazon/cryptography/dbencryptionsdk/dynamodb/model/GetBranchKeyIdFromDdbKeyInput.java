@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 public class GetBranchKeyIdFromDdbKeyInput {
 
   /**
-   * The partition and sort (if it exists) attributes on the item being read or written.
+   * The partition and sort (if it exists) attributes on the item being read or written, along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
    */
   private final Map<String, AttributeValue> ddbKey;
 
@@ -22,7 +22,7 @@ public class GetBranchKeyIdFromDdbKeyInput {
   }
 
   /**
-   * @return The partition and sort (if it exists) attributes on the item being read or written.
+   * @return The partition and sort (if it exists) attributes on the item being read or written, along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
    */
   public Map<String, AttributeValue> ddbKey() {
     return this.ddbKey;
@@ -38,12 +38,12 @@ public class GetBranchKeyIdFromDdbKeyInput {
 
   public interface Builder {
     /**
-     * @param ddbKey The partition and sort (if it exists) attributes on the item being read or written.
+     * @param ddbKey The partition and sort (if it exists) attributes on the item being read or written, along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
      */
     Builder ddbKey(Map<String, AttributeValue> ddbKey);
 
     /**
-     * @return The partition and sort (if it exists) attributes on the item being read or written.
+     * @return The partition and sort (if it exists) attributes on the item being read or written, along with the values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
      */
     Map<String, AttributeValue> ddbKey();
 
