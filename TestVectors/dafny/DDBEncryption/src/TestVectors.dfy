@@ -31,12 +31,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import DDB = ComAmazonawsDynamodbTypes
   import Filter = DynamoDBFilterExpr
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
-  import SKS = CreateStaticKeyStores
-  import KeyMaterial
   import UTF8
-  import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
   import CMP = AwsCryptographyMaterialProvidersTypes
-  import KeyVectors
   import CreateInterceptedDDBClient
   import SortedSets
   import Seq
