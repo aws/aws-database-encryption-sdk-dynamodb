@@ -61,7 +61,30 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       if (!IsSetName()) throw new System.ArgumentException("Missing value for required property 'Name'");
       if (!IsSetSplit()) throw new System.ArgumentException("Missing value for required property 'Split'");
-
+      if (IsSetEncrypted())
+      {
+        if (Encrypted.Count < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member Encrypted of structure CompoundBeacon has List type EncryptedPartsList which has a minimum length of 1 but was given a value with length {0}.", Encrypted.Count));
+        }
+      }
+      if (IsSetSigned())
+      {
+        if (Signed.Count < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member Signed of structure CompoundBeacon has List type SignedPartsList which has a minimum length of 1 but was given a value with length {0}.", Signed.Count));
+        }
+      }
+      if (IsSetConstructors())
+      {
+        if (Constructors.Count < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member Constructors of structure CompoundBeacon has List type ConstructorList which has a minimum length of 1 but was given a value with length {0}.", Constructors.Count));
+        }
+      }
     }
   }
 }

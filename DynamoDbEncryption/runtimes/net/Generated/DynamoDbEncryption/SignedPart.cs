@@ -41,7 +41,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       if (!IsSetName()) throw new System.ArgumentException("Missing value for required property 'Name'");
       if (!IsSetPrefix()) throw new System.ArgumentException("Missing value for required property 'Prefix'");
-
+      if (IsSetLoc())
+      {
+        if (Loc.Length < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member Loc of structure SignedPart has type TerminalLocation which has a minimum length of 1 but was given the value '{0}' which has length {1}.", Loc, Loc.Length));
+        }
+      }
     }
   }
 }

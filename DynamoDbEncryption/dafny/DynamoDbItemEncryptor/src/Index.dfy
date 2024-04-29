@@ -45,7 +45,7 @@ module
   }
 
   method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig)
-    returns (res: Result<IDynamoDbItemEncryptorClient, Error>)
+    returns (res: Result<DynamoDbItemEncryptorClient, Error>)
     ensures res.Success? ==>
               && res.value is DynamoDbItemEncryptorClient
               && var rconfig := (res.value as DynamoDbItemEncryptorClient).config;

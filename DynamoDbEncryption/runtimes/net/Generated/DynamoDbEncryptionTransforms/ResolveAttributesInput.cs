@@ -41,7 +41,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     {
       if (!IsSetTableName()) throw new System.ArgumentException("Missing value for required property 'TableName'");
       if (!IsSetItem()) throw new System.ArgumentException("Missing value for required property 'Item'");
-
+      if (IsSetVersion())
+      {
+        if (Version < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member Version of structure ResolveAttributesInput has type VersionNumber which has a minimum of 1 but was given the value {0}.", Version));
+        }
+      }
     }
   }
 }

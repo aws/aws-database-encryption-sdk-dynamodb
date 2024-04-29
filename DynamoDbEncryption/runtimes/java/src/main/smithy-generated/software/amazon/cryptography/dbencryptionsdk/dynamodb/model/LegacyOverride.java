@@ -13,6 +13,7 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
  * A configuration for overriding encryption and/or decryption to instead perform legacy encryption and decryption.
  */
 public class LegacyOverride {
+
   /**
    * A policy which configurates whether legacy behavior overrides encryption and/or decryption.
    */
@@ -100,7 +101,9 @@ public class LegacyOverride {
     /**
      * @param attributeActionsOnEncrypt Overrides which attributes are encrypted and/or signed for any items read or written with legacy behavior.
      */
-    Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt);
+    Builder attributeActionsOnEncrypt(
+      Map<String, CryptoAction> attributeActionsOnEncrypt
+    );
 
     /**
      * @return Overrides which attributes are encrypted and/or signed for any items read or written with legacy behavior.
@@ -121,6 +124,7 @@ public class LegacyOverride {
   }
 
   static class BuilderImpl implements Builder {
+
     protected LegacyPolicy policy;
 
     protected ILegacyDynamoDbEncryptor encryptor;
@@ -129,8 +133,7 @@ public class LegacyOverride {
 
     protected CryptoAction defaultAttributeFlag;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(LegacyOverride model) {
       this.policy = model.policy();
@@ -157,7 +160,9 @@ public class LegacyOverride {
       return this.encryptor;
     }
 
-    public Builder attributeActionsOnEncrypt(Map<String, CryptoAction> attributeActionsOnEncrypt) {
+    public Builder attributeActionsOnEncrypt(
+      Map<String, CryptoAction> attributeActionsOnEncrypt
+    ) {
       this.attributeActionsOnEncrypt = attributeActionsOnEncrypt;
       return this;
     }
@@ -176,14 +181,20 @@ public class LegacyOverride {
     }
 
     public LegacyOverride build() {
-      if (Objects.isNull(this.policy()))  {
-        throw new IllegalArgumentException("Missing value for required field `policy`");
+      if (Objects.isNull(this.policy())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `policy`"
+        );
       }
-      if (Objects.isNull(this.encryptor()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptor`");
+      if (Objects.isNull(this.encryptor())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptor`"
+        );
       }
-      if (Objects.isNull(this.attributeActionsOnEncrypt()))  {
-        throw new IllegalArgumentException("Missing value for required field `attributeActionsOnEncrypt`");
+      if (Objects.isNull(this.attributeActionsOnEncrypt())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `attributeActionsOnEncrypt`"
+        );
       }
       return new LegacyOverride(this);
     }

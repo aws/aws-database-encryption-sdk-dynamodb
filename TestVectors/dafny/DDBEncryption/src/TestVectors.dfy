@@ -90,8 +90,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json");
       var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json");
       var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json");
       var _ :- expect WriteManifest.Write("encrypt.json");
-      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.2");
+      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3");
       var _ :- expect DecryptManifest.Decrypt("decrypt.json");
       if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
         print "\nRunning no tests\n";

@@ -7,6 +7,7 @@ import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
 
 public class BatchGetItemInputTransformInput {
+
   private final BatchGetItemRequest sdkInput;
 
   protected BatchGetItemInputTransformInput(BuilderImpl builder) {
@@ -34,10 +35,10 @@ public class BatchGetItemInputTransformInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected BatchGetItemRequest sdkInput;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(BatchGetItemInputTransformInput model) {
       this.sdkInput = model.sdkInput();
@@ -53,8 +54,10 @@ public class BatchGetItemInputTransformInput {
     }
 
     public BatchGetItemInputTransformInput build() {
-      if (Objects.isNull(this.sdkInput()))  {
-        throw new IllegalArgumentException("Missing value for required field `sdkInput`");
+      if (Objects.isNull(this.sdkInput())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `sdkInput`"
+        );
       }
       return new BatchGetItemInputTransformInput(this);
     }

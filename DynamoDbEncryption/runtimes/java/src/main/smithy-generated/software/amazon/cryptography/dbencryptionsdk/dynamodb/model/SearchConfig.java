@@ -10,6 +10,7 @@ import java.util.Objects;
  * The configuration for searchable encryption.
  */
 public class SearchConfig {
+
   /**
    * The versions of searchable encryption to support reading. Currently must contain a single configuration with version '1'.
    */
@@ -72,14 +73,14 @@ public class SearchConfig {
   }
 
   static class BuilderImpl implements Builder {
+
     protected List<BeaconVersion> versions;
 
     protected int writeVersion;
 
     private boolean _writeVersionSet = false;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(SearchConfig model) {
       this.versions = model.versions();
@@ -107,20 +108,30 @@ public class SearchConfig {
     }
 
     public SearchConfig build() {
-      if (Objects.isNull(this.versions()))  {
-        throw new IllegalArgumentException("Missing value for required field `versions`");
+      if (Objects.isNull(this.versions())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `versions`"
+        );
       }
       if (Objects.nonNull(this.versions()) && this.versions().size() < 1) {
-        throw new IllegalArgumentException("The size of `versions` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `versions` must be greater than or equal to 1"
+        );
       }
       if (Objects.nonNull(this.versions()) && this.versions().size() > 1) {
-        throw new IllegalArgumentException("The size of `versions` must be less than or equal to 1");
+        throw new IllegalArgumentException(
+          "The size of `versions` must be less than or equal to 1"
+        );
       }
       if (!this._writeVersionSet) {
-        throw new IllegalArgumentException("Missing value for required field `writeVersion`");
+        throw new IllegalArgumentException(
+          "Missing value for required field `writeVersion`"
+        );
       }
       if (this._writeVersionSet && this.writeVersion() < 1) {
-        throw new IllegalArgumentException("`writeVersion` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "`writeVersion` must be greater than or equal to 1"
+        );
       }
       return new SearchConfig(this);
     }
