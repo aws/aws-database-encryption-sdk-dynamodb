@@ -52,9 +52,6 @@ jobs:
         shell: bash
         working-directory: ./TestVectors
         run: |
-          # this is evil, but the MPL test vectors defines an extra Main
-          sed -i "s/method Main/method NotMain/" ../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/src/Index.dfy
-          sed -i "s/<OutputType>Exe/<OutputType>Library/" ../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/net/TestVectors.csproj
           # This works because `node` is installed by default on GHA runners
           make transpile_net
 
