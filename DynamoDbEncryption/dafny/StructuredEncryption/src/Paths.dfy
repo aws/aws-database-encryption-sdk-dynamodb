@@ -124,7 +124,8 @@ module StructuredEncryptionPaths {
       CanonicalPart(path[0]) + MakeCanonicalPath(path[1..])
   }
 
-  // For human consumption, does NOT guarantee a unique output for every unique input
+  // Does NOT guarantee a unique output for every unique input
+  // e.g. ['a.b'] and ['a','b'] both return 'a.b'.
   function method PathToString(path : Path) : string
   {
     if |path| == 0 then

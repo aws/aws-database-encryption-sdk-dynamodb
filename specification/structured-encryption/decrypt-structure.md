@@ -32,34 +32,34 @@ and ensure integrity and authenticity is ensured over a set of [Terminal Data](.
 
 The following inputs to this behavior are REQUIRED:
 
-- [Table Name](#table-name)
-- [Authenticate Schema](#authenticate-schema)
-- [Cryptographic Materials Manager (CMM)](#cmm)
-- [Encrypted Structured Data](#encrypted-structured-data)
+- [Table Name](decrypt-path-structure.md#table-name)
+- [Authenticate Schema](decrypt-path-structure.md#authenticate-schema)
+- [Cryptographic Materials Manager (CMM)](decrypt-path-structure.md#cmm)
+- [Encrypted Structured Data](decrypt-path-structure.md#encrypted-structured-data)
 
 The following inputs to this behavior MUST be OPTIONAL:
 
-- [Encryption Context](#encryption-context)
+- [Encryption Context](decrypt-path-structure.md#encryption-context)
 
 ## Output
 
 This operation MUST output the following:
 
-- [Structured Data](#structured-data)
+- [Structured Data](decrypt-path-structure.md#structured-data)
 - [Crypto Schema](./structures.md#crypto-schema): The Crypto Schema for each signed Terminal,
   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
-- [Parsed Header](#parsed-header)
+- [Parsed Header](decrypt-path-structure.md#parsed-header)
 
 ## Behavior
 
-The input [Structured Data](#structured-data) and [Authenticate Schema](#authenticate-schema)
+The input [Structured Data](decrypt-path-structure.md#structured-data) and [Authenticate Schema](decrypt-path-structure.md#authenticate-schema)
 MUST refer to the same set of locations.
 
-The input [Structured Data](#structured-data) and [Authenticate Schema](#authenticate-schema)
-MUST be combined into a single [Auth List](#auth-list).
+The input [Structured Data](decrypt-path-structure.md#structured-data) and [Authenticate Schema](decrypt-path-structure.md#authenticate-schema)
+MUST be combined into a single [Auth List](decrypt-path-structure.md#auth-list).
 
-Decrypt Structure MUST then behave as [Decrypt Path Structure](#decrypt-path-structure)
+Decrypt Structure MUST then behave as [Decrypt Path Structure](decrypt-path-structure.md)
 
-The output [Crypto List](#crypto-list) produced by [Decrypt Path Structure](#decrypt-path-structure)
-MUST be split into [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+The output [Crypto List](decrypt-path-structure.md#crypto-list) produced by [Decrypt Path Structure](decrypt-path-structure.md)
+MUST be split into [Structured Data](decrypt-path-structure.md#structured-data) and [Crypto Schema](decrypt-path-structure.md#crypto-schema)
 maps.

@@ -145,11 +145,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   }
 
   function method EncodeName(k : string) : (ret : Result<UTF8.ValidUTF8Bytes, Error>)
-    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-1
-    //= type=implication
-    //# The key MUST be the following concatenation,
-    //# where `attributeName` is the name of the attribute:
-    //# "aws-crypto-attr." + `attributeName`.
     ensures ret == DDBEncode(SE.ATTR_PREFIX + k)
   {
     DDBEncode(SE.ATTR_PREFIX + k)
@@ -237,7 +232,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-1
     //= type=implication
     //# If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
-    //# - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+    //# - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name).
     //# - the [value](#base-context-value-version-1) of the Sort Key.
     ensures ret.Success? && config.sortKeyName.Some? ==>
               && config.sortKeyName.value in item
@@ -334,7 +329,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= specification/dynamodb-encryption-client/encrypt-item.md#dynamodb-item-base-context-version-2
     //= type=implication
     //# If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
-    //#  - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+    //#  - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name).
     ensures ret.Success? && config.sortKeyName.Some? ==>
               && config.sortKeyName.value in item
               && SORT_NAME in ret.value
@@ -606,12 +601,12 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
     //# - The number of Authenticate Actions in the Authenticate Schema
-    //# MUST EQUAL the number of Attributes on the [input DynamoDB Item](#dynamodb-item).
+    //# MUST EQUAL the number of Attributes on the [input DynamoDB Item](#input-dynamodb-item).
     ensures item.Keys == ret.Keys
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
-    //# - For every Attribute in the [input DynamoDB Item](#dynamodb-item)
+    //# - For every Attribute in the [input DynamoDB Item](#input-dynamodb-item)
     //# that is not in the [signature scope](#signature-scope),
     //# there MUST exist a [DO_NOT_SIGN Authenticate Action](../structured-encryption/structures.md#do_not_sign)
     //# in the Authenticate Schema,
@@ -620,7 +615,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //= type=implication
-    //# - For every Attribute in the [input DynamoDB Item](#dynamodb-item)
+    //# - For every Attribute in the [input DynamoDB Item](#input-dynamodb-item)
     //# that is in the [signature scope](#signature-scope),
     //# there MUST exist a [SIGN Authenticate Action](../structured-encryption/structures.md#sign)
     //# in the Authenticate Schema,
@@ -936,19 +931,19 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   method {:vcs_split_on_every_assert} DecryptItem(config: InternalConfig, input: DecryptItemInput)
     returns (output: Result<DecryptItemOutput, Error>)
 
-    //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item
+    //= specification/dynamodb-encryption-client/decrypt-item.md#input-dynamodb-item
     //= type=implication
     //# This item MUST include an Attribute with a name that matches the
     //# [DynamoDB Partition Key Name](./ddb-table-encryption-config.md#dynamodb-partition-key-name)
     //# configured on the [DynamoDB Item Encryptor](./ddb-item-encryptor.md).
     ensures output.Success? ==> config.partitionKeyName in input.encryptedItem
 
-    //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item
+    //= specification/dynamodb-encryption-client/decrypt-item.md#input-dynamodb-item
     //= type=implication
     //# Otherwise this operation MUST yield an error.
     ensures config.partitionKeyName !in input.encryptedItem ==> output.Failure?
 
-    //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item
+    //= specification/dynamodb-encryption-client/decrypt-item.md#input-dynamodb-item
     //= type=implication
     //# If the [DynamoDB Item Encryptor](./ddb-item-encryptor.md)
     //# has a [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name) configured,

@@ -127,8 +127,8 @@ structure EncryptPathStructureInput {
 //= specification/structured-encryption/encrypt-structure.md#output
 //= type=implication
 //# This operation MUST output the following:
-//# - [Encrypted Structured Data](#encrypted-structured-data)
-//# - [Crypto Schema](./header.md#encrypt-legend): The Crypto Schema for each signed Terminal
+//# - [Encrypted Structured Data](encrypt-path-structure.md#encrypted-structured-data)
+//# - [Crypto Schema](./structures.md#crypto-schema): The Crypto Schema for each signed Terminal
 //# - [Parsed Header](./decrypt-structure.md#parsed-header)
 structure EncryptStructureOutput {
     @required
@@ -200,10 +200,10 @@ structure DecryptPathStructureInput {
 //= specification/structured-encryption/decrypt-structure.md#output
 //= type=implication
 //# This operation MUST output the following:
-//# - [Structured Data](#structured-data)
+//# - [Structured Data](decrypt-path-structure.md#structured-data)
 //# - [Crypto Schema](./structures.md#crypto-schema): The Crypto Schema for each signed Terminal,
 //#   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
-//# - [Parsed Header](#parsed-header)
+//# - [Parsed Header](decrypt-path-structure.md#parsed-header)
 structure DecryptStructureOutput {
     @required
     plaintextStructure: StructuredDataMap,

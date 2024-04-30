@@ -58,9 +58,9 @@ This operation MUST output the following:
 
 This operation MUST also output a [Parsed Header](#parsed-header) if the following is true:
 - The operation is not using a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) that allows legacy decrypts,
-  and the input item is a [legacy item](#determining-legacy-items).
+  and the input item is a [legacy item](./decrypt-item.md#determining-legacy-items).
 - The operation is not using a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) that allows plaintext reads,
-  and the input item is a [plaintext item](#determining-plaintext-items).
+  and the input item is a [plaintext item](./decrypt-item.md#determining-plaintext-items).
 
 ### Encrypted DynamoDB Item
 
@@ -77,7 +77,6 @@ representing the deserialized form of the header of the input encrypted structur
   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the structure,
   converted into Attribute Actions.
 - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
-
 
 ## Behavior
 
@@ -146,14 +145,14 @@ A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 
 The DynamoDB Item Base Context MUST contain:
-  - the key "aws-crypto-table-name" with a value equal to the configured
+- the key "aws-crypto-table-name" with a value equal to the configured
   [logical table name](./ddb-table-encryption-config.md#logical-table-name).
-  - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
-  - the [value](#base-context-value-version-1) of the Partition Key.
+- the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
+- the [value](#base-context-value-version-1) of the Partition Key.
 
 If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
-  - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
-  - the [value](#base-context-value-version-1) of the Sort Key.
+- the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name).
+- the [value](#base-context-value-version-1) of the Sort Key.
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
@@ -164,22 +163,20 @@ A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 
 The DynamoDB Item Base Context MUST contain:
-  - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
+- the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
     this item is stored in (or will be stored in).
-  - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
+- the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
 
 If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
-  - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](#dynamodb-sort-key-name).
+- the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name).
 
 If this item does not have a sort key attribute,
 the DynamoDB Item Context MUST NOT contain the key `aws-crypto-sort-name`.
 
-
 #### Base Context Value Version 1
 
-The key MUST be the following concatenation,
-where `attributeName` is the name of the attribute:
-"aws-crypto-attr." + `attributeName`.
+The key MUST be as per [Encryption Context Naming]
+(../structured-encryption/encrypt-path-structure.md#encryption-context-naming).
 
 The value MUST be the UTF8 Encoding of the
 [Base 64 encoded](https://www.rfc-editor.org/rfc/rfc4648),
@@ -190,9 +187,8 @@ and `serializedValue` is the attribute's value serialized according to
 
 #### Base Context Value Version 2
 
-The key MUST be the following concatenation,
-where `attributeName` is the name of the attribute:
-"aws-crypto-attr." + `attributeName`.
+The key MUST be as per [Encryption Context Naming]
+(../structured-encryption/encrypt-path-structure.md#encryption-context-naming).
 
 The value MUST be :
 - If the type is Number or String, the unaltered (already utf8) bytes of the value

@@ -42,7 +42,6 @@ Structures defined in this document:
 - [Encrypt Action](#encrypt-action)
 - [Encryption Context](#encryption-context)
 - [Structured Data](#structured-data)
-- [Structured Data Attributes](#structured-data-attributes)
 - [Terminal Data](#terminal-data)
 - [Path Segment](#path-segment)
 - [Path](#path)
@@ -50,7 +49,6 @@ Structures defined in this document:
 - [Crypto List](#crypto-list)
 - [Auth Item](#auth-item)
 - [Auth List](#auth-list)
-
 
 ### Authenticate Action
 
@@ -100,13 +98,13 @@ ENCRYPT_AND_SIGN indicates that the following actions apply to a [Terminal Data]
 ##### SIGN_ONLY
 
 SIGN_ONLY indicates that the following actions apply to a [Terminal Data](#terminal-data):
-- [DO_NOT_ENCRYPT](#donotencrypt)
+- [DO_NOT_ENCRYPT](#do_not_encrypt)
 - [SIGN](#sign)
 
 ##### SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
 
 SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT indicates that the following actions apply to a [Terminal Data](#terminal-data):
-- [DO_NOT_ENCRYPT](#donotencrypt)
+- [DO_NOT_ENCRYPT](#do_not_encrypt)
 - [SIGN](#sign)
 
 and further that the [Terminal Data](#terminal-data) MUST be included in the encryption context.
@@ -114,8 +112,8 @@ and further that the [Terminal Data](#terminal-data) MUST be included in the enc
 ##### DO_NOTHING
 
 DO_NOTHING indicates that the following actions apply to a [Terminal Data](#terminal-data):
-- [DO_NOT_ENCRYPT](#donotencrypt)
-- [DO_NOT_SIGN](#donotsign)
+- [DO_NOT_ENCRYPT](#do_not_encrypt)
+- [DO_NOT_SIGN](#do_not_sign)
 
 ### Crypto Schema
 
@@ -165,7 +163,7 @@ Structured Data is expressed as a [Structured Data Map](#structured-data-map)
 
 A Structured Data Map MUST consist of:
 - A map strings to [Terminal Data](#terminal-data)
-  - This map MUST NOT allow duplicate key values 
+  - This map MUST NOT allow duplicate key values
 
 ### Terminal Data
 
@@ -204,9 +202,9 @@ A path is a sequence of [path segments](#path-segment) that refer to a location 
 ### Crypto Item
 
 A crypto item MUST consist of
- - a [Path](#path)
- - a [Crypto Action](#crypto-action)
- - a [Terminal Data](#terminal-data)
+- a [Path](#path)
+- a [Crypto Action](#crypto-action)
+- a [Terminal Data](#terminal-data)
 
 and indicates that this data exists at this location, and should be handled with this action.
 
@@ -217,9 +215,9 @@ A crypto list MUST be a sequence of [crypto item](#crypto-item)
 ### Auth Item
 
 An auth item MUST consist of
- - a [Path](#path)
- - an [Authenticate Action](#authenticate-action)
- - a [Terminal Data](#terminal-data)
+- a [Path](#path)
+- an [Authenticate Action](#authenticate-action)
+- a [Terminal Data](#terminal-data)
 
 and indicates that this data exists at this location, and should be handled with this action.
 

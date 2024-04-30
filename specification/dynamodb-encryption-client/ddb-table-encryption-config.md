@@ -110,7 +110,7 @@ This Sort Key Name MUST be a valid DynamoDB Key Schema Attribute Name
 
 ### Configuration Version
 
-If any of the [Attribute Actions](#attribute-actions) are configured as 
+If any of the [Attribute Actions](#attribute-actions) are configured as
 [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT](../structured-encryption/structures.md#contextandsign)
 then the configuration version MUST be 2; otherwise,
 the configuration version MUST be 1.

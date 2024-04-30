@@ -425,16 +425,25 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   method {:vcs_split_on_every_assert} GetV2EncryptionContext2(fields : CryptoList)
     returns (output : Result<CMP.EncryptionContext, Error>)
   {
-    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2
-    //# The key MUST be the following concatenation,
-    //# where `attributeName` is the name of the attribute:
-    //# "aws-crypto-attr." + `attributeName`.
     var fieldMap : map<ValidUTF8Bytes, Path> := map[];
     for i := 0 to |fields|
-      // invariant forall k <- fieldMap :: fieldMap[k] in record
     {
-      var utf8Value :- UTF8.Encode(ATTR_PREFIX + Paths.PathToString(fields[i].key)).MapFailure(e =>E(e));
-      // To Be Done - check for duplicates
+      //= specification/structured-encryption/encrypt-path-structure.md#encryption-context-naming
+      //# When a key-value pair is added to the encryption context,
+      //# the key MUST be the concatenation of the literal
+      //# "aws-crypto-attr." and the member strings of the
+      //# path joined by the '.' character.
+      var keyVal := ATTR_PREFIX + Paths.PathToString(fields[i].key);
+
+      var utf8Value :- UTF8.Encode(keyVal).MapFailure(e =>E(e));
+
+      //= specification/structured-encryption/encrypt-path-structure.md#encryption-context-naming
+      //# An error MUST be returned if an attempt is made to add two
+      //# different attributes that produce the same encryption context key.
+      if utf8Value in fieldMap {
+        return Failure(E(keyVal + " appears twice in encryption context."));
+      }
+
       fieldMap := fieldMap[utf8Value := fields[i].key];
     }
     var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(fieldMap.Keys, ByteLess);
@@ -588,14 +597,14 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     //= specification/structured-encryption/encrypt-structure.md#behavior
     //= type=implication
-    //# The input [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+    //# The input [Structured Data](encrypt-path-structure.md#structured-data) and [Crypto Schema](encrypt-path-structure.md#crypto-schema)
     //# MUST refer to the same set of locations.
     :- Need(input.plaintextStructure.Keys == input.cryptoSchema.Keys, E("Crypto Keys don't match."));
 
     //= specification/structured-encryption/encrypt-structure.md#behavior
     //= type=implication
-    //# The input [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
-    //# MUST be combined into a single [Crypto List](#crypto-list).
+    //# The input [Structured Data](encrypt-path-structure.md#structured-data) and [Crypto Schema](encrypt-path-structure.md#crypto-schema)
+    //# MUST be combined into a single [Crypto List](encrypt-path-structure.md#crypto-list).
     var cryptoMap :- BuildCryptoMap(input.plaintextStructure, input.cryptoSchema);
 
     var pathInput := EncryptPathStructureInput(
@@ -608,13 +617,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
     //= specification/structured-encryption/encrypt-structure.md#behavior
     //= type=implication
-    //# Encrypt Structure MUST then behave as [Encrypt Path Structure](#encrypt-path-structure)
+    //# Encrypt Structure MUST then behave as [Encrypt Path Structure](encrypt-path-structure.md)
     var pathOutput :- EncryptPathStructure(config, pathInput);
 
     //= specification/structured-encryption/encrypt-structure.md#behavior
     //= type=implication
-    //# The output [Crypto List](#crypto-list) produced by [Encrypt Path Structure](#decrypt-path-structure)
-    //# MUST be split into [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+    //# The output [Crypto List](encrypt-path-structure.md#crypto-list) produced by [Encrypt Path Structure](encrypt-path-structure.md)
+    //# MUST be split into [Structured Data](encrypt-path-structure.md#structured-data) and [Crypto Schema](encrypt-path-structure.md#crypto-schema)
     //# maps.
     var parts :- UnBuildCryptoMap(pathOutput.encryptedStructure);
     var plainOutput := EncryptStructureOutput(
@@ -685,7 +694,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
         //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
         //= type=implication
-        //# If the [Crypto Schema](#crypto-schema)
+        //# If the [Crypto Schema](#crypto-list)
         //# indicates a [Crypto Action](./structures.md#crypto-action)
         //# of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign),
         //# the Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
@@ -934,14 +943,14 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     //= specification/structured-encryption/decrypt-structure.md#behavior
     //= type=implication
-    //# The input [Structured Data](#structured-data) and [Authenticate Schema](#authenticate-schema)
+    //# The input [Structured Data](decrypt-path-structure.md#structured-data) and [Authenticate Schema](decrypt-path-structure.md#authenticate-schema)
     //# MUST refer to the same set of locations.
     :- Need(input.encryptedStructure.Keys == input.authenticateSchema.Keys, E("DecryptStructure requires encryptedStructure and authenticateSchema have the same keys."));
 
     //= specification/structured-encryption/decrypt-structure.md#behavior
     //= type=implication
-    //# The input [Structured Data](#structured-data) and [Authenticate Schema](#authenticate-schema)
-    //# MUST be combined into a single [Auth List](#auth-list).
+    //# The input [Structured Data](decrypt-path-structure.md#structured-data) and [Authenticate Schema](decrypt-path-structure.md#authenticate-schema)
+    //# MUST be combined into a single [Auth List](decrypt-path-structure.md#auth-list).
     var cryptoMap :- BuildAuthMap(input.encryptedStructure, input.authenticateSchema);
 
     var pathInput := DecryptPathStructureInput(
@@ -953,13 +962,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
     //= specification/structured-encryption/decrypt-structure.md#behavior
     //= type=implication
-    //# Decrypt Structure MUST then behave as [Decrypt Path Structure](#decrypt-path-structure)
+    //# Decrypt Structure MUST then behave as [Decrypt Path Structure](decrypt-path-structure.md)
     var pathOutput :- DecryptPathStructure(config, pathInput);
 
     //= specification/structured-encryption/decrypt-structure.md#behavior
     //= type=implication
-    //# The output [Crypto List](#crypto-list) produced by [Decrypt Path Structure](#decrypt-path-structure)
-    //# MUST be split into [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+    //# The output [Crypto List](decrypt-path-structure.md#crypto-list) produced by [Decrypt Path Structure](decrypt-path-structure.md)
+    //# MUST be split into [Structured Data](decrypt-path-structure.md#structured-data) and [Crypto Schema](decrypt-path-structure.md#crypto-schema)
     //# maps.
     var parts :- UnBuildCryptoMap(pathOutput.plaintextStructure);
     var plainOutput := DecryptStructureOutput(
@@ -978,9 +987,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
               //= specification/structured-encryption/decrypt-path-structure.md#parse-the-header
               //= type=implication
-              //# Given the [input Structured Data](#structured-data),
+              //# Given the [input data](#auth-list),
               //# this operation MUST access the [Terminal Data](./structures.md#terminal-data)
-              //# at the "aws_dbe_head"
+              //# at "aws_dbe_head".
 
               //= specification/structured-encryption/decrypt-path-structure.md#auth-list
               //= type=implication

@@ -259,11 +259,6 @@ module DynamoDbItemEncryptorTest {
     expect "aws-crypto-public-key" in strEC.Keys;
     strEC := strEC - {"aws-crypto-public-key"};
 
-    //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2
-    //= type=test
-    //# The key MUST be the following concatenation,
-    //# where `attributeName` is the name of the attribute:
-    //# "aws-crypto-attr." + `attributeName`.
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2
     //= type=test

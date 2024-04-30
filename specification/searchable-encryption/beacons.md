@@ -18,17 +18,21 @@ using truncation to provide some basic privacy protections.
 ### Definitions
 
 #### virtual field
+
 A [virtual field](virtual.md) is a string computed from parts of a record.
 
 #### virtual database field
+
 A `virtual database field` is a string computed from fields and virtual fields,
 from which a [compound beacon](#compound-beacon) is constructed.
 
 #### Real Field
+
 A `real field` is a field that was placed in the record by the customer,
 rather than being generated.
 
 #### Source Field
+
 A `source field` is a [real field](#real-field) used to construct
 a [virtual field](#virtual-field) or [virtual database field](#virtual-database-field).
 
@@ -175,8 +179,8 @@ Every constructor must contain at least one required field.
 
 An example list of constructors might be :
 
- - Person : timestamp(required) social(optional) zipcode(required)
- - Location : address(required) zipcode(required)
+- Person : timestamp(required) social(optional) zipcode(required)
+- Location : address(required) zipcode(required)
 
 A constructor `succeeds` if all its required [source fields](#source-field) exist in the record.
 
@@ -198,16 +202,16 @@ with parts separated by the `split character`.
 
 For example, the above configuration might result in [virtual database fields](#virtual-database-field) that look like this :
 
- - T-20221225.S-123-45-6789.Z-12345
- - A-1234 Main Street.Z-23456
+- T-20221225.S-123-45-6789.Z-12345
+- A-1234 Main Street.Z-23456
 
 These [virtual database field](#virtual-database-field) are never written to the database, or even fully assembled.
 But this is what the customer must imagine.
 
 Encrypted values are then replaced with the appropriate beacon. For example
 
- - T-20221225.S-abcdef.Z-7abc
- - A-3ab.Z-edc3
+- T-20221225.S-abcdef.Z-7abc
+- A-3ab.Z-edc3
 
 Which is then stored in the database, with a field name of `aws_dbe_b_MyField`.
 
@@ -216,8 +220,8 @@ Which is then stored in the database, with a field name of `aws_dbe_b_MyField`.
 At query time, the customer uses MyField in a query as if it were the full
 [virtual database field](#virtual-database-field), for example :
 
- * MyField starts_with("A-")
- * MyField contains("Z-12345")
+- MyField starts_with("A-")
+- MyField contains("Z-12345")
 
 The onus is on the customer to properly re-create the results of all of the above configuration.
 
@@ -255,9 +259,9 @@ The beacon value MUST be stored as `NAME`, rather than the usual `aws_dbe_b_NAME
 
 This has certain implications.
 
- * `NAME` can be used as a primary table key.
- * `NAME` will not be stripped out of records returned from Query or GetItem.
- * `NAME` is allowed to appear in a record to be written.
+- `NAME` can be used as a primary table key.
+- `NAME` will not be stripped out of records returned from Query or GetItem.
+- `NAME` is allowed to appear in a record to be written.
 
 Initialization MUST fail if `NAME` is explicitly configured with an
 [attribute actions](../dynamodb-encryption-client/ddb-item-encryptor.md#attribute-actions) or
@@ -276,32 +280,31 @@ then the write must fail if the constructed and supplied values are not equal.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
 in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
-
 ### Standard Beacon Initialization
 
 On initialization of a Standard Beacon, the caller MUST provide:
 
- * A name -- a string
- * A `length` -- a [beacon length](#beacon-length)
+- A name -- a string
+- A `length` -- a [beacon length](#beacon-length)
 
  On initialization of a Standard Beacon, the caller MAY provide:
 
- * a [terminal location](virtual.md#terminal-location) -- a string
- * a [beacon style](beacon-style-initialization)
+- a [terminal location](virtual.md#terminal-location) -- a string
+- a [beacon style](beacon-style-initialization)
 
 If no [terminal location](virtual.md#terminal-location) is provided,
 the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 Initialization MUST fail if two standard beacons are configured with the same location.
 
- ### Beacon Style Initialization
+### Beacon Style Initialization
 
 On initialization of a Beacon Style, the caller MUST provide exactly one of
 
- * a [PartOnly](#partonly-initialization)
- * a [Shared](#shared-initialization)
- * an [AsSet](#asset-initialization)
- * a [SharedSet](#sharedset-initialization)
+- a [PartOnly](#partonly-initialization)
+- a [Shared](#shared-initialization)
+- an [AsSet](#asset-initialization)
+- a [SharedSet](#sharedset-initialization)
 
 ### PartOnly Initialization
 
@@ -319,17 +322,17 @@ A query MUST fail if it tries to search on a PartOnly beacon directly.
 On initialization of as AsSet, the caller MUST NOT provide any
 additional parameters to the AsSet.
 
-* initialization MUST fail if any compound beacon has an AsSet beacon as a part.
-* Writing an item MUST fail if the item contains this beacon's attribute,
+- initialization MUST fail if any compound beacon has an AsSet beacon as a part.
+- Writing an item MUST fail if the item contains this beacon's attribute,
 and that attribute is not of type Set.
-* The Standard Beacon MUST be stored in the item as a Set,
+- The Standard Beacon MUST be stored in the item as a Set,
 comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
 
 ### Shared Initialization
 
 On initialization of a Shared, the caller MUST provide:
 
-* other : a beacon name
+- other : a beacon name
 
 This name MUST be the name of a previously defined Standard Beacon.
 
@@ -341,34 +344,33 @@ This beacon MUST calculate its [value](#beacon-value) as if it were the `other` 
 
 On initialization of a SharedSet, the caller MUST provide:
 
-* other : a beacon name
+- other : a beacon name
 
 A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
-
 
 ### Compound Beacon Initialization
 
 On initialization of a Compound Beacon, the caller MUST provide:
 
- * A name -- a string
- * A split character -- a character
+- A name -- a string
+- A split character -- a character
 
  On initialization of a Compound Beacon, the caller MAY provide:
 
- * A list of [encrypted parts](#encrypted-part-initialization)
- * A list of [signed parts](#signed-part-initialization)
- * A list of constructors
+- A list of [encrypted parts](#encrypted-part-initialization)
+- A list of [signed parts](#signed-part-initialization)
+- A list of constructors
 
 #### Signed Part Initialization
 
 On initialization of a [signed part](#signed-part-initialization), the caller MUST provide:
 
- * A name -- a string
- * A prefix -- a string
+- A name -- a string
+- A prefix -- a string
 
 On initialization of a [signed parts](#signed-part-initialization), the caller MAY provide:
 
- * A [terminal location](virtual.md#terminal-location) -- a string
+- A [terminal location](virtual.md#terminal-location) -- a string
 
 If no [terminal location](virtual.md#terminal-location) is provided,
 the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
@@ -377,21 +379,21 @@ the `name` MUST be used as the [terminal location](virtual.md#terminal-location)
 
 On initialization of a [encrypted part](#encrypted-part-initialization), the caller MUST provide:
 
- * A name -- a string, the name of a standard beacon
- * A prefix -- a string
+- A name -- a string, the name of a standard beacon
+- A prefix -- a string
 
 #### Constructor Initialization
 
 On initialization of a constructor, the caller MUST provide:
 
- * A non-empty list of [Constructor parts](#constructor-part-initialization)
+- A non-empty list of [Constructor parts](#constructor-part-initialization)
 
 #### Constructor Part Initialization
 
 On initialization of a constructor part, the caller MUST provide:
 
- * A name -- a string
- * A required flag -- a boolean
+- A name -- a string
+- A required flag -- a boolean
 
 This name MUST match the name of one of the [encrypted](#encrypted-part-initialization) or [signed](#signed-part-initialization) parts.
 
@@ -400,10 +402,10 @@ These parts may come from these locally defined parts lists, or from the
 
 ### Default Construction
 
-* If no constructors are configured, a default constructor MUST be generated.
-* This default constructor MUST be all of the signed parts,
+- If no constructors are configured, a default constructor MUST be generated.
+- This default constructor MUST be all of the signed parts,
 followed by all the encrypted parts, all parts being required.
-* Initialization MUST fail if no constructors are configured, and no local parts are configured.
+- Initialization MUST fail if no constructors are configured, and no local parts are configured.
 
 ### Part
 
@@ -417,13 +419,13 @@ the `prefix` of any other [part](#part).
 Initialization MUST fail if any [signed-part](#signed-part-initialization) contains
 anything but SIGN_ONLY fields.
 
-Initialization MUST fail if any [constructor](#constructor) is configured with a field name
+Initialization MUST fail if any [constructor](#constructor-initialization) is configured with a field name
 that is not a defined [part](#part).
 
-Initialization MUST fail if any [constructor](#constructor) is configured without at least one
+Initialization MUST fail if any [constructor](#constructor-initialization) is configured without at least one
 required part.
 
-Initialization MUST fail if two [constructors](#constructor) are configured
+Initialization MUST fail if two [constructors](#constructor-initialization) are configured
 with the same set of required parts.
 
 ### Beacon Value
@@ -435,76 +437,81 @@ or [value for a compound beacon](#value-for-a-compound-beacon).
 ## Beacon Operations
 
 Both standard and compound beacons define two operations
- * [hash](#hash) - turn a plaintext record into a beacon
- * [getPart](#getpart) - turn a plaintext query string into a beacon
+- hash - turn a plaintext record into a beacon
+- getPart - turn a plaintext query string into a beacon
 
 ### basicHash
- * basicHash MUST take an [hmac key](./search-config.md#hmac-key-generation), a [beacon length](#beacon-length) and a sequence of bytes as input.
- * basicHash MUST produce a non-empty string as output.
- * basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
+
+- basicHash MUST take an [hmac key](./search-config.md#hmac-key-generation), a [beacon length](#beacon-length) and a sequence of bytes as input.
+- basicHash MUST produce a non-empty string as output.
+- basicHash MUST calculate the [HmacSha384](https://www.ietf.org/rfc/rfc2104.txt)
 of the input bytes and the [hmac key](./search-config.md#hmac-key-generation), and keep the first 8 bytes.
- * basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
- * the length of the returned string MUST be (`beacon length`/4) rounded up.
+- basicHash MUST return the rightmost [beacon length](#beacon-length) bits of these 8 bytes as a hexadecimal string.
+- the length of the returned string MUST be (`beacon length`/4) rounded up.
 
 ### string hash
- * string hash MUST take a string and some [key materials](./search-config.md#get-beacon-key-materials)
+
+- string hash MUST take a string and some [key materials](./search-config.md#get-beacon-key-materials)
 as input, and produce a string as output.
- * string hash MUST return the [basic hash](#basichash) of the UTF8 representation
+- string hash MUST return the [basic hash](#basichash) of the UTF8 representation
 of the input string, the HMAC key from the [key materials](./search-config.md#get-beacon-key-materials)
 associated with this beacon, and the beacon length associated with this beacon.
 
 ### value for a standard beacon
- * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html).
- * This operation MUST return no value if the associated field does not exist in the record
- * If this beacon is marked AsSet then this operation MUST return the
+
+- This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html).
+- This operation MUST return no value if the associated field does not exist in the record
+- If this beacon is marked AsSet then this operation MUST return the
  [set value](#value-for-a-set-standard-beacon),
 otherwise it MUST return the [non-set value](#value-for-a-non-set-standard-beacon)
 
 ### value for a non-set standard beacon
- * This operation MUST convert the attribute value of the associated field to
+
+- This operation MUST convert the attribute value of the associated field to
 a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
- * This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
- * The returned
+- This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
+- The returned
 [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
 MUST be type "S" String.
 
 ### value for a set standard beacon
- * This operation MUST convert the value of each item in the set to
+
+- This operation MUST convert the value of each item in the set to
 a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
- * This operation MUST return a set containing the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
- * The resulting set MUST NOT contain duplicates.
- * The returned
+- This operation MUST return a set containing the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
+- The resulting set MUST NOT contain duplicates.
+- The returned
 [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
 MUST be type "SS" StringSet.
 
 ### value for a compound beacon
 
- * This operation MUST take a record as input, and produce an optional string.
- * If a string is returned, it MUST NOT be empty.
- * This operation MUST iterate through all constructors, in order, using the first that succeeds.
- * For that constructor, hash MUST join the [part value](#part-value) for each part
+- This operation MUST take a record as input, and produce an optional string.
+- If a string is returned, it MUST NOT be empty.
+- This operation MUST iterate through all constructors, in order, using the first that succeeds.
+- For that constructor, hash MUST join the [part value](#part-value) for each part
 on the `split character`,
 excluding parts that are not required and with a source field that is not available.
- * This operation MUST fail if any plaintext value used in the construction contains the split character.
- * If no constructor succeeds, this operation MUST return no value.
+- This operation MUST fail if any plaintext value used in the construction contains the split character.
+- If no constructor succeeds, this operation MUST return no value.
 
 ### getPart for a standard beacon
 
- * getPart MUST take an [hmac key](./search-config.md#hmac-key-generation), a sequence of bytes as input, and produce a string.
- * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
+- getPart MUST take an [hmac key](./search-config.md#hmac-key-generation), a sequence of bytes as input, and produce a string.
+- getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
 
 ### getPart for a compound beacon
 
- * getPart MUST take a string as input and produce a string.
- * The returned string MUST NOT be empty.
- * The string MUST be split on the `split character` into pieces.
- * For each piece, a [part](#part) MUST be identified
+- getPart MUST take a string as input and produce a string.
+- The returned string MUST NOT be empty.
+- The string MUST be split on the `split character` into pieces.
+- For each piece, a [part](#part) MUST be identified
  by matching the prefix of a [part](#part)
 to the beginning of the piece.
- * If no such part exists, this operation MUST fail.
- * The [Part Value](#part-value-calculation) MUST be calculated for each piece,
+- If no such part exists, this operation MUST fail.
+- The [Part Value](#part-value-calculation) MUST be calculated for each piece,
 using the prefix and length from the discovered part.
- * The value returned MUST be these part values, joined with the `split character`.
+- The value returned MUST be these part values, joined with the `split character`.
 
 ### Part Value
 

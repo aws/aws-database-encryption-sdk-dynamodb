@@ -28,8 +28,8 @@ contain virtual field values.
 
 On initialization of a Virtual Field, the caller MUST provide:
 
- * A name -- a string
- * A list of [Virtual Parts](#virtual-part-initialization)
+- A name -- a string
+- A list of [Virtual Parts](#virtual-part-initialization)
 
 The evaluation of a Virtual Field MUST be the concatenation of all of its parts,
 in the order they are configured.
@@ -43,11 +43,11 @@ and also a [standard beacon](beacons.md#standard-beacon) is defined with that sa
 
 On initialization of a Virtual Part, the caller MUST provide:
 
- * A location -- a [Terminal Location](#terminal-location)
+- A location -- a [Terminal Location](#terminal-location)
 
  On initialization of a Virtual Part, the caller MAY provide:
 
- * A list of [Virtual Transforms](#virtual-transform-initialization)
+- A list of [Virtual Transforms](#virtual-transform-initialization)
 
 The evaluation of a Virtual Part MUST be the value of its location,
 which is then transformed by each Virtual Transform,
@@ -56,18 +56,18 @@ in the order they are configured.
 Evaluation MUST return no value if the location does not exist,
 or is not a plain string value.
 
- ### Virtual Transform Initialization
+### Virtual Transform Initialization
 
 On initialization of a Virtual Transform, the caller MUST provide exactly one of
 
- * an [Upper](#upper-transform-initialization) transform
- * a [Lower](#lower-transform-initialization) transform
- * an [Insert](#insert-transform-initialization) transform
- * a [GetPrefix](#getprefix-transform-initialization) transform
- * a [GetSuffix](#getsuffix-transform-initialization) transform
- * a [GetSubstring](#getsubstring-transform-initialization) transform
- * a [GetSegment](#getsegment-transform-initialization) transform
- * a [GetSegments](#getsegments-transform-initialization) transform
+- an [Upper](#upper-transform-initialization) transform
+- a [Lower](#lower-transform-initialization) transform
+- an [Insert](#insert-transform-initialization) transform
+- a [GetPrefix](#getprefix-transform-initialization) transform
+- a [GetSuffix](#getsuffix-transform-initialization) transform
+- a [GetSubstring](#getsubstring-transform-initialization) transform
+- a [GetSegment](#getsegment-transform-initialization) transform
+- a [GetSegments](#getsegments-transform-initialization) transform
 
 All transforms take a string as input and produce a string as output.
 
@@ -76,20 +76,20 @@ All transforms take a string as input and produce a string as output.
 On initialization of an Upper Transform, the caller MUST NOT provide any
 additional parameters to the Upper Transform.
 
-The Upper transform MUST convert all ascii lowercase characters into their uppercase equivalents. 
+The Upper transform MUST convert all ascii lowercase characters into their uppercase equivalents.
 
 ### Lower Transform Initialization
 
 On initialization of a Lower Transform, the caller MUST NOT provide any
 additional parameters to the Lower Transform.
 
-The Lower transform MUST convert all ascii uppercase characters into their lowercase equivalents. 
+The Lower transform MUST convert all ascii uppercase characters into their lowercase equivalents.
 
 ### Insert Transform Initialization
 
 On initialization of an Insert Transform, the caller MUST provide:
 
-* a literal string
+- a literal string
 
 The Insert transform MUST append this string to its input
 
@@ -97,7 +97,7 @@ The Insert transform MUST append this string to its input
 
 On initialization of a GetPrefix Transform, the caller MUST provide:
 
- * length : an integer
+- length : an integer
 
 If length is non-negative, the GetPrefix transform MUST return the first `length` characters of the input.
 
@@ -109,12 +109,11 @@ all but the last `-length` character of the input.
 If length is negative and -length exceeds the length on the input,
 the empty string MUST be returned.
 
-
 ### GetSuffix Transform Initialization
 
 On initialization of a GetSuffix Transform, the caller MUST provide:
 
- * length : an integer
+- length : an integer
 
 If length is non-negative, the GetSuffix transform MUST return the last `length` characters of the input.
 
@@ -141,8 +140,8 @@ Positions are always clamped to the bounds of the list. That is `-999999999` ref
 
 On initialization of a GetSubstring Transform, the caller MUST provide:
 
- * low : an integer [position](#position-definition)
- * high : an integer [position](#position-definition)
+- low : an integer [position](#position-definition)
+- high : an integer [position](#position-definition)
 
 The GetSubstring transform MUST return the range of characters
 from low (inclusive) to high (exclusive)
@@ -153,8 +152,8 @@ If high is less than or equal to low, an empty string is returned.
 
 On initialization of a GetSegment Transform, the caller MUST provide:
 
- * split : an character
- * index : an integer [position](#position-definition)
+- split : an character
+- index : an integer [position](#position-definition)
 
 The GetSegment transform MUST split the input string on the given character,
 and return the item in the resulting list the corresponds to the given position.
@@ -165,9 +164,9 @@ If index is greater than the number of items in the list, an empty string MUST b
 
 On initialization of a GetSegments Transform, the caller MUST provide:
 
- * split : an character
- * low : an integer [position](#position-definition)
- * high : an integer [position](#position-definition)
+- split : an character
+- low : an integer [position](#position-definition)
+- high : an integer [position](#position-definition)
 
 The GetSegments transform MUST split the input string on the `split` character.
 
@@ -189,6 +188,6 @@ the first one of which must be a string index.
 
 A Segment MUST be one of
 
- - A literal "." followed by a field name, indicating a lookup into a Structured Data Map.
- - A literal "[" followed by a decimal integer followed by a literal "]",
+- A literal "." followed by a field name, indicating a lookup into a Structured Data Map.
+- A literal "[" followed by a decimal integer followed by a literal "]",
 indicating an index into a  Structured Data List.

@@ -194,7 +194,7 @@ structure EncryptItemOutput {
 //= specification/dynamodb-encryption-client/decrypt-item.md#input
 //= type=implication
 //# The following inputs to this behavior are REQUIRED:
-//# - DynamoDB Item
+//# - [DynamoDb Item](#input-dynamodb-item)
 @javadoc("Inputs for decrypting a DynamoDB Item.")
 structure DecryptItemInput {
     @required
@@ -207,7 +207,7 @@ structure DecryptItemOutput {
     //= specification/dynamodb-encryption-client/decrypt-item.md#output
     //= type=implication
     //# This operation MUST output the following:
-    //#   - [DynamoDb Item](#dynamodb-item-1)
+    //#   - [DynamoDb Item](#output-dynamodb-item)
     @required
     @javadoc("The decrypted DynamoDB item.")
     plaintextItem: AttributeMap,

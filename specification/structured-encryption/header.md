@@ -24,7 +24,7 @@ The Partial Header MUST be
 | Variable | [Encryption Context](#encryption-context) |
 | Variable | [Encrypted Data Keys](#encrypted-data-keys) |
 
-### Header Value
+### Full Header Value
 
 The value of the header MUST be
 
@@ -231,7 +231,7 @@ The Header Commitment MUST be calculated as a the first 32 bytes of an HmacSha38
 with the serialized partial header as the message, and the Commit Key as the key.
 For example
 
-```
+```python
 def GetHeaderCommitment(Header, CommitKey):
     # Truncate to 256 bits (32 bytes; returning only the leftmost bits)
     return HmacSha384(Header, CommitKey)[0:32]
@@ -249,11 +249,10 @@ compare it to the stored [Header Commitment](#header-commitment).
 
 Header commitment comparisons MUST be constant time operations.
 
-## Notes 
+## Notes
 
 While the Header Commitment does
 produce a distinct 256-bit hash output per header and commitment key,
 it does not provide any integrity guarantees over the encrypted attributes.
 Integrity over the encrypted attributes is ensured by the signatures in the
-[footer](#footer.md).
-
+[footer](footer.md).

@@ -198,7 +198,7 @@ module StructuredEncryptionHeader {
               && CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).Success?
               && ret.value[|ret.value|-COMMITMENT_LEN..] == CalculateHeaderCommitment(client, alg, commitKey, ret.value[..|ret.value|-COMMITMENT_LEN]).value
 
-              //= specification/structured-encryption/header.md#header-value-1
+              //= specification/structured-encryption/header.md#full-header-value
               //= type=implication
               //# The value of the header MUST be
               // | Length (bytes) | Meaning |

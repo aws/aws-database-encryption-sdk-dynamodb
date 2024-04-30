@@ -31,34 +31,33 @@ and confidentiality is ensured over a (possibly empty) subset of that Terminal D
 
 The following inputs to this behavior are REQUIRED:
 
-- [Table Name](#table-name)
-- [Structured Data](#structured-data)
-- [Crypto Schema](#crypto-schema)
-- [Cryptographic Materials Manager (CMM)](#cmm)
+- [Table Name](encrypt-path-structure.md#table-name)
+- [Structured Data](encrypt-path-structure.md#structured-data)
+- [Crypto Schema](encrypt-path-structure.md#crypto-schema)
+- [Cryptographic Materials Manager (CMM)](encrypt-path-structure.md#cmm)
 
 The following inputs to this behavior MUST be OPTIONAL:
 
-- [Algorithm Suite](#algorithm-suite)
-- [Encryption Context](#encryption-context)
+- [Algorithm Suite](encrypt-path-structure.md#algorithm-suite)
+- [Encryption Context](encrypt-path-structure.md#encryption-context)
 
 ## Output
 
 This operation MUST output the following:
-- [Encrypted Structured Data](#encrypted-structured-data)
-- [Crypto Schema](./header.md#encrypt-legend): The Crypto Schema for each signed Terminal
+- [Encrypted Structured Data](encrypt-path-structure.md#encrypted-structured-data)
+- [Crypto Schema](./structures.md#crypto-schema): The Crypto Schema for each signed Terminal
 - [Parsed Header](./decrypt-structure.md#parsed-header)
-
 
 ## Behavior
 
-The input [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+The input [Structured Data](encrypt-path-structure.md#structured-data) and [Crypto Schema](encrypt-path-structure.md#crypto-schema)
 MUST refer to the same set of locations.
 
-The input [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
-MUST be combined into a single [Crypto List](#crypto-list).
+The input [Structured Data](encrypt-path-structure.md#structured-data) and [Crypto Schema](encrypt-path-structure.md#crypto-schema)
+MUST be combined into a single [Crypto List](encrypt-path-structure.md#crypto-list).
 
-Encrypt Structure MUST then behave as [Encrypt Path Structure](#encrypt-path-structure)
+Encrypt Structure MUST then behave as [Encrypt Path Structure](encrypt-path-structure.md)
 
-The output [Crypto List](#crypto-list) produced by [Encrypt Path Structure](#decrypt-path-structure)
-MUST be split into [Structured Data](#structured-data) and [Crypto Schema](#crypto-schema)
+The output [Crypto List](encrypt-path-structure.md#crypto-list) produced by [Encrypt Path Structure](encrypt-path-structure.md)
+MUST be split into [Structured Data](encrypt-path-structure.md#structured-data) and [Crypto Schema](encrypt-path-structure.md#crypto-schema)
 maps.

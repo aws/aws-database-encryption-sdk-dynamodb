@@ -67,13 +67,13 @@ A CMM that implements the [CMM interface](../../submodules/MaterialProviders/aws
 See [encryption context](./structures.md#encryption-context).
 
 In order for decryption to succeed:
-- This MUST include any key-values pairs that were used during the original [encryption](./encrypt-structure.md)
-of the [input Structured Data](#structured-data),
+- This MUST include any key-values pairs that were used during the original [encryption](./encrypt-path-structure.md)
+of the [input data](#auth-list),
 but not stored in the [input Structured Data's header](./header.md#encryption-context).
 - This MAY include any key-values pairs that are stored
 in the [input Structured Data's header](./header.md#encryption-context).
 - This MUST NOT include any key-values pairs that were not
-used during the original [encryption](./encrypt-structure.md) of the [input Structured Data](#structured-data).
+used during the original [encryption](./encrypt-structure.md) of the [input data](#auth-list).
 
 ## Output
 
@@ -112,9 +112,9 @@ If any of these steps fails, this operation MUST halt and indicate a failure to 
 
 ### Parse the Header
 
-Given the [input Structured Data](#structured-data),
+Given the [input data](#auth-list),
 this operation MUST access the [Terminal Data](./structures.md#terminal-data)
-at the "aws_dbe_head"
+at "aws_dbe_head".
 
 The [Terminal Type Id](./structures.md#terminal-type-id) on this Terminal Data MUST be `0xFFFF`.
 We refer to the [Terminal Value](./structures.md#terminal-value)
@@ -126,10 +126,10 @@ according to the [header format](./header.md).
 The header field value MUST be [verified](header.md#commitment-verification)
 
 The below calculations REQUIRE a [Crypto Schema](./structures.md#crypto-schema),
-which is determined based on the input [Authentication Schema](#authenticate-schema) and the
+which is determined based on the input [Authentication Schema](#auth-list) and the
 parsed [Encrypt Legend](./header.md#encrypt-legend) in the header,
 such that for each [Terminal Data](./structures.md#terminal-data)
-in the [input Structured Data](#structured-data):
+in the [input Structured Data](#auth-list):
 - The Crypto Action is [DO_NOTHING](./structures.md#DO_NOTHING) if
   the Authentication Schema indicates [DO_NOT_SIGN](./structures.md#donotsign) for this Terminal Data.
 - The Crypto Action is [SIGN_ONLY](./structures.md#signonly) if
@@ -185,7 +185,6 @@ with the following inputs:
 - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
 - The name of every entry added above.
 
-
 ### Verify Signatures
 
 A footer field MUST exist with the name `aws_dbe_foot`
@@ -199,7 +198,7 @@ Decryption MUST fail immediately if verification fails.
 This operation MUST deserialize the bytes in [Terminal Value](./structures.md#terminal-value)
 according to the [footer format](./footer.md).
 
-The number of [HMACs in the footer](./footer.md#hmacs) 
+The number of [HMACs in the footer](./footer.md#hmacs)
 MUST be the number of [Encrypted Data Keys in the header](./header.md#encrypted-data-keys).
 
 ### Calculate Cipherkey and Nonce

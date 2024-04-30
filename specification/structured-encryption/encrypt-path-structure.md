@@ -125,16 +125,17 @@ This operation MUST call Get Encryption Materials on the CMM as follows.
   [DBE.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 - Max Plaintext Length: This field MUST be the result of the calculation `encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize`
   - `encryptedTerminalDataNum` is the number of [Terminal Data](./structures.md#terminal-data)
-    in the [input Structured Data](#structured-data) being encrypted,
-    as defined by the [input Crypto Schema](#crypto-schema).
+    in the [input data](#crypto-list) being encrypted,
+    as defined by the [input Crypto Schema](#crypto-list).
   - `totalEncryptedTerminalValuesSize` is the sum of the length of all [Terminal Values](./structures.md#terminal-value)
-    in the [input Structured Data](#structured-data) being encrypted,
-    as defined by the [input Crypto Schema](#crypto-schema).
-../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md
+    in the [input data](#crypto-list) being encrypted,
+    as defined by the [input Crypto Schema](#crypto-list).
+
 The algorithm suite used in all aspects of this operation MUST be
 the algorithm suite in the
 [encryption materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#encryption-materials)
 returned from the Get Encryption Materials call.
+
 Note that the algorithm suite in the retrieved encryption materials MAY be different from the input algorithm suite.
 If this algorithm suite is not a
 [supported suite for Database Encryption (DBE)](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum),
@@ -167,6 +168,19 @@ Then, this operation MUST create a [Required Encryption Context CMM](https://git
 with the following inputs:
 - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
 - The name of every entry added above.
+
+#### Encryption Context Naming
+
+When a key-value pair is added to the encryption context,
+the key MUST be the concatenation of the literal
+"aws-crypto-attr." and the member strings of the
+path joined by the '.' character.
+
+This mapping does not produce a unique output for every unique input.
+For example ['a.b'] and ['a', 'b'] both produce "a.b".
+
+An error MUST be returned if an attempt is made to add two
+different attributes that produce the same encryption context key.
 
 ### Calculate Intermediate Encrypted Structured Data
 
@@ -217,7 +231,6 @@ and taking the zero-based position of the field in that sorted list.
 
 The calculated Field Root MUST have length equal to the
   [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
-
 
 The `FieldKeyNonce` for a given offset MUST be 16 bytes comprised of
 | Field         | Length   | Interpretation |
@@ -302,7 +315,7 @@ The Footer Field Value MUST be the serialized [footer](footer.md).
 
 For each entry in the final Encrypted Structured Data:
 
-If the [Crypto Schema](#crypto-schema)
+If the [Crypto Schema](#crypto-list)
 indicates a [Crypto Action](./structures.md#crypto-action)
 of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign),
 the Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
@@ -312,5 +325,3 @@ of the input's Terminal Data.
 
 Otherwise, this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
 and [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
-
-
