@@ -33,7 +33,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import DynamoDbItemEncryptor
 
 
-  const DEFAULT_KEYS := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+  const DEFAULT_KEYS : string := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
 
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
   type ConfigName = string
@@ -298,7 +298,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     var keys :- expect KeyVectors.KeyVectors(
       KeyVectorsTypes.KeyVectorsConfig(
-        keyManifiestPath := DEFAULT_KEYS
+        keyManifestPath := DEFAULT_KEYS
       )
     );
     var keyDescription :-
@@ -311,7 +311,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
                       .MapFailure(ParseJsonManifests.ErrorToString);
         Success(keyOut.keyDescription);
 
-    var keyring :- expect keys.CreateWappedTestVectorKeyring(KeyVectorsTypes.TestVectorKeyringInput(keyDescription := keyDescription));
+    var keyring :- expect keys.CreateWrappedTestVectorKeyring(KeyVectorsTypes.TestVectorKeyringInput(keyDescription := keyDescription));
 
     var encryptorConfig :=
         ENC.DynamoDbItemEncryptorConfig(
@@ -402,7 +402,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     var keys :- expect KeyVectors.KeyVectors(
       KeyVectorsTypes.KeyVectorsConfig(
-        keyManifiestPath := DEFAULT_KEYS
+        keyManifestPath := DEFAULT_KEYS
       )
     );
     var keyDescription :-
@@ -415,7 +415,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
                       .MapFailure(ParseJsonManifests.ErrorToString);
         Success(keyOut.keyDescription);
 
-    var keyring :- expect keys.CreateWappedTestVectorKeyring(KeyVectorsTypes.TestVectorKeyringInput(keyDescription := keyDescription));
+    var keyring :- expect keys.CreateWrappedTestVectorKeyring(KeyVectorsTypes.TestVectorKeyringInput(keyDescription := keyDescription));
 
     var config :=
       Types.DynamoDbTableEncryptionConfig(
