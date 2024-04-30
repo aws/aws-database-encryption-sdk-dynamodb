@@ -214,6 +214,13 @@ module
 
     var client := new DynamoDbItemEncryptorClient(internalConfig);
 
+    assert fresh(client.History);
+    assert client.Modifies == Operations.ModifiesInternalConfig(internalConfig) + {client.History};
+    assert Operations.ModifiesInternalConfig(internalConfig) ==
+           internalConfig.cmm.Modifies
+           + internalConfig.structuredEncryption.Modifies
+           + internalConfig.cmpClient.Modifies;
+
     assert fresh(client.Modifies
                  - ( if config.keyring.Some? then config.keyring.value.Modifies else {})
                  - ( if config.cmm.Some? then config.cmm.value.Modifies else {} )

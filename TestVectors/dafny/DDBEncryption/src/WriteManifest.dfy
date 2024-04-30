@@ -35,6 +35,35 @@ module {:options "-functionSyntax:4"} WriteManifest {
           ""Junk"": ""ENCRYPT_AND_SIGN""
         }
       }"
+
+  // Attribute names with special characters that seem likely to break
+  // when we introduce structured encryption
+  const SpecialConfig := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""a.b"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""a[2]"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""a#b"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""'a'"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""'a"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""a'"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""'a.b'"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$'a'"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$.a"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$.[a]"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$.['a']"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$.['a"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""\""a\"""": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""\""a"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""a\"""": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""\""a.b\"""": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$\""a\"""": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$.a"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$.[a]"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$.[\""a\""]"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
+          ""$.[\""a"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT""
+        }
+      }"
   const BasicV2Config := @"{
         ""attributeActionsOnEncrypt"": {
           ""RecNum"": ""SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"",
@@ -120,6 +149,30 @@ module {:options "-functionSyntax:4"} WriteManifest {
           ""RecNum"": 1,
           ""Stuff"": ""StuffData"",
           ""Junk"": ""JunkData""
+        }"
+  const SpecialRecord := @"{
+          ""RecNum"": 1,
+          ""a.b"": ""aaa"",
+          ""a[2]"": ""bbb"",
+          ""a#b"": ""ccc"",
+          ""'a'"": ""ddd"",
+          ""'a"": ""eee"",
+          ""a'"": ""fff"",
+          ""'a.b'"": ""ggg"",
+          ""$'a'"": ""hhh"",
+          ""$.a"": ""iii"",
+          ""$.[a]"": ""jjj"",
+          ""$.['a']"": ""kkk"",
+          ""$.['a"": ""lll"",
+          ""\""a\"""": ""mmm"",
+          ""\""a"": ""nnn"",
+          ""a\"""": ""ooo"",
+          ""\""a.b\"""": ""ppp"",
+          ""$\""a\"""": ""qqq"",
+          ""$.a"": ""rrr"",
+          ""$.[a]"": ""sss"",
+          ""$.[\""a\""]"": ""ttt"",
+          ""$.[\""a"": ""uuu""
         }"
   const BadRecord := @"{
           ""Stuff"": ""StuffData"",
@@ -342,8 +395,9 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var test11 := MakeTest("11", "positive-encrypt", "Basic encrypt V2", BasicV2Config, BasicRecord);
     var test12 := MakeTest("12", "positive-encrypt", "Basic encrypt V2 switching1", LongerV2Config1, BasicRecord, Some(LongerV2Config2));
     var test13 := MakeTest("13", "positive-encrypt", "Basic encrypt V2 switching2", LongerV2Config2, BasicRecord, Some(LongerV2Config1));
+    var test14 := MakeTest("14", "positive-encrypt", "Special characters in attribute names", SpecialConfig, SpecialRecord);
     var configTests := MakeConfigTests();
-    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13] + configTests;
+    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14] + configTests;
     var final := Object(result + [("tests", Object(tests))]);
 
     var jsonBytes :- expect API.Serialize(final);
