@@ -27,7 +27,7 @@ and therefore available to the Branch Key Selector.
 A fourth Crypto Action will be made available : `SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT`, to join the existing `DO_NOTHING`, `SIGN_ONLY` and `ENCRYPT_AND_SIGN`.
 
 The presence of any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attribute in the configuration
-will cause a version 2 record to be written. 
+will cause a version 2 record to be written.
 
 If any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attribute is configured,
 then the primary partition and sort keys must also be SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
@@ -62,7 +62,7 @@ based solely on the encryption context -- since no configuration or version numb
 ### Parsed Header
 
 For both record versions, the Parsed Header returned from Structured Encryption operations now
-contains an additional field : the full encryption context. 
+contains an additional field : the full encryption context.
 
 Similarly, the Parsed Header returned from Item Encryptor operations now
 contains two additional fields : the full encryption context,
@@ -71,7 +71,7 @@ and the value map that would be passed to the Branch Key Selector.
 ## Implementation Changes
 
 For version 1 records, only the Item Encryptor operations know which attributes should
-be in the encryption context, 
+be in the encryption context,
 The logical table name, plus the names and values of the primary hash and sort keys,
 and so the full encryption context,
 along with the associated RequiredEncryptionContextCMM,
@@ -93,13 +93,13 @@ another layer of RequiredEncryptionContextCMM to include those value.
 To use this new functionality with the DynamoDB Enhanced Client in Java,
 tag your attribute with `@DynamoDbEncryptionSignAndIncludeInEncryptionContext`
 
-### Single Table Design
+## Single Table Design
 
 To better handle [Single-Table Design](https://aws.amazon.com/blogs/compute/creating-a-single-table-design-with-amazon-dynamodb/),
 one can now specify multiple schemas when building a DynamoDbEnhancedTableEncryptionConfig
 as shown below.
 
-```
+```java
 TableSchema<SimpleClass> tableSchema1 = TableSchema.fromBean(Class1.class);
 TableSchema<SimpleClass2> tableSchema2 = TableSchema.fromBean(Class2.class);
 TableSchema<SimpleClass3> tableSchema3 = TableSchema.fromBean(Class3.class);
