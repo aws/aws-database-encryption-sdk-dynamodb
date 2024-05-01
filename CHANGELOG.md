@@ -20,9 +20,9 @@ Any configuration ever created for Searchable Encryption can be re-created with 
 
 ### Maintenance
 
-* enforce Dafny formatting ([#865](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/865)) ([dfc0dbd](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/dfc0dbd84f3ab23bd12be6abf8600f472576173e))
-* more test vectors ([#959](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/959)) ([3ca15af](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3ca15afac59bee530dfffe832af64f5922c73e9a))
-* add verify test for test vectors ([#897](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/897)) ([6c980e7](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/6c980e7f867952442fc686dfa7ef4c82f04362f3))
+* **format:** enforce Dafny formatting ([#865](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/865)) ([dfc0dbd](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/dfc0dbd84f3ab23bd12be6abf8600f472576173e))
+* **test:** more test vectors ([#959](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/959)) ([3ca15af](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3ca15afac59bee530dfffe832af64f5922c73e9a))
+* **CI** add verify test for test vectors ([#897](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/897)) ([6c980e7](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/6c980e7f867952442fc686dfa7ef4c82f04362f3))
 * **CI/CD:** add semantic release automation ([#949](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/949)) ([3f22abc](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3f22abcc4c325a7a8df22e5e72cd859905fbd1e9))
 * **deps:** bump actions/setup-dotnet from 3 to 4 in /.github/workflows ([#943](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/943)) ([f5d9748](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/f5d974833bf22fe2fcef0ce97da12a92ae9a7ec9))
 * **deps:** bump aws-actions/configure-aws-credentials ([#954](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/954)) ([90d7d78](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/90d7d786e17b31ed337334a1e311babc3b63b3de))
