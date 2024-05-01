@@ -8,6 +8,8 @@
 
 Prior to this fix, unset Integers defaulted to `0`, and unset Booleans defaulted to `false`.
 
+Now, all required fields MUST be set or a Runtime Exception will be thrown.
+
 This particularly effects Searchable Encryption's 
 `ConstructorPart`, who's required field previously
 would have defaulted to false.
