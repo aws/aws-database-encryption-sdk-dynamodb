@@ -15,7 +15,7 @@ Any configuration ever created for Searchable Encryption can be re-created with 
 
 ### Features
 
-* Adopt SmithyDafnyMakefile.mk, progress towards fixing nightly build ([#797](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/797)) ([785481c](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/785481c73b385918c5b60301b336ac90f451d307)), closes [/github.com/aws/aws-database-encryption-sdk-dynamodb/pull/797/files#diff-692e2b06d124c9775e2fcd9cd9dbd10e0c8ea470e08174ed0b258b0301622581R182](https://github.com/aws//github.com/aws/aws-database-encryption-sdk-dynamodb/pull/797/files/issues/diff-692e2b06d124c9775e2fcd9cd9dbd10e0c8ea470e08174ed0b258b0301622581R182)
+*  **feat(.NET):** Validate user input #797 (785481c)
 
 
 ### Maintenance
