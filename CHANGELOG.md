@@ -2,6 +2,16 @@
 
 ## [3.4.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.3.0...v3.4.0) (2024-04-30)
 
+### Notes
+#### .NET
+- [#797](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/797) ([785481c](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/785481c73b385918c5b60301b336ac90f451d307)) Enforces User input Constraints at Type Conversion.
+
+Prior to this fix, unset Integers defaulted to `0`, and unset Booleans defaulted to `false`.
+
+This particularly effects Searchable Encryption's 
+`ConstructorPart`, who's required field previously
+would have defaulted to false.
+Any configuration ever created for Searchable Encryption can be re-created with the fix, but they may look different.
 
 ### Features
 
