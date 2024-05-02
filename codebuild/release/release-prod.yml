@@ -46,6 +46,7 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
+      - git checkout main
       - cd DynamoDbEncryption/
       # Build and deploy to maven local
       - make transpile_implementation_java

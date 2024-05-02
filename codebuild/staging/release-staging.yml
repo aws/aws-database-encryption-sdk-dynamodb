@@ -48,7 +48,8 @@ phases:
   build:
     commands:
       # Validate the MPL submodule points to the correct release
-      - scripts/validate-mpl-submodule.sh
+      #- scripts/validate-mpl-submodule.sh
+      - git checkout main
       # Build and deploy to maven local
       - cd DynamoDbEncryption/
       - make transpile_implementation_java

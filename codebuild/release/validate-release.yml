@@ -33,6 +33,7 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
+      - git checkout main
       # Since no CA creds were exported the jar will not be pulled down from CA.
       # In order, gradle will look for the defined dependencies in:
       #   - Maven Central
