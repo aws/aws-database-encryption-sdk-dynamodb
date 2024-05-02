@@ -42,8 +42,7 @@ phases:
       # Run transpile by itself. We don't want to locally build the MPL because
       # we want to verify that the version pulled down from maven works correctly
       - cd submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders
-      - make transpile_implementation_java
-      - make transpile_test_java
+      - make build_java
       - make mvn_local_deploy
 
       # Run test Vectors
