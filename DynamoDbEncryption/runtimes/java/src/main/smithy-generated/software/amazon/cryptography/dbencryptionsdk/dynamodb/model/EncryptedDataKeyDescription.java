@@ -6,12 +6,25 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 public class EncryptedDataKeyDescription {
+
+  /**
+   * Key provider id of the encrypted data key.
+   */
   private final String keyProviderId;
 
+  /**
+   * Key provider information of the encrypted data key.
+   */
   private final String keyProviderInfo;
 
+  /**
+   * Branch key id of the encrypted data key.
+   */
   private final String branchKeyId;
 
+  /**
+   * Branch key version of the encrypted data key.
+   */
   private final String branchKeyVersion;
 
   protected EncryptedDataKeyDescription(BuilderImpl builder) {
@@ -21,18 +34,30 @@ public class EncryptedDataKeyDescription {
     this.branchKeyVersion = builder.branchKeyVersion();
   }
 
+  /**
+   * @return Key provider id of the encrypted data key.
+   */
   public String keyProviderId() {
     return this.keyProviderId;
   }
 
+  /**
+   * @return Key provider information of the encrypted data key.
+   */
   public String keyProviderInfo() {
     return this.keyProviderInfo;
   }
 
+  /**
+   * @return Branch key id of the encrypted data key.
+   */
   public String branchKeyId() {
     return this.branchKeyId;
   }
 
+  /**
+   * @return Branch key version of the encrypted data key.
+   */
   public String branchKeyVersion() {
     return this.branchKeyVersion;
   }
@@ -46,26 +71,51 @@ public class EncryptedDataKeyDescription {
   }
 
   public interface Builder {
+    /**
+     * @param keyProviderId Key provider id of the encrypted data key.
+     */
     Builder keyProviderId(String keyProviderId);
 
+    /**
+     * @return Key provider id of the encrypted data key.
+     */
     String keyProviderId();
 
+    /**
+     * @param keyProviderInfo Key provider information of the encrypted data key.
+     */
     Builder keyProviderInfo(String keyProviderInfo);
 
+    /**
+     * @return Key provider information of the encrypted data key.
+     */
     String keyProviderInfo();
 
+    /**
+     * @param branchKeyId Branch key id of the encrypted data key.
+     */
     Builder branchKeyId(String branchKeyId);
 
+    /**
+     * @return Branch key id of the encrypted data key.
+     */
     String branchKeyId();
 
+    /**
+     * @param branchKeyVersion Branch key version of the encrypted data key.
+     */
     Builder branchKeyVersion(String branchKeyVersion);
 
+    /**
+     * @return Branch key version of the encrypted data key.
+     */
     String branchKeyVersion();
 
     EncryptedDataKeyDescription build();
   }
 
   static class BuilderImpl implements Builder {
+
     protected String keyProviderId;
 
     protected String keyProviderInfo;
@@ -74,8 +124,7 @@ public class EncryptedDataKeyDescription {
 
     protected String branchKeyVersion;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptedDataKeyDescription model) {
       this.keyProviderId = model.keyProviderId();
@@ -121,8 +170,10 @@ public class EncryptedDataKeyDescription {
     }
 
     public EncryptedDataKeyDescription build() {
-      if (Objects.isNull(this.keyProviderId()))  {
-        throw new IllegalArgumentException("Missing value for required field `keyProviderId`");
+      if (Objects.isNull(this.keyProviderId())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `keyProviderId`"
+        );
       }
       return new EncryptedDataKeyDescription(this);
     }

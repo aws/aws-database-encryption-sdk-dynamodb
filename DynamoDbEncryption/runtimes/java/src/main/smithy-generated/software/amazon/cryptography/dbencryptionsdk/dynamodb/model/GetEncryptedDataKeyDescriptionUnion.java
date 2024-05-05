@@ -9,21 +9,34 @@ import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class GetEncryptedDataKeyDescriptionUnion {
+
+  /**
+   * A binary header value.
+   */
   private final ByteBuffer header;
 
-  private final Map<String, AttributeValue> plaintextItem;
+  /**
+   * A DynamoDB item.
+   */
+  private final Map<String, AttributeValue> item;
 
   protected GetEncryptedDataKeyDescriptionUnion(BuilderImpl builder) {
     this.header = builder.header();
-    this.plaintextItem = builder.plaintextItem();
+    this.item = builder.item();
   }
 
+  /**
+   * @return A binary header value.
+   */
   public ByteBuffer header() {
     return this.header;
   }
 
-  public Map<String, AttributeValue> plaintextItem() {
-    return this.plaintextItem;
+  /**
+   * @return A DynamoDB item.
+   */
+  public Map<String, AttributeValue> item() {
+    return this.item;
   }
 
   public Builder toBuilder() {
@@ -35,28 +48,40 @@ public class GetEncryptedDataKeyDescriptionUnion {
   }
 
   public interface Builder {
+    /**
+     * @param header A binary header value.
+     */
     Builder header(ByteBuffer header);
 
+    /**
+     * @return A binary header value.
+     */
     ByteBuffer header();
 
-    Builder plaintextItem(Map<String, AttributeValue> plaintextItem);
+    /**
+     * @param item A DynamoDB item.
+     */
+    Builder item(Map<String, AttributeValue> item);
 
-    Map<String, AttributeValue> plaintextItem();
+    /**
+     * @return A DynamoDB item.
+     */
+    Map<String, AttributeValue> item();
 
     GetEncryptedDataKeyDescriptionUnion build();
   }
 
   static class BuilderImpl implements Builder {
+
     protected ByteBuffer header;
 
-    protected Map<String, AttributeValue> plaintextItem;
+    protected Map<String, AttributeValue> item;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetEncryptedDataKeyDescriptionUnion model) {
       this.header = model.header();
-      this.plaintextItem = model.plaintextItem();
+      this.item = model.item();
     }
 
     public Builder header(ByteBuffer header) {
@@ -68,24 +93,26 @@ public class GetEncryptedDataKeyDescriptionUnion {
       return this.header;
     }
 
-    public Builder plaintextItem(Map<String, AttributeValue> plaintextItem) {
-      this.plaintextItem = plaintextItem;
+    public Builder item(Map<String, AttributeValue> item) {
+      this.item = item;
       return this;
     }
 
-    public Map<String, AttributeValue> plaintextItem() {
-      return this.plaintextItem;
+    public Map<String, AttributeValue> item() {
+      return this.item;
     }
 
     public GetEncryptedDataKeyDescriptionUnion build() {
       if (!onlyOneNonNull()) {
-        throw new IllegalArgumentException("`GetEncryptedDataKeyDescriptionUnion` is a Union. A Union MUST have one and only one value set.");
+        throw new IllegalArgumentException(
+          "`GetEncryptedDataKeyDescriptionUnion` is a Union. A Union MUST have one and only one value set."
+        );
       }
       return new GetEncryptedDataKeyDescriptionUnion(this);
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.header, this.plaintextItem};
+      Object[] allValues = { this.header, this.item };
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

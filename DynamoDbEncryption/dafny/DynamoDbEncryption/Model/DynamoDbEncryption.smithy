@@ -48,11 +48,13 @@ service DynamoDbEncryption {
     errors: [ DynamoDbEncryptionException ]
 }
 
+@javadoc("Returns encrypted data key description.")
 operation GetEncryptedDataKeyDescription {
     input: GetEncryptedDataKeyDescriptionInput,
     output: GetEncryptedDataKeyDescriptionOutput,
 }
 
+@javadoc("Input for getting encrypted data key description.")
 structure GetEncryptedDataKeyDescriptionInput {
     @required
     input: GetEncryptedDataKeyDescriptionUnion
@@ -65,12 +67,16 @@ structure GetEncryptedDataKeyDescriptionInput {
 //# - A [encrypted DynamoDB item](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/ff9f08a355a20c81540e4ca652e09aaeffe90c4b/specification/dynamodb-encryption-client/encrypt-item.md#encrypted-dynamodb-item)
 
 union GetEncryptedDataKeyDescriptionUnion {
+  @javadoc("A binary header value.")
   header: Blob,
-  plaintextItem: AttributeMap,
+  @javadoc("A DynamoDB item.")
+  item: AttributeMap,
 }
 
+@javadoc("Output for getting encrypted data key description.")
 structure GetEncryptedDataKeyDescriptionOutput {
     @required
+    @javadoc("A list of encrypted data key description.")
     EncryptedDataKeyDescriptionOutput: EncryptedDataKeyDescriptionList
 }
 
@@ -88,12 +94,16 @@ list EncryptedDataKeyDescriptionList {
 
 structure EncryptedDataKeyDescription {
   @required
+  @javadoc("Key provider id of the encrypted data key.")
   keyProviderId: String,
 
+  @javadoc("Key provider information of the encrypted data key.")
   keyProviderInfo: String,
-    
+
+  @javadoc("Branch key id of the encrypted data key.")
   branchKeyId: String,
 
+  @javadoc("Branch key version of the encrypted data key.")
   branchKeyVersion: String
 }
 // The top level DynamoDbEncryption local service takes in no config

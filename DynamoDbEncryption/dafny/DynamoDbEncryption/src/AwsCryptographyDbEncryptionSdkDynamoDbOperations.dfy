@@ -54,9 +54,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     {
       //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
       //# - If the input is a encrypted DynamoDB item, it MUST attempt to extract "aws_dbe_head" attribute from the DynamoDB item to get binary header.
-      case plaintextItem(plainTextItem) =>{
-        :- Need("aws_dbe_head" in plainTextItem && plainTextItem["aws_dbe_head"].B?, E("Header not found in the DynamoDB item."));
-        header := plainTextItem["aws_dbe_head"].B;
+      case item(item) =>{
+        :- Need("aws_dbe_head" in item && item["aws_dbe_head"].B?, E("Header not found in the DynamoDB item."));
+        header := item["aws_dbe_head"].B;
       }
       case header(headerItem) =>
         header := headerItem;

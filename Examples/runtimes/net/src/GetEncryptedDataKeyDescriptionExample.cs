@@ -44,8 +44,8 @@ public class GetEncryptedDataKeyDescriptionExample
         // The code below shows how we can send header as the input to the DynamoDB. This code is written to demo the 
         // alternative approach. So, it is commented.
 
-        // string header_column = "aws_dbe_head";
-        // InputUnion.Header = returnedItem[header_column].B;
+        // string header_attribute = "aws_dbe_head";
+        // InputUnion.Header = returnedItem[header_attribute].B;
 
         GetEncryptedDataKeyDescriptionInput Input = new GetEncryptedDataKeyDescriptionInput();
         Input.Input = InputUnion;

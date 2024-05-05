@@ -5,7 +5,11 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.Objects;
 
+/**
+ * Input for getting encrypted data key description.
+ */
 public class GetEncryptedDataKeyDescriptionInput {
+
   private final GetEncryptedDataKeyDescriptionUnion input;
 
   protected GetEncryptedDataKeyDescriptionInput(BuilderImpl builder) {
@@ -33,10 +37,10 @@ public class GetEncryptedDataKeyDescriptionInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected GetEncryptedDataKeyDescriptionUnion input;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(GetEncryptedDataKeyDescriptionInput model) {
       this.input = model.input();
@@ -52,8 +56,10 @@ public class GetEncryptedDataKeyDescriptionInput {
     }
 
     public GetEncryptedDataKeyDescriptionInput build() {
-      if (Objects.isNull(this.input()))  {
-        throw new IllegalArgumentException("Missing value for required field `input`");
+      if (Objects.isNull(this.input())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `input`"
+        );
       }
       return new GetEncryptedDataKeyDescriptionInput(this);
     }

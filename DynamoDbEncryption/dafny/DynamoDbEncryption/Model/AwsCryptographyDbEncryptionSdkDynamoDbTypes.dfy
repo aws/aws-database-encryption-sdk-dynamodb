@@ -278,7 +278,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   )
   datatype GetEncryptedDataKeyDescriptionUnion =
     | header(header: seq<uint8>)
-    | plaintextItem(plaintextItem: ComAmazonawsDynamodbTypes.AttributeMap)
+    | item(item: ComAmazonawsDynamodbTypes.AttributeMap)
   datatype GetPrefix = | GetPrefix (
     nameonly length: int32
   )

@@ -43,7 +43,7 @@ public class GetEncryptedDataKeyDescriptionExample{
 
         // 3. Prepare the input for GetEncryptedDataKeyDescription method.
         // This input can be a DynamoDB item or a header. For now, we are giving input as a DynamoDB item
-        // but users can also extract the header from the column "aws_dbe_head" in the DynamoDB table  
+        // but users can also extract the header from the attribute "aws_dbe_head" in the DynamoDB table  
         // and use it for GetEncryptedDataKeyDescription method.
         DynamoDbEncryption ddbEnc = DynamoDbEncryption.builder()
                 .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
@@ -59,8 +59,8 @@ public class GetEncryptedDataKeyDescriptionExample{
         // In the following code, we are giving input as header instead of a complete DynamoDB item
         // This code is provided solely to demo how the alternative approach works. So, it is commented.
 
-        // String header_column = "aws_dbe_head";
-        // ByteBuffer header = returnedItem.get(header_column).b().asByteBuffer();
+        // String header_attribute = "aws_dbe_head";
+        // ByteBuffer header = returnedItem.get(header_attribute).b().asByteBuffer();
         // GetEncryptedDataKeyDescriptionUnion InputUnion = GetEncryptedDataKeyDescriptionUnion.builder()
         // .header(header)
         // .build();

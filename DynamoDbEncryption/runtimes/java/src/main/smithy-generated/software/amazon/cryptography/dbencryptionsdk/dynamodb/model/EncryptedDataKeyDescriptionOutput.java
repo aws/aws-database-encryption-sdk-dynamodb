@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 public class EncryptedDataKeyDescriptionOutput {
+
   private final String keyProviderId;
 
   private final String keyProviderInfo;
@@ -66,6 +67,7 @@ public class EncryptedDataKeyDescriptionOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String keyProviderId;
 
     protected String keyProviderInfo;
@@ -74,8 +76,7 @@ public class EncryptedDataKeyDescriptionOutput {
 
     protected String branchKeyVersion;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptedDataKeyDescriptionOutput model) {
       this.keyProviderId = model.keyProviderId();
@@ -121,8 +122,10 @@ public class EncryptedDataKeyDescriptionOutput {
     }
 
     public EncryptedDataKeyDescriptionOutput build() {
-      if (Objects.isNull(this.keyProviderId()))  {
-        throw new IllegalArgumentException("Missing value for required field `keyProviderId`");
+      if (Objects.isNull(this.keyProviderId())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `keyProviderId`"
+        );
       }
       return new EncryptedDataKeyDescriptionOutput(this);
     }

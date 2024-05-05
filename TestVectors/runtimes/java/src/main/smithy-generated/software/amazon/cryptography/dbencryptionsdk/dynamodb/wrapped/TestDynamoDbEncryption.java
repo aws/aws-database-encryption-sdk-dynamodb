@@ -48,12 +48,19 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
     }
   }
 
-  public Result<GetEncryptedDataKeyDescriptionOutput, Error> GetEncryptedDataKeyDescription(
-      GetEncryptedDataKeyDescriptionInput dafnyInput) {
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput nativeInput = ToNative.GetEncryptedDataKeyDescriptionInput(dafnyInput);
+  public Result<
+    GetEncryptedDataKeyDescriptionOutput,
+    Error
+  > GetEncryptedDataKeyDescription(
+    GetEncryptedDataKeyDescriptionInput dafnyInput
+  ) {
     try {
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionOutput nativeOutput = this._impl.GetEncryptedDataKeyDescription(nativeInput);
-      GetEncryptedDataKeyDescriptionOutput dafnyOutput = ToDafny.GetEncryptedDataKeyDescriptionOutput(nativeOutput);
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput nativeInput =
+        ToNative.GetEncryptedDataKeyDescriptionInput(dafnyInput);
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionOutput nativeOutput =
+        this._impl.GetEncryptedDataKeyDescription(nativeInput);
+      GetEncryptedDataKeyDescriptionOutput dafnyOutput =
+        ToDafny.GetEncryptedDataKeyDescriptionOutput(nativeOutput);
       return Result.create_Success(dafnyOutput);
     } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));

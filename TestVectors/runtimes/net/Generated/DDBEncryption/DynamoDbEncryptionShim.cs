@@ -29,6 +29,21 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Wrapped
             }
 
         }
+        public Wrappers_Compile._IResult<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IGetEncryptedDataKeyDescriptionOutput, software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IError> GetEncryptedDataKeyDescription(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IGetEncryptedDataKeyDescriptionInput request)
+        {
+            try
+            {
+                AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetEncryptedDataKeyDescriptionInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S35_GetEncryptedDataKeyDescriptionInput(request);
+                AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetEncryptedDataKeyDescriptionOutput wrappedResponse =
+                this._impl.GetEncryptedDataKeyDescription(unWrappedRequest);
+                return Wrappers_Compile.Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IGetEncryptedDataKeyDescriptionOutput, software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S36_GetEncryptedDataKeyDescriptionOutput(wrappedResponse));
+            }
+            catch (System.Exception ex)
+            {
+                return Wrappers_Compile.Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IGetEncryptedDataKeyDescriptionOutput, software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
+            }
+
+        }
         private software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IError ConvertError(System.Exception error)
         {
 
