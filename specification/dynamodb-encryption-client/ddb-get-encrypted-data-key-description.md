@@ -28,7 +28,7 @@ This operation MUST return the following:
 
 - The operation MUST NEVER DECRYPT the Data Keys.
 - The operation MUST NOT access the network in any way.
-- If the input is a encrypted DynamoDB item, it MUST attempt to extract "aws_dbe_head" attribute from the DynamoDB item to get binary header. 
+- If the input is an encrypted DynamoDB item, it MUST attempt to extract "aws_dbe_head" attribute from the DynamoDB item to get the binary header. 
 - This operation MUST deserialize the header bytes according to the header format.
 - This operation MUST extract the Format Flavor from the deserialize header. Format Flavor is used to identify the algorithm suite. 
 - This operation MUST extract the dataKeys from the deserialize header. 
