@@ -39,3 +39,8 @@ These two take a single parameter which is a list of
 - action : CryptoAction
 
 and exhibit the same behavior, other than needing to generalize from string to path.
+
+## ResolveAuthActions
+
+Convert AuthActions into CryptoActions, without doing any decryption.
+Useful if you need to know which fields are encrypted BEFORE you can properly call DecryptStructure or DecryptPathStructure.
